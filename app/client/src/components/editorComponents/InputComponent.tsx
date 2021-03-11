@@ -25,11 +25,11 @@ function InputComponent(props: InputComponentProps) {
   return (
     <StyledInputGroup
       {...props.input}
+      autoFocus={props.autoFocus}
       disabled={props.disabled}
+      intent={props.intent as BlueprintIntent}
       placeholder={props.placeholder}
       type={props.type}
-      intent={props.intent as BlueprintIntent}
-      autoFocus={props.autoFocus}
     />
   );
 }

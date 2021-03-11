@@ -117,13 +117,13 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     // const lines = this.getNumberOfLines();
     return (
       <TextComponent
-        widgetId={this.props.widgetId}
+        isLoading={this.props.isLoading}
         key={this.props.widgetId}
-        textStyle={this.props.textStyle}
+        shouldScroll={this.props.shouldScroll}
         text={this.props.text}
         textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
-        isLoading={this.props.isLoading}
-        shouldScroll={this.props.shouldScroll}
+        textStyle={this.props.textStyle}
+        widgetId={this.props.widgetId}
         // lines={lines}
       />
     );

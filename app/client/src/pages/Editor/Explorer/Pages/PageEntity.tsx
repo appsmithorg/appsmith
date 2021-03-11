@@ -45,13 +45,13 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
 
   const contextMenu = (
     <PageContextMenu
-      key={props.page.pageId}
       applicationId={params.applicationId}
-      pageId={props.page.pageId}
-      name={props.page.pageName}
       className={EntityClassNames.CONTEXT_MENU}
       isDefaultPage={props.page.isDefault}
       isHidden={!!props.page.isHidden}
+      key={props.page.pageId}
+      name={props.page.pageName}
+      pageId={props.page.pageId}
     />
   );
 
@@ -65,28 +65,28 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
 
   return (
     <Entity
-      icon={icon}
-      name={props.page.pageName}
-      className="page"
-      step={props.step}
       action={switchPage}
-      entityId={props.page.pageId}
       active={isCurrentPage}
-      isDefaultExpanded={isCurrentPage || !!props.searchKeyword}
-      updateEntityName={(id, name) =>
-        updatePage(id, name, !!props.page.isHidden)
-      }
+      className="page"
       contextMenu={contextMenu}
+      entityId={props.page.pageId}
+      icon={icon}
+      isDefaultExpanded={isCurrentPage || !!props.searchKeyword}
+      name={props.page.pageName}
       onNameEdit={resolveAsSpaceChar}
       rightIcon={rightIcon}
       searchKeyword={props.searchKeyword}
+      step={props.step}
+      updateEntityName={(id, name) =>
+        updatePage(id, name, !!props.page.isHidden)
+      }
     >
       <ExplorerWidgetGroup
-        step={props.step + 1}
-        searchKeyword={props.searchKeyword}
-        widgets={props.widgets}
-        pageId={props.page.pageId}
         addWidgetsFn={addWidgetsFn}
+        pageId={props.page.pageId}
+        searchKeyword={props.searchKeyword}
+        step={props.step + 1}
+        widgets={props.widgets}
       />
 
       {getPluginGroups(

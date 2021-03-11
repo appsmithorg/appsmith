@@ -16,6 +16,8 @@ export function Text() {
   return (
     <StoryWrapper>
       <Dropdown
+        disabled={boolean("disabled", false)}
+        onSelect={action("selected-option")}
         options={[
           {
             id: "111abc",
@@ -33,13 +35,11 @@ export function Text() {
             onSelect: action("selected-option"),
           },
         ]}
-        onSelect={action("selected-option")}
         selected={{
           id: select("Selected id", ["111abc", "222abc", "333abc"], "111abc"),
           value: text("Selected value", "First option"),
         }}
-        disabled={boolean("disabled", false)}
-      ></Dropdown>
+      />
     </StoryWrapper>
   );
 }
@@ -48,6 +48,8 @@ export function IconAndText() {
   return (
     <StoryWrapper>
       <Dropdown
+        disabled={boolean("disabled", false)}
+        onSelect={action("selected-option")}
         options={[
           {
             id: "111abc",
@@ -68,13 +70,11 @@ export function IconAndText() {
             onSelect: action("selected-option"),
           },
         ]}
-        onSelect={action("selected-option")}
         selected={{
           id: select("Selected id", ["111abc", "222abc", "333abc"], "111abc"),
           value: text("Selected value", "Delete"),
         }}
-        disabled={boolean("disabled", false)}
-      ></Dropdown>
+      />
     </StoryWrapper>
   );
 }
@@ -83,6 +83,8 @@ export function LabelAndText() {
   return (
     <StoryWrapper>
       <Dropdown
+        disabled={boolean("disabled", false)}
+        onSelect={action("selected-option")}
         options={[
           {
             id: "111abc",
@@ -112,13 +114,11 @@ export function LabelAndText() {
             onSelect: action("selected-option"),
           },
         ]}
-        onSelect={action("selected-option")}
         selected={{
           id: select("Selected id", ["111abc", "222abc", "333abc"], "111abc"),
           value: text("Selected value", "Developer"),
         }}
-        disabled={boolean("disabled", false)}
-      ></Dropdown>
+      />
     </StoryWrapper>
   );
 }

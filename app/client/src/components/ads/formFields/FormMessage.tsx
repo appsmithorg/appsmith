@@ -44,7 +44,7 @@ export function ActionButton(props: MessageAction) {
     return (
       <StyledAction intent={props.intent}>
         {isExternal ? (
-          <a href={props.url} target="_blank" rel="noreferrer">
+          <a href={props.url} rel="noreferrer" target="_blank">
             {props.text}
           </a>
         ) : (
@@ -54,7 +54,7 @@ export function ActionButton(props: MessageAction) {
     );
   } else if (props.onClick) {
     return (
-      <StyledAction onClick={props.onClick} intent={props.intent}>
+      <StyledAction intent={props.intent} onClick={props.onClick}>
         {props.text}
       </StyledAction>
     );
@@ -75,7 +75,7 @@ export function FormMessage(props: FormMessageProps) {
       <ActionButton key={action.text} {...action} intent={props.intent} />
     ));
   return (
-    <StyledMessage intent={props.intent} className="form-message-container">
+    <StyledMessage className="form-message-container" intent={props.intent}>
       {props.message}
       {actions && <ActionsContainer>{actions}</ActionsContainer>}
     </StyledMessage>

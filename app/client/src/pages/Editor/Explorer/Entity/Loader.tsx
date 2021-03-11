@@ -47,7 +47,7 @@ export function EntityLoader(props: { isVisible: boolean }) {
   if (!props.isVisible) return null;
   return (
     <Wrapper>
-      <div></div>
+      <div />
     </Wrapper>
   );
 }

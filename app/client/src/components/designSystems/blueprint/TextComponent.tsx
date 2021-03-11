@@ -88,10 +88,10 @@ class TextComponent extends React.Component<TextComponentProps> {
     return (
       <TextContainer>
         <StyledText
-          scroll={!!this.props.shouldScroll}
-          textAlign={textAlign}
           className={this.getTextClass(textStyle)}
           ellipsize={ellipsize}
+          scroll={!!this.props.shouldScroll}
+          textAlign={textAlign}
         >
           <Interweave
             content={text}

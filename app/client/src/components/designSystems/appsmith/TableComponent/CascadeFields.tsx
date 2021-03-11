@@ -185,9 +185,9 @@ function RenderOptions(props: {
           return {
             content: props.showType ? (
               <RenderOption
+                active={isActive}
                 title={column.label}
                 type={column.type}
-                active={isActive}
               />
             ) : (
               column.label
@@ -209,7 +209,7 @@ function RenderOptions(props: {
           <AutoToolTipComponentWrapper title={selectedValue}>
             {selectedValue}
           </AutoToolTipComponentWrapper>
-          <Icon icon="chevron-down" iconSize={16} color={Colors.SLATE_GRAY} />
+          <Icon color={Colors.SLATE_GRAY} icon="chevron-down" iconSize={16} />
         </DropdownTrigger>
       ),
     },
@@ -249,11 +249,11 @@ function RenderInput(props: {
   }, [props.value]);
   return (
     <StyledInputGroup
-      placeholder="Enter value"
-      onChange={onChange}
-      type="text"
-      defaultValue={value}
       className={props.className}
+      defaultValue={value}
+      onChange={onChange}
+      placeholder="Enter value"
+      type="text"
     />
   );
 }
@@ -487,22 +487,22 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   return (
     <FieldWrapper className="t--table-filter">
       <StyledRemoveIcon
-        onClick={handleRemoveFilter}
-        height={16}
-        width={16}
-        color={Colors.RIVER_BED}
         className={`t--table-filter-remove-btn ${
           hasAnyFilters ? "" : "hide-icon"
         }`}
+        color={Colors.RIVER_BED}
+        height={16}
+        onClick={handleRemoveFilter}
+        width={16}
       />
       {index === 1 ? (
         <DropdownWrapper width={75}>
           <RenderOptions
+            className="t--table-filter-operators-dropdown"
             columns={operatorOptions}
+            placeholder="or"
             selectItem={selectOperator}
             value={operator}
-            placeholder="or"
-            className="t--table-filter-operators-dropdown"
           />
         </DropdownWrapper>
       ) : (
@@ -512,22 +512,22 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       )}
       <DropdownWrapper width={150}>
         <RenderOptions
-          columns={props.columns}
-          selectItem={selectColumn}
-          value={column}
-          showType
-          placeholder="Attribute"
           className="t--table-filter-columns-dropdown"
+          columns={props.columns}
+          placeholder="Attribute"
+          selectItem={selectColumn}
+          showType
+          value={column}
         />
       </DropdownWrapper>
       {showConditions ? (
         <DropdownWrapper width={200}>
           <RenderOptions
+            className="t--table-filter-conditions-dropdown"
             columns={conditions}
+            placeholder=""
             selectItem={selectCondition}
             value={condition}
-            placeholder=""
-            className="t--table-filter-conditions-dropdown"
           />
         </DropdownWrapper>
       ) : null}
@@ -541,14 +541,14 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {showDateInput ? (
         <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
-            label=""
             dateFormat="DD/MM/YYYY"
             datePickerType="DATE_PICKER"
-            onDateSelected={onDateSelected}
-            selectedDate={value}
+            enableTimePicker={false}
             isDisabled={false}
             isLoading={false}
-            enableTimePicker={false}
+            label=""
+            onDateSelected={onDateSelected}
+            selectedDate={value}
             widgetId=""
           />
         </DatePickerWrapper>

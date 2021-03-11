@@ -40,19 +40,19 @@ function CopyToClipboard(props: any) {
   return (
     <Wrapper>
       <BaseTextInput
+        defaultValue={copyText}
+        disabled
         fill
-        disabled={true}
         onChange={() => {
           selectText();
         }}
-        defaultValue={copyText}
       />
 
       <BaseButton
-        text={isCopied ? "Copied" : "Copy"}
         onClick={() => {
           copyToClipboard(copyText);
         }}
+        text={isCopied ? "Copied" : "Copy"}
       />
     </Wrapper>
   );

@@ -77,22 +77,22 @@ export function ActionButton(props: MessageAction) {
     return (
       <Button
         className="appsmith-message-action-button"
-        href={props.url}
-        text={props.text}
-        intent="primary"
         filled
+        href={props.url}
+        intent="primary"
         size="small"
+        text={props.text}
       />
     );
   } else if (props.onClick) {
     return (
       <Button
         className="appsmith-message-action-button"
-        onClick={props.onClick}
-        text={props.text}
-        intent="primary"
         filled
+        intent="primary"
+        onClick={props.onClick}
         size="small"
+        text={props.text}
       />
     );
   }
@@ -119,7 +119,7 @@ export function FormMessage(props: FormMessageProps) {
   return (
     <StyledMessage>
       <MessageContainer iconbgcolor={iconbgcolor}>
-        <Icon color={IntentColors[props.intent]} width={20} height={20} />
+        <Icon color={IntentColors[props.intent]} height={20} width={20} />
         <p>{props.message}</p>
       </MessageContainer>
       {actions && <ActionsContainer>{actions}</ActionsContainer>}

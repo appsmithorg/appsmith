@@ -337,21 +337,21 @@ class DatasourceDBEditor extends React.Component<
         <br />
         <Header>
           <FormTitleContainer>
-            <PluginImage src={this.props.pluginImage} alt="Datasource" />
+            <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
           {viewMode && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
               <ActionButton
-                className="t--edit-datasource"
-                text="EDIT"
                 accent="secondary"
+                className="t--edit-datasource"
                 onClick={() => {
                   this.props.setDatasourceEditorMode(
                     this.props.datasourceId,
                     false,
                   );
                 }}
+                text="EDIT"
               />
             </Boxed>
           )}
@@ -364,8 +364,8 @@ class DatasourceDBEditor extends React.Component<
               )}  on your database instance to connect to it. `}</span>
               <a
                 href={`${HelpBaseURL}${HelpMap["DATASOURCE_FORM"].path}`}
-                target="_blank"
                 rel="noopener noreferrer"
+                target="_blank"
               >
                 {"Read more "}
                 <StyledOpenDocsIcon icon="document-open" />
@@ -380,29 +380,29 @@ class DatasourceDBEditor extends React.Component<
               : undefined}
             <SaveButtonContainer>
               <ActionButton
-                className="t--delete-datasource"
-                text="Delete"
                 accent="error"
+                className="t--delete-datasource"
                 loading={isDeleting}
                 onClick={() => handleDelete(datasourceId)}
+                text="Delete"
               />
 
               <ActionButton
-                className="t--test-datasource"
-                text="Test"
-                loading={isTesting}
                 accent="secondary"
+                className="t--test-datasource"
+                loading={isTesting}
                 onClick={this.test}
+                text="Test"
               />
               <StyledButton
                 className="t--save-datasource"
-                onClick={this.save}
-                text="Save"
                 disabled={this.validate()}
-                loading={isSaving}
-                intent="primary"
                 filled
+                intent="primary"
+                loading={isSaving}
+                onClick={this.save}
                 size="small"
+                text="Save"
               />
             </SaveButtonContainer>
           </>
@@ -416,7 +416,7 @@ class DatasourceDBEditor extends React.Component<
   renderMainSection = (section: any, index: number) => {
     if (isHidden(this.props.formData, section.hidden)) return null;
     return (
-      <Collapsible title={section.sectionName} defaultIsOpen={index === 0}>
+      <Collapsible defaultIsOpen={index === 0} title={section.sectionName}>
         {this.renderEachConfig(section)}
       </Collapsible>
     );

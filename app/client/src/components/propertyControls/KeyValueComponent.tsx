@@ -140,43 +140,43 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
   }
 
   return (
-    <React.Fragment>
+    <>
       {renderPairs.map((pair: DropDownOptionWithKey, index) => {
         return (
-          <StyledOptionControlWrapper orientation={"HORIZONTAL"} key={pair.key}>
+          <StyledOptionControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
             <StyledOptionControlInputGroup
-              type={"text"}
-              placeholder={"Name"}
+              defaultValue={pair.label}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 updateKey(index, event.target.value);
               }}
-              defaultValue={pair.label}
+              placeholder={"Name"}
+              type={"text"}
             />
             <StyledOptionControlInputGroup
-              type={"text"}
-              placeholder={"Value"}
+              defaultValue={pair.value}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 updateValue(index, event.target.value);
               }}
-              defaultValue={pair.value}
+              placeholder={"Value"}
+              type={"text"}
             />
             <StyledDeleteIcon
               height={20}
-              width={20}
               onClick={() => {
                 deletePair(index);
               }}
+              width={20}
             />
           </StyledOptionControlWrapper>
         );
       })}
       <StyledPropertyPaneButton
-        text={props.addLabel || "Option"}
-        icon={"plus"}
         color={"#FFFFFF"}
-        minimal={true}
+        icon={"plus"}
+        minimal
         onClick={addPair}
+        text={props.addLabel || "Option"}
       />
-    </React.Fragment>
+    </>
   );
 }

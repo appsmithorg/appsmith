@@ -74,6 +74,7 @@ function DataControlComponent(props: RenderComponentProps) {
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
         <CodeEditor
+          evaluatedValue={evaluated?.seriesName}
           expected={"string"}
           input={{
             value: item.seriesName,
@@ -87,20 +88,19 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "seriesName", value);
             },
           }}
-          evaluatedValue={evaluated?.seriesName}
-          theme={EditorTheme.DARK}
-          size={EditorSize.EXTENDED}
           mode={EditorModes.TEXT_WITH_BINDING}
-          tabBehaviour={TabBehaviour.INPUT}
           placeholder="Series Name"
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={EditorTheme.DARK}
         />
         {length > 1 && (
           <StyledDeleteIcon
             height={20}
-            width={20}
             onClick={() => {
               deleteOption(index);
             }}
+            width={20}
           />
         )}
       </StyledOptionControlWrapper>
@@ -108,6 +108,7 @@ function DataControlComponent(props: RenderComponentProps) {
         className={"t--property-control-chart-series-data-control"}
       >
         <CodeEditor
+          evaluatedValue={evaluated?.data}
           expected={`Array<x:string, y:number>`}
           input={{
             value: item.data,
@@ -121,16 +122,15 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "data", value);
             },
           }}
-          evaluatedValue={evaluated?.data}
           meta={{
             error: isValid ? "" : "There is an error",
             touched: true,
           }}
-          theme={EditorTheme.DARK}
-          size={EditorSize.EXTENDED}
           mode={EditorModes.JSON_WITH_BINDING}
-          tabBehaviour={TabBehaviour.INPUT}
           placeholder=""
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={EditorTheme.DARK}
         />
       </StyledDynamicInput>
     </StyledOptionControlWrapper>
@@ -200,42 +200,42 @@ class ChartDataControl extends BaseControl<ControlProps> {
           };
       return (
         <DataControlComponent
+          deleteOption={this.deleteOption}
+          evaluated={evaluatedValue[0]}
           index={0}
+          isValid={validations[0].isValid}
           item={data}
           length={1}
-          deleteOption={this.deleteOption}
           updateOption={this.updateOption}
-          isValid={validations[0].isValid}
           validationMessage={validations[0].validationMessage}
-          evaluated={evaluatedValue[0]}
         />
       );
     }
     return (
-      <React.Fragment>
+      <>
         {chartData.map((data, index) => {
           return (
             <DataControlComponent
-              key={index}
-              index={index}
-              item={data}
-              length={dataLength}
               deleteOption={this.deleteOption}
-              updateOption={this.updateOption}
-              isValid={validations[index].isValid}
-              validationMessage={validations[index].validationMessage}
               evaluated={evaluatedValue[index]}
+              index={index}
+              isValid={validations[index].isValid}
+              item={data}
+              key={index}
+              length={dataLength}
+              updateOption={this.updateOption}
+              validationMessage={validations[index].validationMessage}
             />
           );
         })}
         <StyledPropertyPaneButton
-          text="Add Series"
-          icon="plus"
           color="#FFFFFF"
+          icon="plus"
           minimal
           onClick={this.addOption}
+          text="Add Series"
         />
-      </React.Fragment>
+      </>
     );
   }
 

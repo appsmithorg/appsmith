@@ -109,15 +109,15 @@ function FormTitle(props: FormTitleProps) {
     <Wrapper>
       <EditableText
         className="t--edit-datasource-name"
-        type="text"
-        hideEditIcon={hideEditIcon}
-        forceDefault={forceUpdate}
         defaultValue={currentDatasource ? currentDatasource.name : ""}
+        editInteractionKind={EditInteractionKind.SINGLE}
+        forceDefault={forceUpdate}
+        hideEditIcon={hideEditIcon}
+        isEditingDefault={props.focusOnMount && !hideEditIcon}
         isInvalid={isInvalidDatasourceName}
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
-        editInteractionKind={EditInteractionKind.SINGLE}
-        isEditingDefault={props.focusOnMount && !hideEditIcon}
+        type="text"
         updating={saveStatus.isSaving}
       />
       {saveStatus.isSaving && <Spinner size={16} />}

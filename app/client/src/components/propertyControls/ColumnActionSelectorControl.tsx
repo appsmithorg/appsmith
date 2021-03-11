@@ -36,7 +36,7 @@ class ColumnActionSelectorControl extends BaseControl<
 > {
   render() {
     return (
-      <React.Fragment>
+      <>
         {this.props.propertyValue &&
           this.props.propertyValue.map((columnAction: ColumnAction) => {
             return (
@@ -48,43 +48,43 @@ class ColumnActionSelectorControl extends BaseControl<
               >
                 <InputTextWrapper>
                   <InputText
+                    evaluatedValue={columnAction.label}
+                    isValid
                     label={columnAction.label}
-                    value={columnAction.label}
                     onChange={this.updateColumnActionLabel.bind(
                       this,
                       columnAction,
                     )}
-                    evaluatedValue={columnAction.label}
-                    isValid={true}
+                    value={columnAction.label}
                   />
                 </InputTextWrapper>
                 <Wrapper>
                   <ActionCreator
-                    value={columnAction.dynamicTrigger}
                     isValid={(columnAction as any).isValid}
-                    validationMessage={(columnAction as any).message}
                     onValueChange={this.updateColumnActionFunction.bind(
                       this,
                       columnAction,
                     )}
+                    validationMessage={(columnAction as any).message}
+                    value={columnAction.dynamicTrigger}
                   />
                 </Wrapper>
                 <StyledDeleteIcon
                   height={20}
-                  width={20}
                   onClick={this.removeColumnAction.bind(this, columnAction)}
+                  width={20}
                 />
               </div>
             );
           })}
         <StyledPropertyPaneButton
-          text={"New Button"}
-          icon={"plus"}
           color={"#FFFFFF"}
-          minimal={true}
+          icon={"plus"}
+          minimal
           onClick={this.addColumnAction}
+          text={"New Button"}
         />
-      </React.Fragment>
+      </>
     );
   }
 

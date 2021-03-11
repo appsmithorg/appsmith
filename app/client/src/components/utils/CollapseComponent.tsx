@@ -46,8 +46,8 @@ function CollapseComponent(props: {
       <div className="collapse-title">
         {props.title}
         <Icon
-          icon="chevron-down"
           className={`icon ${!open ? "collapse" : ""}`}
+          icon="chevron-down"
           iconSize={16}
           onClick={handleIsOpen}
         />

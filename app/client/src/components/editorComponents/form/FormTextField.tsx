@@ -18,10 +18,10 @@ const renderComponent = (
 ) => {
   const showError = componentProps.meta.touched && !componentProps.meta.active;
   return (
-    <React.Fragment>
+    <>
       <InputComponent {...componentProps} />
       <FormFieldError error={showError && componentProps.meta.error} />
-    </React.Fragment>
+    </>
   );
 };
 
@@ -38,9 +38,9 @@ type FormTextFieldProps = {
 // trigger tests
 function FormTextField(props: FormTextFieldProps) {
   return (
-    <React.Fragment>
+    <>
       <Field component={renderComponent} {...props} asyncControl />
-    </React.Fragment>
+    </>
   );
 }
 

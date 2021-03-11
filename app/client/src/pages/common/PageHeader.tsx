@@ -53,8 +53,8 @@ export function PageHeader(props: PageHeaderProps) {
   return (
     <StyledPageHeader>
       <HeaderSection>
-        <Link to={APPLICATIONS_URL} className="t--appsmith-logo">
-          <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+        <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
+          <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
         </Link>
       </HeaderSection>
       {user && (
@@ -62,13 +62,13 @@ export function PageHeader(props: PageHeaderProps) {
           {user.username === ANONYMOUS_USERNAME ? (
             <Button
               filled
-              text="Sign In"
               intent={"primary"}
-              size="small"
               onClick={() => history.push(loginUrl)}
+              size="small"
+              text="Sign In"
             />
           ) : (
-            <ProfileDropdown userName={user.username} name={user.name} />
+            <ProfileDropdown name={user.name} userName={user.username} />
           )}
         </StyledDropDownContainer>
       )}

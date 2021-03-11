@@ -381,7 +381,7 @@ function TextLoadingState({ text }: { text?: string }) {
 }
 
 function IconLoadingState({ size, icon }: { size?: Size; icon?: IconName }) {
-  return <Icon name={icon} size={IconSizeProp(size)} invisible />;
+  return <Icon invisible name={icon} size={IconSizeProp(size)} />;
 }
 
 const getIconContent = (props: ButtonProps) =>
@@ -428,9 +428,9 @@ function ButtonComponent(props: ButtonProps) {
 function LinkButtonComponent(props: ButtonProps) {
   return (
     <StyledLinkButton
-      href={props.href}
       className={props.className}
       data-cy={props.cypressSelector}
+      href={props.href}
       {...props}
       onClick={(e: React.MouseEvent<HTMLElement>) =>
         props.onClick && props.onClick(e)

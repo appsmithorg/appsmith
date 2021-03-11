@@ -36,22 +36,22 @@ function CopyToClipboard(props: any) {
   return (
     <Wrapper>
       <TextInput
+        defaultValue={copyText}
         fill
-        ref={copyURLInput}
-        readOnly
         onChange={() => {
           selectText();
         }}
-        defaultValue={copyText}
+        readOnly
+        ref={copyURLInput}
       />
 
       <Button
-        text={isCopied ? "Copied" : "Copy"}
         category={Category.tertiary}
         onClick={() => {
           copyToClipboard(copyText);
         }}
         size={Size.large}
+        text={isCopied ? "Copied" : "Copy"}
       />
     </Wrapper>
   );

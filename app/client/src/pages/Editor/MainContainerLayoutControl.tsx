@@ -131,7 +131,6 @@ export function MainContainerLayoutControl() {
       <div className="layout-control t--layout-control-wrapper">
         <ThemeProvider theme={lightTheme}>
           <Dropdown
-            width={260}
             SelectedValueNode={({ selected }) => {
               return (
                 <Icon
@@ -142,11 +141,12 @@ export function MainContainerLayoutControl() {
               );
             }}
             className="layout-control"
-            showDropIcon={false}
+            onSelect={noop}
             options={layoutOptions}
             selected={selectedLayout || layoutOptions[0]}
-            onSelect={noop}
-          ></Dropdown>
+            showDropIcon={false}
+            width={260}
+          />
         </ThemeProvider>
       </div>
     </LayoutControlWrapper>

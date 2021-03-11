@@ -18,13 +18,13 @@ export function CollapseToggle(props: {
     ? IconNames.CARET_DOWN
     : IconNames.CARET_RIGHT;
 
-  if (!props.isVisible) return <span></span>;
+  if (!props.isVisible) return <span />;
   return (
     <Icon
       className={props.className}
+      color={props.disabled ? Colors.SLATE_GRAY : Colors.WHITE}
       icon={icon}
       onClick={handleClick}
-      color={props.disabled ? Colors.SLATE_GRAY : Colors.WHITE}
     />
   );
 }

@@ -39,7 +39,7 @@ type BadgeProps = {
 export function Badge(props: BadgeProps) {
   return (
     <BadgeWrapper>
-      <img src={props.imageURL} alt={props.text}></img>
+      <img alt={props.text} src={props.imageURL} />
       <div>
         <h3>{props.text}</h3>
         {props.subtext && <h5>{props.subtext}</h5>}

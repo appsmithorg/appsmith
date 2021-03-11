@@ -354,7 +354,7 @@ function GlobalSearch() {
   return (
     <SearchContext.Provider value={searchContext}>
       <GlobalSearchHotKeys {...hotKeyProps}>
-        <SearchModal toggleShow={toggleShow} modalOpen={modalOpen}>
+        <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
           <AlgoliaSearchWrapper query={query}>
             <StyledContainer>
               <SearchBox query={query} setQuery={setQuery} />
@@ -365,8 +365,8 @@ function GlobalSearch() {
                 {searchResults.length > 0 ? (
                   <>
                     <SearchResults
-                      searchResults={searchResults}
                       query={query}
+                      searchResults={searchResults}
                     />
                     <Separator />
                     <Description

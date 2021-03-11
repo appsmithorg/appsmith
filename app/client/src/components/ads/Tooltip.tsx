@@ -67,20 +67,20 @@ const TooltipWrapper = styled.div<{
 function TooltipComponent(props: TooltipProps) {
   return (
     <TooltipWrapper
-      variant={props.variant}
       data-cy={props.cypressSelector}
       maxWidth={props.maxWidth}
       minWidth={props.minWidth}
+      variant={props.variant}
     >
       <Tooltip
+        autoFocus={props.autoFocus}
+        boundary={props.boundary || "scrollParent"}
         content={props.content}
+        hoverOpenDelay={props.hoverOpenDelay}
+        minimal={props.minimal}
+        openOnTargetFocus={props.openOnTargetFocus}
         position={props.position}
         usePortal={!!props.usePortal}
-        boundary={props.boundary || "scrollParent"}
-        autoFocus={props.autoFocus}
-        hoverOpenDelay={props.hoverOpenDelay}
-        openOnTargetFocus={props.openOnTargetFocus}
-        minimal={props.minimal}
       >
         {props.children}
       </Tooltip>

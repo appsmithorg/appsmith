@@ -162,24 +162,24 @@ export default function Dropdown(props: DropdownProps) {
 
   return (
     <DropdownContainer
-      tabIndex={0}
       data-cy={props.cypressSelector}
       ref={measuredRef}
+      tabIndex={0}
       width={props.width}
     >
       <Popover
+        boundary="viewport"
+        isOpen={isOpen && !props.disabled}
         minimal
+        onInteraction={(state) => setIsOpen(state)}
         popoverClassName={props.className}
         position={Position.BOTTOM_RIGHT}
-        isOpen={isOpen && !props.disabled}
-        onInteraction={(state) => setIsOpen(state)}
-        boundary="viewport"
       >
         <Selected
-          isOpen={isOpen}
-          disabled={props.disabled}
-          onClick={() => setIsOpen(!isOpen)}
           className={props.className}
+          disabled={props.disabled}
+          isOpen={isOpen}
+          onClick={() => setIsOpen(!isOpen)}
         >
           <SelectedValueNode selected={selected} />
           {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
@@ -188,10 +188,10 @@ export default function Dropdown(props: DropdownProps) {
           {props.options.map((option: DropdownOption, index: number) => {
             return (
               <OptionWrapper
-                key={index}
-                selected={selected.value === option.value}
-                onClick={() => optionClickHandler(option)}
                 className="t--dropdown-option"
+                key={index}
+                onClick={() => optionClickHandler(option)}
+                selected={selected.value === option.value}
               >
                 {option.icon ? (
                   <Icon name={option.icon} size={IconSize.LARGE} />

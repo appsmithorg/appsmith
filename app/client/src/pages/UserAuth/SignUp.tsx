@@ -105,25 +105,25 @@ export function SignUp(props: SignUpFormProps) {
       <SignUpLinkSection>
         {ALREADY_HAVE_AN_ACCOUNT}
         <AuthCardNavLink
-          to={AUTH_LOGIN_URL}
           style={{ marginLeft: props.theme.spaces[3] }}
+          to={AUTH_LOGIN_URL}
         >
           {SIGNUP_PAGE_LOGIN_LINK_TEXT}
         </AuthCardNavLink>
       </SignUpLinkSection>
       {SocialLoginList.length > 0 && (
-        <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+        <ThirdPartyAuth logins={SocialLoginList} type={"SIGNUP"} />
       )}
-      <SpacedSubmitForm method="POST" action={signupURL}>
+      <SpacedSubmitForm action={signupURL} method="POST">
         <FormGroup
           intent={error ? "danger" : "none"}
           label={SIGNUP_PAGE_EMAIL_INPUT_LABEL}
         >
           <FormTextField
-            name="email"
-            type="email"
-            placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
             autoFocus
+            name="email"
+            placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
+            type="email"
           />
         </FormGroup>
         <FormGroup
@@ -132,20 +132,16 @@ export function SignUp(props: SignUpFormProps) {
           // helperText={FORM_VALIDATION_PASSWORD_RULE}
         >
           <FormTextField
-            type="password"
             name="password"
             placeholder={SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER}
+            type="password"
           />
         </FormGroup>
         <FormActions>
           <Button
-            tag="button"
-            type="submit"
             disabled={pristine || !isFormValid}
-            isLoading={submitting}
-            text={SIGNUP_PAGE_SUBMIT_BUTTON_TEXT}
             fill
-            size={Size.large}
+            isLoading={submitting}
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                 signupMethod: "EMAIL",
@@ -155,6 +151,10 @@ export function SignUp(props: SignUpFormProps) {
               );
               initiateOnboarding();
             }}
+            size={Size.large}
+            tag="button"
+            text={SIGNUP_PAGE_SUBMIT_BUTTON_TEXT}
+            type="submit"
           />
         </FormActions>
       </SpacedSubmitForm>

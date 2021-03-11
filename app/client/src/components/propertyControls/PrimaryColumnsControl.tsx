@@ -106,47 +106,47 @@ function ColumnControlComponent(props: RenderComponentProps) {
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
-        type="text"
-        placeholder="Column Title"
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           onChange(index, event.target.value);
         }}
+        placeholder="Column Title"
+        type="text"
         value={value}
       />
       <StyledEditIcon
         className="t--edit-column-btn"
         height={20}
-        width={20}
         onClick={() => {
           onEdit && onEdit(index);
         }}
+        width={20}
       />
       {!!item.isDerived ? (
         <StyledDeleteIcon
           className="t--delete-column-btn"
           height={20}
-          width={20}
           onClick={() => {
             deleteOption && deleteOption(index);
           }}
+          width={20}
         />
       ) : item.isVisible ? (
         <StyledVisibleIcon
           className="t--show-column-btn"
           height={20}
-          width={20}
           onClick={() => {
             toggleVisibility && toggleVisibility(index);
           }}
+          width={20}
         />
       ) : (
         <StyledHiddenIcon
           className="t--show-column-btn"
           height={20}
-          width={20}
           onClick={() => {
             toggleVisibility && toggleVisibility(index);
           }}
+          width={20}
         />
       )}
     </ItemWrapper>
@@ -189,21 +189,21 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
     return (
       <TabsWrapper>
         <DroppableComponent
-          items={draggableComponentColumns}
-          renderComponent={ColumnControlComponent}
-          updateOption={this.updateOption}
-          updateItems={this.updateItems}
           deleteOption={this.deleteOption}
-          toggleVisibility={this.toggleVisibility}
+          items={draggableComponentColumns}
           onEdit={this.onEdit}
+          renderComponent={ColumnControlComponent}
+          toggleVisibility={this.toggleVisibility}
+          updateItems={this.updateItems}
+          updateOption={this.updateOption}
         />
         <AddColumnButton
           className="t--add-column-btn"
-          text="Add a new column"
-          icon="plus"
           color="#FFFFFF"
-          minimal={true}
+          icon="plus"
+          minimal
           onClick={this.addNewColumn}
+          text="Add a new column"
         />
       </TabsWrapper>
     );

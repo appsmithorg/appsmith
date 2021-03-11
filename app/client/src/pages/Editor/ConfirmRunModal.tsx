@@ -24,7 +24,7 @@ class ConfirmRunModal extends React.Component<Props> {
     };
 
     return (
-      <Dialog title="Confirm Action" isOpen={isModalOpen} onClose={handleClose}>
+      <Dialog isOpen={isModalOpen} onClose={handleClose} title="Confirm Action">
         <div className={Classes.DIALOG_BODY}>
           Are you sure you want to perform this action?
         </div>
@@ -32,22 +32,22 @@ class ConfirmRunModal extends React.Component<Props> {
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
               filled
-              text="Cancel"
               onClick={() => {
                 dispatch(cancelRunActionConfirmModal());
 
                 handleClose();
               }}
+              text="Cancel"
             />
             <Button
               filled
-              text="Confirm"
               intent="primary"
               onClick={() => {
                 dispatch(acceptRunActionConfirmModal());
 
                 handleClose();
               }}
+              text="Confirm"
             />
           </div>
         </div>

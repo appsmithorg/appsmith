@@ -115,6 +115,12 @@ const MyMapComponent = withGoogleMap((props: any) => {
   }, [props.center, props.selectedMarker]);
   return (
     <GoogleMap
+      center={mapCenter}
+      onClick={(e) => {
+        if (props.enableCreateMarker) {
+          props.saveMarker(e.latLng.lat(), e.latLng.lng());
+        }
+      }}
       options={{
         zoomControl: props.allowZoom,
         fullscreenControl: false,
@@ -124,12 +130,6 @@ const MyMapComponent = withGoogleMap((props: any) => {
         streetViewControl: false,
       }}
       zoom={props.zoom}
-      center={mapCenter}
-      onClick={(e) => {
-        if (props.enableCreateMarker) {
-          props.saveMarker(e.latLng.lat(), e.latLng.lng());
-        }
-      }}
     >
       {props.enableSearch && (
         <SearchBox
@@ -137,20 +137,18 @@ const MyMapComponent = withGoogleMap((props: any) => {
           onPlacesChanged={onPlacesChanged}
           ref={searchBox}
         >
-          <StyledInput type="text" placeholder="Enter location to search" />
+          <StyledInput placeholder="Enter location to search" type="text" />
         </SearchBox>
       )}
       {props.markers.map((marker: any, index: number) => (
         <Marker
-          key={index}
-          title={marker.title}
-          position={{ lat: marker.lat, lng: marker.long }}
           clickable
           draggable={
             props.selectedMarker &&
             props.selectedMarker.lat === marker.lat &&
             props.selectedMarker.long === marker.long
           }
+          key={index}
           onClick={() => {
             setMapCenter({
               ...marker,
@@ -161,12 +159,14 @@ const MyMapComponent = withGoogleMap((props: any) => {
           onDragEnd={(de) => {
             props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
           }}
+          position={{ lat: marker.lat, lng: marker.long }}
+          title={marker.title}
         />
       ))}
       {props.enablePickLocation && (
         <PickMyLocationWrapper
-          title="Pick My Location"
           allowZoom={props.allowZoom}
+          title="Pick My Location"
         >
           <PickMyLocation updateCenter={props.updateCenter} />
         </PickMyLocationWrapper>
@@ -185,8 +185,8 @@ function MapComponent(props: MapComponentProps) {
     <MapWrapper onMouseLeave={props.enableDrag}>
       {status === ScriptStatus.READY && (
         <MyMapComponent
-          loadingElement={<MapContainerWrapper />}
           containerElement={<MapContainerWrapper />}
+          loadingElement={<MapContainerWrapper />}
           mapElement={<MapContainerWrapper />}
           {...props}
           zoom={zoom}

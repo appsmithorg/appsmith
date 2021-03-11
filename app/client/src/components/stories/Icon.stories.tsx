@@ -16,13 +16,13 @@ export function ButtonIcon() {
   return (
     <StoryWrapper>
       <Button
-        size={select("size", Object.values(Size), Size.large)}
         category={select("category", Object.values(Category), Category.primary)}
-        variant={select("variant", Object.values(Variant), Variant.info)}
+        disabled={boolean("Disabled", false)}
         icon={select("Icon name", IconCollection, "delete")}
         isLoading={boolean("Loading", false)}
-        disabled={boolean("Disabled", false)}
-      ></Button>
+        size={select("size", Object.values(Size), Size.large)}
+        variant={select("variant", Object.values(Variant), Variant.info)}
+      />
     </StoryWrapper>
   );
 }
@@ -31,8 +31,8 @@ export function BordelessIcon() {
   return (
     <StoryWrapper>
       <Icon
-        size={select("Icon size", Object.values(IconSize), IconSize.LARGE)}
         name={select("Icon name", IconCollection, "delete")}
+        size={select("Icon size", Object.values(IconSize), IconSize.LARGE)}
       />
     </StoryWrapper>
   );
@@ -42,8 +42,8 @@ export function AppIconVariant() {
   return (
     <StoryWrapper>
       <AppIcon
-        size={select("Icon size", Object.values(Size), Size.small)}
         name={select("Select Icon", AppIconCollection, "bag")}
+        size={select("Icon size", Object.values(Size), Size.small)}
       />
     </StoryWrapper>
   );

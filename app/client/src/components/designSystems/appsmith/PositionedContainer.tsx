@@ -22,16 +22,6 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const padding = WIDGET_PADDING;
   return (
     <PositionedWidget
-      style={{
-        position: "absolute",
-        left: x,
-        top: y,
-        height: props.style.componentHeight + (props.style.heightUnit || "px"),
-        width: props.style.componentWidth + (props.style.widthUnit || "px"),
-        padding: padding + "px",
-      }}
-      id={props.widgetId}
-      //Before you remove: This is used by property pane to reference the element
       className={
         generateClassName(props.widgetId) +
         " " +
@@ -40,6 +30,16 @@ export function PositionedContainer(props: PositionedContainerProps) {
           .join("")
           .toLowerCase()}`
       }
+      id={props.widgetId}
+      //Before you remove: This is used by property pane to reference the element
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        height: props.style.componentHeight + (props.style.heightUnit || "px"),
+        width: props.style.componentWidth + (props.style.widthUnit || "px"),
+        padding: padding + "px",
+      }}
     >
       {props.children}
     </PositionedWidget>

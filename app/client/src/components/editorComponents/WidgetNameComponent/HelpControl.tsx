@@ -13,7 +13,7 @@ import { WidgetType } from "constants/WidgetConstants";
 
 const HelpIcon = ControlIcons.HELP_CONTROL;
 const helpControlIcon = (
-  <HelpIcon width={14} height={14} background="transparent" />
+  <HelpIcon background="transparent" height={14} width={14} />
 );
 
 const StyledHelpIcon = styled.div`

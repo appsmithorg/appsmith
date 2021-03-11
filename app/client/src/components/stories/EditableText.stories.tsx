@@ -36,21 +36,21 @@ export function EditableTextStory() {
           Object.values(EditInteractionKind),
           EditInteractionKind.SINGLE,
         )}
-        onTextChanged={action("text-changed")}
-        valueTransform={(value) => value.toUpperCase()}
-        placeholder={text("placeholder", "Edit input")}
-        hideEditIcon={boolean("hideEditIcon", false)}
-        isInvalid={(name) => errorFunction(name)}
-        isEditingDefault={boolean("isEditingDefault", false)}
         fill={boolean("fill", false)}
-        savingState={savingState}
+        hideEditIcon={boolean("hideEditIcon", false)}
+        isEditingDefault={boolean("isEditingDefault", false)}
+        isInvalid={(name) => errorFunction(name)}
         onBlur={() => {
           SetSavingState(SavingState.STARTED);
           setTimeout(() => {
             SetSavingState(SavingState.SUCCESS);
           }, 2000);
         }}
-      ></EditableText>
+        onTextChanged={action("text-changed")}
+        placeholder={text("placeholder", "Edit input")}
+        savingState={savingState}
+        valueTransform={(value) => value.toUpperCase()}
+      />
     </StoryWrapper>
   );
 }

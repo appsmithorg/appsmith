@@ -67,7 +67,6 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      selectedValue=""
       optionTree={[
         {
           icon: "duplicate",
@@ -108,6 +107,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           className: "t--apiFormDeleteBtn",
         },
       ]}
+      selectedValue=""
     />
   );
 }

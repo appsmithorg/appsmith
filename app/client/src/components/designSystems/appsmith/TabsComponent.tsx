@@ -127,12 +127,12 @@ function TabsComponent(props: TabsComponentProps) {
           {props.tabs.map((tab, index) => (
             <StyledText
               className={`t--tab-${tab.label}`}
+              key={index}
               onClick={(event: React.MouseEvent<HTMLDivElement>) => {
                 onTabChange(tab.widgetId);
                 event.stopPropagation();
               }}
               selected={props.selectedTabWidgetId === tab.widgetId}
-              key={index}
             >
               {tab.label}
             </StyledText>

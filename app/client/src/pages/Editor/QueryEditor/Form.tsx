@@ -356,7 +356,7 @@ function QueryEditorForm(props: Props) {
             history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
           }}
         >
-          <Icon icon="plus" iconSize={11} className="createIcon" />
+          <Icon className="createIcon" icon="plus" iconSize={11} />
           Create new datasource
         </CreateDatasource>
       </>
@@ -369,9 +369,9 @@ function QueryEditorForm(props: Props) {
         <components.SingleValue {...props}>
           <Container>
             <img
+              alt="Datasource"
               className="plugin-image"
               src={props.data.image}
-              alt="Datasource"
             />
             <div className="selected-value">{props.children}</div>
           </Container>
@@ -386,9 +386,9 @@ function QueryEditorForm(props: Props) {
         <components.Option {...props}>
           <Container className="t--datasource-option">
             <img
+              alt="Datasource"
               className="plugin-image"
               src={props.data.image}
-              alt="Datasource"
             />
             <div style={{ marginLeft: "6px" }}>{props.children}</div>
           </Container>
@@ -415,56 +415,56 @@ function QueryEditorForm(props: Props) {
           <DropdownSelect>
             <DropdownField
               className={"t--switch-datasource"}
-              placeholder="Datasource"
+              components={{ MenuList, Option: CustomOption, SingleValue }}
+              maxMenuHeight={200}
               name="datasource.id"
               options={DATASOURCES_OPTIONS}
+              placeholder="Datasource"
               width={232}
-              maxMenuHeight={200}
-              components={{ MenuList, Option: CustomOption, SingleValue }}
             />
           </DropdownSelect>
           <ActionButton
-            className="t--delete-query"
-            text="Delete"
             accent="error"
+            className="t--delete-query"
             loading={isDeleting}
             onClick={onDeleteClick}
+            text="Delete"
           />
           {dataSources.length === 0 ? (
             <>
               <TooltipStyles />
               <Popover
-                autoFocus={true}
-                canEscapeKeyClose={true}
+                autoFocus
+                canEscapeKeyClose
                 content="You don’t have a Data Source to run this query"
-                position="bottom"
                 defaultIsOpen={false}
-                usePortal
                 portalClassName="helper-tooltip"
+                position="bottom"
+                usePortal
               >
                 <ActionButton
+                  accent="primary"
                   className="t--run-query"
-                  text="Run"
                   filled
                   loading={isRunning}
-                  accent="primary"
                   onClick={onRunClick}
+                  text="Run"
                 />
                 <div>
                   <p className="popuptext">
                     You don’t have a Data Source to run this query
                   </p>
                   <Button
+                    className="popoverBtn"
+                    filled
+                    intent="primary"
                     onClick={() =>
                       history.push(
                         DATA_SOURCES_EDITOR_URL(applicationId, pageId),
                       )
                     }
-                    text="Add Datasource"
-                    intent="primary"
-                    filled
                     size="small"
-                    className="popoverBtn"
+                    text="Add Datasource"
                   />
                 </div>
               </Popover>
@@ -475,12 +475,12 @@ function QueryEditorForm(props: Props) {
               width={75}
             >
               <ActionButton
+                accent="primary"
                 className="t--run-query"
-                text="Run"
                 filled
                 loading={isRunning}
-                accent="primary"
                 onClick={onRunClick}
+                text="Run"
               />
             </OnboardingIndicator>
           )}
@@ -490,8 +490,8 @@ function QueryEditorForm(props: Props) {
         {documentationLink && (
           <DocumentationLink
             href={documentationLink}
-            target="_blank"
             rel="noopener noreferrer"
+            target="_blank"
           >
             {"Documentation "}
             <StyledOpenDocsIcon icon="document-open" />
@@ -510,11 +510,11 @@ function QueryEditorForm(props: Props) {
                     <>
                       <ErrorMessage>An unexpected error occurred</ErrorMessage>
                       <Tag
-                        round
                         intent="warning"
                         interactive
                         minimal
                         onClick={() => window.location.reload()}
+                        round
                       >
                         Refresh
                       </Tag>
@@ -527,16 +527,16 @@ function QueryEditorForm(props: Props) {
                         query
                       </p>
                       <Button
+                        filled
+                        icon="plus"
+                        intent="primary"
                         onClick={() =>
                           history.push(
                             DATA_SOURCES_EDITOR_URL(applicationId, pageId),
                           )
                         }
-                        text="Add a Datasource"
-                        intent="primary"
-                        filled
                         size="small"
-                        icon="plus"
+                        text="Add a Datasource"
                       />
                     </NoDataSourceContainer>
                   )}
@@ -557,8 +557,8 @@ function QueryEditorForm(props: Props) {
                             <AddWidgetButton
                               className="t--add-widget"
                               icon={"plus"}
-                              text="Add Widget"
                               onClick={onAddWidget}
+                              text="Add Widget"
                             />
                           </Boxed>
                         )}

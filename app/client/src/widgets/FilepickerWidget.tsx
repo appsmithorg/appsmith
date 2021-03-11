@@ -411,13 +411,13 @@ class FilePickerWidget extends BaseWidget<
   getPageView() {
     return (
       <FilePickerComponent
-        uppy={this.state.uppy}
-        widgetId={this.props.widgetId}
+        files={this.props.files || []}
+        isDisabled={this.props.isDisabled}
+        isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         label={this.props.label}
-        files={this.props.files || []}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        isDisabled={this.props.isDisabled}
+        uppy={this.state.uppy}
+        widgetId={this.props.widgetId}
       />
     );
   }

@@ -36,9 +36,9 @@ function ServerTimeout() {
   return (
     <Wrapper>
       <img
-        src={AppTimeoutImage}
         alt="Page Unavailable"
         className="page-unavailable-img"
+        src={AppTimeoutImage}
       />
       <div>
         <p className="bold-text">

@@ -14,16 +14,16 @@ export function SearchInputStory() {
   return (
     <StoryWrapper>
       <SearchInput
+        defaultValue={text("defaultValue", "Type any search keyword")}
+        fill={boolean("fill", false)}
+        onChange={action("searched value")}
         placeholder={text("placeholder", "Search for apps...")}
         variant={select(
           "variant",
           Object.values(SearchVariant),
           SearchVariant.SEAMLESS,
         )}
-        fill={boolean("fill", false)}
-        defaultValue={text("defaultValue", "Type any search keyword")}
-        onChange={action("searched value")}
-      ></SearchInput>
+      />
     </StoryWrapper>
   );
 }

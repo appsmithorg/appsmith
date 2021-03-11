@@ -84,13 +84,12 @@ function HelperTooltip(props: Props) {
         <div className="infoIconDiv">
           <TooltipStyles />
           <Popover
-            autoFocus={true}
-            canEscapeKeyClose={true}
+            autoFocus
+            canEscapeKeyClose
             content={
               <div>
                 <span>How to get credentials: </span>
                 <p
-                  style={{ color: "#d0d7dd", fontWeight: 100 }}
                   dangerouslySetInnerHTML={{
                     __html: props.providerCredentialSteps
                       .split("\\n\\n")
@@ -98,22 +97,23 @@ function HelperTooltip(props: Props) {
                       .split("\\n")
                       .join("<br /><br />"),
                   }}
-                ></p>
+                  style={{ color: "#d0d7dd", fontWeight: 100 }}
+                />
               </div>
             }
-            position="bottom"
             defaultIsOpen={false}
             interactionKind={PopoverInteractionKind.HOVER}
-            usePortal
             portalClassName="credentials-tooltip"
+            position="bottom"
+            usePortal
           >
             <IconContainer style={{ display: "inline-block" }}>
               <FormIcons.INFO_ICON
-                width={22}
                 height={22}
                 style={{
                   cursor: "pointer",
                 }}
+                width={22}
               />
             </IconContainer>
           </Popover>

@@ -37,11 +37,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       <StyledDropDownContainer>
         <DropdownStyles />
         <StyledDropDown
-          items={this.props.options}
           filterable={false}
           itemRenderer={this.renderItem}
+          items={this.props.options}
+          noResults={<MenuItem disabled text="No results." />}
           onItemSelect={this.onItemSelect}
-          noResults={<MenuItem disabled={true} text="No results." />}
           popoverProps={{
             minimal: true,
             usePortal: true,
@@ -51,11 +51,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           <Button
             icon={
               selected && selected.icon && ControlIcon ? (
-                <ControlIcon width={24} height={24} />
+                <ControlIcon height={24} width={24} />
               ) : null
             }
-            text={selected ? selected.label : "No Selection"}
             rightIcon="chevron-down"
+            text={selected ? selected.label : "No Selection"}
           />
         </StyledDropDown>
       </StyledDropDownContainer>
@@ -76,19 +76,19 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       controlIconName !== -1 ? ControlIcons[controlIconName] : null;
     return (
       <MenuItemWrapper
-        className="single-select"
         active={isSelected}
-        key={option.value}
-        onClick={itemProps.handleClick}
-        text={option.label}
-        label={option.subText ? option.subText : undefined}
+        className="single-select"
         icon={
           option.icon && ControlIcon ? (
-            <ControlIcon width={24} height={24} />
+            <ControlIcon height={24} width={24} />
           ) : (
             undefined
           )
         }
+        key={option.value}
+        label={option.subText ? option.subText : undefined}
+        onClick={itemProps.handleClick}
+        text={option.label}
       />
     );
     // label={option.subText ? option.subText : undefined}

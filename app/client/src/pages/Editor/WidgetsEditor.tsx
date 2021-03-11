@@ -122,7 +122,7 @@ function WidgetsEditor() {
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
         <MainContainerLayoutControl />
-        <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
+        <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
           {node}
         </CanvasContainer>
       </EditorWrapper>

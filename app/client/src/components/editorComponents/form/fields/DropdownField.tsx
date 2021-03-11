@@ -27,9 +27,9 @@ function DropdownField(props: DropdownFieldProps & Partial<DropdownProps>) {
       format={(value: string) => _.find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
       {...props}
-      width={props.width}
-      isSearchable={props.isSearchable}
       isDisabled={props.isDisabled}
+      isSearchable={props.isSearchable}
+      width={props.width}
     />
   );
 }

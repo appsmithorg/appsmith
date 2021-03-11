@@ -253,8 +253,8 @@ function Table(props: TableProps) {
                           key={cellIndex}
                           {...cell.getCellProps()}
                           className="td"
-                          data-rowindex={index}
                           data-colindex={cellIndex}
+                          data-rowindex={index}
                         >
                           <CellWrapper isHidden={false}>
                             {cell.render("Cell")}

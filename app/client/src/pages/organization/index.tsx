@@ -12,7 +12,7 @@ export function Organization() {
   return (
     <PageWrapper displayName="Organization Settings">
       <Switch location={location}>
-        <SentryRoute path={`${path}/:orgId/settings`} component={Settings} />
+        <SentryRoute component={Settings} path={`${path}/:orgId/settings`} />
         <SentryRoute component={DefaultOrgPage} />
       </Switch>
     </PageWrapper>

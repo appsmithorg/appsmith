@@ -94,15 +94,15 @@ function General() {
         <LabelWrapper>
           <Text type={TextType.H4}>Display name</Text>
         </LabelWrapper>
-        {isFetchingUser && <Loader className={Classes.SKELETON}></Loader>}
+        {isFetchingUser && <Loader className={Classes.SKELETON} />}
         {!isFetchingUser && (
           <TextInput
-            validator={notEmptyValidator}
-            placeholder="Display name"
-            onChange={onNameChange}
-            defaultValue={user?.name}
             cypressSelector="t--display-name"
-          ></TextInput>
+            defaultValue={user?.name}
+            onChange={onNameChange}
+            placeholder="Display name"
+            validator={notEmptyValidator}
+          />
         )}
       </InputWrapper>
       <FieldWrapper>

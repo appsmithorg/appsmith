@@ -6,9 +6,9 @@ class SwitchControl extends BaseControl<ControlProps> {
   render() {
     return (
       <StyledSwitch
-        onChange={this.onToggle}
         defaultChecked={this.props.propertyValue}
         large
+        onChange={this.onToggle}
       />
     );
   }

@@ -160,19 +160,19 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
         <NewEditableText
           className="t--action-name-edit-field"
           defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-          placeholder="Name of the API in camelCase"
+          editInteractionKind={NewEditInteractionKind.SINGLE}
+          fill
           forceDefault={forceUpdate}
-          onBlur={handleAPINameChange}
-          isInvalid={isInvalidActionName}
-          valueTransform={removeSpecialChars}
+          hideEditIcon
           isEditingDefault={isNew && !hideEditIcon}
+          isInvalid={isInvalidActionName}
+          onBlur={handleAPINameChange}
+          placeholder="Name of the API in camelCase"
           savingState={
             saveStatus.isSaving ? SavingState.STARTED : SavingState.NOT_STARTED
           }
-          editInteractionKind={NewEditInteractionKind.SINGLE}
-          hideEditIcon
           underline
-          fill
+          valueTransform={removeSpecialChars}
         />
       ) : (
         <div
@@ -182,16 +182,16 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
         >
           <EditableText
             className="t--action-name-edit-field"
-            type="text"
             defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-            placeholder="Name of the API in camelCase"
-            forceDefault={forceUpdate}
-            onTextChanged={handleAPINameChange}
-            isInvalid={isInvalidActionName}
-            valueTransform={removeSpecialChars}
-            isEditingDefault={isNew}
-            updating={saveStatus.isSaving}
             editInteractionKind={EditInteractionKind.SINGLE}
+            forceDefault={forceUpdate}
+            isEditingDefault={isNew}
+            isInvalid={isInvalidActionName}
+            onTextChanged={handleAPINameChange}
+            placeholder="Name of the API in camelCase"
+            type="text"
+            updating={saveStatus.isSaving}
+            valueTransform={removeSpecialChars}
           />
           {saveStatus.isSaving && <Spinner size={16} />}
         </div>

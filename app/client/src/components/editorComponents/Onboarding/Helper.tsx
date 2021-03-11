@@ -246,9 +246,9 @@ function Helper() {
                     >
                       <span>{helperConfig.hint?.snippet}</span>
                       <Icon
+                        color={Colors.MINE_SHAFT}
                         icon="duplicate"
                         iconSize={14}
-                        color={Colors.MINE_SHAFT}
                       />
                     </Snippet>
                   </>
@@ -263,10 +263,10 @@ function Helper() {
             steps.map((stepper) => {
               return (
                 <Stepper
-                  key={stepper}
                   completed={
                     helperConfig.step ? helperConfig.step >= stepper : false
                   }
+                  key={stepper}
                 />
               );
             })}

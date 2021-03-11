@@ -56,7 +56,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
     props.search.queryFn &&
     _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
   const createTrigger = props.add && (
-    <Button text={props.add.title} size={Size.medium} />
+    <Button size={Size.medium} text={props.add.title} />
   );
 
   return (
@@ -66,10 +66,10 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
           <ControlGroup>
             <SearchInput
               cypressSelector={"t--application-search-input"}
+              disabled={isFetchingApplications}
+              onChange={query || noop}
               placeholder={props.search.placeholder}
               variant={SearchVariant.SEAMLESS}
-              onChange={query || noop}
-              disabled={isFetchingApplications}
             />
           </ControlGroup>
         )}
@@ -77,9 +77,9 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
 
       {props.add && (
         <FormDialogComponent
-          trigger={createTrigger}
           Form={props.add.form}
           title={props.add.title}
+          trigger={createTrigger}
         />
       )}
     </SubHeaderWrapper>

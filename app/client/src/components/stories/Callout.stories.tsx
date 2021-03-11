@@ -13,8 +13,8 @@ export function CalloutStory() {
   return (
     <StoryWrapper>
       <Callout
-        text={text("text", "Lorem ipsum dolar sit adicipling dolare")}
         fill={boolean("fill", false)}
+        text={text("text", "Lorem ipsum dolar sit adicipling dolare")}
         variant={select("variant", Object.values(Variant), Variant.info)}
       />
     </StoryWrapper>

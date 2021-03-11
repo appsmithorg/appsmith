@@ -62,23 +62,23 @@ interface Props {
 
 function HelperTooltip(props: Props) {
   return (
-    <React.Fragment>
+    <>
       <TooltipStyles />
       <Popover
-        autoFocus={true}
-        canEscapeKeyClose={true}
+        autoFocus
+        canEscapeKeyClose
         content={props.description}
-        position="bottom"
         defaultIsOpen={false}
         interactionKind={PopoverInteractionKind.HOVER}
-        usePortal
         portalClassName="helper-tooltip"
+        position="bottom"
+        usePortal
       >
         <IconContainer>
-          <props.rightIcon width={22} height={22} />
+          <props.rightIcon height={22} width={22} />
         </IconContainer>
       </Popover>
-    </React.Fragment>
+    </>
   );
 }
 

@@ -28,9 +28,9 @@ function DropdownWrapper(props: DropdownWrapperProps) {
 
   return (
     <Dropdown
+      onSelect={onSelectHandler}
       options={props.options}
       selected={selectedOption}
-      onSelect={onSelectHandler}
     />
   );
 }

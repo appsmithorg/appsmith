@@ -79,15 +79,15 @@ function AppInviteUsersForm(props: any) {
             <ShareToggle>
               {currentApplicationDetails && (
                 <Toggle
-                  isLoading={isChangingViewAccess || isFetchingApplication}
-                  value={currentApplicationDetails.isPublic}
                   disabled={isChangingViewAccess || isFetchingApplication}
+                  isLoading={isChangingViewAccess || isFetchingApplication}
                   onToggle={() => {
                     changeAppViewAccess(
                       applicationId,
                       !currentApplicationDetails.isPublic,
                     );
                   }}
+                  value={currentApplicationDetails.isPublic}
                 />
               )}
             </ShareToggle>
@@ -102,7 +102,7 @@ function AppInviteUsersForm(props: any) {
       <CopyToClipBoard copyText={getViewApplicationURL()} />
 
       {canInviteToOrg && (
-        <OrgInviteUsersForm orgId={props.orgId} isApplicationInvite={true} />
+        <OrgInviteUsersForm isApplicationInvite orgId={props.orgId} />
       )}
     </>
   );

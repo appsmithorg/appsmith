@@ -28,19 +28,19 @@ function AutoToolTipComponent(props: {
   }, [ref]);
   return (
     <CellWrapper
-      ref={ref}
-      isHidden={props.isHidden}
       cellProperties={props.cellProperties}
+      isHidden={props.isHidden}
+      ref={ref}
     >
       {useToolTip && props.children ? (
         <Tooltip
           autoFocus={false}
-          hoverOpenDelay={1000}
           content={
             <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
               {props.title}
             </TooltipContentWrapper>
           }
+          hoverOpenDelay={1000}
           position="top"
         >
           {props.children}

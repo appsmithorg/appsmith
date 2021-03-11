@@ -49,12 +49,12 @@ function AddDatasourceSecurely(props: AddDatasourceSecurelyProps) {
           That’s a promise.
         </Content>
         <ActionButton
-          className="t--add-datasource"
-          icon={"plus"}
-          text="New Datasource"
-          filled
           accent="primary"
+          className="t--add-datasource"
+          filled
+          icon={"plus"}
           onClick={props.onAddDatasource}
+          text="New Datasource"
         />
       </div>
       <img src={AppsmithDatasource} />

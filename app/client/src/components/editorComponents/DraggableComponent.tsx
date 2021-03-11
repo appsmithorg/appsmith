@@ -183,9 +183,9 @@ function DraggableComponent(props: DraggableComponentProps) {
   return (
     <DraggableWrapper
       className={className}
-      ref={drag}
-      onMouseOver={handleMouseOver}
       onClick={handleClick}
+      onMouseOver={handleMouseOver}
+      ref={drag}
       style={style}
     >
       {shouldRenderComponent && props.children}

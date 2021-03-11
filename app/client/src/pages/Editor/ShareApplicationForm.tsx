@@ -47,15 +47,15 @@ export function ShareApplicationForm(props: any) {
         )}
         {currentApplicationDetails && (
           <StyledSwitch
+            checked={currentApplicationDetails.isPublic}
+            disabled={isChangingViewAccess || isFetchingApplication}
+            large
             onChange={() => {
               changeAppViewAccess(
                 applicationId,
                 !currentApplicationDetails.isPublic,
               );
             }}
-            disabled={isChangingViewAccess || isFetchingApplication}
-            checked={currentApplicationDetails.isPublic}
-            large
           />
         )}
       </ShareToggle>

@@ -144,22 +144,22 @@ function DragLayerComponent(props: DragLayerProps) {
   return (
     <WrappedDragLayer
       columnWidth={props.parentColumnWidth}
-      rowHeight={props.parentRowHeight}
       ref={dropTargetMask}
+      rowHeight={props.parentRowHeight}
     >
       {props.visible &&
         props.isOver &&
         currentOffset &&
         isParentOffsetCalculated && (
           <DropZone
+            canDrop={canDrop}
+            currentOffset={currentOffset as XYCoord}
+            height={widgetHeight}
+            parentColumnWidth={props.parentColumnWidth}
             parentOffset={dropTargetOffset.current}
             parentRowHeight={props.parentRowHeight}
-            parentColumnWidth={props.parentColumnWidth}
-            width={widgetWidth}
-            height={widgetHeight}
-            currentOffset={currentOffset as XYCoord}
-            canDrop={canDrop}
             ref={dropZoneRef}
+            width={widgetWidth}
           />
         )}
     </WrappedDragLayer>

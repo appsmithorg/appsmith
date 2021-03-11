@@ -64,13 +64,13 @@ export const HighlightedCode = forwardRef(
 
     return (
       <StyledCode
-        skin={props.skin || Skin.DARK}
+        className={props.className}
         onClick={props.onClick}
         ref={ref}
-        className={props.className}
+        skin={props.skin || Skin.DARK}
       >
         {!props.multiline && (
-          <code ref={codeRef} className={language}>
+          <code className={language} ref={codeRef}>
             {props.codeText}
           </code>
         )}

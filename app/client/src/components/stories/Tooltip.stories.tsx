@@ -17,15 +17,15 @@ export function MenuStory() {
     <StoryWrapper>
       <div style={{ paddingTop: "50px", paddingLeft: "50px", width: "200px" }}>
         <TooltipComponent
-          position={select("Position", Object.values(Position), Position.RIGHT)}
           content={
-            <Text type={TextType.P1} highlight>
+            <Text highlight type={TextType.P1}>
               This is a tooltip
             </Text>
           }
+          position={select("Position", Object.values(Position), Position.RIGHT)}
           variant={select("variant", ["dark", "light"], "dark")}
         >
-          <Text type={TextType.P1} highlight>
+          <Text highlight type={TextType.P1}>
             Hover to show tooltip
           </Text>
         </TooltipComponent>

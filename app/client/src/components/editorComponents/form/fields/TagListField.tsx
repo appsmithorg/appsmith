@@ -14,9 +14,9 @@ const renderComponent = (
   },
 ) => {
   return (
-    <React.Fragment>
+    <>
       <TagInputComponent {...componentProps} />
-    </React.Fragment>
+    </>
   );
 };
 
@@ -31,9 +31,9 @@ type TagListFieldProps = {
 
 function TagListField(props: TagListFieldProps) {
   return (
-    <React.Fragment>
+    <>
       <Field component={renderComponent} {...props} />
-    </React.Fragment>
+    </>
   );
 }
 

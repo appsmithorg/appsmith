@@ -138,8 +138,8 @@ function Table(props: TableProps) {
                   return (
                     <td
                       {...cell.getCellProps()}
-                      key={index}
                       data-colindex={index}
+                      key={index}
                     >
                       {cell.render("Cell")}
                     </td>

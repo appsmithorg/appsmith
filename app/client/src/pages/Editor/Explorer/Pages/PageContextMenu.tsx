@@ -116,8 +116,8 @@ export function PageContextMenu(props: {
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      selectedValue=""
       optionTree={optionTree}
+      selectedValue=""
       toggle={<ContextMenuTrigger />}
     />
   );

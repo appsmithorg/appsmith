@@ -51,7 +51,7 @@ const replace = (
   );
   const final = [
     <span key={`tokenize-${keyIndex}`}>{str.slice(0, occurrenceIndex)}</span>,
-    <span key={`tokenize-${keyIndex}-token`} className={className}>
+    <span className={className} key={`tokenize-${keyIndex}-token`}>
       {token}
     </span>,
   ].concat(replace(rest, delimiter, className, keyIndex + 1));
@@ -198,8 +198,8 @@ export const EntityName = forwardRef(
       return (
         <Wrapper
           className={props.className}
-          ref={ref}
           onDoubleClick={enterEditMode}
+          ref={ref}
         >
           {searchHighlightedName}
         </Wrapper>
@@ -207,17 +207,17 @@ export const EntityName = forwardRef(
     return (
       <Wrapper>
         <EditableText
-          type="text"
           className={`${props.className} editing`}
           defaultValue={updatedName}
-          placeholder="Name"
-          onTextChanged={handleAPINameChange}
-          isInvalid={isInvalidName}
-          valueTransform={props.nameTransformFn || removeSpecialChars}
-          isEditingDefault
           editInteractionKind={EditInteractionKind.SINGLE}
+          isEditingDefault
+          isInvalid={isInvalidName}
           minimal
           onBlur={exitEditMode}
+          onTextChanged={handleAPINameChange}
+          placeholder="Name"
+          type="text"
+          valueTransform={props.nameTransformFn || removeSpecialChars}
         />
       </Wrapper>
     );

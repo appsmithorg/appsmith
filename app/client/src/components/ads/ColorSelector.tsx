@@ -68,22 +68,22 @@ function ColorSelector(props: ColorSelectorProps) {
   }, [props.defaultValue]);
 
   return (
-    <Palette fill={props.fill} data-cy={props.cypressSelector}>
+    <Palette data-cy={props.cypressSelector} fill={props.fill}>
       {props.colorPalette.map((hex: string, index: number) => {
         return (
           <ColorBox
-            key={index}
-            selected={selected}
+            className={
+              selected === hex ? "t--color-selected" : "t--color-not-selected"
+            }
             color={hex}
+            key={index}
             onClick={() => {
               if (selected !== hex) {
                 setSelected(hex);
                 props.onSelect && props.onSelect(hex);
               }
             }}
-            className={
-              selected === hex ? "t--color-selected" : "t--color-not-selected"
-            }
+            selected={selected}
           />
         );
       })}

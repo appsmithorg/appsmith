@@ -57,13 +57,13 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
     <StyledPageHeader>
       <HeaderSection>
         <Link
-          to={APPLICATIONS_URL}
           className="t--appsmith-logo"
           onClick={() => {
             if (safeCrash) flushErrors();
           }}
+          to={APPLICATIONS_URL}
         >
-          <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+          <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
         </Link>
       </HeaderSection>
       {user && (
@@ -71,15 +71,15 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
           {user.username === ANONYMOUS_USERNAME ? (
             <Button
               filled
-              text="Sign In"
               intent={"primary"}
-              size="small"
               onClick={() => {
                 flushErrorsAndRedirect(loginUrl);
               }}
+              size="small"
+              text="Sign In"
             />
           ) : (
-            <ProfileDropdown userName={user.username} name={user.name} />
+            <ProfileDropdown name={user.name} userName={user.username} />
           )}
         </StyledDropDownContainer>
       )}

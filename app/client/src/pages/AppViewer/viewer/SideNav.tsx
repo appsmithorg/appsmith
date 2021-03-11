@@ -93,17 +93,17 @@ export function SideNav(props: SideNavProps) {
   };
 
   return (
-    <SideNavWrapper open={open} headeroffset={props.headeroffset}>
+    <SideNavWrapper headeroffset={props.headeroffset} open={open}>
       <ToggleButton
+        className="sidenav-toggle"
         headeroffset={props.headeroffset}
+        icon={open ? "double-chevron-left" : "menu"}
+        minimal
         onClick={() => {
           toggleCollapse(!open);
         }}
-        icon={open ? "double-chevron-left" : "menu"}
-        minimal
         open={open}
-        className="sidenav-toggle"
-      ></ToggleButton>
+      />
       <Menu large>{renderItems(props.items)}</Menu>
     </SideNavWrapper>
   );

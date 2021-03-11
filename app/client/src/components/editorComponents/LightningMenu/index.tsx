@@ -93,11 +93,11 @@ export function LightningMenu(props: LightningMenuProps) {
           dispatch,
           props.updateDynamicInputValue,
           <LightningMenuTrigger
-            skin={props.skin}
-            theme={props.theme}
             isFocused={props.isFocused}
             isOpened={props.isOpened}
             onOpenLightningMenu={props.onOpenLightningMenu}
+            skin={props.skin}
+            theme={props.theme}
           />,
           props.onCloseLightningMenu,
         )}

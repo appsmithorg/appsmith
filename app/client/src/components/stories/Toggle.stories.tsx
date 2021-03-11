@@ -15,10 +15,10 @@ export function CustomToggle() {
   return (
     <StoryWrapper>
       <Toggle
-        value={boolean("switchOn", false)}
         disabled={boolean("disabled", false)}
         isLoading={boolean("isLoading", false)}
         onToggle={action("toggle-on")}
+        value={boolean("switchOn", false)}
       />
     </StoryWrapper>
   );

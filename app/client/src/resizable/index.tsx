@@ -236,28 +236,28 @@ export const Resizable = forwardRef(
 
     return (
       <Spring
-        from={{
-          width: props.componentWidth,
-          height: props.componentHeight,
-        }}
-        to={{
-          width: newDimensions.width,
-          height: newDimensions.height,
-          transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
-        }}
         config={{
           clamp: true,
           friction: 0,
           tension: 999,
         }}
+        from={{
+          width: props.componentWidth,
+          height: props.componentHeight,
+        }}
         immediate={newDimensions.reset ? true : false}
+        to={{
+          width: newDimensions.width,
+          height: newDimensions.height,
+          transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
+        }}
       >
         {(_props) => (
           <ResizeWrapper
-            ref={ref}
-            style={_props}
             className={props.className}
             pevents={pointerEvents}
+            ref={ref}
+            style={_props}
           >
             {props.children}
             {props.enable && renderHandles}

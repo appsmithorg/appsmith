@@ -44,9 +44,9 @@ function DropdownFieldWrapper(props: DropdownWrapperProps) {
   return (
     <StyledDropdown
       className={props.className}
+      onSelect={onSelectHandler}
       options={props.options}
       selected={selectedOption}
-      onSelect={onSelectHandler}
       width={120}
     />
   );

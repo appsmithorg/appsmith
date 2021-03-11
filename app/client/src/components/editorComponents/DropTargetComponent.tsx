@@ -263,31 +263,31 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       value={{ updateDropTargetRows, persistDropTargetRows }}
     >
       <StyledDropTarget
+        className={"t--drop-target"}
         onClick={handleFocus}
         ref={drop}
         style={{
           height,
           border,
         }}
-        className={"t--drop-target"}
       >
         {props.children}
         {!(childWidgets && childWidgets.length) &&
           !isDragging &&
           !props.parentId && <Onboarding />}
         <DragLayerComponent
-          parentWidgetId={props.widgetId}
           canDropTargetExtend={canDropTargetExtend}
-          parentRowHeight={props.snapRowSpace}
-          parentColumnWidth={props.snapColumnSpace}
-          visible={isExactlyOver || isChildResizing}
+          force={isDragging && !isOver && !props.parentId}
           isOver={isExactlyOver}
+          isResizing={isChildResizing}
           occupiedSpaces={spacesOccupiedBySiblingWidgets}
           onBoundsUpdate={handleBoundsUpdate}
-          parentRows={rows}
           parentCols={props.snapColumns}
-          isResizing={isChildResizing}
-          force={isDragging && !isOver && !props.parentId}
+          parentColumnWidth={props.snapColumnSpace}
+          parentRowHeight={props.snapRowSpace}
+          parentRows={rows}
+          parentWidgetId={props.widgetId}
+          visible={isExactlyOver || isChildResizing}
         />
       </StyledDropTarget>
     </DropTargetContext.Provider>

@@ -15,8 +15,8 @@ export function CustomCheckbox() {
   return (
     <StoryWrapper>
       <Checkbox
-        label={text("label", "Checked")}
         disabled={boolean("disabled", false)}
+        label={text("label", "Checked")}
         onCheckChange={action("check-change")}
       />
     </StoryWrapper>

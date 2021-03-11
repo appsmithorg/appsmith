@@ -48,11 +48,11 @@ export function Typography() {
 function ValueWrapper(props: { type: TextType; value: string }) {
   return (
     <Text
+      case={select("Case", Object.values(Case), undefined)}
+      highlight={boolean("highlight", false)}
+      italic={boolean("italic", false)}
       type={props.type}
       underline={boolean("underline", false)}
-      italic={boolean("italic", false)}
-      highlight={boolean("highlight", false)}
-      case={select("Case", Object.values(Case), undefined)}
       weight={select("Weight", Object.values(FontWeight), undefined)}
     >
       {props.value}

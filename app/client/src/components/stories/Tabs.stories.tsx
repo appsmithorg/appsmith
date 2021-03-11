@@ -24,7 +24,7 @@ function TabStory(props: any) {
             height: "100%",
             overflow: "hidden",
           }}
-        ></div>
+        />
       ),
       icon: props.icon1,
     },
@@ -39,7 +39,7 @@ function TabStory(props: any) {
             height: "100%",
             overflow: "hidden",
           }}
-        ></div>
+        />
       ),
       icon: props.icon2,
     },
@@ -54,7 +54,7 @@ function TabStory(props: any) {
             height: "100%",
             overflow: "hidden",
           }}
-        ></div>
+        />
       ),
       icon: props.icon3,
     },
@@ -72,7 +72,7 @@ function TabStory(props: any) {
             height: "100%",
             overflow: "hidden",
           }}
-        ></div>
+        />
       ),
       icon: props.icon4,
     });
@@ -93,24 +93,24 @@ export function Tabs() {
         ["Select icon" as IconName, ...IconCollection],
         "Select icon" as IconName,
       )}
-      title1={text("Title 1", "General")}
       icon2={select(
         "Icon 2",
         ["Select icon" as IconName, ...IconCollection],
         "Select icon" as IconName,
       )}
-      title2={text("Title 2", "User")}
       icon3={select(
         "Icon 3",
         ["Select icon" as IconName, ...IconCollection],
         "Select icon" as IconName,
       )}
-      title3={text("Title 3", "Billing")}
       icon4={select(
         "Icon 4",
         ["Select icon" as IconName, ...IconCollection],
         "Select icon" as IconName,
       )}
+      title1={text("Title 1", "General")}
+      title2={text("Title 2", "User")}
+      title3={text("Title 3", "Billing")}
       title4={text("Title 4", "")}
     />
   );

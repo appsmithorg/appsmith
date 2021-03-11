@@ -37,22 +37,22 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
     return null;
 
   return (
-    <React.Fragment>
+    <>
       <Dialog
         canOutsideClickClose={!!props.canOutsideClickClose}
-        title={props.title}
         isOpen={isOpen}
-        setMaxWidth={props.setMaxWidth}
-        trigger={props.trigger}
         onOpening={onOpening}
+        setMaxWidth={props.setMaxWidth}
+        title={props.title}
+        trigger={props.trigger}
       >
         <Form
+          applicationId={props.applicationId}
           onCancel={onClose}
           orgId={props.orgId}
-          applicationId={props.applicationId}
         />
       </Dialog>
-    </React.Fragment>
+    </>
   );
 }
 

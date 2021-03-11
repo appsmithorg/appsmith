@@ -19,8 +19,8 @@ export function ContextMenuTrigger(props: {
   return (
     <EntityTogglesWrapper className={props.className}>
       <ToggleIcon
-        width={props.theme.fontSizes[3]}
         height={props.theme.fontSizes[3]}
+        width={props.theme.fontSizes[3]}
       />
     </EntityTogglesWrapper>
   );

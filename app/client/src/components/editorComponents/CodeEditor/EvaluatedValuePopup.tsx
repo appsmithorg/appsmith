@@ -156,35 +156,35 @@ export function CurrentValueViewer(props: {
     }
   }
   return (
-    <React.Fragment>
+    <>
       {!props.hideLabel && <StyledTitle>Evaluated Value</StyledTitle>}
       <CurrentValueWrapper colorTheme={props.theme}>
         {content}
       </CurrentValueWrapper>
-    </React.Fragment>
+    </>
   );
 }
 
 function PopoverContent(props: PopoverContentProps) {
   return (
     <ContentWrapper
+      className="t--CodeEditor-evaluatedValue"
+      colorTheme={props.theme}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
-      colorTheme={props.theme}
-      className="t--CodeEditor-evaluatedValue"
     >
       {props.hasError && (
         <ErrorText>{`This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}</ErrorText>
       )}
       {!props.hasError && props.expected && (
-        <React.Fragment>
+        <>
           <StyledTitle>Expected Data Type</StyledTitle>
           <TypeText colorTheme={props.theme}>{props.expected}</TypeText>
-        </React.Fragment>
+        </>
       )}
       <CurrentValueViewer
-        theme={props.theme}
         evaluatedValue={props.evaluatedValue}
+        theme={props.theme}
       />
     </ContentWrapper>
   );
@@ -206,28 +206,28 @@ function EvaluatedValuePopup(props: Props) {
     <Wrapper ref={wrapperRef}>
       {(props.isOpen || contentHovered) && (
         <Popper
-          targetNode={wrapperRef.current || undefined}
           isOpen
-          zIndex={15}
-          placement={placement}
           modifiers={{
             offset: {
               enabled: true,
               offset: "0, 15",
             },
           }}
+          placement={placement}
+          targetNode={wrapperRef.current || undefined}
+          zIndex={15}
         >
           <PopoverContent
-            expected={props.expected}
             evaluatedValue={props.evaluatedValue}
+            expected={props.expected}
             hasError={props.hasError}
-            theme={props.theme}
-            onMouseLeave={() => {
-              setContentHovered(false);
-            }}
             onMouseEnter={() => {
               setContentHovered(true);
             }}
+            onMouseLeave={() => {
+              setContentHovered(false);
+            }}
+            theme={props.theme}
           />
         </Popper>
       )}

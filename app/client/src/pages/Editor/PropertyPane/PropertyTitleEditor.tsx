@@ -57,16 +57,16 @@ function PropertyTitleEditor(props: PropertyTitleEditorProps) {
   return (
     <Wrapper>
       <EditableText
-        type="text"
+        className="t--property-pane-edit-title"
         defaultValue={name}
-        onTextChanged={updateTitle}
-        placeholder={props.title}
-        updating={updating}
         editInteractionKind={EditInteractionKind.SINGLE}
         isEditingDefault={false}
-        onBlur={exitEditMode}
         minimal
-        className="t--property-pane-edit-title"
+        onBlur={exitEditMode}
+        onTextChanged={updateTitle}
+        placeholder={props.title}
+        type="text"
+        updating={updating}
       />
       <Tooltip
         content={
@@ -76,22 +76,22 @@ function PropertyTitleEditor(props: PropertyTitleEditorProps) {
             <span> to a widget property</span>
           </div>
         }
-        position={Position.TOP}
         hoverOpenDelay={200}
+        position={Position.TOP}
       >
         <Icon color={theme.colors.paneSectionLabel} icon="help" iconSize={14} />
       </Tooltip>
-      <Tooltip content="Close" position={Position.TOP} hoverOpenDelay={200}>
+      <Tooltip content="Close" hoverOpenDelay={200} position={Position.TOP}>
         <Icon
+          className="t--property-pane-close-btn"
+          color={theme.colors.paneSectionLabel}
+          icon="cross"
+          iconSize={16}
           onClick={(e: any) => {
             props.onClose();
             e.preventDefault();
             e.stopPropagation();
           }}
-          iconSize={16}
-          color={theme.colors.paneSectionLabel}
-          icon="cross"
-          className="t--property-pane-close-btn"
         />
       </Tooltip>
     </Wrapper>

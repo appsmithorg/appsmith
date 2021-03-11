@@ -118,30 +118,30 @@ const SearchInput = forwardRef(
     return (
       <InputWrapper
         data-cy={props.cypressSelector}
-        value={searchValue}
-        isFocused={isFocused}
-        variant={props.variant}
         fill={props.fill}
+        isFocused={isFocused}
+        value={searchValue}
+        variant={props.variant}
       >
-        <SearchIcon value={searchValue} isFocused={isFocused}>
+        <SearchIcon isFocused={isFocused} value={searchValue}>
           <Icon name="search" size={IconSize.SMALL} />
         </SearchIcon>
         <StyledInput
-          type="text"
-          ref={ref}
           isFocused={isFocused}
+          ref={ref}
+          type="text"
           {...props}
-          placeholder={props.placeholder ? props.placeholder : ""}
-          onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           onChange={memoizedChangeHandler}
+          onFocus={() => setIsFocused(true)}
+          placeholder={props.placeholder ? props.placeholder : ""}
         />
         {searchValue && props.variant === SearchVariant.BACKGROUND ? (
           <CloseIcon>
             <Icon
               name="close"
-              size={IconSize.MEDIUM}
               onClick={() => setSearchValue("")}
+              size={IconSize.MEDIUM}
             />
           </CloseIcon>
         ) : null}

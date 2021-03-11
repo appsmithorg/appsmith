@@ -191,17 +191,17 @@ const TextInput = forwardRef(
     return (
       <InputWrapper>
         <StyledInput
-          type={props.dataType || "text"}
-          ref={ref}
+          defaultValue={props.defaultValue}
           inputStyle={inputStyle}
           isValid={validation.isValid}
-          defaultValue={props.defaultValue}
+          ref={ref}
+          type={props.dataType || "text"}
           {...props}
-          placeholder={props.placeholder}
-          onChange={memoizedChangeHandler}
-          readOnly={props.readOnly}
           data-cy={props.cypressSelector}
           inputRef={ref}
+          onChange={memoizedChangeHandler}
+          placeholder={props.placeholder}
+          readOnly={props.readOnly}
         />
         {ErrorMessage}
       </InputWrapper>

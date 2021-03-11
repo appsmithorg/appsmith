@@ -125,7 +125,7 @@ function HitEnterMessage({ item, query }: { item: SearchItem; query: string }) {
       <StyledHighlightWrapper>
         <Highlight match={query} text={title} />
       </StyledHighlightWrapper>
-      <ActionLink item={item} isActiveItem={true} />
+      <ActionLink isActiveItem item={item} />
     </StyledHitEnterMessageContainer>
   );
 }

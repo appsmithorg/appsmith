@@ -17,10 +17,10 @@ const renderComponent = (
   const showError = componentProps.meta.touched && !componentProps.meta.active;
 
   return (
-    <React.Fragment>
+    <>
       <InputComponent {...componentProps} {...componentProps.input} fill />
       <FormFieldError error={showError && componentProps.meta.error} />
-    </React.Fragment>
+    </>
   );
 };
 
@@ -36,9 +36,9 @@ type FormTextFieldProps = {
 
 function FormTextField(props: FormTextFieldProps) {
   return (
-    <React.Fragment>
+    <>
       <Field component={renderComponent} {...props} asyncControl />
-    </React.Fragment>
+    </>
   );
 }
 

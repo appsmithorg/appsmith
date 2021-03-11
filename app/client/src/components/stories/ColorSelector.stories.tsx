@@ -19,9 +19,9 @@ export function ColorPickerStory() {
   return (
     <StoryWrapper>
       <ColorSelector
-        onSelect={action("color-picker")}
-        fill={boolean("fill", false)}
         colorPalette={array("colorPalette", defaultValue)}
+        fill={boolean("fill", false)}
+        onSelect={action("color-picker")}
       />
     </StoryWrapper>
   );

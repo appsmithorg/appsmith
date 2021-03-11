@@ -85,11 +85,11 @@ class DynamicTextControl extends BaseControl<
           />
         ) : (
           <DynamicTextField
-            size={EditorSize.EXTENDED}
-            name={this.props.configProperty}
-            dataTreePath={`${this.props.actionName}.config.body`}
             className="dynamic-text-field"
+            dataTreePath={`${this.props.actionName}.config.body`}
             mode={mode}
+            name={this.props.configProperty}
+            size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
           />
         )}

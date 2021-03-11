@@ -143,10 +143,10 @@ function WidgetSidebar(props: IPanelProps) {
     <>
       <Boxed step={OnboardingStep.DEPLOY}>
         <ExplorerSearch
-          ref={searchInputRef}
+          autoFocus
           clear={clearSearchInput}
           placeholder="Search widgets..."
-          autoFocus={true}
+          ref={searchInputRef}
         />
       </Boxed>
 
@@ -157,30 +157,25 @@ function WidgetSidebar(props: IPanelProps) {
           </Info>
           <CloseIcon
             className="t--close-widgets-sidebar"
+            color={Colors.WHITE}
             icon="cross"
             iconSize={16}
-            color={Colors.WHITE}
             onClick={props.closePanel}
           />
         </Header>
         <CardsWrapper>
           {filteredCards.map((card: WidgetCardProps) => (
             <Boxed
-              step={OnboardingStep.DEPLOY}
+              key={card.key}
               show={
                 (card.type === "TABLE_WIDGET" && showTableWidget) ||
                 (card.type === "INPUT_WIDGET" && showInputWidget)
               }
-              key={card.key}
+              step={OnboardingStep.DEPLOY}
             >
               <OnboardingIndicator
-                width={100}
-                hasButton={false}
                 className="onboarding-widget-menu"
-                step={
-                  OnboardingStep.RUN_QUERY_SUCCESS ||
-                  OnboardingStep.ADD_INPUT_WIDGET
-                }
+                hasButton={false}
                 show={
                   (card.type === "TABLE_WIDGET" &&
                     currentStep === OnboardingStep.RUN_QUERY_SUCCESS) ||
@@ -188,6 +183,11 @@ function WidgetSidebar(props: IPanelProps) {
                     currentSubStep === 0 &&
                     currentStep === OnboardingStep.ADD_INPUT_WIDGET)
                 }
+                step={
+                  OnboardingStep.RUN_QUERY_SUCCESS ||
+                  OnboardingStep.ADD_INPUT_WIDGET
+                }
+                width={100}
               >
                 <WidgetCard details={card} />
               </OnboardingIndicator>

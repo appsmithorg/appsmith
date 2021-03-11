@@ -68,41 +68,41 @@ function TabControlComponent(props: RenderComponentProps) {
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
-        type="text"
-        placeholder="Tab Title"
+        defaultValue={item.label}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           updateOption(index, event.target.value);
         }}
-        defaultValue={item.label}
+        placeholder="Tab Title"
+        type="text"
       />
       <StyledDeleteIcon
         className="t--delete-tab-btn"
         height={20}
-        width={20}
         marginRight={12}
         onClick={() => {
           deleteOption(index);
         }}
+        width={20}
       />
       {item.isVisible || item.isVisible === undefined ? (
         <StyledVisibleIcon
           className="t--show-tab-btn"
           height={20}
-          width={20}
           marginRight={36}
           onClick={() => {
             toggleVisibility && toggleVisibility(index);
           }}
+          width={20}
         />
       ) : (
         <StyledHiddenIcon
           className="t--show-tab-btn"
           height={20}
-          width={20}
           marginRight={36}
           onClick={() => {
             toggleVisibility && toggleVisibility(index);
           }}
+          width={20}
         />
       )}
     </ItemWrapper>
@@ -153,19 +153,19 @@ class TabControl extends BaseControl<ControlProps> {
     return (
       <TabsWrapper>
         <DroppableComponent
+          deleteOption={this.deleteOption}
           items={tabs}
           renderComponent={TabControlComponent}
-          deleteOption={this.deleteOption}
-          updateOption={this.updateOption}
-          updateItems={this.updateItems}
           toggleVisibility={this.toggleVisibility}
+          updateItems={this.updateItems}
+          updateOption={this.updateOption}
         />
         <StyledPropertyPaneButtonWrapper>
           <StyledPropertyPaneButton
-            text="Add a Tab"
             color="#FFFFFF"
             minimal
             onClick={this.addOption}
+            text="Add a Tab"
           />
         </StyledPropertyPaneButtonWrapper>
       </TabsWrapper>

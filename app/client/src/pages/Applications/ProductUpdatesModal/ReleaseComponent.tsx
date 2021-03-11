@@ -113,13 +113,13 @@ const ReadMore = withTheme(
             : "read less"}
         </div>
         <Icon
+          fillColor={theme.colors.text.normal}
           name={
             currentState === ReleaseComponentViewState.collapsed
               ? "view-all"
               : "view-less"
           }
           size={IconSize.XS}
-          fillColor={theme.colors.text.normal}
         />
       </StyledReadMore>
     </ReadMoreContainer>
@@ -159,14 +159,14 @@ function ReleaseComponent({ release }: ReleaseProps) {
       <StyledTitle>{name}</StyledTitle>
       <StyledDate>{moment(publishedAt).format("Do MMMM, YYYY")}</StyledDate>
       <StyledContent
-        ref={contentRef}
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
         maxHeight={getHeight()}
+        ref={contentRef}
       />
       {shouldShowReadMore && (
         <ReadMore
-          onClick={toggleCollapsedState}
           currentState={getReadMoreState()}
+          onClick={toggleCollapsedState}
         />
       )}
       <StyledSeparator />

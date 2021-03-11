@@ -25,18 +25,15 @@ export function ToastStory() {
   return (
     <StoryWrapper>
       <StyledToastContainer
-        hideProgressBar
-        draggable={false}
-        transition={Slide}
         autoClose={5000}
         closeButton={false}
+        draggable={false}
+        hideProgressBar
         pauseOnHover={false}
+        transition={Slide}
       />
       <Button
-        size={Size.large}
         category={Category.tertiary}
-        variant={Variant.info}
-        text="Show toast message"
         onClick={() => {
           Toaster.show({
             text: text("message", "App name saved successfully"),
@@ -45,6 +42,9 @@ export function ToastStory() {
             onUndo: action("on-undo"),
           });
         }}
+        size={Size.large}
+        text="Show toast message"
+        variant={Variant.info}
       />
     </StoryWrapper>
   );

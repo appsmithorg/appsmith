@@ -47,21 +47,21 @@ function EntityNotFoundPane() {
   return (
     <Wrapper>
       <img
-        src={PageUnavailableImage}
         alt="Page Unavailable"
         className="page-unavailable-img"
+        src={PageUnavailableImage}
       />
       <div className="page-details">
         <p className="bold-text">{INVALID_URL_ERROR}</p>
         <p className="page-message">{PAGE_NOT_FOUND_ERROR}</p>
         <Button
+          category={Category.secondary}
+          className="button-position"
+          cypressSelector="t--invalid-page-go-back"
+          onClick={history.goBack}
+          size={Size.large}
           tag="button"
           text="Go Back"
-          cypressSelector="t--invalid-page-go-back"
-          className="button-position"
-          size={Size.large}
-          category={Category.secondary}
-          onClick={history.goBack}
         />
       </div>
     </Wrapper>

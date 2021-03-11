@@ -48,19 +48,19 @@ function BindingPrompt(props: {
   }
   return (
     <Wrapper
-      className="t--no-binding-prompt"
-      ref={promptRef}
       bottomOffset={bottomOffset}
-      visible={props.isOpen}
+      className="t--no-binding-prompt"
       customMessage={customMessage}
       editorTheme={props.editorTheme}
+      ref={promptRef}
+      visible={props.isOpen}
     >
       {props.promptMessage ? (
         props.promptMessage
       ) : (
-        <React.Fragment>
+        <>
           Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
-        </React.Fragment>
+        </>
       )}
     </Wrapper>
   );

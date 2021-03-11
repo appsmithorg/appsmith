@@ -37,7 +37,6 @@ export function SideNavItem(props: SideNavItemProps) {
   return (
     <NavLink
       exact
-      to={props.path}
       onClick={() => {
         AnalyticsUtil.logEvent("PAGE_SWITCH", {
           pageName: props.text,
@@ -45,16 +44,17 @@ export function SideNavItem(props: SideNavItemProps) {
           mode: "VIEW",
         });
       }}
+      to={props.path}
     >
       <MenuItem
+        active={!!match}
         className={
           props.loading
             ? Classes.SKELETON
             : `${Classes.FILL} t--page-nav-${props.text}`
         }
-        active={!!match}
-        text={menuItemContent}
         tagName="div"
+        text={menuItemContent}
       />
     </NavLink>
   );

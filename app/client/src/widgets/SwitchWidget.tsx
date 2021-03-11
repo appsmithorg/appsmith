@@ -94,14 +94,14 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   getPageView() {
     return (
       <SwitchComponent
-        isSwitchedOn={!!this.props.isSwitchedOn}
         alignWidget={this.props.alignWidget ? this.props.alignWidget : "LEFT"}
-        label={this.props.label}
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
         isDisabled={this.props.isDisabled}
-        onChange={this.onChange}
         isLoading={this.props.isLoading}
+        isSwitchedOn={!!this.props.isSwitchedOn}
+        key={this.props.widgetId}
+        label={this.props.label}
+        onChange={this.onChange}
+        widgetId={this.props.widgetId}
       />
     );
   }

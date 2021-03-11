@@ -37,10 +37,9 @@ export function WidgetContextMenu(props: {
   return (
     <TreeDropdown
       className={props.className}
-      modifiers={ContextMenuPopoverModifiers}
       defaultText=""
+      modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      selectedValue=""
       optionTree={[
         {
           value: "rename",
@@ -54,6 +53,7 @@ export function WidgetContextMenu(props: {
           intent: "danger",
         },
       ]}
+      selectedValue=""
       toggle={<ContextMenuTrigger />}
     />
   );

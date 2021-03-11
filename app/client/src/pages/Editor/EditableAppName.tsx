@@ -45,17 +45,12 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
   return (
     <Container>
       <EditableText
+        className={props.className}
         defaultValue={props.defaultValue}
         editInteractionKind={props.editInteractionKind}
-        placeholder={props.placeholder}
-        isEditingDefault={isEditingDefault}
-        savingState={props.savingState}
         fill={props.fill}
-        onBlur={(value) => {
-          if (props.onBlur) props.onBlur(value);
-          setIsEditingDefault(false);
-        }}
-        className={props.className}
+        hideEditIcon
+        isEditingDefault={isEditingDefault}
         isInvalid={(value: string) => {
           if (value.trim() === "") {
             Toaster.show({
@@ -65,7 +60,12 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
           }
           return false;
         }}
-        hideEditIcon
+        onBlur={(value) => {
+          if (props.onBlur) props.onBlur(value);
+          setIsEditingDefault(false);
+        }}
+        placeholder={props.placeholder}
+        savingState={props.savingState}
       />
     </Container>
   );

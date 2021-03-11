@@ -18,17 +18,17 @@ function RenderComponent(props: RenderComponentProps) {
 
   return (
     <Checkbox
+      cypressSelector={props.input?.name}
+      info={props.info}
       isDefaultChecked={props.input?.checked}
       label={props.label}
       onCheckChange={onChangeHandler}
-      info={props.info}
-      cypressSelector={props.input?.name}
     />
   );
 }
 
 export function CheckboxField(props: BaseFieldProps & CheckboxProps) {
-  return <Field type="checkbox" component={RenderComponent} {...props} />;
+  return <Field component={RenderComponent} type="checkbox" {...props} />;
 }
 
 export default CheckboxField;

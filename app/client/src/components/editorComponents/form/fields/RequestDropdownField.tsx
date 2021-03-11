@@ -20,9 +20,9 @@ const renderComponent = (
   componentProps: RequestDropdownProps & DropdownProps,
 ) => {
   return (
-    <React.Fragment>
+    <>
       <DropdownFieldWrapper {...componentProps} />
-    </React.Fragment>
+    </>
   );
 };
 

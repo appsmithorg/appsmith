@@ -83,11 +83,11 @@ export function JSDependencies() {
       <Title onClick={toggleDependencies}>
         <Icon icon={icon} />
         <span>JS libraries you can use</span>
-        <Tooltip content={TooltipContent} position="top" boundary="viewport">
+        <Tooltip boundary="viewport" content={TooltipContent} position="top">
           <Help
+            color={Colors.DOVE_GRAY}
             icon="help"
             iconSize={12}
-            color={Colors.DOVE_GRAY}
             onClick={showDocs}
           />
         </Tooltip>

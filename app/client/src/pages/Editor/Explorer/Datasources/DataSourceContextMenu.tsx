@@ -29,10 +29,9 @@ export function DataSourceContextMenu(props: {
   return (
     <TreeDropdown
       className={props.className}
-      modifiers={ContextMenuPopoverModifiers}
       defaultText=""
+      modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      selectedValue=""
       optionTree={[
         {
           value: "rename",
@@ -51,6 +50,7 @@ export function DataSourceContextMenu(props: {
           intent: "danger",
         },
       ]}
+      selectedValue=""
       toggle={<ContextMenuTrigger />}
     />
   );

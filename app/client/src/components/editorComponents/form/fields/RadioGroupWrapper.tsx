@@ -38,12 +38,12 @@ function RadioGroupWrapper(props: RadioGroupWrapperProps) {
 
   return (
     <RadioComponent
-      defaultValue={selectedOption}
-      rows={props.rows}
-      columns={props.columns}
-      options={props.options}
-      onSelect={(value: string) => onSelectHandler(value)}
       className={props.className}
+      columns={props.columns}
+      defaultValue={selectedOption}
+      onSelect={(value: string) => onSelectHandler(value)}
+      options={props.options}
+      rows={props.rows}
     />
   );
 }

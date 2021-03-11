@@ -126,17 +126,15 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Organization Name</Text>
         </InputLabelWrapper>
-        {isFetchingApplications && (
-          <Loader className={Classes.SKELETON}></Loader>
-        )}
+        {isFetchingApplications && <Loader className={Classes.SKELETON} />}
         {!isFetchingApplications && (
           <TextInput
-            validator={notEmptyValidator}
-            placeholder="Organization Name"
-            onChange={onWorkspaceNameChange}
-            defaultValue={currentOrg && currentOrg.name}
             cypressSelector="t--org-name-input"
-          ></TextInput>
+            defaultValue={currentOrg && currentOrg.name}
+            onChange={onWorkspaceNameChange}
+            placeholder="Organization Name"
+            validator={notEmptyValidator}
+          />
         )}
       </SettingWrapper>
 
@@ -144,15 +142,13 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Upload Logo</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && (
-          <FilePickerLoader className={Classes.SKELETON}></FilePickerLoader>
-        )}
+        {isFetchingOrg && <FilePickerLoader className={Classes.SKELETON} />}
         {!isFetchingOrg && (
           <FilePicker
-            url={currentOrg && currentOrg.logoUrl}
             fileUploader={FileUploader}
-            onFileRemoved={DeleteLogo}
             logoUploadError={logoUploadError.message}
+            onFileRemoved={DeleteLogo}
+            url={currentOrg && currentOrg.logoUrl}
           />
         )}
       </SettingWrapper>
@@ -161,16 +157,14 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Website</Text>
         </InputLabelWrapper>
-        {isFetchingApplications && (
-          <Loader className={Classes.SKELETON}></Loader>
-        )}
+        {isFetchingApplications && <Loader className={Classes.SKELETON} />}
         {!isFetchingApplications && (
           <TextInput
-            placeholder="Your website"
-            onChange={onWebsiteChange}
-            defaultValue={(currentOrg && currentOrg.website) || ""}
             cypressSelector="t--org-website-input"
-          ></TextInput>
+            defaultValue={(currentOrg && currentOrg.website) || ""}
+            onChange={onWebsiteChange}
+            placeholder="Your website"
+          />
         )}
       </SettingWrapper>
 
@@ -178,17 +172,15 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Email</Text>
         </InputLabelWrapper>
-        {isFetchingApplications && (
-          <Loader className={Classes.SKELETON}></Loader>
-        )}
+        {isFetchingApplications && <Loader className={Classes.SKELETON} />}
         {!isFetchingApplications && (
           <TextInput
-            validator={emailValidator}
-            placeholder="Email"
-            onChange={onEmailChange}
-            defaultValue={(currentOrg && currentOrg.email) || ""}
             cypressSelector="t--org-email-input"
-          ></TextInput>
+            defaultValue={(currentOrg && currentOrg.email) || ""}
+            onChange={onEmailChange}
+            placeholder="Email"
+            validator={emailValidator}
+          />
         )}
       </SettingWrapper>
     </>

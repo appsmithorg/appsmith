@@ -49,8 +49,8 @@ class GlobalHotKeys extends React.Component<Props> {
     return (
       <Hotkeys>
         <Hotkey
-          global={true}
           combo="mod + f"
+          global
           label="Search entities"
           onKeyDown={(e: any) => {
             const entitySearchInput = document.getElementById(
@@ -66,22 +66,22 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
+          allowInInput={false}
           combo="mod + k"
+          global
+          label="Show omnibar"
           onKeyDown={(e: KeyboardEvent) => {
             console.log("toggleShowGlobalSearchModal");
             e.preventDefault();
             this.props.toggleShowGlobalSearchModal();
             AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
           }}
-          allowInInput={false}
-          label="Show omnibar"
-          global={true}
         />
         <Hotkey
-          global={true}
           combo="mod + c"
-          label="Copy Widget"
+          global
           group="Canvas"
+          label="Copy Widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.copySelectedWidget();
@@ -89,19 +89,19 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
-          global={true}
           combo="mod + v"
-          label="Paste Widget"
+          global
           group="Canvas"
+          label="Paste Widget"
           onKeyDown={() => {
             this.props.pasteCopiedWidget();
           }}
         />
         <Hotkey
-          global={true}
           combo="backspace"
-          label="Delete Widget"
+          global
           group="Canvas"
+          label="Delete Widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e) && isMac()) {
               this.props.deleteSelectedWidget();
@@ -109,10 +109,10 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
-          global={true}
           combo="del"
-          label="Delete Widget"
+          global
           group="Canvas"
+          label="Delete Widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.deleteSelectedWidget();
@@ -120,10 +120,10 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
-          global={true}
           combo="mod + x"
-          label="Cut Widget"
+          global
           group="Canvas"
+          label="Cut Widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.cutSelectedWidget();

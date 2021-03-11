@@ -93,7 +93,7 @@ function Hit(props: { hit: { path: string } }) {
       }}
     >
       <div className="hit-name t--docHitTitle">
-        <StyledDocumentIcon width={11.2} height={14} color="#181F24" />
+        <StyledDocumentIcon color="#181F24" height={14} width={11.2} />
         <Highlight attribute="title" hit={props.hit} />
         <StyledOpenLinkIcon
           className="t--docOpenLink open-link"
@@ -323,22 +323,22 @@ type HelpItem = {
 
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
-    icon: <StyledDocumentIcon width={11.2} height={14} color="#181F24" />,
+    icon: <StyledDocumentIcon color="#181F24" height={14} width={11.2} />,
     label: "Documentation",
     link: "https://docs.appsmith.com/",
   },
   {
-    icon: <StyledGithubIcon width={11.2} height={14} color="#fff" />,
+    icon: <StyledGithubIcon color="#fff" height={14} width={11.2} />,
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
-    icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
+    icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
     label: "Chat with us",
     link: "https://github.com/appsmithorg/appsmith/discussions",
   },
   {
-    icon: <StyledDiscordIcon width={16} height={16} />,
+    icon: <StyledDiscordIcon height={16} width={16} />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
@@ -346,7 +346,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
 
 if (cloudHosting) {
   HELP_MENU_ITEMS[2] = {
-    icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
+    icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
     label: "Chat with us",
     id: "intercom-trigger",
   };
@@ -395,6 +395,10 @@ class DocumentationSearch extends React.Component<Props, State> {
         {!this.props.hideMinimizeBtn && (
           <Icon
             className="t--docsMinimize"
+            color="white"
+            icon="minus"
+            iconSize={14}
+            onClick={this.handleClose}
             style={{
               position: "absolute",
               top: 6,
@@ -402,10 +406,6 @@ class DocumentationSearch extends React.Component<Props, State> {
               cursor: "pointer",
               zIndex: 1,
             }}
-            icon="minus"
-            color="white"
-            iconSize={14}
-            onClick={this.handleClose}
           />
         )}
         <InstantSearch
@@ -418,8 +418,8 @@ class DocumentationSearch extends React.Component<Props, State> {
               <Header>
                 <StyledPoweredBy />
                 <SearchBox
-                  onChange={this.onSearchValueChange}
                   defaultRefinement={this.props.defaultRefinement}
+                  onChange={this.onSearchValueChange}
                 />
               </Header>
             )}
@@ -430,8 +430,8 @@ class DocumentationSearch extends React.Component<Props, State> {
                 <ul className="ais-Hits-list">
                   {HELP_MENU_ITEMS.map((item) => (
                     <DefaultHelpMenuItem
-                      key={item.label}
                       item={item}
+                      key={item.label}
                       onSelect={this.handleClose}
                     />
                   ))}

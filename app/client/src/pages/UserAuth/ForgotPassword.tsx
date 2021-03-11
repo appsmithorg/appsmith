@@ -86,10 +86,6 @@ export const ForgotPassword = withTheme(
           )}
           {!mailEnabled && (
             <FormMessage
-              intent="warning"
-              message={
-                "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
-              }
               actions={[
                 {
                   url: "https://docs.appsmith.com/v/v1.2.1/setup/docker/email",
@@ -97,6 +93,10 @@ export const ForgotPassword = withTheme(
                   intent: "primary",
                 },
               ]}
+              intent="warning"
+              message={
+                "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
+              }
             />
           )}
           {submitFailed && error && (
@@ -109,20 +109,20 @@ export const ForgotPassword = withTheme(
             label={FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL}
           >
             <FormTextField
+              disabled={submitting}
               name="email"
               placeholder={FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER}
-              disabled={submitting}
             />
           </FormGroup>
           <FormActions>
             <Button
-              tag="button"
-              type="submit"
-              text={FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT}
-              fill
-              size={Size.large}
               disabled={!isEmail(props.emailValue)}
+              fill
               isLoading={submitting}
+              size={Size.large}
+              tag="button"
+              text={FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT}
+              type="submit"
             />
           </FormActions>
         </StyledForm>

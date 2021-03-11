@@ -94,9 +94,9 @@ function Indicator(props: IndicatorProps) {
   if (showingIndicator === props.step && props.show) {
     return (
       <Wrapper
+        className={`t--onboarding-indicator ${props.className}`}
         hasButton={props.hasButton}
         width={props.width || 250}
-        className={`t--onboarding-indicator ${props.className}`}
       >
         {props.children}
       </Wrapper>

@@ -109,58 +109,62 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     <Wrapper>
       <NameWrapper>
         <EditableText
-          type="text"
-          valueTransform={removeSpecialChars}
+          beforeUnmount={updateTitle}
+          className="t--propery-page-title"
           defaultValue={name}
+          editInteractionKind={EditInteractionKind.SINGLE}
+          hideEditIcon
+          isEditingDefault={isNew}
+          minimal
+          onBlur={exitEditMode}
           onTextChanged={updateTitle}
           placeholder={props.title}
+          type="text"
           updating={updating}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          isEditingDefault={isNew}
-          onBlur={exitEditMode}
-          hideEditIcon
-          minimal
-          className="t--propery-page-title"
-          beforeUnmount={updateTitle}
+          valueTransform={removeSpecialChars}
         />
         {updating && <Spinner size={16} />}
       </NameWrapper>
       <Tooltip
         content="Copy Widget"
-        position={Position.TOP}
         hoverOpenDelay={200}
+        position={Position.TOP}
       >
         <CopyIcon
           className="t--copy-widget"
-          width={14}
-          height={14}
           color={theme.colors.paneSectionLabel}
+          height={14}
           onClick={handleCopy}
+          width={14}
         />
       </Tooltip>
       <Tooltip
         content="Delete Widget"
-        position={Position.TOP}
         hoverOpenDelay={200}
+        position={Position.TOP}
       >
         <DeleteIcon
           className="t--delete-widget"
-          width={16}
-          height={16}
           color={theme.colors.paneSectionLabel}
+          height={16}
           onClick={handleDelete}
+          width={16}
         />
       </Tooltip>
       <Tooltip
-        content={<span>Explore widget related docs</span>}
-        position={Position.TOP}
-        hoverOpenDelay={200}
         boundary="window"
+        content={<span>Explore widget related docs</span>}
+        hoverOpenDelay={200}
+        position={Position.TOP}
       >
         <PropertyPaneHelpButton />
       </Tooltip>
-      <Tooltip content="Close" position={Position.TOP} hoverOpenDelay={200}>
+      <Tooltip content="Close" hoverOpenDelay={200} position={Position.TOP}>
         <Icon
+          className={"t--property-pane-close-btn"}
+          color={theme.colors.paneSectionLabel}
+          icon="cross"
+          iconSize={16}
           onClick={(e: any) => {
             AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
               widgetType: props.widgetType || "",
@@ -170,10 +174,6 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
             e.preventDefault();
             e.stopPropagation();
           }}
-          iconSize={16}
-          color={theme.colors.paneSectionLabel}
-          icon="cross"
-          className={"t--property-pane-close-btn"}
         />
       </Tooltip>
     </Wrapper>

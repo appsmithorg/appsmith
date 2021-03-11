@@ -249,8 +249,8 @@ export function AppLoader() {
     <>
       <LoadingAnimation />
       <Container className="app-box">
-        <ContentLoader className={Classes.SKELETON}></ContentLoader>
-        <AppName className={Classes.SKELETON}></AppName>
+        <ContentLoader className={Classes.SKELETON} />
+        <AppName className={Classes.SKELETON} />
       </Container>
     </>
   );

@@ -21,13 +21,13 @@ export function TextInputStory() {
   return (
     <StoryWrapper>
       <TextInput
-        placeholder={text("placeholder", "Your name")}
+        defaultValue={text("defaultValue", "This is valid")}
         disabled={boolean("disabled", false)}
         fill={boolean("fill", true)}
-        defaultValue={text("defaultValue", "This is valid")}
         onChange={action("input value changed")}
+        placeholder={text("placeholder", "Your name")}
         validator={() => callValidator1()}
-      ></TextInput>
+      />
     </StoryWrapper>
   );
 }
@@ -43,13 +43,13 @@ export function ErrorTextInputStory() {
   return (
     <StoryWrapper>
       <TextInput
-        placeholder={text("placeholder", "Your name")}
+        defaultValue={text("defaultValue", "This is wrong")}
         disabled={boolean("disabled", false)}
         fill={boolean("fill", true)}
         onChange={(value) => console.log(value)}
-        defaultValue={text("defaultValue", "This is wrong")}
+        placeholder={text("placeholder", "Your name")}
         validator={() => callValidator2()}
-      ></TextInput>
+      />
     </StoryWrapper>
   );
 }

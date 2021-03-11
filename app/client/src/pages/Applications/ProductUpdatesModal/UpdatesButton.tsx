@@ -49,9 +49,9 @@ const UpdatesButtonTextContainer = styled.div`
 
 const UpdatesIcon = withTheme(({ theme }) => (
   <HelpIcons.UPDATES
+    color={theme.colors.floatingBtn.iconColor}
     height={12}
     width={13}
-    color={theme.colors.floatingBtn.iconColor}
   />
 ));
 

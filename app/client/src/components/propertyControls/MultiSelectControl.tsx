@@ -18,14 +18,14 @@ class MultiSelectControl extends BaseControl<MultiSelectControlProps> {
     });
     return (
       <StyledMultiSelectDropDown
-        items={this.props.options}
-        placeholder={this.props.placeholderText}
         itemRenderer={this.renderItem}
-        tagRenderer={this.renderTag}
+        items={this.props.options}
+        noResults={<MenuItem disabled text="No results." />}
+        onItemSelect={this.onItemSelect}
+        placeholder={this.props.placeholderText}
         selectedItems={selectedItems}
         tagInputProps={{ onRemove: this.onItemRemoved }}
-        onItemSelect={this.onItemSelect}
-        noResults={<MenuItem disabled={true} text="No results." />}
+        tagRenderer={this.renderTag}
       />
     );
   }
@@ -63,8 +63,8 @@ class MultiSelectControl extends BaseControl<MultiSelectControlProps> {
     const isSelected: boolean = this.isOptionSelected(option);
     return (
       <MenuItem
-        icon={isSelected ? "tick" : "blank"}
         active={itemProps.modifiers.active}
+        icon={isSelected ? "tick" : "blank"}
         key={option.value}
         onClick={itemProps.handleClick}
         text={option.label}

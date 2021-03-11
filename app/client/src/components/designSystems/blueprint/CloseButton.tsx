@@ -27,8 +27,8 @@ export function CloseButton(props: CloseButtonProps) {
     <StyledButton
       className={props.className}
       {...props}
-      rightIcon="cross"
       minimal
+      rightIcon="cross"
     />
   );
 }

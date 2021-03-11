@@ -91,8 +91,8 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       {props.templates.map((template) => {
         return (
           <TemplateType
-            key={template.title}
             className={Classes.POPOVER_DISMISS}
+            key={template.title}
             onClick={() => createQueryAction(template)}
           >
             {template.title}

@@ -89,15 +89,15 @@ function ForkApplicationModal(props: any) {
 
   return (
     <StyledDialog
-      title={"Select the organisation to fork"}
-      maxHeight={"540px"}
       className={"fork-modal"}
+      maxHeight={"540px"}
+      title={"Select the organisation to fork"}
       trigger={
         <TriggerButton
-          text={FORK_APP}
+          className="t--fork-app"
           icon="fork"
           size={Size.small}
-          className="t--fork-app"
+          text={FORK_APP}
         />
       }
     >
@@ -108,16 +108,16 @@ function ForkApplicationModal(props: any) {
             className={"radio-group"}
             columns={1}
             defaultValue={organizationList[0].value}
-            options={organizationList}
             onSelect={(value) => selectOrganizationId(value)}
+            options={organizationList}
           />
         </OrganizationList>
       )}
       <ForkButton
         disabled={!organizationId}
-        text={"FORK"}
         onClick={forkApplication}
         size={Size.large}
+        text={"FORK"}
       />
     </StyledDialog>
   );

@@ -790,53 +790,53 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
-          height={componentHeight}
-          width={componentWidth}
-          tableData={transformedData}
-          columns={tableColumns}
-          isLoading={this.props.isLoading}
-          widgetId={this.props.widgetId}
-          widgetName={this.props.widgetName}
-          searchKey={this.props.searchText}
-          editMode={this.props.renderMode === RenderModes.CANVAS}
-          hiddenColumns={hiddenColumns}
+          applyFilter={(filters: ReactTableFilter[]) => {
+            this.resetSelectedRowIndex();
+            this.props.updateWidgetMetaProperty("filters", filters);
+          }}
           columnOrder={this.props.columnOrder}
-          triggerRowSelection={this.props.triggerRowSelection}
           columnSizeMap={this.props.columnSizeMap}
-          pageSize={Math.max(1, pageSize)}
+          columns={tableColumns}
+          compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
+          disableDrag={(disable: boolean) => {
+            this.disableDrag(disable);
+          }}
+          editMode={this.props.renderMode === RenderModes.CANVAS}
+          filters={this.props.filters}
+          handleReorderColumn={this.handleReorderColumn}
+          handleResizeColumn={this.handleResizeColumn}
+          height={componentHeight}
+          hiddenColumns={hiddenColumns}
+          isLoading={this.props.isLoading}
+          multiRowSelection={this.props.multiRowSelection}
+          nextPageClick={this.handleNextPageClick}
           onCommandClick={this.onCommandClick}
+          onRowClick={this.handleRowClick}
+          pageNo={pageNo}
+          pageSize={Math.max(1, pageSize)}
+          prevPageClick={this.handlePrevPageClick}
+          searchKey={this.props.searchText}
+          searchTableData={this.handleSearchTable}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined
               ? -1
               : this.props.selectedRowIndex
           }
-          multiRowSelection={this.props.multiRowSelection}
           selectedRowIndices={computedSelectedRowIndices}
           serverSidePaginationEnabled={serverSidePaginationEnabled}
-          onRowClick={this.handleRowClick}
-          pageNo={pageNo}
-          nextPageClick={this.handleNextPageClick}
-          prevPageClick={this.handlePrevPageClick}
-          handleResizeColumn={this.handleResizeColumn}
-          updatePageNo={this.updatePageNumber}
-          updateHiddenColumns={(hiddenColumns?: string[]) => {
-            super.updateWidgetProperty("hiddenColumns", hiddenColumns);
-          }}
-          handleReorderColumn={this.handleReorderColumn}
-          disableDrag={(disable: boolean) => {
-            this.disableDrag(disable);
-          }}
-          searchTableData={this.handleSearchTable}
-          filters={this.props.filters}
-          applyFilter={(filters: ReactTableFilter[]) => {
-            this.resetSelectedRowIndex();
-            this.props.updateWidgetMetaProperty("filters", filters);
-          }}
-          compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
+          sortTableColumn={this.handleColumnSorting}
+          tableData={transformedData}
+          triggerRowSelection={this.props.triggerRowSelection}
           updateCompactMode={(compactMode: CompactMode) => {
             this.props.updateWidgetMetaProperty("compactMode", compactMode);
           }}
-          sortTableColumn={this.handleColumnSorting}
+          updateHiddenColumns={(hiddenColumns?: string[]) => {
+            super.updateWidgetProperty("hiddenColumns", hiddenColumns);
+          }}
+          updatePageNo={this.updatePageNumber}
+          widgetId={this.props.widgetId}
+          widgetName={this.props.widgetName}
+          width={componentWidth}
         />
       </Suspense>
     );

@@ -71,12 +71,12 @@ function PropertyPaneView(
     <>
       <PropertyPaneTitle
         key={widgetProperties.widgetId}
+        onClose={hidePropertyPane}
         title={widgetProperties.widgetName}
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
-        onClose={hidePropertyPane}
       />
-      <PropertyControlsGenerator type={widgetProperties.type} panel={panel} />
+      <PropertyControlsGenerator panel={panel} type={widgetProperties.type} />
     </>
   );
 }
@@ -91,12 +91,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
         generateClassName(this.props.widgetProperties?.widgetId),
       )[0];
       return (
-        <Popper
-          isOpen={true}
-          targetNode={el}
-          zIndex={3}
-          placement="right-start"
-        >
+        <Popper isOpen placement="right-start" targetNode={el} zIndex={3}>
           {content}
         </Popper>
       );
@@ -110,21 +105,21 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     if (!widgetProperties) return <PropertyPaneWrapper />;
     return (
       <PropertyPaneWrapper
-        ref={this.panelWrapperRef}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
+        ref={this.panelWrapperRef}
       >
         <StyledPanelStack
-          onOpen={() => {
-            const parent = this.panelWrapperRef.current;
-            parent?.scrollTo(0, 0);
-          }}
           initialPanel={{
             component: PropertyPaneView,
             props: {
               hidePropertyPane: this.props.hidePropertyPane,
             },
+          }}
+          onOpen={() => {
+            const parent = this.panelWrapperRef.current;
+            parent?.scrollTo(0, 0);
           }}
           showPanelHeader={false}
         />

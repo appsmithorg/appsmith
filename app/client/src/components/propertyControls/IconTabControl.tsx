@@ -41,12 +41,12 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
           const ControlIcon = ControlIcons[controlIconName];
           return (
             <ItemWrapper
-              key={index}
-              selected={propertyValue === option.value}
-              onClick={() => this.selectOption(option.value)}
               className={`t--icon-tab-${option.value}`}
+              key={index}
+              onClick={() => this.selectOption(option.value)}
+              selected={propertyValue === option.value}
             >
-              <ControlIcon color={Colors.WHITE} width={24} height={24} />
+              <ControlIcon color={Colors.WHITE} height={24} width={24} />
             </ItemWrapper>
           );
         })}

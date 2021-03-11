@@ -74,28 +74,17 @@ class ImageComponent extends React.Component<
       <Wrapper>
         <TransformWrapper
           defaultScale={1}
-          onPanningStart={() => {
-            this.props.disableDrag(true);
+          doubleClick={{
+            disabled: true,
           }}
           onPanning={() => {
             this.isPanning = true;
           }}
+          onPanningStart={() => {
+            this.props.disableDrag(true);
+          }}
           onPanningStop={() => {
             this.props.disableDrag(false);
-          }}
-          options={{
-            maxScale: maxZoomLevel,
-            disabled: !zoomActive,
-            transformEnabled: zoomActive,
-          }}
-          pan={{
-            disabled: !zoomActive,
-          }}
-          wheel={{
-            disabled: !zoomActive,
-          }}
-          doubleClick={{
-            disabled: true,
           }}
           onZoomChange={(zoom: any) => {
             if (zoomActive) {
@@ -119,18 +108,26 @@ class ImageComponent extends React.Component<
               }
             }
           }}
+          options={{
+            maxScale: maxZoomLevel,
+            disabled: !zoomActive,
+            transformEnabled: zoomActive,
+          }}
+          pan={{
+            disabled: !zoomActive,
+          }}
+          wheel={{
+            disabled: !zoomActive,
+          }}
         >
           {({ zoomIn, zoomOut }: any) => (
-            <React.Fragment>
+            <>
               <TransformComponent>
                 <StyledImage
                   className={this.props.isLoading ? "bp3-skeleton" : ""}
                   imageError={this.state.imageError}
                   {...this.props}
                   data-testid="styledImage"
-                  style={{
-                    cursor,
-                  }}
                   onClick={(event: React.MouseEvent<HTMLElement>) => {
                     if (!this.isPanning) {
                       if (isZoomingIn) {
@@ -142,19 +139,22 @@ class ImageComponent extends React.Component<
                     }
                     this.isPanning = false;
                   }}
+                  style={{
+                    cursor,
+                  }}
                 >
                   <img
+                    alt={this.props.widgetName}
+                    onError={this.onImageError}
+                    onLoad={this.onImageLoad}
+                    src={this.props.imageUrl}
                     style={{
                       display: "none",
                     }}
-                    alt={this.props.widgetName}
-                    src={this.props.imageUrl}
-                    onError={this.onImageError}
-                    onLoad={this.onImageLoad}
-                  ></img>
+                  />
                 </StyledImage>
               </TransformComponent>
-            </React.Fragment>
+            </>
           )}
         </TransformWrapper>
       </Wrapper>

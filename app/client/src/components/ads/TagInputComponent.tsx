@@ -142,22 +142,22 @@ function TagInputComponent(props: TagInputProps) {
   return (
     <TagInputWrapper intent={props.intent}>
       <TagInput
+        addOnPaste
         inputProps={{
           type: props.type,
           value: currentValue,
           onBlur: handleInputBlur,
         }}
-        onInputChange={handleInputChange}
-        placeholder={props.placeholder}
-        values={_values || [""]}
-        separator={props.separator || ","}
-        addOnPaste
+        large={false}
         onChange={onTagsChange}
+        onInputChange={handleInputChange}
         onKeyDown={onKeyDown}
+        placeholder={props.placeholder}
+        separator={props.separator || ","}
         tagProps={{
           round: true,
         }}
-        large={false}
+        values={_values || [""]}
       />
     </TagInputWrapper>
   );

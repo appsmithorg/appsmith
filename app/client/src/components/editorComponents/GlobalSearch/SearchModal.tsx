@@ -30,14 +30,14 @@ function DocsSearchModal({ modalOpen, toggleShow, children }: Props) {
   return (
     <StyledDocsSearchModal>
       <Overlay
+        hasBackdrop
         isOpen={modalOpen}
         onClose={toggleShow}
-        hasBackdrop={true}
-        usePortal={false}
         onClosing={() => {
           AnalyticsUtil.logEvent("CLOSE_OMNIBAR");
         }}
         transitionDuration={25}
+        usePortal={false}
       >
         <div className={`${Classes.OVERLAY_CONTENT} t--global-search-modal`}>
           {children}

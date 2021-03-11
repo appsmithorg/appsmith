@@ -25,13 +25,13 @@ export const ActionLink = withTheme(
     return (
       <StyledActionLink isActiveItem={isActiveItem}>
         <Icon
-          name="link"
-          size={IconSize.LARGE}
           fillColor={theme.colors.globalSearch.searchItemText}
+          name="link"
           onClick={(e) => {
             e.stopPropagation(); // to prevent toggleModal getting called twice
             searchContext?.handleItemLinkClick(item, "SEARCH_ITEM_ICON_CLICK");
           }}
+          size={IconSize.LARGE}
         />
       </StyledActionLink>
     );

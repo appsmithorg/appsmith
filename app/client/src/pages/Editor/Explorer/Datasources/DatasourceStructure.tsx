@@ -66,34 +66,34 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
 
   return (
     <Popover
-      canEscapeKeyClose={true}
-      isOpen={active}
-      className={`t--structure-template-menu`}
-      minimal
-      position={Position.RIGHT_TOP}
       boundary={"viewport"}
+      canEscapeKeyClose
+      className={`t--structure-template-menu`}
+      isOpen={active}
+      minimal
       onInteraction={(nextOpenState: boolean) => {
         if (!nextOpenState) {
           setActive(false);
         }
       }}
+      position={Position.RIGHT_TOP}
     >
       <StyledEntity
-        entityId={"DatasourceStructure"}
-        className={`datasourceStructure`}
-        name={dbStructure.name}
-        icon={datasourceTableIcon}
-        step={props.step}
-        active={active}
-        contextMenu={templateMenu}
         action={() => setActive(!active)}
+        active={active}
+        className={`datasourceStructure`}
+        contextMenu={templateMenu}
+        entityId={"DatasourceStructure"}
+        icon={datasourceTableIcon}
+        name={dbStructure.name}
+        step={props.step}
       >
         {columnsAndKeys.map((field, index) => {
           return (
             <DatasourceField
+              field={field}
               key={`${field.name}${index}`}
               step={props.step + 1}
-              field={field}
             />
           );
         })}

@@ -90,9 +90,9 @@ function ColorBoard(props: ColorBoardProps) {
     <ColorsWrapper>
       {defaultColors.map((color: string, index: number) => (
         <ColorTab
-          key={index}
-          color={color}
           className={Classes.POPOVER_DISMISS}
+          color={color}
+          key={index}
           onClick={() => props.selectColor(color)}
         >
           {props.selectedColor === color && <CheckedIcon />}
@@ -100,7 +100,7 @@ function ColorBoard(props: ColorBoardProps) {
       ))}
       <EmptyColorIconWrapper onClick={() => props.selectColor("")}>
         <NoColorIcon>
-          <div className="line"></div>
+          <div className="line" />
         </NoColorIcon>
       </EmptyColorIconWrapper>
     </ColorsWrapper>
@@ -153,16 +153,16 @@ function ColorPicker(props: ColorPickerProps) {
   };
   return (
     <Popover
-      minimal
-      usePortal
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
-      position={Position.BOTTOM}
+      minimal
       modifiers={{
         offset: {
           offset: "0, 24px",
         },
       }}
+      position={Position.BOTTOM}
+      usePortal
     >
       <StyledInputGroup
         leftIcon={
@@ -171,7 +171,7 @@ function ColorPicker(props: ColorPickerProps) {
           ) : (
             <NoColorIconWrapper>
               <NoColorIcon>
-                <div className="line"></div>
+                <div className="line" />
               </NoColorIcon>
             </NoColorIconWrapper>
           )
@@ -181,12 +181,12 @@ function ColorPicker(props: ColorPickerProps) {
         value={color}
       />
       <ColorBoard
-        selectedColor={color}
         selectColor={(color) => {
           console.log({ color });
           setColor(color);
           props.changeColor(color);
         }}
+        selectedColor={color}
       />
     </Popover>
   );
@@ -199,12 +199,12 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
   render() {
     return (
       <ColorPicker
+        changeColor={this.handleChangeColor}
         color={
           this.props.propertyValue
             ? this.props.propertyValue
             : this.props.defaultColor
         }
-        changeColor={this.handleChangeColor}
       />
     );
   }

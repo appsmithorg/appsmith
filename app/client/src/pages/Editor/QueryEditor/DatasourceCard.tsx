@@ -117,9 +117,9 @@ function DatasourceCard(props: DatasourceCardProps) {
         <div style={{ flex: 1 }}>
           <DatasourceNameWrapper>
             <DatasourceImage
-              src={pluginImages[datasource.pluginId]}
-              className="dataSourceImage"
               alt="Datasource"
+              className="dataSourceImage"
+              src={pluginImages[datasource.pluginId]}
             />
             <DatasourceName>{datasource.name}</DatasourceName>
           </DatasourceNameWrapper>
@@ -133,16 +133,16 @@ function DatasourceCard(props: DatasourceCardProps) {
           <EditDatasourceButton
             className="t--edit-datasource"
             icon={"edit"}
-            text="Edit Datasource"
             onClick={editDatasource}
+            text="Edit Datasource"
           />
           <ActionButton
-            className="t--create-query"
-            icon={"plus"}
-            text="New Query"
-            filled
             accent="primary"
+            className="t--create-query"
+            filled
+            icon={"plus"}
             onClick={() => props.onCreateQuery(datasource)}
+            text="New Query"
           />
         </ButtonsWrapper>
       </DatasourceCardHeader>

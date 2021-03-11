@@ -26,7 +26,7 @@ function MainContainer() {
       <Sidebar />
       <EditorContainer>
         <Switch>
-          <SentryRoute exact path={BUILDER_URL} component={WidgetsEditor} />
+          <SentryRoute component={WidgetsEditor} exact path={BUILDER_URL} />
           <SentryRoute component={EditorsRouter} />
         </Switch>
       </EditorContainer>

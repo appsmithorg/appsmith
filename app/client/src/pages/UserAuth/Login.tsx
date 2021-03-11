@@ -108,16 +108,14 @@ export function Login(props: LoginFormProps) {
       <SignUpLinkSection>
         {NEW_TO_APPSMITH}
         <AuthCardNavLink
-          to={signupURL}
           style={{ marginLeft: props.theme.spaces[3] }}
+          to={signupURL}
         >
           {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
         </AuthCardNavLink>
       </SignUpLinkSection>
       {showError && (
         <FormMessage
-          intent="warning"
-          message={LOGIN_PAGE_INVALID_CREDS_ERROR}
           actions={[
             {
               url: FORGOT_PASSWORD_URL,
@@ -125,21 +123,23 @@ export function Login(props: LoginFormProps) {
               intent: "success",
             },
           ]}
+          intent="warning"
+          message={LOGIN_PAGE_INVALID_CREDS_ERROR}
         />
       )}
       {SocialLoginList.length > 0 && (
-        <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
+        <ThirdPartyAuth logins={SocialLoginList} type={"SIGNIN"} />
       )}
-      <SpacedSubmitForm method="POST" action={loginURL}>
+      <SpacedSubmitForm action={loginURL} method="POST">
         <FormGroup
           intent={error ? "danger" : "none"}
           label={LOGIN_PAGE_EMAIL_INPUT_LABEL}
         >
           <FormTextField
-            name={LOGIN_FORM_EMAIL_FIELD_NAME}
-            type="email"
-            placeholder={LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER}
             autoFocus
+            name={LOGIN_FORM_EMAIL_FIELD_NAME}
+            placeholder={LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER}
+            type="email"
           />
         </FormGroup>
         <FormGroup
@@ -148,20 +148,16 @@ export function Login(props: LoginFormProps) {
           // helperText={FORM_VALIDATION_PASSWORD_RULE}
         >
           <FormTextField
-            type="password"
             name={LOGIN_FORM_PASSWORD_FIELD_NAME}
             placeholder={LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER}
+            type="password"
           />
         </FormGroup>
 
         <FormActions>
           <Button
-            tag="button"
-            type="submit"
             disabled={!isFormValid}
-            text={LOGIN_PAGE_LOGIN_BUTTON_TEXT}
             fill
-            size={Size.large}
             onClick={() => {
               PerformanceTracker.startTracking(
                 PerformanceTransactionName.LOGIN_CLICK,
@@ -170,6 +166,10 @@ export function Login(props: LoginFormProps) {
                 loginMethod: "EMAIL",
               });
             }}
+            size={Size.large}
+            tag="button"
+            text={LOGIN_PAGE_LOGIN_BUTTON_TEXT}
+            type="submit"
           />
         </FormActions>
       </SpacedSubmitForm>

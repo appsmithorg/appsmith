@@ -67,17 +67,17 @@ function SearchBox({ query, setQuery }: SearchBoxProps) {
     <Container>
       <InputContainer>
         <input
-          value={query}
-          onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           autoFocus
+          className="t--global-search-input"
+          onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           onKeyDown={handleKeyDown}
           placeholder={OMNIBAR_PLACEHOLDER}
-          className="t--global-search-input"
+          value={query}
         />
         {query && (
           <Icon
-            name="close"
             className="t--global-clear-input"
+            name="close"
             onClick={() => updateSearchQuery("")}
           />
         )}

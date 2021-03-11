@@ -10,10 +10,10 @@ function PropertyHelpLabel(props: Props) {
   const toolTipDefined = props.tooltip !== undefined;
   return (
     <Tooltip
-      disabled={!toolTipDefined}
       content={props.tooltip}
-      position={Position.TOP}
+      disabled={!toolTipDefined}
       hoverOpenDelay={200}
+      position={Position.TOP}
     >
       <div
         style={{
@@ -21,6 +21,7 @@ function PropertyHelpLabel(props: Props) {
         }}
       >
         <label
+          className={`t--property-control-label`}
           style={
             toolTipDefined
               ? {
@@ -28,7 +29,6 @@ function PropertyHelpLabel(props: Props) {
                 }
               : {}
           }
-          className={`t--property-control-label`}
         >
           {props.label}
         </label>

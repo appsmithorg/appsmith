@@ -31,9 +31,9 @@ function PageNotFound(props: Props) {
   return (
     <Wrapper>
       <img
-        src={PageUnavailableImage}
         alt="Page Unavailable"
         className="page-unavailable-img"
+        src={PageUnavailableImage}
       />
       <div>
         <p className="bold-text">Page not found</p>
@@ -43,14 +43,14 @@ function PageNotFound(props: Props) {
           this page.
         </p>
         <Button
+          className="button-position"
           filled
-          text="Go back to homepage"
-          intent="primary"
           icon="arrow-right"
           iconAlignment="right"
-          size="small"
-          className="button-position"
+          intent="primary"
           onClick={() => flushErrorsAndRedirect(APPLICATIONS_URL)}
+          size="small"
+          text="Go back to homepage"
         />
       </div>
     </Wrapper>

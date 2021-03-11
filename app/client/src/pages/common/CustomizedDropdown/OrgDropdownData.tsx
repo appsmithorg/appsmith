@@ -17,7 +17,7 @@ export const options = (
         options: [
           {
             content: (
-              <Badge text={orgName} imageURL="https://via.placeholder.com/32" />
+              <Badge imageURL="https://via.placeholder.com/32" text={orgName} />
             ),
             disabled: true,
             shouldCloseDropdown: false,

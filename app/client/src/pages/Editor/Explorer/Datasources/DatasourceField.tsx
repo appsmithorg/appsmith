@@ -91,7 +91,7 @@ export function DatabaseColumns(props: DatabaseFieldProps) {
   const icon = DATASOURCE_FIELD_ICONS_MAP[fieldType] || datasourceColumnIcon;
 
   const content = (
-    <Wrapper step={props.step + 1} className="t--datasource-column">
+    <Wrapper className="t--datasource-column" step={props.step + 1}>
       {icon}
       <Content>
         <FieldName>{fieldName}</FieldName>
@@ -102,11 +102,11 @@ export function DatabaseColumns(props: DatabaseFieldProps) {
 
   return (
     <Popover
-      minimal
-      position={Position.RIGHT_TOP}
       boundary={"viewport"}
       hoverCloseDelay={0}
       interactionKind={PopoverInteractionKind.HOVER}
+      minimal
+      position={Position.RIGHT_TOP}
     >
       {content}
       <Container>

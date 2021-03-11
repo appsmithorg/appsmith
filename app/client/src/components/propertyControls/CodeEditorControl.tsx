@@ -26,15 +26,15 @@ class CodeEditorControl extends BaseControl<ControlProps> {
 
     return (
       <CodeEditor
-        theme={EditorTheme.DARK}
         input={{ value: propertyValue, onChange: this.onChange }}
         meta={{
           error: isValid ? "" : validationMessage,
           touched: true,
         }}
-        size={EditorSize.EXTENDED}
         mode={EditorModes.TEXT_WITH_BINDING}
+        size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
+        theme={EditorTheme.DARK}
         {...props}
       />
     );

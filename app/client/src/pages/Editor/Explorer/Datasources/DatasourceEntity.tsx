@@ -86,29 +86,29 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
 
   return (
     <Entity
-      entityId={`${props.datasource.id}-${props.pageId}`}
-      className="datasource"
-      key={props.datasource.id}
-      icon={icon}
-      name={props.datasource.name}
-      active={active}
-      step={props.step}
-      searchKeyword={props.searchKeyword}
-      isDefaultExpanded={isDefaultExpanded}
       action={switchDatasource}
-      updateEntityName={updateDatasourceName}
+      active={active}
+      className="datasource"
       contextMenu={
         <DataSourceContextMenu
-          entityId={`${props.datasource.id}-${props.pageId}`}
-          datasourceId={props.datasource.id}
           className={EntityClassNames.CONTEXT_MENU}
+          datasourceId={props.datasource.id}
+          entityId={`${props.datasource.id}-${props.pageId}`}
         />
       }
+      entityId={`${props.datasource.id}-${props.pageId}`}
+      icon={icon}
+      isDefaultExpanded={isDefaultExpanded}
+      key={props.datasource.id}
+      name={props.datasource.name}
       onToggle={getDatasourceStructure}
+      searchKeyword={props.searchKeyword}
+      step={props.step}
+      updateEntityName={updateDatasourceName}
     >
       <DatasourceStructureContainer
-        datasourceStructure={datasourceStructure}
         datasourceId={props.datasource.id}
+        datasourceStructure={datasourceStructure}
         step={props.step}
       />
     </Entity>

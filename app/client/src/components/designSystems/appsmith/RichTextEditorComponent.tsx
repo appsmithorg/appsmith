@@ -119,7 +119,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   return (
     <StyledRTEditor>
-      <textarea id={`rte-${props.widgetId}`}></textarea>
+      <textarea id={`rte-${props.widgetId}`} />
     </StyledRTEditor>
   );
 }

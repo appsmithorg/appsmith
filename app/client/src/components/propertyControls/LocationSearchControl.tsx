@@ -60,10 +60,10 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   render() {
     return (
       <MapScriptWrapper
-        onSearchBoxMounted={this.onSearchBoxMounted}
-        onPlacesChanged={this.onLocationSelection}
-        propertyValue={this.props.propertyValue}
         clearLocation={this.clearLocation}
+        onPlacesChanged={this.onLocationSelection}
+        onSearchBoxMounted={this.onSearchBoxMounted}
+        propertyValue={this.props.propertyValue}
       />
     );
   }
@@ -91,16 +91,13 @@ function MapScriptWrapper(props: MapScriptWrapperProps) {
     <div data-standalone-searchbox="">
       {status === ScriptStatus.READY && (
         <StandaloneSearchBox
-          ref={props.onSearchBoxMounted}
           onPlacesChanged={() => {
             props.onPlacesChanged();
             setTitle("");
           }}
+          ref={props.onSearchBoxMounted}
         >
           <StyledInput
-            type="text"
-            placeholder="Enter location"
-            value={title || props.propertyValue?.title}
             onChange={(ev) => {
               const val = ev.target.value;
               if (val === "") {
@@ -108,6 +105,9 @@ function MapScriptWrapper(props: MapScriptWrapperProps) {
               }
               setTitle(val);
             }}
+            placeholder="Enter location"
+            type="text"
+            value={title || props.propertyValue?.title}
           />
         </StandaloneSearchBox>
       )}

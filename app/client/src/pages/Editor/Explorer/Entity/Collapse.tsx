@@ -27,7 +27,7 @@ export function EntityCollapse(props: {
   if (!props.children) return null;
   return (
     <Collapse isOpen={props.isOpen}>
-      <CollapsedContainer step={props.step} active={props.active}>
+      <CollapsedContainer active={props.active} step={props.step}>
         {props.children}
       </CollapsedContainer>
     </Collapse>

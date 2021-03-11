@@ -33,14 +33,14 @@ class AppHeader extends React.Component<Props, any> {
   }
   get header() {
     return (
-      <React.Fragment>
+      <>
         <Switch>
-          <Route path={BUILDER_URL} component={AppEditorHeader} />
-          <Route path={APP_VIEW_URL} component={AppViewerHeader} />
-          <Route path={USER_AUTH_URL} component={LoginHeader} />
-          <Route path={BASE_URL} component={PageHeader} />
+          <Route component={AppEditorHeader} path={BUILDER_URL} />
+          <Route component={AppViewerHeader} path={APP_VIEW_URL} />
+          <Route component={LoginHeader} path={USER_AUTH_URL} />
+          <Route component={PageHeader} path={BASE_URL} />
         </Switch>
-      </React.Fragment>
+      </>
     );
   }
   render() {

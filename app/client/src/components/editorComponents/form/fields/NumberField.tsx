@@ -29,8 +29,8 @@ class NumberField extends React.Component<BaseFieldProps & TextInputProps> {
       <Field
         component={RenderComponent}
         {...this.props}
-        noValidate
         disabled={this.props.disabled}
+        noValidate
       />
     );
   }

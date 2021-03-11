@@ -145,35 +145,35 @@ class QueryEditor extends React.Component<Props> {
       image: pluginImages[dataSource.pluginId],
     }));
     return (
-      <React.Fragment>
+      <>
         {queryId ? (
           <QueryEditorForm
-            location={this.props.location}
+            DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
             applicationId={applicationId}
-            pageId={pageId}
-            isRunning={isRunning}
-            isDeleting={isDeleting}
-            onDeleteClick={this.handleDeleteClick}
-            onRunClick={this.handleRunClick}
             dataSources={dataSources}
             editorConfig={editorConfig}
-            settingConfig={settingConfig}
-            loadingFormConfigs={loadingFormConfigs}
-            DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
             executedQueryData={responses[queryId]}
+            isDeleting={isDeleting}
+            isRunning={isRunning}
+            loadingFormConfigs={loadingFormConfigs}
+            location={this.props.location}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+            pageId={pageId}
             runErrorMessage={runErrorMessage[queryId]}
+            settingConfig={settingConfig}
           />
         ) : (
           <QueryHomeScreen
-            dataSources={dataSources}
             applicationId={applicationId}
-            pageId={pageId}
+            dataSources={dataSources}
             history={this.props.history}
-            location={this.props.location}
             isCreating={isCreating}
+            location={this.props.location}
+            pageId={pageId}
           />
         )}
-      </React.Fragment>
+      </>
     );
   }
 }

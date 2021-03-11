@@ -55,7 +55,7 @@ const Overlay = styled.div`
 function GifPlayerComponent(props: GifPlayerProps) {
   const [startGif, setStartGif] = useState(false);
   return (
-    <React.Fragment>
+    <>
       {!startGif ? (
         <ThumnailContainer onClick={() => setStartGif(!startGif)}>
           <Overlay />
@@ -68,7 +68,7 @@ function GifPlayerComponent(props: GifPlayerProps) {
       ) : (
         <img src={props.gif} />
       )}
-    </React.Fragment>
+    </>
   );
 }
 

@@ -16,9 +16,8 @@ export function IconPicker() {
   return (
     <StoryWrapper>
       <IconSelector
-        onSelect={action("icon-selected")}
         fill={boolean("fill", false)}
-        selectedIcon={select("select icon", AppIconCollection, "bag")}
+        onSelect={action("icon-selected")}
         selectedColor={select(
           "select color",
           [
@@ -34,6 +33,7 @@ export function IconPicker() {
           ],
           "#54A9FB",
         )}
+        selectedIcon={select("select icon", AppIconCollection, "bag")}
       />
     </StoryWrapper>
   );

@@ -13,9 +13,9 @@ const renderComponent = (
   },
 ) => {
   return (
-    <React.Fragment>
+    <>
       <DropdownWrapper {...componentProps} />
-    </React.Fragment>
+    </>
   );
 };
 
@@ -30,12 +30,12 @@ type SelectFieldProps = {
 export function SelectField(props: SelectFieldProps) {
   return (
     <Field
-      name={props.name}
-      placeholder={props.placeholder}
       component={renderComponent}
+      name={props.name}
       options={props.options}
-      size={props.size}
       outline={props.outline}
+      placeholder={props.placeholder}
+      size={props.size}
     />
   );
 }

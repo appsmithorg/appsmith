@@ -86,25 +86,25 @@ function IconSelector(props: IconSelectorProps) {
   }
 
   return (
-    <IconPalette fill={props.fill} data-cy={props.cypressSelector}>
+    <IconPalette data-cy={props.cypressSelector} fill={props.fill}>
       {props.iconPalette &&
         props.iconPalette.map((iconName: AppIconName, index: number) => {
           return (
             <IconBox
               {...(selected === iconName ? { ref: iconRef } : {})}
-              key={index}
-              selectedColor={selected === iconName ? props.selectedColor : ""}
               className={
                 selected === iconName
                   ? "t--icon-selected"
                   : "t--icon-not-selected"
               }
+              key={index}
               onClick={() => {
                 if (iconName !== selected) {
                   setSelected(iconName);
                   props.onSelect && props.onSelect(iconName);
                 }
               }}
+              selectedColor={selected === iconName ? props.selectedColor : ""}
             >
               <AppIcon name={iconName} size={Size.small} />
             </IconBox>

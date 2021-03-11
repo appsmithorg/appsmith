@@ -36,7 +36,7 @@ class ResultPagination extends React.Component<Props> {
     const { total, handlePageChange, currentPage = 1 } = this.props;
 
     return (
-      <Pagination total={total} limit={40} pageCount={5}>
+      <Pagination limit={40} pageCount={5} total={total}>
         {({
           pages,
           hasNextPage,

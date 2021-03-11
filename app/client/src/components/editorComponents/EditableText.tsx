@@ -153,31 +153,31 @@ export function EditableText(props: EditableTextProps) {
   return (
     <EditableTextWrapper
       isEditing={isEditing}
-      onDoubleClick={
-        props.editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
-      }
+      minimal={!!props.minimal}
       onClick={
         props.editInteractionKind === EditInteractionKind.SINGLE ? edit : _.noop
       }
-      minimal={!!props.minimal}
+      onDoubleClick={
+        props.editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
+      }
     >
       <ErrorTooltip isOpen={!!error} message={errorMessage as string}>
         <TextContainer isValid={!error} minimal={!!props.minimal}>
           <BlueprintEditableText
+            className={props.className}
             disabled={!isEditing}
             isEditing={isEditing}
+            onCancel={props.onBlur}
             onChange={onInputchange}
             onConfirm={onChange}
+            placeholder={props.placeholder}
             selectAllOnFocus
             value={value}
-            placeholder={props.placeholder}
-            className={props.className}
-            onCancel={props.onBlur}
           />
           {!props.minimal &&
             !props.hideEditIcon &&
             !props.updating &&
-            !isEditing && <EditPen src={Edit} alt="Edit pen" />}
+            !isEditing && <EditPen alt="Edit pen" src={Edit} />}
         </TextContainer>
       </ErrorTooltip>
     </EditableTextWrapper>

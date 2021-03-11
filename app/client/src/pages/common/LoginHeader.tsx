@@ -31,9 +31,9 @@ export function LoginHeader() {
       <LogoContainer>
         <Link to={BASE_URL}>
           <img
+            alt="Appsmith Logo"
             className="logoimg t--Appsmith-logo-image"
             src={AppsmithLogo}
-            alt="Appsmith Logo"
           />
         </Link>
       </LogoContainer>

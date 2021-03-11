@@ -70,10 +70,7 @@ class TemplateMenu extends React.Component<Props> {
     return (
       <Container
         className="t--template-menu"
-        ref={(input) => {
-          this.nameInput = input;
-        }}
-        tabIndex={0}
+        onClick={() => createTemplate("")}
         onKeyPress={(e) => {
           e.preventDefault();
 
@@ -81,7 +78,10 @@ class TemplateMenu extends React.Component<Props> {
             createTemplate("");
           }
         }}
-        onClick={() => createTemplate("")}
+        ref={(input) => {
+          this.nameInput = input;
+        }}
+        tabIndex={0}
       >
         <div style={{ fontSize: 14 }}>
           Click here to start with a blank state or select a template.

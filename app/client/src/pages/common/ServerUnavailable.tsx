@@ -33,9 +33,9 @@ function ServerUnavailable() {
   return (
     <Wrapper>
       <img
-        src={PageUnavailableImage}
         alt="Page Unavailable"
         className="page-unavailable-img"
+        src={PageUnavailableImage}
       />
       <div>
         <p className="bold-text">Appsmith server is unavailable</p>

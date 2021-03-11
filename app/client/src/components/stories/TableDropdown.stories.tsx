@@ -36,11 +36,11 @@ export function TableDropdownStory() {
       }}
     >
       <TableDropdown
-        position={select("position", Object.values(Position), Position.BOTTOM)}
-        options={options}
         onSelect={(selectedValue) => console.log(selectedValue)}
+        options={options}
+        position={select("position", Object.values(Position), Position.BOTTOM)}
         selectedIndex={0}
-      ></TableDropdown>
+      />
     </StoryWrapper>
   );
 }

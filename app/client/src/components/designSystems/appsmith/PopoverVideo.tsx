@@ -30,12 +30,10 @@ function PopoverVideo(props: VideoComponentProps) {
   return (
     <div onClick={(e) => e.stopPropagation()}>
       <Popover
-        position={PopoverPosition.AUTO}
-        interactionKind={PopoverInteractionKind.CLICK}
-        minimal
-        usePortal
         enforceFocus={false}
+        interactionKind={PopoverInteractionKind.CLICK}
         lazy
+        minimal
         modifiers={{
           flip: {
             behavior: ["right", "left", "bottom", "top"],
@@ -51,8 +49,10 @@ function PopoverVideo(props: VideoComponentProps) {
             boundariesElement: "viewport",
           },
         }}
+        position={PopoverPosition.AUTO}
+        usePortal
       >
-        <PlayIcon></PlayIcon>
+        <PlayIcon />
         <PlayerWrapper>
           <VideoComponent url={props.url} />
         </PlayerWrapper>

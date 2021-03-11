@@ -16,13 +16,12 @@ export function Radio() {
     <StoryWrapper>
       <div style={{ height: "133px" }}>
         <RadioComponent
+          columns={number("Column number", 2)}
           defaultValue={select(
             "defaultValue",
             ["React", "Angular", "Vue"],
             "React",
           )}
-          columns={number("Column number", 2)}
-          rows={number("Row number", 2)}
           disabled={boolean("Radio group disabled", false)}
           onSelect={action("selected-radio-option")}
           options={[
@@ -45,6 +44,7 @@ export function Radio() {
               disabled: boolean("Option-3-disabled", false),
             },
           ]}
+          rows={number("Row number", 2)}
         />
       </div>
     </StoryWrapper>

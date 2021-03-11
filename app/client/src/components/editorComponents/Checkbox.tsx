@@ -49,9 +49,9 @@ export function Checkbox(props: CheckboxProps) {
     <StyledCheckbox
       {...props}
       alignIndicator={props.align}
-      onChange={handleChange}
       checked={props.input ? !!props.input.checked : false}
       label={props.label}
+      onChange={handleChange}
     />
   );
 }

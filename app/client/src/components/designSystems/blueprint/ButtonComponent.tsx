@@ -218,7 +218,7 @@ function BtnWrapper(
 ) {
   if (!props.googleRecaptchaKey)
     return <div onClick={props.onClick}>{props.children}</div>;
-  return <RecaptchaComponent {...props}></RecaptchaComponent>;
+  return <RecaptchaComponent {...props} />;
 }
 
 // To be used with the canvas
@@ -227,18 +227,18 @@ function ButtonContainer(
 ) {
   return (
     <BtnWrapper
-      googleRecaptchaKey={props.googleRecaptchaKey}
       clickWithRecaptcha={props.clickWithRecaptcha}
+      googleRecaptchaKey={props.googleRecaptchaKey}
       onClick={props.onClick}
     >
       <BaseButton
-        loading={props.isLoading}
-        icon={props.icon}
-        rightIcon={props.rightIcon}
-        text={props.text}
-        filled={props.buttonStyle !== "SECONDARY_BUTTON"}
         accent={mapButtonStyleToStyleName(props.buttonStyle)}
         disabled={props.disabled}
+        filled={props.buttonStyle !== "SECONDARY_BUTTON"}
+        icon={props.icon}
+        loading={props.isLoading}
+        rightIcon={props.rightIcon}
+        text={props.text}
         type={props.type}
       />
     </BtnWrapper>

@@ -66,7 +66,7 @@ class Collapsible extends React.Component<Props, ComponentState> {
           />
         </SectionContainer>
 
-        <Collapse keepChildrenMounted={true} isOpen={this.state.isOpen}>
+        <Collapse isOpen={this.state.isOpen} keepChildrenMounted>
           {children}
         </Collapse>
       </>

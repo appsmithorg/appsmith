@@ -42,10 +42,10 @@ export function SwitchComponent(props: SwitchComponentProps) {
     <SwitchComponentContainer className={switchAlignClass}>
       <Switch
         alignIndicator={switchAlignClass}
-        label={label}
-        disabled={isDisabled}
-        className={isLoading ? Classes.SKELETON : ""}
         checked={isSwitchedOn}
+        className={isLoading ? Classes.SKELETON : ""}
+        disabled={isDisabled}
+        label={label}
         onChange={() => onChange(!isSwitchedOn)}
       />
     </SwitchComponentContainer>

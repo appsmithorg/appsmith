@@ -138,6 +138,7 @@ export function RequestView(props: {
   return (
     <StyledTreeContainer>
       <Tree
+        className={Classes.ELEVATION_0}
         contents={[
           {
             id: 1,
@@ -180,10 +181,10 @@ export function RequestView(props: {
                 id: 1,
                 label: (
                   <ReadOnlyEditor
+                    height={"100%"}
                     input={{
                       value: props.requestBody,
                     }}
-                    height={"100%"}
                   />
                 ),
               },
@@ -193,7 +194,6 @@ export function RequestView(props: {
         onNodeClick={handleNodeClick}
         onNodeCollapse={handleNodeCollapse}
         onNodeExpand={handleNodeExpand}
-        className={Classes.ELEVATION_0}
       />
     </StyledTreeContainer>
   );

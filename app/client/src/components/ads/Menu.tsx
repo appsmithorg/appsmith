@@ -27,15 +27,15 @@ const MenuOption = styled.div`
 function Menu(props: MenuProps) {
   return (
     <Popover
-      minimal
-      position={props.position || Position.BOTTOM}
-      onOpening={props.onOpening}
-      onClosing={props.onClosing}
       className={props.className}
-      portalClassName={props.className}
       data-cy={props.cypressSelector}
       disabled={props.disabled}
+      minimal
       modifiers={props.modifiers}
+      onClosing={props.onClosing}
+      onOpening={props.onOpening}
+      portalClassName={props.className}
+      position={props.position || Position.BOTTOM}
     >
       {props.target}
       <MenuWrapper>

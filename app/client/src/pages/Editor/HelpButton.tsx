@@ -41,23 +41,23 @@ const onOpened = () => {
 function HelpButton() {
   return (
     <Popover
+      minimal
       modifiers={{
         offset: {
           enabled: true,
           offset: "0, 6",
         },
       }}
-      minimal
-      position={Position.BOTTOM_RIGHT}
       onOpened={onOpened}
       popoverClassName="navbar-help-popover"
+      position={Position.BOTTOM_RIGHT}
     >
       <>
         <HelpPopoverStyle />
         <Trigger />
       </>
       <div style={{ width: HELP_MODAL_WIDTH }}>
-        <DocumentationSearch hitsPerPage={4} hideSearch hideMinimizeBtn />
+        <DocumentationSearch hideMinimizeBtn hideSearch hitsPerPage={4} />
       </div>
     </Popover>
   );

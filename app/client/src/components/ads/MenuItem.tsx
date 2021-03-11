@@ -90,7 +90,7 @@ const IconContainer = styled.span`
 const MenuItem = forwardRef(
   (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
     return props.ellipsize && props.text.length > props.ellipsize ? (
-      <TooltipComponent position={Position.BOTTOM} content={props.text}>
+      <TooltipComponent content={props.text} position={Position.BOTTOM}>
         <MenuItemContent ref={ref} {...props} />
       </TooltipComponent>
     ) : (
@@ -102,13 +102,13 @@ const MenuItemContent = forwardRef(
   (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
     return (
       <ItemRow
+        data-cy={props.cypressSelector}
+        disabled={props.disabled}
         href={props.href}
         onClick={props.onSelect}
-        disabled={props.disabled}
-        data-cy={props.cypressSelector}
-        type={props.type}
         ref={ref}
         selected={props.selected}
+        type={props.type}
       >
         <IconContainer className={props.className}>
           {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}

@@ -50,30 +50,30 @@ export function InputText(props: {
   return (
     <StyledDynamicInput>
       <CodeEditor
+        additionalDynamicData={additionalDynamicData}
+        dataTreePath={dataTreePath}
+        evaluatedValue={evaluatedValue}
+        expected={expected}
         input={{
           value: value,
           onChange: onChange,
         }}
-        evaluatedValue={evaluatedValue}
-        expected={expected}
-        dataTreePath={dataTreePath}
         meta={{
           error: isValid ? "" : errorMessage,
           touched: true,
         }}
-        theme={EditorTheme.DARK}
         mode={EditorModes.TEXT_WITH_BINDING}
-        tabBehaviour={TabBehaviour.INDENT}
-        size={EditorSize.EXTENDED}
         placeholder={placeholder}
-        additionalDynamicData={additionalDynamicData}
         promptMessage={
-          <React.Fragment>
+          <>
             Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
             currentRow.columnName
             <CurlyBraces>{"}}"}</CurlyBraces>
-          </React.Fragment>
+          </>
         }
+        size={EditorSize.EXTENDED}
+        tabBehaviour={TabBehaviour.INDENT}
+        theme={EditorTheme.DARK}
       />
     </StyledDynamicInput>
   );
@@ -110,16 +110,16 @@ class ComputeTablePropertyControl extends BaseControl<
 
     return (
       <InputText
-        label={label}
-        value={value}
-        onChange={this.onTextChange}
-        isValid={isValid}
-        errorMessage={validationMessage}
-        expected={expected}
-        dataTreePath={dataTreePath}
         additionalDynamicData={{
           currentRow,
         }}
+        dataTreePath={dataTreePath}
+        errorMessage={validationMessage}
+        expected={expected}
+        isValid={isValid}
+        label={label}
+        onChange={this.onTextChange}
+        value={value}
       />
     );
   }

@@ -181,8 +181,8 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
       <ForkButton
         className="t--fork-app"
         href={redirectUrl}
-        text={FORK_APP}
         icon="fork"
+        text={FORK_APP}
       />
     );
   } else if (
@@ -199,10 +199,10 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
             <PrimaryLogoLink to={APPLICATIONS_URL}>
-              <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+              <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
             </PrimaryLogoLink>
           </HeaderSection>
-          <HeaderSection justify={"center"} className="current-app-name">
+          <HeaderSection className="current-app-name" justify={"center"}>
             {currentApplicationDetails && (
               <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
             )}
@@ -211,19 +211,19 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             {currentApplicationDetails && (
               <>
                 <FormDialogComponent
+                  Form={AppInviteUsersForm}
+                  applicationId={currentApplicationDetails.id}
+                  canOutsideClickClose
+                  orgId={currentOrgId}
+                  title={currentApplicationDetails.name}
                   trigger={
                     <Button
-                      text={"Share"}
+                      className="t--application-share-btn header__application-share-btn"
                       icon={"share"}
                       size={Size.small}
-                      className="t--application-share-btn header__application-share-btn"
+                      text={"Share"}
                     />
                   }
-                  Form={AppInviteUsersForm}
-                  orgId={currentOrgId}
-                  applicationId={currentApplicationDetails.id}
-                  title={currentApplicationDetails.name}
-                  canOutsideClickClose={true}
                 />
                 {currentUser &&
                   currentUser.username !== ANONYMOUS_USERNAME &&
@@ -242,8 +242,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
               <HeaderRightItemContainer>
                 <ProfileDropdown
-                  name={currentUser.name}
-                  userName={currentUser?.username || ""}
                   hideThemeSwitch
                   modifiers={{
                     offset: {
@@ -251,14 +249,16 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                       offset: `0, ${pages.length > 1 ? 35 : 0}`,
                     },
                   }}
+                  name={currentUser.name}
+                  userName={currentUser?.username || ""}
                 />
               </HeaderRightItemContainer>
             )}
           </HeaderSection>
         </HeaderRow>
         <PageTabsContainer
-          pages={pages}
           currentApplicationDetails={currentApplicationDetails}
+          pages={pages}
         />
       </HeaderWrapper>
     </ThemeProvider>

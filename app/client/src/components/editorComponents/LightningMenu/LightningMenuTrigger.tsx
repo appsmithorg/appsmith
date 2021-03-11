@@ -70,23 +70,23 @@ export function LightningMenuTrigger(props: LightningMenuTriggerProps) {
   const { background, iconProps } = getMenuState();
   return (
     <LightningIconWrapper
-      color={iconProps.color}
       background={background}
+      className="lightning-menu"
+      color={iconProps.color}
+      isFocused={props.isFocused}
       onClick={() => {
         if (props.onOpenLightningMenu) {
           props.onOpenLightningMenu();
         }
       }}
       skin={props.skin}
-      className="lightning-menu"
-      isFocused={props.isFocused}
     >
       <Tooltip
-        content={LIGHTNING_MENU_DATA_TOOLTIP}
         autoFocus={false}
+        content={LIGHTNING_MENU_DATA_TOOLTIP}
         hoverOpenDelay={1000}
-        openOnTargetFocus={false}
         minWidth={180}
+        openOnTargetFocus={false}
         position={Position.LEFT}
       >
         <Icon name="lightning" size={IconSize.LARGE} />

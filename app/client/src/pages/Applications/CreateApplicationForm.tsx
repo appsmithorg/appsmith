@@ -50,17 +50,17 @@ function CreateApplicationForm(props: Props) {
           name={CREATE_APPLICATION_FORM_NAME_FIELD}
           placeholder="Name"
         />
-        <Field type="hidden" name="orgId" component="input" />
+        <Field component="input" name="orgId" type="hidden" />
       </FormGroup>
       <FormFooter
+        canSubmit={!invalid}
+        data-cy="t--create-app-submit"
+        divider
         onCancel={props.onCancel}
         onSubmit={handleSubmit(createApplicationFormSubmitHandler)}
-        divider
-        canSubmit={!invalid}
-        submitOnEnter
-        data-cy="t--create-app-submit"
-        submitText="Submit"
         size="small"
+        submitOnEnter
+        submitText="Submit"
         submitting={submitting && !error}
       />
     </Form>

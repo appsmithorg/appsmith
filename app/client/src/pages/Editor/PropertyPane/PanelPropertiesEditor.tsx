@@ -50,13 +50,13 @@ function PanelHeader(props: PanelHeaderProps) {
       }}
     >
       <StyledBackIcon
-        onClick={props.closePanel}
         className="t--property-pane-back-btn"
+        onClick={props.closePanel}
       />
       <PropertyTitleEditor
+        onClose={props.hidePropertyPane}
         title={props.title}
         updatePropertyTitle={props.updatePropertyTitle}
-        onClose={props.hidePropertyPane}
       />
     </PaneTitleWrapper>
   );
@@ -175,10 +175,10 @@ export function PanelPropertiesEditor(
   return (
     <>
       <PanelHeader
+        closePanel={closePanel}
+        hidePropertyPane={hidePropertyPane}
         isEditable={panelConfig.editableTitle}
         propertyName={panelConfig.titlePropertyName}
-        hidePropertyPane={hidePropertyPane}
-        closePanel={closePanel}
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />

@@ -76,17 +76,17 @@ class DatePickerControl extends BaseControl<
           : this.parseDate(this.props.propertyValue)
         : null;
     return (
-      <DatePickerControlWrapper isValid={true}>
+      <DatePickerControlWrapper isValid>
         <StyledDatePicker
+          closeOnSelection
           formatDate={this.formatDate}
-          parseDate={this.parseDate}
           maxDate={this.maxDate}
           minDate={this.minDate}
+          onChange={this.onDateSelected}
+          parseDate={this.parseDate}
           placeholder="DD/MM/YYYY HH:mm"
           showActionsBar
           timePrecision={TimePrecision.MINUTE}
-          closeOnSelection
-          onChange={this.onDateSelected}
           value={value}
         />
       </DatePickerControlWrapper>

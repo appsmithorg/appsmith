@@ -50,12 +50,12 @@ class ThemedApp extends React.Component<{
     return (
       <ThemeProvider theme={this.props.currentTheme}>
         <StyledToastContainer
-          hideProgressBar
-          draggable={false}
-          transition={Slide}
           autoClose={5000}
           closeButton={false}
+          draggable={false}
+          hideProgressBar
           pauseOnHover={false}
+          transition={Slide}
         />
         <AppErrorBoundary>
           <AppRouter />

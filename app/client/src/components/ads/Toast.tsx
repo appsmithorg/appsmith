@@ -109,10 +109,10 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
 
   return (
     <ToastBody
-      variant={props.variant || Variant.info}
-      isUndo={!!props.onUndo}
-      dispatchableAction={props.dispatchableAction}
       className="t--toast-action"
+      dispatchableAction={props.dispatchableAction}
+      isUndo={!!props.onUndo}
+      variant={props.variant || Variant.info}
     >
       <FlexContainer>
         {props.variant === Variant.success ? (
@@ -128,7 +128,6 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
       <div className="undo-section">
         {props.onUndo || props.dispatchableAction ? (
           <Text
-            type={TextType.H6}
             onClick={() => {
               if (props.dispatchableAction) {
                 dispatch(props.dispatchableAction);
@@ -137,6 +136,7 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
                 props.undoAction && props.undoAction();
               }
             }}
+            type={TextType.H6}
           >
             UNDO
           </Text>

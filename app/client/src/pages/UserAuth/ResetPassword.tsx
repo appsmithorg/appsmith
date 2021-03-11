@@ -175,23 +175,23 @@ export function ResetPassword(props: ResetPasswordProps) {
           label={RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL}
         >
           <FormTextField
-            name="password"
-            type="password"
-            placeholder={RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER}
             disabled={submitSucceeded}
+            name="password"
+            placeholder={RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER}
+            type="password"
           />
         </FormGroup>
-        <Field type="hidden" name="email" component="input" />
-        <Field type="hidden" name="token" component="input" />
+        <Field component="input" name="email" type="hidden" />
+        <Field component="input" name="token" type="hidden" />
         <FormActions>
           <Button
-            tag="button"
-            fill
-            size={Size.large}
-            type="submit"
-            text={RESET_PASSWORD_SUBMIT_BUTTON_TEXT}
             disabled={pristine || submitSucceeded}
+            fill
             isLoading={submitting}
+            size={Size.large}
+            tag="button"
+            text={RESET_PASSWORD_SUBMIT_BUTTON_TEXT}
+            type="submit"
           />
         </FormActions>
       </StyledForm>

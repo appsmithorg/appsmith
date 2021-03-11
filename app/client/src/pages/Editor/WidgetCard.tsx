@@ -110,15 +110,15 @@ function WidgetCard(props: CardProps) {
     .join("")
     .toLowerCase()}`;
   return (
-    <React.Fragment>
+    <>
       <DragPreviewImage connect={preview} src={blankImage} />
-      <Wrapper ref={drag} className={className}>
+      <Wrapper className={className} ref={drag}>
         <div>
           <Icon />
           <IconLabel>{props.details.widgetCardName}</IconLabel>
         </div>
       </Wrapper>
-    </React.Fragment>
+    </>
   );
 }
 

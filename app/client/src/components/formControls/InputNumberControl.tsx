@@ -28,7 +28,7 @@ export function InputText(props: {
   return (
     <FormGroup data-cy={name}>
       <Text type={TextType.P1}>{label}</Text>
-      <NumberField name={name} placeholder={placeholder} dataType={dataType} />
+      <NumberField dataType={dataType} name={name} placeholder={placeholder} />
     </FormGroup>
   );
 }
@@ -45,11 +45,11 @@ class InputNumberControl extends BaseControl<InputControlProps> {
 
     return (
       <InputText
-        name={configProperty}
-        label={label}
-        value={propertyValue}
-        placeholder={placeholderText}
         dataType={dataType}
+        label={label}
+        name={configProperty}
+        placeholder={placeholderText}
+        value={propertyValue}
       />
     );
   }

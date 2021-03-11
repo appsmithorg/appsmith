@@ -25,12 +25,12 @@ export const generatePropertyControl = (
       const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
         <PropertySection
-          key={config.id}
-          id={config.id || sectionConfig.sectionName}
-          name={sectionConfig.sectionName}
           hidden={sectionConfig.hidden}
-          propertyPath={sectionConfig.propertySectionPath}
+          id={config.id || sectionConfig.sectionName}
           isDefaultOpen
+          key={config.id}
+          name={sectionConfig.sectionName}
+          propertyPath={sectionConfig.propertySectionPath}
         >
           {config.children && generatePropertyControl(config.children, props)}
         </PropertySection>

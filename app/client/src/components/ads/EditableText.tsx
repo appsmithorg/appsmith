@@ -269,36 +269,36 @@ export function EditableText(props: EditableTextProps) {
   return (
     <EditableTextWrapper
       filled={!!props.fill}
-      onMouseEnter={nonEditMode}
-      onDoubleClick={
-        props.editInteractionKind === EditInteractionKind.DOUBLE
-          ? editMode
-          : noop
-      }
       onClick={
         props.editInteractionKind === EditInteractionKind.SINGLE
           ? editMode
           : noop
       }
+      onDoubleClick={
+        props.editInteractionKind === EditInteractionKind.DOUBLE
+          ? editMode
+          : noop
+      }
+      onMouseEnter={nonEditMode}
     >
       <TextContainer
+        bgColor={bgColor}
         className="editable-text-container"
         data-cy={props.cypressSelector}
-        isInvalid={!!isInvalid}
         isEditing={isEditing}
-        bgColor={bgColor}
+        isInvalid={!!isInvalid}
         underline={props.underline}
       >
         <BlueprintEditableText
+          className={props.className}
           disabled={!isEditing}
           isEditing={isEditing}
+          onCancel={onConfirm}
           onChange={onInputchange}
           onConfirm={onConfirm}
-          value={value}
-          selectAllOnFocus
           placeholder={props.placeholder || defaultValue}
-          className={props.className}
-          onCancel={onConfirm}
+          selectAllOnFocus
+          value={value}
         />
 
         {savingState === SavingState.STARTED ? (

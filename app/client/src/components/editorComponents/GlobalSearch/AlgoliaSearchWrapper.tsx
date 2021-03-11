@@ -25,9 +25,9 @@ function Search({ query, children }: SearchProps) {
 
   return (
     <InstantSearch
-      searchState={{ query: queryInState }}
       indexName={algolia.indexName}
       searchClient={searchClient}
+      searchState={{ query: queryInState }}
     >
       {children}
     </InstantSearch>

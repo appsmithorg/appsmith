@@ -97,10 +97,10 @@ function PageTabName(props: { name: string }) {
 
   return ellipsisActive ? (
     <TooltipComponent
-      maxWidth={400}
-      content={name}
-      position={Position.BOTTOM}
       boundary="viewport"
+      content={name}
+      maxWidth={400}
+      position={Position.BOTTOM}
     >
       {tabNameText}
     </TooltipComponent>
@@ -148,7 +148,6 @@ export function PageTabs(props: Props) {
     <TabsContainer ref={props.measuredTabsRef}>
       {appPages.map((page) => (
         <PageTabContainer
-          key={page.pageId}
           isTabActive={
             pathname ===
             getApplicationViewerPageURL(
@@ -156,16 +155,17 @@ export function PageTabs(props: Props) {
               page.pageId,
             )
           }
-          tabsScrollable={props.tabsScrollable}
+          key={page.pageId}
           setShowScrollArrows={props.setShowScrollArrows}
+          tabsScrollable={props.tabsScrollable}
         >
           <PageTab
+            activeClassName="is-active"
+            className="t--page-switch-tab"
             to={getApplicationViewerPageURL(
               currentApplicationDetails?.id,
               page.pageId,
             )}
-            activeClassName="is-active"
-            className="t--page-switch-tab"
           >
             <PageTabName name={page.pageName} />
           </PageTab>

@@ -28,10 +28,10 @@ const FooterLinksContainer = styled.div`
 function FooterLinks() {
   return (
     <FooterLinksContainer>
-      <FooterLink target="_blank" href="/privacy-policy.html">
+      <FooterLink href="/privacy-policy.html" target="_blank">
         Privacy Policy
       </FooterLink>
-      <FooterLink target="_blank" href="/terms-and-conditions.html">
+      <FooterLink href="/terms-and-conditions.html" target="_blank">
         Terms and conditions
       </FooterLink>
     </FooterLinksContainer>

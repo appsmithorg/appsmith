@@ -86,22 +86,22 @@ function EntityExplorer(props: IPanelProps) {
 
   return (
     <Wrapper ref={explorerRef}>
-      <Search ref={searchInputRef} clear={clearSearch} />
+      <Search clear={clearSearch} ref={searchInputRef} />
       <ExplorerPageGroup
-        searchKeyword={searchKeyword}
-        step={0}
-        widgets={widgets}
         actions={actions}
         datasources={datasources}
         plugins={plugins}
+        searchKeyword={searchKeyword}
         showWidgetsSidebar={showWidgetsSidebar}
+        step={0}
+        widgets={widgets}
       />
       {noResults && (
         <NoResult
           className={Classes.DARK}
           description="Try modifying the search keyword."
-          title="No entities found"
           icon="search"
+          title="No entities found"
         />
       )}
       <StyledDivider />

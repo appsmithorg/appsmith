@@ -40,23 +40,23 @@ export function CreateApplicationForm(
   return (
     <Form onSubmit={handleSubmit(submitHandler)}>
       {error && !pristine && <FormMessage intent="danger" message={error} />}
-      <FormGroup intent={error ? "danger" : "none"} helperText={error}>
+      <FormGroup helperText={error} intent={error ? "danger" : "none"}>
         <TextField
+          autoFocus
           name="name"
           placeholder="Name"
           validate={noSpaces}
-          autoFocus
         />
       </FormGroup>
       <FormFooter
-        onCancel={onCancel}
-        divider
-        data-cy="t--create-org-submit"
-        submitOnEnter
         canSubmit={!invalid}
-        submitText="Submit"
+        data-cy="t--create-org-submit"
+        divider
+        onCancel={onCancel}
         onSubmit={handleSubmit(submitHandler)}
         size="small"
+        submitOnEnter
+        submitText="Submit"
         submitting={submitting && !error}
       />
     </Form>

@@ -188,10 +188,11 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       selectedOption.type === option.value;
     return (
       <MenuItem
-        className={option.className || "single-select"}
         active={isSelected}
-        key={option.value}
+        className={option.className || "single-select"}
         icon={option.icon}
+        intent={option.intent}
+        key={option.value}
         onClick={
           option.children
             ? noop
@@ -201,14 +202,13 @@ export default function TreeDropdown(props: TreeDropdownProps) {
                 e.stopPropagation();
               }
         }
-        text={option.label}
-        intent={option.intent}
         popoverProps={{
           minimal: true,
           interactionKind: PopoverInteractionKind.CLICK,
           position: PopoverPosition.LEFT,
           targetProps: { onClick: (e: any) => e.stopPropagation() },
         }}
+        text={option.label}
       >
         {option.children && option.children.map(renderTreeOption)}
       </MenuItem>
@@ -218,29 +218,29 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const list = optionTree.map(renderTreeOption);
   const menuItems = <Menu>{list}</Menu>;
   const defaultToggle = (
-    <MoreActionableContainer isOpen={isOpen} className={props.className}>
+    <MoreActionableContainer className={props.className} isOpen={isOpen}>
       <Icon name="context-menu" size={IconSize.XXXL} />
     </MoreActionableContainer>
   );
   return (
     <StyledPopover>
       <Popover
-        usePortal={false}
+        className="wrapper-popover"
+        content={menuItems}
         isOpen={isOpen}
         minimal
-        content={menuItems}
-        position={PopoverPosition.LEFT}
-        className="wrapper-popover"
         modifiers={props.modifiers}
         onClose={() => {
           setIsOpen(false);
         }}
+        position={PopoverPosition.LEFT}
         targetProps={{
           onClick: (e: any) => {
             setIsOpen(true);
             e.stopPropagation();
           },
         }}
+        usePortal={false}
       >
         {defaultToggle}
       </Popover>

@@ -133,14 +133,14 @@ type TabbedViewComponentType = CommonComponentProps & {
 export function TabComponent(props: TabbedViewComponentType) {
   return (
     <TabsWrapper
-      shouldOverflow={props.overflow}
       data-cy={props.cypressSelector}
+      shouldOverflow={props.overflow}
     >
       <Tabs
-        selectedIndex={props.selectedIndex}
         onSelect={(index: number) => {
           props.onSelect && props.onSelect(index);
         }}
+        selectedIndex={props.selectedIndex}
       >
         <TabList>
           {props.tabs.map((tab) => (

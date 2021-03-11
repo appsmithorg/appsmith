@@ -110,9 +110,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     <PositionStyle>
       <ControlGroup>
         <SettingsControl
-          toggleSettings={togglePropertyEditor}
           activity={currentActivity}
           name={props.widgetName}
+          toggleSettings={togglePropertyEditor}
         />
       </ControlGroup>
     </PositionStyle>

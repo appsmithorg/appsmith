@@ -17,9 +17,9 @@ const renderComponent = (
   componentProps: RadioFieldProps & RadioGroupWrapperProps,
 ) => {
   return (
-    <React.Fragment>
+    <>
       <RadioGroupWrapper {...componentProps} />
-    </React.Fragment>
+    </>
   );
 };
 

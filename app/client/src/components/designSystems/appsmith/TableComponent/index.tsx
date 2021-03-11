@@ -168,46 +168,46 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
   return (
     <Table
-      isLoading={props.isLoading}
-      width={props.width}
-      height={props.height}
-      pageSize={props.pageSize || 1}
-      widgetId={props.widgetId}
-      widgetName={props.widgetName}
-      searchKey={props.searchKey}
-      columns={props.columns}
-      hiddenColumns={props.hiddenColumns}
+      applyFilter={props.applyFilter}
       columnSizeMap={props.columnSizeMap}
-      updateHiddenColumns={props.updateHiddenColumns}
+      columns={props.columns}
+      compactMode={props.compactMode}
       data={props.tableData}
-      editMode={props.editMode}
-      handleResizeColumn={props.handleResizeColumn}
-      sortTableColumn={sortTableColumn}
-      selectTableRow={selectTableRow}
-      pageNo={props.pageNo - 1}
-      updatePageNo={props.updatePageNo}
-      // columnActions={props.columnActions}
-      triggerRowSelection={props.triggerRowSelection}
-      nextPageClick={() => {
-        props.nextPageClick();
-      }}
-      prevPageClick={() => {
-        props.prevPageClick();
-      }}
-      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-      selectedRowIndex={props.selectedRowIndex}
-      selectedRowIndices={props.selectedRowIndices}
       disableDrag={() => {
         props.disableDrag(true);
       }}
+      editMode={props.editMode}
       enableDrag={() => {
         props.disableDrag(false);
       }}
-      searchTableData={props.searchTableData}
       filters={props.filters}
-      applyFilter={props.applyFilter}
-      compactMode={props.compactMode}
+      handleResizeColumn={props.handleResizeColumn}
+      height={props.height}
+      hiddenColumns={props.hiddenColumns}
+      isLoading={props.isLoading}
+      nextPageClick={() => {
+        props.nextPageClick();
+      }}
+      pageNo={props.pageNo - 1}
+      pageSize={props.pageSize || 1}
+      prevPageClick={() => {
+        props.prevPageClick();
+      }}
+      searchKey={props.searchKey}
+      // columnActions={props.columnActions}
+      searchTableData={props.searchTableData}
+      selectTableRow={selectTableRow}
+      selectedRowIndex={props.selectedRowIndex}
+      selectedRowIndices={props.selectedRowIndices}
+      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+      sortTableColumn={sortTableColumn}
+      triggerRowSelection={props.triggerRowSelection}
       updateCompactMode={props.updateCompactMode}
+      updateHiddenColumns={props.updateHiddenColumns}
+      updatePageNo={props.updatePageNo}
+      widgetId={props.widgetId}
+      widgetName={props.widgetName}
+      width={props.width}
     />
   );
 }

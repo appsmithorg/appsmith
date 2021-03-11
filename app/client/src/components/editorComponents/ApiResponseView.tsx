@@ -184,7 +184,8 @@ function ApiResponseView(props: Props) {
         <ResponseTabWrapper>
           {hasFailed && !isRunning && requestDebugVisible && (
             <Callout
-              text={CHECK_REQUEST_BODY}
+              closeButton
+              fill
               label={
                 <FailedMessage>
                   <ShowRequestText
@@ -193,17 +194,16 @@ function ApiResponseView(props: Props) {
                       setSelectedIndex(1);
                     }}
                   >
-                    <Text type={TextType.H6} case={Case.UPPERCASE}>
+                    <Text case={Case.UPPERCASE} type={TextType.H6}>
                       {SHOW_REQUEST}
                     </Text>
                     <Icon name="right-arrow" />
                   </ShowRequestText>
                 </FailedMessage>
               }
-              variant={Variant.warning}
-              fill
-              closeButton
               onClose={() => setRequestDebugVisible(false)}
+              text={CHECK_REQUEST_BODY}
+              variant={Variant.warning}
             />
           )}
           {_.isEmpty(response.statusCode) ? (
@@ -213,12 +213,12 @@ function ApiResponseView(props: Props) {
             </NoResponseContainer>
           ) : (
             <ReadOnlyEditor
+              height={"100%"}
               input={{
                 value: response.body
                   ? JSON.stringify(response.body, null, 2)
                   : "",
               }}
-              height={"100%"}
             />
           )}
         </ResponseTabWrapper>
@@ -229,14 +229,14 @@ function ApiResponseView(props: Props) {
       title: "Request",
       panelComponent: (
         <RequestView
-          requestURL={response.request?.url || ""}
-          requestHeaders={response.request?.headers || {}}
-          requestMethod={response.request?.httpMethod || ""}
           requestBody={
             _.isObject(response.request?.body)
               ? JSON.stringify(response.request?.body, null, 2)
               : response.request?.body || ""
           }
+          requestHeaders={response.request?.headers || {}}
+          requestMethod={response.request?.httpMethod || ""}
+          requestURL={response.request?.url || ""}
         />
       ),
     },
@@ -285,9 +285,9 @@ function ApiResponseView(props: Props) {
           </ResponseMetaWrapper>
         )}
         <TabComponent
-          tabs={tabs}
-          selectedIndex={selectedIndex}
           onSelect={setSelectedIndex}
+          selectedIndex={selectedIndex}
+          tabs={tabs}
         />
       </TabbedViewWrapper>
     </ResponseContainer>

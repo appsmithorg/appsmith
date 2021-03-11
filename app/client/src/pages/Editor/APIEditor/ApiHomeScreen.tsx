@@ -461,7 +461,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     }));
 
     const ApiHomepageTopSection = (
-      <React.Fragment>
+      <>
         {enableRapidAPI && (
           <SearchContainer>
             <SearchBar
@@ -485,9 +485,9 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
             {showSearchResults && (
               <div className="searchResultsContainer">
                 <Icon
+                  className="searchCloseBtn"
                   icon="cross"
                   iconSize={20}
-                  className="searchCloseBtn"
                   onClick={() => {
                     this.setState({ showSearchResults: false });
                   }}
@@ -513,9 +513,9 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                           >
                             {providerSearchResult.imageUrl ? (
                               <img
-                                src={providerSearchResult.imageUrl}
-                                className="providerSearchResultImage"
                                 alt="img"
+                                className="providerSearchResultImage"
+                                src={providerSearchResult.imageUrl}
                               />
                             ) : (
                               <div
@@ -561,11 +561,11 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
           <p className="sectionHeadings">{"Import API"}</p>
           <ApiCard>
             <Card
-              interactive={false}
               className="eachCard t--createBlankApiCard"
+              interactive={false}
               onClick={this.handleCreateNew}
             >
-              <Icon icon="plus" iconSize={20} className="createIcon" />
+              <Icon className="createIcon" icon="plus" iconSize={20} />
               <p className="textBtn">Create new</p>
             </Card>
 
@@ -582,11 +582,11 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
               }}
               to={curlImportURL}
             >
-              <Card interactive={false} className="eachCard">
+              <Card className="eachCard" interactive={false}>
                 <img
-                  src={CurlLogo}
-                  className="curlImage t--curlImage"
                   alt="CURL"
+                  className="curlImage t--curlImage"
+                  src={CurlLogo}
                 />
                 <p className="textBtn">CURL</p>
               </Card>
@@ -623,14 +623,14 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
             </NoCollections>
           )}
         </StyledContainer> */}
-      </React.Fragment>
+      </>
     );
 
     return (
-      <React.Fragment>
+      <>
         <ApiHomePage
-          style={{ overflow: showSearchResults ? "hidden" : "auto" }}
           className="t--apiHomePage"
+          style={{ overflow: showSearchResults ? "hidden" : "auto" }}
         >
           {isSwitchingCategory || !enableRapidAPI ? (
             <>
@@ -644,16 +644,16 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
           ) : (
             <>
               <InfiniteScroll
-                pageStart={0}
+                hasMore={providers.length < providersTotal}
                 initialLoad={false}
                 loadMore={this.handleFetchMoreProviders.bind(this)}
-                useWindow={false}
-                hasMore={providers.length < providersTotal}
                 loader={
                   <LoadingContainer>
                     <Spinner size={30} />
                   </LoadingContainer>
                 }
+                pageStart={0}
+                useWindow={false}
               >
                 {ApiHomepageTopSection}
                 {/* Marketplace APIs section start */}
@@ -665,10 +665,10 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                     <div>
                       <DropdownSelect>
                         <DropdownField
-                          placeholder="All APIs"
-                          width={232}
                           name="category"
                           options={PROVIDER_CATEGORIES_OPTIONS}
+                          placeholder="All APIs"
+                          width={232}
                         />
                       </DropdownSelect>
                     </div>
@@ -708,14 +708,14 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                 }}
                               >
                                 <Card
-                                  interactive={false}
                                   className="eachProviderCard t--eachProviderCard"
+                                  interactive={false}
                                 >
                                   {provider.imageUrl ? (
                                     <img
-                                      src={provider.imageUrl}
-                                      className="apiImage"
                                       alt="Provider"
+                                      className="apiImage"
+                                      src={provider.imageUrl}
                                     />
                                   ) : (
                                     <div
@@ -759,7 +759,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
             </>
           )}
         </ApiHomePage>
-      </React.Fragment>
+      </>
     );
   }
 }

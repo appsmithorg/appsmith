@@ -74,7 +74,6 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      selectedValue=""
       optionTree={[
         {
           value: "rename",
@@ -116,6 +115,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
           intent: "danger",
         },
       ]}
+      selectedValue=""
       toggle={<ContextMenuTrigger />}
     />
   );

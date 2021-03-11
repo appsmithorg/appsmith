@@ -29,17 +29,17 @@ export function UserAuth() {
         <AuthCardContainer>
           <AuthCard>
             <Switch location={location}>
-              <SentryRoute exact path={`${path}/login`} component={Login} />
-              <SentryRoute exact path={`${path}/signup`} component={SignUp} />
+              <SentryRoute component={Login} exact path={`${path}/login`} />
+              <SentryRoute component={SignUp} exact path={`${path}/signup`} />
               <SentryRoute
+                component={ResetPassword}
                 exact
                 path={`${path}/resetPassword`}
-                component={ResetPassword}
               />
               <SentryRoute
+                component={ForgotPassword}
                 exact
                 path={`${path}/forgotPassword`}
-                component={ForgotPassword}
               />
               <SentryRoute component={PageNotFound} />
             </Switch>

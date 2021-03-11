@@ -53,9 +53,9 @@ class SearchComponent extends React.Component<
     return (
       <SearchInputWrapper
         leftIcon="search"
-        type="search"
         onChange={this.handleSearch}
         placeholder={this.props.placeholder}
+        type="search"
         value={this.state.localValue}
       />
     );

@@ -92,7 +92,7 @@ function DocumentationItem(props: { item: SearchItem; isActiveItem: boolean }) {
         <span>
           <AlgoliaHighlight attribute="title" hit={props.item} />
         </span>
-        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
+        <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
   );
@@ -127,7 +127,7 @@ function WidgetItem(props: {
       <WidgetIconWrapper>{getWidgetIcon(type)}</WidgetIconWrapper>
       <ItemTitle>
         <Highlight match={query} text={title} />
-        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
+        <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
   );
@@ -166,7 +166,7 @@ function ActionItem(props: {
       <ActionIconWrapper>{icon}</ActionIconWrapper>
       <ItemTitle>
         <Highlight match={query} text={title} />
-        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
+        <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
   );
@@ -189,7 +189,7 @@ function DatasourceItem(props: {
       {icon}
       <ItemTitle>
         <Highlight match={query} text={title} />
-        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
+        <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
   );
@@ -209,7 +209,7 @@ function PageItem(props: {
       {icon}
       <ItemTitle>
         <Highlight match={query} text={title} />
-        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
+        <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
   );
@@ -273,7 +273,9 @@ function SearchItemComponent(props: ItemProps) {
 
   return (
     <SearchItemContainer
-      ref={itemRef}
+      className="t--docHit"
+      isActiveItem={isActiveItem}
+      itemType={itemType}
       onClick={() => {
         if (itemType !== SEARCH_ITEM_TYPES.sectionTitle) {
           setActiveItemIndex(index);
@@ -282,11 +284,9 @@ function SearchItemComponent(props: ItemProps) {
           }
         }
       }}
-      className="t--docHit"
-      isActiveItem={isActiveItem}
-      itemType={itemType}
+      ref={itemRef}
     >
-      <Item item={item} query={query} isActiveItem={isActiveItem} />
+      <Item isActiveItem={isActiveItem} item={item} query={query} />
     </SearchItemContainer>
   );
 }
@@ -308,9 +308,9 @@ function SearchResults({
     <SearchResultsContainer>
       {searchResults.map((item: SearchItem, index: number) => (
         <SearchItemComponent
-          key={index}
           index={index}
           item={item}
+          key={index}
           query={query}
         />
       ))}
