@@ -4,16 +4,10 @@ import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  scrollbarDark,
-  scrollbarLight,
-  Skin,
-  Theme,
-} from "constants/DefaultTheme";
+import { scrollbarLight, Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 
 export const HintStyles = createGlobalStyle<{
-  editorTheme: EditorTheme;
   theme: Theme;
 }>`
   .CodeMirror-hints {
@@ -27,18 +21,15 @@ export const HintStyles = createGlobalStyle<{
     font-family: monospace;
     max-height: 20em;
     overflow-y: auto;
-    background: ${(props) =>
-      props.editorTheme === EditorTheme.LIGHT ? "#FAFAFA" : "#262626"};
+    background: #FAFAFA;
     box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
     border-radius: 0px;
-    ${(props) =>
-      props.editorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
+    ${scrollbarLight};
   }
 
   .CodeMirror-hint {
     height: 24px;
-    color: ${(props) =>
-      props.editorTheme === EditorTheme.LIGHT ? "#090707" : "#FFFFFF"};
+    color: #090707;
     cursor: pointer;
     display: flex;
     width: 220px;
@@ -47,8 +38,7 @@ export const HintStyles = createGlobalStyle<{
     line-height: 15px;
     letter-spacing: -0.24px;
     &:hover {
-      background: ${(props) =>
-        props.editorTheme === EditorTheme.LIGHT ? "#6A86CE" : "#157A96"};
+      background: #6A86CE
       border-radius: 0px;
       color: #fff;
       &:after {
@@ -69,8 +59,7 @@ export const HintStyles = createGlobalStyle<{
   .CodeMirror-Tern-completion {
     padding-left: ${(props) => props.theme.spaces[11]}px !important;
     &:hover{
-      background: ${(props) =>
-        props.editorTheme === EditorTheme.LIGHT ? "#6A86CE" : "#157A96"};
+      background: #6A86CE;
     }
   }
   .CodeMirror-Tern-completion:before {
@@ -149,21 +138,14 @@ export const HintStyles = createGlobalStyle<{
     display: none;
     &.visible {
       display: block;
-      background-color: ${(props) =>
-        props.editorTheme === EditorTheme.DARK ? "#23292e" : "#fff"} !important;
-      color: ${(props) =>
-        props.editorTheme === EditorTheme.DARK
-          ? "#F4F4F4"
-          : "#1E242B"} !important;
+      background-color: #fff !important;
+      color: #1E242B !important;
       max-height: 150px;
       width: 250px;
       font-size: 12px;
       padding: 5px !important;
       border: 1px solid !important;
-      border-color: ${(props) =>
-        props.editorTheme === EditorTheme.DARK
-          ? "#23292e"
-          : "#DEDEDE"} !important;
+      border-color: #23292e !important;
       box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
       overflow: scroll;
     }

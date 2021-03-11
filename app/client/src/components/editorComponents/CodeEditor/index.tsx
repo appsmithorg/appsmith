@@ -33,7 +33,6 @@ import {
 import {
   DynamicAutocompleteInputWrapper,
   EditorWrapper,
-  HintStyles,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
@@ -426,7 +425,6 @@ class CodeEditor extends Component<Props, State> {
               promptMessage={this.props.promptMessage}
               editorTheme={this.props.theme}
             />
-            <HintStyles editorTheme={theme} />
           </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>
