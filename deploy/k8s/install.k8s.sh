@@ -289,9 +289,9 @@ ask_telemetry() {
     echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/v/v1.2.1/setup/telemetry"
     echo -e ""
     if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
-        disable_telemetry="false"
+        disable_telemetry='"false"'
     else
-        disable_telemetry="true"
+        disable_telemetry='"true"'
     fi
     echo "++++++++++++++++++++++++++++++++++++++++++++"
 
