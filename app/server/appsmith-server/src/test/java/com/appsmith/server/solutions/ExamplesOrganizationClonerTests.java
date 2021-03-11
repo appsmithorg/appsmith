@@ -379,29 +379,7 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(data.organization.getName()).isEqualTo("api_user's apps");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
-                    assertThat(data.datasources).hasSize(2);
-                    assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
-                            "datasource 1",
-                            "datasource 2"
-                    );
-
-                    final Datasource ds1 = data.datasources.stream()
-                            .filter(datasource -> "datasource 1".equals(datasource.getName()))
-                            .findFirst()
-                            .orElseThrow();
-                    assertThat(ds1.getDatasourceConfiguration().getUrl()).isEqualTo("http://httpbin.org/get");
-                    assertThat(ds1.getDatasourceConfiguration().getHeaders()).containsOnly(
-                            new Property("X-Answer", "42")
-                    );
-
-                    final Datasource ds2 = data.datasources.stream()
-                            .filter(datasource -> "datasource 2".equals(datasource.getName()))
-                            .findFirst()
-                            .orElseThrow();
-                    assertThat(ds2.getDatasourceConfiguration().getAuthentication()).isNotNull();
-                    assertThat(((DBAuth) ds2.getDatasourceConfiguration().getAuthentication()).getPassword())
-                            .isEqualTo(encryptionService.encryptString("answer-to-life"));
-
+                    assertThat(data.datasources).isEmpty();
                     assertThat(data.applications).isEmpty();
                     assertThat(data.actions).isEmpty();
                 })
@@ -469,12 +447,7 @@ public class ExamplesOrganizationClonerTests {
                             "second application"
                     );
 
-                    assertThat(data.datasources).hasSize(2);
-                    assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
-                            "datasource 1",
-                            "datasource 2"
-                    );
-
+                    assertThat(data.datasources).isEmpty();
                     assertThat(data.actions).isEmpty();
                 })
                 .verifyComplete();
@@ -523,7 +496,7 @@ public class ExamplesOrganizationClonerTests {
                             .flatMap(tuple1 -> {
                                 final Application app = tuple1.getT1();
                                 final String pageId1 = app.getPages().get(0).getId();
-                                final Datasource ds1Again = tuple1.getT3();
+                                final Datasource ds1WithId = tuple1.getT3();
 
                                 final PageDTO newPage = new PageDTO();
                                 newPage.setName("A New Page");
@@ -549,7 +522,7 @@ public class ExamplesOrganizationClonerTests {
                                 final ActionDTO newPageAction = new ActionDTO();
                                 newPageAction.setName("newPageAction");
                                 newPageAction.setOrganizationId(organization.getId());
-                                newPageAction.setDatasource(ds1Again);
+                                newPageAction.setDatasource(ds1WithId);
                                 newPageAction.setPluginId(installedPlugin.getId());
                                 newPageAction.setActionConfiguration(new ActionConfiguration());
                                 newPageAction.getActionConfiguration().setHttpMethod(HttpMethod.GET);
@@ -558,32 +531,32 @@ public class ExamplesOrganizationClonerTests {
                                 action1.setName("action1");
                                 action1.setPageId(pageId1);
                                 action1.setOrganizationId(organization.getId());
-                                action1.setDatasource(ds1Again);
+                                action1.setDatasource(ds1WithId);
                                 action1.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action2 = new ActionDTO();
                                 action2.setPageId(pageId1);
                                 action2.setName("action2");
                                 action2.setOrganizationId(organization.getId());
-                                action2.setDatasource(ds1Again);
+                                action2.setDatasource(ds1WithId);
                                 action2.setPluginId(installedPlugin.getId());
 
                                 final Application app2Again = tuple1.getT2();
                                 final String pageId2 = app2Again.getPages().get(0).getId();
-                                final Datasource ds2Again = tuple1.getT4();
+                                final Datasource ds2WithId = tuple1.getT4();
 
                                 final ActionDTO action3 = new ActionDTO();
                                 action3.setName("action3");
                                 action3.setPageId(pageId2);
                                 action3.setOrganizationId(organization.getId());
-                                action3.setDatasource(ds2Again);
+                                action3.setDatasource(ds2WithId);
                                 action3.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action4 = new ActionDTO();
                                 action4.setPageId(pageId2);
                                 action4.setName("action4");
                                 action4.setOrganizationId(organization.getId());
-                                action4.setDatasource(ds2Again);
+                                action4.setDatasource(ds2WithId);
                                 action4.setPluginId(installedPlugin.getId());
 
                                 return Mono.when(

@@ -29,11 +29,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,22 +78,7 @@ public class ExamplesOrganizationCloner {
         }
 
         return configService.getTemplateOrganizationId()
-                .doOnSuccess(id -> {
-                    if (id == null) {
-                        log.error("Missing template organization id in config.");
-                    }
-                })
                 .doOnError(error -> log.error("Error loading template organization id config.", error))
-                .doOnSuccess(config -> {
-                    if (config == null) {
-                        // If the template organization could not be found, that's okay, the login should not fail. We
-                        // will try again the next time the user logs in.
-                        log.error(
-                                "Template organization ID not found. Skipping creating example organization for user {}.",
-                                user.getEmail()
-                        );
-                    }
-                })
                 .flatMap(templateOrganizationId -> cloneOrganizationForUser(templateOrganizationId, user));
     }
 
@@ -110,6 +97,11 @@ public class ExamplesOrganizationCloner {
      */
     public Mono<Organization> cloneOrganizationForUser(String templateOrganizationId, User user, Flux<Application> applicationsFlux) {
         log.info("Cloning organization id {}", templateOrganizationId);
+
+        if (!StringUtils.hasText(templateOrganizationId)) {
+            return Mono.empty();
+        }
+
         return organizationRepository
                 .findById(templateOrganizationId)
                 .doOnSuccess(organization -> {
@@ -160,9 +152,11 @@ public class ExamplesOrganizationCloner {
      * @return Empty Mono.
      */
     public Mono<List<String>> cloneApplications(String fromOrganizationId, String toOrganizationId, Flux<Application> applicationsFlux) {
-        final Mono<Map<String, Datasource>> cloneDatasourcesMono = cloneDatasources(fromOrganizationId, toOrganizationId).cache();
         final List<NewPage> clonedPages = new ArrayList<>();
         final List<String> newApplicationIds = new ArrayList<>();
+
+        // A map of datasourceId => {a cached Mono that clones this datasource and yields the new datasource }.
+        final Map<String, Mono<Datasource>> cloneDatasourceMonos = new HashMap<>();
 
         return applicationsFlux
                 .flatMap(application -> {
@@ -229,9 +223,13 @@ public class ExamplesOrganizationCloner {
                     final Datasource datasourceInsideAction = action.getDatasource();
                     if (datasourceInsideAction != null) {
                         if (datasourceInsideAction.getId() != null) {
-                            actionMono = cloneDatasourcesMono
-                                    .map(newDatasourcesByTemplateId -> {
-                                        action.setDatasource(newDatasourcesByTemplateId.get(datasourceInsideAction.getId()));
+                            final String datasourceId = datasourceInsideAction.getId();
+                            if (!cloneDatasourceMonos.containsKey(datasourceId)) {
+                                cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toOrganizationId).cache());
+                            }
+                            actionMono = cloneDatasourceMonos.get(datasourceId)
+                                    .map(newDatasource -> {
+                                        action.setDatasource(newDatasource);
                                         return action;
                                     });
                         } else {
@@ -247,7 +245,6 @@ public class ExamplesOrganizationCloner {
                 // `clonedPages` list will also contain all pages cloned.
                 .collectMap(Tuple2::getT2, Tuple2::getT1)
                 .flatMapMany(actionIdsMap -> updateActionIdsInClonedPages(clonedPages, actionIdsMap))
-                .then(cloneDatasourcesMono)  // Run the datasource cloning mono if it isn't already done.
                 // Now publish all the example applications which have been cloned to ensure that there is a
                 // view mode for the newly created user.
                 .then(Mono.just(newApplicationIds))
@@ -355,6 +352,19 @@ public class ExamplesOrganizationCloner {
                     );
                 })
                 .collectMap(Tuple2::getT1, Tuple2::getT2);
+    }
+
+    private Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId) {
+        return datasourceRepository
+                .findById(datasourceId)
+                .flatMap(datasource -> {
+                    makePristine(datasource);
+                    datasource.setOrganizationId(toOrganizationId);
+                    if (datasource.getDatasourceConfiguration() != null) {
+                        datasourceContextService.decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication());
+                    }
+                    return datasourceService.create(datasource);
+                });
     }
 
     private void makePristine(BaseDomain domain) {
