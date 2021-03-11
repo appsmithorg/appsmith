@@ -247,7 +247,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid,
         parsed: [],
-        transformed,
+        transformed: Array.isArray(transformed) ? transformed : [],
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
       };
     }
