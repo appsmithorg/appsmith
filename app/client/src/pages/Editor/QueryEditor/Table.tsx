@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { FixedSizeList } from "react-window";
-import { useTable, useFlexLayout } from "react-table";
+import { useTable, useBlockLayout } from "react-table";
 
 import { Colors } from "constants/Colors";
 import { scrollbarWidth } from "utils/helpers";
@@ -200,6 +200,13 @@ const Table = (props: TableProps) => {
     return [];
   }, [data]);
 
+  const defaultColumn = React.useMemo(
+    () => ({
+      width: 170,
+    }),
+    [],
+  );
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -212,8 +219,9 @@ const Table = (props: TableProps) => {
       columns,
       data,
       manualPagination: true,
+      defaultColumn,
     },
-    useFlexLayout,
+    useBlockLayout,
   );
 
   const scrollBarSize = React.useMemo(() => scrollbarWidth(), []);
@@ -232,16 +240,8 @@ const Table = (props: TableProps) => {
         >
           {row.cells.map((cell: any, cellIndex: number) => {
             return (
-              <div
-                key={cellIndex}
-                {...cell.getCellProps()}
-                className="td"
-                data-rowindex={index}
-                data-colindex={cellIndex}
-              >
-                <CellWrapper isHidden={false}>
-                  {cell.render("Cell")}
-                </CellWrapper>
+              <div key={cellIndex} {...cell.getCellProps()} className="td">
+                <CellWrapper>{cell.render("Cell")}</CellWrapper>
               </div>
             );
           })}
@@ -258,29 +258,35 @@ const Table = (props: TableProps) => {
       <TableWrapper>
         <div className="tableWrap">
           <div {...getTableProps()} className="table">
-            {headerGroups.map((headerGroup: any, index: number) => (
-              <div
-                key={index}
-                {...headerGroup.getHeaderGroupProps()}
-                className="tr"
-              >
-                {headerGroup.headers.map((column: any, columnIndex: number) => (
-                  <div
-                    key={columnIndex}
-                    {...column.getHeaderProps()}
-                    className="th header-reorder"
-                  >
-                    <div
-                      className={
-                        !column.isHidden ? "draggable-header" : "hidden-header"
-                      }
-                    >
-                      {column.render("Header")}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))}
+            <div>
+              {headerGroups.map((headerGroup: any, index: number) => (
+                <div
+                  key={index}
+                  {...headerGroup.getHeaderGroupProps()}
+                  className="tr"
+                >
+                  {headerGroup.headers.map(
+                    (column: any, columnIndex: number) => (
+                      <div
+                        key={columnIndex}
+                        {...column.getHeaderProps()}
+                        className="th header-reorder"
+                      >
+                        <div
+                          className={
+                            !column.isHidden
+                              ? "draggable-header"
+                              : "hidden-header"
+                          }
+                        >
+                          {column.render("Header")}
+                        </div>
+                      </div>
+                    ),
+                  )}
+                </div>
+              ))}
+            </div>
 
             <div {...getTableBodyProps()} className="tbody">
               <FixedSizeList
