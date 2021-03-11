@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -106,6 +107,9 @@ public class ExamplesOrganizationClonerTests {
 
     @Autowired
     private LayoutActionService layoutActionService;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -330,6 +334,59 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(data.applications).isEmpty();
                     assertThat(data.datasources).isEmpty();
                     assertThat(data.actions).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplicationMultipleTimes() {
+        Organization sourceOrg = new Organization();
+        sourceOrg.setName("Source Org 1");
+
+        Organization targetOrg = new Organization();
+        targetOrg.setName("Target Org 1");
+
+        final Mono<List<String>> resultMono = Mono
+                .zip(
+                        organizationService.create(sourceOrg),
+                        sessionUserService.getCurrentUser()
+                )
+                .flatMap(tuple -> {
+                    final Organization sourceOrg1 = tuple.getT1();
+                    Application app1 = new Application();
+                    app1.setName("awesome app");
+                    app1.setOrganizationId(sourceOrg1.getId());
+
+                    return Mono.zip(
+                            applicationPageService.createApplication(app1),
+                            organizationService.create(targetOrg)
+                    );
+                })
+                .flatMapMany(tuple -> {
+                    final String orgId = tuple.getT2().getId();
+                    tuple.getT1().setOrganizationId(orgId);
+                    Mono<Application> cloneMono = Mono.just(tuple.getT1())
+                            .map(app -> {
+                                // We reset these values here because the clone method updates them and that just messes with our test.
+                                app.setName("awesome app");
+                                app.setId(null);
+                                return app;
+                            })
+                            .flatMap(applicationPageService::cloneExampleApplication);
+                    // Clone this application into the same organization thrice.
+                    return cloneMono
+                            .then(cloneMono)
+                            .then(cloneMono)
+                            .thenMany(Flux.defer(() -> applicationRepository.findByOrganizationId(orgId)));
+                })
+                .map(Application::getName)
+                .collect(Collectors.toList());
+
+        StepVerifier.create(resultMono)
+                .assertNext(names -> {
+                    assertThat(names).hasSize(3);
+                    assertThat(names).containsExactlyInAnyOrder("awesome app", "awesome app (1)", "awesome app (2)");
                 })
                 .verifyComplete();
     }

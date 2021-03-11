@@ -25,6 +25,7 @@ import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -221,6 +222,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return applicationWithPoliciesMono
                 .flatMap(applicationService::createDefault)
+                .doOnError(error -> {
+                    log.error("Error creating application", error);
+                })
                 .flatMap(savedApplication -> {
 
                     PageDTO page = new PageDTO();
@@ -277,11 +281,34 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         application.setPublishedPages(new ArrayList<>());
         application.setIsPublic(false);
 
-        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
+        Mono<User> userMono = sessionUserService.getCurrentUser();
 
-        return applicationWithPoliciesMono
-                .flatMap(applicationService::createDefault);
+        return setApplicationPolicies(userMono, orgId, application)
+                .flatMap(applicationToCreate ->
+                        createSuffixedApplication(applicationToCreate, applicationToCreate.getName(), 0)
+                );
+    }
+
+    /**
+     * Tries to create the given application with the name, over and over again with an incremented suffix, but **only**
+     * if the error is because of a name clash.
+     * @param application Application to try create.
+     * @param name Name of the application, to which numbered suffixes will be appended.
+     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
+     * @return A Mono that yields the created application.
+     */
+    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
+        return applicationService.createDefault(application)
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null
+                            && error.getMessage().contains("organization_application_deleted_compound_index")) {
+                        // The duplicate key error is because of the `name` field.
+                        return createSuffixedApplication(application, name, 1 + suffix);
+                    }
+                    throw error;
+                });
     }
 
     private void generateAndSetPagePolicies(Application application, PageDTO page) {
