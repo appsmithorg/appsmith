@@ -1,18 +1,13 @@
 import { updateApplicationLayout } from "actions/applicationActions";
 import Dropdown from "components/ads/Dropdown";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
-import {
-  CANVAS_DEFAULT_WIDTH_PX,
-  CANVAS_MOBILE_WIDTH_PX,
-  CANVAS_TABLET_WIDTH_PX,
-} from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import {
   AppLayoutConfig,
-  AppLayoutType,
+  SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentApplicationId,
@@ -23,17 +18,14 @@ import { useSelector } from "store";
 import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
 
-type SupportedLayouts = "Desktop" | "Tablet" | "Mobile Device" | "Fluid Width";
 interface AppsmithLayoutConfigOption {
-  name: SupportedLayouts;
-  type: AppLayoutType;
-  width: number;
+  name: string;
+  type: SupportedLayouts;
   icon?: IconName;
 }
 
 export const AppsmithDefaultLayout: AppLayoutConfig = {
-  type: "FLUID",
-  width: CANVAS_DEFAULT_WIDTH_PX,
+  type: "DESKTOP",
 };
 
 const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
@@ -43,21 +35,23 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     icon: "desktop",
   },
   {
+    name: "Tablet(Large)",
+    type: "TABLET_LARGE",
+    icon: "tablet",
+  },
+  {
     name: "Tablet",
-    type: "FLUID",
-    width: CANVAS_TABLET_WIDTH_PX,
+    type: "TABLET",
     icon: "tablet",
   },
   {
     name: "Mobile Device",
-    type: "FLUID",
-    width: CANVAS_MOBILE_WIDTH_PX,
+    type: "MOBILE",
     icon: "mobile",
   },
   {
     name: "Fluid Width",
     type: "FLUID",
-    width: -1,
     icon: "fluid",
   },
 ];
@@ -100,15 +94,11 @@ export const MainContainerLayoutControl: React.FC<any> = () => {
       onSelect: () =>
         updateAppLayout({
           type: each.type,
-          width: each.width,
         }),
     };
   });
   const selectedLayout = appLayout
-    ? layoutOptions.find(
-        (each) =>
-          each.type === appLayout.type && each.width === appLayout.width,
-      )
+    ? layoutOptions.find((each) => each.type === appLayout.type)
     : layoutOptions[0];
   const dispatch = useDispatch();
   const lightTheme = useSelector((state: AppState) =>
@@ -116,12 +106,11 @@ export const MainContainerLayoutControl: React.FC<any> = () => {
   );
 
   const updateAppLayout = (layoutConfig: AppLayoutConfig) => {
-    const { type, width } = layoutConfig;
+    const { type } = layoutConfig;
     dispatch(
       updateApplicationLayout(appId || "", {
         appLayout: {
           type,
-          width,
         },
       }),
     );
