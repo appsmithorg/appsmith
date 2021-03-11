@@ -371,7 +371,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       sanitizedTableData,
       derivedColumns,
     } = this.props;
-    if (!sanitizedTableData || !sanitizedTableData.length) {
+    if (
+      !sanitizedTableData ||
+      !sanitizedTableData.length ||
+      isString(sanitizedTableData)
+    ) {
       return [];
     }
     const derivedTableData: Array<Record<string, unknown>> = [
@@ -507,7 +511,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     | Record<string, ColumnProperties>
     | undefined => {
     const {
-      sanitizedTableData,
+      sanitizedTableData = [],
       primaryColumns = {},
       columnNameMap = {},
       columnTypeMap = {},
@@ -515,6 +519,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       hiddenColumns = [],
       migrated,
     } = this.props;
+    // Bail out if the data is a string. It must be an array.
+    if (isString(sanitizedTableData)) return {};
 
     const previousColumnIds = Object.keys(primaryColumns);
     const tableColumns: Record<string, ColumnProperties> = {};
@@ -647,6 +653,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const { primaryColumns = {} } = this.props;
+
+    // Donot process if the sanitizedTableData is a string
+    if (isString(this.props.sanitizedTableData)) return;
+
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.sanitizedTableData) !==
