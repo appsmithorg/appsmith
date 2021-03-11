@@ -39,7 +39,7 @@ export const AuthCard = styled(Card)`
     text-align: center;
     padding: 0;
     margin: 0;
-    ${(props) => getTypographyByKey(props, "authCardHeader")}
+    ${(props) => getTypographyByKey(props, "cardHeader")}
     color: ${(props) => props.theme.colors.auth.headingText};
   }
   & .form-message-container {
@@ -120,13 +120,13 @@ export const FormActions = styled.div`
 `;
 
 export const SignUpLinkSection = styled.div`
-  ${(props) => getTypographyByKey(props, "authCardSubheader")}
+  ${(props) => getTypographyByKey(props, "cardSubheader")}
   color: ${(props) => props.theme.colors.auth.text};
   text-align: center;
 `;
 
 export const ForgotPasswordLink = styled.div`
-  ${(props) => getTypographyByKey(props, "authCardSubheader")}
+  ${(props) => getTypographyByKey(props, "cardSubheader")}
   color: ${(props) => props.theme.colors.auth.text};
   text-align: center;
   margin-top: ${(props) => props.theme.spaces[11]}px;

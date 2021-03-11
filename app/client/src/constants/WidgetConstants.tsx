@@ -1,3 +1,5 @@
+import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+
 export enum WidgetTypes {
   BUTTON_WIDGET = "BUTTON_WIDGET",
   TEXT_WIDGET = "TEXT_WIDGET",
@@ -69,6 +71,27 @@ export const CSSUnits: { [id: string]: CSSUnit } = {
   PIXEL: "px",
   RELATIVE_FONTSIZE: "rem",
   RELATIVE_PARENT: "%",
+};
+
+interface LayoutConfig {
+  minWidth: number;
+  maxWidth: number;
+}
+
+type LayoutConfigurations = Record<SupportedLayouts, LayoutConfig>;
+export const DefaultLayoutType: SupportedLayouts = "DESKTOP";
+export const layoutConfigurations: LayoutConfigurations = {
+  TABLET_LARGE: {
+    minWidth: 960,
+    maxWidth: 1080,
+  },
+  MOBILE: {
+    minWidth: 350,
+    maxWidth: 450,
+  },
+  DESKTOP: { minWidth: 1160, maxWidth: 1280 },
+  TABLET: { minWidth: 650, maxWidth: 800 },
+  FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
 export const GridDefaults = {

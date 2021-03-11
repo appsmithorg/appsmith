@@ -38,6 +38,9 @@ describe("Table functionality ", function() {
     // Click on the hide icon
     // and observe on edit mode the table column is dispalyed
     // Click on deploy
-    // Ensure the hidden column is not displayed and custom column is disaplyed to user
-  });
-});
+    // Ensure the hidden column is not displayed and custom column is disaplyed to user 
+  }
+  )
+
+}
+)

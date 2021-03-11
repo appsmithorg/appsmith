@@ -253,3 +253,27 @@ const playLottieAnimation = (
     container.removeChild(el);
   }, duration);
 };
+
+export const getSelectedText = () => {
+  if (typeof window.getSelection === "function") {
+    const selectionObj = window.getSelection();
+    return selectionObj && selectionObj.toString();
+  }
+};
+
+/**
+ * calculates and returns the scrollwidth
+ *
+ * @returns
+ */
+export const scrollbarWidth = () => {
+  const scrollDiv = document.createElement("div");
+  scrollDiv.setAttribute(
+    "style",
+    "width: 100px; height: 100px; overflow: scroll; position:absolute; top:-9999px;",
+  );
+  document.body.appendChild(scrollDiv);
+  const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+  document.body.removeChild(scrollDiv);
+  return scrollbarWidth;
+};

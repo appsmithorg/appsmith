@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { focusWidget } from "actions/widgetActions";
+import { focusWidget, selectWidget } from "actions/widgetActions";
 import { useCallback, useEffect, useState } from "react";
 
 export const useShowPropertyPane = () => {
@@ -64,10 +64,7 @@ export const useWidgetSelection = () => {
   return {
     selectWidget: useCallback(
       (widgetId?: string) => {
-        dispatch({
-          type: ReduxActionTypes.SELECT_WIDGET,
-          payload: { widgetId },
-        });
+        dispatch(selectWidget(widgetId));
       },
       [dispatch],
     ),

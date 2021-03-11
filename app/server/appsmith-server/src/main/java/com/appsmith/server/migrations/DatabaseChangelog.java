@@ -45,6 +45,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.google.gson.Gson;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -60,11 +61,13 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.CollectionCallback;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
@@ -1916,4 +1919,100 @@ public class DatabaseChangelog {
             }
         }
     }
+
+    @ChangeSet(order = "058", id = "update-s3-datasource-configuration-and-label", author = "")
+    public void updateS3DatasourceConfigurationAndLabel(MongoTemplate mongoTemplate) {
+        Plugin s3Plugin = mongoTemplate
+                .find(query(where("name").is("Amazon S3")), Plugin.class).get(0);
+        s3Plugin.setName("S3");
+        mongoTemplate.save(s3Plugin);
+
+        List<Datasource> s3Datasources = mongoTemplate
+                .find(query(where("pluginId").is(s3Plugin.getId())), Datasource.class);
+
+        s3Datasources
+                .stream()
+                .forEach(datasource -> {
+                    datasource
+                            .getDatasourceConfiguration()
+                            .getProperties()
+                            .add(new Property("s3Provider", "amazon-s3"));
+
+                    mongoTemplate.save(datasource);
+                });
+    }
+
+    @ChangeSet(order = "059", id = "change-applayout-type-definition", author = "")
+    public void changeAppLayoutTypeDefinition(MongoOperations mongoOperations, MongoClient mongoClient) {
+        // Unset an old version of this field, that is no longer used.
+        mongoOperations.updateMulti(
+                query(where("appLayout").exists(true)),
+                new Update().unset("appLayout"),
+                Application.class
+        );
+
+        // For the published and unpublished app layouts, migrate the old way of specifying the device width to the new
+        // way of doing it. Table of migrations:
+        //     Desktop: Old - 1224, New 1160 - 1280
+        //     Tablet L: Old - NA, New 960 - 1080
+        //     Tablet: Old - 1024, New 650 - 800
+        //     Mobile: Old - 720, New 350 - 450
+        final Criteria criteria = new Criteria().orOperator(
+                where(fieldName(QApplication.application.unpublishedAppLayout)).exists(true),
+                where(fieldName(QApplication.application.publishedAppLayout)).exists(true)
+        );
+
+        final Query query = query(criteria);
+        query.fields()
+                .include(fieldName(QApplication.application.unpublishedAppLayout))
+                .include(fieldName(QApplication.application.publishedAppLayout));
+
+        List<Application> apps = mongoOperations.find(query, Application.class);
+
+        for (final Application app : apps) {
+            final Integer unpublishedWidth = app.getUnpublishedAppLayout() == null ? null : app.getUnpublishedAppLayout().getWidth();
+            final Integer publishedWidth = app.getPublishedAppLayout() == null ? null : app.getPublishedAppLayout().getWidth();
+            final Update update = new Update().unset("unpublishedAppLayout.width").unset("publishedAppLayout.width");
+
+            if (unpublishedWidth != null) {
+                final String typeField = "unpublishedAppLayout.type";
+                if (unpublishedWidth == -1) {
+                    update.set(typeField, Application.AppLayout.Type.FLUID.name());
+                } else {
+                    if (unpublishedWidth == 1024) {
+                        update.set(typeField, Application.AppLayout.Type.TABLET.name());
+                    } else if (unpublishedWidth == 720) {
+                        update.set(typeField, Application.AppLayout.Type.MOBILE.name());
+                    } else {
+                        // Default to Desktop.
+                        update.set(typeField, Application.AppLayout.Type.DESKTOP.name());
+                    }
+                }
+            }
+
+            if (publishedWidth != null) {
+                final String typeField = "publishedAppLayout.type";
+                if (publishedWidth == -1) {
+                    update.set(typeField, Application.AppLayout.Type.FLUID.name());
+                } else {
+                    if (publishedWidth == 1024) {
+                        update.set(typeField, Application.AppLayout.Type.TABLET.name());
+                    } else if (publishedWidth == 720) {
+                        update.set(typeField, Application.AppLayout.Type.MOBILE.name());
+                    } else {
+                        // Default to Desktop.
+                        update.set(typeField, Application.AppLayout.Type.DESKTOP.name());
+                    }
+                }
+            }
+
+            mongoOperations.updateFirst(
+                    query(where(fieldName(QApplication.application.id)).is(app.getId())),
+                    update,
+                    Application.class
+            );
+
+        }
+    }
+
 }

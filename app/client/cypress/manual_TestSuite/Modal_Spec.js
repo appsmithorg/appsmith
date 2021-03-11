@@ -35,7 +35,10 @@ describe("Modal Functionality ", function() {
     // Ensure the Alert modal is dispalyed to user
     // Now click on the Modal in entity explorer
     // Convert the Modal from "Alert" to "Form"
-    // Click on the button
-    // Ensure a form modal is dispalyed to user
-  });
-});
+    // Click on the button 
+    // Ensure a form modal is dispalyed to user 
+  }
+  )
+
+}
+)
