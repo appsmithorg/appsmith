@@ -12,5 +12,6 @@ public enum DataType {
     BINARY,
     BYTES,
     STRING,
-    NULL
+    NULL,
+    ARRAY,
 }

@@ -19,6 +19,7 @@ const initialState: ApplicationsReduxState = {
   applicationList: [],
   creatingApplication: {},
   deletingApplication: false,
+  forkingApplication: false,
   duplicatingApplication: false,
   userOrgs: [],
   isSavingOrgInfo: false,
@@ -176,6 +177,39 @@ const applicationsReducer = createReducer(initialState, {
       createApplicationError: ERROR_MESSAGE_CREATE_APPLICATION,
     };
   },
+  [ReduxActionTypes.FORK_APPLICATION_INIT]: (state: ApplicationsReduxState) => {
+    return { ...state, forkingApplication: true };
+  },
+  [ReduxActionTypes.FORK_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ orgId: string; application: ApplicationPayload }>,
+  ) => {
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.orgId) {
+        const applications = org.applications;
+        org.applications = [...applications, action.payload.application];
+        return {
+          ...org,
+        };
+      }
+      return org;
+    });
+
+    return {
+      ...state,
+      forkingApplication: false,
+      applicationList: [...state.applicationList, action.payload.application],
+      userOrgs: _organizations,
+    };
+  },
+  [ReduxActionErrorTypes.FORK_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      forkingApplication: false,
+    };
+  },
   [ReduxActionTypes.SAVING_ORG_INFO]: (state: ApplicationsReduxState) => {
     return {
       ...state,
@@ -299,6 +333,7 @@ export interface ApplicationsReduxState {
   creatingApplication: creatingApplicationMap;
   createApplicationError?: string;
   deletingApplication: boolean;
+  forkingApplication: boolean;
   duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
   userOrgs: Organization[];
