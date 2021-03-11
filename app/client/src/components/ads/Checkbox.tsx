@@ -1,5 +1,5 @@
 import { Classes, CommonComponentProps } from "./common";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import { Colors } from "constants/Colors";
@@ -95,8 +95,13 @@ const LabelContainer = styled.div<{ info?: string }>`
 
 const Checkbox = (props: CheckboxProps) => {
   const [checked, setChecked] = useState<boolean>(
-    props.isDefaultChecked || false,
+    props.isDefaultChecked as boolean,
   );
+
+  useEffect(() => {
+    const isChecked = !!props.isDefaultChecked;
+    setChecked(isChecked);
+  }, [props.isDefaultChecked]);
 
   const onChangeHandler = (checked: boolean) => {
     setChecked(checked);
