@@ -372,11 +372,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       sanitizedTableData,
       derivedColumns,
     } = this.props;
-    if (
-      !sanitizedTableData ||
-      !sanitizedTableData.length ||
-      isString(sanitizedTableData)
-    ) {
+    if (!sanitizedTableData || !sanitizedTableData.length) {
       return [];
     }
     const derivedTableData: Array<Record<string, unknown>> = [
