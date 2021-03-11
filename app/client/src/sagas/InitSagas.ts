@@ -41,6 +41,7 @@ import {
   resetRecentEntities,
 } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
+import { initCommentThreads } from "actions/commentActions";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -126,6 +127,9 @@ function* initializeEditorSaga(
       appId: appId,
       appName: appName,
     });
+
+    // todo remove (for dev)
+    yield put(initCommentThreads());
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
@@ -213,6 +217,9 @@ export function* initializeAppViewerSaga(
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
     yield put(updateAppStore(getAppStore(applicationId)));
+
+    // todo remove (for dev)
+    yield put(initCommentThreads());
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,

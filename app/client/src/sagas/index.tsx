@@ -24,6 +24,7 @@ import onboardingSaga from "./OnboardingSagas";
 import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
 import recentEntitiesSagas from "./RecentEntitiesSagas";
+import commentSagas from "./CommentSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 
@@ -54,6 +55,7 @@ export function* rootSaga() {
     actionExecutionChangeListeners,
     globalSearchSagas,
     recentEntitiesSagas,
+    commentSagas,
   ];
   yield all(
     sagas.map((saga) =>
