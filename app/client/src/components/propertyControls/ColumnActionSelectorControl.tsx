@@ -7,7 +7,7 @@ import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
-import { ActionCreator } from "components/editorComponents/actioncreator/ActionCreator";
+import { ActionCreator } from "components/editorComponents/ActionCreator";
 import { Size, Category } from "components/ads/Button";
 export interface ColumnAction {
   label: string;

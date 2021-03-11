@@ -1,6 +1,6 @@
 import React, {
   memo,
-  ReactNode,
+  ReactElement,
   useCallback,
   useEffect,
   useRef,
@@ -17,12 +17,12 @@ import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 
-import { Classes, Position, Tooltip } from "@blueprintjs/core";
 import { WidgetType } from "constants/WidgetConstants";
 import styled from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import TooltipComponent from "components/ads/Tooltip";
 
 const StaticSpaceWrapper = styled.div`
   height: 25px;
@@ -46,7 +46,7 @@ const Wrapper = styled.div<{ iconCount: number }>`
   z-index: 3;
   background-color: ${(props) => props.theme.colors.propertyPane.bg};
 
-  & span.${Classes.POPOVER_TARGET} {
+  & span.${BlueprintClasses.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -108,7 +108,7 @@ type PropertyPaneTitleProps = {
   isPanelTitle?: boolean;
   actions: Array<{
     tooltipContent: any;
-    icon: ReactNode;
+    icon: ReactElement;
   }>;
 };
 
@@ -192,14 +192,13 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         </NameWrapper>
 
         {props.actions.map((value, index) => (
-          <Tooltip
+          <TooltipComponent
             content={value.tooltipContent}
-            position={Position.TOP}
             hoverOpenDelay={200}
             key={index}
           >
             {value.icon}
-          </Tooltip>
+          </TooltipComponent>
         ))}
       </Wrapper>
     </StaticSpaceWrapper>

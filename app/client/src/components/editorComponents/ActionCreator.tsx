@@ -25,7 +25,7 @@ import {
   createNewApiAction,
   createNewQueryAction,
 } from "actions/apiPaneActions";
-import { NavigationTargetType } from "../../../sagas/ActionExecutionSagas";
+import { NavigationTargetType } from "sagas/ActionExecutionSagas";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getWidgets } from "sagas/selectors";
@@ -283,7 +283,6 @@ const views = {
             getDefaults={props.getDefaults}
             selectedLabelModifier={props.selectedLabelModifier}
             displayValue={props.displayValue}
-            variant="darker"
           />
         </ControlWrapper>
       </FieldWrapper>
@@ -856,7 +855,7 @@ function renderField(props: {
       if (fieldType === FieldType.WIDGET_NAME_FIELD) {
         label = "Widget";
         options = props.widgetOptionTree;
-        defaultText = "";
+        defaultText = "Select Widget";
       }
       if (fieldType === FieldType.PAGE_SELECTOR_FIELD) {
         label = "Page Name";
@@ -1121,6 +1120,7 @@ function useApiOptionTree() {
     value: "api",
     id: "create",
     className: "t--create-api-btn",
+    icon: "plus",
     onSelect: (option: TreeDropdownOption, setter?: Function) => {
       const apiName = createNewApiName(actions, pageId);
       if (setter) {
@@ -1178,6 +1178,7 @@ function useQueryOptionTree() {
     label: "Create Query",
     value: "query",
     id: "create",
+    icon: "plus",
     className: "t--create-query-btn",
     onSelect: (option: TreeDropdownOption, setter?: Function) => {
       const queryName = createNewQueryName(queries, pageId);

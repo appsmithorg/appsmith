@@ -959,18 +959,12 @@ type ColorType = {
     menuBg: {
       normal: ShadeColor;
       hover: ShadeColor;
-    };
-    darkMenuBg: {
-      normal: ShadeColor;
-      hover: ShadeColor;
+      selected: ShadeColor;
     };
     menuText: {
       normal: ShadeColor;
       hover: ShadeColor;
-    };
-    darkMenuText: {
-      normal: ShadeColor;
-      hover: ShadeColor;
+      selected: ShadeColor;
     };
   };
   propertyPane: {
@@ -1425,18 +1419,12 @@ export const dark: ColorType = {
     menuBg: {
       normal: darkShades[3],
       hover: darkShades[4],
-    },
-    darkMenuBg: {
-      normal: darkShades[0],
-      hover: darkShades[3],
+      selected: darkShades[4],
     },
     menuText: {
       normal: darkShades[7],
       hover: darkShades[9],
-    },
-    darkMenuText: {
-      normal: darkShades[8],
-      hover: darkShades[9],
+      selected: darkShades[7],
     },
   },
   propertyPane: {
@@ -1835,22 +1823,17 @@ export const light: ColorType = {
       normal: "#939090",
       hover: "#4B4848",
     },
-    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.32)",
+    menuShadow:
+      "0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1)",
     menuBg: {
-      normal: lightShades[11],
-      hover: lightShades[2],
-    },
-    darkMenuBg: {
       normal: lightShades[0],
-      hover: lightShades[3],
+      hover: lightShades[12],
+      selected: lightShades[3],
     },
     menuText: {
-      normal: lightShades[6],
-      hover: lightShades[8],
-    },
-    darkMenuText: {
       normal: lightShades[8],
-      hover: lightShades[9],
+      hover: lightShades[0],
+      selected: lightShades[8],
     },
   },
   propertyPane: {

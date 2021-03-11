@@ -23,8 +23,6 @@ export type TreeDropdownOption = DropdownOption & {
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
 
-type TreeDropdownVariant = "dark" | "darker";
-
 type TreeDropdownProps = {
   optionTree: TreeDropdownOption[];
   selectedValue: string;
@@ -40,64 +38,58 @@ type TreeDropdownProps = {
   className?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
   onMenuToggle?: (isOpen: boolean) => void;
-  variant?: TreeDropdownVariant;
 };
 
-const StyledMenu = styled(Menu)<{ variant: TreeDropdownVariant }>`
+const StyledMenu = styled(Menu)`
   min-width: 220px;
   padding: 0px;
   border-radius: 0px;
-  background-color: ${(props) =>
-    props.variant === "dark"
-      ? props.theme.colors.treeDropdown.menuBg.normal
-      : props.theme.colors.treeDropdown.darkMenuBg.normal};
-
+  background-color: ${(props) => props.theme.colors.treeDropdown.menuBg.normal};
+  box-shadow: ${(props) => props.theme.colors.treeDropdown.menuShadow};
   .${Classes.MENU} {
     min-width: 220px;
     padding: 0px;
     border-radius: 0px;
     background-color: ${(props) =>
-      props.variant === "dark"
-        ? props.theme.colors.treeDropdown.menuBg.normal
-        : props.theme.colors.treeDropdown.darkMenuBg.normal};
+      props.theme.colors.treeDropdown.menuBg.normal};
   }
   .${Classes.MENU_ITEM} {
     border-radius: 0px;
     font-size: 12px;
     line-height: 14px;
-    padding: 5px 12px;
-    height: 25px;
-    color: ${(props) =>
-      props.variant === "dark"
-        ? props.theme.colors.treeDropdown.menuText.normal
-        : props.theme.colors.treeDropdown.darkMenuText.normal};
+    display: flex;
+    align-items: center;
+    height: 30px;
+    color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
     .${Classes.ICON} > svg:not([fill]) {
+      margin-top: 0px;
       fill: #9f9f9f;
     }
 
-    &:active,
     &:hover {
       background-color: ${(props) =>
-        props.variant === "dark"
-          ? props.theme.colors.treeDropdown.menuBg.hover
-          : props.theme.colors.treeDropdown.darkMenuBg.hover};
-      color: ${(props) =>
-        props.variant === "dark"
-          ? props.theme.colors.treeDropdown.menuText.hover
-          : props.theme.colors.treeDropdown.darkMenuText.hover};
+        props.theme.colors.treeDropdown.menuBg.hover};
+      color: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+      .${Classes.ICON} > svg:not([fill]) {
+        fill: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+      }
+    }
+
+    &.${Classes.ACTIVE} {
+      background-color: ${(props) =>
+        props.theme.colors.treeDropdown.menuBg.selected};
+      color: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
+      .${Classes.ICON} > svg:not([fill]) {
+        fill: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
+      }
     }
   }
   .${Classes.MENU_SUBMENU}
     .${Classes.POPOVER_TARGET}.${Classes.POPOVER_OPEN}
     > .${Classes.MENU_ITEM} {
     background-color: ${(props) =>
-      props.variant === "dark"
-        ? props.theme.colors.treeDropdown.menuBg.hover
-        : props.theme.colors.treeDropdown.darkMenuBg.hover};
-    color: ${(props) =>
-      props.variant === "dark"
-        ? props.theme.colors.treeDropdown.menuText.hover
-        : props.theme.colors.treeDropdown.darkMenuText.hover};
+      props.theme.colors.treeDropdown.menuBg.hover};
+    color: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
   }
 `;
 
@@ -107,7 +99,7 @@ const DropdownTarget = styled.div`
     box-shadow: none;
     border-radius: 0px;
     background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
-    color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.normal};
+    color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
     background-image: none;
     display: flex;
     justify-content: space-between;
@@ -207,9 +199,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   }
 
   const list = optionTree.map(renderTreeOption);
-  const menuItems = (
-    <StyledMenu variant={props.variant || "dark"}>{list}</StyledMenu>
-  );
+  const menuItems = <StyledMenu>{list}</StyledMenu>;
   const defaultToggle = (
     <DropdownTarget>
       <Button

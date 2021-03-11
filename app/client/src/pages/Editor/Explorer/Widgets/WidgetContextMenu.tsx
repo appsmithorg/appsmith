@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
+import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
