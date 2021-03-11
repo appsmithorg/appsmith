@@ -81,10 +81,17 @@ const boxStyles = (
 };
 
 const StyledInput = styled((props) => {
+  // we are removing non input related props before passing them in the components
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { inputStyle, inputRef, dataType, theme, ...inputProps } = props;
   return props.asyncControl ? (
-    <AsyncControllableInput {...props} />
+    <AsyncControllableInput
+      {...inputProps}
+      inputRef={inputRef}
+      dataType={dataType}
+    />
   ) : (
-    <input {...props} />
+    <input {...inputProps} />
   );
 })<TextInputProps & { inputStyle: boxReturnType; isValid: boolean }>`
   width: ${(props) => (props.fill ? "100%" : "320px")};

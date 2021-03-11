@@ -24,7 +24,7 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
     props.orientation === "VERTICAL" ? "column" : "row"};
   padding: ${(props) => (props.isAction ? "0" : "4px 0 ")};
   & > label {
-    color: ${(props) => props.theme.colors.paneText};
+    color: ${(props) => props.theme.colors.propertyPane.label};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
