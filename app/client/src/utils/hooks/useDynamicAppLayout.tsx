@@ -1,5 +1,9 @@
 import { theme } from "constants/DefaultTheme";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  DefaultLayoutType,
+  layoutConfigurations,
+} from "constants/WidgetConstants";
 import { debounce } from "lodash";
 import { AppsmithDefaultLayout } from "pages/Editor/MainContainerLayoutControl";
 import { useCallback, useEffect } from "react";
@@ -41,13 +45,17 @@ export const useDynamicAppLayout = () => {
     screenWidth: number,
     appLayout = AppsmithDefaultLayout,
   ) => {
-    const { type, width: layoutMaxWidth } = appLayout;
-    const layoutWidth =
-      type === "FLUID"
-        ? calculateFluidMaxWidth(screenWidth, layoutMaxWidth)
-        : layoutMaxWidth;
+    const { type } = appLayout;
+    const { minWidth = -1, maxWidth = -1 } =
+      layoutConfigurations[type] || layoutConfigurations[DefaultLayoutType];
+    const calculatedMinWidth =
+      appMode === "EDIT" ? minWidth - parseInt(theme.sidebarWidth) : minWidth;
+    const layoutWidth = calculateFluidMaxWidth(screenWidth, maxWidth);
     const { rightColumn } = mainContainer;
-    if (rightColumn !== layoutWidth) {
+    if (
+      (type === "FLUID" || calculatedMinWidth <= layoutWidth) &&
+      rightColumn !== layoutWidth
+    ) {
       dispatch({
         type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
         payload: {
