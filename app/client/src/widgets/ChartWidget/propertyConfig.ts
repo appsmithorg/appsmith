@@ -51,7 +51,7 @@ export default [
         helpText: "Populates the chart with the data",
         propertyName: "chartData",
         placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
-        label: "",
+        label: "Chart Series",
         controlType: "CHART_DATA",
         isBindProperty: false,
         isTriggerProperty: false,
