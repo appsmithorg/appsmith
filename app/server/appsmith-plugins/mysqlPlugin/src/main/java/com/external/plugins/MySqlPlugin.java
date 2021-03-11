@@ -261,7 +261,7 @@ public class MySqlPlugin extends BasePlugin {
                                 "execution result");
                         return result;
                     })
-                    .onErrorResume(Exception.class, error  -> {
+                    .onErrorResume(error  -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }

@@ -364,7 +364,7 @@ public class RestApiPlugin extends BasePlugin {
 
                         return result;
                     })
-                    .onErrorResume(Exception.class, error  -> {
+                    .onErrorResume(error  -> {
                         errorResult.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {
                             errorResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());

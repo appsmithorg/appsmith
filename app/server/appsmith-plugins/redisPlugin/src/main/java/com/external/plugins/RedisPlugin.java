@@ -86,7 +86,7 @@ public class RedisPlugin extends BasePlugin {
             })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
-                    .onErrorResume(Exception.class, error  -> {
+                    .onErrorResume(error  -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {

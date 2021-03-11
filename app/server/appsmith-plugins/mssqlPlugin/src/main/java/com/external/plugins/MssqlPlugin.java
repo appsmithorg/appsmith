@@ -293,7 +293,7 @@ public class MssqlPlugin extends BasePlugin {
             })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
-                    .onErrorResume(Exception.class, error  -> {
+                    .onErrorResume(error  -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }

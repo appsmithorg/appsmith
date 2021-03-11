@@ -297,7 +297,7 @@ public class RedshiftPlugin extends BasePlugin {
 
                         return e;
                     })
-                    .onErrorResume(Exception.class, error -> {
+                    .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }

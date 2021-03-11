@@ -168,7 +168,7 @@ public class FirestorePlugin extends BasePlugin {
                             return handleCollectionLevelMethod(connection, path, method, properties, mapBody, paginationField);
                         }
                     })
-                    .onErrorResume(Exception.class, error  -> {
+                    .onErrorResume(error  -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {

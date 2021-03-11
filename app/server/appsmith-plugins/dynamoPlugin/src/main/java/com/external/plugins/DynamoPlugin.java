@@ -337,7 +337,7 @@ public class DynamoPlugin extends BasePlugin {
                 System.out.println(Thread.currentThread().getName() + ": In the DynamoPlugin, got action execution result");
                 return result;
             })
-                    .onErrorResume(Exception.class, error  -> {
+                    .onErrorResume(error  -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {
