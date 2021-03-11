@@ -445,10 +445,22 @@ export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const actionName = getApiName(state, apiId) || "";
   const headers = selector(state, "actionConfiguration.headers");
-  const headersCount = Array.isArray(headers) ? headers.length : 0;
+  let headersCount = 0;
+
+  if (Array.isArray(headers)) {
+    const validHeaders = headers.filter(
+      (value) => value.key && value.key !== "",
+    );
+    headersCount = validHeaders.length;
+  }
 
   const params = selector(state, "actionConfiguration.queryParameters");
-  const paramsCount = Array.isArray(params) ? params.length : 0;
+  let paramsCount = 0;
+
+  if (Array.isArray(params)) {
+    const validParams = params.filter((value) => value.key && value.key !== "");
+    paramsCount = validParams.length;
+  }
 
   return {
     actionName,
