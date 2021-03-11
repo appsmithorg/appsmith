@@ -67,15 +67,13 @@ class SwitchControl extends BaseControl<SwitchControlProps> {
     const { configProperty, label, isRequired, info } = this.props;
 
     return (
-      <>
-        <Field
-          component={SwitchField}
-          info={info}
-          isRequired={isRequired}
-          label={label}
-          name={configProperty}
-        />
-      </>
+      <Field
+        component={SwitchField}
+        info={info}
+        isRequired={isRequired}
+        label={label}
+        name={configProperty}
+      />
     );
   }
 

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import React from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
@@ -627,139 +628,132 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     );
 
     return (
-      <>
-        <ApiHomePage
-          className="t--apiHomePage"
-          style={{ overflow: showSearchResults ? "hidden" : "auto" }}
-        >
-          {isSwitchingCategory || !enableRapidAPI ? (
-            <>
-              {ApiHomepageTopSection}
-              {enableRapidAPI && isSwitchingCategory && (
-                <PageLoadingContainer>
+      <ApiHomePage
+        className="t--apiHomePage"
+        style={{ overflow: showSearchResults ? "hidden" : "auto" }}
+      >
+        {isSwitchingCategory || !enableRapidAPI ? (
+          <>
+            {ApiHomepageTopSection}
+            {enableRapidAPI && isSwitchingCategory && (
+              <PageLoadingContainer>
+                <Spinner size={30} />
+              </PageLoadingContainer>
+            )}
+          </>
+        ) : (
+          <InfiniteScroll
+            hasMore={providers.length < providersTotal}
+            initialLoad={false}
+            loadMore={this.handleFetchMoreProviders.bind(this)}
+            loader={
+              <LoadingContainer>
+                <Spinner size={30} />
+              </LoadingContainer>
+            }
+            pageStart={0}
+            useWindow={false}
+          >
+            {ApiHomepageTopSection}
+            {/* Marketplace APIs section start */}
+            <StyledContainer>
+              <div>
+                <div style={{ float: "left" }}>
+                  <p className="sectionHeadings">{"Marketplace APIs"}</p>
+                </div>
+                <div>
+                  <DropdownSelect>
+                    <DropdownField
+                      name="category"
+                      options={PROVIDER_CATEGORIES_OPTIONS}
+                      placeholder="All APIs"
+                      width={232}
+                    />
+                  </DropdownSelect>
+                </div>
+              </div>
+
+              <br />
+              <br />
+
+              {isSwitchingCategory ? (
+                <LoadingContainer>
                   <Spinner size={30} />
-                </PageLoadingContainer>
-              )}
-            </>
-          ) : (
-            <>
-              <InfiniteScroll
-                hasMore={providers.length < providersTotal}
-                initialLoad={false}
-                loadMore={this.handleFetchMoreProviders.bind(this)}
-                loader={
-                  <LoadingContainer>
-                    <Spinner size={30} />
-                  </LoadingContainer>
-                }
-                pageStart={0}
-                useWindow={false}
-              >
-                {ApiHomepageTopSection}
-                {/* Marketplace APIs section start */}
-                <StyledContainer>
-                  <div>
-                    <div style={{ float: "left" }}>
-                      <p className="sectionHeadings">{"Marketplace APIs"}</p>
-                    </div>
+                </LoadingContainer>
+              ) : (
+                <>
+                  {fetchProvidersError ? (
                     <div>
-                      <DropdownSelect>
-                        <DropdownField
-                          name="category"
-                          options={PROVIDER_CATEGORIES_OPTIONS}
-                          placeholder="All APIs"
-                          width={232}
-                        />
-                      </DropdownSelect>
+                      <p className="fontSize16">No providers found.</p>
                     </div>
-                  </div>
-
-                  <br />
-                  <br />
-
-                  {isSwitchingCategory ? (
-                    <LoadingContainer>
-                      <Spinner size={30} />
-                    </LoadingContainer>
                   ) : (
-                    <>
-                      {fetchProvidersError ? (
-                        <div>
-                          <p className="fontSize16">No providers found.</p>
-                        </div>
-                      ) : (
-                        <div>
-                          <ApiCard>
-                            {providers.map((provider, index) => (
-                              <CardList
-                                key={index}
-                                onClick={() => {
-                                  AnalyticsUtil.logEvent("3P_PROVIDER_CLICK", {
-                                    providerName: provider.name,
-                                  });
-                                  history.push(
-                                    getProviderTemplatesURL(
-                                      applicationId,
-                                      pageId,
-                                      provider.id +
-                                        `/?importTo=${destinationPageId}`,
-                                    ),
-                                  );
-                                }}
-                              >
-                                <Card
-                                  className="eachProviderCard t--eachProviderCard"
-                                  interactive={false}
+                    <div>
+                      <ApiCard>
+                        {providers.map((provider, index) => (
+                          <CardList
+                            key={index}
+                            onClick={() => {
+                              AnalyticsUtil.logEvent("3P_PROVIDER_CLICK", {
+                                providerName: provider.name,
+                              });
+                              history.push(
+                                getProviderTemplatesURL(
+                                  applicationId,
+                                  pageId,
+                                  provider.id +
+                                    `/?importTo=${destinationPageId}`,
+                                ),
+                              );
+                            }}
+                          >
+                            <Card
+                              className="eachProviderCard t--eachProviderCard"
+                              interactive={false}
+                            >
+                              {provider.imageUrl ? (
+                                <img
+                                  alt="Provider"
+                                  className="apiImage"
+                                  src={provider.imageUrl}
+                                />
+                              ) : (
+                                <div
+                                  className="providerInitials"
+                                  style={{
+                                    backgroundColor: getInitialsAndColorCode(
+                                      provider.name,
+                                      this.props.colorPalette,
+                                    )[1],
+                                  }}
                                 >
-                                  {provider.imageUrl ? (
-                                    <img
-                                      alt="Provider"
-                                      className="apiImage"
-                                      src={provider.imageUrl}
-                                    />
-                                  ) : (
-                                    <div
-                                      className="providerInitials"
-                                      style={{
-                                        backgroundColor: getInitialsAndColorCode(
-                                          provider.name,
-                                          this.props.colorPalette,
-                                        )[1],
-                                      }}
-                                    >
-                                      <span>
-                                        {
-                                          getInitialsAndColorCode(
-                                            provider.name,
-                                            this.props.colorPalette,
-                                          )[0]
-                                        }
-                                      </span>
-                                    </div>
-                                  )}
-                                  {provider.name && (
-                                    <p
-                                      className="textBtn"
-                                      title={provider.name}
-                                    >
-                                      {provider.name}
-                                    </p>
-                                  )}
-                                </Card>
-                              </CardList>
-                            ))}
-                          </ApiCard>
-                        </div>
-                      )}
-                    </>
+                                  <span>
+                                    {
+                                      getInitialsAndColorCode(
+                                        provider.name,
+                                        this.props.colorPalette,
+                                      )[0]
+                                    }
+                                  </span>
+                                </div>
+                              )}
+                              {provider.name && (
+                                <p className="textBtn" title={provider.name}>
+                                  {provider.name}
+                                </p>
+                              )}
+                            </Card>
+                          </CardList>
+                        ))}
+                      </ApiCard>
+                    </div>
                   )}
-                </StyledContainer>
-                {/* Marketplace APIs section end */}
-              </InfiniteScroll>
-            </>
-          )}
-        </ApiHomePage>
-      </>
+                </>
+              )}
+            </StyledContainer>
+            {/* Marketplace APIs section end */}
+          </InfiniteScroll>
+        )}
+      </ApiHomePage>
     );
   }
 }

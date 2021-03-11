@@ -42,31 +42,30 @@ export default function VideoComponent(props: VideoComponentProps) {
     onError,
     player,
   } = props;
+  if (!url) {
+    return (
+      <ErrorContainer>
+        <Error>{ENTER_VIDEO_URL}</Error>
+      </ErrorContainer>
+    );
+  }
   return (
-    <>
-      {url ? (
-        <ReactPlayer
-          controls={controls || true}
-          height="100%"
-          onEnded={onEnded}
-          onError={onError}
-          onPause={onPause}
-          onPlay={onPlay}
-          onProgress={onProgress}
-          onReady={onReady}
-          onSeek={onSeek}
-          onStart={onStart}
-          pip={false}
-          playing={autoplay}
-          ref={player}
-          url={url}
-          width="100%"
-        />
-      ) : (
-        <ErrorContainer>
-          <Error>{ENTER_VIDEO_URL}</Error>
-        </ErrorContainer>
-      )}
-    </>
+    <ReactPlayer
+      controls={controls || true}
+      height="100%"
+      onEnded={onEnded}
+      onError={onError}
+      onPause={onPause}
+      onPlay={onPlay}
+      onProgress={onProgress}
+      onReady={onReady}
+      onSeek={onSeek}
+      onStart={onStart}
+      pip={false}
+      playing={autoplay}
+      ref={player}
+      url={url}
+      width="100%"
+    />
   );
 }

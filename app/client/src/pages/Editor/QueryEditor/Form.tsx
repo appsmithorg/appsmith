@@ -365,35 +365,31 @@ function QueryEditorForm(props: Props) {
 
   function SingleValue(props: SingleValueProps<OptionTypeBase>) {
     return (
-      <>
-        <components.SingleValue {...props}>
-          <Container>
-            <img
-              alt="Datasource"
-              className="plugin-image"
-              src={props.data.image}
-            />
-            <div className="selected-value">{props.children}</div>
-          </Container>
-        </components.SingleValue>
-      </>
+      <components.SingleValue {...props}>
+        <Container>
+          <img
+            alt="Datasource"
+            className="plugin-image"
+            src={props.data.image}
+          />
+          <div className="selected-value">{props.children}</div>
+        </Container>
+      </components.SingleValue>
     );
   }
 
   function CustomOption(props: OptionProps<OptionTypeBase>) {
     return (
-      <>
-        <components.Option {...props}>
-          <Container className="t--datasource-option">
-            <img
-              alt="Datasource"
-              className="plugin-image"
-              src={props.data.image}
-            />
-            <div style={{ marginLeft: "6px" }}>{props.children}</div>
-          </Container>
-        </components.Option>
-      </>
+      <components.Option {...props}>
+        <Container className="t--datasource-option">
+          <img
+            alt="Datasource"
+            className="plugin-image"
+            src={props.data.image}
+          />
+          <div style={{ marginLeft: "6px" }}>{props.children}</div>
+        </Container>
+      </components.Option>
     );
   }
 

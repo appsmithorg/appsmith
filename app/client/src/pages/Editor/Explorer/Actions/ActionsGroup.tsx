@@ -43,7 +43,7 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
     );
   });
 
-  return <>{childNode}</>;
+  return childNode;
 });
 
 ExplorerActionsGroup.displayName = "ExplorerActionsGroup";

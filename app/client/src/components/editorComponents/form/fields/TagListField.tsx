@@ -13,11 +13,7 @@ const renderComponent = (
     input: Partial<WrappedFieldInputProps>;
   },
 ) => {
-  return (
-    <>
-      <TagInputComponent {...componentProps} />
-    </>
-  );
+  return <TagInputComponent {...componentProps} />;
 };
 
 type TagListFieldProps = {
@@ -30,11 +26,7 @@ type TagListFieldProps = {
 };
 
 function TagListField(props: TagListFieldProps) {
-  return (
-    <>
-      <Field component={renderComponent} {...props} />
-    </>
-  );
+  return <Field component={renderComponent} {...props} />;
 }
 
 export default TagListField;

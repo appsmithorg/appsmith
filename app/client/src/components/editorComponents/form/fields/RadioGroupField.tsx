@@ -16,11 +16,7 @@ interface RadioFieldProps {
 const renderComponent = (
   componentProps: RadioFieldProps & RadioGroupWrapperProps,
 ) => {
-  return (
-    <>
-      <RadioGroupWrapper {...componentProps} />
-    </>
-  );
+  return <RadioGroupWrapper {...componentProps} />;
 };
 
 function RadioFieldGroup(

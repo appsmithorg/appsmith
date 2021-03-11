@@ -12,11 +12,7 @@ const renderComponent = (
     input: Partial<WrappedFieldInputProps>;
   },
 ) => {
-  return (
-    <>
-      <DropdownWrapper {...componentProps} />
-    </>
-  );
+  return <DropdownWrapper {...componentProps} />;
 };
 
 type SelectFieldProps = {

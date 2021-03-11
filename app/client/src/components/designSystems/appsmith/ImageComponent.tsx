@@ -121,40 +121,38 @@ class ImageComponent extends React.Component<
           }}
         >
           {({ zoomIn, zoomOut }: any) => (
-            <>
-              <TransformComponent>
-                <StyledImage
-                  className={this.props.isLoading ? "bp3-skeleton" : ""}
-                  imageError={this.state.imageError}
-                  {...this.props}
-                  data-testid="styledImage"
-                  onClick={(event: React.MouseEvent<HTMLElement>) => {
-                    if (!this.isPanning) {
-                      if (isZoomingIn) {
-                        zoomIn(event);
-                      } else {
-                        zoomOut(event);
-                      }
-                      this.props.onClick && this.props.onClick(event);
+            <TransformComponent>
+              <StyledImage
+                className={this.props.isLoading ? "bp3-skeleton" : ""}
+                imageError={this.state.imageError}
+                {...this.props}
+                data-testid="styledImage"
+                onClick={(event: React.MouseEvent<HTMLElement>) => {
+                  if (!this.isPanning) {
+                    if (isZoomingIn) {
+                      zoomIn(event);
+                    } else {
+                      zoomOut(event);
                     }
-                    this.isPanning = false;
-                  }}
+                    this.props.onClick && this.props.onClick(event);
+                  }
+                  this.isPanning = false;
+                }}
+                style={{
+                  cursor,
+                }}
+              >
+                <img
+                  alt={this.props.widgetName}
+                  onError={this.onImageError}
+                  onLoad={this.onImageLoad}
+                  src={this.props.imageUrl}
                   style={{
-                    cursor,
+                    display: "none",
                   }}
-                >
-                  <img
-                    alt={this.props.widgetName}
-                    onError={this.onImageError}
-                    onLoad={this.onImageLoad}
-                    src={this.props.imageUrl}
-                    style={{
-                      display: "none",
-                    }}
-                  />
-                </StyledImage>
-              </TransformComponent>
-            </>
+                />
+              </StyledImage>
+            </TransformComponent>
           )}
         </TransformWrapper>
       </Wrapper>

@@ -37,11 +37,7 @@ type FormTextFieldProps = {
 
 // trigger tests
 function FormTextField(props: FormTextFieldProps) {
-  return (
-    <>
-      <Field component={renderComponent} {...props} asyncControl />
-    </>
-  );
+  return <Field component={renderComponent} {...props} asyncControl />;
 }
 
 export default FormTextField;

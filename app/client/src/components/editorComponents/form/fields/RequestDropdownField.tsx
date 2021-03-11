@@ -19,11 +19,7 @@ interface RequestDropdownProps {
 const renderComponent = (
   componentProps: RequestDropdownProps & DropdownProps,
 ) => {
-  return (
-    <>
-      <DropdownFieldWrapper {...componentProps} />
-    </>
-  );
+  return <DropdownFieldWrapper {...componentProps} />;
 };
 
 function RequestDropdownField(

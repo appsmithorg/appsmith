@@ -73,99 +73,86 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
   if (extraData) {
     isRequired = extraData[0].isRequired || extraData[1].isRequired;
   }
-
-  return (
-    <>
-      {typeof props.fields.getAll() === "object" && (
-        <>
-          {props.fields.map((field: any, index: number) => {
-            const otherProps: Record<string, any> = {};
-            if (
-              props.actionConfig &&
-              props.actionConfig[index].description &&
-              props.rightIcon
-            ) {
-              otherProps.rightIcon = (
-                <HelperTooltip
-                  description={props.actionConfig[index].description}
-                  rightIcon={
-                    props.actionConfig[index].description && props.rightIcon
-                  }
-                />
-              );
-            }
-            return (
-              <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
-                <div style={{ width: "50vh" }}>
-                  <FormLabel>
-                    {extraData && extraData[0].label} {isRequired && "*"}
-                  </FormLabel>
-                  <TextField
-                    name={`${field}.${keyName[1]}`}
+  if (typeof props.fields.getAll() === "object") {
+    return props.fields.map((field: any, index: number) => {
+      const otherProps: Record<string, any> = {};
+      if (
+        props.actionConfig &&
+        props.actionConfig[index].description &&
+        props.rightIcon
+      ) {
+        otherProps.rightIcon = (
+          <HelperTooltip
+            description={props.actionConfig[index].description}
+            rightIcon={props.actionConfig[index].description && props.rightIcon}
+          />
+        );
+      }
+      return (
+        <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
+          <div style={{ width: "50vh" }}>
+            <FormLabel>
+              {extraData && extraData[0].label} {isRequired && "*"}
+            </FormLabel>
+            <TextField
+              name={`${field}.${keyName[1]}`}
+              placeholder={(extraData && extraData[0].placeholderText) || ""}
+              showError
+              validate={keyFieldValidate}
+            />
+          </div>
+          {!props.actionConfig && (
+            <div style={{ marginLeft: 16 }}>
+              <FormLabel>
+                {extraData && extraData[1].label} {isRequired && "*"}
+              </FormLabel>
+              <div style={{ display: "flex", flexDirection: "row" }}>
+                <div style={{ marginRight: 14, width: 72 }}>
+                  <StyledTextField
+                    name={`${field}.${valueName[1]}`}
                     placeholder={
-                      (extraData && extraData[0].placeholderText) || ""
+                      (extraData && extraData[1].placeholderText) || ""
                     }
-                    showError
-                    validate={keyFieldValidate}
+                    type={valueDataType}
                   />
                 </div>
-                {!props.actionConfig && (
-                  <div style={{ marginLeft: 16 }}>
-                    <FormLabel>
-                      {extraData && extraData[1].label} {isRequired && "*"}
-                    </FormLabel>
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                      <div style={{ marginRight: 14, width: 72 }}>
-                        <StyledTextField
-                          name={`${field}.${valueName[1]}`}
-                          placeholder={
-                            (extraData && extraData[1].placeholderText) || ""
-                          }
-                          type={valueDataType}
-                        />
-                      </div>
-                      {index === props.fields.length - 1 ? (
-                        <Icon
-                          color={Colors["CADET_BLUE"]}
-                          icon="plus"
-                          iconSize={20}
-                          onClick={() =>
-                            props.fields.push({ key: "", value: "" })
-                          }
-                          style={{ alignSelf: "center" }}
-                        />
-                      ) : (
-                        <FormIcons.DELETE_ICON
-                          color={Colors["CADET_BLUE"]}
-                          height={20}
-                          onClick={() => props.fields.remove(index)}
-                          style={{ alignSelf: "center" }}
-                          width={20}
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {props.actionConfig && (
-                  <DynamicTextField
-                    name={`${field}.value`}
-                    placeholder={
-                      props.actionConfig[index].mandatory &&
-                      props.actionConfig[index].type
-                        ? `Value (Type: ${props.actionConfig[index].type})`
-                        : `Value (optional)`
-                    }
-                    {...otherProps}
+                {index === props.fields.length - 1 ? (
+                  <Icon
+                    color={Colors["CADET_BLUE"]}
+                    icon="plus"
+                    iconSize={20}
+                    onClick={() => props.fields.push({ key: "", value: "" })}
+                    style={{ alignSelf: "center" }}
+                  />
+                ) : (
+                  <FormIcons.DELETE_ICON
+                    color={Colors["CADET_BLUE"]}
+                    height={20}
+                    onClick={() => props.fields.remove(index)}
+                    style={{ alignSelf: "center" }}
+                    width={20}
                   />
                 )}
-              </FormRowWithLabel>
-            );
-          })}
-        </>
-      )}
-    </>
-  );
+              </div>
+            </div>
+          )}
+
+          {props.actionConfig && (
+            <DynamicTextField
+              name={`${field}.value`}
+              placeholder={
+                props.actionConfig[index].mandatory &&
+                props.actionConfig[index].type
+                  ? `Value (Type: ${props.actionConfig[index].type})`
+                  : `Value (optional)`
+              }
+              {...otherProps}
+            />
+          )}
+        </FormRowWithLabel>
+      );
+    });
+  }
 }
 
 class KeyValueFieldArray extends BaseControl<KeyValueArrayProps> {

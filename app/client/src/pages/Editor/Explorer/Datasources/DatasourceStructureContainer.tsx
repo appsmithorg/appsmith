@@ -51,7 +51,7 @@ export const DatasourceStructureContainer = memo((props: Props) => {
     }
   }
 
-  return <>{view}</>;
+  return view;
 });
 
 DatasourceStructureContainer.displayName = "DatasourceStructureContainer";

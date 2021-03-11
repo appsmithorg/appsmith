@@ -233,16 +233,14 @@ function RapidApiEditorForm(props: Props) {
                         <FormLabel>{"Body"}</FormLabel>
                         {typeof actionConfigurationBodyFormData ===
                           "object" && (
-                          <>
-                            <KeyValueFieldArray
-                              actionConfig={actionConfigurationBodyFormData}
-                              addOrDeleteFields={false}
-                              label=""
-                              name="actionConfiguration.bodyFormData"
-                              pushFields={false}
-                              rightIcon={FormIcons.INFO_ICON}
-                            />
-                          </>
+                          <KeyValueFieldArray
+                            actionConfig={actionConfigurationBodyFormData}
+                            addOrDeleteFields={false}
+                            label=""
+                            name="actionConfiguration.bodyFormData"
+                            pushFields={false}
+                            rightIcon={FormIcons.INFO_ICON}
+                          />
                         )}
                       </PostbodyContainer>
                     )}

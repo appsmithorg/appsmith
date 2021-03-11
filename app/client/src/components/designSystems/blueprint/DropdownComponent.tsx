@@ -383,14 +383,12 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     }
     const isSelected: boolean = this.isOptionSelected(option);
     const content: ReactNode = (
-      <>
-        <StyledCheckbox
-          alignIndicator="left"
-          checked={isSelected}
-          label={option.label}
-          onChange={(e: any) => itemProps.handleClick(e)}
-        />
-      </>
+      <StyledCheckbox
+        alignIndicator="left"
+        checked={isSelected}
+        label={option.label}
+        onChange={(e: any) => itemProps.handleClick(e)}
+      />
     );
     return (
       <MenuItem

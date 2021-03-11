@@ -70,7 +70,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       );
     }
 
-    return <></>;
+    return null;
   };
 
   searchItem = (query: string, option: DropdownOption): boolean => {

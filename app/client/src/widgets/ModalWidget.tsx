@@ -115,22 +115,18 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   makeModalComponent(content: ReactNode) {
     return (
-      <>
-        <ModalComponent
-          canEscapeKeyClose={!!this.props.canEscapeKeyClose}
-          canOutsideClickClose={!!this.props.canOutsideClickClose}
-          className={`t--modal-widget ${generateClassName(
-            this.props.widgetId,
-          )}`}
-          height={MODAL_SIZE[this.props.size].height}
-          isOpen={!!this.props.isVisible}
-          onClose={this.closeModal}
-          scrollContents={!!this.props.shouldScrollContents}
-          width={this.getModalWidth()}
-        >
-          {content}
-        </ModalComponent>
-      </>
+      <ModalComponent
+        canEscapeKeyClose={!!this.props.canEscapeKeyClose}
+        canOutsideClickClose={!!this.props.canOutsideClickClose}
+        className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
+        height={MODAL_SIZE[this.props.size].height}
+        isOpen={!!this.props.isVisible}
+        onClose={this.closeModal}
+        scrollContents={!!this.props.shouldScrollContents}
+        width={this.getModalWidth()}
+      >
+        {content}
+      </ModalComponent>
     );
   }
 

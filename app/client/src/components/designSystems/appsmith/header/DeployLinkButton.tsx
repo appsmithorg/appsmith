@@ -46,28 +46,26 @@ export const DeployLinkButton = withTheme((props: Props) => {
   };
 
   return (
-    <>
-      <Popover
-        canEscapeKeyClose={false}
-        content={
-          <DeployLinkDialog>
-            <DeployLink href={props.link} target="_blank">
-              <DeployUrl>Current deployed version</DeployUrl>
-              <Icon
-                color={props.theme.colors.header.deployToolTipText}
-                icon="share"
-              />
-            </DeployLink>
-          </DeployLinkDialog>
-        }
-        isOpen={isOpen}
-        modifiers={{ offset: { enabled: true, offset: "0, -3" } }}
-        onClose={onClose}
-        position={PopoverPosition.BOTTOM_RIGHT}
-      >
-        <div onClick={() => setIsOpen(true)}>{props.trigger}</div>
-      </Popover>
-    </>
+    <Popover
+      canEscapeKeyClose={false}
+      content={
+        <DeployLinkDialog>
+          <DeployLink href={props.link} target="_blank">
+            <DeployUrl>Current deployed version</DeployUrl>
+            <Icon
+              color={props.theme.colors.header.deployToolTipText}
+              icon="share"
+            />
+          </DeployLink>
+        </DeployLinkDialog>
+      }
+      isOpen={isOpen}
+      modifiers={{ offset: { enabled: true, offset: "0, -3" } }}
+      onClose={onClose}
+      position={PopoverPosition.BOTTOM_RIGHT}
+    >
+      <div onClick={() => setIsOpen(true)}>{props.trigger}</div>
+    </Popover>
   );
 });
 

@@ -73,26 +73,24 @@ function AppInviteUsersForm(props: any) {
   return (
     <>
       {canShareWithPublic && (
-        <>
-          <ShareWithPublicOption>
-            <Text type={TextType.H5}>Make the application public</Text>
-            <ShareToggle>
-              {currentApplicationDetails && (
-                <Toggle
-                  disabled={isChangingViewAccess || isFetchingApplication}
-                  isLoading={isChangingViewAccess || isFetchingApplication}
-                  onToggle={() => {
-                    changeAppViewAccess(
-                      applicationId,
-                      !currentApplicationDetails.isPublic,
-                    );
-                  }}
-                  value={currentApplicationDetails.isPublic}
-                />
-              )}
-            </ShareToggle>
-          </ShareWithPublicOption>
-        </>
+        <ShareWithPublicOption>
+          <Text type={TextType.H5}>Make the application public</Text>
+          <ShareToggle>
+            {currentApplicationDetails && (
+              <Toggle
+                disabled={isChangingViewAccess || isFetchingApplication}
+                isLoading={isChangingViewAccess || isFetchingApplication}
+                onToggle={() => {
+                  changeAppViewAccess(
+                    applicationId,
+                    !currentApplicationDetails.isPublic,
+                  );
+                }}
+                value={currentApplicationDetails.isPublic}
+              />
+            )}
+          </ShareToggle>
+        </ShareWithPublicOption>
       )}
       <Title>
         <Text type={TextType.H5}>

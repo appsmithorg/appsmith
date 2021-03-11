@@ -408,16 +408,14 @@ class CodeEditor extends Component<Props, State> {
               placeholder={placeholder}
             />
             {this.props.link && (
-              <>
-                <a
-                  className="linkStyles"
-                  href={this.props.link}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  API documentation
-                </a>
-              </>
+              <a
+                className="linkStyles"
+                href={this.props.link}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                API documentation
+              </a>
             )}
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>

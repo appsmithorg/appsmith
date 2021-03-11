@@ -19,13 +19,13 @@ function Boxed(props: BoxedProps) {
 
   if (onboarding && currentStep < props.step && !props.show) {
     if (props.alternative) {
-      return <>{props.alternative}</>;
+      return props.alternative;
     }
 
     return null;
   }
 
-  return <>{props.children}</>;
+  return props.children;
 }
 
 Boxed.defaultProps = {

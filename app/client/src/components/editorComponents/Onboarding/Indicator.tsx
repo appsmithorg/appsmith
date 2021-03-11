@@ -103,7 +103,7 @@ function Indicator(props: IndicatorProps) {
     );
   }
 
-  return <>{props.children}</>;
+  return props.children;
 }
 
 Indicator.defaultProps = {

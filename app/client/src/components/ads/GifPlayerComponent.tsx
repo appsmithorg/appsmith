@@ -54,22 +54,20 @@ const Overlay = styled.div`
 
 function GifPlayerComponent(props: GifPlayerProps) {
   const [startGif, setStartGif] = useState(false);
-  return (
-    <>
-      {!startGif ? (
-        <ThumnailContainer onClick={() => setStartGif(!startGif)}>
-          <Overlay />
-          <img src={props.thumbnail} />
-          <PlayButton>
-            <Icon name="play" size={IconSize.XXXL} />
-            <Text type={TextType.P3}>Click to play</Text>
-          </PlayButton>
-        </ThumnailContainer>
-      ) : (
-        <img src={props.gif} />
-      )}
-    </>
-  );
+  if (!startGif) {
+    return (
+      <ThumnailContainer onClick={() => setStartGif(!startGif)}>
+        <Overlay />
+        <img src={props.thumbnail} />
+        <PlayButton>
+          <Icon name="play" size={IconSize.XXXL} />
+          <Text type={TextType.P3}>Click to play</Text>
+        </PlayButton>
+      </ThumnailContainer>
+    );
+  } else {
+    return <img src={props.gif} />;
+  }
 }
 
 export default GifPlayerComponent;

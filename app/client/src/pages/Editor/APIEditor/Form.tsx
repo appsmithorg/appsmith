@@ -383,21 +383,17 @@ function ApiEditorForm(props: Props) {
               {
                 key: "body",
                 title: "Body",
-                panelComponent: (
-                  <>
-                    {allowPostBody ? (
-                      <PostBodyData
-                        dataTreePath={`${actionName}.config`}
-                        theme={theme}
-                      />
-                    ) : (
-                      <NoBodyMessage>
-                        <Text type={TextType.P2}>
-                          This request does not have a body
-                        </Text>
-                      </NoBodyMessage>
-                    )}
-                  </>
+                panelComponent: allowPostBody ? (
+                  <PostBodyData
+                    dataTreePath={`${actionName}.config`}
+                    theme={theme}
+                  />
+                ) : (
+                  <NoBodyMessage>
+                    <Text type={TextType.P2}>
+                      This request does not have a body
+                    </Text>
+                  </NoBodyMessage>
                 ),
               },
               {

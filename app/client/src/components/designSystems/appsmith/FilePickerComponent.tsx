@@ -26,16 +26,14 @@ class FilePickerComponent extends React.Component<
       label = `${this.props.files.length} files selected`;
     }
     return (
-      <>
-        <BaseButton
-          accent="primary"
-          disabled={this.props.isDisabled}
-          filled
-          loading={this.props.isLoading}
-          onClick={this.openModal}
-          text={label}
-        />
-      </>
+      <BaseButton
+        accent="primary"
+        disabled={this.props.isDisabled}
+        filled
+        loading={this.props.isLoading}
+        onClick={this.openModal}
+        text={label}
+      />
     );
   }
 

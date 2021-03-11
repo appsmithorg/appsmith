@@ -33,7 +33,8 @@
     "react/jsx-boolean-value": "error",
     "react/self-closing-comp": "error",
     "react/jsx-sort-props": "error",
-    "react/jsx-fragments": "error"
+    "react/jsx-fragments": "error",
+    "react/jsx-no-useless-fragment": "error"
   },
   "settings": {
     "react": {
