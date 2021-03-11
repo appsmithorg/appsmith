@@ -84,7 +84,7 @@ export default (props: PopperProps) => {
             : { placement: props.placement }),
           onCreate: (popperData) => {
             const elementRef: any = popperData.instance.popper;
-            if (isDraggable) {
+            if (isDraggable && position) {
               const initPositon =
                 position || elementRef.getBoundingClientRect();
               elementRef.style.transform = "unset";

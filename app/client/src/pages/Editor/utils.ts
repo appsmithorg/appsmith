@@ -13,27 +13,20 @@ export const draggableElement = (
     oldXPos = 0,
     oldYPos = 0;
   let dragHandler = element;
+  let isDragged = !!initPostion;
 
   const setElementPosition = () => {
     element.style.top = initPostion.top + "px";
     element.style.left = initPostion.left + "px";
   };
-  if (dragHandle) {
-    dragHandler = createDragHandler(element, dragHandle);
-  }
 
-  if (initPostion) {
-    setElementPosition();
-  }
   const dragMouseDown = (e: MouseEvent) => {
     e = e || window.event;
-    e.preventDefault();
     oldXPos = e.clientX;
     oldYPos = e.clientY;
     document.onmouseup = closeDragElement;
     document.onmousemove = elementDrag;
   };
-  dragHandler.onmousedown = dragMouseDown;
   const calculateBoundaryConfinedPosition = (
     calculatedLeft: number,
     calculatedTop: number,
@@ -67,31 +60,64 @@ export const draggableElement = (
     const calculatedLeft = element.offsetLeft - newXPos;
     element.style.top = calculatedTop + "px";
     element.style.left = calculatedLeft + "px";
+    const validFirstDrag = !isDragged && newXPos !== 0 && newYPos !== 0;
+    if (validFirstDrag) {
+      resizeObserver.observe(element);
+      isDragged = true;
+    }
+  };
+
+  const calculateNewPosition = () => {
+    const { height, width, top, left } = element.getBoundingClientRect();
+    const isElementOpen = height && width;
+    const {
+      left: calculatedLeft,
+      top: calculatedTop,
+    } = calculateBoundaryConfinedPosition(left, top);
+    const positionUpdated = top !== calculatedLeft && left !== calculatedTop;
+
+    return {
+      updatePosition: isDragged && isElementOpen && positionUpdated,
+      left: calculatedLeft,
+      top: calculatedTop,
+    };
   };
 
   const closeDragElement = () => {
-    const elementBounds = element.getBoundingClientRect();
-    if (elementBounds.height && elementBounds.width) {
-      const { left, top } = calculateBoundaryConfinedPosition(
-        elementBounds.left,
-        elementBounds.top,
-      );
+    const calculatedPositionData = calculateNewPosition();
+    if (calculatedPositionData.updatePosition) {
+      const { left, top } = calculatedPositionData;
       onPositionChange({
         left: left,
         top: top,
       });
       element.style.top = top + "px";
       element.style.left = left + "px";
-      document.onmouseup = null;
-      document.onmousemove = null;
     }
+    document.onmouseup = null;
+    document.onmousemove = null;
   };
   const debouncedClose = debounce(closeDragElement, 50);
 
   const resizeObserver = new ResizeObserver(function() {
     debouncedClose();
   });
-  resizeObserver.observe(element);
+
+  if (isDragged) {
+    resizeObserver.observe(element);
+  }
+
+  const OnInit = () => {
+    if (dragHandle) {
+      dragHandler = createDragHandler(element, dragHandle);
+    }
+    if (initPostion) {
+      setElementPosition();
+    }
+    dragHandler.addEventListener("mousedown", dragMouseDown);
+  };
+
+  OnInit();
 };
 
 const createDragHandler = (el: any, dragHandle: () => JSX.Element) => {
@@ -101,5 +127,5 @@ const createDragHandler = (el: any, dragHandle: () => JSX.Element) => {
   dragElement.style.top = "0px";
   el.appendChild(dragElement);
   ReactDOM.render(dragHandle(), dragElement);
-  return el.parentElement;
+  return el;
 };
