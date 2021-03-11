@@ -52,7 +52,7 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
 
     if (existingIndex === -1) {
       recentEntities.unshift(entity);
-      recentEntities = recentEntities.slice(0, 5);
+      recentEntities = recentEntities.slice(0, 6);
     } else {
       recentEntities.splice(existingIndex, 1);
       recentEntities.unshift(entity);
