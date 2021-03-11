@@ -7,71 +7,64 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.time.Duration;
 
 @Service
 public class GoogleRecaptchaServiceImpl implements CaptchaService {
-  private final WebClient webClient;
+    private final WebClient webClient;
 
-  private final GoogleRecaptchaConfig googleRecaptchaConfig;
+    private final GoogleRecaptchaConfig googleRecaptchaConfig;
 
-  private static String BASE_URL = "https://www.google.com/recaptcha/api/";
+    private static final String BASE_URL = "https://www.google.com/recaptcha/api/";
 
-  private static String VERIFY_PATH = "/siteverify";
+    private static final String VERIFY_PATH = "/siteverify";
 
-  private final ObjectMapper objectMapper;
-  
-  private final Long timeoutInMillis = Long.valueOf(10000);
+    private final ObjectMapper objectMapper;
 
-  @Autowired
-  public GoogleRecaptchaServiceImpl(WebClient.Builder webClientBuilder,
-                                    GoogleRecaptchaConfig googleRecaptchaConfig, ObjectMapper objectMapper) {
-      this.webClient = webClientBuilder.baseUrl(BASE_URL).build();
-      this.googleRecaptchaConfig = googleRecaptchaConfig;
-      this.objectMapper = objectMapper;
-  }
+    private static final Long TIMEOUT_IN_MILLIS = 10000L;
 
-  @Override
-  public Mono<Boolean> verify(String recaptchaResponse){
-    
-    // if secret key is not configured, abort verification.
-    if (googleRecaptchaConfig.getSecretKey() == "") {
-      return Mono.just(true);
+    @Autowired
+    public GoogleRecaptchaServiceImpl(WebClient.Builder webClientBuilder,
+                                      GoogleRecaptchaConfig googleRecaptchaConfig,
+                                      ObjectMapper objectMapper) {
+        this.webClient = webClientBuilder.baseUrl(BASE_URL).build();
+        this.googleRecaptchaConfig = googleRecaptchaConfig;
+        this.objectMapper = objectMapper;
     }
 
-    return doVerify(recaptchaResponse).flatMap(mapBody -> {
-      return Mono.just((Boolean) mapBody.get("success"));
-    });
-  }
-
-  // API Docs: https://developers.google.com/recaptcha/docs/v3
-  private Mono<Map<String,Object>> doVerify(String recaptchaResponse) {
-    return webClient
-      .get()
-      .uri(uriBuilder -> uriBuilder.path(VERIFY_PATH)
-        .queryParam("response", recaptchaResponse)
-        .queryParam("secret", googleRecaptchaConfig.getSecretKey())
-        .build()
-      )
-      .retrieve()
-      .bodyToMono(String.class)
-      .flatMap(stringBody -> {
-        try {
-          Map<String,Object> response = objectMapper.readValue(stringBody, HashMap.class);
-          return Mono.just(response);
-        } catch (JsonProcessingException e) {
-          return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
+    @Override
+    public Mono<Boolean> verify(String recaptchaResponse) {
+        // If secret key is not configured, abort verification.
+        if (!StringUtils.hasText(googleRecaptchaConfig.getSecretKey())) {
+            return Mono.just(true);
         }
-      })
-      .timeout(Duration.ofMillis(timeoutInMillis))
-      .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_TIMEOUT)));
-  }
+
+        // API Docs: https://developers.google.com/recaptcha/docs/v3
+        return webClient
+                .get()
+                .uri(uriBuilder -> uriBuilder.path(VERIFY_PATH)
+                        .queryParam("response", recaptchaResponse)
+                        .queryParam("secret", googleRecaptchaConfig.getSecretKey())
+                        .build()
+                )
+                .retrieve()
+                .bodyToMono(String.class)
+                .flatMap(stringBody -> {
+                    try {
+                        Map<String, Object> response = objectMapper.readValue(stringBody, HashMap.class);
+                        return Mono.just(response);
+                    } catch (JsonProcessingException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
+                    }
+                })
+                .map(mapBody -> (Boolean) mapBody.get("success"))
+                .timeout(Duration.ofMillis(TIMEOUT_IN_MILLIS))
+                .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_TIMEOUT)));
+    }
 }
