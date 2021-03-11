@@ -284,7 +284,7 @@ const Table = (props: TableProps) => {
 
             <div {...getTableBodyProps()} className="tbody">
               <FixedSizeList
-                height={400}
+                height={window.innerHeight}
                 itemCount={rows.length}
                 itemSize={35}
                 width={totalColumnsWidth + scrollBarSize}
