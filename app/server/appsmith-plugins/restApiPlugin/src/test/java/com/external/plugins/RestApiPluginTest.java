@@ -319,6 +319,9 @@ public class RestApiPluginTest {
                 "\t\"table\" : \"{{Table1.tableData}}\"\n" +
                 "}";
         actionConfig.setBody(requestBody);
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
