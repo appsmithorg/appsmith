@@ -12,10 +12,10 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
-import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
 import com.external.helpers.DatasourceValidator;
@@ -65,7 +65,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -89,7 +88,7 @@ public class RestApiPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class RestApiPluginExecutor implements PluginExecutor<APIConnection> {
+    public static class RestApiPluginExecutor implements PluginExecutor<APIConnection>, SmartSubstitutionInterface {
 
         private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
@@ -132,28 +131,27 @@ public class RestApiPlugin extends BasePlugin {
             if (TRUE.equals(smartJsonSubstitution)) {
                 // Do smart replacements in JSON body
                 if (actionConfiguration.getBody() != null) {
+
                     // First extract all the bindings in order
                     List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
                     // Replace all the bindings with a ? as expected in a prepared statement.
                     String updatedBody = MustacheHelper.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
 
-                    if (mustacheKeysInOrder != null && !mustacheKeysInOrder.isEmpty()) {
+                    List<String> parameters = new ArrayList<>();
 
-                        List<Param> params = executeActionDTO.getParams();
-                        List<String> parameters = new ArrayList<>();
-
-                        for (int i = 0; i < mustacheKeysInOrder.size(); i++) {
-                            String key = mustacheKeysInOrder.get(i);
-                            Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
-
-                            // If the evaluated value of the mustache binding is present, set it in the prepared statement
-                            if (matchingParam.isPresent()) {
-                                String value = matchingParam.get().getValue();
-                                parameters.add(value);
-                                updatedBody = DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(updatedBody, value);
-                            }
-                        }
+                    try {
+                        updatedBody = (String) smartSubstitutionOfBindings(updatedBody,
+                                mustacheKeysInOrder,
+                                executeActionDTO.getParams(),
+                                parameters);
+                    } catch (AppsmithPluginException e) {
+                        ActionExecutionResult errorResult = new ActionExecutionResult();
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                        errorResult.setIsExecutionSuccess(false);
+                        errorResult.setBody(e.getMessage());
+                        return Mono.just(errorResult);
                     }
+
                     actionConfiguration.setBody(updatedBody);
                 }
             }
@@ -725,6 +723,16 @@ public class RestApiPlugin extends BasePlugin {
                 datasourceConfiguration.setUrl(actionConfiguration.getPrev());
             }
             return datasourceConfiguration;
+        }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             Object... args) {
+            String jsonBody = (String) input;
+            return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value);
         }
     }
 

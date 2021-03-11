@@ -5,8 +5,8 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -19,6 +19,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
@@ -51,7 +52,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -122,7 +122,7 @@ public class MySqlPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
+    public static class MySqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
@@ -303,31 +303,42 @@ public class MySqlPlugin extends BasePlugin {
             List<Param> params = executeActionDTO.getParams();
             List<String> parameters = new ArrayList<>();
 
-            for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
-                String key = mustacheValuesInOrder.get(i);
-                Optional<Param> matchingParam = params
-                        .stream()
-                        .filter(param -> param.getKey().trim().equals(key))
-                        .findFirst();
-                if (matchingParam.isPresent()) {
-                    String value = matchingParam.get().getValue();
-                    parameters.add(value);
-                    DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
-                    if (DataType.NULL.equals(valueType)) {
-                        try {
-                            connectionStatement.bindNull(i, Object.class);
-                        } catch (UnsupportedOperationException e) {
-                            // Do nothing. Move on
-                        }
-                    } else {
-                        connectionStatement.bind(i, value);
-                    }
-                }
+            try {
+                connectionStatement = (Statement) this.smartSubstitutionOfBindings(connectionStatement,
+                        mustacheValuesInOrder,
+                        executeActionDTO.getParams(),
+                        parameters);
+            } catch (AppsmithPluginException e) {
+                return Flux.error(e);
             }
+
             requestData.put("parameters", parameters);
 
             return Flux.from(connectionStatement.execute());
 
+        }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             Object... args) {
+
+            Statement connectionStatement = (Statement) input;
+            DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+
+            if (DataType.NULL.equals(valueType)) {
+                try {
+                    connectionStatement.bindNull((index - 1), Object.class);
+                } catch (UnsupportedOperationException e) {
+                    // Do nothing. Move on
+                }
+            } else {
+                connectionStatement.bind((index - 1), value);
+            }
+
+            return connectionStatement;
         }
 
         /**

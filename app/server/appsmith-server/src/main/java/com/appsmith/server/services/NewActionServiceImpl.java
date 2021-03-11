@@ -756,7 +756,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             "pageId", actionDTO.getPageId(),
                             "pageName", pageName,
                             "isSuccessfulExecution", actionExecutionResult.getIsExecutionSuccess(),
-                            "statusCode", actionExecutionResult.getStatusCode(),
                             "timeElapsed", timeElapsed
                     ));
 
@@ -764,6 +763,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {
                         data.putAll(Map.of(
                                 "error", actionExecutionResult.getBody()
+                        ));
+                    }
+
+                    if (actionExecutionResult.getStatusCode() != null) {
+                        data.putAll(Map.of(
+                                "statusCode", actionExecutionResult.getStatusCode()
                         ));
                     }
 
