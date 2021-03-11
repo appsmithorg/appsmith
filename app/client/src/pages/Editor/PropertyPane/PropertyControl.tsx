@@ -134,10 +134,13 @@ const PropertyControl = memo((props: Props) => {
         );
       }
 
-      // const ChildWidgetEnhancementFn =  yield call getChildWidgetEnhancementFn(
-      //   widgetProperties.widgetId,
-      //   WidgetEnhancementType.PROPERTY_UPDATE,
-      // );
+      const ChildWidgetEnhancementFn = call(
+        getChildWidgetEnhancementFn,
+        widgetProperties.widgetId,
+        WidgetEnhancementType.PROPERTY_UPDATE,
+      );
+
+      console.log({ ChildWidgetEnhancementFn });
 
       // // const something = ChildWidgetEnhancementFn(widgetProperties.widgetName);
 

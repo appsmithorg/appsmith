@@ -4,6 +4,7 @@ import {
 } from "constants/WidgetConstants";
 import { get } from "lodash";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
@@ -101,6 +102,38 @@ export function* getChildWidgetEnhancementFn(
       getPropsFromTree,
       parentWithEnhancementFn.widgetName,
     );
+    if (parentDataFromDataTree) {
+      // Update the enhancement function by passing the widget data as the first parameter
+      return (...args: unknown[]) =>
+        enhancementFn(parentDataFromDataTree, ...args);
+    }
+  }
+}
+
+export function useChildWidgetEnhancementFn(
+  widgetId: string,
+  enhancementType: WidgetEnhancementType,
+) {
+  // Get all widgets from the canvas
+  const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
+  // Get the parent which wants to enhance this widget
+  const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, widgets);
+  // If such a parent is found
+
+  // Get the parent's evaluated data from the evaluatedTree
+  const parentDataFromDataTree: unknown = useSelector(
+    getPropsFromTree,
+    parentWithEnhancementFn?.widgetName,
+  );
+
+  if (parentWithEnhancementFn) {
+    // Get the enhancement function based on the enhancementType
+    // from the configs
+    const enhancementFn = getWidgetEnhancementFn(
+      parentWithEnhancementFn.type,
+      enhancementType,
+    );
+
     if (parentDataFromDataTree) {
       // Update the enhancement function by passing the widget data as the first parameter
       return (...args: unknown[]) =>
