@@ -14,8 +14,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -57,7 +59,7 @@ public class GetValuesMethod implements Method {
             headerRow++;
         }
         ArrayNode headers = (ArrayNode) values.get(headerRow);
-
+        Set<String> columnsSet = new HashSet<>();
         List<HashMap<String, String>> collectedCells = StreamSupport
                 .stream(values.spliterator(), false)
                 .skip(headerRow + 1)
@@ -66,14 +68,36 @@ public class GetValuesMethod implements Method {
                     AtomicInteger i = new AtomicInteger();
                     row.forEach((cell) -> {
                         try {
-                            final String k = objectMapper.treeToValue(headers.get(i.getAndIncrement()), String.class);
+                            String k = objectMapper.treeToValue(headers.get(i.getAndIncrement()), String.class);
+                            // If the column header is missing, use a placeholder
+                            if (k == null || k.isBlank()) {
+                                k = "Column-" + i.get();
+                            }
+                            // In case of repetitive names in column headers, add an identifier
+                            int counter = 1;
+                            String addition = "";
+                            while (objectHashMap.containsKey(k + addition)) {
+                                addition = "_" + counter++;
+                            }
+                            k = k + addition;
                             final String v = objectMapper.treeToValue(cell, String.class);
+                            // If a single row has a valid value for a particular column, retain the column
+                            if (v != null && !v.isBlank()) {
+                                columnsSet.add(k);
+                            }
                             objectHashMap.put(k, v);
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
                         }
                     });
                     return objectHashMap;
+                })
+                .collect(Collectors.toList());
+
+        collectedCells = collectedCells
+                .stream()
+                .peek(row -> {
+                    row.keySet().retainAll(columnsSet);
                 })
                 .collect(Collectors.toList());
 
