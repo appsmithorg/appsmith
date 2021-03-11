@@ -10,16 +10,16 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.config.GoogleSheetsMethodStrategy;
+import com.external.config.Method;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.internal.Base64;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -60,9 +60,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // Check if method is defined
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            final com.external.plugins.Method method = CollectionUtils.isEmpty(properties)
+            final Method method = CollectionUtils.isEmpty(properties)
                     ? null
-                    : com.external.plugins.Method.valueOf(properties.get(0).getValue());
+                    : GoogleSheetsMethodStrategy.getMethod(properties.get(0).getValue());
 
             if (method == null) {
                 return Mono.error(new AppsmithPluginException(
@@ -97,81 +97,72 @@ public class GoogleSheetsPlugin extends BasePlugin {
             assert (!oauth2.getIsEncrypted() && oauth2.getAuthenticationResponse() != null);
 
             // Triggering the actual REST API call
-            return Method.valueOf(actionConfiguration.getPluginSpecifiedTemplates().get(0).getValue())
+            return method
                     // This method call will populate the request with all the configurations it needs for a particular method
                     .getClient(client, actionConfiguration.getPluginSpecifiedTemplates(), requestBodyAsString)
                     .headers(headers -> headers.set("Authorization", "Bearer " + oauth2.getAuthenticationResponse().getToken()))
                     .exchange()
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                    .map(stringResponseEntity -> {
-                                HttpHeaders headers = stringResponseEntity.getHeaders();
-                                // Find the media type of the response to parse the body as required.
-                                MediaType contentType = headers.getContentType();
-                                byte[] body = stringResponseEntity.getBody();
-                                HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                    .map(response -> {
+                        // Populate result object
+                        ActionExecutionResult result = new ActionExecutionResult();
 
-                                ActionExecutionResult result = new ActionExecutionResult();
+                        // Set response status
+                        result.setStatusCode(response.getStatusCode().toString());
+                        result.setIsExecutionSuccess(response.getStatusCode().is2xxSuccessful());
 
-                                result.setStatusCode(statusCode.toString());
-                                result.setIsExecutionSuccess(statusCode.is2xxSuccessful());
+                        HttpHeaders headers = response.getHeaders();
+                        // Convert the headers into json tree to store in the results
+                        String headerInJsonString;
+                        try {
+                            headerInJsonString = objectMapper.writeValueAsString(headers);
+                        } catch (JsonProcessingException e) {
+                            throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                        }
 
-                                // Convert the headers into json tree to store in the results
-                                String headerInJsonString;
-                                try {
-                                    headerInJsonString = objectMapper.writeValueAsString(headers);
-                                } catch (JsonProcessingException e) {
-                                    throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                        // Set headers in the result now
+                        try {
+                            result.setHeaders(objectMapper.readTree(headerInJsonString));
+                        } catch (IOException e) {
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                            headerInJsonString,
+                                            e.getMessage()
+                                    )
+                            );
+                        }
+
+                        // Choose body depending on response status
+                        byte[] body = response.getBody();
+                        if (body != null) {
+                            try {
+                                String jsonBody = new String(body);
+                                JsonNode jsonNodeBody = objectMapper.readTree(jsonBody);
+
+                                if (response.getStatusCode().is2xxSuccessful()) {
+                                    result.setBody(method.transformResponse(jsonNodeBody, objectMapper));
+                                } else {
+                                    result.setBody(jsonNodeBody
+                                            .get("error")
+                                            .get("message")
+                                            .asText());
                                 }
-
-                                // Set headers in the result now
-                                try {
-                                    result.setHeaders(objectMapper.readTree(headerInJsonString));
-                                } catch (IOException e) {
-                                    throw Exceptions.propagate(
-                                            new AppsmithPluginException(
-                                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                                    headerInJsonString,
-                                                    e.getMessage()
-                                            )
-                                    );
-                                }
-
-
-                                if (body != null) {
-                                    if (MediaType.APPLICATION_JSON.equals(contentType) ||
-                                            MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
-                                        try {
-                                            String jsonBody = new String(body);
-                                            if (statusCode.is2xxSuccessful()) {
-                                                result.setBody(objectMapper.readTree(jsonBody));
-                                            } else {
-                                                result.setBody(objectMapper.readTree(jsonBody).get("error").get("message").asText());
-                                            }
-                                        } catch (IOException e) {
-                                            throw Exceptions.propagate(
-                                                    new AppsmithPluginException(
-                                                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                                            new String(body),
-                                                            e.getMessage()
-                                                    )
-                                            );
-                                        }
-                                    } else if (MediaType.IMAGE_GIF.equals(contentType) ||
-                                            MediaType.IMAGE_JPEG.equals(contentType) ||
-                                            MediaType.IMAGE_PNG.equals(contentType)) {
-                                        String encode = Base64.encode(body);
-                                        result.setBody(encode);
-                                    } else {
-                                        // If the body is not of JSON type, just set it as is.
-                                        String bodyString = new String(body);
-                                        result.setBody(bodyString.trim());
-                                    }
-                                }
-                                return result;
+                            } catch (IOException e) {
+                                throw Exceptions.propagate(
+                                        new AppsmithPluginException(
+                                                AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                                new String(body),
+                                                e.getMessage()
+                                        )
+                                );
                             }
-                    )
+                        }
+                        return result;
+                    })
                     .onErrorResume(e -> {
                         errorResult.setBody(Exceptions.unwrap(e).getMessage());
+                        System.out.println(e.getMessage());
                         return Mono.just(errorResult);
                     });
         }
@@ -222,5 +213,4 @@ public class GoogleSheetsPlugin extends BasePlugin {
             return Mono.just(new DatasourceTestResult());
         }
     }
-
 }
