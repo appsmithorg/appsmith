@@ -60,7 +60,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       defaultSearchText: VALIDATION_TYPES.TEXT,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
       pageSize: VALIDATION_TYPES.NUMBER,
-      sanitizedTableData: VALIDATION_TYPES.ARRAY,
     };
   }
 
@@ -520,7 +519,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // This is a temporary measure,
     // to solve for the scenario where the column properties are getting reset
     // Repurcussion: The primary columns control will never go into the "no data" state.
-    if (sanitizedTableData.length === 0) return;
+    if (isString(sanitizedTableData) || sanitizedTableData.length === 0) return;
 
     const previousColumnIds = Object.keys(primaryColumns);
     const tableColumns: Record<string, ColumnProperties> = {};
@@ -653,6 +652,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const { primaryColumns = {} } = this.props;
+
+    // Bail out if santizedTableData is a string. This signifies an error in evaluations
+    // Since, it is an error in evaluations, we should not attempt to process the data
+    if (isString(this.props.sanitizedTableData)) return;
 
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
