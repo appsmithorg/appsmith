@@ -10,7 +10,7 @@ interface ErrorPageProps {
   code: ERROR_CODES;
 }
 
-const ErrorPage: React.FC<ErrorPageProps> = (props: ErrorPageProps) => {
+function ErrorPage(props: ErrorPageProps) {
   const { code } = props;
 
   switch (code) {
@@ -25,6 +25,6 @@ const ErrorPage: React.FC<ErrorPageProps> = (props: ErrorPageProps) => {
     default:
       return <ServerUnavailable />;
   }
-};
+}
 
 export default ErrorPage;

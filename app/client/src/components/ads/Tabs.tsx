@@ -130,7 +130,7 @@ type TabbedViewComponentType = CommonComponentProps & {
   overflow?: boolean;
 };
 
-export const TabComponent = (props: TabbedViewComponentType) => {
+export function TabComponent(props: TabbedViewComponentType) {
   return (
     <TabsWrapper
       shouldOverflow={props.overflow}
@@ -163,4 +163,4 @@ export const TabComponent = (props: TabbedViewComponentType) => {
       </Tabs>
     </TabsWrapper>
   );
-};
+}

@@ -212,7 +212,7 @@ const IconContainer = styled.div`
   }
 `;
 
-const ApiEditorForm: React.FC<Props> = (props: Props) => {
+function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [
     apiBindHelpSectionVisible,
@@ -432,7 +432,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
       </SecondaryWrapper>
     </Form>
   );
-};
+}
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 

@@ -30,7 +30,7 @@ type Props = {
   toggleShowModal: () => void;
 };
 
-const HelpBar = ({ toggleShowModal }: Props) => {
+function HelpBar({ toggleShowModal }: Props) {
   return (
     <StyledHelpBar
       onClick={toggleShowModal}
@@ -42,7 +42,7 @@ const HelpBar = ({ toggleShowModal }: Props) => {
       </Text>
     </StyledHelpBar>
   );
-};
+}
 
 const mapDispatchToProps = (dispatch: any) => ({
   toggleShowModal: () => {

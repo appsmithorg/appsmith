@@ -19,7 +19,7 @@ interface DropdownFieldProps {
   isDisabled?: boolean;
 }
 
-const DropdownField = (props: DropdownFieldProps & Partial<DropdownProps>) => {
+function DropdownField(props: DropdownFieldProps & Partial<DropdownProps>) {
   return (
     <Field
       className={props.className}
@@ -32,6 +32,6 @@ const DropdownField = (props: DropdownFieldProps & Partial<DropdownProps>) => {
       isDisabled={props.isDisabled}
     />
   );
-};
+}
 
 export default DropdownField;

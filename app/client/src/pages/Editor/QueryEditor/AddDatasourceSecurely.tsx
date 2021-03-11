@@ -37,7 +37,7 @@ type AddDatasourceSecurelyProps = {
   onAddDatasource: () => void;
 };
 
-const AddDatasourceSecurely = (props: AddDatasourceSecurelyProps) => {
+function AddDatasourceSecurely(props: AddDatasourceSecurelyProps) {
   return (
     <Wrapper>
       <div>
@@ -60,6 +60,6 @@ const AddDatasourceSecurely = (props: AddDatasourceSecurelyProps) => {
       <img src={AppsmithDatasource} />
     </Wrapper>
   );
-};
+}
 
 export default AddDatasourceSecurely;

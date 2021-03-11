@@ -84,7 +84,7 @@ type DatabaseFieldProps = {
   step: number;
 };
 
-export const DatabaseColumns = (props: DatabaseFieldProps) => {
+export function DatabaseColumns(props: DatabaseFieldProps) {
   const field = props.field;
   const fieldName = field.name;
   const fieldType = field.type;
@@ -118,6 +118,6 @@ export const DatabaseColumns = (props: DatabaseFieldProps) => {
       </Container>
     </Popover>
   );
-};
+}
 
 export default DatabaseColumns;

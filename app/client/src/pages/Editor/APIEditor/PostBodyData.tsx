@@ -45,7 +45,7 @@ interface PostDataProps {
 
 type Props = PostDataProps;
 
-const PostBodyData = (props: Props) => {
+function PostBodyData(props: Props) {
   const {
     displayFormat,
     dataTreePath,
@@ -111,7 +111,7 @@ const PostBodyData = (props: Props) => {
       />
     </PostBodyContainer>
   );
-};
+}
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 

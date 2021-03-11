@@ -36,12 +36,12 @@ type FormTextFieldProps = {
 };
 
 // trigger tests
-const FormTextField = (props: FormTextFieldProps) => {
+function FormTextField(props: FormTextFieldProps) {
   return (
     <React.Fragment>
       <Field component={renderComponent} {...props} asyncControl />
     </React.Fragment>
   );
-};
+}
 
 export default FormTextField;

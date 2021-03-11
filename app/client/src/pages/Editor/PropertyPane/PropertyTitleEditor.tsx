@@ -35,7 +35,7 @@ export type PropertyTitleEditorProps = {
   onClose: () => void;
 };
 
-const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
+function PropertyTitleEditor(props: PropertyTitleEditorProps) {
   const { title, updatePropertyTitle } = props;
   const [name, setName] = useState(props.title);
   const [updating, toggleUpdating] = useState(false);
@@ -96,7 +96,7 @@ const PropertyTitleEditor = (props: PropertyTitleEditorProps) => {
       </Tooltip>
     </Wrapper>
   );
-};
+}
 
 PropertyTitleEditor.displayName = "PanelTitleEditor";
 

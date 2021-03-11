@@ -52,7 +52,7 @@ const selectStyles = {
   indicatorSeparator: () => ({}),
 };
 
-export const BaseDropdown = (props: DropdownProps) => {
+export function BaseDropdown(props: DropdownProps) {
   const { input, customSelectStyles } = props;
   return (
     <Select
@@ -65,10 +65,10 @@ export const BaseDropdown = (props: DropdownProps) => {
       {...props}
     />
   );
-};
+}
 
-const Dropdown = (props: DropdownProps) => {
+function Dropdown(props: DropdownProps) {
   return <BaseDropdown {...props} />;
-};
+}
 
 export default Dropdown;

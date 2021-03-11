@@ -20,7 +20,7 @@ const EditorContainer = styled.div`
   width: calc(100vw - ${(props) => props.theme.sidebarWidth});
 `;
 
-const MainContainer = () => {
+function MainContainer() {
   return (
     <Container>
       <Sidebar />
@@ -32,7 +32,7 @@ const MainContainer = () => {
       </EditorContainer>
     </Container>
   );
-};
+}
 
 MainContainer.displayName = "MainContainer";
 

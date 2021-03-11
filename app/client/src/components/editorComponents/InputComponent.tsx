@@ -21,7 +21,7 @@ type InputComponentProps = {
   autoFocus?: boolean;
 };
 
-const InputComponent = (props: InputComponentProps) => {
+function InputComponent(props: InputComponentProps) {
   return (
     <StyledInputGroup
       {...props.input}
@@ -32,6 +32,6 @@ const InputComponent = (props: InputComponentProps) => {
       autoFocus={props.autoFocus}
     />
   );
-};
+}
 
 export default InputComponent;

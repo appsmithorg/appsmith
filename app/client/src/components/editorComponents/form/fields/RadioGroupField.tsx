@@ -23,9 +23,9 @@ const renderComponent = (
   );
 };
 
-const RadioFieldGroup = (
+function RadioFieldGroup(
   props: RadioFieldProps & Partial<RadioGroupWrapperProps>,
-) => {
+) {
   return (
     <Field
       className={props.className}
@@ -35,6 +35,6 @@ const RadioFieldGroup = (
       {...props}
     />
   );
-};
+}
 
 export default RadioFieldGroup;

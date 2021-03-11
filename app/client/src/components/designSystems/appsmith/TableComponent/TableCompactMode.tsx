@@ -76,7 +76,7 @@ interface TableCompactModeProps {
   updateCompactMode: (mode: CompactMode) => void;
 }
 
-const TableCompactMode = (props: TableCompactModeProps) => {
+function TableCompactMode(props: TableCompactModeProps) {
   const [selected, selectMenu] = React.useState(false);
   return (
     <Popover
@@ -119,6 +119,6 @@ const TableCompactMode = (props: TableCompactModeProps) => {
       </DropDownWrapper>
     </Popover>
   );
-};
+}
 
 export default TableCompactMode;

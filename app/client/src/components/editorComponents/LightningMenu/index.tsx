@@ -75,7 +75,7 @@ const CustomDropdownStyles = createGlobalStyle`
   }
 `;
 
-export const LightningMenu = (props: LightningMenuProps) => {
+export function LightningMenu(props: LightningMenuProps) {
   const widgets = useWidgets();
   const { apis, queries } = useActions();
   const pageId = usePageId();
@@ -105,6 +105,6 @@ export const LightningMenu = (props: LightningMenuProps) => {
       <CustomDropdownStyles />
     </>
   );
-};
+}
 
 export default withTheme(LightningMenu);

@@ -93,7 +93,7 @@ const LabelContainer = styled.div<{ info?: string }>`
       : null}
 `;
 
-const Checkbox = (props: CheckboxProps) => {
+function Checkbox(props: CheckboxProps) {
   const [checked, setChecked] = useState<boolean>(
     props.isDefaultChecked || false,
   );
@@ -124,6 +124,6 @@ const Checkbox = (props: CheckboxProps) => {
       />
     </StyledCheckbox>
   );
-};
+}
 
 export default Checkbox;

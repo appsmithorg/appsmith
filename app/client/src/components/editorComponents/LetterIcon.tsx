@@ -13,8 +13,8 @@ const LetterIconWrapper = styled.div`
   align-items: center;
 `;
 
-const LetterIcon = (props: { text: string }) => {
+function LetterIcon(props: { text: string }) {
   return <LetterIconWrapper>{props.text.toUpperCase()}</LetterIconWrapper>;
-};
+}
 
 export default LetterIcon;

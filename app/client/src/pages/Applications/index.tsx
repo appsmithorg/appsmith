@@ -359,7 +359,7 @@ const ApplicationAddCardWrapper = styled(Card)`
   }}
 `;
 
-const OrgMenuItem = ({ org, isFetchingApplications, selected }: any) => {
+function OrgMenuItem({ org, isFetchingApplications, selected }: any) {
   const menuRef = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (selected) {
@@ -380,7 +380,7 @@ const OrgMenuItem = ({ org, isFetchingApplications, selected }: any) => {
       selected={selected}
     />
   );
-};
+}
 
 function LeftPane() {
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
@@ -506,7 +506,7 @@ const NoSearchResultImg = styled.img`
   margin: 1em;
 `;
 
-const ApplicationsSection = (props: any) => {
+function ApplicationsSection(props: any) {
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
   const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
@@ -547,11 +547,11 @@ const ApplicationsSection = (props: any) => {
     );
   };
 
-  const OrgMenuTarget = (props: {
+  function OrgMenuTarget(props: {
     orgName: string;
     disabled?: boolean;
     orgSlug: string;
-  }) => {
+  }) {
     const { orgName, disabled, orgSlug } = props;
 
     return (
@@ -571,7 +571,7 @@ const ApplicationsSection = (props: any) => {
         </OrgNameHolder>
       </OrgNameWrapper>
     );
-  };
+  }
 
   const createNewApplication = (applicationName: string, orgId: string) => {
     const color = getRandomPaletteColor(theme.colors.appCardColors);
@@ -804,7 +804,7 @@ const ApplicationsSection = (props: any) => {
       <WelcomeHelper />
     </ApplicationContainer>
   );
-};
+}
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
   createApplication: (appName: string) => void;

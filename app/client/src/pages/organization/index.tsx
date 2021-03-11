@@ -6,7 +6,7 @@ import Settings from "./settings";
 import * as Sentry from "@sentry/react";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-export const Organization = () => {
+export function Organization() {
   const { path } = useRouteMatch();
   const location = useLocation();
   return (
@@ -17,6 +17,6 @@ export const Organization = () => {
       </Switch>
     </PageWrapper>
   );
-};
+}
 
 export default Organization;

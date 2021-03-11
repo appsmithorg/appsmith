@@ -89,7 +89,7 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
   }
 `;
 
-export const EditableText = (props: EditableTextProps) => {
+export function EditableText(props: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
   const [value, setStateValue] = useState(props.defaultValue);
   const inputValRef = useRef("");
@@ -182,6 +182,6 @@ export const EditableText = (props: EditableTextProps) => {
       </ErrorTooltip>
     </EditableTextWrapper>
   );
-};
+}
 
 export default EditableText;

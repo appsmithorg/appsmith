@@ -293,7 +293,7 @@ export type StateAndRouteProps = QueryFormProps & ReduxProps;
 
 type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
 
-const QueryEditorForm: React.FC<Props> = (props: Props) => {
+function QueryEditorForm(props: Props) {
   const {
     handleSubmit,
     isDeleting,
@@ -347,7 +347,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     dispatch(addTableWidgetFromQuery(actionName));
   };
 
-  const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
+  function MenuList(props: MenuListComponentProps<{ children: Node }>) {
     return (
       <>
         <components.MenuList {...props}>{props.children}</components.MenuList>
@@ -361,9 +361,9 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         </CreateDatasource>
       </>
     );
-  };
+  }
 
-  const SingleValue = (props: SingleValueProps<OptionTypeBase>) => {
+  function SingleValue(props: SingleValueProps<OptionTypeBase>) {
     return (
       <>
         <components.SingleValue {...props}>
@@ -378,9 +378,9 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         </components.SingleValue>
       </>
     );
-  };
+  }
 
-  const CustomOption = (props: OptionProps<OptionTypeBase>) => {
+  function CustomOption(props: OptionProps<OptionTypeBase>) {
     return (
       <>
         <components.Option {...props}>
@@ -395,7 +395,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         </components.Option>
       </>
     );
-  };
+  }
 
   if (loadingFormConfigs) {
     return (
@@ -590,7 +590,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       </TabContainerView>
     </QueryFormContainer>
   );
-};
+}
 
 const renderEachConfig = (section: any): any => {
   return section.children.map((formControlOrSection: ControlProps) => {

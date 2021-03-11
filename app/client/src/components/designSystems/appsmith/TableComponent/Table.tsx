@@ -63,7 +63,7 @@ const defaultColumn = {
   width: 150,
 };
 
-export const Table = (props: TableProps) => {
+export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnSizeMap = {
@@ -269,6 +269,6 @@ export const Table = (props: TableProps) => {
       </div>
     </TableWrapper>
   );
-};
+}
 
 export default Table;

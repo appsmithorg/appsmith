@@ -12,12 +12,12 @@ const Wrapper = styled.div`
   }
 `;
 
-export const ExplorerTitle = () => {
+export function ExplorerTitle() {
   return (
     <Wrapper>
       <h1>EXPLORER</h1>
     </Wrapper>
   );
-};
+}
 
 export default ExplorerTitle;

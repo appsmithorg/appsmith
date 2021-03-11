@@ -67,7 +67,7 @@ export const IconLabel = styled.h5`
   }
 `;
 
-const WidgetCard = (props: CardProps) => {
+function WidgetCard(props: CardProps) {
   const { setIsDragging } = useWidgetDragResize();
   const { selectWidget } = useWidgetSelection();
 
@@ -120,6 +120,6 @@ const WidgetCard = (props: CardProps) => {
       </Wrapper>
     </React.Fragment>
   );
-};
+}
 
 export default WidgetCard;

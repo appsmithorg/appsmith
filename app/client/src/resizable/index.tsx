@@ -34,7 +34,7 @@ type ResizableHandleProps = {
   };
 };
 
-const ResizableHandle = (props: ResizableHandleProps) => {
+function ResizableHandle(props: ResizableHandleProps) {
   const bind = useDrag(
     ({ first, last, dragging, movement: [mx, my], memo }) => {
       const snapped = getSnappedValues(mx, my, props.snapGrid);
@@ -52,7 +52,7 @@ const ResizableHandle = (props: ResizableHandleProps) => {
   );
 
   return <props.component {...bind()} />;
-};
+}
 
 type ResizableProps = {
   handles: {

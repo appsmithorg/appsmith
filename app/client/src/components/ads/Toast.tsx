@@ -37,13 +37,13 @@ const WrappedToastContainer = styled.div`
     top: 4em;
   }
 `;
-export const StyledToastContainer = (props: ToastOptions) => {
+export function StyledToastContainer(props: ToastOptions) {
   return (
     <WrappedToastContainer>
       <ToastContainer {...props} />
     </WrappedToastContainer>
   );
-};
+}
 
 const ToastBody = styled.div<{
   variant?: Variant;
@@ -104,7 +104,7 @@ const FlexContainer = styled.div`
   align-items: flex-start;
 `;
 
-const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
+function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
   const dispatch = useDispatch();
 
   return (
@@ -144,7 +144,7 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
       </div>
     </ToastBody>
   );
-};
+}
 
 export const Toaster = {
   show: (config: ToastProps) => {

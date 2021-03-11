@@ -30,7 +30,7 @@ interface ComponentProps {
 
 type FormTitleProps = ComponentProps;
 
-const FormTitle = (props: FormTitleProps) => {
+function FormTitle(props: FormTitleProps) {
   const params = useParams<{ datasourceId: string }>();
   const currentDatasource:
     | Datasource
@@ -123,6 +123,6 @@ const FormTitle = (props: FormTitleProps) => {
       {saveStatus.isSaving && <Spinner size={16} />}
     </Wrapper>
   );
-};
+}
 
 export default FormTitle;

@@ -74,7 +74,7 @@ interface Props {
   providerCredentialSteps: string;
 }
 
-const HelperTooltip = (props: Props) => {
+function HelperTooltip(props: Props) {
   return (
     <CredentialTooltipWrapper>
       <div className="credentialTooltipContainer">
@@ -121,6 +121,6 @@ const HelperTooltip = (props: Props) => {
       </div>
     </CredentialTooltipWrapper>
   );
-};
+}
 
 export default HelperTooltip;

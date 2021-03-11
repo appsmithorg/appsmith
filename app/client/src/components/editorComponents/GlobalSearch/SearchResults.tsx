@@ -84,10 +84,7 @@ const StyledDocumentIcon = styled(DocumentIcon)`
   display: flex;
 `;
 
-const DocumentationItem = (props: {
-  item: SearchItem;
-  isActiveItem: boolean;
-}) => {
+function DocumentationItem(props: { item: SearchItem; isActiveItem: boolean }) {
   return (
     <>
       <StyledDocumentIcon />
@@ -99,7 +96,7 @@ const DocumentationItem = (props: {
       </ItemTitle>
     </>
   );
-};
+}
 
 const WidgetIconWrapper = styled.span`
   svg {
@@ -114,11 +111,11 @@ const usePageName = (pageId: string) => {
   return page?.pageName;
 };
 
-const WidgetItem = (props: {
+function WidgetItem(props: {
   query: string;
   item: SearchItem;
   isActiveItem: boolean;
-}) => {
+}) {
   const { query, item } = props;
   const { type } = item || {};
   let title = getItemTitle(item);
@@ -134,7 +131,7 @@ const WidgetItem = (props: {
       </ItemTitle>
     </>
   );
-};
+}
 
 const ActionIconWrapper = styled.div`
   & > div {
@@ -143,11 +140,11 @@ const ActionIconWrapper = styled.div`
   }
 `;
 
-const ActionItem = (props: {
+function ActionItem(props: {
   query: string;
   item: SearchItem;
   isActiveItem: boolean;
-}) => {
+}) {
   const { item, query } = props;
   const { config } = item || {};
   const { pluginType } = config;
@@ -173,13 +170,13 @@ const ActionItem = (props: {
       </ItemTitle>
     </>
   );
-};
+}
 
-const DatasourceItem = (props: {
+function DatasourceItem(props: {
   query: string;
   item: SearchItem;
   isActiveItem: boolean;
-}) => {
+}) {
   const { item, query } = props;
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
@@ -196,13 +193,13 @@ const DatasourceItem = (props: {
       </ItemTitle>
     </>
   );
-};
+}
 
-const PageItem = (props: {
+function PageItem(props: {
   query: string;
   item: SearchItem;
   isActiveItem: boolean;
-}) => {
+}) {
   const { query, item } = props;
   const title = getItemTitle(item);
   const icon = item.isDefault ? homePageIcon : pageIcon;
@@ -216,7 +213,7 @@ const PageItem = (props: {
       </ItemTitle>
     </>
   );
-};
+}
 
 const StyledSectionTitleContainer = styled.div`
   display: flex;
@@ -232,12 +229,14 @@ const StyledSectionTitleContainer = styled.div`
   margin-left: -${(props) => props.theme.spaces[3]}px;
 `;
 
-const SectionTitle = ({ item }: { item: SearchItem }) => (
-  <StyledSectionTitleContainer>
-    <img className="section-title__icon" src={item.icon} />
-    <span className="section-title__text">{item.title}</span>
-  </StyledSectionTitleContainer>
-);
+function SectionTitle({ item }: { item: SearchItem }) {
+  return (
+    <StyledSectionTitleContainer>
+      <img className="section-title__icon" src={item.icon} />
+      <span className="section-title__text">{item.title}</span>
+    </StyledSectionTitleContainer>
+  );
+}
 
 const SearchItemByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationItem,
@@ -254,7 +253,7 @@ type ItemProps = {
   query: string;
 };
 
-const SearchItemComponent = (props: ItemProps) => {
+function SearchItemComponent(props: ItemProps) {
   const { item, index, query } = props;
   const itemRef = useRef<HTMLDivElement>(null);
   const searchContext = useContext(SearchContext);
@@ -290,7 +289,7 @@ const SearchItemComponent = (props: ItemProps) => {
       <Item item={item} query={query} isActiveItem={isActiveItem} />
     </SearchItemContainer>
   );
-};
+}
 
 const SearchResultsContainer = styled.div`
   padding: 0 ${(props) => props.theme.spaces[6]}px;
@@ -298,13 +297,13 @@ const SearchResultsContainer = styled.div`
   width: 250px;
 `;
 
-const SearchResults = ({
+function SearchResults({
   searchResults,
   query,
 }: {
   searchResults: SearchItem[];
   query: string;
-}) => {
+}) {
   return (
     <SearchResultsContainer>
       {searchResults.map((item: SearchItem, index: number) => (
@@ -317,6 +316,6 @@ const SearchResults = ({
       ))}
     </SearchResultsContainer>
   );
-};
+}
 
 export default SearchResults;

@@ -68,7 +68,7 @@ interface StepComponentProps {
   onChange: (value: number) => void;
 }
 
-export const StepComponent = (props: StepComponentProps) => {
+export function StepComponent(props: StepComponentProps) {
   function decrease() {
     if (props.value < props.min) {
       return;
@@ -90,6 +90,6 @@ export const StepComponent = (props: StepComponentProps) => {
       <StyledIncreaseIcon height={12} width={12} onClick={increase} />
     </StepWrapper>
   );
-};
+}
 
 export default StepComponent;

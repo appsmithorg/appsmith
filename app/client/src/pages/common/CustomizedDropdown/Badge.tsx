@@ -36,7 +36,7 @@ type BadgeProps = {
   subtext?: string;
 };
 
-export const Badge = (props: BadgeProps) => {
+export function Badge(props: BadgeProps) {
   return (
     <BadgeWrapper>
       <img src={props.imageURL} alt={props.text}></img>
@@ -46,6 +46,6 @@ export const Badge = (props: BadgeProps) => {
       </div>
     </BadgeWrapper>
   );
-};
+}
 
 export default Badge;

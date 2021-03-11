@@ -31,9 +31,7 @@ type ExplorerDatasourceEntityProps = {
   pageId: string;
 };
 
-export const ExplorerDatasourceEntity = (
-  props: ExplorerDatasourceEntityProps,
-) => {
+export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
   const icon = getPluginIcon(props.plugin);
@@ -115,5 +113,5 @@ export const ExplorerDatasourceEntity = (
       />
     </Entity>
   );
-};
+}
 export default ExplorerDatasourceEntity;

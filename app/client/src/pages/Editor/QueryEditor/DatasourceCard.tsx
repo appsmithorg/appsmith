@@ -81,7 +81,7 @@ type DatasourceCardProps = {
   onCreateQuery: (datasource: Datasource) => void;
 };
 
-const DatasourceCard = (props: DatasourceCardProps) => {
+function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
   const pluginImages = useSelector(getPluginImages);
   const params = useParams<{ applicationId: string; pageId: string }>();
@@ -151,6 +151,6 @@ const DatasourceCard = (props: DatasourceCardProps) => {
         : undefined}
     </Wrapper>
   );
-};
+}
 
 export default DatasourceCard;

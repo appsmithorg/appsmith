@@ -29,7 +29,7 @@ const RetryButton = styled.button`
   font-size: 17px;
 `;
 
-const ServerUnavailable = () => {
+function ServerUnavailable() {
   return (
     <Wrapper>
       <img
@@ -46,6 +46,6 @@ const ServerUnavailable = () => {
       </div>
     </Wrapper>
   );
-};
+}
 
 export default ServerUnavailable;

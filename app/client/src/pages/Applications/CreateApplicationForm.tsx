@@ -40,7 +40,7 @@ const validate = (values: CreateApplicationFormValues) => {
 
 // TODO(abhinav): abstract onCancel out.
 
-const CreateApplicationForm = (props: Props) => {
+function CreateApplicationForm(props: Props) {
   const { error, handleSubmit, pristine, submitting, invalid } = props;
   return (
     <Form onSubmit={handleSubmit(createApplicationFormSubmitHandler)}>
@@ -65,7 +65,7 @@ const CreateApplicationForm = (props: Props) => {
       />
     </Form>
   );
-};
+}
 
 const mapStateToProps = (state: AppState, props: Props): any => {
   const orgId = props.orgId;

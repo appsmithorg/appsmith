@@ -241,7 +241,7 @@ const ContextDropdownWrapper = styled.div`
   }
 `;
 
-export const ApplicationCard = (props: ApplicationCardProps) => {
+export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
@@ -539,6 +539,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       </>
     </NameWrapper>
   );
-};
+}
 
 export default ApplicationCard;

@@ -119,11 +119,11 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
 }
 
-export const CurrentValueViewer = (props: {
+export function CurrentValueViewer(props: {
   theme: EditorTheme;
   evaluatedValue: any;
   hideLabel?: boolean;
-}) => {
+}) {
   let content = (
     <CodeWrapper colorTheme={props.theme}>{"undefined"}</CodeWrapper>
   );
@@ -163,9 +163,9 @@ export const CurrentValueViewer = (props: {
       </CurrentValueWrapper>
     </React.Fragment>
   );
-};
+}
 
-const PopoverContent = (props: PopoverContentProps) => {
+function PopoverContent(props: PopoverContentProps) {
   return (
     <ContentWrapper
       onMouseEnter={props.onMouseEnter}
@@ -188,9 +188,9 @@ const PopoverContent = (props: PopoverContentProps) => {
       />
     </ContentWrapper>
   );
-};
+}
 
-const EvaluatedValuePopup = (props: Props) => {
+function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -234,6 +234,6 @@ const EvaluatedValuePopup = (props: Props) => {
       {props.children}
     </Wrapper>
   );
-};
+}
 
 export default EvaluatedValuePopup;

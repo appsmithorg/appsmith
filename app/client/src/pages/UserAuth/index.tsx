@@ -16,7 +16,7 @@ import { ThemeProvider } from "styled-components";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-export const UserAuth = () => {
+export function UserAuth() {
   const { path } = useRouteMatch();
   const location = useLocation();
   const darkTheme = useSelector((state: AppState) =>
@@ -49,6 +49,6 @@ export const UserAuth = () => {
       </AuthContainer>
     </ThemeProvider>
   );
-};
+}
 
 export default requiresAuthHOC(UserAuth);

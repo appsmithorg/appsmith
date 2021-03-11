@@ -48,13 +48,13 @@ const StyledDropTarget = styled.div`
   user-select: none;
 `;
 
-const Onboarding = () => {
+function Onboarding() {
   return (
     <div style={{ position: "fixed", left: "50%", top: "50vh" }}>
       <h2 style={{ color: "#ccc" }}>Drag and drop a widget here</h2>
     </div>
   );
-};
+}
 
 /*
   This context will provide the function which will help the draglayer and resizablecomponents trigger

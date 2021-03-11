@@ -27,7 +27,7 @@ type SelectFieldProps = {
   outline?: boolean;
 };
 
-export const SelectField = (props: SelectFieldProps) => {
+export function SelectField(props: SelectFieldProps) {
   return (
     <Field
       name={props.name}
@@ -38,6 +38,6 @@ export const SelectField = (props: SelectFieldProps) => {
       outline={props.outline}
     />
   );
-};
+}
 
 export default SelectField;

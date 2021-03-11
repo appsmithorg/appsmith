@@ -72,14 +72,14 @@ const QueryIconWrapper = styled.div`
   }
 `;
 
-export const QueryIcon = (props: { plugin: Plugin }) => {
+export function QueryIcon(props: { plugin: Plugin }) {
   return (
     <QueryIconWrapper>
       <img src={props.plugin.iconLocation} className="inner-image" />
       <img src={QueryImageOutline} className="outer-image" />
     </QueryIconWrapper>
   );
-};
+}
 
 const DataSourceIcon = MenuIcons.DATASOURCES_ICON;
 export const datasourceIcon = (
@@ -162,10 +162,10 @@ const StyledTag = styled.div<{ color: string }>`
   line-height: 16px;
 `;
 
-export const MethodTag = (props: { type: typeof HTTP_METHODS[number] }) => {
+export function MethodTag(props: { type: typeof HTTP_METHODS[number] }) {
   return (
     <StyledTag color={HTTP_METHOD_COLOR_MAP[props.type]}>
       {props.type}
     </StyledTag>
   );
-};
+}

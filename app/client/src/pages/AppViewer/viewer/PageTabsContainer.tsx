@@ -46,7 +46,7 @@ type AppViewerHeaderProps = {
   pages: PageListPayload;
 };
 
-export const PageTabsContainer = (props: AppViewerHeaderProps) => {
+export function PageTabsContainer(props: AppViewerHeaderProps) {
   const { currentApplicationDetails, pages } = props;
 
   // Mark default page as first page
@@ -147,6 +147,6 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
       </ScrollBtnContainer>
     </Container>
   ) : null;
-};
+}
 
 export default PageTabsContainer;

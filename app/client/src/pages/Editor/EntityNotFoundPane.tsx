@@ -42,7 +42,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const EntityNotFoundPane = () => {
+function EntityNotFoundPane() {
   const history = useHistory();
   return (
     <Wrapper>
@@ -66,6 +66,6 @@ const EntityNotFoundPane = () => {
       </div>
     </Wrapper>
   );
-};
+}
 
 export default EntityNotFoundPane;

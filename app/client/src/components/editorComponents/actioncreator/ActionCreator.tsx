@@ -811,10 +811,10 @@ function renderField(props: {
             ? field.value
             : undefined;
         // eslint-disable-next-line react/display-name
-        selectedLabelModifier = (
+        selectedLabelModifier = function(
           option: TreeDropdownOption,
           displayValue?: string,
-        ) => {
+        ) {
           if (
             option.type === ActionType.api ||
             option.type === ActionType.query

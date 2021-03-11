@@ -58,12 +58,12 @@ export const SocialLoginTypes: Record<string, string> = {
 
 type SignInType = "SIGNIN" | "SIGNUP";
 
-const SocialLoginButton = (props: {
+function SocialLoginButton(props: {
   logo: string;
   name: string;
   url: string;
   type: SignInType;
-}) => {
+}) {
   const location = useLocation();
   const initiateOnboarding = useIntiateOnboarding();
   const queryParams = new URLSearchParams(location.search);
@@ -97,18 +97,18 @@ const SocialLoginButton = (props: {
       <div className="login-method">{`continue with ${props.name}`}</div>
     </StyledSocialLoginButton>
   );
-};
+}
 
-export const ThirdPartyAuth = (props: {
+export function ThirdPartyAuth(props: {
   logins: SocialLoginType[];
   type: SignInType;
-}) => {
+}) {
   const socialLoginButtons = getSocialLoginButtonProps(props.logins).map(
     (item) => {
       return <SocialLoginButton key={item.name} {...item} type={props.type} />;
     },
   );
   return <ThirdPartyAuthWrapper>{socialLoginButtons}</ThirdPartyAuthWrapper>;
-};
+}
 
 export default ThirdPartyAuth;

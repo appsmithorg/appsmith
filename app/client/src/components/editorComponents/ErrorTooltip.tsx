@@ -39,7 +39,7 @@ interface Props {
   children: JSX.Element;
 }
 
-const ErrorTooltip = (props: Props) => {
+function ErrorTooltip(props: Props) {
   return (
     <Wrapper>
       <TooltipStyles />
@@ -56,6 +56,6 @@ const ErrorTooltip = (props: Props) => {
       </Popover>
     </Wrapper>
   );
-};
+}
 
 export default ErrorTooltip;

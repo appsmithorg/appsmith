@@ -12,14 +12,14 @@ import FormFooter from "components/editorComponents/form/FormFooter";
 import FormMessage from "components/editorComponents/form/FormMessage";
 
 // TODO(abhinav): abstract onCancel out.
-export const CreateApplicationForm = (
+export function CreateApplicationForm(
   props: InjectedFormProps<
     CreateOrganizationFormValues,
     { onCancel: () => void }
   > & {
     onCancel: () => void;
   },
-) => {
+) {
   const {
     error,
     handleSubmit,
@@ -61,7 +61,7 @@ export const CreateApplicationForm = (
       />
     </Form>
   );
-};
+}
 
 export default reduxForm<
   CreateOrganizationFormValues,

@@ -109,7 +109,7 @@ const StyledText = styled.div<TabProps>`
   }
 `;
 
-const TabsComponent = (props: TabsComponentProps) => {
+function TabsComponent(props: TabsComponentProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { onTabChange, ...remainingProps } = props;
   const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
@@ -154,6 +154,6 @@ const TabsComponent = (props: TabsComponentProps) => {
       </ChildrenWrapper>
     </TabsContainerWrapper>
   );
-};
+}
 
 export default TabsComponent;

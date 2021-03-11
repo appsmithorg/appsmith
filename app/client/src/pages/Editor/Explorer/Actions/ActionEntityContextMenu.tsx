@@ -22,7 +22,7 @@ type EntityContextMenuProps = {
   className?: string;
   pageId: string;
 };
-export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
+export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
 
   const dispatch = useDispatch();
@@ -119,6 +119,6 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
       toggle={<ContextMenuTrigger />}
     />
   );
-};
+}
 
 export default ActionEntityContextMenu;

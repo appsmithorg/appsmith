@@ -65,7 +65,7 @@ export type ModalComponentProps = {
 };
 
 /* eslint-disable react/display-name */
-export const ModalComponent = (props: ModalComponentProps) => {
+export function ModalComponent(props: ModalComponentProps) {
   const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
@@ -106,6 +106,6 @@ export const ModalComponent = (props: ModalComponentProps) => {
       </Overlay>
     </Container>
   );
-};
+}
 
 export default ModalComponent;

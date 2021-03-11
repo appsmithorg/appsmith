@@ -5,7 +5,7 @@ import PageSectionHeader from "pages/common/PageSectionHeader";
 import Button from "components/editorComponents/Button";
 import PageWrapper from "pages/common/PageWrapper";
 
-export const OrgMembers = () => {
+export function OrgMembers() {
   const history = useHistory();
 
   return (
@@ -23,6 +23,6 @@ export const OrgMembers = () => {
       </PageSectionHeader>
     </PageWrapper>
   );
-};
+}
 
 export default OrgMembers;

@@ -22,7 +22,7 @@ const errorFunction = (name: string) => {
   }
 };
 
-export const EditableTextStory = () => {
+export function EditableTextStory() {
   const [savingState, SetSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
@@ -53,4 +53,4 @@ export const EditableTextStory = () => {
       ></EditableText>
     </StoryWrapper>
   );
-};
+}

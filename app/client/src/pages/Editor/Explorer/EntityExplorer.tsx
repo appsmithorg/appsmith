@@ -44,7 +44,7 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
 
-const EntityExplorer = (props: IPanelProps) => {
+function EntityExplorer(props: IPanelProps) {
   const { applicationId } = useParams<ExplorerURLParams>();
 
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
@@ -109,7 +109,7 @@ const EntityExplorer = (props: IPanelProps) => {
       <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
   );
-};
+}
 
 EntityExplorer.displayName = "EntityExplorer";
 

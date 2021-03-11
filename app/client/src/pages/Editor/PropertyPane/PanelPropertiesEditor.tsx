@@ -42,7 +42,7 @@ const StyledBackIcon = styled(ControlIcons.BACK_CONTROL as AnyStyledComponent)`
   }
 `;
 
-const PanelHeader = (props: PanelHeaderProps) => {
+function PanelHeader(props: PanelHeaderProps) {
   return (
     <PaneTitleWrapper
       onClick={(e: any) => {
@@ -60,7 +60,7 @@ const PanelHeader = (props: PanelHeaderProps) => {
       />
     </PaneTitleWrapper>
   );
-};
+}
 
 const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
   return config.map((_childConfig) => {
@@ -81,11 +81,11 @@ const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
   });
 };
 
-export const PanelPropertiesEditor = (
+export function PanelPropertiesEditor(
   props: PanelPropertiesEditorProps &
     PanelPropertiesEditorPanelProps &
     IPanelProps,
-) => {
+) {
   const dispatch = useDispatch();
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const hidePropertyPane = useCallback(() => {
@@ -189,7 +189,7 @@ export const PanelPropertiesEditor = (
         })}
     </>
   );
-};
+}
 
 interface PanelPropertiesEditorProps {
   panelProps: any;

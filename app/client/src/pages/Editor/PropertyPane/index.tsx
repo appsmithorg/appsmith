@@ -59,11 +59,11 @@ interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
 
-const PropertyPaneView = (
+function PropertyPaneView(
   props: {
     hidePropertyPane: () => void;
   } & IPanelProps,
-) => {
+) {
   const { hidePropertyPane, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
@@ -79,7 +79,7 @@ const PropertyPaneView = (
       <PropertyControlsGenerator type={widgetProperties.type} panel={panel} />
     </>
   );
-};
+}
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   private panelWrapperRef = React.createRef<HTMLDivElement>();

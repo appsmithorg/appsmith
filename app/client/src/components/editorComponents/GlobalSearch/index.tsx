@@ -92,7 +92,7 @@ const getSectionTitle = (title: string, icon: any) => ({
   icon,
 });
 
-const GlobalSearch = () => {
+function GlobalSearch() {
   const defaultDocs = useDefaultDocumentationResults();
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
@@ -386,6 +386,6 @@ const GlobalSearch = () => {
       </GlobalSearchHotKeys>
     </SearchContext.Provider>
   );
-};
+}
 
 export default GlobalSearch;

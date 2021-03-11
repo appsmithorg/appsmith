@@ -65,7 +65,7 @@ const getStyles = (activity: Activities): CSSProperties | undefined => {
   }
 };
 
-export const SettingsControl = (props: SettingsControlProps) => {
+export function SettingsControl(props: SettingsControlProps) {
   const settingsIcon = (
     <SettingsIcon
       width={12}
@@ -94,6 +94,6 @@ export const SettingsControl = (props: SettingsControlProps) => {
       </SettingsWrapper>
     </StyledTooltip>
   );
-};
+}
 
 export default SettingsControl;

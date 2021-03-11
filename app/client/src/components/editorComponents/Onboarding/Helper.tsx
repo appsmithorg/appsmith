@@ -181,7 +181,7 @@ const SubStepContainer = styled.div`
   }
 `;
 
-const Helper = () => {
+function Helper() {
   const showHelper = useSelector(
     (state: AppState) => state.ui.onBoarding.showHelper,
   );
@@ -322,6 +322,6 @@ const Helper = () => {
       </BottomContainer>
     </StyledContainer>
   );
-};
+}
 
 export default Helper;

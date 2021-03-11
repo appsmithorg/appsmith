@@ -18,7 +18,7 @@ const FormRowWithLabel = styled.div`
   }
 `;
 
-const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
+function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   useEffect(() => {
     // Always maintain 1 row
     if (props.fields.length < 1) {
@@ -75,7 +75,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
       )}
     </div>
   );
-};
+}
 
 type Props = {
   name: string;

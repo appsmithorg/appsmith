@@ -12,7 +12,7 @@ export default {
   decorators: [withKnobs],
 };
 
-export const ToastStory = () => {
+export function ToastStory() {
   useEffect(() => {
     Toaster.show({
       text: text("message", "Archived successfully"),
@@ -48,4 +48,4 @@ export const ToastStory = () => {
       />
     </StoryWrapper>
   );
-};
+}

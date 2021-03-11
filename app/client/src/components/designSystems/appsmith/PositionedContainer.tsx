@@ -16,7 +16,7 @@ type PositionedContainerProps = {
   widgetType: string;
 };
 
-export const PositionedContainer = (props: PositionedContainerProps) => {
+export function PositionedContainer(props: PositionedContainerProps) {
   const x = props.style.xPosition + (props.style.xPositionUnit || "px");
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
@@ -44,7 +44,7 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
       {props.children}
     </PositionedWidget>
   );
-};
+}
 
 PositionedContainer.padding = WIDGET_PADDING;
 

@@ -79,7 +79,7 @@ const Content = styled.div<{ isLoading?: boolean }>`
   }
 `;
 
-const TableDropdown = (props: DropdownProps) => {
+function TableDropdown(props: DropdownProps) {
   const [selectedIndex, setSelectedIndex] = useState(props.selectedIndex);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(
@@ -128,6 +128,6 @@ const TableDropdown = (props: DropdownProps) => {
       )}
     </Fragment>
   );
-};
+}
 
 export default TableDropdown;

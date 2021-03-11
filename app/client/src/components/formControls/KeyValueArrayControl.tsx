@@ -29,7 +29,7 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
+function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
   const { extraData = [] } = props;
   const keyName = getFieldName(extraData[0].configProperty);
   const valueName = getFieldName(extraData[1].configProperty);
@@ -166,7 +166,7 @@ const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
       )}
     </React.Fragment>
   );
-};
+}
 
 class KeyValueFieldArray extends BaseControl<KeyValueArrayProps> {
   render() {

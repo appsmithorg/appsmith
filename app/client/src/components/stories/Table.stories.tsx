@@ -122,8 +122,10 @@ const data = [
   },
 ];
 
-export const TableStory = () => (
-  <StoryWrapper>
-    <Table columns={columns} data={data}></Table>
-  </StoryWrapper>
-);
+export function TableStory() {
+  return (
+    <StoryWrapper>
+      <Table columns={columns} data={data}></Table>
+    </StoryWrapper>
+  );
+}

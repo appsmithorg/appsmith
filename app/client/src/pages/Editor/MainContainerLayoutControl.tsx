@@ -90,7 +90,7 @@ const LayoutControlWrapper = styled.div`
   }
 `;
 
-export const MainContainerLayoutControl: React.FC<any> = () => {
+export function MainContainerLayoutControl() {
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
   const layoutOptions = AppsmithLayouts.map((each) => {
@@ -151,4 +151,4 @@ export const MainContainerLayoutControl: React.FC<any> = () => {
       </div>
     </LayoutControlWrapper>
   );
-};
+}

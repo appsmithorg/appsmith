@@ -157,7 +157,7 @@ export function CloudinaryUploader(
     });
 }
 
-const FilePickerComponent = (props: FilePickerProps) => {
+function FilePickerComponent(props: FilePickerProps) {
   const { logoUploadError } = props;
   const [fileInfo, setFileInfo] = useState<{ name: string; size: number }>({
     name: "",
@@ -340,14 +340,14 @@ const FilePickerComponent = (props: FilePickerProps) => {
       </div>
     </ContainerDiv>
   );
-};
+}
 
-const FilePicker = (props: FilePickerProps) => {
+function FilePicker(props: FilePickerProps) {
   return (
     <DndProvider backend={HTML5Backend}>
       <FilePickerComponent {...props} />
     </DndProvider>
   );
-};
+}
 
 export default FilePicker;

@@ -69,7 +69,7 @@ interface ReactTableComponentProps {
   updateCompactMode: (compactMode: CompactMode) => void;
 }
 
-const ReactTableComponent = (props: ReactTableComponentProps) => {
+function ReactTableComponent(props: ReactTableComponentProps) {
   useEffect(() => {
     let dragged = -1;
     const headers = Array.prototype.slice.call(
@@ -210,6 +210,6 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       updateCompactMode={props.updateCompactMode}
     />
   );
-};
+}
 
 export default ReactTableComponent;

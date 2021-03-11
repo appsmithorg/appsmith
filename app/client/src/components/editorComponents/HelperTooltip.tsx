@@ -60,7 +60,7 @@ interface Props {
   rightIcon: Function;
 }
 
-const HelperTooltip = (props: Props) => {
+function HelperTooltip(props: Props) {
   return (
     <React.Fragment>
       <TooltipStyles />
@@ -80,6 +80,6 @@ const HelperTooltip = (props: Props) => {
       </Popover>
     </React.Fragment>
   );
-};
+}
 
 export default HelperTooltip;

@@ -9,7 +9,7 @@ type Props = {
   hits: IHit[];
 };
 
-const SearchResults = ({ hits, setDocumentationSearchResults }: Props) => {
+function SearchResults({ hits, setDocumentationSearchResults }: Props) {
   const debounsedSetter = useCallback(
     debounce(setDocumentationSearchResults, 100),
     [],
@@ -23,6 +23,6 @@ const SearchResults = ({ hits, setDocumentationSearchResults }: Props) => {
   }, [hits]);
 
   return null;
-};
+}
 
 export default connectHits<Props, IHit>(SearchResults);

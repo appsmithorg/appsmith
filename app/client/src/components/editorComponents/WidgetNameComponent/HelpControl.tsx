@@ -38,7 +38,7 @@ const StyledHelpIcon = styled.div`
   }
 `;
 
-export const HelpControl = (props: { type: WidgetType; show: boolean }) => {
+export function HelpControl(props: { type: WidgetType; show: boolean }) {
   const dispatch = useDispatch();
   return props.show ? (
     <StyledHelpIcon
@@ -54,6 +54,6 @@ export const HelpControl = (props: { type: WidgetType; show: boolean }) => {
       </Tooltip>
     </StyledHelpIcon>
   ) : null;
-};
+}
 
 export default HelpControl;

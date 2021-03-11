@@ -22,7 +22,7 @@ export type SideNavItemProps = {
   showText?: boolean;
 };
 
-export const SideNavItem = (props: SideNavItemProps) => {
+export function SideNavItem(props: SideNavItemProps) {
   const match = useRouteMatch({
     path: props.path,
     exact: true,
@@ -58,6 +58,6 @@ export const SideNavItem = (props: SideNavItemProps) => {
       />
     </NavLink>
   );
-};
+}
 
 export default SideNavItem;

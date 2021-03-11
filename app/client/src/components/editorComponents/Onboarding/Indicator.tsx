@@ -86,7 +86,7 @@ type IndicatorProps = {
   className?: string;
 };
 
-const Indicator: React.FC<IndicatorProps> = (props: IndicatorProps) => {
+function Indicator(props: IndicatorProps) {
   const showingIndicator = useSelector(
     (state) => state.ui.onBoarding.showingIndicator,
   );
@@ -104,7 +104,7 @@ const Indicator: React.FC<IndicatorProps> = (props: IndicatorProps) => {
   }
 
   return <>{props.children}</>;
-};
+}
 
 Indicator.defaultProps = {
   show: true,

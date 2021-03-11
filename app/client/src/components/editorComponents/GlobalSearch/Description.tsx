@@ -114,13 +114,7 @@ const StyledHighlightWrapper = styled.span`
   margin: 0 ${(props) => props.theme.spaces[1]}px;
 `;
 
-const HitEnterMessage = ({
-  item,
-  query,
-}: {
-  item: SearchItem;
-  query: string;
-}) => {
+function HitEnterMessage({ item, query }: { item: SearchItem; query: string }) {
   const title = getItemTitle(item);
 
   return (
@@ -134,7 +128,7 @@ const HitEnterMessage = ({
       <ActionLink item={item} isActiveItem={true} />
     </StyledHitEnterMessageContainer>
   );
-};
+}
 
 const descriptionByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationDescription,
@@ -145,7 +139,7 @@ const descriptionByType = {
   [SEARCH_ITEM_TYPES.sectionTitle]: () => null,
 };
 
-const Description = (props: Props) => {
+function Description(props: Props) {
   const { activeItem, activeItemType } = props;
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -172,6 +166,6 @@ const Description = (props: Props) => {
       <Component item={activeItem} query={props.query} />
     </Container>
   );
-};
+}
 
 export default Description;

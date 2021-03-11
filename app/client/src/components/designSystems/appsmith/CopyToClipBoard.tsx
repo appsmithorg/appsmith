@@ -19,7 +19,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const CopyToClipboard = (props: any) => {
+function CopyToClipboard(props: any) {
   const { copyText } = props;
   const copyURLInput = createRef<HTMLInputElement>();
   const [isCopied, setIsCopied] = useState(false);
@@ -56,6 +56,6 @@ const CopyToClipboard = (props: any) => {
       />
     </Wrapper>
   );
-};
+}
 
 export default CopyToClipboard;

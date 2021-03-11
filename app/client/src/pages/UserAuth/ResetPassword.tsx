@@ -67,7 +67,7 @@ type ResetPasswordProps = InjectedFormProps<
   theme: Theme;
 } & RouteComponentProps<{ email: string; token: string }>;
 
-export const ResetPassword = (props: ResetPasswordProps) => {
+export function ResetPassword(props: ResetPasswordProps) {
   const {
     error,
     handleSubmit,
@@ -197,7 +197,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
       </StyledForm>
     </>
   );
-};
+}
 
 export default connect(
   (state: AppState, props: ResetPasswordProps) => {

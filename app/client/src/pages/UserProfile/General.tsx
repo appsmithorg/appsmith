@@ -56,7 +56,7 @@ const TextLoader = styled.div`
   border-radius: 0;
 `;
 
-const General = () => {
+function General() {
   const user = useSelector(getCurrentUser);
   const dispatch = useDispatch();
   const forgotPassword = async () => {
@@ -142,6 +142,6 @@ const General = () => {
       </InputWrapper> */}
     </Wrapper>
   );
-};
+}
 
 export default General;

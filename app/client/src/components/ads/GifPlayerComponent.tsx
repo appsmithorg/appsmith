@@ -52,7 +52,7 @@ const Overlay = styled.div`
   transition: 0.5s ease;
 `;
 
-const GifPlayerComponent = (props: GifPlayerProps) => {
+function GifPlayerComponent(props: GifPlayerProps) {
   const [startGif, setStartGif] = useState(false);
   return (
     <React.Fragment>
@@ -70,6 +70,6 @@ const GifPlayerComponent = (props: GifPlayerProps) => {
       )}
     </React.Fragment>
   );
-};
+}
 
 export default GifPlayerComponent;

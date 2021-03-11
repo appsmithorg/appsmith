@@ -175,7 +175,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
   );
 });
 
-const MapComponent = (props: MapComponentProps) => {
+function MapComponent(props: MapComponentProps) {
   const zoom = Math.floor(props.zoomLevel / 5);
   const status = useScript(
     `https://maps.googleapis.com/maps/api/js?key=${props.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
@@ -194,6 +194,6 @@ const MapComponent = (props: MapComponentProps) => {
       )}
     </MapWrapper>
   );
-};
+}
 
 export default MapComponent;

@@ -51,7 +51,7 @@ const CanvasContainer = styled.section`
 `;
 
 /* eslint-disable react/display-name */
-const WidgetsEditor = () => {
+function WidgetsEditor() {
   PerformanceTracker.startTracking(PerformanceTransactionName.EDITOR_MOUNT);
   const { focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
@@ -128,6 +128,6 @@ const WidgetsEditor = () => {
       </EditorWrapper>
     </EditorContextProvider>
   );
-};
+}
 
 export default WidgetsEditor;

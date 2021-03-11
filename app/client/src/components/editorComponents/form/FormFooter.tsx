@@ -30,7 +30,7 @@ const FooterActions = styled.div`
 
 const FormFooterContainer = styled.div``;
 
-export const FormFooter = (props: FormFooterProps) => {
+export function FormFooter(props: FormFooterProps) {
   return (
     <FormFooterContainer>
       {props.divider && <Divider />}
@@ -57,6 +57,6 @@ export const FormFooter = (props: FormFooterProps) => {
       </FooterActions>
     </FormFooterContainer>
   );
-};
+}
 
 export default FormFooter;

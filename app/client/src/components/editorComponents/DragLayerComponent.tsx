@@ -49,7 +49,7 @@ type DragLayerProps = {
   force: boolean;
 };
 
-const DragLayerComponent = (props: DragLayerProps) => {
+function DragLayerComponent(props: DragLayerProps) {
   const { updateDropTargetRows } = useContext(DropTargetContext);
   const dropTargetMask: RefObject<HTMLDivElement> = React.useRef(null);
   const dropZoneRef = React.useRef<HTMLDivElement>(null);
@@ -164,5 +164,5 @@ const DragLayerComponent = (props: DragLayerProps) => {
         )}
     </WrappedDragLayer>
   );
-};
+}
 export default DragLayerComponent;

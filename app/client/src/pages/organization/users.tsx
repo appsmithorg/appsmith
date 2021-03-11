@@ -4,7 +4,7 @@ import { ORG_INVITE_USERS_PAGE_URL } from "constants/routes";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import Button from "components/editorComponents/Button";
 
-export const OrgMembers = () => {
+export function OrgMembers() {
   const history = useHistory();
 
   return (
@@ -22,6 +22,6 @@ export const OrgMembers = () => {
       </PageSectionHeader>
     </React.Fragment>
   );
-};
+}
 
 export default OrgMembers;

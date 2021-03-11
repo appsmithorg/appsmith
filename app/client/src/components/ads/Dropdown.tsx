@@ -126,11 +126,9 @@ const LabelWrapper = styled.div<{ label?: string }>`
   }
 `;
 
-const DefaultDropDownValueNode = ({
-  selected,
-}: {
-  selected: DropdownOption;
-}) => <Text type={TextType.P1}>{selected.value}</Text>;
+function DefaultDropDownValueNode({ selected }: { selected: DropdownOption }) {
+  return <Text type={TextType.P1}>{selected.value}</Text>;
+}
 
 export default function Dropdown(props: DropdownProps) {
   const {

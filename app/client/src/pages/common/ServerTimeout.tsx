@@ -32,7 +32,7 @@ const RetryButton = styled.button`
   font-size: 17px;
 `;
 
-const ServerTimeout = () => {
+function ServerTimeout() {
   return (
     <Wrapper>
       <img
@@ -51,6 +51,6 @@ const ServerTimeout = () => {
       </div>
     </Wrapper>
   );
-};
+}
 
 export default ServerTimeout;

@@ -77,7 +77,7 @@ const SocialLoginList: string[] = [];
 if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
-export const Login = (props: LoginFormProps) => {
+export function Login(props: LoginFormProps) {
   const { error, valid, emailValue: email } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
@@ -178,7 +178,7 @@ export const Login = (props: LoginFormProps) => {
       </ForgotPasswordLink>
     </>
   );
-};
+}
 
 const selector = formValueSelector(LOGIN_FORM_NAME);
 export default connect((state) => ({

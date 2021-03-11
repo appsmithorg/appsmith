@@ -8,11 +8,11 @@ import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { AppState } from "reducers";
 
-export const WidgetContextMenu = (props: {
+export function WidgetContextMenu(props: {
   widgetId: string;
   pageId: string;
   className?: string;
-}) => {
+}) {
   const { widgetId } = props;
   const parentId = useSelector((state: AppState) => {
     // console.log(state.ui.pageWidgets[props.pageId], props.widgetId);
@@ -57,6 +57,6 @@ export const WidgetContextMenu = (props: {
       toggle={<ContextMenuTrigger />}
     />
   );
-};
+}
 
 export default WidgetContextMenu;

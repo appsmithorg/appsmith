@@ -38,7 +38,7 @@ type DraggableComponentProps = WidgetProps;
 
 /* eslint-disable react/display-name */
 
-const DraggableComponent = (props: DraggableComponentProps) => {
+function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to toggle property pane
   const showPropertyPane = useShowPropertyPane();
 
@@ -192,6 +192,6 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       {widgetBoundaries}
     </DraggableWrapper>
   );
-};
+}
 
 export default DraggableComponent;

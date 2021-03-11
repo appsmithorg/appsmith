@@ -8,7 +8,7 @@ const SkeletonRows = styled.div<{ size: number }>`
   margin-top: 12px;
 `;
 
-const Loading = () => {
+function Loading() {
   return (
     <>
       <SkeletonRows size={90} className={Classes.SKELETON} />
@@ -16,6 +16,6 @@ const Loading = () => {
       <SkeletonRows size={30} className={Classes.SKELETON} />
     </>
   );
-};
+}
 
 export default Loading;

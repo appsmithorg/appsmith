@@ -197,7 +197,7 @@ const validate = (values: any) => {
 
 const { mailEnabled } = getAppsmithConfigs();
 
-const OrgInviteUsersForm = (props: any) => {
+function OrgInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
 
   const {
@@ -368,7 +368,7 @@ const OrgInviteUsersForm = (props: any) => {
       </StyledForm>
     </>
   );
-};
+}
 
 export default connect(
   (state: AppState) => {

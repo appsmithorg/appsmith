@@ -84,7 +84,7 @@ const StyledDiscordIcon = styled(DiscordIcon)`
   }
 `;
 
-const Hit = (props: { hit: { path: string } }) => {
+function Hit(props: { hit: { path: string } }) {
   return (
     <div
       className="t--docHit"
@@ -102,12 +102,12 @@ const Hit = (props: { hit: { path: string } }) => {
       </div>
     </div>
   );
-};
+}
 
-const DefaultHelpMenuItem = (props: {
+function DefaultHelpMenuItem(props: {
   item: { label: string; link?: string; id?: string; icon: React.ReactNode };
   onSelect: () => void;
-}) => {
+}) {
   return (
     <li className="ais-Hits-item">
       <div
@@ -134,7 +134,7 @@ const DefaultHelpMenuItem = (props: {
       </div>
     </li>
   );
-};
+}
 
 const SearchContainer = styled.div`
   height: 100%;

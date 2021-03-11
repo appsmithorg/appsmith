@@ -29,12 +29,12 @@ type TagListFieldProps = {
   customError: (err: string) => void;
 };
 
-const TagListField = (props: TagListFieldProps) => {
+function TagListField(props: TagListFieldProps) {
   return (
     <React.Fragment>
       <Field component={renderComponent} {...props} />
     </React.Fragment>
   );
-};
+}
 
 export default TagListField;

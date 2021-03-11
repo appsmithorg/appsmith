@@ -64,7 +64,7 @@ const TooltipWrapper = styled.div<{
   }
 `;
 
-const TooltipComponent = (props: TooltipProps) => {
+function TooltipComponent(props: TooltipProps) {
   return (
     <TooltipWrapper
       variant={props.variant}
@@ -86,7 +86,7 @@ const TooltipComponent = (props: TooltipProps) => {
       </Tooltip>
     </TooltipWrapper>
   );
-};
+}
 
 TooltipComponent.defaultProps = {
   position: Position.TOP,

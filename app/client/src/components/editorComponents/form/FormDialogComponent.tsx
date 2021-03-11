@@ -15,7 +15,7 @@ type FormDialogComponentProps = {
   applicationId?: string;
 };
 
-export const FormDialogComponent = (props: FormDialogComponentProps) => {
+export function FormDialogComponent(props: FormDialogComponentProps) {
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
   const onClose = useCallback(() => {
@@ -54,6 +54,6 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
       </Dialog>
     </React.Fragment>
   );
-};
+}
 
 export default FormDialogComponent;

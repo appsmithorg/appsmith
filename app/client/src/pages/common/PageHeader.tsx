@@ -40,7 +40,7 @@ type PageHeaderProps = {
   user?: User;
 };
 
-export const PageHeader = (props: PageHeaderProps) => {
+export function PageHeader(props: PageHeaderProps) {
   const { user } = props;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -74,7 +74,7 @@ export const PageHeader = (props: PageHeaderProps) => {
       )}
     </StyledPageHeader>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),

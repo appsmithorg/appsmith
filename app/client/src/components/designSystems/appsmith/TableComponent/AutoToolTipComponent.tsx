@@ -9,13 +9,13 @@ const TooltipContentWrapper = styled.div<{ width: number }>`
   max-width: ${(props) => props.width}px;
 `;
 
-const AutoToolTipComponent = (props: {
+function AutoToolTipComponent(props: {
   isHidden?: boolean;
   children: React.ReactNode;
   title: string;
   cellProperties?: CellLayoutProperties;
   tableWidth?: number;
-}) => {
+}) {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
   useEffect(() => {
@@ -50,6 +50,6 @@ const AutoToolTipComponent = (props: {
       )}
     </CellWrapper>
   );
-};
+}
 
 export default AutoToolTipComponent;

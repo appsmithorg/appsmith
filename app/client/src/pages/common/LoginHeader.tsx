@@ -25,7 +25,7 @@ const LogoContainer = styled.div`
   }
 `;
 
-export const LoginHeader = () => {
+export function LoginHeader() {
   return (
     <StyledPageHeader>
       <LogoContainer>
@@ -39,7 +39,7 @@ export const LoginHeader = () => {
       </LogoContainer>
     </StyledPageHeader>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),

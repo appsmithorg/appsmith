@@ -72,7 +72,7 @@ export const ActionsContainer = styled.div`
   }
 `;
 
-export const ActionButton = (props: MessageAction) => {
+export function ActionButton(props: MessageAction) {
   if (props.url) {
     return (
       <Button
@@ -97,7 +97,7 @@ export const ActionButton = (props: MessageAction) => {
     );
   }
   return null;
-};
+}
 
 export type FormMessageProps = {
   intent: Intent;
@@ -105,7 +105,7 @@ export type FormMessageProps = {
   actions?: MessageAction[];
 };
 
-export const FormMessage = (props: FormMessageProps) => {
+export function FormMessage(props: FormMessageProps) {
   const actions =
     props.actions &&
     props.actions.map((action) => (
@@ -125,6 +125,6 @@ export const FormMessage = (props: FormMessageProps) => {
       {actions && <ActionsContainer>{actions}</ActionsContainer>}
     </StyledMessage>
   );
-};
+}
 
 export default FormMessage;

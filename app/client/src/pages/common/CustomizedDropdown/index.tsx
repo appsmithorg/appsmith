@@ -106,9 +106,9 @@ const getContentSection = (
   );
 };
 
-export const CustomizedDropdown = (
+export function CustomizedDropdown(
   props: CustomizedDropdownProps & { theme: Theme },
-) => {
+) {
   const skin = props.skin ? props.skin : Skin.LIGHT;
   const icon = getIcon(props.trigger.icon, props.trigger.intent);
   const trigger = (
@@ -160,6 +160,6 @@ export const CustomizedDropdown = (
       <DropdownContent skin={skin}>{content}</DropdownContent>
     </Popover>
   );
-};
+}
 
 export default withTheme(CustomizedDropdown);

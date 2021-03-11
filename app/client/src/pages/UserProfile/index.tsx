@@ -26,7 +26,7 @@ const LinkToApplications = styled(Link)`
   }
 `;
 
-const UserProfile = () => {
+function UserProfile() {
   const tabs: TabProp[] = [
     {
       key: "general",
@@ -50,6 +50,6 @@ const UserProfile = () => {
       </ProfileWrapper>
     </PageWrapper>
   );
-};
+}
 
 export default UserProfile;

@@ -93,7 +93,7 @@ type DialogComponentProps = {
   className?: string;
 };
 
-export const DialogComponent = (props: DialogComponentProps) => {
+export function DialogComponent(props: DialogComponentProps) {
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
   const onClose = () => {
@@ -135,6 +135,6 @@ export const DialogComponent = (props: DialogComponentProps) => {
       </StyledDialog>
     </React.Fragment>
   );
-};
+}
 
 export default DialogComponent;

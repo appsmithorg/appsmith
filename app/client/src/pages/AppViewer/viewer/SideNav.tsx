@@ -68,7 +68,7 @@ const ToggleButton = styled(Button)<{
   }
 `;
 
-export const SideNav = (props: SideNavProps) => {
+export function SideNav(props: SideNavProps) {
   const { open, toggleCollapse } = props;
   const renderItems = (sideNavItems?: SideNavItemProps[]) => {
     let items = sideNavItems;
@@ -107,6 +107,6 @@ export const SideNav = (props: SideNavProps) => {
       <Menu large>{renderItems(props.items)}</Menu>
     </SideNavWrapper>
   );
-};
+}
 
 export default SideNav;

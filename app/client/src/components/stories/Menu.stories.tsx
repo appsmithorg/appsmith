@@ -30,7 +30,7 @@ const errorFunction = (name: string) => {
   }
 };
 
-export const MenuStory = () => {
+export function MenuStory() {
   const [selectedColor, setSelectedColor] = useState<string>(
     theme.colors.appCardColors[0],
   );
@@ -131,4 +131,4 @@ export const MenuStory = () => {
       </Menu>
     </div>
   );
-};
+}

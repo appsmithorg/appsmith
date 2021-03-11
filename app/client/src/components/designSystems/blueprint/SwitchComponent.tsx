@@ -26,14 +26,15 @@ const SwitchComponentContainer = styled.div`
   ${BlueprintControlTransform}
 `;
 
-export const SwitchComponent: React.FC<SwitchComponentProps> = ({
-  label,
-  isSwitchedOn,
-  alignWidget,
-  onChange,
-  isDisabled,
-  isLoading,
-}) => {
+export function SwitchComponent(props: SwitchComponentProps) {
+  const {
+    label,
+    isSwitchedOn,
+    alignWidget,
+    onChange,
+    isDisabled,
+    isLoading,
+  } = props;
   const switchAlignClass =
     alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
 
@@ -49,4 +50,4 @@ export const SwitchComponent: React.FC<SwitchComponentProps> = ({
       />
     </SwitchComponentContainer>
   );
-};
+}

@@ -99,7 +99,7 @@ interface TableFilterProps {
   editMode: boolean;
 }
 
-const TableFilters = (props: TableFilterProps) => {
+function TableFilters(props: TableFilterProps) {
   const [selected, selectMenu] = React.useState(false);
   const [filters, updateFilters] = React.useState(
     new Array<ReactTableFilter>(),
@@ -242,6 +242,6 @@ const TableFilters = (props: TableFilterProps) => {
       </TableFilterOuterWrapper>
     </Popover>
   );
-};
+}
 
 export default TableFilters;

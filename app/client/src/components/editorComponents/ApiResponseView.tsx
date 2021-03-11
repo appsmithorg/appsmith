@@ -154,7 +154,7 @@ const StatusCodeText = styled(BaseText)<{ code: string }>`
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
 `;
 
-const ApiResponseView = (props: Props) => {
+function ApiResponseView(props: Props) {
   const {
     match: {
       params: { apiId },
@@ -292,7 +292,7 @@ const ApiResponseView = (props: Props) => {
       </TabbedViewWrapper>
     </ResponseContainer>
   );
-};
+}
 
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {

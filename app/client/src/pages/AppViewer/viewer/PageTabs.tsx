@@ -76,7 +76,8 @@ const CenterTabNameContainer = styled.div`
   align-items: center;
 `;
 
-const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
+function PageTabName(props: { name: string }) {
+  const name = props.name;
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
@@ -106,9 +107,9 @@ const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
   ) : (
     tabNameText
   );
-};
+}
 
-const PageTabContainer = ({
+function PageTabContainer({
   children,
   isTabActive,
   tabsScrollable,
@@ -118,7 +119,7 @@ const PageTabContainer = ({
   isTabActive: boolean;
   tabsScrollable: boolean;
   setShowScrollArrows: () => void;
-}) => {
+}) {
   const tabContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -129,7 +130,7 @@ const PageTabContainer = ({
   }, [isTabActive, tabsScrollable]);
 
   return <div ref={tabContainerRef}>{children}</div>;
-};
+}
 
 type Props = {
   currentApplicationDetails?: ApplicationPayload;
@@ -139,7 +140,7 @@ type Props = {
   setShowScrollArrows: () => void;
 };
 
-export const PageTabs = (props: Props) => {
+export function PageTabs(props: Props) {
   const { currentApplicationDetails, appPages } = props;
   const { pathname } = useLocation();
 
@@ -172,6 +173,6 @@ export const PageTabs = (props: Props) => {
       ))}
     </TabsContainer>
   );
-};
+}
 
 export default PageTabs;

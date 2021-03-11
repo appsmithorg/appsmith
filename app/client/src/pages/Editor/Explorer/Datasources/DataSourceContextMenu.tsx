@@ -10,11 +10,11 @@ import { noop } from "lodash";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 
-export const DataSourceContextMenu = (props: {
+export function DataSourceContextMenu(props: {
   datasourceId: string;
   entityId: string;
   className?: string;
-}) => {
+}) {
   const dispatch = useDispatch();
   const dispatchDelete = useCallback(() => {
     dispatch(deleteDatasource({ id: props.datasourceId }));
@@ -54,6 +54,6 @@ export const DataSourceContextMenu = (props: {
       toggle={<ContextMenuTrigger />}
     />
   );
-};
+}
 
 export default DataSourceContextMenu;

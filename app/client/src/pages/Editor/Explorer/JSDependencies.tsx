@@ -45,7 +45,7 @@ const Help = styled(Icon)`
     fill: ${Colors.WHITE};
   }
 `;
-export const JSDependencies = () => {
+export function JSDependencies() {
   const [isOpen, setIsOpen] = useState(false);
   const openDocs = (name: string, url: string) => () => window.open(url, name);
   const dependencyList = extraLibraries.map((lib) => {
@@ -97,6 +97,6 @@ export const JSDependencies = () => {
       </Collapse>
     </Wrapper>
   );
-};
+}
 
 export default JSDependencies;

@@ -139,7 +139,7 @@ type AppViewerHeaderProps = {
   lightTheme: Theme;
 };
 
-export const AppViewerHeader = (props: AppViewerHeaderProps) => {
+export function AppViewerHeader(props: AppViewerHeaderProps) {
   const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
@@ -149,14 +149,14 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
 
-  const HtmlTitle = () => {
+  function HtmlTitle() {
     if (!currentApplicationDetails?.name) return null;
     return (
       <Helmet>
         <title>{currentApplicationDetails?.name}</title>
       </Helmet>
     );
-  };
+  }
   if (hideHeader) return <HtmlTitle />;
 
   const redirectUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
@@ -263,7 +263,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
       </HeaderWrapper>
     </ThemeProvider>
   );
-};
+}
 
 const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   pages: getViewModePageList(state),

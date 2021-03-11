@@ -40,11 +40,11 @@ const PageNumberInputWrapper = styled(NumericInput)`
   margin: 0 8px;
 `;
 
-const PageNumberInput = (props: {
+function PageNumberInput(props: {
   pageNo: number;
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
-}) => {
+}) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
   useEffect(() => {
     setPageNumber(props.pageNo || 0);
@@ -80,7 +80,7 @@ const PageNumberInput = (props: {
       }}
     />
   );
-};
+}
 
 interface TableHeaderProps {
   updatePageNo: (pageNo: number, event?: EventType) => void;
@@ -108,7 +108,7 @@ interface TableHeaderProps {
   tableSizes: TableSizes;
 }
 
-const TableHeader = (props: TableHeaderProps) => {
+function TableHeader(props: TableHeaderProps) {
   return (
     <TableHeaderWrapper
       serverSidePaginationEnabled={props.serverSidePaginationEnabled}
@@ -212,6 +212,6 @@ const TableHeader = (props: TableHeaderProps) => {
       )}
     </TableHeaderWrapper>
   );
-};
+}
 
 export default TableHeader;

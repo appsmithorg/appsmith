@@ -29,7 +29,7 @@ type ExplorerPageEntityProps = {
   showWidgetsSidebar: (pageId: string) => void;
 };
 
-export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
+export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
   const params = useParams<ExplorerURLParams>();
 
   const currentPageId = useSelector((state: AppState) => {
@@ -99,7 +99,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       )}
     </Entity>
   );
-};
+}
 
 ExplorerPageEntity.displayName = "ExplorerPageEntity";
 (ExplorerPageEntity as any).whyDidYouRender = {

@@ -75,7 +75,7 @@ interface TableColumnsVisibilityProps {
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
 }
 
-const VisibilityIcon = (props: { visible?: boolean }) => {
+function VisibilityIcon(props: { visible?: boolean }) {
   return props.visible ? (
     <Icon
       className="visible-icon"
@@ -86,9 +86,9 @@ const VisibilityIcon = (props: { visible?: boolean }) => {
   ) : (
     <VisibleIcon className="hidden-icon" />
   );
-};
+}
 
-const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
+function TableColumnsVisibility(props: TableColumnsVisibilityProps) {
   const [selected, selectMenu] = React.useState(false);
   if (props.columns.length === 0) {
     return (
@@ -165,6 +165,6 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
       </DropDownWrapper>
     </Popover>
   );
-};
+}
 
 export default TableColumnsVisibility;

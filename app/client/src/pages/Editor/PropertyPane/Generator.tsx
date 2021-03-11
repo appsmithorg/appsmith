@@ -48,15 +48,15 @@ export const generatePropertyControl = (
   });
 };
 
-export const PropertyControlsGenerator = (
+export function PropertyControlsGenerator(
   props: PropertyControlsGeneratorProps,
-) => {
+) {
   const config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
   return (
     <>
       {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
     </>
   );
-};
+}
 
 export default PropertyControlsGenerator;

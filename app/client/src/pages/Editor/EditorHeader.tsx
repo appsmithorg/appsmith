@@ -143,7 +143,7 @@ type EditorHeaderProps = {
   darkTheme: any;
 };
 
-export const EditorHeader = (props: EditorHeaderProps) => {
+export function EditorHeader(props: EditorHeaderProps) {
   const {
     currentApplication,
     isSaving,
@@ -311,7 +311,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
       </HeaderWrapper>
     </ThemeProvider>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,

@@ -85,7 +85,7 @@ const EmptyColorIconWrapper = styled.div`
   }
 `;
 
-const ColorBoard = (props: ColorBoardProps) => {
+function ColorBoard(props: ColorBoardProps) {
   return (
     <ColorsWrapper>
       {defaultColors.map((color: string, index: number) => (
@@ -105,7 +105,7 @@ const ColorBoard = (props: ColorBoardProps) => {
       </EmptyColorIconWrapper>
     </ColorsWrapper>
   );
-};
+}
 
 const NoColorIconWrapper = styled.div`
   position: absolute;
@@ -140,7 +140,7 @@ interface ColorPickerProps {
   changeColor: (color: string) => void;
 }
 
-const ColorPicker = (props: ColorPickerProps) => {
+function ColorPicker(props: ColorPickerProps) {
   const [color, setColor] = React.useState(props.color);
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 500),
@@ -190,7 +190,7 @@ const ColorPicker = (props: ColorPickerProps) => {
       />
     </Popover>
   );
-};
+}
 
 class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
   handleChangeColor = (color: string) => {

@@ -39,7 +39,7 @@ export const StyledCheckbox = styled(BlueprintCheckbox)<CheckboxProps>`
   }
 `;
 
-export const Checkbox = (props: CheckboxProps) => {
+export function Checkbox(props: CheckboxProps) {
   const handleChange = (e: any) => {
     props.input &&
       props.input.onChange &&
@@ -54,6 +54,6 @@ export const Checkbox = (props: CheckboxProps) => {
       label={props.label}
     />
   );
-};
+}
 
 export default Checkbox;

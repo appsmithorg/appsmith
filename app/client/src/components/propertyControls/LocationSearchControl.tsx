@@ -80,7 +80,7 @@ interface MapScriptWrapperProps {
   propertyValue: any;
 }
 
-const MapScriptWrapper = (props: MapScriptWrapperProps) => {
+function MapScriptWrapper(props: MapScriptWrapperProps) {
   const status = useScript(
     `https://maps.googleapis.com/maps/api/js?key=${google.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
     AddScriptTo.HEAD,
@@ -113,6 +113,6 @@ const MapScriptWrapper = (props: MapScriptWrapperProps) => {
       )}
     </div>
   );
-};
+}
 
 export default LocationSearchControl;

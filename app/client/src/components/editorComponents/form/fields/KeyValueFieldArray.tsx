@@ -79,7 +79,7 @@ const FlexContainer = styled.div`
   }
 `;
 
-const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
+function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   useEffect(() => {
     // Always maintain 2 rows
     if (props.fields.length < 2 && props.pushFields) {
@@ -209,7 +209,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
       </AddMoreAction>
     </KeyValueStackContainer>
   );
-};
+}
 
 type Props = {
   name: string;
@@ -228,7 +228,7 @@ type Props = {
   theme?: EditorTheme;
 };
 
-const KeyValueFieldArray = (props: Props) => {
+function KeyValueFieldArray(props: Props) {
   return (
     <FieldArray
       component={KeyValueRow}
@@ -236,6 +236,6 @@ const KeyValueFieldArray = (props: Props) => {
       {...props}
     />
   );
-};
+}
 
 export default KeyValueFieldArray;

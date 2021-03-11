@@ -8,8 +8,8 @@ const StyledDiv = styled.div`
   display: block;
 `;
 
-export const Skeleton = () => {
+export function Skeleton() {
   return <StyledDiv className={Classes.SKELETON} />;
-};
+}
 
 export default Skeleton;

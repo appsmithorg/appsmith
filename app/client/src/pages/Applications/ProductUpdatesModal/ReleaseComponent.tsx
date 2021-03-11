@@ -126,7 +126,7 @@ const ReadMore = withTheme(
   ),
 );
 
-const ReleaseComponent = ({ release }: ReleaseProps) => {
+function ReleaseComponent({ release }: ReleaseProps) {
   const { name, publishedAt, descriptionHtml } = release;
   const [isCollapsed, setCollapsed] = useState(true);
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
@@ -172,6 +172,6 @@ const ReleaseComponent = ({ release }: ReleaseProps) => {
       <StyledSeparator />
     </StyledContainer>
   ) : null;
-};
+}
 
 export default ReleaseComponent;

@@ -25,7 +25,7 @@ setAutoFreeze(shouldAutoFreeze);
 import AppErrorBoundary from "./AppErrorBoundry";
 appInitializer();
 
-const App = () => {
+function App() {
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
       <Provider store={store}>
@@ -35,7 +35,7 @@ const App = () => {
       </Provider>
     </Sentry.ErrorBoundary>
   );
-};
+}
 
 class ThemedApp extends React.Component<{
   currentTheme: any;

@@ -93,7 +93,7 @@ const Header = withTheme(
   ),
 );
 
-const ProductUpdatesModal = () => {
+function ProductUpdatesModal() {
   const { releaseItems, newReleasesCount } = useSelector(
     (state: AppState) => state.ui.releases,
   );
@@ -125,6 +125,6 @@ const ProductUpdatesModal = () => {
       ))}
     </Dialog>
   ) : null;
-};
+}
 
 export default ProductUpdatesModal;

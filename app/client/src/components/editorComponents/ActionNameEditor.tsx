@@ -57,7 +57,7 @@ type ActionNameEditorProps = {
   page?: string;
 };
 
-export const ActionNameEditor = (props: ActionNameEditorProps) => {
+export function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
@@ -198,6 +198,6 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
       )}
     </ApiNameWrapper>
   );
-};
+}
 
 export default ActionNameEditor;

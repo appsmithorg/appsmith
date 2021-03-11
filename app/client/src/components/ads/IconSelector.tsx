@@ -59,7 +59,7 @@ const IconBox = styled.div<{ selectedColor?: string }>`
       : null};
 `;
 
-const IconSelector = (props: IconSelectorProps) => {
+function IconSelector(props: IconSelectorProps) {
   const iconRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<AppIconName>(firstSelectedIcon());
 
@@ -112,7 +112,7 @@ const IconSelector = (props: IconSelectorProps) => {
         })}
     </IconPalette>
   );
-};
+}
 
 IconSelector.defaultProps = {
   fill: false,

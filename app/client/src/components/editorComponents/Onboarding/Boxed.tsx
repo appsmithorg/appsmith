@@ -13,7 +13,7 @@ type BoxedProps = {
 };
 
 // Boxed(or hidden).
-const Boxed: React.FC<BoxedProps> = (props: BoxedProps) => {
+function Boxed(props: BoxedProps) {
   const currentStep = useSelector(getCurrentStep);
   const onboarding = useSelector(inOnboarding);
 
@@ -26,7 +26,7 @@ const Boxed: React.FC<BoxedProps> = (props: BoxedProps) => {
   }
 
   return <>{props.children}</>;
-};
+}
 
 Boxed.defaultProps = {
   show: false,

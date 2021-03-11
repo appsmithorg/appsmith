@@ -11,7 +11,7 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-const TabStory = (props: any) => {
+function TabStory(props: any) {
   const tabArr: TabProp[] = [
     {
       key: "1",
@@ -83,33 +83,35 @@ const TabStory = (props: any) => {
       <TabComponent tabs={tabArr} />
     </StoryWrapper>
   );
-};
+}
 
-export const Tabs = () => (
-  <TabStory
-    icon1={select(
-      "Icon 1",
-      ["Select icon" as IconName, ...IconCollection],
-      "Select icon" as IconName,
-    )}
-    title1={text("Title 1", "General")}
-    icon2={select(
-      "Icon 2",
-      ["Select icon" as IconName, ...IconCollection],
-      "Select icon" as IconName,
-    )}
-    title2={text("Title 2", "User")}
-    icon3={select(
-      "Icon 3",
-      ["Select icon" as IconName, ...IconCollection],
-      "Select icon" as IconName,
-    )}
-    title3={text("Title 3", "Billing")}
-    icon4={select(
-      "Icon 4",
-      ["Select icon" as IconName, ...IconCollection],
-      "Select icon" as IconName,
-    )}
-    title4={text("Title 4", "")}
-  />
-);
+export function Tabs() {
+  return (
+    <TabStory
+      icon1={select(
+        "Icon 1",
+        ["Select icon" as IconName, ...IconCollection],
+        "Select icon" as IconName,
+      )}
+      title1={text("Title 1", "General")}
+      icon2={select(
+        "Icon 2",
+        ["Select icon" as IconName, ...IconCollection],
+        "Select icon" as IconName,
+      )}
+      title2={text("Title 2", "User")}
+      icon3={select(
+        "Icon 3",
+        ["Select icon" as IconName, ...IconCollection],
+        "Select icon" as IconName,
+      )}
+      title3={text("Title 3", "Billing")}
+      icon4={select(
+        "Icon 4",
+        ["Select icon" as IconName, ...IconCollection],
+        "Select icon" as IconName,
+      )}
+      title4={text("Title 4", "")}
+    />
+  );
+}

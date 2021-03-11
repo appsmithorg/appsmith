@@ -29,7 +29,7 @@ const StyledContainerComponent = styled.div<
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}
 }`;
 
-const ContainerComponent = (props: ContainerComponentProps) => {
+function ContainerComponent(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -59,7 +59,7 @@ const ContainerComponent = (props: ContainerComponentProps) => {
       {props.children}
     </StyledContainerComponent>
   );
-};
+}
 
 export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
 

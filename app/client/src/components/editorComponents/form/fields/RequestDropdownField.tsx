@@ -26,9 +26,9 @@ const renderComponent = (
   );
 };
 
-const RequestDropdownField = (
+function RequestDropdownField(
   props: RequestDropdownProps & Partial<DropdownProps>,
-) => {
+) {
   return (
     <Field
       className={props.className}
@@ -39,6 +39,6 @@ const RequestDropdownField = (
       isDisabled={props.isDisabled}
     />
   );
-};
+}
 
 export default RequestDropdownField;

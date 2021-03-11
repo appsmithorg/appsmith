@@ -59,7 +59,7 @@ type TagInputProps = {
  * On addition or removal of tags, passes the comman separated string to input.onChange prop
  * @param props : TagInputProps
  */
-const TagInputComponent = (props: TagInputProps) => {
+function TagInputComponent(props: TagInputProps) {
   const _values =
     props.input.value && props.input.value.length > 0
       ? props.input.value.split(",")
@@ -161,6 +161,6 @@ const TagInputComponent = (props: TagInputProps) => {
       />
     </TagInputWrapper>
   );
-};
+}
 
 export default TagInputComponent;

@@ -55,14 +55,18 @@ const UpdatesIcon = withTheme(({ theme }) => (
   />
 ));
 
-const UpdatesButton = ({ newReleasesCount }: { newReleasesCount: string }) => (
-  <StyledUpdatesButton data-cy="t--product-updates-btn">
-    <div style={{ display: "flex" }}>
-      <UpdatesIcon />
-      <UpdatesButtonTextContainer>What&apos;s New?</UpdatesButtonTextContainer>
-    </div>
-    {newReleasesCount && <StyledTag>{newReleasesCount}</StyledTag>}
-  </StyledUpdatesButton>
-);
+function UpdatesButton({ newReleasesCount }: { newReleasesCount: string }) {
+  return (
+    <StyledUpdatesButton data-cy="t--product-updates-btn">
+      <div style={{ display: "flex" }}>
+        <UpdatesIcon />
+        <UpdatesButtonTextContainer>
+          What&apos;s New?
+        </UpdatesButtonTextContainer>
+      </div>
+      {newReleasesCount && <StyledTag>{newReleasesCount}</StyledTag>}
+    </StyledUpdatesButton>
+  );
+}
 
 export default UpdatesButton;

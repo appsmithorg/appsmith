@@ -22,7 +22,7 @@ const StyledButton = styled(Button)<CloseButtonProps>`
   }
 `;
 
-export const CloseButton = (props: CloseButtonProps) => {
+export function CloseButton(props: CloseButtonProps) {
   return (
     <StyledButton
       className={props.className}
@@ -31,4 +31,4 @@ export const CloseButton = (props: CloseButtonProps) => {
       minimal
     />
   );
-};
+}

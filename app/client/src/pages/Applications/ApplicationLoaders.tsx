@@ -244,7 +244,7 @@ const ContentLoader = styled.div`
   height: 150px;
 `;
 
-export const AppLoader = () => {
+export function AppLoader() {
   return (
     <>
       <LoadingAnimation />
@@ -254,4 +254,4 @@ export const AppLoader = () => {
       </Container>
     </>
   );
-};
+}

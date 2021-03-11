@@ -28,7 +28,7 @@ const ScrollThumb = styled(animated.div)`
 interface Props {
   containerRef: React.RefObject<HTMLDivElement>;
 }
-const ScrollIndicator = ({ containerRef }: Props) => {
+function ScrollIndicator({ containerRef }: Props) {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
     config: {
@@ -97,6 +97,6 @@ const ScrollIndicator = ({ containerRef }: Props) => {
       />
     </ScrollTrack>
   );
-};
+}
 
 export default ScrollIndicator;

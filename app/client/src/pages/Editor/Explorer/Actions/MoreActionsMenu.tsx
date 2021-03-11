@@ -20,7 +20,7 @@ type EntityContextMenuProps = {
   className?: string;
   pageId: string;
 };
-export const MoreActionsMenu = (props: EntityContextMenuProps) => {
+export function MoreActionsMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
 
   const dispatch = useDispatch();
@@ -110,6 +110,6 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
       ]}
     />
   );
-};
+}
 
 export default MoreActionsMenu;

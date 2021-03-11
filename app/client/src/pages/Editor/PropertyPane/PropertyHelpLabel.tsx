@@ -6,7 +6,7 @@ type Props = {
   label: string;
 };
 
-const PropertyHelpLabel = (props: Props) => {
+function PropertyHelpLabel(props: Props) {
   const toolTipDefined = props.tooltip !== undefined;
   return (
     <Tooltip
@@ -49,6 +49,6 @@ const PropertyHelpLabel = (props: Props) => {
       </div>
     </Tooltip>
   );
-};
+}
 
 export default PropertyHelpLabel;

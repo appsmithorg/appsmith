@@ -32,7 +32,7 @@ const ShareToggle = styled.div`
   height: 23px;
 `;
 
-const AppInviteUsersForm = (props: any) => {
+function AppInviteUsersForm(props: any) {
   const {
     isFetchingApplication,
     isChangingViewAccess,
@@ -106,7 +106,7 @@ const AppInviteUsersForm = (props: any) => {
       )}
     </>
   );
-};
+}
 
 export default connect(
   (state: AppState) => {

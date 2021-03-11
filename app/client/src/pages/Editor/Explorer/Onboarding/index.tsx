@@ -18,7 +18,7 @@ const Wrapper = styled.div`
   ${scrollbarDark};
 `;
 
-const OnboardingExplorer = (props: IPanelProps) => {
+function OnboardingExplorer(props: IPanelProps) {
   let node = <Loading />;
   const { applicationId, pageId } = useParams<ExplorerURLParams>();
   const { openPanel } = props;
@@ -35,6 +35,6 @@ const OnboardingExplorer = (props: IPanelProps) => {
   }
 
   return <Wrapper>{node}</Wrapper>;
-};
+}
 
 export default OnboardingExplorer;

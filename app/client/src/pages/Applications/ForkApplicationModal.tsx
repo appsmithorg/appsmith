@@ -48,7 +48,7 @@ const OrganizationList = styled.div`
   margin-top: 20px;
 `;
 
-const ForkApplicationModal = (props: any) => {
+function ForkApplicationModal(props: any) {
   const [organizationId, selectOrganizationId] = useState("");
   const dispatch = useDispatch();
   useEffect(() => {
@@ -121,6 +121,6 @@ const ForkApplicationModal = (props: any) => {
       />
     </StyledDialog>
   );
-};
+}
 
 export default ForkApplicationModal;

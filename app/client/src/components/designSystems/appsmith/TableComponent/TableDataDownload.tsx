@@ -13,7 +13,7 @@ interface TableDataDownloadProps {
   widgetName: string;
 }
 
-const TableDataDownload = (props: TableDataDownloadProps) => {
+function TableDataDownload(props: TableDataDownloadProps) {
   const [selected, toggleButtonClick] = React.useState(false);
   const downloadTableData = () => {
     toggleButtonClick(true);
@@ -94,6 +94,6 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
       <DownloadIcon />
     </TableActionIcon>
   );
-};
+}
 
 export default TableDataDownload;

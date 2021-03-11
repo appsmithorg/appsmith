@@ -43,7 +43,7 @@ interface LightningMenuTriggerProps {
 
 type MenuState = "none" | "default" | "active" | "hover";
 
-export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
+export function LightningMenuTrigger(props: LightningMenuTriggerProps) {
   const getMenuState = () => {
     let menuState: MenuState = "none";
     if (props.isOpened) {
@@ -93,4 +93,4 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
       </Tooltip>
     </LightningIconWrapper>
   );
-};
+}

@@ -13,7 +13,7 @@ interface TableActionIconProps {
   icon?: React.ReactNode;
 }
 
-const TableActionIcon = (props: TableActionIconProps) => {
+function TableActionIcon(props: TableActionIconProps) {
   return (
     <Tooltip
       autoFocus={false}
@@ -44,6 +44,6 @@ const TableActionIcon = (props: TableActionIconProps) => {
       </TableIconWrapper>
     </Tooltip>
   );
-};
+}
 
 export default TableActionIcon;

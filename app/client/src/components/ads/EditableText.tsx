@@ -153,7 +153,7 @@ const IconWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-export const EditableText = (props: EditableTextProps) => {
+export function EditableText(props: EditableTextProps) {
   const {
     onBlur,
     onTextChanged,
@@ -318,6 +318,6 @@ export const EditableText = (props: EditableTextProps) => {
       ) : null}
     </EditableTextWrapper>
   );
-};
+}
 
 export default EditableText;

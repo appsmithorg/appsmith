@@ -159,27 +159,23 @@ const columnTypeNameMap: Record<ColumnTypes, string> = {
   [ColumnTypes.DATE]: "Date",
 };
 
-const RenderOption = (props: {
-  type: string;
-  title: string;
-  active: boolean;
-}) => {
+function RenderOption(props: { type: string; title: string; active: boolean }) {
   return (
     <RenderOptionWrapper selected={props.active}>
       <div className="title">{props.title}</div>
       <div className="type">{columnTypeNameMap[props.type as ColumnTypes]}</div>
     </RenderOptionWrapper>
   );
-};
+}
 
-const RenderOptions = (props: {
+function RenderOptions(props: {
   columns: DropdownOption[];
   selectItem: (column: DropdownOption) => void;
   placeholder: string;
   value?: string | Condition;
   showType?: boolean;
   className?: string;
-}) => {
+}) {
   const [selectedValue, selectValue] = useState(props.placeholder);
   const configs = {
     sections: [
@@ -234,13 +230,13 @@ const RenderOptions = (props: {
     }
   }, [props.value, props.placeholder, props.columns]);
   return <CustomizedDropdown {...configs} />;
-};
+}
 
-const RenderInput = (props: {
+function RenderInput(props: {
   value: string;
   onChange: (value: string) => void;
   className?: string;
-}) => {
+}) {
   const debouncedOnChange = useCallback(debounce(props.onChange, 400), []);
   const [value, setValue] = useState(props.value);
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -260,7 +256,7 @@ const RenderInput = (props: {
       className={props.className}
     />
   );
-};
+}
 
 type CascadeFieldProps = {
   columns: DropdownOption[];
@@ -419,14 +415,14 @@ function CaseCaseFieldReducer(
   }
 }
 
-const CascadeField = (props: CascadeFieldProps) => {
+function CascadeField(props: CascadeFieldProps) {
   const memoizedState = React.useMemo(() => calculateInitialState(props), [
     props,
   ]);
   return <Fields state={memoizedState} {...props} />;
-};
+}
 
-const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
+function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   const { index, removeFilter, applyFilter, hasAnyFilters } = props;
   const [state, dispatch] = React.useReducer(CaseCaseFieldReducer, props.state);
   const handleRemoveFilter = () => {
@@ -559,6 +555,6 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
       ) : null}
     </FieldWrapper>
   );
-};
+}
 
 export default CascadeField;

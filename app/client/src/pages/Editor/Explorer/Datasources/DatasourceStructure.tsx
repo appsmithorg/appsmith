@@ -39,7 +39,7 @@ type DatasourceStructureProps = {
   datasourceId: string;
 };
 
-export const DatasourceStructure = (props: DatasourceStructureProps) => {
+export function DatasourceStructure(props: DatasourceStructureProps) {
   const dbStructure = props.dbStructure;
   const iconProps: IconProps = {
     width: 12,
@@ -104,6 +104,6 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
       />
     </Popover>
   );
-};
+}
 
 export default DatasourceStructure;

@@ -115,7 +115,7 @@ interface APIFormProps {
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
-const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
+function RapidApiEditorForm(props: Props) {
   const {
     onDeleteClick,
     onRunClick,
@@ -267,7 +267,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
       </SecondaryWrapper>
     </Form>
   );
-};
+}
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 

@@ -185,7 +185,7 @@ type PaneDrawerProps = {
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };
-const PaneDrawer = (props: PaneDrawerProps) => {
+function PaneDrawer(props: PaneDrawerProps) {
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget, focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
@@ -203,7 +203,7 @@ const PaneDrawer = (props: PaneDrawerProps) => {
     }
   }, [dispatch, props.isVisible, selectWidget, showPropertyPane, focusWidget]);
   return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;
-};
+}
 
 PaneDrawer.displayName = "PaneDrawer";
 

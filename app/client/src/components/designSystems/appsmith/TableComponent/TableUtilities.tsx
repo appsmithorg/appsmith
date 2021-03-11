@@ -173,13 +173,13 @@ export const renderActions = (
   );
 };
 
-const TableAction = (props: {
+function TableAction(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
   buttonLabelColor: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-}) => {
+}) {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
     setLoading(false);
@@ -208,7 +208,7 @@ const TableAction = (props: {
       />
     </ActionWrapper>
   );
-};
+}
 
 export const renderEmptyRows = (
   rowCount: number,
@@ -293,7 +293,7 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   }
 `;
 
-export const TableHeaderCell = (props: {
+export function TableHeaderCell(props: {
   columnName: string;
   columnIndex: number;
   isHidden: boolean;
@@ -301,7 +301,7 @@ export const TableHeaderCell = (props: {
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
-}) => {
+}) {
   const { column } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
@@ -350,7 +350,7 @@ export const TableHeaderCell = (props: {
       />
     </div>
   );
-};
+}
 
 export function sortTableFunction(
   filteredTableData: Array<Record<string, unknown>>,

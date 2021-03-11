@@ -49,7 +49,7 @@ type SubHeaderProps = {
   };
 };
 
-export const ApplicationsSubHeader = (props: SubHeaderProps) => {
+export function ApplicationsSubHeader(props: SubHeaderProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const query =
     props.search &&
@@ -84,6 +84,6 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
       )}
     </SubHeaderWrapper>
   );
-};
+}
 
 export default ApplicationsSubHeader;

@@ -43,7 +43,7 @@ type WidgetNameComponentProps = {
   showControls?: boolean;
 };
 
-export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
+export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const showPropertyPane = useShowPropertyPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
@@ -117,6 +117,6 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
       </ControlGroup>
     </PositionStyle>
   ) : null;
-};
+}
 
 export default WidgetNameComponent;

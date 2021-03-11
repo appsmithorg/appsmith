@@ -16,7 +16,7 @@ const StyledDropdown = styled(Dropdown)`
   align-items: center;
 `;
 
-const DropdownFieldWrapper = (props: DropdownWrapperProps) => {
+function DropdownFieldWrapper(props: DropdownWrapperProps) {
   const selectedValueHandler = () => {
     if (
       props.input &&
@@ -50,6 +50,6 @@ const DropdownFieldWrapper = (props: DropdownWrapperProps) => {
       width={120}
     />
   );
-};
+}
 
 export default DropdownFieldWrapper;

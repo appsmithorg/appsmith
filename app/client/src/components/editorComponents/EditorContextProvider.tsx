@@ -53,7 +53,7 @@ type EditorContextProviderProps = EditorContextType & {
   children: ReactNode;
 };
 
-const EditorContextProvider = (props: EditorContextProviderProps) => {
+function EditorContextProvider(props: EditorContextProviderProps) {
   const {
     executeAction,
     updateWidget,
@@ -81,7 +81,7 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
       {children}
     </EditorContext.Provider>
   );
-};
+}
 
 const mapDispatchToProps = (dispatch: any) => {
   return {

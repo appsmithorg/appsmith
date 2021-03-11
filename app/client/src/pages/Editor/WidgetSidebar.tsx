@@ -85,7 +85,7 @@ const Info = styled.div`
   }
 `;
 
-const WidgetSidebar = (props: IPanelProps) => {
+function WidgetSidebar(props: IPanelProps) {
   const cards = useSelector(getWidgetCards);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -197,7 +197,7 @@ const WidgetSidebar = (props: IPanelProps) => {
       </MainWrapper>
     </>
   );
-};
+}
 
 WidgetSidebar.displayName = "WidgetSidebar";
 

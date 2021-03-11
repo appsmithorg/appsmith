@@ -74,7 +74,7 @@ type SignUpFormProps = InjectedFormProps<
 > &
   RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
 
-export const SignUp = (props: SignUpFormProps) => {
+export function SignUp(props: SignUpFormProps) {
   const { error, submitting, pristine, valid, emailValue: email } = props;
   const isFormValid = valid && email && !isEmptyString(email);
 
@@ -160,7 +160,7 @@ export const SignUp = (props: SignUpFormProps) => {
       </SpacedSubmitForm>
     </>
   );
-};
+}
 
 const selector = formValueSelector(SIGNUP_FORM_NAME);
 export default connect((state: AppState, props: SignUpFormProps) => {

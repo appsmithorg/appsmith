@@ -181,7 +181,7 @@ const renderCell = (props: any) => {
   );
 };
 
-const Table = (props: TableProps) => {
+function Table(props: TableProps) {
   const data = React.useMemo(() => props.data, [props.data]);
   const columns = React.useMemo(() => {
     if (data.length) {
@@ -271,6 +271,6 @@ const Table = (props: TableProps) => {
       </TableWrapper>
     </ErrorBoundary>
   );
-};
+}
 
 export default Table;

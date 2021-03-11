@@ -27,16 +27,18 @@ const StyledTrigger = styled.div`
     props.theme.colors.globalSearch.helpButtonBackground};
 `;
 
-const Trigger = () => (
-  <StyledTrigger>
-    <Icon name="help" size={IconSize.XS} />
-  </StyledTrigger>
-);
+function Trigger() {
+  return (
+    <StyledTrigger>
+      <Icon name="help" size={IconSize.XS} />
+    </StyledTrigger>
+  );
+}
 
 const onOpened = () => {
   AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
 };
-const HelpButton = () => {
+function HelpButton() {
   return (
     <Popover
       modifiers={{
@@ -59,6 +61,6 @@ const HelpButton = () => {
       </div>
     </Popover>
   );
-};
+}
 
 export default HelpButton;

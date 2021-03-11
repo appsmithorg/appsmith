@@ -27,7 +27,7 @@ const ShareToggle = styled.div`
   }
 `;
 
-export const ShareApplicationForm = (props: any) => {
+export function ShareApplicationForm(props: any) {
   const {
     match: {
       params: { applicationId },
@@ -61,7 +61,7 @@ export const ShareApplicationForm = (props: any) => {
       </ShareToggle>
     </ShareWithPublicOption>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   currentApplicationDetails: state.ui.applications.currentApplication,

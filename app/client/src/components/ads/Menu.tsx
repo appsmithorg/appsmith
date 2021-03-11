@@ -24,7 +24,7 @@ const MenuOption = styled.div`
   font-family: ${(props) => props.theme.fonts[3]};
 `;
 
-const Menu = (props: MenuProps) => {
+function Menu(props: MenuProps) {
   return (
     <Popover
       minimal
@@ -46,6 +46,6 @@ const Menu = (props: MenuProps) => {
       </MenuWrapper>
     </Popover>
   );
-};
+}
 
 export default Menu;

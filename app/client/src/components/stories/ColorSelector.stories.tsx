@@ -15,12 +15,14 @@ export default {
 
 const defaultValue = theme.colors.appCardColors;
 
-export const ColorPickerStory = () => (
-  <StoryWrapper>
-    <ColorSelector
-      onSelect={action("color-picker")}
-      fill={boolean("fill", false)}
-      colorPalette={array("colorPalette", defaultValue)}
-    />
-  </StoryWrapper>
-);
+export function ColorPickerStory() {
+  return (
+    <StoryWrapper>
+      <ColorSelector
+        onSelect={action("color-picker")}
+        fill={boolean("fill", false)}
+        colorPalette={array("colorPalette", defaultValue)}
+      />
+    </StoryWrapper>
+  );
+}

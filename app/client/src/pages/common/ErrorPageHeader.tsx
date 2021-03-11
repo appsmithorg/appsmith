@@ -44,7 +44,7 @@ type ErrorPageHeaderProps = {
   safeCrash: boolean;
 };
 
-export const ErrorPageHeader = (props: ErrorPageHeaderProps) => {
+export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   const { user, flushErrors, flushErrorsAndRedirect, safeCrash } = props;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -85,7 +85,7 @@ export const ErrorPageHeader = (props: ErrorPageHeaderProps) => {
       )}
     </StyledPageHeader>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),

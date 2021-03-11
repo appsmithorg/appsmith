@@ -120,9 +120,9 @@ type ButtonStyleProps = {
 };
 
 // To be used in any other part of the app
-export const BaseButton = (props: IButtonProps & ButtonStyleProps) => {
+export function BaseButton(props: IButtonProps & ButtonStyleProps) {
   return <ButtonWrapper {...props} />;
-};
+}
 
 BaseButton.defaultProps = {
   accent: "secondary",
@@ -166,12 +166,12 @@ const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
   }
 };
 
-const RecaptchaComponent = (
+function RecaptchaComponent(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
-) => {
+) {
   function handleError(event: React.MouseEvent<HTMLElement>, error: string) {
     Toaster.show({
       text: error,
@@ -208,23 +208,23 @@ const RecaptchaComponent = (
       {props.children}
     </div>
   );
-};
+}
 
-const BtnWrapper = (
+function BtnWrapper(
   props: {
     children: any;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
-) => {
+) {
   if (!props.googleRecaptchaKey)
     return <div onClick={props.onClick}>{props.children}</div>;
   return <RecaptchaComponent {...props}></RecaptchaComponent>;
-};
+}
 
 // To be used with the canvas
-const ButtonContainer = (
+function ButtonContainer(
   props: ButtonContainerProps & ButtonStyleProps & RecaptchaProps,
-) => {
+) {
   return (
     <BtnWrapper
       googleRecaptchaKey={props.googleRecaptchaKey}
@@ -243,6 +243,6 @@ const ButtonContainer = (
       />
     </BtnWrapper>
   );
-};
+}
 
 export default ButtonContainer;

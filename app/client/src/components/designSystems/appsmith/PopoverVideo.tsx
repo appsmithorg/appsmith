@@ -26,7 +26,7 @@ const PlayerWrapper = styled.div`	import React, { Ref } from "react";
   height: 400px;	
 `;
 
-const PopoverVideo = (props: VideoComponentProps) => {
+function PopoverVideo(props: VideoComponentProps) {
   return (
     <div onClick={(e) => e.stopPropagation()}>
       <Popover
@@ -59,6 +59,6 @@ const PopoverVideo = (props: VideoComponentProps) => {
       </Popover>
     </div>
   );
-};
+}
 
 export default PopoverVideo;

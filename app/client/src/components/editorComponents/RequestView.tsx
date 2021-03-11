@@ -22,14 +22,14 @@ const StyledValue = styled.span`
   user-select: text;
 `;
 
-const KeyValuePair = function(props: { hKey: string; hValue: string }) {
+function KeyValuePair(props: { hKey: string; hValue: string }) {
   return (
     <StyledValue>
       <StyledKey>{props.hKey}</StyledKey>
       {props.hValue}
     </StyledValue>
   );
-};
+}
 
 const StyledTreeContainer = styled.div`
   font-family: ${(props) => props.theme.fonts.text};

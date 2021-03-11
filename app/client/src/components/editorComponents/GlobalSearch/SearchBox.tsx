@@ -50,7 +50,7 @@ const useListenToChange = (modalOpen: boolean) => {
   return listenToChange;
 };
 
-const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
+function SearchBox({ query, setQuery }: SearchBoxProps) {
   const { modalOpen } = useSelector((state: AppState) => state.ui.globalSearch);
   const listenToChange = useListenToChange(modalOpen);
 
@@ -84,6 +84,6 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
       </InputContainer>
     </Container>
   );
-};
+}
 
 export default connectSearchBox<SearchBoxProps>(SearchBox);

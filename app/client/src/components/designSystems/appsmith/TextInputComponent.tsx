@@ -146,8 +146,8 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
  * Text Input Component
  * Has Icon, placholder, errors, etc.
  */
-const TextInputComponent = (props: TextInputProps & ComponentProps) => {
+function TextInputComponent(props: TextInputProps & ComponentProps) {
   return <BaseTextInput {...props} />;
-};
+}
 
 export default TextInputComponent;

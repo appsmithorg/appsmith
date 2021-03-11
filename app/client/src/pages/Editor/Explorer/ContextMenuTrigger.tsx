@@ -12,10 +12,10 @@ const ToggleIcon = styled(ControlIcons.MORE_VERTICAL_CONTROL)`
     height: ${(props) => props.theme.fontSizes[3]}px;
   }
 `;
-export const ContextMenuTrigger = (props: {
+export function ContextMenuTrigger(props: {
   className?: string;
   theme: Theme;
-}) => {
+}) {
   return (
     <EntityTogglesWrapper className={props.className}>
       <ToggleIcon
@@ -24,6 +24,6 @@ export const ContextMenuTrigger = (props: {
       />
     </EntityTogglesWrapper>
   );
-};
+}
 
 export default withTheme(ContextMenuTrigger);

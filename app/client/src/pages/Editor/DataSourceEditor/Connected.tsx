@@ -57,7 +57,7 @@ const ActionButton = styled(BaseButton)`
   }
 `;
 
-const Connected = () => {
+function Connected() {
   const params = useParams<{ datasourceId: string; applicationId: string }>();
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
@@ -188,6 +188,6 @@ const Connected = () => {
       </div>
     </Wrapper>
   );
-};
+}
 
 export default Connected;

@@ -31,11 +31,11 @@ const CurlyBraces = styled.span`
   margin: 0px 2px;
 `;
 
-const BindingPrompt = (props: {
+function BindingPrompt(props: {
   promptMessage?: React.ReactNode | string;
   isOpen: boolean;
   editorTheme?: EditorTheme;
-}): JSX.Element => {
+}): JSX.Element {
   const promptRef = useRef<HTMLDivElement>(null);
   let bottomOffset = 30;
   const customMessage = !!props.promptMessage;
@@ -64,6 +64,6 @@ const BindingPrompt = (props: {
       )}
     </Wrapper>
   );
-};
+}
 
 export default BindingPrompt;

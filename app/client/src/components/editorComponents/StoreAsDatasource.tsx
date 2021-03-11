@@ -24,7 +24,7 @@ export const DatasourceIcon = styled.div`
   }
 `;
 
-const StoreAsDatasource = () => {
+function StoreAsDatasource() {
   const dispatch = useDispatch();
 
   return (
@@ -36,6 +36,6 @@ const StoreAsDatasource = () => {
       <Text type={TextType.P1}>Save As Datasource</Text>
     </DatasourceIcon>
   );
-};
+}
 
 export default StoreAsDatasource;
