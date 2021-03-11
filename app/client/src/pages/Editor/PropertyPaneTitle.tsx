@@ -24,27 +24,22 @@ import { AnyStyledComponent } from "styled-components";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import TooltipComponent from "components/ads/Tooltip";
 
-const StaticSpaceWrapper = styled.div`
-  height: 25px;
-  width: 100%;
-`;
 const Wrapper = styled.div<{ iconCount: number }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  margin: ${(props) => props.theme.spaces[2]}px;
-  padding: ${(props) => `${props.theme.spaces[5]}px`};
-  padding-right: 0;
   justify-content: center;
   align-items: center;
   display: grid;
-  width: ${(props) => props.theme.propertyPane.width - props.theme.spaces[5]}px;
+  width: 100%;
   grid-template-columns: 1fr repeat(${(props) => props.iconCount}, 25px);
   justify-items: center;
   align-items: center;
   justify-content: stretch;
+  position: sticky;
+  top: 0;
   z-index: 3;
   background-color: ${(props) => props.theme.colors.propertyPane.bg};
+  margin-top: -1px;
+  padding-top: ${(props) => `${props.theme.spaces[1] + 1}px`};
+  padding-bottom: ${(props) => `${props.theme.spaces[5]}px`};
 
   & span.${BlueprintClasses.POPOVER_TARGET} {
     cursor: pointer;
@@ -161,47 +156,45 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   }, [props.title]);
 
   return props.widgetId || props.isPanelTitle ? (
-    <StaticSpaceWrapper>
-      <Wrapper iconCount={props.actions.length}>
-        <NameWrapper isPanelTitle={props.isPanelTitle}>
-          <>
-            {props.isPanelTitle && (
-              <StyledBackIcon
-                onClick={props.onBackClick}
-                className="t--property-pane-back-btn"
-              />
-            )}
-
-            <EditableText
-              valueTransform={removeSpecialChars}
-              defaultValue={name}
-              placeholder={props.title}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              isEditingDefault={!props.isPanelTitle ? isNew : undefined}
-              onBlur={!props.isPanelTitle ? updateTitle : undefined}
-              onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
-              hideEditIcon
-              className="t--propery-page-title"
-              savingState={
-                updating ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
-              fill
-              underline
+    <Wrapper iconCount={props.actions.length}>
+      <NameWrapper isPanelTitle={props.isPanelTitle}>
+        <>
+          {props.isPanelTitle && (
+            <StyledBackIcon
+              onClick={props.onBackClick}
+              className="t--property-pane-back-btn"
             />
-          </>
-        </NameWrapper>
+          )}
 
-        {props.actions.map((value, index) => (
-          <TooltipComponent
-            content={value.tooltipContent}
-            hoverOpenDelay={200}
-            key={index}
-          >
-            {value.icon}
-          </TooltipComponent>
-        ))}
-      </Wrapper>
-    </StaticSpaceWrapper>
+          <EditableText
+            valueTransform={removeSpecialChars}
+            defaultValue={name}
+            placeholder={props.title}
+            editInteractionKind={EditInteractionKind.SINGLE}
+            isEditingDefault={!props.isPanelTitle ? isNew : undefined}
+            onBlur={!props.isPanelTitle ? updateTitle : undefined}
+            onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
+            hideEditIcon
+            className="t--propery-page-title"
+            savingState={
+              updating ? SavingState.STARTED : SavingState.NOT_STARTED
+            }
+            fill
+            underline
+          />
+        </>
+      </NameWrapper>
+
+      {props.actions.map((value, index) => (
+        <TooltipComponent
+          content={value.tooltipContent}
+          hoverOpenDelay={200}
+          key={index}
+        >
+          {value.icon}
+        </TooltipComponent>
+      ))}
+    </Wrapper>
   ) : null;
 });
 
