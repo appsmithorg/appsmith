@@ -908,6 +908,35 @@ type ColorType = {
     iconPath: string;
     iconCircle: string;
   };
+  comments: {
+    profileUserName: string;
+    threadTitle: string;
+    commentBody: string;
+    profileImageBorder: string;
+    mention: string;
+    threadContainerBorder: string;
+    addCommentInputBorder: string;
+    sendButton: string;
+    addCommentInputBackground: string;
+    pin: string;
+    commentModeButtonIcon: string;
+    commentModeButtonBackground: string;
+  };
+};
+
+const comments = {
+  profileUserName: "#80888D",
+  threadTitle: "#4B4848",
+  commentBody: "#4B4848",
+  profileImageBorder: Colors.JAFFA_DARK,
+  mention: "#F86A2B",
+  threadContainerBorder: "#A9A7A7",
+  addCommentInputBorder: "#E0DEDE",
+  sendButton: "#6A86CE",
+  addCommentInputBackground: "#FAFAFA",
+  pin: "#EF4141",
+  commentModeButtonIcon: "#6A86CE",
+  commentModeButtonBackground: "#262626",
 };
 
 const auth: any = {
@@ -964,6 +993,7 @@ const globalSearch = {
 
 export const dark: ColorType = {
   globalSearch,
+  comments,
   header: {
     separator: darkShades[4],
     appName: darkShades[7],
@@ -1352,6 +1382,7 @@ export const dark: ColorType = {
 
 export const light: ColorType = {
   globalSearch,
+  comments,
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
