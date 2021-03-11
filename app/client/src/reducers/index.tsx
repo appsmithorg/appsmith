@@ -30,7 +30,7 @@ import { ImportReduxState } from "reducers/uiReducers/importReducer";
 import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
-import { PageCanvasStructureReduxState } from "./uiReducers/pageCanvasStructure";
+import { PageCanvasStructureReduxState } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";

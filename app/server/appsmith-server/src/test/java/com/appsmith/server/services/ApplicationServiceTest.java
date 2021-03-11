@@ -697,7 +697,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application";
         testApplication.setName(appName);
-        testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.FIXED, 1024));
+        testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> applicationPageService.publish(application.getId()))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))

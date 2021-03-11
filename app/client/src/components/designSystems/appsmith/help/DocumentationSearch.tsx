@@ -22,6 +22,8 @@ import {
 } from "actions/helpActions";
 import { Icon } from "@blueprintjs/core";
 import moment from "moment";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
 
 const {
   algolia,
@@ -308,6 +310,7 @@ type Props = {
   dispatch: any;
   hideSearch?: boolean;
   hideMinimizeBtn?: boolean;
+  user?: User;
 };
 type State = { showResults: boolean };
 
@@ -355,6 +358,17 @@ class DocumentationSearch extends React.Component<Props, State> {
     this.state = {
       showResults: props.defaultRefinement.length > 0,
     };
+  }
+  componentDidMount() {
+    const { user } = this.props;
+    if (cloudHosting && intercomAppID && window.Intercom) {
+      window.Intercom("boot", {
+        app_id: intercomAppID,
+        user_id: user?.username,
+        name: user?.name,
+        email: user?.email,
+      });
+    }
   }
   onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -439,6 +453,7 @@ class DocumentationSearch extends React.Component<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   defaultRefinement: getDefaultRefinement(state),
+  user: getCurrentUser(state),
 });
 
 export default connect(mapStateToProps)(DocumentationSearch);

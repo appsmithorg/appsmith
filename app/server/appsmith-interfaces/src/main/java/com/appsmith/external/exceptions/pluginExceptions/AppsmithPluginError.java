@@ -21,6 +21,7 @@ public enum AppsmithPluginError {
             AppsmithErrorAction.DEFAULT),
     PLUGIN_DATASOURCE_TEST_GENERIC_ERROR(500, 5007, "Plugin failed to test with the given configuration. Please reach out to Appsmith customer support to report this",
             AppsmithErrorAction.LOG_EXTERNALLY),
+    PLUGIN_DATASOURCE_TIMEOUT_ERROR(504, 5008, "{0}", AppsmithErrorAction.DEFAULT),
     ;
 
     private final Integer httpErrorCode;
