@@ -142,7 +142,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
                                 if (response.getStatusCode().is2xxSuccessful()) {
                                     result.setBody(method.transformResponse(jsonNodeBody, objectMapper));
-                                    System.out.println(result.getBody());
                                 } else {
                                     result.setBody(jsonNodeBody
                                             .get("error")
