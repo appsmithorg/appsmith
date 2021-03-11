@@ -28,7 +28,8 @@
     "react/prop-types": 0,
     "@typescript-eslint/explicit-module-boundary-types": 0,
     "cypress/no-unnecessary-waiting": 0,
-    "cypress/no-assigning-return-values": 0
+    "cypress/no-assigning-return-values": 0,
+    "react/function-component-definition": "error"
   },
   "settings": {
     "react": {
