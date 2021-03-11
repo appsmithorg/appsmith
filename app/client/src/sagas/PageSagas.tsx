@@ -83,6 +83,7 @@ import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/Incorr
 import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import DEFAULT_TEMPLATE from "templates/default";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -753,13 +754,17 @@ function* fetchPageDSLSaga(pageId: string) {
     }
   } catch (error) {
     yield put({
-      type: ReduxActionTypes.FETCH_PAGE_DSL_ERROR,
+      type: ReduxActionErrorTypes.FETCH_PAGE_DSL_ERROR,
       payload: {
         pageId: pageId,
         error,
-        show: false,
+        show: true,
       },
     });
+    return {
+      pageId: pageId,
+      dsl: DEFAULT_TEMPLATE,
+    };
   }
 }
 

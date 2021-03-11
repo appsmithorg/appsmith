@@ -43,11 +43,24 @@ const evalErrorHandler = (errors: EvalError[]) => {
   errors.forEach((error) => {
     switch (error.type) {
       case EvalErrorTypes.DEPENDENCY_ERROR: {
-        Toaster.show({
-          text: error.message,
-          variant: Variant.danger,
-        });
-        Sentry.captureException(new Error(error.message));
+        if (error.context) {
+          // Add more info about node for the toast
+          const { node, entityType } = error.context;
+          Toaster.show({
+            text: `${error.message} Node was: ${node}`,
+            variant: Variant.danger,
+          });
+          // Send the generic error message to sentry for better grouping
+          Sentry.captureException(new Error(error.message), {
+            tags: {
+              node,
+              entityType,
+            },
+            // Level is warning because it could be a user error
+            level: Sentry.Severity.Warning,
+          });
+        }
+
         break;
       }
       case EvalErrorTypes.EVAL_TREE_ERROR: {
