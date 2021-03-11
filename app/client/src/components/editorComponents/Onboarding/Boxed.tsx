@@ -1,5 +1,6 @@
 import { OnboardingStep } from "constants/OnboardingConstants";
-import React, { ReactNode } from "react";
+import React from "react";
+import { ReactNode } from "react";
 import { useSelector } from "react-redux";
 import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
 
@@ -19,13 +20,15 @@ function Boxed(props: BoxedProps) {
 
   if (onboarding && currentStep < props.step && !props.show) {
     if (props.alternative) {
-      return props.alternative;
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <>{props.alternative}</>;
     }
 
     return null;
   }
 
-  return props.children;
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  return <>{props.children}</>;
 }
 
 Boxed.defaultProps = {

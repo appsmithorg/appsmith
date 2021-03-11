@@ -156,7 +156,18 @@ function Connected() {
   }, [dispatch, actions, currentPageId, params.applicationId, datasource]);
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
-
+  const Indicator = (
+    <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
+      <ActionButton
+        accent="primary"
+        className="t--create-query"
+        filled
+        icon={"plus"}
+        onClick={isDBDatasource ? createQueryAction : createApiAction}
+        text={isDBDatasource ? "New Query" : "New API"}
+      />
+    </OnboardingIndicator>
+  );
   return (
     <Wrapper>
       <Header>
@@ -170,16 +181,7 @@ function Connected() {
           <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
         </ConnectedText>
 
-        <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
-          <ActionButton
-            accent="primary"
-            className="t--create-query"
-            filled
-            icon={"plus"}
-            onClick={isDBDatasource ? createQueryAction : createApiAction}
-            text={isDBDatasource ? "New Query" : "New API"}
-          />
-        </OnboardingIndicator>
+        {Indicator}
       </Header>
       <div style={{ marginTop: "30px" }}>
         {!isNil(currentFormConfig) && !isNil(datasource)

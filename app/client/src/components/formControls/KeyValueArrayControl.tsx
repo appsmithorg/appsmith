@@ -11,6 +11,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { InputType } from "widgets/InputWidget";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
 import { Colors } from "constants/Colors";
+import { get } from "lodash";
 
 const FormRowWithLabel = styled.div`
   display: flex;
@@ -74,70 +75,27 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
     isRequired = extraData[0].isRequired || extraData[1].isRequired;
   }
   if (typeof props.fields.getAll() === "object") {
-    return props.fields.map((field: any, index: number) => {
-      const otherProps: Record<string, any> = {};
-      if (
-        props.actionConfig &&
-        props.actionConfig[index].description &&
-        props.rightIcon
-      ) {
-        otherProps.rightIcon = (
-          <HelperTooltip
-            description={props.actionConfig[index].description}
-            rightIcon={props.actionConfig[index].description && props.rightIcon}
-          />
-        );
-      }
-      return (
-        <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
-          <div style={{ width: "50vh" }}>
-            <FormLabel>
-              {extraData && extraData[0].label} {isRequired && "*"}
-            </FormLabel>
-            <TextField
-              name={`${field}.${keyName[1]}`}
-              placeholder={(extraData && extraData[0].placeholderText) || ""}
-              showError
-              validate={keyFieldValidate}
-            />
-          </div>
-          {!props.actionConfig && (
-            <div style={{ marginLeft: 16 }}>
-              <FormLabel>
-                {extraData && extraData[1].label} {isRequired && "*"}
-              </FormLabel>
-              <div style={{ display: "flex", flexDirection: "row" }}>
-                <div style={{ marginRight: 14, width: 72 }}>
-                  <StyledTextField
-                    name={`${field}.${valueName[1]}`}
-                    placeholder={
-                      (extraData && extraData[1].placeholderText) || ""
-                    }
-                    type={valueDataType}
-                  />
-                </div>
-                {index === props.fields.length - 1 ? (
-                  <Icon
-                    color={Colors["CADET_BLUE"]}
-                    icon="plus"
-                    iconSize={20}
-                    onClick={() => props.fields.push({ key: "", value: "" })}
-                    style={{ alignSelf: "center" }}
-                  />
-                ) : (
-                  <FormIcons.DELETE_ICON
-                    color={Colors["CADET_BLUE"]}
-                    height={20}
-                    onClick={() => props.fields.remove(index)}
-                    style={{ alignSelf: "center" }}
-                    width={20}
-                  />
-                )}
-              </div>
-            </div>
-          )}
+    return (
+      <>
+        {props.fields.map((field: any, index: number) => {
+          const otherProps: Record<string, any> = {};
+          const description = get(
+            props,
+            `actionConfig[${index}].description`,
+            undefined,
+          );
+          if (description && props.rightIcon) {
+            otherProps.rightIcon = (
+              <HelperTooltip
+                description={props.actionConfig[index].description}
+                rightIcon={
+                  props.actionConfig[index].description && props.rightIcon
+                }
+              />
+            );
+          }
 
-          {props.actionConfig && (
+          let actionConfigEl = (
             <DynamicTextField
               name={`${field}.value`}
               placeholder={
@@ -148,17 +106,71 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
               }
               {...otherProps}
             />
-          )}
-        </FormRowWithLabel>
-      );
-    });
-  }
+          );
+          if (!props.actionConfig) {
+            actionConfigEl = (
+              <div style={{ marginLeft: 16 }}>
+                <FormLabel>
+                  {extraData && extraData[1].label} {isRequired && "*"}
+                </FormLabel>
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <div style={{ marginRight: 14, width: 72 }}>
+                    <StyledTextField
+                      name={`${field}.${valueName[1]}`}
+                      placeholder={
+                        (extraData && extraData[1].placeholderText) || ""
+                      }
+                      type={valueDataType}
+                    />
+                  </div>
+                  {index === props.fields.length - 1 ? (
+                    <Icon
+                      color={Colors.CADET_BLUE}
+                      icon="plus"
+                      iconSize={20}
+                      onClick={() => props.fields.push({ key: "", value: "" })}
+                      style={{ alignSelf: "center" }}
+                    />
+                  ) : (
+                    <FormIcons.DELETE_ICON
+                      color={Colors.CADET_BLUE}
+                      height={20}
+                      onClick={() => props.fields.remove(index)}
+                      style={{ alignSelf: "center" }}
+                      width={20}
+                    />
+                  )}
+                </div>
+              </div>
+            );
+          }
+          return (
+            <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
+              <div style={{ width: "50vh" }}>
+                <FormLabel>
+                  {extraData && extraData[0].label} {isRequired && "*"}
+                </FormLabel>
+                <TextField
+                  name={`${field}.${keyName[1]}`}
+                  placeholder={
+                    (extraData && extraData[0].placeholderText) || ""
+                  }
+                  showError
+                  validate={keyFieldValidate}
+                />
+              </div>
+              {actionConfigEl}
+            </FormRowWithLabel>
+          );
+        })}
+      </>
+    );
+  } else return null;
 }
 
 class KeyValueFieldArray extends BaseControl<KeyValueArrayProps> {
   render() {
     const name = getFieldName(this.props.configProperty);
-
     return (
       <FieldArray
         component={KeyValueRow}

@@ -51,7 +51,8 @@ export const DatasourceStructureContainer = memo((props: Props) => {
     }
   }
 
-  return view;
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  return <>{view}</>;
 });
 
 DatasourceStructureContainer.displayName = "DatasourceStructureContainer";

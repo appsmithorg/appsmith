@@ -43,7 +43,8 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
     );
   });
 
-  return childNode;
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  return <>{childNode}</>;
 });
 
 ExplorerActionsGroup.displayName = "ExplorerActionsGroup";

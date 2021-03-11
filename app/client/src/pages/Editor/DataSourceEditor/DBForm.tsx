@@ -323,6 +323,25 @@ class DatasourceDBEditor extends React.Component<
     } = this.props;
     const { viewMode } = this.props;
 
+    let actionButton = null;
+    if (viewMode) {
+      actionButton = (
+        <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+          <ActionButton
+            accent="secondary"
+            className="t--edit-datasource"
+            onClick={() => {
+              this.props.setDatasourceEditorMode(
+                this.props.datasourceId,
+                false,
+              );
+            }}
+            text="EDIT"
+          />
+        </Boxed>
+      );
+    }
+
     return (
       <form
         onSubmit={(e) => {
@@ -340,21 +359,7 @@ class DatasourceDBEditor extends React.Component<
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
-          {viewMode && (
-            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-              <ActionButton
-                accent="secondary"
-                className="t--edit-datasource"
-                onClick={() => {
-                  this.props.setDatasourceEditorMode(
-                    this.props.datasourceId,
-                    false,
-                  );
-                }}
-                text="EDIT"
-              />
-            </Boxed>
-          )}
+          {actionButton}
         </Header>
         {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>
