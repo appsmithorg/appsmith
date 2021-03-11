@@ -3,6 +3,9 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call } from "redux-saga/effects";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import { get } from "lodash";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -111,15 +114,80 @@ export function* executeWidgetBlueprintOperations(
   return yield widgets;
 }
 
+/**
+ * this saga executes the blueprint child operation
+ *
+ * @param parent
+ * @param newWidgetId
+ * @param widgets
+ *
+ * @returns { [widgetId: string]: FlattenedWidgetProps }
+ */
 export function* executeWidgetBlueprintChildOperations(
   operation: BlueprintOperation,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   widgetId: string,
   parentId: string,
 ) {
-  return yield (operation.fn as BlueprintOperationChildOperationsFn)(
+  return (operation.fn as BlueprintOperationChildOperationsFn)(
     widgets,
     widgetId,
     parentId,
   );
+}
+
+/**
+ * this saga traverse the tree till we get
+ * to MAIN_CONTAINER_WIDGET_ID while travesring, if we find
+ * any widget which has CHILD_OPERATION, we will call the fn in it
+ *
+ * @param parent
+ * @param newWidgetId
+ * @param widgets
+ *
+ * @returns { [widgetId: string]: FlattenedWidgetProps }
+ */
+export function* traverseTreeAndExecuteBlueprintChildOperations(
+  parent: FlattenedWidgetProps,
+  newWidgetId: string,
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+) {
+  let root = parent;
+
+  while (root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+    const parentConfig = {
+      ...(WidgetConfigResponse as any).config[root.type],
+    };
+
+    // find the blueprint with type CHILD_OPERATIONS
+    const blueprintChildOperation = get(
+      parentConfig,
+      "blueprint.operations",
+      [],
+    ).find(
+      (operation: BlueprintOperation) =>
+        operation.type === BlueprintOperationTypes.CHILD_OPERATIONS,
+    );
+
+    // if there is blueprint operation with CHILD_OPERATION type, call the fn in it
+    if (blueprintChildOperation) {
+      const updatedWidgets:
+        | { [widgetId: string]: FlattenedWidgetProps }
+        | undefined = yield call(
+        executeWidgetBlueprintChildOperations,
+        blueprintChildOperation,
+        widgets,
+        newWidgetId,
+        root.widgetId,
+      );
+
+      if (updatedWidgets) {
+        widgets = updatedWidgets;
+      }
+    }
+
+    root = widgets[root.parentId];
+  }
+
+  return widgets;
 }

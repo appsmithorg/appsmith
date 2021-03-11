@@ -507,6 +507,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 10,
       columns: 8,
       gridType: "vertical",
+      enhancements: {
+        child: {
+          propertyUpdateHook: (
+            parentProps: any,
+            widgetName: string,
+            propertyPath: string,
+            propertyValue: string,
+          ) => {
+            console.log("i came here");
+          },
+        },
+      },
       propertyPaneEnhancements: {
         additionalAutocomplete: (props: any) => {
           return props.childAutoComplete;
