@@ -68,6 +68,60 @@ public class GetValuesMethodTest {
     }
 
     @Test
+    public void testTransformResponse_emptyStartingRows_toListOfObjects() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        final String jsonString = "{\"range\":\"Sheet1!A1:D5\",\"majorDimension\":\"ROWS\",\"values\":[[],[],[],[\"Some\",\"123\",\"values\",\"to\"],[\"work\",\"with\",\"and\",\"manipulate\"],[\"q\",\"w\",\"e\",\"r\"],[\"a\",\"s\",\"d\",\"f\"],[\"z\",\"x\",\"c\",\"v\"]]}";
+
+        JsonNode jsonNode = objectMapper.readTree(jsonString);
+
+        Assert.assertNotNull(jsonNode);
+
+        GetValuesMethod getValuesMethod = new GetValuesMethod();
+        JsonNode result = getValuesMethod.transformResponse(jsonNode, objectMapper);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isArray());
+        Assert.assertTrue("work".equalsIgnoreCase(result.get(0).get("Some").asText()));
+    }
+
+    @Test
+    public void testTransformResponse_emptyRows_returnsEmpty() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        final String jsonString = "{\"range\":\"Sheet1!A1:D5\",\"majorDimension\":\"ROWS\",\"values\":[[],[],[]]}";
+
+        JsonNode jsonNode = objectMapper.readTree(jsonString);
+
+        Assert.assertNotNull(jsonNode);
+
+        GetValuesMethod getValuesMethod = new GetValuesMethod();
+        JsonNode result = getValuesMethod.transformResponse(jsonNode, objectMapper);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isArray());
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testTransformResponse_emptyStartingRowsWithSingleRow_returnsEmpty() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        final String jsonString = "{\"range\":\"Sheet1!A1:D5\",\"majorDimension\":\"ROWS\",\"values\":[[],[],[],[\"Some\",\"123\",\"values\",\"to\"]]}";
+
+        JsonNode jsonNode = objectMapper.readTree(jsonString);
+
+        Assert.assertNotNull(jsonNode);
+
+        GetValuesMethod getValuesMethod = new GetValuesMethod();
+        JsonNode result = getValuesMethod.transformResponse(jsonNode, objectMapper);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isArray());
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
     public void testTransformResponse_validJSON_toListOfObjects() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 

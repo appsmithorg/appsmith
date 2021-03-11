@@ -52,11 +52,15 @@ public class GetValuesMethod implements Method {
                     AppsmithPluginError.PLUGIN_ERROR,
                     "Missing expected field 'values' in response.");
         }
-        ArrayNode headers = (ArrayNode) values.get(0);
+        int headerRow = 0;
+        while (headerRow < values.size() && values.get(headerRow).size() == 0) {
+            headerRow++;
+        }
+        ArrayNode headers = (ArrayNode) values.get(headerRow);
 
         List<HashMap<String, String>> collectedCells = StreamSupport
                 .stream(values.spliterator(), false)
-                .skip(1)
+                .skip(headerRow + 1)
                 .map(row -> {
                     HashMap<String, String> objectHashMap = new LinkedHashMap<>();
                     AtomicInteger i = new AtomicInteger();
