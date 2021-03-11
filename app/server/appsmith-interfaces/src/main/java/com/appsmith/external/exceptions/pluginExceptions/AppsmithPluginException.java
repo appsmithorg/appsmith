@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AppsmithPluginException extends Exception {
+public class AppsmithPluginException extends RuntimeException {
     private final AppsmithPluginError error;
     private final Object[] args;
 
