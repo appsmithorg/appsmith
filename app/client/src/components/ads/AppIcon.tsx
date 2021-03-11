@@ -362,7 +362,6 @@ function AppIcon(props: AppIconProps) {
     case "laptop":
       returnIcon = <LaptopIcon />;
       break;
-      break;
     case "line-chart":
       returnIcon = <LineChartIcon />;
       break;
