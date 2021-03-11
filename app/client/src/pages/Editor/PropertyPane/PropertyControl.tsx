@@ -35,6 +35,11 @@ import { PropertyPaneEnhancements } from ".";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { AppState } from "reducers";
+import {
+  getChildWidgetEnhancementFn,
+  WidgetEnhancementType,
+} from "sagas/WidgetEnhancementHelpers";
+import { call } from "@redux-saga/core/effects";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -129,6 +134,14 @@ const PropertyControl = memo((props: Props) => {
         );
       }
 
+      // const ChildWidgetEnhancementFn =  yield call getChildWidgetEnhancementFn(
+      //   widgetProperties.widgetId,
+      //   WidgetEnhancementType.PROPERTY_UPDATE,
+      // );
+
+      // // const something = ChildWidgetEnhancementFn(widgetProperties.widgetName);
+
+      // console.log({ ChildWidgetEnhancementFn });
       // if there are enhancements related to the widget, calling them here
       // enhancements are basically group of functions that are called before widget propety
       // is changed on propertypane. For e.g - set/update parent property

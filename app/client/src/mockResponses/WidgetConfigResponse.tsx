@@ -515,7 +515,29 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             propertyPath: string,
             propertyValue: string,
           ) => {
-            console.log("i came here");
+            let value = propertyValue;
+
+            if (!parentProps.widgetId) return [];
+
+            const { jsSnippets } = getDynamicBindings(propertyValue);
+
+            const modifiedAction = jsSnippets.reduce(
+              (prev: string, next: string) => {
+                return prev + `${next}`;
+              },
+              "",
+            );
+
+            value = `{{${parentProps.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+            const path = `template.${widgetName}.${propertyPath}`;
+
+            return [
+              {
+                widgetId: parentProps.widgetId,
+                propertyPath: path,
+                propertyValue: value,
+              },
+            ];
           },
         },
       },
