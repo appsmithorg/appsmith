@@ -116,7 +116,7 @@ public class RestApiPlugin extends BasePlugin {
             Boolean smartJsonSubstitution;
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            if (properties == null || properties.get(SMART_JSON_SUBSTITUTION_INDEX) == null) {
+            if (CollectionUtils.isEmpty(properties)) {
                 /**
                  * TODO :
                  * In case the smart json substitution configuration is missing, default to true once smart json
@@ -124,6 +124,7 @@ public class RestApiPlugin extends BasePlugin {
                  */
                 smartJsonSubstitution = false;
             } else {
+                // Since properties is not empty, we are guaranteed to find the first property.
                 smartJsonSubstitution = Boolean.parseBoolean(properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue());
             }
 

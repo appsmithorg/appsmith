@@ -372,8 +372,6 @@ public class RestApiPluginTest {
                     } catch (ParseException | JsonProcessingException e) {
                         e.printStackTrace();
                     }
-//                    JsonNode data = ((ObjectNode) result.getBody()).get("json");
-//                    assertEquals(resultBody, data.toString());
                 })
                 .verifyComplete();
     }
