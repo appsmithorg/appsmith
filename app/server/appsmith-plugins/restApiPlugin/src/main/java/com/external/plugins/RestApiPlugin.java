@@ -478,7 +478,7 @@ public class RestApiPlugin extends BasePlugin {
                             requestBody = objectFromJson;
                         }
                     }
-                } catch (JsonSyntaxException e) {
+                } catch (JsonSyntaxException | ParseException e) {
                     return Mono.error(new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
                             requestBody,
@@ -527,7 +527,7 @@ public class RestApiPlugin extends BasePlugin {
          * @param jsonString A string that confirms to JSON syntax. Shouldn't be null.
          * @return An object of type `Map`, `List`, if applicable, or `null`.
          */
-        private static Object objectFromJson(String jsonString) {
+        private static Object objectFromJson(String jsonString) throws ParseException {
             Class<?> type;
             String trimmed = jsonString.trim();
 
@@ -541,14 +541,11 @@ public class RestApiPlugin extends BasePlugin {
 
             JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
             Object parsedJson = null;
-            try {
-                if (type.equals(List.class)) {
-                    parsedJson = (JSONArray) jsonParser.parse(jsonString);
-                } else {
-                    parsedJson = (JSONObject) jsonParser.parse(jsonString);
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
+
+            if (type.equals(List.class)) {
+                parsedJson = (JSONArray) jsonParser.parse(jsonString);
+            } else {
+                parsedJson = (JSONObject) jsonParser.parse(jsonString);
             }
 
             return parsedJson;
