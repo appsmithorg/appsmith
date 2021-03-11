@@ -19,10 +19,15 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import dev.miku.r2dbc.mysql.MySqlConnectionConfiguration;
+import dev.miku.r2dbc.mysql.MySqlConnectionFactory;
+import dev.miku.r2dbc.mysql.constant.SslMode;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.Option;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -421,17 +426,36 @@ public class MySqlPlugin extends BasePlugin {
                 }
             }
 
-            ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
+            /*ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
             ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
             ob = ob.option(ConnectionFactoryOptions.USER, authentication.getUsername());
             ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
+            ob = ob.option(Option.valueOf("sslCa"), "/path/to/mysql/ca.pem");*/
+            //ob = ob.sslMode(SslMode.VERIFY_CA);
 
-            return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
+            MySqlConnectionConfiguration configuration = MySqlConnectionConfiguration.builder()
+                    .host("ec2-35-153-18-71.compute-1.amazonaws.com")
+                    .user("root")
+                    .port(3306) // optional, default 3306
+                    .password("password") // optional, default null, null means has no password
+                    .database("mysql") // optional, default null, null means not specifying the database
+                    .sslMode(SslMode.DISABLED) // optional, default SslMode.PREFERRED
+                    .build();
+
+            ConnectionFactory connectionFactory = MySqlConnectionFactory.from(configuration);
+
+            return (Mono<Connection>) Mono.from(connectionFactory.create())
                     .onErrorResume(exception -> Mono.error(new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             exception
                     )))
                     .subscribeOn(scheduler);
+            /*return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
+                    .onErrorResume(exception -> Mono.error(new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            exception
+                    )))
+                    .subscribeOn(scheduler);*/
         }
 
         @Override
