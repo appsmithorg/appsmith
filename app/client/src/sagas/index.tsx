@@ -54,6 +54,8 @@ export function* rootSaga() {
     evaluationsSaga,
     onboardingSaga,
     actionExecutionChangeListeners,
+    utilSagas,
+    saaSPaneSagas,
     globalSearchSagas,
     recentEntitiesSagas,
     utilSagas,

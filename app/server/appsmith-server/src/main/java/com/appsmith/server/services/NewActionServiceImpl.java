@@ -626,25 +626,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                                 actionConfiguration
                                         );
                                     })
-                            )
-                            // Now send the analytics event for this execution
-                            .flatMap(result ->
-                                    Mono.zip(actionMono, actionDTOMono, datasourceMono)
-                                    .flatMap(tuple1 -> {
-                                        ActionExecutionResult actionExecutionResult = result;
-                                        NewAction actionFromDb = tuple1.getT1();
-                                        ActionDTO actionDTO = tuple1.getT2();
-                                        Datasource datasourceFromDb = tuple1.getT3();
-
-                                        return Mono
-                                                .when(sendExecuteAnalyticsEvent(
-                                                        actionFromDb,
-                                                        actionDTO,
-                                                        datasourceFromDb,
-                                                        executeActionDTO.getViewMode(),
-                                                        actionExecutionResult.getRequest()))
-                                                .thenReturn(result);
-                                    })
                             );
 
                     return executionMono

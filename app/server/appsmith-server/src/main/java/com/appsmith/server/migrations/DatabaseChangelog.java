@@ -1869,29 +1869,6 @@ public class DatabaseChangelog {
             }
 
         }
-
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
-    }
-
-    @ChangeSet(order = "057", id = "add-google-sheets-plugin", author = "")
-    public void addGoogleSheetsPlugin(MongoTemplate mongoTemplate) {
-        Plugin plugin = new Plugin();
-        plugin.setName("Google Sheets");
-        plugin.setType(PluginType.SAAS);
-        plugin.setPackageName("google-sheets-plugin");
-        plugin.setUiComponent("DbEditorForm");
-        plugin.setDatasourceComponent("OAuth2DatasourceForm");
-        plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
-        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-google-sheets");
-        plugin.setDefaultInstall(true);
-        try {
-            mongoTemplate.insert(plugin);
-        } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
-        }
-
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "057", id = "update-database-action-configuration-timeout", author = "")
