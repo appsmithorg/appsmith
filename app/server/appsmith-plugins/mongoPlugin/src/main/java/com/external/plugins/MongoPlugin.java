@@ -16,7 +16,6 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoCommandException;
-import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
@@ -189,10 +188,15 @@ public class MongoPlugin extends BasePlugin {
 
                         return Mono.just(result);
                     })
-                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                    .onErrorResume(error  -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        actionExecutionResult.setStatusCode(error.getAppErrorCode().toString());
+                        if (error instanceof AppsmithPluginException) {
+                            actionExecutionResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
                         actionExecutionResult.setBody(error.getMessage());
                         return Mono.just(actionExecutionResult);
                     })

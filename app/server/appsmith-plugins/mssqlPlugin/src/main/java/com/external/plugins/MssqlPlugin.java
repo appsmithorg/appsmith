@@ -293,10 +293,15 @@ public class MssqlPlugin extends BasePlugin {
             })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
-                    .onErrorResume(AppsmithPluginException.class, error -> {
+                    .onErrorResume(error  -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setStatusCode(error.getAppErrorCode().toString());
+                        if (error instanceof AppsmithPluginException) {
+                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
                         result.setBody(error.getMessage());
                         return Mono.just(result);
                     })
