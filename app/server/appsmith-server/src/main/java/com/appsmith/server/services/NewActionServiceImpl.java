@@ -649,6 +649,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             .flatMap(tuple1 -> {
                                 Long timeElapsed = tuple1.getT1();
                                 ActionExecutionResult result = tuple1.getT2();
+
+                                log.debug("{}: Action {} with id {} execution time : {} ms",
+                                        Thread.currentThread().getName(),
+                                        actionName.get(),
+                                        actionId,
+                                        timeElapsed
+                                );
+
                                 return Mono.zip(actionMono, actionDTOMono, datasourceMono)
                                                 .flatMap(tuple2 -> {
                                                     ActionExecutionResult actionExecutionResult = result;
@@ -656,7 +664,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                                     ActionDTO actionDTO = tuple2.getT2();
                                                     Datasource datasourceFromDb = tuple2.getT3();
 
-                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult.getRequest(), timeElapsed))
+                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult, timeElapsed))
                                                             .thenReturn(result);
                                                 });
                                     }
@@ -680,22 +688,28 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 });
     }
 
-    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(NewAction action, ActionDTO actionDTO, Datasource datasource, Boolean viewMode, ActionExecutionRequest actionExecutionRequest, Long timeElapsed) {
+    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(NewAction action, ActionDTO actionDTO, Datasource datasource, Boolean viewMode, ActionExecutionResult actionExecutionResult, Long timeElapsed) {
         // Since we're loading the application from DB *only* for analytics, we check if analytics is
         // active before making the call to DB.
         if (!analyticsService.isActive()) {
             return Mono.empty();
         }
 
-        // Do a deep copy of request to not edit
-        ActionExecutionRequest request = new ActionExecutionRequest(actionExecutionRequest.getQuery(),
-                actionExecutionRequest.getBody(),
-                actionExecutionRequest.getHeaders(),
-                actionExecutionRequest.getHttpMethod(),
-                actionExecutionRequest.getUrl(),
-                actionExecutionRequest.getProperties(),
-                actionExecutionRequest.getExecutionParameters()
-        );
+        ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
+        ActionExecutionRequest request;
+        if (actionExecutionRequest != null) {
+            // Do a deep copy of request to not edit
+            request = new ActionExecutionRequest(actionExecutionRequest.getQuery(),
+                    actionExecutionRequest.getBody(),
+                    actionExecutionRequest.getHeaders(),
+                    actionExecutionRequest.getHttpMethod(),
+                    actionExecutionRequest.getUrl(),
+                    actionExecutionRequest.getProperties(),
+                    actionExecutionRequest.getExecutionParameters()
+            );
+        } else {
+            request = new ActionExecutionRequest();
+        }
 
         if (request.getHeaders() != null) {
             JsonNode headers = (JsonNode) request.getHeaders();
@@ -740,12 +754,18 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     data.putAll(Map.of(
                             "pageId", actionDTO.getPageId(),
-                            "pageName", pageName
+                            "pageName", pageName,
+                            "isSuccessfulExecution", actionExecutionResult.getIsExecutionSuccess(),
+                            "statusCode", actionExecutionResult.getStatusCode(),
+                            "timeElapsed", timeElapsed
                     ));
 
-                    data.putAll(Map.of(
-                            
-                    ));
+                    // Add the error message in case of erroneous execution
+                    if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {
+                        data.putAll(Map.of(
+                                "error", actionExecutionResult.getBody()
+                        ));
+                    }
 
                     analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
                     return request;

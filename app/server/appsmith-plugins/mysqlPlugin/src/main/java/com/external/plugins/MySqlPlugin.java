@@ -261,10 +261,12 @@ public class MySqlPlugin extends BasePlugin {
                                 "execution result");
                         return result;
                     })
-                    .onErrorResume(AppsmithPluginException.class, error -> {
+                    .onErrorResume(Exception.class, error  -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setStatusCode(error.getAppErrorCode().toString());
+                        if (error instanceof AppsmithPluginException) {
+                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
                         result.setBody(error.getMessage());
                         return Mono.just(result);
                     })

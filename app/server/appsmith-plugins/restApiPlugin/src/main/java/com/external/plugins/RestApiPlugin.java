@@ -307,9 +307,12 @@ public class RestApiPlugin extends BasePlugin {
 
                         return result;
                     })
-                    .onErrorResume(e -> {
-                        errorResult.setBody(Exceptions.unwrap(e).getMessage());
-                        errorResult.setRequest(actionExecutionRequest);
+                    .onErrorResume(Exception.class, error  -> {
+                        errorResult.setIsExecutionSuccess(false);
+                        if (error instanceof AppsmithPluginException) {
+                            errorResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
+                        errorResult.setBody(error.getMessage());
                         return Mono.just(errorResult);
                     });
         }
