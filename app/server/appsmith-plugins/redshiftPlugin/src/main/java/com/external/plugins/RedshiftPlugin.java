@@ -298,6 +298,9 @@ public class RedshiftPlugin extends BasePlugin {
                         return e;
                     })
                     .onErrorResume(Exception.class, error -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {

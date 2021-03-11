@@ -294,6 +294,9 @@ public class MssqlPlugin extends BasePlugin {
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
                     .onErrorResume(Exception.class, error  -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {

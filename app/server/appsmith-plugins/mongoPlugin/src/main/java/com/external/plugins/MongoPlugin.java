@@ -189,6 +189,9 @@ public class MongoPlugin extends BasePlugin {
                         return Mono.just(result);
                     })
                     .onErrorResume(Exception.class, error  -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {

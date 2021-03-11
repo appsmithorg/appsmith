@@ -535,6 +535,9 @@ public class AmazonS3Plugin extends BasePlugin {
                         return Mono.error(e);
                     })
                     .onErrorResume(e -> {
+                        if (e instanceof StaleConnectionException) {
+                            return Mono.error(e);
+                        }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         result.setBody(e.getMessage());
