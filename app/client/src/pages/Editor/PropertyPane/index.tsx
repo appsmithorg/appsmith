@@ -46,6 +46,10 @@ const PropertyPaneWrapper = styled(PaneWrapper)<{ themeMode?: EditorTheme }>`
   text-transform: none;
   ${(props) =>
     props.themeMode === EditorTheme.DARK ? scrollbarDark : scrollbarLight};
+
+  &::-webkit-scrollbar {
+    background-color: transparent;
+  }
 `;
 
 const StyledPanelStack = styled(PanelStack)`
