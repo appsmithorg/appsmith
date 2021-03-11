@@ -101,6 +101,10 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   const { selectWidget, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
+  const isCommentMode = useSelector(
+    (state: AppState) => state.ui.comments.isCommentMode,
+  );
+
   useEffect(() => {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     setRows(snapRows);
@@ -244,7 +248,10 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       }
       showPropertyPane && showPropertyPane();
     }
-    e.stopPropagation();
+
+    if (!isCommentMode) {
+      e.stopPropagation();
+    }
     e.preventDefault();
   };
   const height = canDropTargetExtend
