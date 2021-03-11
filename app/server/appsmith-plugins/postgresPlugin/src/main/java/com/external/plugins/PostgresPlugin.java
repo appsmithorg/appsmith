@@ -6,7 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.helpers.SqlStringUtils;
+import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -180,7 +180,7 @@ public class PostgresPlugin extends BasePlugin {
             // First extract all the bindings in order
             List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
-            String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
         }
@@ -786,7 +786,7 @@ public class PostgresPlugin extends BasePlugin {
                                                                 String value,
                                                                 PreparedStatement preparedStatement,
                                                                 Connection connection) throws AppsmithPluginException {
-        DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+        DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
         try {
             switch (valueType) {
@@ -837,7 +837,7 @@ public class PostgresPlugin extends BasePlugin {
                     }
                     // Find the type of the entries in the list
                     Object firstEntry = arrayListFromInput.get(0);
-                    DataType dataType = SqlStringUtils.stringToKnownDataTypeConverter((String.valueOf(firstEntry)));
+                    DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter((String.valueOf(firstEntry)));
                     String typeName = toPostgresqlPrimitiveTypeName(dataType);
 
                     // Create the Sql Array and set it.
