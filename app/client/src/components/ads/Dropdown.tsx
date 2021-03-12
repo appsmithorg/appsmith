@@ -13,23 +13,29 @@ export type DropdownOption = {
   onSelect?: (value?: string) => void;
 };
 
-type DropdownProps = CommonComponentProps & {
+export type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selected: DropdownOption;
   onSelect?: (value?: string) => void;
   width?: string;
+  height?: string;
   showLabelOnly?: boolean;
   optionWidth?: string;
   showDropIcon?: boolean;
   SelectedValueNode?: typeof DefaultDropDownValueNode;
 };
 
-export const DropdownContainer = styled.div<{ width?: string }>`
-  width: ${(props) => props.width || "260px"};
+export const DropdownContainer = styled.div<{ width: string; height: string }>`
+  width: ${(props) => props.width};
+  height: ${(props) => props.height};
   position: relative;
 `;
 
-const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
+const Selected = styled.div<{
+  isOpen: boolean;
+  disabled?: boolean;
+  height: string;
+}>`
   padding: ${(props) => props.theme.spaces[2]}px
     ${(props) => props.theme.spaces[3]}px;
   background: ${(props) =>
@@ -40,6 +46,7 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  height: ${(props) => props.height};
   cursor: pointer;
   ${(props) =>
     props.isOpen
@@ -62,13 +69,12 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
 `;
 
 const DropdownWrapper = styled.div<{
-  width?: string;
+  width: string;
 }>`
-  width: ${(props) => props.width || "260px"};
+  width: ${(props) => props.width};
   z-index: 1;
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
-  box-shadow: ${(props) =>
-    `0px 2px 4px ${props.theme.colors.dropdown.menuShadow}`};
+  box-shadow: ${(props) => props.theme.colors.dropdown.menuShadow};
   margin-top: ${(props) => -props.theme.spaces[3]}px;
   padding: ${(props) => props.theme.spaces[3]}px 0;
 `;
@@ -76,7 +82,7 @@ const DropdownWrapper = styled.div<{
 const OptionWrapper = styled.div<{
   selected: boolean;
 }>`
-  padding: ${(props) => props.theme.spaces[2] - 1}px
+  padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
   cursor: pointer;
   display: flex;
@@ -111,7 +117,7 @@ const OptionWrapper = styled.div<{
     .${Classes.ICON} {
       svg {
         path {
-          fill: ${(props) => props.theme.colors.dropdown.selected.icon};
+          fill: ${(props) => props.theme.colors.dropdown.hovered.icon};
         }
       }
     }
@@ -152,7 +158,6 @@ export default function Dropdown(props: DropdownProps) {
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
-  const [containerWidth, setContainerWidth] = useState<string>("0px");
 
   useEffect(() => {
     setSelected(props.selected);
@@ -167,24 +172,18 @@ export default function Dropdown(props: DropdownProps) {
     },
     [onSelect],
   );
-
-  const measuredRef = useCallback((node) => {
-    if (node !== null && !props.optionWidth) {
-      setContainerWidth(`${node.getBoundingClientRect().width}px`);
-    }
-  }, []);
-
+  console.log({ height: props.height });
   return (
     <DropdownContainer
       tabIndex={0}
       data-cy={props.cypressSelector}
-      ref={measuredRef}
-      width={props.width}
+      width={props.width || "260px"}
+      height={props.height || "38px"}
     >
       <Popover
         minimal
         popoverClassName={props.className}
-        position={Position.TOP_LEFT}
+        position={Position.BOTTOM_LEFT}
         isOpen={isOpen && !props.disabled}
         onInteraction={(state) => setIsOpen(state)}
         boundary="scrollParent"
@@ -194,6 +193,7 @@ export default function Dropdown(props: DropdownProps) {
           disabled={props.disabled}
           onClick={() => setIsOpen(!isOpen)}
           className={props.className}
+          height={props.height || "38px"}
         >
           <SelectedValueNode
             selected={selected}
@@ -201,9 +201,7 @@ export default function Dropdown(props: DropdownProps) {
           />
           {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
         </Selected>
-        <DropdownWrapper
-          width={props.optionWidth ? props.optionWidth : containerWidth}
-        >
+        <DropdownWrapper width={props.optionWidth || "260px"}>
           {props.options.map((option: DropdownOption, index: number) => {
             return (
               <OptionWrapper

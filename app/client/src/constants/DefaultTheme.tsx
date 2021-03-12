@@ -1147,7 +1147,7 @@ export const dark: ColorType = {
       disabledBg: darkShades[2],
     },
     menuBg: darkShades[3],
-    menuShadow: "rgba(0, 0, 0, 0.6)",
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: darkShades[9],
       bg: darkShades[4],
@@ -1555,7 +1555,7 @@ export const light: ColorType = {
       disabledBg: lightShades[1],
     },
     menuBg: lightShades[11],
-    menuShadow: "rgba(0, 0, 0, 0.32)",
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: lightShades[9],
       bg: lightShades[2],
@@ -1564,7 +1564,7 @@ export const light: ColorType = {
     hovered: {
       text: lightShades[11],
       bg: lightShades[12],
-      icon: lightShades[8],
+      icon: lightShades[11],
     },
     icon: lightShades[7],
   },
