@@ -542,7 +542,7 @@ public class MongoPluginTest {
                 "    }");
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn,
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn,
                 datasourceConfiguration,
                 actionConfiguration));
 
@@ -551,7 +551,7 @@ public class MongoPluginTest {
          * - Expect error here because testcontainer does not support SSL connection.
          */
         StepVerifier.create(executeMono)
-                .expectError()
-                .verify();
+                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .verifyComplete();
     }
 }
