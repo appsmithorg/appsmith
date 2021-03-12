@@ -80,7 +80,6 @@ public enum AppsmithError {
     AUTHENTICATION_FAILURE(500, 5009, "Authentication failed with error: {0}", AppsmithErrorAction.DEFAULT),
     GOOGLE_RECAPTCHA_TIMEOUT(504, 5042, "Google recaptcha verification timeout. Please try again.", AppsmithErrorAction.DEFAULT),
     GOOGLE_RECAPTCHA_FAILED(401, 4034, "Google recaptcha verification failed. Please try again.", AppsmithErrorAction.DEFAULT),
-    AUTHENTICATION_FAILURE(500, 5009, "Authentication failed with error: {0}", AppsmithErrorAction.DEFAULT),
     ;
 
 
