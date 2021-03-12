@@ -766,6 +766,11 @@ public class PostgresPlugin extends BasePlugin {
 
                 break;
             default:
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
+                                "customer support to resolve this."
+                );
         }
 
         String url = urlBuilder.toString();

@@ -83,8 +83,8 @@
           "controlType": "DROP_DOWN",
           "options": [
             {
-              "label": "Default",
-              "value": "DEFAULT"
+              "label": "No SSL",
+              "value": "NO_SSL"
             },
             {
               "label": "Allow",

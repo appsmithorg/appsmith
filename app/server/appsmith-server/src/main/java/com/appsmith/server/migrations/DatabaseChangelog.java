@@ -1967,7 +1967,7 @@ public class DatabaseChangelog {
         /*
          * - Set SSL mode to DEFAULT only for those postgres datasources where:
          *   - SSL mode config doesn't exist.
-         *   - SSL mode config cannot be supported.
+         *   - SSL mode config cannot be supported - NO_SSL, VERIFY_CA, VERIFY_FULL
          */
         postgresDatasources
                 .stream()

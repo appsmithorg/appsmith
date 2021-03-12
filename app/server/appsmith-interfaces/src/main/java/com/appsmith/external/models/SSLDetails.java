@@ -14,11 +14,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class SSLDetails {
 
     public enum AuthType {
-        // Default driver configuration
-        DEFAULT,
-
-        // legacy - not removing because required for migration changes to succeed.
-        NO_SSL,
+        // Default driver configurations
+        DEFAULT, NO_SSL,
 
         //For those drivers that don't have any specific options
         ENABLED,
