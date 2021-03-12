@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -102,6 +103,12 @@ public class MongoPluginTest {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setConnection(connection);
         dsConfig.setEndpoints(List.of(endpoint));
+
+        /* set ssl mode */
+        dsConfig.setConnection(new com.appsmith.external.models.Connection());
+        dsConfig.getConnection().setSsl(new SSLDetails());
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+
         return dsConfig;
     }
 
@@ -441,6 +448,27 @@ public class MongoPluginTest {
                                     "Connection timed out. Please check if the datasource configuration fields have " +
                                             "been filled correctly."
                             )));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslToggleMissingError() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getConnection().getSsl().setAuthType(null);
+
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor)
+                .map(executor -> executor.validateDatasource(datasourceConfiguration));
+
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource " +
+                            "configuration form. Please reach out to Appsmith customer support to resolve this.";
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> expectedError.equals(error))
+                    );
                 })
                 .verifyComplete();
     }

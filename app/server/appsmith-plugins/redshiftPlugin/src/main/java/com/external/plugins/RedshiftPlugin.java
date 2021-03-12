@@ -331,7 +331,7 @@ public class RedshiftPlugin extends BasePlugin {
 
             final boolean isSslEnabled = configurationConnection != null
                     && configurationConnection.getSsl() != null
-                    && !SSLDetails.AuthType.NO_SSL.equals(configurationConnection.getSsl().getAuthType());
+                    && !SSLDetails.AuthType.DEFAULT.equals(configurationConnection.getSsl().getAuthType());
 
             Properties properties = new Properties();
             properties.put(SSL, isSslEnabled);

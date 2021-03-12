@@ -330,7 +330,7 @@ public class MssqlPlugin extends BasePlugin {
 
                 final boolean isSslEnabled = configurationConnection != null
                         && configurationConnection.getSsl() != null
-                        && !SSLDetails.AuthType.NO_SSL.equals(configurationConnection.getSsl().getAuthType());
+                        && !SSLDetails.AuthType.DEFAULT.equals(configurationConnection.getSsl().getAuthType());
 
                 StringBuilder urlBuilder = new StringBuilder("jdbc:sqlserver://");
                 for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {

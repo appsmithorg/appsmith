@@ -14,11 +14,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Connection {
 
     public enum Mode {
-        READ_ONLY, READ_WRITE
+        READ_ONLY,
+        READ_WRITE
     }
 
     public enum Type {
-        DIRECT, REPLICA_SET
+        DIRECT,
+        REPLICA_SET
     }
 
     Mode mode;
@@ -27,8 +29,5 @@ public class Connection {
 
     SSLDetails ssl;
 
-    boolean useSsl = false;
-
     String defaultDatabaseName;
-
 }
