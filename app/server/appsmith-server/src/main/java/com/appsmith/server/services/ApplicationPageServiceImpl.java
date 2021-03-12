@@ -25,7 +25,6 @@ import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -34,7 +33,6 @@ import reactor.core.publisher.Mono;
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -244,7 +242,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    private Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
+    @Override
+    public Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
         return userMono
                 .flatMap(user -> {
                     Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
@@ -256,55 +255,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         application.setPolicies(documentPolicies);
                         return application;
                     });
-                });
-    }
-
-    @Override
-    public Mono<Application> cloneExampleApplication(Application application) {
-        if (!StringUtils.hasText(application.getName())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
-        }
-
-        String orgId = application.getOrganizationId();
-        if (!StringUtils.hasText(orgId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
-        }
-
-        // Clean the object so that it will be saved as a new application for the currently signed in user.
-        application.setClonedFromApplicationId(application.getId());
-        application.setId(null);
-        application.setPolicies(new HashSet<>());
-        application.setPages(new ArrayList<>());
-        application.setPublishedPages(new ArrayList<>());
-        application.setIsPublic(false);
-
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-
-        return setApplicationPolicies(userMono, orgId, application)
-                .flatMap(applicationToCreate ->
-                        createSuffixedApplication(applicationToCreate, applicationToCreate.getName(), 0)
-                );
-    }
-
-    /**
-     * Tries to create the given application with the name, over and over again with an incremented suffix, but **only**
-     * if the error is because of a name clash.
-     * @param application Application to try create.
-     * @param name Name of the application, to which numbered suffixes will be appended.
-     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
-     * @return A Mono that yields the created application.
-     */
-    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
-        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
-        application.setName(actualName);
-        return applicationService.createDefault(application)
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null
-                            && error.getMessage().contains("organization_application_deleted_compound_index")) {
-                        // The duplicate key error is because of the `name` field.
-                        return createSuffixedApplication(application, name, 1 + suffix);
-                    }
-                    throw error;
                 });
     }
 

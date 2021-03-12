@@ -31,7 +31,6 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
@@ -106,9 +105,6 @@ public class ExamplesOrganizationClonerTests {
 
     @Autowired
     private PluginRepository pluginRepository;
-
-    @Autowired
-    private EncryptionService encryptionService;
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
@@ -376,15 +372,18 @@ public class ExamplesOrganizationClonerTests {
                 })
                 .flatMapMany(tuple -> {
                     final String orgId = tuple.getT2().getId();
-                    tuple.getT1().setOrganizationId(orgId);
-                    Mono<Application> cloneMono = Mono.just(tuple.getT1())
+                    final String originalId = tuple.getT1().getId();
+                    final String originalName = tuple.getT1().getName();
+
+                    Mono<Void> cloneMono = Mono.just(tuple.getT1())
                             .map(app -> {
                                 // We reset these values here because the clone method updates them and that just messes with our test.
-                                app.setName("awesome app");
-                                app.setId(null);
+                                app.setId(originalId);
+                                app.setName(originalName);
                                 return app;
                             })
-                            .flatMap(applicationPageService::cloneExampleApplication);
+                            .flatMap(app -> examplesOrganizationCloner.cloneApplications(app.getOrganizationId(), orgId, Flux.fromArray(new Application[]{ app })))
+                            .then();
                     // Clone this application into the same organization thrice.
                     return cloneMono
                             .then(cloneMono)
@@ -844,16 +843,19 @@ public class ExamplesOrganizationClonerTests {
                                 final String originalId = tuple1.getT2().getId();
                                 final String originalName = tuple1.getT2().getName();
 
-                                Mono<Void> clonerMono = Mono.fromCallable(() -> {
-                                    final Application app = tuple1.getT2();
-                                    app.setId(originalId);
-                                    app.setName(originalName);
-                                    return app;
-                                }).flatMap(app -> examplesOrganizationCloner.cloneApplications(
-                                        app.getOrganizationId(),
-                                        targetOrg1.getId(),
-                                        Flux.fromArray(new Application[]{ app })
-                                )).then();
+                                Mono<Void> clonerMono = Mono.just(tuple1.getT2())
+                                        .map(app -> {
+                                            // We reset these values here because the clone method updates them and that just messes with our test.
+                                            app.setId(originalId);
+                                            app.setName(originalName);
+                                            return app;
+                                        })
+                                        .flatMap(app -> examplesOrganizationCloner.cloneApplications(
+                                                app.getOrganizationId(),
+                                                targetOrg1.getId(),
+                                                Flux.fromArray(new Application[]{ app })
+                                        ))
+                                        .then();
 
                                 return clonerMono
                                         .then(clonerMono)

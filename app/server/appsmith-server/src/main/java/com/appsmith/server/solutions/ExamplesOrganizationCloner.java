@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
@@ -17,6 +18,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
@@ -37,6 +39,7 @@ import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,11 +56,12 @@ public class ExamplesOrganizationCloner {
     private final ConfigService configService;
     private final SessionUserService sessionUserService;
     private final UserService userService;
+    private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
     private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
-    private final int CLONE_SUFFIX_LIMIT = 20;
+    private static final int CLONE_SUFFIX_LIMIT = 20;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -241,7 +245,7 @@ public class ExamplesOrganizationCloner {
                     return actionMono
                             .flatMap(newActionService::createAction)
                             .map(ActionDTO::getId)
-                            .zipWith(Mono.just(originalActionId));
+                            .zipWith(Mono.justOrEmpty(originalActionId));
                 })
                 // This call to `collectMap` will wait for all actions in all pages to have been processed, and so the
                 // `clonedPages` list will also contain all pages cloned.
@@ -250,7 +254,7 @@ public class ExamplesOrganizationCloner {
                 // Now publish all the example applications which have been cloned to ensure that there is a
                 // view mode for the newly created user.
                 .then(Mono.just(newApplicationIds))
-                .flatMapMany(applicationIds -> Flux.fromIterable(applicationIds))
+                .flatMapMany(Flux::fromIterable)
                 .flatMap(appId -> applicationPageService.publish(appId).thenReturn(appId))
                 .collectList();
     }
@@ -305,12 +309,11 @@ public class ExamplesOrganizationCloner {
      *
      * @param application : Application to be cloned
      * @param applicationIds : List where the cloned new application's id would be stored
-     * @return
+     * @return A flux that yields all the pages in the template application
      */
     private Flux<NewPage> doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(Application application, List<String> applicationIds) {
         final String templateApplicationId = application.getId();
-        return applicationPageService
-                .cloneExampleApplication(application)
+        return cloneApplicationDocument(application)
                 .flatMapMany(
                         savedApplication -> {
                             applicationIds.add(savedApplication.getId());
@@ -325,35 +328,30 @@ public class ExamplesOrganizationCloner {
                 );
     }
 
-    /**
-     * Clone all the datasources (except deleted ones) from one organization to another. Publishes a map where the keys
-     * are IDs of datasources that were copied (source IDs), and the values are the cloned datasource objects which
-     * contain the new ID.
-     *
-     * @param fromOrganizationId ID of the organization that is the source to copy datasources from.
-     * @param toOrganizationId   ID of the organization that is the target to copy datasources to.
-     * @return Mono of a mapping with old datasource IDs as keys and new datasource objects as values.
-     */
-    private Mono<Map<String, Datasource>> cloneDatasources(String fromOrganizationId, String toOrganizationId) {
-        return datasourceRepository
-                .findAllByOrganizationId(fromOrganizationId)
-                .flatMap(datasource -> {
-                    final String templateDatasourceId = datasource.getId();
-                    if (templateDatasourceId == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                    }
-                    makePristine(datasource);
-                    datasource.setOrganizationId(toOrganizationId);
-                    datasource.setName(datasource.getName());
-                    if (datasource.getDatasourceConfiguration() != null) {
-                        datasourceContextService.decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication());
-                    }
-                    return Mono.zip(
-                            Mono.just(templateDatasourceId),
-                            datasourceService.create(datasource)
-                    );
-                })
-                .collectMap(Tuple2::getT1, Tuple2::getT2);
+    private Mono<Application> cloneApplicationDocument(Application application) {
+        if (!StringUtils.hasText(application.getName())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
+        }
+
+        String orgId = application.getOrganizationId();
+        if (!StringUtils.hasText(orgId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
+
+        // Clean the object so that it will be saved as a new application for the currently signed in user.
+        application.setClonedFromApplicationId(application.getId());
+        application.setId(null);
+        application.setPolicies(new HashSet<>());
+        application.setPages(new ArrayList<>());
+        application.setPublishedPages(new ArrayList<>());
+        application.setIsPublic(false);
+
+        Mono<User> userMono = sessionUserService.getCurrentUser();
+
+        return applicationPageService.setApplicationPolicies(userMono, orgId, application)
+                .flatMap(applicationToCreate ->
+                        createSuffixedApplication(applicationToCreate, applicationToCreate.getName(), 0)
+                );
     }
 
     private Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId) {
@@ -389,7 +387,7 @@ public class ExamplesOrganizationCloner {
     /**
      * Tries to create the given datasource with the name, over and over again with an incremented suffix, but **only**
      * if the error is because of a name clash.
-     * @param datasource Application to try create.
+     * @param datasource Datasource to try create.
      * @param name Name of the datasource, to which numbered suffixes will be appended.
      * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
      * @return A Mono that yields the created datasource.
@@ -404,6 +402,28 @@ public class ExamplesOrganizationCloner {
                             && error.getMessage().contains("organization_datasource_deleted_compound_index")) {
                         // The duplicate key error is because of the `name` field.
                         return createSuffixedDatasource(datasource, name, 1 + suffix);
+                    }
+                    throw error;
+                });
+    }
+
+    /**
+     * Tries to create the given application with the name, over and over again with an incremented suffix, but **only**
+     * if the error is because of a name clash.
+     * @param application Application to try create.
+     * @param name Name of the application, to which numbered suffixes will be appended.
+     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
+     * @return A Mono that yields the created application.
+     */
+    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
+        return applicationService.createDefault(application)
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null
+                            && error.getMessage().contains("organization_application_deleted_compound_index")) {
+                        // The duplicate key error is because of the `name` field.
+                        return createSuffixedApplication(application, name, 1 + suffix);
                     }
                     throw error;
                 });
