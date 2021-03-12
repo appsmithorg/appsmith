@@ -798,6 +798,44 @@ public class PostgresPluginTest {
     }
 
     @Test
+    public void testSslDefault() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from pg_stat_ssl");
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    String body = result.getBody().toString();
+                    assertTrue(body.contains("\"ssl\":false"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslDisable() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from pg_stat_ssl");
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLE);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    String body = result.getBody().toString();
+                    assertTrue(body.contains("\"ssl\":false"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testSslRequire() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show session status like 'Ssl_cipher'");
