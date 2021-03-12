@@ -26,7 +26,6 @@ const SectionTitle = styled.div`
     justify-content: flex-start;
     align-items: center;
     margin: 0;
-    text-transform: uppercase;
   }
   & span.${Classes.ICON} {
     cursor: pointer;
