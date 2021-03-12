@@ -222,9 +222,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return applicationWithPoliciesMono
                 .flatMap(applicationService::createDefault)
-                .doOnError(error -> {
-                    log.error("Error creating application", error);
-                })
                 .flatMap(savedApplication -> {
 
                     PageDTO page = new PageDTO();

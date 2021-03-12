@@ -19,6 +19,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -110,6 +111,9 @@ public class ExamplesOrganizationClonerTests {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private NewPageRepository newPageRepository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -381,7 +385,7 @@ public class ExamplesOrganizationClonerTests {
                             .thenMany(Flux.defer(() -> applicationRepository.findByOrganizationId(orgId)));
                 })
                 .map(Application::getName)
-                .collect(Collectors.toList());
+                .collectList();
 
         StepVerifier.create(resultMono)
                 .assertNext(names -> {
@@ -683,6 +687,126 @@ public class ExamplesOrganizationClonerTests {
                             "action2",
                             "action3",
                             "action4"
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplicationWithActionsThrice() {
+        Organization sourceOrg = new Organization();
+        sourceOrg.setName("Source Org 2");
+
+        Organization targetOrg = new Organization();
+        targetOrg.setName("Target Org 2");
+
+        final Mono<OrganizationData> resultMono = Mono
+                .zip(
+                        organizationService.create(sourceOrg),
+                        sessionUserService.getCurrentUser()
+                )
+                .flatMap(tuple -> {
+                    final Organization sourceOrg1 = tuple.getT1();
+
+                    final Application app1 = new Application();
+                    app1.setName("that great app");
+                    app1.setOrganizationId(sourceOrg1.getId());
+                    app1.setIsPublic(true);
+
+                    final Datasource ds1 = new Datasource();
+                    ds1.setName("datasource 1");
+                    ds1.setOrganizationId(sourceOrg1.getId());
+                    ds1.setPluginId(installedPlugin.getId());
+
+                    return applicationPageService.createApplication(app1)
+                            .flatMap(createdApp -> Mono.zip(
+                                    Mono.just(createdApp),
+                                    newPageRepository.findByApplicationId(createdApp.getId()).collectList(),
+                                    datasourceService.create(ds1)
+                            ))
+                            .flatMap(tuple1 -> {
+                                final Application app = tuple1.getT1();
+                                final List<NewPage> pages = tuple1.getT2();
+                                final Datasource ds1WithId = tuple1.getT3();
+
+                                final NewPage firstPage = pages.get(0);
+
+                                final ActionDTO action1 = new ActionDTO();
+                                action1.setName("action1");
+                                action1.setPageId(firstPage.getId());
+                                action1.setOrganizationId(sourceOrg1.getId());
+                                action1.setDatasource(ds1WithId);
+                                action1.setPluginId(installedPlugin.getId());
+
+                                final ActionDTO action2 = new ActionDTO();
+                                action2.setPageId(firstPage.getId());
+                                action2.setName("action2");
+                                action2.setOrganizationId(sourceOrg1.getId());
+                                action2.setDatasource(ds1WithId);
+                                action2.setPluginId(installedPlugin.getId());
+
+                                return Mono.zip(
+                                        organizationService.create(targetOrg),
+                                        Mono.just(app),
+                                        Mono.just(ds1),
+                                        actionCollectionService.createAction(action1),
+                                        actionCollectionService.createAction(action2)
+                                );
+                            })
+                            .flatMap(tuple1 -> {
+                                final Organization targetOrg1 = tuple1.getT1();
+                                final String originalId = tuple1.getT2().getId();
+                                final String originalName = tuple1.getT2().getName();
+
+                                Mono<Void> clonerMono = Mono.fromCallable(() -> {
+                                    final Application app = tuple1.getT2();
+                                    app.setId(originalId);
+                                    app.setName(originalName);
+                                    return app;
+                                }).flatMap(app -> examplesOrganizationCloner.cloneApplications(
+                                        app.getOrganizationId(),
+                                        targetOrg1.getId(),
+                                        Flux.fromArray(new Application[]{ app })
+                                )).then();
+
+                                return clonerMono
+                                        .then(clonerMono)
+                                        .then(clonerMono)
+                                        .thenReturn(targetOrg1);
+                            });
+                })
+                .flatMap(this::loadOrganizationData);
+
+        StepVerifier.create(resultMono)
+                .assertNext(data -> {
+                    assertThat(data.organization).isNotNull();
+                    assertThat(data.organization.getId()).isNotNull();
+                    assertThat(data.organization.getName()).isEqualTo("Target Org 2");
+                    assertThat(data.organization.getPolicies()).isNotEmpty();
+
+                    assertThat(map(data.applications, Application::getName)).containsExactlyInAnyOrder(
+                            "that great app",
+                            "that great app (1)",
+                            "that great app (2)"
+                    );
+
+                    final Application app1 = data.applications.stream().filter(app -> app.getName().equals("that great app")).findFirst().orElse(null);
+                    assert app1 != null;
+                    assertThat(app1.getPages().stream().filter(ApplicationPage::isDefault).count()).isEqualTo(1);
+
+                    assertThat(data.datasources).hasSize(1);
+                    assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
+                            "datasource 1"
+                    );
+
+                    assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
+                            "action1",
+                            "action2",
+                            "action1",
+                            "action2",
+                            "action1",
+                            "action2"
                     );
                 })
                 .verifyComplete();

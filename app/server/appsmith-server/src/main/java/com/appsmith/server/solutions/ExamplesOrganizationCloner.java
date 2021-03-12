@@ -27,6 +27,7 @@ import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -56,6 +57,7 @@ public class ExamplesOrganizationCloner {
     private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
+    private final int CLONE_SUFFIX_LIMIT = 20;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -355,15 +357,55 @@ public class ExamplesOrganizationCloner {
     }
 
     private Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId) {
-        return datasourceRepository
-                .findById(datasourceId)
-                .flatMap(datasource -> {
-                    makePristine(datasource);
-                    datasource.setOrganizationId(toOrganizationId);
-                    if (datasource.getDatasourceConfiguration() != null) {
-                        datasourceContextService.decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication());
+        final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByOrganizationId(toOrganizationId)
+                .collectList();
+
+        return Mono.zip(datasourceRepository.findById(datasourceId), existingDatasourcesMono)
+                .flatMap(tuple -> {
+                    final Datasource templateDatasource = tuple.getT1();
+                    final List<Datasource> existingDatasources = tuple.getT2();
+
+                    return Flux.fromIterable(existingDatasources)
+                            .filter(templateDatasource::softEquals)
+                            .next()  // Get the first matching datasource, we don't need more than one here.
+                            .switchIfEmpty(Mono.defer(() -> {
+                                // No matching existing datasource found, so create a new one.
+                                makePristine(templateDatasource);
+
+                                templateDatasource.setOrganizationId(toOrganizationId);
+                                if (templateDatasource.getDatasourceConfiguration() != null) {
+                                    datasourceContextService.decryptSensitiveFields(templateDatasource.getDatasourceConfiguration().getAuthentication());
+                                }
+
+                                return createSuffixedDatasource(templateDatasource);
+                            }));
+                });
+    }
+
+    private Mono<Datasource> createSuffixedDatasource(Datasource datasource) {
+        return createSuffixedDatasource(datasource, datasource.getName(), 0);
+    }
+
+    /**
+     * Tries to create the given datasource with the name, over and over again with an incremented suffix, but **only**
+     * if the error is because of a name clash.
+     * @param datasource Application to try create.
+     * @param name Name of the datasource, to which numbered suffixes will be appended.
+     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
+     * @return A Mono that yields the created datasource.
+     */
+    private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        datasource.setName(actualName);
+        return datasourceService.create(datasource)
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (suffix <= CLONE_SUFFIX_LIMIT
+                            && error.getMessage() != null
+                            && error.getMessage().contains("organization_datasource_deleted_compound_index")) {
+                        // The duplicate key error is because of the `name` field.
+                        return createSuffixedDatasource(datasource, name, 1 + suffix);
                     }
-                    return datasourceService.create(datasource);
+                    throw error;
                 });
     }
 
