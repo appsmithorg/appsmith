@@ -1,27 +1,31 @@
+import { batchUpdateWidgetProperty } from "actions/controlActions";
 import { theme } from "constants/DefaultTheme";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   DefaultLayoutType,
   layoutConfigurations,
+  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { debounce } from "lodash";
 import { AppsmithDefaultLayout } from "pages/Editor/MainContainerLayoutControl";
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getWidget } from "sagas/selectors";
+import { getWidget, getWidgets } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
 } from "selectors/editorSelectors";
+import { calculateDynamicHeight } from "utils/WidgetPropsUtils";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 
 export const useDynamicAppLayout = () => {
-  const { width: screenWidth } = useWindowSizeHooks();
+  const { width: screenWidth, height: screenHeight } = useWindowSizeHooks();
   const mainContainer = useSelector((state: AppState) => getWidget(state, "0"));
   const currentPageId = useSelector(getCurrentPageId);
   const appMode = useSelector(getAppMode);
+  const canvasWidgets = useSelector(getWidgets);
   const appLayout = useSelector(getCurrentApplicationLayout);
   const dispatch = useDispatch();
 
@@ -68,6 +72,24 @@ export const useDynamicAppLayout = () => {
   const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
     mainContainer,
   ]);
+
+  useEffect(() => {
+    if (appMode === "EDIT") {
+      const calculatedMinHeight = calculateDynamicHeight(
+        canvasWidgets,
+        mainContainer.minHeight,
+      );
+      if (calculatedMinHeight !== mainContainer.minHeight) {
+        dispatch(
+          batchUpdateWidgetProperty(MAIN_CONTAINER_WIDGET_ID, {
+            modify: {
+              minHeight: calculatedMinHeight,
+            },
+          }),
+        );
+      }
+    }
+  }, [screenHeight, mainContainer.minHeight]);
 
   useEffect(() => {
     debouncedResize(screenWidth, appLayout);
