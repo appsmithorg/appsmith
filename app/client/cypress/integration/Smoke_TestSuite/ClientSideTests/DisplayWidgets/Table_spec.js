@@ -281,7 +281,7 @@ describe("Table Widget Functionality", function() {
     cy.testJsontext("tabledata", JSON.stringify(newTableData));
     cy.wait("@updateLayout");
     cy.PublishtheApp();
-    cy.wait(500);
+    cy.wait(2000);
     cy.readTabledataPublish("0", "5").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("");
