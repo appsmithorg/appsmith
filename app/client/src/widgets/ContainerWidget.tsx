@@ -114,7 +114,7 @@ class ContainerWidget extends BaseWidget<
     return (
       <ContainerComponent {...props}>
         {/* without the wrapping div onClick events are triggered twice */}
-        <div>{this.renderChildren()}</div>
+        <>{this.renderChildren()}</>
       </ContainerComponent>
     );
   }
