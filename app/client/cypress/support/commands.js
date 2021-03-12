@@ -2182,6 +2182,12 @@ Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
   return tabVal;
 });
 
+Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] a`;
+  const hrefVal = cy.get(selector).invoke("attr", "href");
+  return hrefVal;
+});
+
 Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
   cy.get(dynamicInputLocators.evaluatedValue)
     .should("be.visible")

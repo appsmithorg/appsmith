@@ -31,13 +31,13 @@ public enum AppsmithError {
     PAGE_DOESNT_BELONG_TO_APPLICATION(400, 4018, "Unexpected state. Page {0} does not seem belong to the application {1}. Please reach out to Appsmith customer support to resolve this.",
             AppsmithErrorAction.LOG_EXTERNALLY),
     INVALID_DYNAMIC_BINDING_REFERENCE(400, 4022,
-            "  \"message\" : \"Binding path in the widget not found. Please reach out to Appsmith customer support to resolve this.\"," +
             "  \"widgetType\" : \"{0}\"," +
-            "  \"widgetName\" : \"{1}\"," +
-            "  \"widgetId\" : \"{2}\"," +
-            "  \"bindingPath\" : \"{3}\"," +
-            "  \"pageId\" : \"{4}\"," +
-            "  \"layoutId\" : \"{5}\"",
+                    "  \"bindingPath\" : \"{3}\"," +
+                    "  \"message\" : \"Binding path in the widget not found. Please reach out to Appsmith customer support to resolve this.\"," +
+                    "  \"widgetName\" : \"{1}\"," +
+                    "  \"widgetId\" : \"{2}\"," +
+                    "  \"pageId\" : \"{4}\"," +
+                    "  \"layoutId\" : \"{5}\"",
             AppsmithErrorAction.LOG_EXTERNALLY),
     USER_ALREADY_EXISTS_IN_ORGANIZATION(400, 4021, "The user {0} has already been added to the organization with role {1}. To change the role, please navigate to `Manage Users` page.", AppsmithErrorAction.DEFAULT),
     UNAUTHORIZED_DOMAIN(401, 4019, "Invalid email domain {0} used for sign in/sign up. Please contact the administrator to configure this domain if this is unexpected.", AppsmithErrorAction.DEFAULT),
@@ -77,6 +77,8 @@ public enum AppsmithError {
     SIGNUP_DISABLED(403, 4033, "Signup is restricted on this instance of Appsmith. Please contact the administrator to get an invite.", AppsmithErrorAction.DEFAULT),
     FAIL_UPDATE_USER_IN_SESSION(500, 5008, "Unable to update user in session.", AppsmithErrorAction.LOG_EXTERNALLY),
     APPLICATION_FORKING_NOT_ALLOWED(403, 4034, "Forking this application is not permitted at this time.", AppsmithErrorAction.DEFAULT),
+    GOOGLE_RECAPTCHA_TIMEOUT(504, 5042, "Google recaptcha verification timeout. Please try again.", AppsmithErrorAction.DEFAULT),
+    GOOGLE_RECAPTCHA_FAILED(401, 4034, "Google recaptcha verification failed. Please try again.", AppsmithErrorAction.DEFAULT),
     ;
 
 
