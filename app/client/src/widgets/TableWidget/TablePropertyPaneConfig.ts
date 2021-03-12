@@ -245,6 +245,46 @@ export default [
                       label: "DD/MM/YYYY HH:mm",
                       value: "DD/MM/YYYY HH:mm",
                     },
+                    {
+                      label: "LLL",
+                      value: "LLL",
+                    },
+                    {
+                      label: "LL",
+                      value: "LL",
+                    },
+                    {
+                      label: "D MMMM, YYYY",
+                      value: "D MMMM, YYYY",
+                    },
+                    {
+                      label: "H:mm A D MMMM, YYYY",
+                      value: "H:mm A D MMMM, YYYY",
+                    },
+                    {
+                      label: "MM-DD-YYYY",
+                      value: "MM-DD-YYYY",
+                    },
+                    {
+                      label: "DD-MM-YYYY",
+                      value: "DD-MM-YYYY",
+                    },
+                    {
+                      label: "MM/DD/YYYY",
+                      value: "MM/DD/YYYY",
+                    },
+                    {
+                      label: "DD/MM/YYYY",
+                      value: "DD/MM/YYYY",
+                    },
+                    {
+                      label: "DD/MM/YY",
+                      value: "DD/MM/YY",
+                    },
+                    {
+                      label: "MM/DD/YY",
+                      value: "MM/DD/YY",
+                    },
                   ],
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
@@ -295,6 +335,46 @@ export default [
                     {
                       label: "DD/MM/YYYY HH:mm",
                       value: "DD/MM/YYYY HH:mm",
+                    },
+                    {
+                      label: "LLL",
+                      value: "LLL",
+                    },
+                    {
+                      label: "LL",
+                      value: "LL",
+                    },
+                    {
+                      label: "D MMMM, YYYY",
+                      value: "D MMMM, YYYY",
+                    },
+                    {
+                      label: "H:mm A D MMMM, YYYY",
+                      value: "H:mm A D MMMM, YYYY",
+                    },
+                    {
+                      label: "MM-DD-YYYY",
+                      value: "MM-DD-YYYY",
+                    },
+                    {
+                      label: "DD-MM-YYYY",
+                      value: "DD-MM-YYYY",
+                    },
+                    {
+                      label: "MM/DD/YYYY",
+                      value: "MM/DD/YYYY",
+                    },
+                    {
+                      label: "DD/MM/YYYY",
+                      value: "DD/MM/YYYY",
+                    },
+                    {
+                      label: "DD/MM/YY",
+                      value: "DD/MM/YY",
+                    },
+                    {
+                      label: "MM/DD/YY",
+                      value: "MM/DD/YY",
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,

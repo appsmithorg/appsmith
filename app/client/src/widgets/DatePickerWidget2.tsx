@@ -62,6 +62,56 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
                 subText: "DD/MM/YYYY HH:mm",
                 value: "DD/MM/YYYY HH:mm",
               },
+              {
+                label: moment().format("LLL"),
+                subText: "LLL",
+                value: "LLL",
+              },
+              {
+                label: moment().format("LL"),
+                subText: "LL",
+                value: "LL",
+              },
+              {
+                label: moment().format("D MMMM, YYYY"),
+                subText: "D MMMM, YYYY",
+                value: "D MMMM, YYYY",
+              },
+              {
+                label: moment().format("H:mm A D MMMM, YYYY"),
+                subText: "H:mm A D MMMM, YYYY",
+                value: "H:mm A D MMMM, YYYY",
+              },
+              {
+                label: moment().format("MM-DD-YYYY"),
+                subText: "MM-DD-YYYY",
+                value: "MM-DD-YYYY",
+              },
+              {
+                label: moment().format("DD-MM-YYYY"),
+                subText: "DD-MM-YYYY",
+                value: "DD-MM-YYYY",
+              },
+              {
+                label: moment().format("MM/DD/YYYY"),
+                subText: "MM/DD/YYYY",
+                value: "MM/DD/YYYY",
+              },
+              {
+                label: moment().format("DD/MM/YYYY"),
+                subText: "DD/MM/YYYY",
+                value: "DD/MM/YYYY",
+              },
+              {
+                label: moment().format("DD/MM/YY"),
+                subText: "DD/MM/YY",
+                value: "DD/MM/YY",
+              },
+              {
+                label: moment().format("MM/DD/YY"),
+                subText: "MM/DD/YY",
+                value: "MM/DD/YY",
+              },
             ],
             isBindProperty: true,
             isTriggerProperty: false,
