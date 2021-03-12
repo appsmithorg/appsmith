@@ -254,8 +254,9 @@ export const GLOBAL_DEFS = {
     description: "string",
   },
   file: {
-    name: "text",
     data: "string",
+    name: "text",
+    type: "file",
   },
 };
 
