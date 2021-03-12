@@ -268,6 +268,25 @@ describe("Table Widget Functionality", function() {
     });
   });
 
+  it("Check null values are displayed as empty cell", function() {
+    cy.openPropertyPane("tablewidget");
+
+    /**
+     * @param{Text} Random Text
+     * @param{ChartWidget}Mouseover
+     * @param{ChartPre Css} Assertion
+     */
+    const newTableData = [...this.data.TableInput];
+    newTableData[0].orderAmount = null;
+    cy.testJsontext("tabledata", JSON.stringify(newTableData));
+    cy.wait("@updateLayout");
+    cy.PublishtheApp();
+    cy.wait(500);
+    cy.readTabledataPublish("0", "5").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("");
+    });
+  });
   /*
   To enabled later
   
