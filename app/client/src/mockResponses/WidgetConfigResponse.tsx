@@ -34,6 +34,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisible: true,
       widgetName: "RichTextEditor",
       isDefaultClickDisabled: true,
+      inputType: "html",
       version: 1,
     },
     IMAGE_WIDGET: {
