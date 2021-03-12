@@ -4,12 +4,7 @@ import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  scrollbarDark,
-  scrollbarLight,
-  Skin,
-  Theme,
-} from "constants/DefaultTheme";
+import { Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 
 export const HintStyles = createGlobalStyle<{
@@ -31,8 +26,6 @@ export const HintStyles = createGlobalStyle<{
       props.editorTheme === EditorTheme.LIGHT ? "#FAFAFA" : "#262626"};
     box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
     border-radius: 0px;
-    ${(props) =>
-      props.editorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
   }
 
   .CodeMirror-hint {
