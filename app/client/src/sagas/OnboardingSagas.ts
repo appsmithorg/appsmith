@@ -84,7 +84,7 @@ import { generateReactKey } from "utils/generators";
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import {
-  updateWidgetProperty,
+  batchUpdateWidgetProperty,
   updateWidgetPropertyRequest,
 } from "../actions/controlActions";
 import OnSubmitGif from "assets/gifs/onsubmit.gif";
@@ -146,13 +146,16 @@ function* listenForWidgetAdditions() {
         selectedWidget.tableData === initialTableData
       ) {
         yield put(
-          updateWidgetProperty(selectedWidget.widgetId, {
-            tableData: [],
-            columnSizeMap: {
-              avatar: 20,
-              name: 30,
+          batchUpdateWidgetProperty(selectedWidget.widgetId, {
+            modify: {
+              tableData: [],
+              columnSizeMap: {
+                avatar: 20,
+                name: 30,
+              },
+              migrated: false,
+              ...getStandupTableDimensions(),
             },
-            ...getStandupTableDimensions(),
           }),
         );
       }
@@ -208,9 +211,11 @@ function* listenForAddInputWidget() {
           ),
         );
         yield put(
-          updateWidgetProperty(inputWidget.widgetId, {
-            ...getStandupInputDimensions(),
-            ...getStandupInputProps(),
+          batchUpdateWidgetProperty(inputWidget.widgetId, {
+            modify: {
+              ...getStandupInputDimensions(),
+              ...getStandupInputProps(),
+            },
           }),
         );
         yield put(setCurrentSubstep(2));
@@ -218,12 +223,12 @@ function* listenForAddInputWidget() {
         yield put(showIndicator(OnboardingStep.ADD_INPUT_WIDGET));
       }
 
-      const helperConfig = yield select(
+      const helperConfig: OnboardingHelperConfig = yield select(
         (state) => state.ui.onBoarding.helperStepConfig,
       );
       const onSubmitGifUrl = OnSubmitGif;
 
-      if (helperConfig?.image.src !== onSubmitGifUrl) {
+      if (helperConfig.image?.src !== onSubmitGifUrl) {
         yield put(
           setHelperConfig({
             ...helperConfig,
@@ -305,11 +310,13 @@ function* listenForSuccessfulBinding() {
 
         if (bindSuccessful) {
           yield put(
-            updateWidgetProperty(selectedWidget.widgetId, {
-              columnTypeMap: {
-                avatar: {
-                  type: "image",
-                  format: "",
+            batchUpdateWidgetProperty(selectedWidget.widgetId, {
+              modify: {
+                columnTypeMap: {
+                  avatar: {
+                    type: "image",
+                    format: "",
+                  },
                 },
               },
             }),
@@ -535,7 +542,7 @@ function* createApplication() {
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
 
-  if (!organization) {
+  if (!currentOrganizationId) {
     organization = userOrgs[0];
   } else {
     const filteredOrganizations = userOrgs.filter(
@@ -543,26 +550,30 @@ function* createApplication() {
     );
     organization = filteredOrganizations[0];
   }
-  const applicationList = organization.applications;
 
-  const applicationName = getNextEntityName(
-    "Super Standup ",
-    applicationList.map((el: any) => el.name),
-    true,
-  );
+  // Organization could be undefined for unknown reason
+  if (organization) {
+    const applicationList = organization.applications;
 
-  yield put({
-    type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-    payload: {
-      applicationName,
-      orgId: organization.organization.id,
-      icon,
-      color,
-    },
-  });
+    const applicationName = getNextEntityName(
+      "Super Standup ",
+      applicationList.map((el: any) => el.name),
+      true,
+    );
 
-  yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
-  yield call(initiateOnboarding);
+    yield put({
+      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
+      payload: {
+        applicationName,
+        orgId: organization.organization.id,
+        icon,
+        color,
+      },
+    });
+
+    yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
+    yield call(initiateOnboarding);
+  }
 }
 
 function* createQuery() {

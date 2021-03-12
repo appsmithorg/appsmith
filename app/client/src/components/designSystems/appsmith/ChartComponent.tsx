@@ -31,7 +31,9 @@ export interface ChartComponentProps {
   onDataPointClick: (selectedDataPoint: { x: any; y: any }) => void;
 }
 
-const CanvasContainer = styled.div<ChartComponentProps>`
+const CanvasContainer = styled.div<
+  Omit<ChartComponentProps, "onDataPointClick">
+>`
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   border-radius: 0;
   height: 100%;
@@ -295,11 +297,10 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   }
 
   render() {
+    //eslint-disable-next-line  @typescript-eslint/no-unused-vars
+    const { onDataPointClick, ...rest } = this.props;
     return (
-      <CanvasContainer
-        {...this.props}
-        id={this.props.widgetId + "chart-container"}
-      />
+      <CanvasContainer {...rest} id={this.props.widgetId + "chart-container"} />
     );
   }
 }

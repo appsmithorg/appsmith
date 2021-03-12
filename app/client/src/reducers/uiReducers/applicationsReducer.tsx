@@ -9,6 +9,7 @@ import { Organization } from "constants/orgConstants";
 import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
 import { UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
+import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -18,6 +19,7 @@ const initialState: ApplicationsReduxState = {
   applicationList: [],
   creatingApplication: {},
   deletingApplication: false,
+  forkingApplication: false,
   duplicatingApplication: false,
   userOrgs: [],
   isSavingOrgInfo: false,
@@ -114,6 +116,16 @@ const applicationsReducer = createReducer(initialState, {
       name: action.payload,
     },
   }),
+  [ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ appLayout: AppLayoutConfig }>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      appLayout: action.payload,
+    },
+  }),
   [ReduxActionTypes.CREATE_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
     action: ReduxAction<CreateApplicationFormValues>,
@@ -163,6 +175,39 @@ const applicationsReducer = createReducer(initialState, {
       ...state,
       creatingApplication: updatedCreatingApplication,
       createApplicationError: ERROR_MESSAGE_CREATE_APPLICATION,
+    };
+  },
+  [ReduxActionTypes.FORK_APPLICATION_INIT]: (state: ApplicationsReduxState) => {
+    return { ...state, forkingApplication: true };
+  },
+  [ReduxActionTypes.FORK_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ orgId: string; application: ApplicationPayload }>,
+  ) => {
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.orgId) {
+        const applications = org.applications;
+        org.applications = [...applications, action.payload.application];
+        return {
+          ...org,
+        };
+      }
+      return org;
+    });
+
+    return {
+      ...state,
+      forkingApplication: false,
+      applicationList: [...state.applicationList, action.payload.application],
+      userOrgs: _organizations,
+    };
+  },
+  [ReduxActionErrorTypes.FORK_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      forkingApplication: false,
     };
   },
   [ReduxActionTypes.SAVING_ORG_INFO]: (state: ApplicationsReduxState) => {
@@ -288,6 +333,7 @@ export interface ApplicationsReduxState {
   creatingApplication: creatingApplicationMap;
   createApplicationError?: string;
   deletingApplication: boolean;
+  forkingApplication: boolean;
   duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
   userOrgs: Organization[];
@@ -301,7 +347,6 @@ export interface Application {
   isPublic: boolean;
   appIsExample: boolean;
   new: boolean;
-  pageCount: number;
   defaultPageId: string;
   pages: Array<{ id: string; isDefault: boolean; default: boolean }>;
   userPermissions: string[];

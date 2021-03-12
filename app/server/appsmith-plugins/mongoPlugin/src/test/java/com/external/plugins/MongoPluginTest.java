@@ -1,11 +1,11 @@
 package com.external.plugins;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -213,11 +214,14 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithPluginException &&
-                        throwable.getMessage().equals("unknown top level operator: $is")
-                )
-                .verify();
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals("unknown top level operator: $is", result.getBody());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -399,6 +403,44 @@ public class MongoPluginTest {
                             },
                             possessionsTable.getTemplates().toArray()
                     );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testErrorMessageOnSrvUrl() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("mongodb+srv:://url.net");
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> error.contains("MongoDb SRV URLs are not yet supported")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTestDatasourceTimeoutError() {
+        String badHost = "mongo-bad-url.mongodb.net";
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost(badHost);
+
+        Mono<DatasourceTestResult> datasourceTestResult = pluginExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(datasourceTestResult)
+                .assertNext(result -> {
+                    assertFalse(result.isSuccess());
+                    assertTrue(result.getInvalids().size() == 1);
+                    assertTrue(result
+                            .getInvalids()
+                            .stream()
+                            .anyMatch(error -> error.contains(
+                                    "Connection timed out. Please check if the datasource configuration fields have " +
+                                            "been filled correctly."
+                            )));
                 })
                 .verifyComplete();
     }

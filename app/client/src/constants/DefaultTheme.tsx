@@ -720,6 +720,7 @@ type ColorType = {
     color: ShadeColor;
   };
   profileDropdown: {
+    name: ShadeColor;
     userName: ShadeColor;
   };
   modal: {
@@ -880,6 +881,27 @@ type ColorType = {
     activeTabBorderBottom: string;
     activeTabText: string;
   };
+  globalSearch: {
+    containerBackground: string;
+    activeSearchItemBackground: string;
+    searchInputText: string;
+    containerShadow: string;
+    separator: string;
+    searchItemHighlight: string;
+    searchItemText: string;
+    highlightedTextUnderline: string;
+    documentationCtaBackground: string;
+    documentationCtaText: string;
+    emptyStateText: string;
+    navigateUsingEnterSection: string;
+    codeBackground: string;
+    documentLink: string;
+    helpBarBackground: string;
+    helpButtonBackground: string;
+    helpBarBorder: string;
+    sectionTitle: string;
+    navigateToEntityEnterkey: string;
+  };
   gif: {
     overlay: string;
     text: string;
@@ -915,7 +937,33 @@ const formMessage = {
   },
 };
 
+const globalSearch = {
+  containerBackground:
+    "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
+  activeSearchItemBackground: "rgba(0, 0, 0, 0.24)",
+  searchInputText: "#fff",
+  containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
+  separator: "#424242",
+  searchItemHighlight: "#fff",
+  searchItemText: "rgba(255, 255, 255, 0.6)",
+  highlightedTextUnderline: "#03B365",
+  helpBarText: "#C2C2C2",
+  documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
+  documentationCtaText: "#03B365",
+  emptyStateText: "#ABABAB",
+  navigateUsingEnterSection: "#154E6B",
+  codeBackground: "#494949",
+  documentLink: "#54a9fb",
+  helpBarBackground: "#000",
+  helpButtonBackground: "#333333",
+  helpBarBorder: "#404040",
+  helpButtonBorder: "#404040",
+  sectionTitle: "#D4D4D4",
+  navigateToEntityEnterkey: "#3DA5D9",
+};
+
 export const dark: ColorType = {
+  globalSearch,
   header: {
     separator: darkShades[4],
     appName: darkShades[7],
@@ -1142,7 +1190,8 @@ export const dark: ColorType = {
     color: darkShades[7],
   },
   profileDropdown: {
-    userName: darkShades[9],
+    name: darkShades[10],
+    userName: darkShades[7],
   },
   modal: {
     bg: darkShades[1],
@@ -1302,6 +1351,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  globalSearch,
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
@@ -1528,7 +1578,8 @@ export const light: ColorType = {
     color: lightShades[7],
   },
   profileDropdown: {
-    userName: lightShades[9],
+    name: lightShades[10],
+    userName: lightShades[7],
   },
   modal: {
     bg: lightShades[11],
@@ -1777,17 +1828,29 @@ export const theme: Theme = {
       letterSpacing: -0.24,
       fontWeight: "normal",
     },
-    authCardHeader: {
+    cardHeader: {
       fontStyle: "normal",
       fontWeight: 600,
       fontSize: 25,
       lineHeight: 20,
     },
-    authCardSubheader: {
+    cardSubheader: {
       fontStyle: "normal",
       fontWeight: "normal",
       fontSize: 15,
       lineHeight: 20,
+    },
+    largeH1: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 28,
+      lineHeight: 36,
+    },
+    spacedOutP1: {
+      fontStyle: "normal",
+      fontWeight: "normal",
+      fontSize: 14,
+      lineHeight: 24,
     },
   },
   iconSizes: {
@@ -2023,7 +2086,6 @@ export const theme: Theme = {
 
 export const scrollbarLight = css<{ backgroundColor?: Color }>`
   scrollbar-color: ${(props) => props.theme.colors.paneText};
-
   scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 4px;

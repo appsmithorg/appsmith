@@ -1,6 +1,5 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
-import { BatchAction, batchAction } from "actions/batchActions";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 
 export const updateWidgetPropertyRequest = (
@@ -20,27 +19,14 @@ export const updateWidgetPropertyRequest = (
   };
 };
 
-export const updateWidgetProperty = (
-  widgetId: string,
-  updates: Record<string, unknown>,
-  dynamicUpdates?: {
-    dynamicBindingPathList: DynamicPath[];
-    dynamicTriggerPathList: DynamicPath[];
-  },
-): BatchAction<UpdateWidgetPropertyPayload> => {
-  return batchAction({
-    type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
-    payload: {
-      widgetId,
-      updates,
-      dynamicUpdates,
-    },
-  });
-};
+export interface BatchPropertyUpdatePayload {
+  modify?: Record<string, unknown>; //Key value pairs of paths and values to update
+  remove?: string[]; //Array of paths to delete
+}
 
 export const batchUpdateWidgetProperty = (
   widgetId: string,
-  updates: Record<string, unknown>,
+  updates: BatchPropertyUpdatePayload,
 ): ReduxAction<UpdateWidgetPropertyPayload> => ({
   type: ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
   payload: {
@@ -84,11 +70,15 @@ export interface UpdateWidgetPropertyRequestPayload {
 
 export interface UpdateWidgetPropertyPayload {
   widgetId: string;
-  updates: Record<string, unknown>;
+  updates: BatchPropertyUpdatePayload;
   dynamicUpdates?: {
     dynamicBindingPathList: DynamicPath[];
     dynamicTriggerPathList: DynamicPath[];
   };
+}
+
+export interface UpdateCanvasLayout {
+  width: number;
 }
 
 export interface SetWidgetDynamicPropertyPayload {

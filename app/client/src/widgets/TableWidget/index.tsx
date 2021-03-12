@@ -41,6 +41,7 @@ import {
   CompactMode,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
     import("components/designSystems/appsmith/TableComponent"),
@@ -207,7 +208,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: !!props.row.isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonStyle || "#29CCA3",
+              backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               columnActions: [
                 {
@@ -506,7 +507,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     | Record<string, ColumnProperties>
     | undefined => {
     const {
-      sanitizedTableData,
+      sanitizedTableData = [],
       primaryColumns = {},
       columnNameMap = {},
       columnTypeMap = {},
@@ -514,6 +515,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       hiddenColumns = [],
       migrated,
     } = this.props;
+    // Bail out if the data doesn't exist.
+    // This is a temporary measure,
+    // to solve for the scenario where the column properties are getting reset
+    // Repurcussion: The primary columns control will never go into the "no data" state.
+    if (isString(sanitizedTableData) || sanitizedTableData.length === 0) return;
 
     const previousColumnIds = Object.keys(primaryColumns);
     const tableColumns: Record<string, ColumnProperties> = {};
@@ -607,19 +613,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         if (migrated === false) {
           propertiesToAdd["migrated"] = true;
         }
+        const propertiesToUpdate: BatchPropertyUpdatePayload = {
+          modify: propertiesToAdd,
+        };
 
         const columnsIdsToDelete = without(previousColumnIds, ...newColumnIds);
         if (columnsIdsToDelete.length > 0) {
           columnsIdsToDelete.forEach((id: string) => {
             pathsToDelete.push(`primaryColumns.${id}`);
           });
-
-          super.deleteWidgetProperty(pathsToDelete);
+          propertiesToUpdate.remove = pathsToDelete;
         }
 
-        setTimeout(() => {
-          super.batchUpdateWidgetProperty(propertiesToAdd);
-        }, 1000);
+        super.batchUpdateWidgetProperty(propertiesToUpdate);
       }
     }
   };
@@ -646,6 +652,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const { primaryColumns = {} } = this.props;
+
+    // Bail out if santizedTableData is a string. This signifies an error in evaluations
+    // Since, it is an error in evaluations, we should not attempt to process the data
+    if (isString(this.props.sanitizedTableData)) return;
+
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.sanitizedTableData) !==
@@ -694,7 +705,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         JSON.stringify(this.props.filteredTableData)
       ) {
         // Update filteredTableData meta property
-        this.props.updateWidgetMetaProperty(
+        this.props.syncUpdateWidgetMetaProperty(
           "filteredTableData",
           filteredTableData,
         );
@@ -742,12 +753,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (this.props.pageSize !== prevProps.pageSize) {
-      super.executeAction({
-        dynamicString: this.props.onPageSizeChange,
-        event: {
-          type: EventType.ON_PAGE_SIZE_CHANGE,
-        },
-      });
+      if (this.props.onPageSizeChange) {
+        super.executeAction({
+          dynamicString: this.props.onPageSizeChange,
+          event: {
+            type: EventType.ON_PAGE_SIZE_CHANGE,
+          },
+        });
+      }
     }
   }
 

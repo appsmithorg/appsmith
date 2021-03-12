@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -277,6 +278,9 @@ public class DynamoPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
+            final Map<String, Object> requestData = new HashMap<>();
+            final String body = actionConfiguration.getBody();
+
             return Mono.fromCallable(() -> {
                 ActionExecutionResult result = new ActionExecutionResult();
 
@@ -287,8 +291,9 @@ public class DynamoPlugin extends BasePlugin {
                             "Missing action name (like `ListTables`, `GetItem` etc.)."
                     );
                 }
+                requestData.put("action", action);
 
-                final String body = actionConfiguration.getBody();
+
                 Map<String, Object> parameters = null;
                 try {
                     if (!StringUtils.isEmpty(body)) {
@@ -299,6 +304,7 @@ public class DynamoPlugin extends BasePlugin {
                     log.warn(message, e);
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
                 }
+                requestData.put("parameters", parameters);
 
                 final Class<?> requestClass;
                 try {
@@ -331,6 +337,23 @@ public class DynamoPlugin extends BasePlugin {
                 System.out.println(Thread.currentThread().getName() + ": In the DynamoPlugin, got action execution result");
                 return result;
             })
+                    .onErrorResume(error  -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        if (error instanceof AppsmithPluginException) {
+                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
+                        result.setBody(error.getMessage());
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+                        actionExecutionRequest.setProperties(requestData);
+                        actionExecutionRequest.setQuery(body);
+                        actionExecutionResult.setRequest(actionExecutionRequest);
+                        return actionExecutionResult;
+                    })
                     .subscribeOn(scheduler);
         }
 
@@ -399,14 +422,28 @@ public class DynamoPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceCreate(datasourceConfiguration)
                     .map(client -> {
-                        client.close();
+
+                        /*
+                         * - Creating a connection with false credentials does not throw an error. Hence,
+                         *   calling listTables() method to check validity.
+                         */
+                        client.listTables();
+
+                        try {
+                            client.close();
+                        } catch (Exception e) {
+                            System.out.println("Error closing Dynamodb connection that was made for testing." + e);
+                            return false;
+                        }
+
                         return true;
                     })
                     .defaultIfEmpty(false)
                     .map(isValid -> BooleanUtils.isTrue(isValid)
                             ? new DatasourceTestResult()
-                            : new DatasourceTestResult("Unable to create DynamoDB Client.")
+                            : new DatasourceTestResult("Invalid Access Key / Secret Key / Region")
                     )
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
                     .subscribeOn(scheduler);
         }
 
