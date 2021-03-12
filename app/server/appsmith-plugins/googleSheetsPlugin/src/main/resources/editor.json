@@ -108,14 +108,14 @@
         {
           "label": "Sheet Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": true,
           "initialValue": "sheet"
         },
         {
           "label": "Sheet Id",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_IN",

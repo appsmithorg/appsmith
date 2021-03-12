@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -30,6 +31,13 @@ public class GetValuesMethod implements Method {
 
     @Override
     public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
+        if (pluginSpecifiedTemplates.get(1).getValue() == null || pluginSpecifiedTemplates.get(1).getValue().isBlank()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
+        }
+        if (pluginSpecifiedTemplates.get(2).getValue() == null || pluginSpecifiedTemplates.get(2).getValue().isBlank()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Data Range");
+        }
+
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 pluginSpecifiedTemplates.get(1).getValue() /* spreadsheet Id */
                         + "/values/"
@@ -50,9 +58,7 @@ public class GetValuesMethod implements Method {
         }
         ArrayNode values = (ArrayNode) response.get("values");
         if (values == null) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Missing expected field 'values' in response.");
+            return objectMapper.createArrayNode();
         }
         int headerRow = 0;
         while (headerRow < values.size() && values.get(headerRow).size() == 0) {

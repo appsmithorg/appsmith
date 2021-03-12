@@ -12,6 +12,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.Method;
+import com.external.utils.JSONUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.GsonBuilder;
@@ -79,7 +80,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // Validating request body
             try {
-                objectFromJson(requestBodyAsString);
+                JSONUtils.objectFromJson(requestBodyAsString);
             } catch (JsonSyntaxException e) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
@@ -165,31 +166,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         System.out.println(e.getMessage());
                         return Mono.just(errorResult);
                     });
-        }
-
-        /**
-         * Given a JSON string, we infer the top-level type of the object it represents and then parse it into that
-         * type. However, only `Map` and `List` top-levels are supported. Note that the map or list may contain
-         * anything, like booleans or number or even more maps or lists. It's only that the top-level type should be a
-         * map / list.
-         *
-         * @param jsonString A string that confirms to JSON syntax. Shouldn't be null.
-         */
-        private static void objectFromJson(String jsonString) {
-            Class<?> type;
-            String trimmed = jsonString.trim();
-
-            if (trimmed.startsWith("{")) {
-                type = Map.class;
-            } else if (trimmed.startsWith("[")) {
-                type = List.class;
-            } else {
-                // The JSON body is likely a literal boolean or number or string. For our purposes here, we don't have
-                // to parse this JSON.
-                return;
-            }
-
-            new GsonBuilder().create().fromJson(jsonString, type);
         }
 
         @Override
