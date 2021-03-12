@@ -93,9 +93,16 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         if (layoutList == null) {
             layoutList = new ArrayList<>();
         }
+
         if (layoutList.isEmpty()) {
             layoutList.add(newPageService.createDefaultLayout());
             page.setLayouts(layoutList);
+        }
+
+        for (final Layout layout : layoutList) {
+            if (StringUtils.isEmpty(layout.getId())) {
+                layout.setId(new ObjectId().toString());
+            }
         }
 
         Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)

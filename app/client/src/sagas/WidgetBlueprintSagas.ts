@@ -3,9 +3,10 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call } from "redux-saga/effects";
+import { get } from "lodash";
+
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
-import { get } from "lodash";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -101,7 +102,7 @@ export function* executeWidgetBlueprintOperations(
           | UpdatePropertyArgs[]
           | undefined = (operation.fn as BlueprintOperationModifyPropsFn)(
           widget as WidgetProps & { children?: WidgetProps[] },
-          widgets[widget.parentId],
+          get(widgets, widget.parentId || "", undefined),
         );
         updatePropertyPayloads &&
           updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {
@@ -111,6 +112,7 @@ export function* executeWidgetBlueprintOperations(
         break;
     }
   });
+
   return yield widgets;
 }
 
@@ -154,7 +156,7 @@ export function* traverseTreeAndExecuteBlueprintChildOperations(
 ) {
   let root = parent;
 
-  while (root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+  while (root.widgetId !== MAIN_CONTAINER_WIDGET_ID && root.parentId) {
     const parentConfig = {
       ...(WidgetConfigResponse as any).config[root.type],
     };

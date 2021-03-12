@@ -56,7 +56,7 @@ const ColorTab = styled.div<{ color: string }>`
 `;
 
 const defaultColors: string[] = [
-  "#29CCA3",
+  "rgb(3, 179, 101)",
   "#FFC13D",
   "#38AFF4",
   "#DD4B34",

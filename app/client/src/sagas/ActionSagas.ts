@@ -12,7 +12,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import { Datasource } from "entities/Datasource";
-import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
+import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
 import { GenericApiResponse } from "api/ApiResponses";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -32,6 +32,8 @@ import {
   updateActionSuccess,
 } from "actions/actionActions";
 import {
+  DynamicPath,
+  isChildPropertyPath,
   isDynamicValue,
   removeBindingsFromActionObject,
 } from "utils/DynamicBindingUtils";
@@ -40,6 +42,7 @@ import { transformRestAction } from "transformers/RestActionTransformer";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getDataSources,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
@@ -48,24 +51,23 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getEditorConfig,
   getPageNameByPageId,
   getSettingConfig,
 } from "selectors/entitiesSelector";
-import { getDataSources } from "selectors/editorSelectors";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
-  QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  QUERIES_EDITOR_ID_URL,
+  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getEditorConfig } from "selectors/entitiesSelector";
 import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -553,24 +555,33 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
 
 function getDynamicBindingsChangesSaga(
   action: Action,
-  value: string,
+  value: unknown,
   field: string,
 ) {
   const bindingField = field.replace("actionConfiguration.", "");
-  const isDynamic = isDynamicValue(value);
-  let dynamicBindings: Property[] = action.dynamicBindingPathList || [];
-  const fieldExists = _.some(dynamicBindings, { key: bindingField });
+  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
 
-  if (!isDynamic && fieldExists) {
-    dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+  if (typeof value === "object") {
+    dynamicBindings = dynamicBindings.filter((dynamicPath) => {
+      if (isChildPropertyPath(bindingField, dynamicPath.key)) {
+        const childPropertyValue = _.get(value, dynamicPath.key);
+        return isDynamicValue(childPropertyValue);
+      }
+    });
+  } else if (typeof value === "string") {
+    const fieldExists = _.some(dynamicBindings, { key: bindingField });
+
+    const isDynamic = isDynamicValue(value);
+
+    if (!isDynamic && fieldExists) {
+      dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+    }
+    if (isDynamic && !fieldExists) {
+      dynamicBindings.push({ key: bindingField });
+    }
   }
-  if (isDynamic && !fieldExists) {
-    dynamicBindings.push({ key: bindingField });
-  }
-  if (dynamicBindings !== action.dynamicBindingPathList) {
-    return dynamicBindings;
-  }
-  return action.dynamicBindingPathList;
+
+  return dynamicBindings;
 }
 
 function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {

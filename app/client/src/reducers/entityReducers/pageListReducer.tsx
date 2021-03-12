@@ -105,11 +105,22 @@ export const pageListReducer = createReducer(initialState, {
   },
 });
 
+export type SupportedLayouts =
+  | "DESKTOP"
+  | "TABLET_LARGE"
+  | "TABLET"
+  | "MOBILE"
+  | "FLUID";
+export interface AppLayoutConfig {
+  type: SupportedLayouts;
+}
+
 export interface PageListReduxState {
   pages: PageListPayload;
   applicationId?: string;
   defaultPageId?: string;
   currentPageId?: string;
+  appLayout?: AppLayoutConfig;
 }
 
 export default pageListReducer;

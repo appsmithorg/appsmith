@@ -26,6 +26,8 @@ import {
   migrateTablePrimaryColumnsBindings,
   tableWidgetPropertyPaneMigrations,
 } from "utils/migrations/TableWidget";
+import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
+import * as Sentry from "@sentry/react";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -315,7 +317,26 @@ const renamedCanvasNameConflictMigration = (
   return currentDSL;
 };
 
-// A rudimentary transform function which updates the DSL based on its version.
+function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
+  if (currentDSL.type === WidgetTypes.CHART_WIDGET) {
+    if (isString(currentDSL.chartData)) {
+      try {
+        currentDSL.chartData = JSON.parse(currentDSL.chartData);
+      } catch (error) {
+        Sentry.captureException({
+          message: "Chart Migration Failed",
+          oldData: currentDSL.chartData,
+        });
+        currentDSL.chartData = [];
+      }
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(migrateOldChartData);
+  }
+  return currentDSL;
+}
+
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === undefined) {
@@ -390,6 +411,16 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 11) {
     currentDSL = migrateTablePrimaryColumnsBindings(currentDSL);
     currentDSL.version = 12;
+  }
+
+  if (currentDSL.version === 12) {
+    currentDSL = migrateIncorrectDynamicBindingPathLists(currentDSL);
+    currentDSL.version = 13;
+  }
+
+  if (currentDSL.version === 13) {
+    currentDSL = migrateOldChartData(currentDSL);
+    currentDSL.version = 14;
   }
 
   return currentDSL;
@@ -470,6 +501,9 @@ export const noCollision = (
   cols?: number,
 ): boolean => {
   if (clientOffset && dropTargetOffset && widget) {
+    if (widget.detachFromLayout) {
+      return true;
+    }
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,

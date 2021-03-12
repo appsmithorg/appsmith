@@ -59,6 +59,8 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppLayout publishedAppLayout;
 
+    Boolean forkingEnabled;
+
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
@@ -69,10 +71,8 @@ public class Application extends BaseDomain {
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
         this.icon = application.getIcon();
-        this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null
-                : new AppLayout(application.getUnpublishedAppLayout().type, application.getUnpublishedAppLayout().getWidth());
-        this.publishedAppLayout = application.getPublishedAppLayout() == null ? null
-                : new AppLayout(application.getPublishedAppLayout().type, application.getPublishedAppLayout().getWidth());
+        this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
+        this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
     }
 
     public List<ApplicationPage> getPages() {
@@ -96,10 +96,24 @@ public class Application extends BaseDomain {
     @AllArgsConstructor
     public static class AppLayout implements Serializable {
         Type type;
-        Integer width;
+
+        /**
+         * @deprecated The following field is deprecated and now removed, because it's needed in a migration. After the
+         * migration has been run, it may be removed (along with the migration or there'll be compile errors there).
+         */
+        @JsonIgnore
+        @Deprecated(forRemoval = true)
+        Integer width = null;
+
+        public AppLayout(Type type) {
+            this.type = type;
+        }
 
         public enum Type {
-            FIXED,
+            DESKTOP,
+            TABLET_LARGE,
+            TABLET,
+            MOBILE,
             FLUID,
         }
     }

@@ -20,7 +20,7 @@ import {
   TabsWidgetProps,
   TabContainerWidgetProps,
 } from "../../widgets/TabsWidget";
-import { ChartWidgetProps } from "../../widgets/ChartWidget";
+import { ChartWidgetProps } from "widgets/ChartWidget";
 import { FormWidgetProps } from "widgets/FormWidget";
 import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
 import { MapWidgetProps } from "widgets/MapWidget";

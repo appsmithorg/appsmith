@@ -1,13 +1,14 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -40,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ElasticSearchPlugin extends BasePlugin {
@@ -59,13 +62,22 @@ public class ElasticSearchPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+            final Map<String, Object> requestData = new HashMap<>();
+
+            String query = actionConfiguration.getBody();
+
+            return Mono.fromCallable(() -> {
                 final ActionExecutionResult result = new ActionExecutionResult();
 
-                String body = actionConfiguration.getBody();
+                String body = query;
 
                 final String path = actionConfiguration.getPath();
-                final Request request = new Request(actionConfiguration.getHttpMethod().toString(), path);
+                requestData.put("path", path);
+
+                HttpMethod httpMethod = actionConfiguration.getHttpMethod();
+                requestData.put("method", httpMethod.name());
+
+                final Request request = new Request(httpMethod.toString(), path);
                 ContentType contentType = ContentType.APPLICATION_JSON;
 
                 if (isBulkQuery(path)) {
@@ -107,6 +119,25 @@ public class ElasticSearchPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
+                    .map(obj -> (ActionExecutionResult) obj)
+                    .onErrorResume(error  -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        if (error instanceof AppsmithPluginException) {
+                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
+                        result.setBody(error.getMessage());
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(result -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setProperties(requestData);
+                        request.setQuery(query);
+                        ActionExecutionResult actionExecutionResult = result;
+                        actionExecutionResult.setRequest(request);
+                        return actionExecutionResult;
+                    })
                     .subscribeOn(scheduler);
         }
 

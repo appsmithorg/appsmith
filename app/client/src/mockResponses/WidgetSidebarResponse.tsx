@@ -1,5 +1,6 @@
 import { WidgetCardProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
+import { keyBy } from "lodash";
 /* eslint-disable no-useless-computed-key */
 
 const WidgetSidebarResponse: WidgetCardProps[] = [
@@ -107,3 +108,5 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
 ];
 
 export default WidgetSidebarResponse;
+
+export const widgetSidebarConfig = keyBy(WidgetSidebarResponse, "type");

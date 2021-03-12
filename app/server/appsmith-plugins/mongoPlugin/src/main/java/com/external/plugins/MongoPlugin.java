@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
@@ -38,6 +39,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public class MongoPlugin extends BasePlugin {
@@ -68,6 +71,8 @@ public class MongoPlugin extends BasePlugin {
     public static final String N_MODIFIED = "nModified";
 
     private static final String VALUE_STR = "value";
+
+    private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -100,7 +105,10 @@ public class MongoPlugin extends BasePlugin {
             }
 
             MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
-            Bson command = Document.parse(actionConfiguration.getBody());
+
+            String query = actionConfiguration.getBody();
+            Bson command = Document.parse(query);
+
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
 
@@ -179,6 +187,25 @@ public class MongoPlugin extends BasePlugin {
                         }
 
                         return Mono.just(result);
+                    })
+                    .onErrorResume(error  -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
+                        ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
+                        actionExecutionResult.setIsExecutionSuccess(false);
+                        if (error instanceof AppsmithPluginException) {
+                            actionExecutionResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
+                        actionExecutionResult.setBody(error.getMessage());
+                        return Mono.just(actionExecutionResult);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setQuery(query);
+                        actionExecutionResult.setRequest(request);
+                        return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
         }
@@ -320,6 +347,17 @@ public class MongoPlugin extends BasePlugin {
 
             }
 
+            if(!CollectionUtils.isEmpty(endpoints)) {
+                boolean usingSrvUrl = endpoints
+                        .stream()
+                        .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
+
+                if (usingSrvUrl) {
+                    invalids.add("MongoDb SRV URLs are not yet supported. Please extract the individual fields from " +
+                            "the SRV URL into the datasource configuration form.");
+                }
+            }
+
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null) {
                 DBAuth.Type authType = authentication.getAuthType();
@@ -353,6 +391,15 @@ public class MongoPlugin extends BasePlugin {
                         }
                     })
                     .then(Mono.just(new DatasourceTestResult()))
+                    .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
+                    .onErrorMap(
+                            TimeoutException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_TIMEOUT_ERROR,
+                                    "Connection timed out. Please check if the datasource configuration fields have " +
+                                            "been filled correctly."
+                            )
+                    )
                     .onErrorResume(error -> {
                         /**
                          * 1. Return OK response on "Unauthorized" exception.
