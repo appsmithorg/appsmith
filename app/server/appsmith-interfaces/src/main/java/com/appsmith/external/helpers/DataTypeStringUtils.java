@@ -1,33 +1,33 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.DataType;
-import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 import org.apache.commons.validator.routines.DateValidator;
+import reactor.core.Exceptions;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Slf4j
-public class SqlStringUtils {
+public class DataTypeStringUtils {
 
-    /**
-     * SQL query : The regex pattern below looks for '?' or "?". This pattern is later replaced with ?
-     * to fit the requirements of prepared statements.
-     */
-    private static String regexQuotesTrimming = "([\"']\\?[\"'])";
-    // The final replacement string of ? for replacing '?' or "?"
-    private static String postQuoteTrimmingQuestionMark = "\\?";
+    private static String regexForQuestionMark = "\\?";
 
-    private static Pattern quoteQuestionPattern = Pattern.compile(regexQuotesTrimming);
+    private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
+
+    private static  ObjectMapper objectMapper = new ObjectMapper();
+
+    private static JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
     public static class DateValidatorUsingDateFormat extends DateValidator {
         private String dateFormat;
@@ -119,6 +119,12 @@ public class SqlStringUtils {
             return DataType.TIME;
         }
 
+        try {
+            objectMapper.readValue(input, Object.class);
+            return DataType.JSON_OBJECT;
+        } catch (IOException e) {
+            // Not a JSON object
+        }
         /**
          * TODO : Timestamp, ASCII, Binary and Bytes Array
          */
@@ -143,6 +149,68 @@ public class SqlStringUtils {
         return DataType.STRING;
     }
 
+    public static String jsonSmartReplacementQuestionWithValue(String input, String replacement) {
+        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+        switch (dataType) {
+            case INTEGER:
+            case LONG:
+            case FLOAT:
+            case DOUBLE:
+            case NULL:
+            case BOOLEAN:
+                input = questionPattern.matcher(input).replaceFirst(String.valueOf(replacement));
+                break;
+            case ARRAY:
+                try {
+                    JSONArray jsonArray = (JSONArray) parser.parse(replacement);
+                    input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonArray)));
+                } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
+                    throw Exceptions.propagate(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                    replacement,
+                                    e.getMessage()
+                            )
+                    );
+                }
+                break;
+            case JSON_OBJECT:
+                try {
+                    JSONObject jsonObject = (JSONObject) parser.parse(replacement);
+                    input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonObject)));
+                } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
+                    throw Exceptions.propagate(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                    replacement,
+                                    e.getMessage()
+                            )
+                    );
+                }
+                break;
+            case DATE:
+            case TIME:
+            case ASCII:
+            case BINARY:
+            case BYTES:
+            case STRING:
+            default:
+                try {
+                    input = questionPattern.matcher(input).replaceFirst(objectMapper.writeValueAsString(replacement));
+                } catch (JsonProcessingException e) {
+                    throw Exceptions.propagate(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    replacement,
+                                    e.getMessage()
+                            )
+                    );
+                }
+        }
+
+        return input;
+    }
+
     private static boolean isBinary(String input) {
         for (int i = 0; i < input.length(); i++) {
             int tempB = input.charAt(i);
@@ -155,25 +223,4 @@ public class SqlStringUtils {
         return true;
     }
 
-    public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {
-
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody(query);
-
-        Set<String> mustacheSet = new HashSet<>();
-        mustacheSet.addAll(mustacheBindings);
-
-        Map<String, String> replaceParamsMap = mustacheSet
-                .stream()
-                .collect(Collectors.toMap(Function.identity(), v -> "?"));
-
-        ActionConfiguration updatedActionConfiguration = MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);
-
-        String body = updatedActionConfiguration.getBody();
-
-        // Trim the quotes around ? if present
-        body = quoteQuestionPattern.matcher(body).replaceAll(postQuoteTrimmingQuestionMark);
-
-        return body;
-    }
 }
