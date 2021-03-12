@@ -94,7 +94,10 @@ import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
-import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
+import {
+  getAllPathsFromPropertyConfig,
+  nextAvailableRowInContainer,
+} from "entities/Widget/utils";
 import { getAllPaths } from "workers/evaluationUtils";
 
 function* getChildWidgetProps(
@@ -1105,21 +1108,12 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
 export function calculateNewWidgetPosition(
   widget: WidgetProps,
   parentId: string,
-  canvasWidgets: FlattenedWidgetProps[],
+  canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
   // Note: This is a very simple algorithm.
   // We take the bottom most widget in the canvas, then calculate the top,left,right,bottom
   // co-ordinates for the new widget, such that it can be placed at the bottom of the canvas.
-  const nextAvailableRow =
-    Object.values(canvasWidgets).reduce(
-      (prev: number, next: any) =>
-        next.widgetId !== widget.parentId &&
-        next.parentId === parentId &&
-        next.bottomRow > prev
-          ? next.bottomRow
-          : prev,
-      0,
-    ) + 1;
+  const nextAvailableRow = nextAvailableRowInContainer(parentId, canvasWidgets);
   return {
     leftColumn: 0,
     rightColumn: widget.rightColumn - widget.leftColumn,

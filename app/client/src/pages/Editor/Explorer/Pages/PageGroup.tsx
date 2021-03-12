@@ -12,6 +12,7 @@ import { AppState } from "reducers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
@@ -47,7 +48,10 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       "Page",
       pages.map((page: Page) => page.pageName),
     );
-    dispatch(createPage(params.applicationId, name));
+    const defaultPageLayouts = [
+      { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
+    ];
+    dispatch(createPage(params.applicationId, name, defaultPageLayouts));
   }, [dispatch, pages, params.applicationId]);
 
   const pageEntities = pages.map((page) => {

@@ -10,6 +10,7 @@ import {
 } from "widgets/BaseWidget";
 import {
   GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
   RenderMode,
   WidgetType,
   WidgetTypes,
@@ -28,6 +29,7 @@ import {
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
+import { nextAvailableRowInContainer } from "entities/Widget/utils";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -337,13 +339,41 @@ function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
   return currentDSL;
 }
 
+export const calculateDynamicHeight = (
+  canvasWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = {},
+  presentMinimumHeight = CANVAS_DEFAULT_HEIGHT_PX,
+) => {
+  let minmumHeight = presentMinimumHeight;
+  const nextAvailableRow = nextAvailableRowInContainer(
+    MAIN_CONTAINER_WIDGET_ID,
+    canvasWidgets,
+  );
+  const screenHeight = window.innerHeight;
+  const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const calculatedCanvasHeight = nextAvailableRow * gridRowHeight;
+  const buffer = gridRowHeight;
+  const calculatedMinHeight =
+    Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
+  if (
+    calculatedCanvasHeight < screenHeight &&
+    calculatedMinHeight !== presentMinimumHeight
+  ) {
+    minmumHeight = calculatedMinHeight;
+  }
+  return minmumHeight;
+};
+
+// A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,
     // DropTargetComponent needs to know the minimum height the canvas can take
     // See DropTargetUtils.ts
-    currentDSL.minHeight = CANVAS_DEFAULT_HEIGHT_PX;
+    currentDSL.minHeight = calculateDynamicHeight();
+
     // For the first time the DSL is created, remove one row from the total possible rows
     // to adjust for padding and margins.
     currentDSL.snapRows =
@@ -427,9 +457,9 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 };
 
 export const extractCurrentDSL = (
-  fetchPageResponse: FetchPageResponse,
+  fetchPageResponse?: FetchPageResponse,
 ): ContainerWidgetProps<WidgetProps> => {
-  const currentDSL = fetchPageResponse.data.layouts[0].dsl || defaultDSL;
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultDSL;
   return transformDSL(currentDSL);
 };
 
