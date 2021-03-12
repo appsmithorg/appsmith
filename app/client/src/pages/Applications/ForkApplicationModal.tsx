@@ -8,11 +8,20 @@ import { FORK_APP } from "constants/messages";
 import { useDispatch } from "react-redux";
 import { getAllApplications } from "actions/applicationActions";
 import { useSelector } from "store";
-import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
+import {
+  getIsFetchingApplications,
+  getUserApplicationsOrgs,
+} from "selectors/applicationSelectors";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import RadioComponent from "components/ads/Radio";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Classes } from "@blueprintjs/core";
+import { useLocation } from "react-router";
+import { getApplicationViewerPageURL } from "constants/routes";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { AppState } from "reducers";
+import Spinner from "components/ads/Spinner";
+import { IconSize } from "components/ads/Icon";
 
 const TriggerButton = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
@@ -48,13 +57,29 @@ const OrganizationList = styled.div`
   margin-top: 20px;
 `;
 
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const SpinnerWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
 const ForkApplicationModal = (props: any) => {
   const [organizationId, selectOrganizationId] = useState("");
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAllApplications());
   }, [dispatch, getAllApplications]);
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userOrgs = useSelector(getUserApplicationsOrgs);
+  const currentPageId = useSelector(getCurrentPageId);
+  const forkingApplication = useSelector(
+    (state: AppState) => state.ui.applications.forkingApplication,
+  );
+  const { pathname } = useLocation();
 
   const forkApplication = () => {
     dispatch({
@@ -86,23 +111,34 @@ const ForkApplicationModal = (props: any) => {
       };
     });
   }, [userOrgs]);
+  const showForkModal =
+    pathname ===
+    `${getApplicationViewerPageURL(props.applicationId, currentPageId)}/fork`;
 
   return (
     <StyledDialog
       title={"Select the organisation to fork"}
       maxHeight={"540px"}
       className={"fork-modal"}
+      canOutsideClickClose={true}
+      isOpen={showForkModal}
       trigger={
         <TriggerButton
           text={FORK_APP}
           icon="fork"
           size={Size.small}
           className="t--fork-app"
+          onClick={() => dispatch(getAllApplications())}
         />
       }
     >
       <Divider />
-      {organizationList.length && (
+      {isFetchingApplications && (
+        <SpinnerWrapper>
+          <Spinner size={IconSize.XXXL} />
+        </SpinnerWrapper>
+      )}
+      {!isFetchingApplications && organizationList.length && (
         <OrganizationList>
           <StyledRadioComponent
             className={"radio-group"}
@@ -113,12 +149,15 @@ const ForkApplicationModal = (props: any) => {
           />
         </OrganizationList>
       )}
-      <ForkButton
-        disabled={!organizationId}
-        text={"FORK"}
-        onClick={forkApplication}
-        size={Size.large}
-      />
+      <ButtonWrapper>
+        <ForkButton
+          isLoading={forkingApplication}
+          disabled={!organizationId}
+          text={"FORK"}
+          onClick={forkApplication}
+          size={Size.large}
+        />
+      </ButtonWrapper>
     </StyledDialog>
   );
 };

@@ -159,7 +159,8 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   };
   if (hideHeader) return <HtmlTitle />;
 
-  const redirectUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
+  const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}/fork`;
+  const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
   let CTA = null;
 
@@ -180,7 +181,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
     CTA = (
       <ForkButton
         className="t--fork-app"
-        href={redirectUrl}
+        href={forkUrl}
         text={FORK_APP}
         icon="fork"
       />
@@ -189,7 +190,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
     currentApplicationDetails?.isPublic &&
     currentUser?.username === ANONYMOUS_USERNAME
   ) {
-    CTA = <Cta className="t--sign-in" href={redirectUrl} text={SIGN_IN} />;
+    CTA = <Cta className="t--sign-in" href={loginUrl} text={SIGN_IN} />;
   }
 
   return (
