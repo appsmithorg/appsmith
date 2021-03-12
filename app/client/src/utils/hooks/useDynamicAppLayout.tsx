@@ -1,4 +1,4 @@
-import { batchUpdateWidgetProperty } from "actions/controlActions";
+import { updateAndSaveLayout } from "actions/pageActions";
 import { theme } from "constants/DefaultTheme";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
@@ -22,7 +22,9 @@ import { useWindowSizeHooks } from "./dragResizeHooks";
 
 export const useDynamicAppLayout = () => {
   const { width: screenWidth, height: screenHeight } = useWindowSizeHooks();
-  const mainContainer = useSelector((state: AppState) => getWidget(state, "0"));
+  const mainContainer = useSelector((state: AppState) =>
+    getWidget(state, MAIN_CONTAINER_WIDGET_ID),
+  );
   const currentPageId = useSelector(getCurrentPageId);
   const appMode = useSelector(getAppMode);
   const canvasWidgets = useSelector(getWidgets);
@@ -64,6 +66,7 @@ export const useDynamicAppLayout = () => {
         type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
         payload: {
           width: layoutWidth,
+          height: mainContainer.minHeight,
         },
       });
     }
@@ -74,20 +77,18 @@ export const useDynamicAppLayout = () => {
   ]);
 
   useEffect(() => {
-    if (appMode === "EDIT") {
-      const calculatedMinHeight = calculateDynamicHeight(
-        canvasWidgets,
-        mainContainer.minHeight,
-      );
-      if (calculatedMinHeight !== mainContainer.minHeight) {
-        dispatch(
-          batchUpdateWidgetProperty(MAIN_CONTAINER_WIDGET_ID, {
-            modify: {
-              minHeight: calculatedMinHeight,
-            },
-          }),
-        );
-      }
+    const calculatedMinHeight = calculateDynamicHeight(
+      canvasWidgets,
+      mainContainer.minHeight,
+    );
+    if (calculatedMinHeight !== mainContainer.minHeight) {
+      dispatch({
+        type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
+        payload: {
+          height: calculatedMinHeight,
+          width: mainContainer.rightColumn,
+        },
+      });
     }
   }, [screenHeight, mainContainer.minHeight]);
 
