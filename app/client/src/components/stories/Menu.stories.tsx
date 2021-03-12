@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import Menu from "components/alloy/Menu";
+import Menu from "components/ads/Menu";
 import { action } from "@storybook/addon-actions";
-import MenuDivider from "components/alloy/MenuDivider";
-import MenuItem from "components/alloy/MenuItem";
+import MenuDivider from "components/ads/MenuDivider";
+import MenuItem from "components/ads/MenuItem";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import ColorSelector from "components/alloy/ColorSelector";
-import { AppIconCollection } from "components/alloy/AppIcon";
-import IconSelector from "components/alloy/IconSelector";
+import ColorSelector from "components/ads/ColorSelector";
+import { AppIconCollection } from "components/ads/AppIcon";
+import IconSelector from "components/ads/IconSelector";
 import EditableText, {
   SavingState,
   EditInteractionKind,
-} from "components/alloy/EditableText";
-import { IconCollection, IconName } from "components/alloy/Icon";
+} from "components/ads/EditableText";
+import { IconCollection, IconName } from "components/ads/Icon";
 import { theme } from "constants/DefaultTheme";
 
 export default {

@@ -1,4 +1,4 @@
-import Checkbox, { CheckboxProps } from "components/alloy/Checkbox";
+import Checkbox, { CheckboxProps } from "components/ads/Checkbox";
 import React from "react";
 import { Field, BaseFieldProps } from "redux-form";
 

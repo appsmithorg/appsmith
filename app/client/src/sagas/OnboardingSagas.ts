@@ -56,7 +56,7 @@ import {
 } from "constants/OnboardingConstants";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
-import { AppIconCollection } from "components/alloy/AppIcon";
+import { AppIconCollection } from "components/ads/AppIcon";
 import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import {

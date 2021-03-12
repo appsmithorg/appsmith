@@ -4,9 +4,9 @@ import { withDesign } from "storybook-addon-designs";
 import EditableText, {
   EditInteractionKind,
   SavingState,
-} from "components/alloy/EditableText";
+} from "components/ads/EditableText";
 import { action } from "@storybook/addon-actions";
-import { StoryWrapper } from "components/alloy/common";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "EditableText",

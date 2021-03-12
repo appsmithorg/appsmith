@@ -1,5 +1,5 @@
 import React from "react";
-import FilePicker, { CloudinaryUploader } from "../alloy/FilePicker";
+import FilePicker, { CloudinaryUploader } from "../ads/FilePicker";
 
 export default {
   title: "FilePicker",

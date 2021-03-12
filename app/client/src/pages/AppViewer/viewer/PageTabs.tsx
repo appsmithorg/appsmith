@@ -7,7 +7,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { getApplicationViewerPageURL } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
-import TooltipComponent from "components/alloy/Tooltip";
+import TooltipComponent from "components/ads/Tooltip";
 import { getTypographyByKey, hideScrollbar } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
 

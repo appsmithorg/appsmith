@@ -3,8 +3,8 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
 import _, { noop } from "lodash";
-import SearchInput, { SearchVariant } from "components/alloy/SearchInput";
-import Button, { Size } from "components/alloy/Button";
+import SearchInput, { SearchVariant } from "components/ads/SearchInput";
+import Button, { Size } from "components/ads/Button";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 

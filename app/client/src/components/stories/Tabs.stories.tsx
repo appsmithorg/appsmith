@@ -1,9 +1,9 @@
 import React from "react";
-import { TabComponent, TabProp } from "components/alloy/Tabs";
+import { TabComponent, TabProp } from "components/ads/Tabs";
 import { select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { IconCollection, IconName } from "components/alloy/Icon";
-import { StoryWrapper } from "components/alloy/common";
+import { IconCollection, IconName } from "components/ads/Icon";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Tabs",

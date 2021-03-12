@@ -1,4 +1,4 @@
-import Dropdown from "components/alloy/Dropdown";
+import Dropdown from "components/ads/Dropdown";
 import React, { useEffect, useState } from "react";
 import { WrappedFieldInputProps } from "redux-form";
 import styled from "styled-components";

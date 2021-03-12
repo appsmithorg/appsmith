@@ -1,8 +1,8 @@
 import React from "react";
 import { withKnobs, boolean, text } from "@storybook/addon-knobs";
-import TextInput from "components/alloy/TextInput";
+import TextInput from "components/ads/TextInput";
 import { action } from "@storybook/addon-actions";
-import { StoryWrapper } from "components/alloy/common";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Text Input",

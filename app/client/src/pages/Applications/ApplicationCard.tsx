@@ -23,27 +23,27 @@ import {
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { omit } from "lodash";
-import Text, { TextType } from "components/alloy/Text";
-import Button, { Category, Size } from "components/alloy/Button";
-import Icon, { IconSize } from "components/alloy/Icon";
-import Menu from "components/alloy/Menu";
-import MenuItem, { MenuItemProps } from "components/alloy/MenuItem";
-import AppIcon, { AppIconName } from "components/alloy/AppIcon";
+import Text, { TextType } from "components/ads/Text";
+import Button, { Category, Size } from "components/ads/Button";
+import Icon, { IconSize } from "components/ads/Icon";
+import Menu from "components/ads/Menu";
+import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
+import AppIcon, { AppIconName } from "components/ads/AppIcon";
 import EditableText, {
   EditInteractionKind,
   SavingState,
-} from "components/alloy/EditableText";
-import ColorSelector from "components/alloy/ColorSelector";
-import MenuDivider from "components/alloy/MenuDivider";
-import IconSelector from "components/alloy/IconSelector";
+} from "components/ads/EditableText";
+import ColorSelector from "components/ads/ColorSelector";
+import MenuDivider from "components/ads/MenuDivider";
+import IconSelector from "components/ads/IconSelector";
 import { useSelector } from "react-redux";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import {
   getIsFetchingApplications,
   getIsSavingAppName,
 } from "selectors/applicationSelectors";
-import { Classes as CsClasses } from "components/alloy/common";
-import TooltipComponent from "components/alloy/Tooltip";
+import { Classes as CsClasses } from "components/ads/common";
+import TooltipComponent from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 
 type NameWrapperProps = {

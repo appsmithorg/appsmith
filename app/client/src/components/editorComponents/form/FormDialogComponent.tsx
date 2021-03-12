@@ -1,6 +1,6 @@
 import React, { ReactNode, useState, useCallback } from "react";
 import { isPermitted } from "pages/Applications/permissionHelpers";
-import Dialog from "components/alloy/DialogComponent";
+import Dialog from "components/ads/DialogComponent";
 
 type FormDialogComponentProps = {
   isOpen?: boolean;

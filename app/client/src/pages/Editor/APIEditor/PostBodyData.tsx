@@ -20,7 +20,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import MultiSwitch from "components/alloy/MultiSwitch";
+import MultiSwitch from "components/ads/MultiSwitch";
 import { BodyFormData } from "entities/Action";
 
 const PostBodyContainer = styled.div`

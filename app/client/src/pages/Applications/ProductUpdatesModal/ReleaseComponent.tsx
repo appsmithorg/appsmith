@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled, { withTheme } from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
-import Icon, { IconSize } from "components/alloy/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};

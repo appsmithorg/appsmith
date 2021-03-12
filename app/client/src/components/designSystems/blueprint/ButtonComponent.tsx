@@ -15,8 +15,8 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
 } from "constants/messages";
-import { Variant } from "components/alloy/common";
-import { Toaster } from "components/alloy/Toast";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   if (props.filled) return props.theme.colors.textOnDarkBG;

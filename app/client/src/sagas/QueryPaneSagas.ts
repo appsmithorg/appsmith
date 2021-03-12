@@ -39,8 +39,8 @@ import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { Variant } from "components/alloy/common";
-import { Toaster } from "components/alloy/Toast";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;

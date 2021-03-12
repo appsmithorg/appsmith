@@ -79,8 +79,8 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { Toaster } from "components/alloy/Toast";
-import { Variant } from "components/alloy/common";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];

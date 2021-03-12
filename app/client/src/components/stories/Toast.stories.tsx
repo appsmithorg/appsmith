@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { withKnobs, text, number, select } from "@storybook/addon-knobs";
-import { Toaster, StyledToastContainer } from "components/alloy/Toast";
-import Button, { Size, Category } from "components/alloy/Button";
+import { Toaster, StyledToastContainer } from "components/ads/Toast";
+import Button, { Size, Category } from "components/ads/Button";
 import { action } from "@storybook/addon-actions";
 import { Slide } from "react-toastify";
-import { StoryWrapper, Variant } from "components/alloy/common";
+import { StoryWrapper, Variant } from "components/ads/common";
 
 export default {
   title: "Toast",

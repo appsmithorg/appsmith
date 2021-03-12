@@ -12,7 +12,7 @@ import {
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
-import TreeDropdown from "components/alloy/TreeDropdown";
+import TreeDropdown from "components/ads/TreeDropdown";
 
 const useNewAPIName = () => {
   // This takes into consideration only the current page widgets

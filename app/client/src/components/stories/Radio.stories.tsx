@@ -1,8 +1,8 @@
 import React from "react";
 import { withKnobs, select, boolean, number } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { StoryWrapper } from "components/alloy/common";
-import RadioComponent from "components/alloy/Radio";
+import { StoryWrapper } from "components/ads/common";
+import RadioComponent from "components/ads/Radio";
 import { action } from "@storybook/addon-actions";
 
 export default {

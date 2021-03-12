@@ -8,8 +8,8 @@ import {
 } from "react-router-dom";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import { TabComponent, TabProp } from "components/alloy/Tabs";
-import Text, { TextType } from "components/alloy/Text";
+import { TabComponent, TabProp } from "components/ads/Tabs";
+import Text, { TextType } from "components/ads/Text";
 import history from "utils/history";
 import styled from "styled-components";
 

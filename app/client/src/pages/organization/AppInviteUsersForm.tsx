@@ -4,7 +4,7 @@ import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import CopyToClipBoard from "components/alloy/CopyToClipBoard";
+import CopyToClipBoard from "components/ads/CopyToClipBoard";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -12,8 +12,8 @@ import {
 import { getApplicationViewerPageURL } from "constants/routes";
 import OrgInviteUsersForm from "./OrgInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
-import Text, { TextType } from "components/alloy/Text";
-import Toggle from "components/alloy/Toggle";
+import Text, { TextType } from "components/ads/Text";
+import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
 const Title = styled.div`

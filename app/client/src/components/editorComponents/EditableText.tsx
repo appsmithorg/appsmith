@@ -8,8 +8,8 @@ import _ from "lodash";
 import Edit from "assets/images/EditPen.svg";
 import ErrorTooltip from "./ErrorTooltip";
 import { Colors } from "constants/Colors";
-import { Toaster } from "components/alloy/Toast";
-import { Variant } from "components/alloy/common";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 export enum EditInteractionKind {
   SINGLE,

@@ -60,8 +60,8 @@ import {
   QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
 } from "constants/routes";
-import { Toaster } from "components/alloy/Toast";
-import { Variant } from "components/alloy/common";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";

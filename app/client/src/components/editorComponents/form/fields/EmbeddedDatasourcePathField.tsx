@@ -33,8 +33,8 @@ import StoreAsDatasource, {
 import { urlGroupsRegexExp } from "constants/ActionConstants";
 import styled from "styled-components";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
-import Icon, { IconSize } from "components/alloy/Icon";
-import Text, { TextType } from "components/alloy/Text";
+import Icon, { IconSize } from "components/ads/Icon";
+import Text, { TextType } from "components/ads/Text";
 import history from "utils/history";
 
 type ReduxStateProps = {

@@ -52,8 +52,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { AppState } from "reducers";
-import { Variant } from "components/alloy/common";
-import { Toaster } from "components/alloy/Toast";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/actionActions";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import Spinner from "components/alloy/Spinner";
-import { Classes } from "components/alloy/common";
+import Spinner from "components/ads/Spinner";
+import { Classes } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppState } from "reducers";

@@ -41,11 +41,11 @@ import {
   DELETING_APPLICATION,
   DUPLICATING_APPLICATION,
 } from "constants/messages";
-import { Toaster } from "components/alloy/Toast";
+import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "../reducers/entityReducers/appReducer";
 import { Organization } from "constants/orgConstants";
-import { Variant } from "components/alloy/common";
-import { AppIconName } from "components/alloy/AppIcon";
+import { Variant } from "components/ads/common";
+import { AppIconName } from "components/ads/AppIcon";
 import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,

@@ -15,12 +15,12 @@ import _ from "lodash";
 import { RequestView } from "./RequestView";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import { CHECK_REQUEST_BODY, SHOW_REQUEST } from "constants/messages";
-import { TabComponent } from "components/alloy/Tabs";
-import Text, { Case, TextType } from "components/alloy/Text";
-import Icon from "components/alloy/Icon";
-import { Classes, Variant } from "components/alloy/common";
+import { TabComponent } from "components/ads/Tabs";
+import Text, { Case, TextType } from "components/ads/Text";
+import Icon from "components/ads/Icon";
+import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
-import Callout from "components/alloy/Callout";
+import Callout from "components/ads/Callout";
 
 const ResponseContainer = styled.div`
   position: relative;

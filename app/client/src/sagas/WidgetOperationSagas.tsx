@@ -96,8 +96,8 @@ import {
   validateProperty,
 } from "./EvaluationsSaga";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
-import { Toaster } from "components/alloy/Toast";
-import { Variant } from "components/alloy/common";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import { getAllPaths } from "workers/evaluationUtils";

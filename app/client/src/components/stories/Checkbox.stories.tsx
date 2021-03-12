@@ -2,8 +2,8 @@ import React from "react";
 import { withKnobs, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { action } from "@storybook/addon-actions";
-import Checkbox from "components/alloy/Checkbox";
-import { StoryWrapper } from "components/alloy/common";
+import Checkbox from "components/ads/Checkbox";
+import { StoryWrapper } from "components/ads/common";
 
 export default {
   title: "Checkbox",

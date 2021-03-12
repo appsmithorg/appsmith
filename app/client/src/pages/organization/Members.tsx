@@ -13,8 +13,8 @@ import { RouteComponentProps } from "react-router";
 // import Spinner from "components/editorComponents/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
-import Table from "components/alloy/Table";
-import Icon, { IconSize } from "components/alloy/Icon";
+import Table from "components/ads/Table";
+import Icon, { IconSize } from "components/ads/Icon";
 import {
   fetchUsersForOrg,
   fetchRolesForOrg,
@@ -22,13 +22,13 @@ import {
   changeOrgUserRole,
   deleteOrgUser,
 } from "actions/orgActions";
-import Button, { Size } from "components/alloy/Button";
-import TableDropdown from "components/alloy/TableDropdown";
-import { TextType } from "components/alloy/Text";
+import Button, { Size } from "components/ads/Button";
+import TableDropdown from "components/ads/TableDropdown";
+import { TextType } from "components/ads/Text";
 import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
-import { Variant } from "components/alloy/common";
+import { Variant } from "components/ads/common";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;

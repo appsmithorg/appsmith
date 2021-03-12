@@ -2,9 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { storeAsDatasource } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import Text, { TextType } from "components/alloy/Text";
-import Icon, { IconSize } from "components/alloy/Icon";
-import { Classes } from "components/alloy/common";
+import Text, { TextType } from "components/ads/Text";
+import Icon, { IconSize } from "components/ads/Icon";
+import { Classes } from "components/ads/common";
 
 export const DatasourceIcon = styled.div`
   position: absolute;

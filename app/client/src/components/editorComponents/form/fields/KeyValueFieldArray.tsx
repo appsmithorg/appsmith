@@ -6,13 +6,13 @@ import FormRow from "components/editorComponents/FormRow";
 import FormLabel from "components/editorComponents/FormLabel";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
-import Icon, { IconSize } from "components/alloy/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import {
   CodeEditorBorder,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import Text, { Case, TextType } from "components/alloy/Text";
-import { Classes } from "components/alloy/common";
+import Text, { Case, TextType } from "components/ads/Text";
+import { Classes } from "components/ads/common";
 
 const KeyValueStackContainer = styled.div`
   padding: ${(props) => props.theme.spaces[4]}px

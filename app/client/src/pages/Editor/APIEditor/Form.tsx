@@ -30,15 +30,15 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { BUILDER_PAGE_URL } from "constants/routes";
-import Icon, { IconSize } from "components/alloy/Icon";
-import Button, { Size } from "components/alloy/Button";
-import { TabComponent } from "components/alloy/Tabs";
+import Icon, { IconSize } from "components/ads/Icon";
+import Button, { Size } from "components/ads/Button";
+import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import Text, { Case, TextType } from "components/alloy/Text";
-import { Classes, Variant } from "components/alloy/common";
-import Callout from "components/alloy/Callout";
+import Text, { Case, TextType } from "components/ads/Text";
+import { Classes, Variant } from "components/ads/common";
+import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import TooltipComponent from "components/alloy/Tooltip";
+import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 
 const Form = styled.form`
