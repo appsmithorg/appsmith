@@ -14,6 +14,7 @@ describe("Chart Widget Functionality", function() {
 
   it("Input widget test with default value from chart datapoint", function() {
     cy.SearchEntityandOpen("Input1");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(widgetsPage.defaultInput).type(testdata.bindChardData);
     cy.get(commonlocators.editPropCrossButton).click();
@@ -28,6 +29,7 @@ describe("Chart Widget Functionality", function() {
     cy.SearchEntityandOpen("Chart1");
     cy.addAction(testdata.bindingDataPoint);
     cy.closePropertyPane();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.xpath("(//*[local-name()='rect'])[13]")
       .first()
@@ -38,6 +40,7 @@ describe("Chart Widget Functionality", function() {
       .then(($value) => {
         const text = $value;
         cy.log(text);
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(3000);
         cy.get(".t--toast-action span")
           .first()

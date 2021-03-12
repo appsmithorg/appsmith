@@ -14,6 +14,7 @@ import ApplicationApi, {
   DuplicateApplicationRequest,
   FetchApplicationsResponse,
   FetchUsersApplicationsOrgsResponse,
+  ForkApplicationRequest,
   OrganizationApplicationObject,
   PublishApplicationRequest,
   PublishApplicationResponse,
@@ -52,6 +53,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
+import { deleteRecentAppEntities } from "utils/storage";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -288,6 +290,7 @@ export function* deleteApplicationSaga(
         type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
         payload: response.data,
       });
+      yield call(deleteRecentAppEntities, request.applicationId);
     }
   } catch (error) {
     yield put({
@@ -447,6 +450,44 @@ export function* createApplicationSaga(
   }
 }
 
+export function* forkApplicationSaga(
+  action: ReduxAction<ForkApplicationRequest>,
+) {
+  try {
+    const response: ApiResponse = yield call(
+      ApplicationApi.forkApplication,
+      action.payload,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(resetCurrentApplication());
+      const application: ApplicationPayload = {
+        ...response.data,
+        defaultPageId: getDefaultPageId(response.data.pages),
+      };
+      yield put({
+        type: ReduxActionTypes.FORK_APPLICATION_SUCCESS,
+        payload: {
+          orgId: action.payload.organizationId,
+          application,
+        },
+      });
+      const pageURL = BUILDER_PAGE_URL(
+        application.id,
+        application.defaultPageId,
+      );
+      history.push(pageURL);
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FORK_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(
@@ -464,6 +505,7 @@ export default function* applicationSagas() {
       getAllApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchApplicationSaga),
+    takeLatest(ReduxActionTypes.FORK_APPLICATION_INIT, forkApplicationSaga),
     takeLatest(ReduxActionTypes.CREATE_APPLICATION_INIT, createApplicationSaga),
     takeLatest(
       ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,

@@ -1,8 +1,8 @@
-const commonlocators = require("../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../locators/FormWidgets.json");
-const dsl = require("../../../fixtures/datePicker2dsl.json");
-const publishPage = require("../../../locators/publishWidgetspage.json");
-const pages = require("../../../locators/Pages.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../../locators/FormWidgets.json");
+const dsl = require("../../../../fixtures/datePicker2dsl.json");
+const publishPage = require("../../../../locators/publishWidgetspage.json");
+const pages = require("../../../../locators/Pages.json");
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
   before(() => {
@@ -74,6 +74,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
   it("Datepicker default date validation with js binding", function() {
     cy.PublishtheApp();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(10000);
   });
 });
