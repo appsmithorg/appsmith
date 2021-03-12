@@ -509,6 +509,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       gridType: "vertical",
       enhancements: {
         child: {
+          customJSControl: (parentProps: any) => {
+            return ComputeListPropertyControl.getControlType();
+          },
+          autocomplete: (parentProps: any) => {
+            return parentProps.childAutoComplete;
+          },
           propertyUpdateHook: (
             parentProps: any,
             widgetName: string,
@@ -539,43 +545,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               },
             ];
           },
-        },
-      },
-      propertyPaneEnhancements: {
-        additionalAutocomplete: (props: any) => {
-          return props.childAutoComplete;
-        },
-        customJSControl: ComputeListPropertyControl.getControlType(),
-        beforeChildPropertyUpdate: (
-          widgetName: string,
-          parentWidgetId: string,
-          parentWidgetName: string,
-          propertyPath: string,
-          propertyValue: any,
-        ) => {
-          let value = propertyValue;
-
-          if (!parentWidgetId) return [];
-
-          const { jsSnippets } = getDynamicBindings(propertyValue);
-
-          const modifiedAction = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              return prev + `${next}`;
-            },
-            "",
-          );
-
-          value = `{{${parentWidgetName}.items.map((currentItem) => ${modifiedAction})}}`;
-          const path = `template.${widgetName}.${propertyPath}`;
-
-          return [
-            {
-              widgetId: parentWidgetId,
-              propertyPath: path,
-              propertyValue: value,
-            },
-          ];
         },
       },
       gridGap: 0,

@@ -39,7 +39,6 @@ import { EvaluationDependencyState } from "./evaluationReducers/dependencyReduce
 import { PageWidgetsReduxState } from "./uiReducers/pageWidgetsReducer";
 import { OnboardingState } from "./uiReducers/onBoardingReducer";
 import { ReleasesState } from "./uiReducers/releasesReducer";
-import { PropertyPaneEnhancementsReduxState } from "./uiReducers/propertyPaneEnhancementsReducer";
 import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
 
 const appReducer = combineReducers({
@@ -79,7 +78,6 @@ export interface AppState {
     theme: ThemeState;
     onBoarding: OnboardingState;
     releases: ReleasesState;
-    propertyPaneEnhancementsMap: PropertyPaneEnhancementsReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

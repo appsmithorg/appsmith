@@ -75,13 +75,9 @@ import {
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 import { clearEvalCache } from "./EvaluationsSaga";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { generateEnhancementsMap } from "./WidgetOperationSagas";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
-import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { Toaster } from "components/alloy/Toast";
 import { Variant } from "components/alloy/common";
@@ -201,8 +197,6 @@ export function* fetchPageSaga(
           executePageLoadActions(canvasWidgetsPayload.pageActions),
         ]),
       );
-
-      yield hydrateEnhancementsMap();
 
       yield put({
         type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
@@ -766,47 +760,6 @@ export function* populatePageDSLsSaga() {
       },
     });
   }
-}
-
-/**
- * this saga hydrates the enhancmentsMap for each widget and children in canvasWidgets
- */
-export function* hydrateEnhancementsMap() {
-  const widgets = yield select(getCanvasWidgets);
-  const widgetIds = Object.keys(widgets);
-  let enhancementsMap = {};
-
-  for (let i = 0; i < widgetIds.length; i++) {
-    const widgetId = widgetIds[i];
-    const widget = widgets[widgetId];
-
-    // only hydrate if it's not hydrated already
-    // adding this if because generateEnhancementsMap runs over
-    // its children, so there will be already enhancmentMap created for children
-    if (!get(enhancementsMap, `${widgetId}`)) {
-      const enhancements = get(
-        WidgetConfigResponse,
-        `config.${widget.type}.propertyPaneEnhancements`,
-      );
-
-      if (enhancements) {
-        enhancementsMap = yield generateEnhancementsMap(
-          widgetId,
-          widget.parentId === MAIN_CONTAINER_WIDGET_ID
-            ? undefined
-            : widget.parentId,
-          widgets,
-          widget.type,
-          enhancementsMap,
-        );
-      }
-    }
-  }
-
-  yield put({
-    type: ReduxActionTypes.SET_PROPERTY_PANE_ENHANCEMENTS,
-    payload: enhancementsMap,
-  });
 }
 
 export default function* pageSagas() {

@@ -98,9 +98,6 @@ import {
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/alloy/Toast";
 import { Variant } from "components/alloy/common";
-import { getEnhancementsMap } from "selectors/propertyPaneSelectors";
-import { hydrateEnhancementsMap } from "sagas/PageSagas";
-import { PropertyPaneEnhancementsDataState } from "reducers/uiReducers/propertyPaneEnhancementsReducer";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import { getAllPaths } from "workers/evaluationUtils";
@@ -245,7 +242,6 @@ function* generateChildWidgets(
 
   // deleting propertyPaneEnchancements too as it shouldn't go in dsl because
   // function can't be cloned into dsl
-  delete widget.propertyPaneEnhancements;
 
   // TODO(pawan): add proper comment here
   if ("enhancements" in widget) {
@@ -444,7 +440,6 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       const widgets = { ...stateWidgets };
       const stateWidget = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
-      const enhancementsMap = yield select(getEnhancementsMap);
 
       const stateParent: FlattenedWidgetProps = yield select(
         getWidget,
@@ -501,22 +496,10 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       yield call(clearEvalPropertyCacheOfWidget, widgetName);
 
-      let finalWidgets: CanvasWidgetsReduxState = _.omit(
+      const finalWidgets: CanvasWidgetsReduxState = _.omit(
         widgets,
         otherWidgetsToDelete.map((widgets) => widgets.widgetId),
       );
-
-      // updating widget property of list if there is a enhancmentMap exists for the deleting widget
-      if (widget.widgetId in enhancementsMap) {
-        if (enhancementsMap[widget.widgetId].type === WidgetTypes.LIST_WIDGET) {
-          finalWidgets = yield updateListWidgetPropertiesOnChildDelete(
-            finalWidgets,
-            widget.widgetId,
-            widget.widgetName,
-            enhancementsMap[widget.widgetId].parentId,
-          );
-        }
-      }
 
       // Note: mutates finalWidgets
       resizeCanvasToLowestWidget(finalWidgets, parentId);
@@ -561,25 +544,6 @@ export function* updateListWidgetPropertiesOnChildDelete(
   remove(listWidget?.dynamicBindingPathList || [], (path) =>
     path.key.startsWith(`template.${widgetName}`),
   );
-
-  // delete key in enhancement map
-  const enhancementsMap = yield select(getEnhancementsMap);
-
-  // if we are deleting the list widget itself, remove all children values in the map
-  Object.keys(enhancementsMap).map((id) => {
-    if (get(enhancementsMap, `${id}.parentId`) === widgetId) {
-      enhancementsMap[id] = undefined;
-    }
-  });
-
-  if (enhancementsMap[widgetId]) {
-    enhancementsMap[widgetId] = undefined;
-  }
-
-  yield put({
-    type: ReduxActionTypes.SET_PROPERTY_PANE_ENHANCEMENTS,
-    payload: enhancementsMap,
-  });
 
   return clone;
 }
@@ -666,40 +630,6 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
     yield put(updateAndSaveLayout(widgets));
 
     const widget = yield select(getWidget, action.payload.widgetId);
-
-    // getting enhancement of the deleted widget from config
-    const enhancements = get(
-      WidgetConfigResponse,
-      `config.${widget.type}.propertyPaneEnhancements`,
-    );
-    let enhancementsMap = yield select(getEnhancementsMap);
-
-    // if there is a enhancement, pass on the enhancement to every child to be retrived later on
-    if (enhancements) {
-      enhancementsMap = yield generateEnhancementsMap(
-        action.payload.widgetId,
-        get(enhancementsMap, `${action.payload.widgetId}.parentId`),
-        widgets,
-        widget.type,
-        enhancementsMap,
-      );
-    }
-
-    // when adding a child, if parent is already in the enhancementsMap, use parent type.
-    if (enhancementsMap[widget.parentId]) {
-      enhancementsMap = yield generateEnhancementsMap(
-        action.payload.widgetId,
-        get(enhancementsMap, `${action.payload.widgetId}.parentId`),
-        widgets,
-        get(enhancementsMap, `${widget.parentId}.type`),
-        enhancementsMap,
-      );
-    }
-
-    yield put({
-      type: ReduxActionTypes.SET_PROPERTY_PANE_ENHANCEMENTS,
-      payload: enhancementsMap,
-    });
 
     yield flushDeletedWidgets(action.payload.widgetId);
   }
@@ -1332,7 +1262,6 @@ function* pasteWidgetSaga() {
       selectedWidget = yield select(getWidget, firstChildId);
     }
 
-    const enhancementsMap = yield select(getEnhancementsMap);
     let newWidgetParentId = MAIN_CONTAINER_WIDGET_ID;
     let parentWidget = widgets[MAIN_CONTAINER_WIDGET_ID];
 
@@ -1601,7 +1530,6 @@ function* pasteWidgetSaga() {
 
     // hydrating enhancements map after save layout so that enhancement map
     // for newly copied widget is hydrated
-    yield hydrateEnhancementsMap();
 
     // Flash the newly pasted widget once the DSL is re-rendered
     setTimeout(() => flashElementById(newWidgetId), 100);
@@ -1758,45 +1686,6 @@ function* selectedWidgetAncestrySaga(
   } catch (error) {
     log.debug("Could not compute selected widget's ancestry", error);
   }
-}
-
-/**
- * this saga create a object of enhachement map for all children of a widget
- *
- * @param widgetId
- * @param enhancements
- * @param widgets
- */
-export function* generateEnhancementsMap(
-  widgetId: string,
-  parentId: string,
-  widgets: { [widgetId: string]: FlattenedWidgetProps },
-  type: WidgetType,
-  enhancemnetsMap: PropertyPaneEnhancementsDataState,
-): any {
-  const widget = widgets[widgetId];
-  const children = get(widget, "children", []);
-
-  enhancemnetsMap[widgetId] = {
-    type,
-    parentId,
-    parentWidgetName: parentId && get(widgets[parentId], `widgetName`),
-  };
-
-  // iterating over all childrens and updating enhancementsMap for them
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i];
-
-    enhancemnetsMap = yield generateEnhancementsMap(
-      child,
-      parentId || widgetId,
-      widgets,
-      type,
-      enhancemnetsMap,
-    );
-  }
-
-  return enhancemnetsMap;
 }
 
 export default function* widgetOperationSagas() {

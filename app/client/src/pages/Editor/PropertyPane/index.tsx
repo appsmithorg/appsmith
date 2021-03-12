@@ -7,7 +7,6 @@ import { PanelStack, IPanel, Classes } from "@blueprintjs/core";
 import * as log from "loglevel";
 import {
   getIsPropertyPaneVisible,
-  getPropertyPaneEnhancements,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
 import Popper from "pages/Editor/Popper";
@@ -60,7 +59,6 @@ const StyledPanelStack = styled(PanelStack)`
 export interface PropertyPaneProps extends PropertyPaneFunctions {
   widgetProperties?: WidgetProps;
   isVisible: boolean;
-  propertyPaneEnhancements?: PropertyPaneEnhancements;
 }
 
 export interface PropertyPaneFunctions {
@@ -69,20 +67,6 @@ export interface PropertyPaneFunctions {
 
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
-}
-
-export interface PropertyPaneEnhancements {
-  additionalAutocomplete?: Record<
-    string,
-    (props: any) => Record<string, unknown>
-  >;
-  beforeChildPropertyUpdate?: (
-    widgetName: string,
-    parentWidgetId: string,
-    parentWidgetName: string,
-    path: string,
-    value: any,
-  ) => UpdatePropertyPayload[];
 }
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
@@ -119,11 +103,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
    * generating property pane
    */
   renderPropertyPane() {
-    const {
-      widgetProperties,
-      hidePropertyPane,
-      propertyPaneEnhancements,
-    } = this.props;
+    const { widgetProperties, hidePropertyPane } = this.props;
 
     // if there are no widgetProperties, just render a blank property pane wrapper
     if (!widgetProperties) return <PropertyPaneWrapper />;
@@ -144,7 +124,6 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
             component: PropertyPaneView,
             props: {
               hidePropertyPane: hidePropertyPane,
-              enhancements: propertyPaneEnhancements,
             },
           }}
           showPanelHeader={false}
@@ -208,7 +187,6 @@ const mapStateToProps = (state: AppState) => {
   return {
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
-    propertyPaneEnhancements: getPropertyPaneEnhancements(state),
   };
 };
 

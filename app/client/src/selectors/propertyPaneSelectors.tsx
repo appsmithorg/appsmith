@@ -7,7 +7,6 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
-import { PropertyPaneEnhancementsReduxState } from "reducers/uiReducers/propertyPaneEnhancementsReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
@@ -65,34 +64,4 @@ export const getWidgetPropsForPropertyPane = createSelector(
 export const getIsPropertyPaneVisible = createSelector(
   getPropertyPaneState,
   (pane: PropertyPaneReduxState) => !!(pane.isVisible && pane.widgetId),
-);
-
-/**
- * return the redux state of enhancmentsMap
- *
- * @param state
- */
-export const getEnhancementsMap = (state: AppState) =>
-  state.ui.propertyPaneEnhancementsMap;
-
-/**
- * returns the enchancments of current widget from widget config
- * enchancmentsMap is the object key-value pair of widgetId => widgetType
- *
- *  for e.g: { "mywidgetId": "LIST_WIDGET" }
- */
-export const getPropertyPaneEnhancements = createSelector(
-  getEnhancementsMap,
-  getCurrentWidgetId,
-  (enhancementsMap: PropertyPaneEnhancementsReduxState, widgetId?: string) => {
-    // if there is no widget id ( that's means, no widget property pane is selected)
-    if (!widgetId) return;
-
-    const widgetType = get(enhancementsMap, `${widgetId}.type`);
-
-    return get(
-      WidgetConfigResponse,
-      `config.${widgetType}.propertyPaneEnhancements`,
-    );
-  },
 );

@@ -17,18 +17,6 @@ export interface UpdatePropertyPayload {
 const PropertyPaneView = (
   props: {
     hidePropertyPane: () => void;
-    enhancements?: {
-      additionalAutocomplete: Record<
-        string,
-        (props: any) => Record<string, unknown>
-      >;
-      beforeChildPropertyUpdate: (
-        widgetName: string,
-        parentId: string,
-        path: string,
-        value: any,
-      ) => UpdatePropertyPayload[];
-    };
   } & IPanelProps,
 ) => {
   const { hidePropertyPane, ...panel } = props;
@@ -43,11 +31,7 @@ const PropertyPaneView = (
         widgetType={widgetProperties?.type}
         onClose={hidePropertyPane}
       />
-      <PropertyControlsGenerator
-        enhancements={props.enhancements}
-        type={widgetProperties.type}
-        panel={panel}
-      />
+      <PropertyControlsGenerator type={widgetProperties.type} panel={panel} />
     </>
   );
 };

@@ -117,6 +117,17 @@ export function* getChildWidgetEnhancementFn(
   }
 }
 
+/**
+ * hook that returns parent with enhancments
+ *
+ * @param widgetId
+ * @returns
+ */
+export function useParentWithEnhancementFn(widgetId: string) {
+  const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
+  return getParentWithEnhancementFn(widgetId, widgets);
+}
+
 export function useChildWidgetEnhancementFn(
   widgetId: string,
   enhancementType: WidgetEnhancementType,

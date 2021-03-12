@@ -25,7 +25,6 @@ import pageCanvasStructureReducer from "./pageCanvasStructure";
 import pageWidgetsReducer from "./pageWidgetsReducer";
 import onBoardingReducer from "./onBoardingReducer";
 import releasesReducer from "./releasesReducer";
-import propertyPaneEnhancementsReducer from "./propertyPaneEnhancementsReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -54,6 +53,6 @@ const uiReducer = combineReducers({
   confirmRunAction: confirmRunActionReducer,
   onBoarding: onBoardingReducer,
   releases: releasesReducer,
-  propertyPaneEnhancementsMap: propertyPaneEnhancementsReducer,
 });
+
 export default uiReducer;

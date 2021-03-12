@@ -25,38 +25,40 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import {
-  getWidgetPropsForPropertyPane,
-  getEnhancementsMap,
-} from "selectors/propertyPaneSelectors";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { PropertyPaneEnhancements } from ".";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
-import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
-import { AppState } from "reducers";
+
 import {
   useChildWidgetEnhancementFn,
+  useParentWithEnhancementFn,
   WidgetEnhancementType,
 } from "sagas/WidgetEnhancementHelpers";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
-  enhancements?: PropertyPaneEnhancements;
 };
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
-  const enhancementsMap = useSelector(getEnhancementsMap);
-  const enhancementMap = enhancementsMap[widgetProperties.widgetId];
-  const parentId = enhancementMap?.parentId;
-  const parentWidgetProperties = useSelector((state: AppState) =>
-    parentId ? state.entities.canvasWidgets[parentId] : undefined,
+  const parentWithEnhancement = useParentWithEnhancementFn(
+    widgetProperties.widgetId,
   );
-  const childWidgetEnhancementFn = useChildWidgetEnhancementFn(
+
+  /** get all child enhancments functions */
+  const childWidgetPropertyUpdateEnhancementFn = useChildWidgetEnhancementFn(
     widgetProperties.widgetId,
     WidgetEnhancementType.PROPERTY_UPDATE,
+  );
+  const childWidgetAutoCompleteEnhancementFn = useChildWidgetEnhancementFn(
+    widgetProperties.widgetId,
+    WidgetEnhancementType.AUTOCOMPLETE,
+  );
+  const childWidgetCustomJSControlEnhancementFn = useChildWidgetEnhancementFn(
+    widgetProperties.widgetId,
+    WidgetEnhancementType.CUSTOM_CONTROL,
   );
 
   const toggleDynamicProperty = useCallback(
@@ -140,9 +142,9 @@ const PropertyControl = memo((props: Props) => {
       // if there are enhancements related to the widget, calling them here
       // enhancements are basically group of functions that are called before widget propety
       // is changed on propertypane. For e.g - set/update parent property
-      if (childWidgetEnhancementFn) {
+      if (childWidgetPropertyUpdateEnhancementFn) {
         // TODO: Concat if exists, else replace
-        const hookPropertiesUpdates = childWidgetEnhancementFn(
+        const hookPropertiesUpdates = childWidgetPropertyUpdateEnhancementFn(
           widgetProperties.widgetName,
           propertyName,
           propertyValue,
@@ -159,7 +161,7 @@ const PropertyControl = memo((props: Props) => {
 
           onBatchUpdatePropertiesOfWidget(
             allUpdates,
-            get(enhancementsMap[widgetProperties.widgetId], "parentId", ""),
+            get(parentWithEnhancement, "widgetId", ""),
           );
         }
       }
@@ -270,31 +272,21 @@ const PropertyControl = memo((props: Props) => {
       .split(" ")
       .join("")
       .toLowerCase();
-    const customJSControl = get(
-      WidgetConfigResponse,
-      `config.${parentWidgetProperties?.type}.propertyPaneEnhancements.customJSControl`,
-    );
-
-    let enhancementAutocomplete = undefined;
-    if (!props.additionalAutoComplete && parentWidgetProperties?.type) {
-      enhancementAutocomplete = get(
-        WidgetConfigResponse,
-        `config.${parentWidgetProperties.type}.propertyPaneEnhancements.additionalAutocomplete`,
-      );
-    }
 
     let additionAutocomplete = undefined;
     if (additionalAutoComplete) {
       additionAutocomplete = additionalAutoComplete(widgetProperties);
-    } else if (enhancementAutocomplete) {
-      additionAutocomplete = enhancementAutocomplete(parentWidgetProperties);
+    } else if (childWidgetAutoCompleteEnhancementFn) {
+      additionAutocomplete = childWidgetAutoCompleteEnhancementFn();
     }
 
     /**
      * if the current widget requires a customJSControl, use that.
      */
     const getCustomJSControl = () => {
-      if (customJSControl) return customJSControl;
+      if (childWidgetCustomJSControlEnhancementFn) {
+        return childWidgetCustomJSControlEnhancementFn();
+      }
 
       return props.customJSControl;
     };

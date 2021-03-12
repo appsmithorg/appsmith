@@ -9,7 +9,6 @@ import { WidgetType } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { FetchPageRequest, SavePageResponse } from "api/PageApi";
 import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
-import { PropertyPaneEnhancements } from "pages/Editor/PropertyPane";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
@@ -180,7 +179,6 @@ export type WidgetAddChild = {
   newWidgetId: string;
   tabId: string;
   props?: Record<string, any>;
-  propertyPaneEnhancements?: PropertyPaneEnhancements;
 };
 
 export type WidgetMove = {
