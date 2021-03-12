@@ -99,15 +99,12 @@ public class MongoPluginTest {
         connection.setMode(Connection.Mode.READ_WRITE);
         connection.setType(Connection.Type.DIRECT);
         connection.setDefaultDatabaseName("test");
+        connection.setSsl(new SSLDetails());
+        connection.getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setConnection(connection);
         dsConfig.setEndpoints(List.of(endpoint));
-
-        /* set ssl mode */
-        dsConfig.setConnection(new com.appsmith.external.models.Connection());
-        dsConfig.getConnection().setSsl(new SSLDetails());
-        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
 
         return dsConfig;
     }

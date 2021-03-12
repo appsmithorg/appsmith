@@ -181,7 +181,7 @@ public class MySqlPluginTest {
         endpoint.setHost(mySQLContainerWithInvalidTimezone.getContainerIpAddress());
         endpoint.setPort(mySQLContainerWithInvalidTimezone.getFirstMappedPort().longValue());
 
-        final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        final DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
         dsConfig.setEndpoints(List.of(endpoint));
         dsConfig.setProperties(List.of(
@@ -197,6 +197,8 @@ public class MySqlPluginTest {
 
     @Test
     public void testTestDatasource() {
+        dsConfig = createDatasourceConfiguration();
+
         /* Expect no error */
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
@@ -213,7 +215,7 @@ public class MySqlPluginTest {
                 .verifyComplete();
 
         /* Reset dsConfig */
-        createDatasourceConfiguration();
+        dsConfig = createDatasourceConfiguration();
     }
 
     @Test

@@ -17,6 +17,9 @@ public class SSLDetails {
         // Default driver configuration
         DEFAULT,
 
+        // legacy - not removing because required for migration changes to succeed.
+        NO_SSL,
+
         //For those drivers that don't have any specific options
         ENABLED,
 

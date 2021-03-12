@@ -2,10 +2,12 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -1912,6 +1914,82 @@ public class DatabaseChangelog {
                             .getDatasourceConfiguration()
                             .getProperties()
                             .add(new Property("s3Provider", "amazon-s3"));
+
+                    mongoTemplate.save(datasource);
+                });
+    }
+
+    @ChangeSet(order = "059", id = "update-mysql-postgres-mongo-ssl-mode", author = "")
+    public void updateMysqlPostgresMongoSslMode(MongoTemplate mongoTemplate) {
+        Plugin mysqlPlugin = mongoTemplate
+                .find(query(where("name").is("Mysql")), Plugin.class).get(0);
+
+        Plugin mongoPlugin = mongoTemplate
+                .find(query(where("name").is("MongoDB")), Plugin.class).get(0);
+
+        List<Datasource> mysqlAndMongoDatasources = mongoTemplate
+                .find(
+                        query(new Criteria()
+                                .orOperator(
+                                        where("pluginId").is(mysqlPlugin.getId()),
+                                        where("pluginId").is(mongoPlugin.getId())
+                                )
+                        ),
+                        Datasource.class);
+
+        /*
+         * - Set SSL mode to DEFAULT for all mysql and mongodb datasources.
+         */
+        mysqlAndMongoDatasources
+                .stream()
+                .forEach(datasource -> {
+                    if(datasource.getDatasourceConfiguration() != null) {
+                        if(datasource.getDatasourceConfiguration().getConnection() == null) {
+                            datasource.getDatasourceConfiguration().setConnection(new Connection());
+                        }
+
+                        if(datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
+                            datasource.getDatasourceConfiguration().getConnection().setSsl(new SSLDetails());
+                        }
+
+                        datasource.getDatasourceConfiguration().getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+                    }
+
+                    mongoTemplate.save(datasource);
+                });
+
+        Plugin postgresPlugin = mongoTemplate
+                .find(query(where("name").is("PostgreSQL")), Plugin.class).get(0);
+
+        List<Datasource> postgresDatasources = mongoTemplate
+                .find(query(where("pluginId").is(postgresPlugin.getId())), Datasource.class);
+
+        /*
+         * - Set SSL mode to DEFAULT only for those postgres datasources where:
+         *   - SSL mode config doesn't exist.
+         *   - SSL mode config cannot be supported.
+         */
+        postgresDatasources
+                .stream()
+                .forEach(datasource -> {
+                    if(datasource.getDatasourceConfiguration() != null) {
+                        if(datasource.getDatasourceConfiguration().getConnection() == null) {
+                            datasource.getDatasourceConfiguration().setConnection(new Connection());
+                        }
+
+                        if(datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
+                            datasource.getDatasourceConfiguration().getConnection().setSsl(new SSLDetails());
+                        }
+
+                        SSLDetails.AuthType authType = datasource.getDatasourceConfiguration().getConnection().getSsl().getAuthType();
+                        if(authType == null
+                                || (!SSLDetails.AuthType.ALLOW.equals(authType)
+                                && !SSLDetails.AuthType.PREFER.equals(authType)
+                                && !SSLDetails.AuthType.REQUIRE.equals(authType)
+                                && !SSLDetails.AuthType.DISABLE.equals(authType))) {
+                            datasource.getDatasourceConfiguration().getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+                        }
+                    }
 
                     mongoTemplate.save(datasource);
                 });
