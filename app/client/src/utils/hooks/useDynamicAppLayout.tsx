@@ -1,4 +1,3 @@
-import { updateAndSaveLayout } from "actions/pageActions";
 import { theme } from "constants/DefaultTheme";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
