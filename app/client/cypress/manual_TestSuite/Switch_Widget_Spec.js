@@ -28,5 +28,21 @@ describe("Test to add switch widget in canvas", function() {
     // and observe the the button becomes active 
   }
   )
+ 
+  it(" Reset switch widget on date change", function() {
+    // Add a Date Picker widget
+    // Add a switch widget
+    // Click on the Property Pane of Date Picker widget
+    // Naviagte to Action Items
+    // Click on "on DateSelected" Dropdown
+    // Select "Reset a widget"
+    // Add a widget as "switch widget"
+    // Now "Reset Children to NO "
+    // Ensure the Switch is "Flase"
+    // now Change the date  
+    // and observe the the button becomes active 
+  }
+  )
+
 }
 )
