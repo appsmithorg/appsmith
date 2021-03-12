@@ -211,6 +211,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 4,
       maxNumFiles: 1,
       maxFileSize: 5,
+      fileDataType: "Base64",
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
       version: 1,

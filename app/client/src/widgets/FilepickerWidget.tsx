@@ -113,6 +113,28 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
           },
           {
+            helpText: "Set the format of the data read from the files",
+            propertyName: "fileDataType",
+            label: "Data Format",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Base64",
+                value: "Base64",
+              },
+              {
+                label: "Binary",
+                value: "Binary",
+              },
+              {
+                label: "Text",
+                value: "Text",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "isRequired",
             label: "Required",
             helpText: "Makes input to the widget mandatory",
@@ -326,6 +348,12 @@ class FilePickerWidget extends BaseWidget<
                   blob: file.data,
                   raw: rawData,
                   text: text,
+                  data:
+                    this.props.fileDataType === "Base64"
+                      ? base64data
+                      : this.props.fileDataType === "Binary"
+                      ? rawData
+                      : text,
                   name: file.meta ? file.meta.name : undefined,
                 };
 
@@ -439,9 +467,12 @@ export interface FilePickerWidgetProps extends WidgetProps, WithMeta {
   files?: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;
+  fileDataType?: FileDataTypes;
   isRequired?: boolean;
   uploadedFileUrlPaths?: string;
 }
+
+type FileDataTypes = "Base64" | "Text" | "Binary";
 
 export default FilePickerWidget;
 export const ProfiledFilePickerWidget = Sentry.withProfiler(
