@@ -472,12 +472,12 @@ export interface FilePickerWidgetProps extends WidgetProps, WithMeta {
   selectedFiles?: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;
-  fileDataType?: FileDataTypes;
+  fileDataType: FileDataTypes;
   isRequired?: boolean;
   uploadedFileUrlPaths?: string;
 }
 
-enum FileDataTypes {
+export enum FileDataTypes {
   Base64 = "Base64",
   Text = "Text",
   Binary = "Binary",
