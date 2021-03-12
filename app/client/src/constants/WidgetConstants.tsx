@@ -122,3 +122,13 @@ export enum FontStyleTypes {
   REGULAR = "REGULAR",
   UNDERLINE = "UNDERLINE",
 }
+
+export enum TextSizes {
+  HEADING1 = "HEADING1",
+  HEADING2 = "HEADING2",
+  HEADING3 = "HEADING3",
+  PARAGRAPH = "PARAGRAPH",
+  PARAGRAPH2 = "PARAGRAPH2",
+}
+
+export type TextSize = keyof typeof TextSizes;

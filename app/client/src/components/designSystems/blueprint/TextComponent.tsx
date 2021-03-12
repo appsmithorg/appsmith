@@ -1,12 +1,12 @@
 import * as React from "react";
-import { Text, Classes } from "@blueprintjs/core";
+import { Text } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import { TextStyle, TextAlign } from "widgets/TextWidget";
+import { TextAlign } from "widgets/TextWidget";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import { labelStyle } from "constants/DefaultTheme";
-import { FontStyleTypes } from "constants/WidgetConstants";
+import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
 };
@@ -33,6 +33,7 @@ export const StyledText = styled(Text)<{
   backgroundColor?: string;
   textColor?: string;
   fontStyle?: string;
+  fontSize?: TextSize;
 }>`
   height: 100%;
   overflow-y: ${(props) => (props.scroll ? "auto" : "hidden")};
@@ -66,7 +67,7 @@ export interface TextComponentProps extends ComponentProps {
   text?: string;
   textAlign: TextAlign;
   ellipsize?: boolean;
-  textStyle?: TextStyle;
+  fontSize?: TextSize;
   isLoading: boolean;
   shouldScroll?: boolean;
   backgroundColor?: string;
@@ -75,36 +76,13 @@ export interface TextComponentProps extends ComponentProps {
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
-  getTextClass(textStyle?: TextStyle) {
-    const className = [];
-
-    if (this.props.isLoading) {
-      className.push("bp3-skeleton");
-    }
-    switch (textStyle) {
-      case "HEADING":
-        className.push(Classes.HEADING);
-        break;
-      case "BODY":
-        className.push(Classes.RUNNING_TEXT);
-        break;
-      case "LABEL":
-        className.push(Classes.UI_TEXT);
-        break;
-      default:
-        break;
-    }
-
-    return className.join(" ");
-  }
-
   render() {
     const {
-      textStyle,
       text,
       ellipsize,
       textAlign,
       fontStyle,
+      fontSize,
       textColor,
       backgroundColor,
     } = this.props;
@@ -113,7 +91,7 @@ class TextComponent extends React.Component<TextComponentProps> {
         <StyledText
           scroll={!!this.props.shouldScroll}
           textAlign={textAlign}
-          className={this.getTextClass(textStyle)}
+          fontSize={fontSize}
           ellipsize={ellipsize}
           fontStyle={fontStyle}
           textColor={textColor}

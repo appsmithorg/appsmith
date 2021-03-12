@@ -15,7 +15,6 @@ import {
   VerticalAlignmentTypes,
   ColumnProperties,
   CellLayoutProperties,
-  TextSizes,
   ConditionFunctions,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
@@ -38,7 +37,7 @@ import moment from "moment";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
-import { FontStyleTypes } from "constants/WidgetConstants";
+import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 
 export const renderCell = (
   value: any,
