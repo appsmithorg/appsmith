@@ -89,15 +89,15 @@ jobs:
       # Build Docker image and push to Docker Hub
       - name: Push production image to Docker Hub with commit tag
         run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}}
 
           # Only build & tag with latest if the tag doesn't contain beta
           if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
             docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest
           fi
-
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor
 
   build-server:
     needs:
@@ -142,12 +142,13 @@ jobs:
       # Build Docker image and push to Docker Hub
       - name: Push image to Docker Hub
         run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}}
 
           # Only build & tag with latest if the tag doesn't contain beta
           if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
             docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:latest
           fi
 
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server
