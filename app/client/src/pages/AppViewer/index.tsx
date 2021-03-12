@@ -101,6 +101,11 @@ class AppViewer extends Component<
                 exact
                 component={AppViewerPageContainer}
               />
+              <SentryRoute
+                path={`${getApplicationViewerPageURL()}/fork`}
+                component={AppViewerPageContainer}
+                exact
+              />
             </Switch>
           )}
         </AppViewerBody>
