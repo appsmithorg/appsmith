@@ -45,16 +45,21 @@ function getParentWithEnhancementFn(
     // enhancements property is a new widget property which tells us that
     // the property pane, properties or actions of this widget or its children
     // can be enhanced
+
     if (parent && parent.enhancements) {
       return parent;
     }
     // If we didn't find any enhancements
     // keep walking up the tree to find the parent which does
-    if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID)
-      widget = get(widgets, parent.parentId, undefined);
     // if the parent doesn't have a parent stop walking the tree.
     // also stop if the parent is the main container (Main container doesn't have enhancements)
-    else return;
+    if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID) {
+      widget = get(widgets, widget.parentId, undefined);
+
+      continue;
+    }
+
+    return;
   }
 }
 
@@ -75,9 +80,11 @@ export function getWidgetEnhancementFn(
 // confirm this.
 export const getPropsFromTree = (
   state: AppState,
-  widgetName: string,
+  widgetName?: string,
 ): unknown => {
   // Get the evaluated data of this widget from the evaluations tree.
+  if (!widgetName) return;
+
   return get(state.evaluations.tree, widgetName, undefined);
 };
 
@@ -120,10 +127,10 @@ export function useChildWidgetEnhancementFn(
   const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, widgets);
   // If such a parent is found
 
+  console.log({ widgets, parentWithEnhancementFn });
   // Get the parent's evaluated data from the evaluatedTree
-  const parentDataFromDataTree: unknown = useSelector(
-    getPropsFromTree,
-    parentWithEnhancementFn?.widgetName,
+  const parentDataFromDataTree: unknown = useSelector((state: AppState) =>
+    getPropsFromTree(state, parentWithEnhancementFn?.widgetName),
   );
 
   if (parentWithEnhancementFn) {

@@ -36,10 +36,9 @@ import Indicator from "components/editorComponents/Onboarding/Indicator";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { AppState } from "reducers";
 import {
-  getChildWidgetEnhancementFn,
+  useChildWidgetEnhancementFn,
   WidgetEnhancementType,
 } from "sagas/WidgetEnhancementHelpers";
-import { call } from "@redux-saga/core/effects";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -54,6 +53,10 @@ const PropertyControl = memo((props: Props) => {
   const parentId = enhancementMap?.parentId;
   const parentWidgetProperties = useSelector((state: AppState) =>
     parentId ? state.entities.canvasWidgets[parentId] : undefined,
+  );
+  const childWidgetEnhancementFn = useChildWidgetEnhancementFn(
+    widgetProperties.widgetId,
+    WidgetEnhancementType.PROPERTY_UPDATE,
   );
 
   const toggleDynamicProperty = useCallback(
@@ -134,26 +137,13 @@ const PropertyControl = memo((props: Props) => {
         );
       }
 
-      const ChildWidgetEnhancementFn = call(
-        getChildWidgetEnhancementFn,
-        widgetProperties.widgetId,
-        WidgetEnhancementType.PROPERTY_UPDATE,
-      );
-
-      console.log({ ChildWidgetEnhancementFn });
-
-      // // const something = ChildWidgetEnhancementFn(widgetProperties.widgetName);
-
-      // console.log({ ChildWidgetEnhancementFn });
       // if there are enhancements related to the widget, calling them here
       // enhancements are basically group of functions that are called before widget propety
       // is changed on propertypane. For e.g - set/update parent property
-      if (props.enhancements?.beforeChildPropertyUpdate) {
+      if (childWidgetEnhancementFn) {
         // TODO: Concat if exists, else replace
-        const hookPropertiesUpdates = props.enhancements.beforeChildPropertyUpdate(
+        const hookPropertiesUpdates = childWidgetEnhancementFn(
           widgetProperties.widgetName,
-          get(enhancementsMap[widgetProperties.widgetId], "parentId", ""),
-          get(enhancementsMap[widgetProperties.widgetId], "parentWidgetName"),
           propertyName,
           propertyValue,
         );
