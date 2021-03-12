@@ -11,16 +11,20 @@ import java.util.Set;
 
 public class GetValuesMethodTest {
 
-    @Test(expected = AppsmithPluginException.class)
+    @Test
     public void testTransformResponse_missingJSON_throwsException() {
         ObjectMapper objectMapper = new ObjectMapper();
 
         GetValuesMethod getValuesMethod = new GetValuesMethod();
-        getValuesMethod.transformResponse(null, objectMapper);
+        try {
+            getValuesMethod.transformResponse(null, objectMapper);
+        } catch (AppsmithPluginException e) {
+            Assert.assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getMessage()));
+        }
     }
 
-    @Test(expected = AppsmithPluginException.class)
-    public void testTransformResponse_missingValues_throwsException() throws JsonProcessingException {
+    @Test
+    public void testTransformResponse_missingValues_returnsEmpty() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"range\":\"Sheet1!A1:D5\",\"majorDimension\":\"ROWS\"}";
@@ -30,7 +34,11 @@ public class GetValuesMethodTest {
         Assert.assertNotNull(jsonNode);
 
         GetValuesMethod getValuesMethod = new GetValuesMethod();
-        getValuesMethod.transformResponse(jsonNode, objectMapper);
+        JsonNode result = getValuesMethod.transformResponse(jsonNode, objectMapper);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isArray());
+        Assert.assertEquals(0, result.size());
     }
 
     @Test
