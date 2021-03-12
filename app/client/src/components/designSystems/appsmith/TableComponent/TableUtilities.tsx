@@ -13,7 +13,6 @@ import {
   Condition,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
-  FontStyleTypes,
   ColumnProperties,
   CellLayoutProperties,
   TextSizes,
@@ -39,6 +38,7 @@ import moment from "moment";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
+import { FontStyleTypes } from "constants/WidgetConstants";
 
 export const renderCell = (
   value: any,

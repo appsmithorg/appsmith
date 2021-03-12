@@ -90,45 +90,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
-          // {
-          //   propertyName: "textSize",
-          //   label: "Text Size",
-          //   controlType: "DROP_DOWN",
-          //   options: [
-          //     {
-          //       label: "Heading 1",
-          //       value: "HEADING1",
-          //       subText: "24px",
-          //       icon: "HEADING_ONE",
-          //     },
-          //     {
-          //       label: "Heading 2",
-          //       value: "HEADING2",
-          //       subText: "18px",
-          //       icon: "HEADING_TWO",
-          //     },
-          //     {
-          //       label: "Heading 3",
-          //       value: "HEADING3",
-          //       subText: "16px",
-          //       icon: "HEADING_THREE",
-          //     },
-          //     {
-          //       label: "Paragraph",
-          //       value: "PARAGRAPH",
-          //       subText: "14px",
-          //       icon: "PARAGRAPH",
-          //     },
-          //     {
-          //       label: "Paragraph 2",
-          //       value: "PARAGRAPH2",
-          //       subText: "12px",
-          //       icon: "PARAGRAPH_TWO",
-          //     },
-          //   ],
-          //   isBindProperty: false,
-          //   isTriggerProperty: false,
-          // },
           {
             propertyName: "fontStyle",
             label: "Font Style",

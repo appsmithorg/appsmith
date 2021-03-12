@@ -2,10 +2,10 @@ import styled, { css } from "styled-components";
 import {
   TableSizes,
   CellLayoutProperties,
-  FontStyleTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors, Color } from "constants/Colors";
 import { scrollbarLight } from "constants/DefaultTheme";
+import { FontStyleTypes } from "constants/WidgetConstants";
 
 export const TableWrapper = styled.div<{
   width: number;

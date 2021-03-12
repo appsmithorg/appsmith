@@ -34,13 +34,6 @@ export enum TextSizes {
   PARAGRAPH2 = "PARAGRAPH2",
 }
 
-export enum FontStyleTypes {
-  BOLD = "BOLD",
-  ITALIC = "ITALIC",
-  REGULAR = "REGULAR",
-  UNDERLINE = "UNDERLINE",
-}
-
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 38,
@@ -89,7 +82,6 @@ export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
 export type CellAlignment = keyof typeof CellAlignmentTypes;
 export type VerticalAlignment = keyof typeof VerticalAlignmentTypes;
-export type FontStyle = keyof typeof FontStyleTypes;
 export type TextSize = keyof typeof TextSizes;
 
 export interface ReactTableFilter {

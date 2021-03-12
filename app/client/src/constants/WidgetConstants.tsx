@@ -115,3 +115,10 @@ export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
+
+export enum FontStyleTypes {
+  BOLD = "BOLD",
+  ITALIC = "ITALIC",
+  REGULAR = "REGULAR",
+  UNDERLINE = "UNDERLINE",
+}

@@ -6,7 +6,7 @@ import { TextStyle, TextAlign } from "widgets/TextWidget";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import { labelStyle } from "constants/DefaultTheme";
-import { FontStyleTypes } from "../appsmith/TableComponent/Constants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
 };
