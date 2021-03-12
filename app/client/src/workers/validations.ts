@@ -447,7 +447,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
-
+    if (dateString === null) {
+      return {
+        isValid: true,
+        parsed: "",
+        message: "",
+      };
+    }
     if (dateString === undefined) {
       return {
         isValid: false,
@@ -480,6 +486,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
+    if (dateString === null) {
+      return {
+        isValid: true,
+        parsed: "",
+        message: "",
+      };
+    }
     if (dateString === undefined) {
       return {
         isValid: false,
