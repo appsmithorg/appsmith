@@ -28,6 +28,7 @@ import {
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
+import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -421,6 +422,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 13) {
     currentDSL = migrateOldChartData(currentDSL);
     currentDSL.version = 14;
+  }
+
+  if (currentDSL.version === 14) {
+    currentDSL = migrateTextStyleFromTextWidget(currentDSL);
+    currentDSL.version = 15;
   }
 
   return currentDSL;

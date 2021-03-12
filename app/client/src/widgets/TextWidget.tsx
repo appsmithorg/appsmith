@@ -158,6 +158,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         text={this.props.text}
+        fontStyle={this.props.fontStyle}
         fontSize={this.props.fontSize}
         textColor={this.props.textColor}
         backgroundColor={this.props.backgroundColor}

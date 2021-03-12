@@ -5,8 +5,11 @@ import { ComponentProps } from "components/designSystems/appsmith/BaseComponent"
 import { TextAlign } from "widgets/TextWidget";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
-import { labelStyle } from "constants/DefaultTheme";
-import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
 };
@@ -51,13 +54,7 @@ export const StyledText = styled(Text)<{
     props?.fontStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
   font-weight: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  &.bp3-heading {
-    font-weight: ${(props) => props.theme.fontWeights[4]};
-    font-size: 21px;
-  }
-  &.bp3-ui-text {
-    ${labelStyle}
-  }
+  font-size: ${(props) => props?.fontSize && TEXT_SIZES[props?.fontSize]};
   span {
     width: 100%;
   }
@@ -96,6 +93,7 @@ class TextComponent extends React.Component<TextComponentProps> {
           fontStyle={fontStyle}
           textColor={textColor}
           backgroundColor={backgroundColor}
+          className={this.props.isLoading ? "bp3-skeleton" : ""}
         >
           <Interweave
             content={text}

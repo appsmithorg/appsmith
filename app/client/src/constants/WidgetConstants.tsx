@@ -131,4 +131,12 @@ export enum TextSizes {
   PARAGRAPH2 = "PARAGRAPH2",
 }
 
+export const TEXT_SIZES = {
+  HEADING1: "24px",
+  HEADING2: "18px",
+  HEADING3: "16px",
+  PARAGRAPH: "14px",
+  PARAGRAPH2: "12px",
+};
+
 export type TextSize = keyof typeof TextSizes;
