@@ -1,9 +1,15 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.PEMCertificate;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.models.UploadedFile;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -59,6 +65,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -718,17 +725,87 @@ public class ExamplesOrganizationClonerTests {
                     ds1.setName("datasource 1");
                     ds1.setOrganizationId(sourceOrg1.getId());
                     ds1.setPluginId(installedPlugin.getId());
+                    DatasourceConfiguration dc = new DatasourceConfiguration();
+                    ds1.setDatasourceConfiguration(dc);
+
+                    dc.setConnection(new Connection(
+                            Connection.Mode.READ_WRITE,
+                            Connection.Type.DIRECT,
+                            new SSLDetails(
+                                    SSLDetails.AuthType.ALLOW,
+                                    new UploadedFile("keyFile", "key file content"),
+                                    new UploadedFile("certFile", "cert file content"),
+                                    new UploadedFile("caCertFile", "caCert file content"),
+                                    true,
+                                    new PEMCertificate(
+                                            new UploadedFile(
+                                                    "pemCertFile",
+                                                    "pem cert file content"
+                                            ),
+                                            "pem cert file password"
+                                    )
+                            ),
+                            "default db"
+                    ));
+
+                    dc.setEndpoints(List.of(
+                            new Endpoint("host1", 1L),
+                            new Endpoint("host2", 2L)
+                    ));
+
+                    final DBAuth auth = new DBAuth(
+                            DBAuth.Type.USERNAME_PASSWORD,
+                            "db username",
+                            "db password",
+                            "db name"
+                    );
+                    auth.setCustomAuthenticationParameters(Set.of(
+                            new Property("custom auth param 1", "custom auth param value 1"),
+                            new Property("custom auth param 2", "custom auth param value 2")
+                    ));
+                    dc.setAuthentication(auth);
+
+                    final Datasource ds2 = new Datasource();
+                    ds2.setName("datasource 2");
+                    ds2.setOrganizationId(sourceOrg1.getId());
+                    ds2.setPluginId(installedPlugin.getId());
+                    DatasourceConfiguration dc2 = new DatasourceConfiguration();
+                    ds2.setDatasourceConfiguration(dc2);
+                    dc2.setAuthentication(new OAuth2(
+                            OAuth2.Type.CLIENT_CREDENTIALS,
+                            true,
+                            true,
+                            "client id",
+                            "client secret",
+                            "auth url",
+                            "access token url",
+                            "scope",
+                            Set.of("scope1", "scope2", "scope3"),
+                            "header prefix",
+                            Set.of(
+                                    new Property("custom token param 1", "custom token param value 1"),
+                                    new Property("custom token param 2", "custom token param value 2")
+                            )
+                    ));
+
+                    final Datasource ds3 = new Datasource();
+                    ds3.setName("datasource 3");
+                    ds3.setOrganizationId(sourceOrg1.getId());
+                    ds3.setPluginId(installedPlugin.getId());
 
                     return applicationPageService.createApplication(app1)
                             .flatMap(createdApp -> Mono.zip(
                                     Mono.just(createdApp),
                                     newPageRepository.findByApplicationId(createdApp.getId()).collectList(),
-                                    datasourceService.create(ds1)
+                                    datasourceService.create(ds1),
+                                    datasourceService.create(ds2),
+                                    datasourceService.create(ds3)
                             ))
                             .flatMap(tuple1 -> {
                                 final Application app = tuple1.getT1();
                                 final List<NewPage> pages = tuple1.getT2();
                                 final Datasource ds1WithId = tuple1.getT3();
+                                final Datasource ds2WithId = tuple1.getT4();
 
                                 final NewPage firstPage = pages.get(0);
 
@@ -746,13 +823,21 @@ public class ExamplesOrganizationClonerTests {
                                 action2.setDatasource(ds1WithId);
                                 action2.setPluginId(installedPlugin.getId());
 
-                                return Mono.zip(
-                                        organizationService.create(targetOrg),
-                                        Mono.just(app),
-                                        Mono.just(ds1),
+                                final ActionDTO action3 = new ActionDTO();
+                                action3.setPageId(firstPage.getId());
+                                action3.setName("action3");
+                                action3.setOrganizationId(sourceOrg1.getId());
+                                action3.setDatasource(ds2WithId);
+                                action3.setPluginId(installedPlugin.getId());
+
+                                return Mono.when(
                                         actionCollectionService.createAction(action1),
-                                        actionCollectionService.createAction(action2)
-                                );
+                                        actionCollectionService.createAction(action2),
+                                        actionCollectionService.createAction(action3)
+                                ).then(Mono.zip(
+                                        organizationService.create(targetOrg),
+                                        Mono.just(app)
+                                ));
                             })
                             .flatMap(tuple1 -> {
                                 final Organization targetOrg1 = tuple1.getT1();
@@ -795,18 +880,33 @@ public class ExamplesOrganizationClonerTests {
                     assert app1 != null;
                     assertThat(app1.getPages().stream().filter(ApplicationPage::isDefault).count()).isEqualTo(1);
 
-                    assertThat(data.datasources).hasSize(1);
+                    final DBAuth a1 = new DBAuth();
+                    a1.setUsername("u1");
+                    final DBAuth a2 = new DBAuth();
+                    a2.setUsername("u1");
+                    assertThat(a1).isEqualTo(a2);
+
+                    final OAuth2 o1 = new OAuth2();
+                    o1.setClientId("c1");
+                    final OAuth2 o2 = new OAuth2();
+                    o2.setClientId("c1");
+                    assertThat(o1).isEqualTo(o2);
+
                     assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
-                            "datasource 1"
+                            "datasource 1",
+                            "datasource 2"
                     );
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "action1",
                             "action2",
+                            "action3",
                             "action1",
                             "action2",
+                            "action3",
                             "action1",
-                            "action2"
+                            "action2",
+                            "action3"
                     );
                 })
                 .verifyComplete();
