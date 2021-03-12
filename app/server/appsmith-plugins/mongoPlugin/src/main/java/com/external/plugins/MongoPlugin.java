@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public class MongoPlugin extends BasePlugin {
@@ -69,6 +71,8 @@ public class MongoPlugin extends BasePlugin {
     public static final String N_MODIFIED = "nModified";
 
     private static final String VALUE_STR = "value";
+
+    private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -184,10 +188,15 @@ public class MongoPlugin extends BasePlugin {
 
                         return Mono.just(result);
                     })
-                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                    .onErrorResume(error  -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        actionExecutionResult.setStatusCode(error.getAppErrorCode().toString());
+                        if (error instanceof AppsmithPluginException) {
+                            actionExecutionResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
                         actionExecutionResult.setBody(error.getMessage());
                         return Mono.just(actionExecutionResult);
                     })
@@ -382,6 +391,15 @@ public class MongoPlugin extends BasePlugin {
                         }
                     })
                     .then(Mono.just(new DatasourceTestResult()))
+                    .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
+                    .onErrorMap(
+                            TimeoutException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_TIMEOUT_ERROR,
+                                    "Connection timed out. Please check if the datasource configuration fields have " +
+                                            "been filled correctly."
+                            )
+                    )
                     .onErrorResume(error -> {
                         /**
                          * 1. Return OK response on "Unauthorized" exception.

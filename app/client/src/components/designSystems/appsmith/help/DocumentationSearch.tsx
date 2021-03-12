@@ -22,6 +22,8 @@ import {
 } from "actions/helpActions";
 import { Icon } from "@blueprintjs/core";
 import moment from "moment";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
 
 const {
   algolia,
@@ -290,12 +292,26 @@ const HelpFooter = styled.div`
   font-size: 6pt;
 `;
 
-const HelpBody = styled.div`
-  padding-top: 68px;
+const HelpBody = styled.div<{ hideSearch?: boolean }>`
+  ${(props) =>
+    props.hideSearch
+      ? `
+    padding: ${props.theme.spaces[2]}px; 
+  `
+      : `
+    padding-top: 68px;
+  `}
   flex: 5;
 `;
 
-type Props = { hitsPerPage: number; defaultRefinement: string; dispatch: any };
+type Props = {
+  hitsPerPage: number;
+  defaultRefinement: string;
+  dispatch: any;
+  hideSearch?: boolean;
+  hideMinimizeBtn?: boolean;
+  user?: User;
+};
 type State = { showResults: boolean };
 
 type HelpItem = {
@@ -343,6 +359,17 @@ class DocumentationSearch extends React.Component<Props, State> {
       showResults: props.defaultRefinement.length > 0,
     };
   }
+  componentDidMount() {
+    const { user } = this.props;
+    if (cloudHosting && intercomAppID && window.Intercom) {
+      window.Intercom("boot", {
+        app_id: intercomAppID,
+        user_id: user?.username,
+        name: user?.name,
+        email: user?.email,
+      });
+    }
+  }
   onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available
@@ -365,34 +392,38 @@ class DocumentationSearch extends React.Component<Props, State> {
     if (!algolia.enabled) return null;
     return (
       <SearchContainer className="ais-InstantSearch t--docSearchModal">
-        <Icon
-          className="t--docsMinimize"
-          style={{
-            position: "absolute",
-            top: 6,
-            right: 10,
-            cursor: "pointer",
-            zIndex: 1,
-          }}
-          icon="minus"
-          color="white"
-          iconSize={14}
-          onClick={this.handleClose}
-        />
+        {!this.props.hideMinimizeBtn && (
+          <Icon
+            className="t--docsMinimize"
+            style={{
+              position: "absolute",
+              top: 6,
+              right: 10,
+              cursor: "pointer",
+              zIndex: 1,
+            }}
+            icon="minus"
+            color="white"
+            iconSize={14}
+            onClick={this.handleClose}
+          />
+        )}
         <InstantSearch
           indexName={algolia.indexName}
           searchClient={searchClient}
         >
           <Configure hitsPerPage={this.props.hitsPerPage} />
           <HelpContainer>
-            <Header>
-              <StyledPoweredBy />
-              <SearchBox
-                onChange={this.onSearchValueChange}
-                defaultRefinement={this.props.defaultRefinement}
-              />
-            </Header>
-            <HelpBody>
+            {!this.props.hideSearch && (
+              <Header>
+                <StyledPoweredBy />
+                <SearchBox
+                  onChange={this.onSearchValueChange}
+                  defaultRefinement={this.props.defaultRefinement}
+                />
+              </Header>
+            )}
+            <HelpBody hideSearch={this.props.hideSearch}>
               {this.state.showResults ? (
                 <Hits hitComponent={Hit as any} />
               ) : (
@@ -422,6 +453,7 @@ class DocumentationSearch extends React.Component<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   defaultRefinement: getDefaultRefinement(state),
+  user: getCurrentUser(state),
 });
 
 export default connect(mapStateToProps)(DocumentationSearch);

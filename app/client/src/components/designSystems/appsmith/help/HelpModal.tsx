@@ -13,11 +13,10 @@ import { getAppsmithConfigs } from "configs";
 import { LayersContext } from "constants/Layers";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
 
-const { algolia, cloudHosting, intercomAppID } = getAppsmithConfigs();
+const { algolia } = getAppsmithConfigs();
 const HelpButton = styled.button<{
   highlight: boolean;
   layer: number;
@@ -47,8 +46,8 @@ const HelpButton = styled.button<{
   }
 `;
 
-const MODAL_WIDTH = 240;
-const MODAL_HEIGHT = 206;
+const MODAL_WIDTH = HELP_MODAL_WIDTH;
+const MODAL_HEIGHT = HELP_MODAL_HEIGHT;
 const MODAL_BOTTOM_DISTANCE = 100;
 const MODAL_RIGHT_DISTANCE = 27;
 
@@ -58,24 +57,11 @@ const CloseIcon = HelpIcons.CLOSE_ICON;
 type Props = {
   isHelpModalOpen: boolean;
   dispatch: any;
-  user?: User;
   page: string;
 };
 
 class HelpModal extends React.Component<Props> {
   static contextType = LayersContext;
-
-  componentDidMount() {
-    const { user } = this.props;
-    if (cloudHosting && intercomAppID && window.Intercom) {
-      window.Intercom("boot", {
-        app_id: intercomAppID,
-        user_id: user?.username,
-        name: user?.name,
-        email: user?.email,
-      });
-    }
-  }
 
   /**
    * closes help modal
@@ -151,7 +137,6 @@ class HelpModal extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState) => ({
   isHelpModalOpen: getHelpModalOpen(state),
-  user: getCurrentUser(state),
 });
 
 export default connect(mapStateToProps)(HelpModal);

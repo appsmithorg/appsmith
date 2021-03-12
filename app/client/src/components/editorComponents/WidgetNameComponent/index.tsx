@@ -10,7 +10,6 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetType } from "constants/WidgetConstants";
-import HelpControl from "./HelpControl";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -110,10 +109,6 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
   return showWidgetName ? (
     <PositionStyle>
       <ControlGroup>
-        <HelpControl
-          type={props.type}
-          show={selectedWidget === props.widgetId}
-        />
         <SettingsControl
           toggleSettings={togglePropertyEditor}
           activity={currentActivity}

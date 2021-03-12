@@ -587,6 +587,12 @@ function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   log.debug({ dynamicString, responseData });
 
+  if (dynamicString === undefined) {
+    if (event.callback) event.callback({ success: false });
+    log.error("Executing undefined action", event);
+    return;
+  }
+
   const triggers = yield call(
     evaluateDynamicTrigger,
     dynamicString,
