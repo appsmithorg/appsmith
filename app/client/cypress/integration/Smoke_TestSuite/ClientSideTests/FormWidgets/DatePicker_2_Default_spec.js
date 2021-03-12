@@ -13,7 +13,10 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.openPropertyPane("datepickerwidget2");
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
-    cy.testJsontext("defaultdate", "{{ moment().add(-1,'days') }}");
+    cy.testJsontext(
+      "defaultdate",
+      "{{ moment().add(-1,'days').toISOString() }}",
+    );
   });
 
   it("Text widgets binding with datepicker", function() {

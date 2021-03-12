@@ -21,18 +21,18 @@ import { WidgetProps } from "../widgets/BaseWidget";
 import { WIDGET_TYPE_VALIDATION_ERROR } from "../constants/messages";
 import moment from "moment";
 
-function validateDateString(
+export function validateDateString(
   dateString: string,
   dateFormat: string,
   version: number,
 ) {
   let isValid = true;
   if (version === 2) {
-    if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(dateString)) {
-      isValid = false;
-    } else {
+    try {
       const d = new Date(dateString);
       isValid = d.toISOString() === dateString;
+    } catch (e) {
+      isValid = false;
     }
   } else {
     const parsedDate = moment(dateString, dateFormat);
