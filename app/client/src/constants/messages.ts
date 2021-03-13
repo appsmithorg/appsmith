@@ -243,6 +243,9 @@ export const DATASOURCE_VALID = (dsName: string) =>
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
 
+export const ERROR_EVAL_TRIGGER = (message: string) =>
+  `Error occurred while evaluating trigger: ${message}`;
+
 export const WIDGET_DELETE = (widgetName: string) =>
   `${widgetName} widget deleted`;
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
