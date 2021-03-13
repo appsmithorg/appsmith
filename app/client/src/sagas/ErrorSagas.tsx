@@ -21,6 +21,7 @@ import {
   ERROR_500,
   ERROR_0,
   DEFAULT_ERROR_MESSAGE,
+  createMessage,
 } from "constants/messages";
 
 /**
@@ -47,11 +48,11 @@ export function* callAPI(apiCall: any, requestPayload: any) {
 const getErrorMessage = (code: number) => {
   switch (code) {
     case 401:
-      return ERROR_401;
+      return createMessage(ERROR_401);
     case 500:
-      return ERROR_500;
+      return createMessage(ERROR_500);
     case 0:
-      return ERROR_0;
+      return createMessage(ERROR_0);
   }
 };
 
@@ -109,7 +110,7 @@ const ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {
   [ReduxActionErrorTypes.API_ERROR]: (error) =>
-    get(error, "message", DEFAULT_ERROR_MESSAGE),
+    get(error, "message", createMessage(DEFAULT_ERROR_MESSAGE)),
   [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: () =>
     getDefaultActionError("fetching the page"),
   [ReduxActionErrorTypes.SAVE_PAGE_ERROR]: () =>
@@ -125,7 +126,7 @@ const getErrorMessageFromActionType = (
     if (type in ActionErrorDisplayMap) {
       return ActionErrorDisplayMap[type](error);
     }
-    return DEFAULT_ERROR_MESSAGE;
+    return createMessage(DEFAULT_ERROR_MESSAGE);
   }
   return actionErrorMessage;
 };

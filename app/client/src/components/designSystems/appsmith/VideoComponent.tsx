@@ -1,7 +1,7 @@
 import ReactPlayer from "react-player";
 import React, { Ref } from "react";
 import styled from "styled-components";
-import { ENTER_VIDEO_URL } from "constants/messages";
+import { createMessage, ENTER_VIDEO_URL } from "constants/messages";
 export interface VideoComponentProps {
   url?: string;
   autoplay?: boolean;
@@ -64,7 +64,7 @@ export default function VideoComponent(props: VideoComponentProps) {
         />
       ) : (
         <ErrorContainer>
-          <Error>{ENTER_VIDEO_URL}</Error>
+          <Error>{createMessage(ENTER_VIDEO_URL)}</Error>
         </ErrorContainer>
       )}
     </>
