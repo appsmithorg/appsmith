@@ -276,4 +276,4 @@ export const WIDGET_BIND_HELP = () =>
 
 export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
-export const PAGE_NOT_FOUND = () => "Page Not Found";
+export const PAGE_NOT_FOUND = () => "Page not found";
