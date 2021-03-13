@@ -28,14 +28,12 @@ import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
-import {
-  DerivedPropertiesMap,
-  TriggerPropertiesMap,
-} from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   WidgetDynamicPathListProps,
   WidgetEvaluatedProps,
 } from "../utils/DynamicBindingUtils";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 
 /***
  * BaseWidget
@@ -62,10 +60,6 @@ abstract class BaseWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {};
   }
 
@@ -110,12 +104,26 @@ abstract class BaseWidget<
     updateWidget && updateWidget(operationName, widgetId, widgetProperties);
   }
 
-  updateWidgetProperty(propertyName: string, propertyValue: any): void {
-    const { updateWidgetProperty } = this.context;
+  deleteWidgetProperty(propertyPaths: string[]): void {
+    const { deleteWidgetProperty } = this.context;
     const { widgetId } = this.props;
-    if (updateWidgetProperty && widgetId) {
-      updateWidgetProperty(widgetId, propertyName, propertyValue);
+    if (deleteWidgetProperty && widgetId) {
+      deleteWidgetProperty(widgetId, propertyPaths);
     }
+  }
+
+  batchUpdateWidgetProperty(updates: BatchPropertyUpdatePayload): void {
+    const { batchUpdateWidgetProperty } = this.context;
+    const { widgetId } = this.props;
+    if (batchUpdateWidgetProperty && widgetId) {
+      batchUpdateWidgetProperty(widgetId, updates);
+    }
+  }
+
+  updateWidgetProperty(propertyName: string, propertyValue: any): void {
+    this.batchUpdateWidgetProperty({
+      modify: { [propertyName]: propertyValue },
+    });
   }
 
   resetChildrenMetaProperty(widgetId: string) {
@@ -276,6 +284,8 @@ abstract class BaseWidget<
     parentColumnSpace: 1,
     topRow: 0,
     leftColumn: 0,
+    isLoading: false,
+    renderMode: RenderModes.CANVAS,
   };
 }
 
@@ -301,8 +311,9 @@ export interface WidgetBaseProps {
   widgetId: string;
   type: WidgetType;
   widgetName: string;
-  parentId: string;
+  parentId?: string;
   renderMode: RenderMode;
+  version: number;
 }
 
 export type WidgetRowCols = {

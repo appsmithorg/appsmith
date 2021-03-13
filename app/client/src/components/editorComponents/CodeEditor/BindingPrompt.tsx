@@ -1,24 +1,20 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { EditorTheme } from "./EditorConfig";
 
 const Wrapper = styled.span<{
   visible: boolean;
   bottomOffset: number;
+  customMessage: boolean;
   editorTheme?: EditorTheme;
 }>`
-  padding: 8px;
+  padding: ${(props) => (props.customMessage ? 6 : 8)}px;
   font-size: 12px;
-  color: #858282;
+  color: #ffffff;
   box-shadow: 0px 12px 34px -6px rgba(0, 0, 0, 0.75);
   border-radius: 0px;
   background-color: ${(props) =>
-    props.editorTheme === EditorTheme.DARK
-      ? Colors.MINE_SHAFT
-      : props.editorTheme === EditorTheme.LIGHT
-      ? Colors.MERCURY
-      : Colors.BLUE_CHARCOAL};
+    props.theme.colors.codeMirror.background.hoverState};
   position: absolute;
   bottom: ${(props) => -props.bottomOffset}px;
   width: 100%;
@@ -28,34 +24,44 @@ const Wrapper = styled.span<{
 `;
 
 const CurlyBraces = styled.span`
-  color: white;
-  background-color: #f3672a;
+  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
+  background-color: #ffffff;
   border-radius: 2px;
   padding: 2px;
   margin: 0px 2px;
 `;
 
 const BindingPrompt = (props: {
+  promptMessage?: React.ReactNode | string;
   isOpen: boolean;
   editorTheme?: EditorTheme;
 }): JSX.Element => {
   const promptRef = useRef<HTMLDivElement>(null);
   let bottomOffset = 30;
-
+  const customMessage = !!props.promptMessage;
   if (promptRef.current) {
     const boundingRect = promptRef.current.getBoundingClientRect();
     bottomOffset = boundingRect.height;
   }
-
+  if (customMessage) {
+    bottomOffset = 36;
+  }
   return (
     <Wrapper
       className="t--no-binding-prompt"
       ref={promptRef}
-      visible={props.isOpen}
       bottomOffset={bottomOffset}
+      visible={props.isOpen}
+      customMessage={customMessage}
       editorTheme={props.editorTheme}
     >
-      Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
+      {props.promptMessage ? (
+        props.promptMessage
+      ) : (
+        <React.Fragment>
+          Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
+        </React.Fragment>
+      )}
     </Wrapper>
   );
 };

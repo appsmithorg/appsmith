@@ -1,7 +1,6 @@
 import React, { memo, useCallback } from "react";
 import Entity from "../Entity";
 import { pageGroupIcon } from "../ExplorerIcons";
-import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { createPage } from "actions/pageActions";
@@ -10,7 +9,7 @@ import { ExplorerURLParams } from "../helpers";
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerPageEntity from "./PageEntity";
 import { AppState } from "reducers";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 
@@ -80,7 +79,6 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       className="group pages"
       icon={pageGroupIcon}
       isDefaultExpanded
-      action={noop}
       entityId="Pages"
       step={props.step}
       onCreate={createPageCallback}

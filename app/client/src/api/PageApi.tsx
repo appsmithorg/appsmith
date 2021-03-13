@@ -49,6 +49,12 @@ export interface SavePageResponse extends ApiResponse {
     id: string;
     layoutOnLoadActions: PageAction[][];
     dsl: Partial<ContainerWidgetProps<any>>;
+    messages: string[];
+    actionUpdates: Array<{
+      executeOnLoad: boolean;
+      id: string;
+      name: string;
+    }>;
   };
 }
 
@@ -60,6 +66,7 @@ export interface CreatePageRequest {
 export interface UpdatePageRequest {
   id: string;
   name: string;
+  isHidden?: boolean;
 }
 
 export interface CreatePageResponse extends ApiResponse {
@@ -72,6 +79,7 @@ export interface FetchPageListResponse extends ApiResponse {
       id: string;
       name: string;
       isDefault: boolean;
+      isHidden?: boolean;
       layouts: Array<PageLayout>;
     }>;
     organizationId: string;

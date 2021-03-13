@@ -1,3 +1,5 @@
+import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+
 export enum WidgetTypes {
   BUTTON_WIDGET = "BUTTON_WIDGET",
   TEXT_WIDGET = "TEXT_WIDGET",
@@ -5,6 +7,7 @@ export enum WidgetTypes {
   INPUT_WIDGET = "INPUT_WIDGET",
   CONTAINER_WIDGET = "CONTAINER_WIDGET",
   DATE_PICKER_WIDGET = "DATE_PICKER_WIDGET",
+  DATE_PICKER_WIDGET2 = "DATE_PICKER_WIDGET2",
   TABLE_WIDGET = "TABLE_WIDGET",
   DROP_DOWN_WIDGET = "DROP_DOWN_WIDGET",
   CHECKBOX_WIDGET = "CHECKBOX_WIDGET",
@@ -21,6 +24,7 @@ export enum WidgetTypes {
   FILE_PICKER_WIDGET = "FILE_PICKER_WIDGET",
   VIDEO_WIDGET = "VIDEO_WIDGET",
   SKELETON_WIDGET = "SKELETON_WIDGET",
+  SWITCH_WIDGET = "SWITCH_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -67,6 +71,27 @@ export const CSSUnits: { [id: string]: CSSUnit } = {
   PIXEL: "px",
   RELATIVE_FONTSIZE: "rem",
   RELATIVE_PARENT: "%",
+};
+
+interface LayoutConfig {
+  minWidth: number;
+  maxWidth: number;
+}
+
+type LayoutConfigurations = Record<SupportedLayouts, LayoutConfig>;
+export const DefaultLayoutType: SupportedLayouts = "DESKTOP";
+export const layoutConfigurations: LayoutConfigurations = {
+  TABLET_LARGE: {
+    minWidth: 960,
+    maxWidth: 1080,
+  },
+  MOBILE: {
+    minWidth: 350,
+    maxWidth: 450,
+  },
+  DESKTOP: { minWidth: 1160, maxWidth: 1280 },
+  TABLET: { minWidth: 650, maxWidth: 800 },
+  FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
 export const GridDefaults = {

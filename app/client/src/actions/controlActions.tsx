@@ -1,6 +1,6 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
-import { BatchAction, batchAction } from "actions/batchActions";
+import { DynamicPath } from "utils/DynamicBindingUtils";
 
 export const updateWidgetPropertyRequest = (
   widgetId: string,
@@ -19,22 +19,14 @@ export const updateWidgetPropertyRequest = (
   };
 };
 
-export const updateWidgetProperty = (
-  widgetId: string,
-  updates: Record<string, unknown>,
-): BatchAction<UpdateWidgetPropertyPayload> => {
-  return batchAction({
-    type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
-    payload: {
-      widgetId,
-      updates,
-    },
-  });
-};
+export interface BatchPropertyUpdatePayload {
+  modify?: Record<string, unknown>; //Key value pairs of paths and values to update
+  remove?: string[]; //Array of paths to delete
+}
 
 export const batchUpdateWidgetProperty = (
   widgetId: string,
-  updates: Record<string, unknown>,
+  updates: BatchPropertyUpdatePayload,
 ): ReduxAction<UpdateWidgetPropertyPayload> => ({
   type: ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
   payload: {
@@ -45,12 +37,12 @@ export const batchUpdateWidgetProperty = (
 
 export const deleteWidgetProperty = (
   widgetId: string,
-  propertyPath: string,
+  propertyPaths: string[],
 ): ReduxAction<DeleteWidgetPropertyPayload> => ({
   type: ReduxActionTypes.DELETE_WIDGET_PROPERTY,
   payload: {
     widgetId,
-    propertyPath,
+    propertyPaths,
   },
 });
 
@@ -78,7 +70,15 @@ export interface UpdateWidgetPropertyRequestPayload {
 
 export interface UpdateWidgetPropertyPayload {
   widgetId: string;
-  updates: Record<string, unknown>;
+  updates: BatchPropertyUpdatePayload;
+  dynamicUpdates?: {
+    dynamicBindingPathList: DynamicPath[];
+    dynamicTriggerPathList: DynamicPath[];
+  };
+}
+
+export interface UpdateCanvasLayout {
+  width: number;
 }
 
 export interface SetWidgetDynamicPropertyPayload {
@@ -89,5 +89,5 @@ export interface SetWidgetDynamicPropertyPayload {
 
 export interface DeleteWidgetPropertyPayload {
   widgetId: string;
-  propertyPath: string;
+  propertyPaths: string[];
 }

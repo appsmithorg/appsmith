@@ -13,15 +13,11 @@ import {
   ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import {
-  APPLICATIONS_URL,
-  AUTH_LOGIN_URL,
-  SIGN_UP_URL,
-} from "constants/routes";
+import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
-import { getPageList } from "selectors/editorSelectors";
+import { getViewModePageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -37,6 +33,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -46,7 +43,6 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   color: white;
   flex-direction: column;
   .${Classes.TEXT} {
-    max-width: 194px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -70,9 +66,21 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
     }
   }
 
+  .header__application-fork-btn-wrapper {
+    height: 100%;
+  }
+
+  .header__application-fork-btn-wrapper .ads-dialog-trigger {
+    height: 100%;
+  }
+
   & ${Profile} {
     width: 24px;
     height: 24px;
+  }
+
+  & .current-app-name {
+    overflow: auto;
   }
 `;
 
@@ -108,13 +116,18 @@ const ForkButton = styled(Cta)`
   svg {
     transform: rotate(-90deg);
   }
+  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
 `;
-
 const HeaderRightItemContainer = styled.div`
   display: flex;
   align-items: center;
   margin-right: ${(props) => props.theme.spaces[7]}px;
   height: 100%;
+`;
+
+const PrimaryLogoLink = styled(Link)`
+  display: flex;
+  align-items: center;
 `;
 
 type AppViewerHeaderProps = {
@@ -127,8 +140,7 @@ type AppViewerHeaderProps = {
 };
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
-  const { currentApplicationDetails, pages, currentOrgId, currentUser } = props;
-  const isExampleApp = currentApplicationDetails?.appIsExample;
+  const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
@@ -147,8 +159,8 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   };
   if (hideHeader) return <HtmlTitle />;
 
-  const forkAppUrl = `${window.location.origin}${SIGN_UP_URL}?appId=${currentApplicationDetails?.id}`;
-  const loginAppUrl = `${window.location.origin}${AUTH_LOGIN_URL}?appId=${currentApplicationDetails?.id}`;
+  const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}/fork`;
+  const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
   let CTA = null;
 
@@ -161,11 +173,15 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         text={createMessage(EDIT_APP)}
       />
     );
-  } else if (isExampleApp) {
+  } else if (
+    currentApplicationDetails?.forkingEnabled &&
+    currentApplicationDetails?.isPublic &&
+    currentUser?.username === ANONYMOUS_USERNAME
+  ) {
     CTA = (
       <ForkButton
         className="t--fork-app"
-        href={forkAppUrl}
+        href={forkUrl}
         text={createMessage(FORK_APP)}
         icon="fork"
       />
@@ -176,8 +192,8 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   ) {
     CTA = (
       <Cta
-        className="t--fork-app"
-        href={loginAppUrl}
+        className="t--sign-in"
+        href={loginUrl}
         text={createMessage(SIGN_IN)}
       />
     );
@@ -189,9 +205,9 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
-            <Link to={APPLICATIONS_URL} style={{ display: "flex" }}>
+            <PrimaryLogoLink to={APPLICATIONS_URL}>
               <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
-            </Link>
+            </PrimaryLogoLink>
           </HeaderSection>
           <HeaderSection justify={"center"} className="current-app-name">
             {currentApplicationDetails && (
@@ -216,6 +232,15 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                   title={currentApplicationDetails.name}
                   canOutsideClickClose={true}
                 />
+                {currentUser &&
+                  currentUser.username !== ANONYMOUS_USERNAME &&
+                  currentApplicationDetails?.forkingEnabled && (
+                    <div className="header__application-fork-btn-wrapper">
+                      <ForkApplicationModal
+                        applicationId={currentApplicationDetails.id}
+                      />
+                    </div>
+                  )}
                 {CTA && (
                   <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
                 )}
@@ -224,6 +249,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
             {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
               <HeaderRightItemContainer>
                 <ProfileDropdown
+                  name={currentUser.name}
                   userName={currentUser?.username || ""}
                   hideThemeSwitch
                   modifiers={{
@@ -247,7 +273,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
 };
 
 const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
-  pages: getPageList(state),
+  pages: getViewModePageList(state),
   url: getEditorURL(state),
   currentApplicationDetails: state.ui.applications.currentApplication,
   currentOrgId: getCurrentOrgId(state),

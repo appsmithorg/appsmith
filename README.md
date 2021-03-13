@@ -1,7 +1,7 @@
 <p align="center">
     <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/appsmith_logo_white.png" alt="Appsmith.com logo" width="400"/>
     <br>
-    <i>Appsmith is a JavaScript-based visual development platform to build internal tools.</i>
+    <i> Build and self-host all your internal apps.</i>
   <br>
 </p>
 
@@ -13,6 +13,8 @@
   <a href="https://docs.appsmith.com/">Documentation</a>
   ·
   <a href="https://discord.gg/rBTTVJp">Discord</a>
+  ·
+  <a href="./office_hours.md">Office Hours</a>  
   <br>
   <br>
 </p>
@@ -139,6 +141,10 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
     <td align="center"><a href="https://github.com/vicky-primathon"><img src="https://avatars2.githubusercontent.com/u/67091118?v=4?s=100" width="100px;" alt=""/><br /><sub><b>vicky-primathon</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=vicky-primathon" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/devrk96"><img src="https://avatars0.githubusercontent.com/u/68607686?v=4?s=100" width="100px;" alt=""/><br /><sub><b>devrk96</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=devrk96" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/trdillon"><img src="https://avatars.githubusercontent.com/u/26350151?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Tim Dillon</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=trdillon" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/zegerhoogeboom"><img src="https://avatars.githubusercontent.com/u/5371096?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Zeger Hoogeboom</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=zegerhoogeboom" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Devedunkey"><img src="https://avatars.githubusercontent.com/u/29448764?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Young Yoo</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=Devedunkey" title="Code">💻</a></td>
+    <td align="center"><a href="http://dwayne.io"><img src="https://avatars.githubusercontent.com/u/347097?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dwayne Forde</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=osis" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=osis" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/monarch0111"><img src="https://avatars.githubusercontent.com/u/2965013?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Abhishek</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=monarch0111" title="Code">💻</a></td>
   </tr>
 </table>
 

@@ -1,5 +1,8 @@
 import { WidgetTypes } from "constants/WidgetConstants";
-import { CanvasStructure, DSL } from "reducers/uiReducers/pageCanvasStructure";
+import {
+  CanvasStructure,
+  DSL,
+} from "reducers/uiReducers/pageCanvasStructureReducer";
 
 export const compareAndGenerateImmutableCanvasStructure = (
   original: CanvasStructure,

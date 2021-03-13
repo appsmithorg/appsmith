@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
@@ -8,12 +9,11 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
-import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,9 +39,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.appsmith.external.helpers.MustacheHelper.extractWordsAndAddToSet;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.helpers.MustacheHelper.extractWordsAndAddToSet;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -277,15 +277,24 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * @param dsl
      * @param widgetNames
      * @param dynamicBindings
+     * @param pageId
+     * @param layoutId
      */
-    private void extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl, Set<String> widgetNames, Set<String> dynamicBindings) throws AppsmithException {
+    private void extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl,
+                                                                Set<String> widgetNames,
+                                                                Set<String> dynamicBindings,
+                                                                String pageId,
+                                                                String layoutId) throws AppsmithException {
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
             // This isnt a valid widget configuration. No need to traverse this.
             return;
         }
 
         String widgetName = dsl.getAsString(FieldName.WIDGET_NAME);
-        // Since we are parsing this widget in this, add it.
+        String widgetId = dsl.getAsString(FieldName.WIDGET_ID);
+        String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
+
+        // Since we are parsing this widget in this, add it to the global set of widgets found so far in the DSL.
         widgetNames.add(widgetName);
 
         // Start by picking all fields where we expect to find dynamic bindings for this particular widget
@@ -301,6 +310,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // For nested fields, the parent dsl to search in would shift by one level every iteration
                 Object parent = dsl;
                 Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                Boolean isLeafNode = false;
                 // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
@@ -308,20 +318,42 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     String nextKey = fieldsIterator.next();
                     if (parent instanceof JSONObject) {
                         parent = ((JSONObject) parent).get(nextKey);
+                    } else if (parent instanceof Map) {
+                        parent = ((Map<String, ?>) parent).get(nextKey);
                     } else if (parent instanceof List) {
                         if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
-                            parent = ((List) parent).get(Integer.parseInt(nextKey));
+                            try {
+                                parent = ((List) parent).get(Integer.parseInt(nextKey));
+                            } catch (IndexOutOfBoundsException e) {
+                                // The index being referred does not exist. Hence the path would not exist.
+                                throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                        widgetName, widgetId, fieldPath, pageId, layoutId);
+                            }
                         } else {
-                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, nextKey);
+                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                    widgetName, widgetId, fieldPath, pageId, layoutId);
                         }
                     }
+                    // After updating the parent, check for the types
                     if (parent == null) {
-                        log.error("Unable to find dynamically bound key {} for the widget with id {}", nextKey, dsl.get(FieldName.WIDGET_ID));
-                        break;
+                        throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                widgetName, widgetId, fieldPath, pageId, layoutId);
+                    } else if (parent instanceof String) {
+                        // If we get String value, then this is a leaf node
+                        isLeafNode = true;
                     }
                 }
-                if (parent != null) {
-                    dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
+                // Only extract mustache keys from leaf nodes
+                if (parent != null && isLeafNode) {
+                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+
+                    // We found the path. But if the path does not have any mustache bindings, throw the error
+                    if (mustacheKeysFromFields.isEmpty()) {
+                        throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                widgetName, widgetId, fieldPath, pageId, layoutId);
+                    }
+
+                    dynamicBindings.addAll(mustacheKeysFromFields);
                 }
             }
         }
@@ -335,7 +367,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // If the children tag exists and there are entries within it
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
-                    extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, dynamicBindings);
+                    extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, dynamicBindings, pageId, layoutId);
                 }
             }
         }
@@ -478,9 +510,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         Set<String> widgetNames = new HashSet<>();
         Set<String> jsSnippetsInDynamicBindings = new HashSet<>();
         try {
-            extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, jsSnippetsInDynamicBindings);
+            extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, jsSnippetsInDynamicBindings, pageId, layoutId);
         } catch (Throwable t) {
-            return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, t.getMessage()));
+            return Mono.error(t);
         }
         layout.setWidgetNames(widgetNames);
 

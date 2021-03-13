@@ -6,6 +6,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -17,6 +18,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.junit.After;
@@ -34,6 +36,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -163,6 +166,44 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createValidPageWithLayout() throws ParseException {
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("PageServiceTest TestApp");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
+
+        final Layout layout = new Layout();
+        final JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
+        layout.setDsl(dsl);
+        testPage.setLayouts(List.of(layout));
+
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage);
+
+        StepVerifier
+                .create(pageMono)
+                .assertNext(page -> {
+                    assertThat(page).isNotNull();
+                    assertThat(page.getId()).isNotNull();
+                    assertThat("PageServiceTest TestApp".equals(page.getName()));
+
+                    assertThat(page.getPolicies()).isNotEmpty();
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
+                    assertThat(page.getLayouts()).isNotEmpty();
+                    assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(dsl);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void validChangePageName() {
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
                 .users(Set.of("api_user"))
@@ -225,6 +266,7 @@ public class PageServiceTest {
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         action.setDatasource(datasource);
+        action.setExecuteOnLoad(true);
 
         Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
                 .flatMap(page -> {
@@ -262,6 +304,9 @@ public class PageServiceTest {
                     List<NewAction> actions = tuple.getT2();
                     assertThat(actions.size()).isEqualTo(1);
                     assertThat(actions.get(0).getUnpublishedAction().getName()).isEqualTo("Page Action");
+
+                    // Confirm that executeOnLoad is cloned as well.
+                    assertThat(Boolean.TRUE.equals(actions.get(0).getUnpublishedAction().getExecuteOnLoad()));
                 })
                 .verifyComplete();
     }
@@ -313,4 +358,3 @@ public class PageServiceTest {
     }
 
 }
-    

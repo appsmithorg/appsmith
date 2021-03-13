@@ -15,16 +15,16 @@ import {
 } from "constants/ReduxActionConstants";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
-import { GracefulWorkerService } from "../utils/WorkerUtil";
+import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
-} from "../utils/DynamicBindingUtils";
+} from "utils/DynamicBindingUtils";
 import log from "loglevel";
-import { WidgetType } from "../constants/WidgetConstants";
-import { WidgetProps } from "../widgets/BaseWidget";
+import { WidgetType } from "constants/WidgetConstants";
+import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "../utils/PerformanceTracker";
@@ -33,7 +33,11 @@ import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import _ from "lodash";
-import { createMessage, ERROR_EVAL_ERROR_GENERIC } from "constants/messages";
+import {
+  createMessage,
+  ERROR_EVAL_ERROR_GENERIC,
+  ERROR_EVAL_TRIGGER,
+} from "constants/messages";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -42,22 +46,56 @@ const worker = new GracefulWorkerService(Worker);
 const evalErrorHandler = (errors: EvalError[]) => {
   if (!errors) return;
   errors.forEach((error) => {
-    if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
-      Toaster.show({
-        text: error.message,
-        variant: Variant.danger,
-      });
+    switch (error.type) {
+      case EvalErrorTypes.DEPENDENCY_ERROR: {
+        if (error.context) {
+          // Add more info about node for the toast
+          const { node, entityType } = error.context;
+          Toaster.show({
+            text: `${error.message} Node was: ${node}`,
+            variant: Variant.danger,
+          });
+          // Send the generic error message to sentry for better grouping
+          Sentry.captureException(new Error(error.message), {
+            tags: {
+              node,
+              entityType,
+            },
+            // Level is warning because it could be a user error
+            level: Sentry.Severity.Warning,
+          });
+        }
+
+        break;
+      }
+      case EvalErrorTypes.EVAL_TREE_ERROR: {
+        Toaster.show({
+          text: createMessage(ERROR_EVAL_ERROR_GENERIC),
+          variant: Variant.danger,
+        });
+        break;
+      }
+      case EvalErrorTypes.BAD_UNEVAL_TREE_ERROR: {
+        Sentry.captureException(error);
+        break;
+      }
+      case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
+        log.debug(error);
+        Toaster.show({
+          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
+          variant: Variant.danger,
+        });
+        break;
+      }
+      case EvalErrorTypes.EVAL_ERROR: {
+        log.debug(error);
+        break;
+      }
+      default: {
+        Sentry.captureException(error);
+        log.debug(error);
+      }
     }
-    if (error.type === EvalErrorTypes.EVAL_TREE_ERROR) {
-      Toaster.show({
-        text: createMessage(ERROR_EVAL_ERROR_GENERIC),
-        variant: Variant.danger,
-      });
-    }
-    if (error.type === EvalErrorTypes.BAD_UNEVAL_TREE_ERROR) {
-      Sentry.captureException(error);
-    }
-    log.debug(error);
   });
 };
 

@@ -21,6 +21,7 @@ const BASE_ACTION: ApiAction = {
   pluginType: PluginType.API,
   actionConfiguration: {
     httpMethod: "GET",
+    encodeParamsToggle: true,
     path: "users",
     headers: [],
     timeoutInMillisecond: 5000,
@@ -55,26 +56,6 @@ describe("Api action transformer", () => {
             value: "1",
           },
         ],
-      },
-    };
-    const result = transformRestAction(input);
-    expect(result).toEqual(output);
-  });
-
-  it("removes body for GET calls", () => {
-    const input = {
-      ...BASE_ACTION,
-      actionConfiguration: {
-        ...BASE_ACTION.actionConfiguration,
-        httpMethod: "GET",
-        body: [null, null],
-      },
-    };
-    const output = {
-      ...BASE_ACTION,
-      actionConfiguration: {
-        ...BASE_ACTION.actionConfiguration,
-        httpMethod: "GET",
       },
     };
     const result = transformRestAction(input);

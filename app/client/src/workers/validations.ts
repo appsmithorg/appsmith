@@ -11,6 +11,7 @@ import _, {
   isBoolean,
   isNumber,
   isObject,
+  isPlainObject,
   isString,
   isUndefined,
   toNumber,
@@ -209,7 +210,21 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
       };
-    } else if (!every(parsed, (datum) => isObject(datum))) {
+    } else if (
+      !every(
+        parsed,
+        (datum: {
+          id: string;
+          label: string;
+          widgetId: string;
+          isVisible?: boolean;
+        }) =>
+          isObject(datum) &&
+          !isUndefined(datum.id) &&
+          !isUndefined(datum.label) &&
+          !isUndefined(datum.widgetId),
+      )
+    ) {
       return {
         isValid: false,
         parsed: [],
@@ -238,7 +253,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     const isValidTableData = every(parsed, (datum) => {
       return (
-        isObject(datum) &&
+        isPlainObject(datum) &&
         Object.keys(datum).filter((key) => isString(key) && key.length === 0)
           .length === 0
       );
@@ -273,20 +288,24 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     let validationMessage = "";
     let index = 0;
-    const isValidChartData = every(
-      parsed,
-      (datum: { name: string; data: any }) => {
+    const parsedChartData = [];
+    let isValidChart = true;
+
+    for (const seriesData of parsed) {
+      let isValidSeries = false;
+      try {
         const validatedResponse: {
           isValid: boolean;
           parsed: Array<unknown>;
           message?: string;
-        } = VALIDATORS[VALIDATION_TYPES.ARRAY](datum.data, props, dataTree);
-        validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
-        let isValidChart = validatedResponse.isValid;
+        } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+          seriesData.data,
+          props,
+          dataTree,
+        );
         if (validatedResponse.isValid) {
-          datum.data = validatedResponse.parsed;
-          isValidChart = every(
-            datum.data,
+          isValidSeries = every(
+            validatedResponse.parsed,
             (chartPoint: { x: string; y: any }) => {
               return (
                 isObject(chartPoint) &&
@@ -296,19 +315,33 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             },
           );
         }
-        index++;
-        return isValidChart;
-      },
-    );
-    if (!isValidChartData) {
+        if (!isValidSeries) {
+          isValidChart = false;
+          parsedChartData.push({
+            ...seriesData,
+            data: [],
+          });
+          validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
+        } else {
+          parsedChartData.push({
+            ...seriesData,
+            data: validatedResponse.parsed,
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      index++;
+    }
+    if (!isValidChart) {
       return {
         isValid: false,
-        parsed: [],
+        parsed: parsedChartData,
         transformed: parsed,
         message: validationMessage,
       };
     }
-    return { isValid, parsed, transformed: parsed };
+    return { isValid, parsed: parsedChartData, transformed: parsedChartData };
   },
   [VALIDATION_TYPES.MARKERS]: (
     value: any,
@@ -390,7 +423,10 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    const dateFormat =
+      props.version === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
 
     if (dateString === undefined) {
       return {
@@ -420,39 +456,22 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    const dateFormat =
+      props.version === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
     if (dateString === undefined) {
       return {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
-            ? props.dateFormat
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
+            ? dateFormat
             : "",
       };
     }
     const parsedCurrentDate = moment(dateString, dateFormat);
-    let isValid = parsedCurrentDate.isValid();
-    const parsedMinDate = moment(props.minDate, dateFormat);
-    const parsedMaxDate = moment(props.maxDate, dateFormat);
-
-    // checking for max/min date range
-    if (isValid) {
-      if (
-        parsedMinDate.isValid() &&
-        parsedCurrentDate.isBefore(parsedMinDate)
-      ) {
-        isValid = false;
-      }
-
-      if (
-        isValid &&
-        parsedMaxDate.isValid() &&
-        parsedCurrentDate.isAfter(parsedMaxDate)
-      ) {
-        isValid = false;
-      }
-    }
+    const isValid = parsedCurrentDate.isValid();
     if (!isValid) {
       return {
         isValid: isValid,
@@ -470,14 +489,17 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    const dateFormat =
+      props.version === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
     if (dateString === undefined) {
       return {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
-            ? props.dateFormat
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
+            ? dateFormat
             : "",
       };
     }
@@ -516,14 +538,17 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    const dateFormat =
+      props.version === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
     if (dateString === undefined) {
       return {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
-            ? props.dateFormat
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
+            ? dateFormat
             : "",
       };
     }
@@ -719,6 +744,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         }
       } else {
         try {
+          if (value === "") {
+            return {
+              isValid: true,
+              parsed: -1,
+            };
+          }
           const parsed = toNumber(value);
           return {
             isValid: true,
@@ -736,6 +767,61 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       isValid: true,
       parsed: values,
     };
+  },
+  [VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ) => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+      props,
+      dataTree,
+    );
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        transformed: parsed,
+        message: "",
+      };
+    }
+    const isValidProperty = (data: any) =>
+      isString(data) || isNumber(data) || isBoolean(data);
+    const isValidColumns = every(parsed, (datum: any) => {
+      const validatedResponse: {
+        isValid: boolean;
+        parsed: Record<string, unknown>;
+        message?: string;
+      } = VALIDATORS[VALIDATION_TYPES.OBJECT](datum, props, dataTree);
+      const isValidColumn = validatedResponse.isValid;
+      if (isValidColumn) {
+        for (const key in validatedResponse.parsed) {
+          const columnProperty = validatedResponse.parsed[key];
+          let isValidColumnProperty = true;
+          if (Array.isArray(columnProperty)) {
+            isValidColumnProperty = every(columnProperty, (data: any) => {
+              return isValidProperty(data);
+            });
+          } else if (!isObject(columnProperty)) {
+            isValidColumnProperty = isValidProperty(columnProperty);
+          }
+          if (!isValidColumnProperty) {
+            validatedResponse.parsed[key] = "";
+          }
+        }
+      }
+      return isValidColumn;
+    });
+    if (!isValidColumns) {
+      return {
+        isValid: isValidColumns,
+        parsed: [],
+        transformed: parsed,
+        message: "",
+      };
+    }
+    return { isValid, parsed, transformed: parsed };
   },
   [VALIDATION_TYPES.LAT_LONG]: (unparsedValue: {
     lat?: number;

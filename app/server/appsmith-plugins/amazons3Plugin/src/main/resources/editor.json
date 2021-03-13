@@ -12,9 +12,6 @@
           "initialValue": "LIST",
           "options": [
             {
-              "label": "-- Select --",
-              "value": ""
-            },{
               "label": "List files in bucket",
               "value": "LIST"
             },
@@ -35,14 +32,14 @@
         {
           "label": "Bucket Name",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "isRequired": true,
           "initialValue": ""
         },
         {
           "label": "File Path",
           "configProperty": "actionConfiguration.path",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
@@ -51,7 +48,7 @@
           }
         },
         {
-          "label": "Using Filepicker to upload file ?",
+          "label": "File Data Type: Base64/Text",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
           "controlType": "DROP_DOWN",
           "initialValue": "NO",
@@ -72,10 +69,10 @@
           }
         },
         {
-          "label": "URL Expiry Duration in Milliseconds",
+          "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "5",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",
@@ -96,7 +93,7 @@
         {
           "label": "Prefix",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
@@ -105,7 +102,7 @@
           }
         },
         {
-          "label": "Get Signed URL",
+          "label": "Generate Signed URL",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
           "controlType": "DROP_DOWN",
           "initialValue": "NO",
@@ -126,21 +123,21 @@
           }
         },
         {
-          "label": "URL Expiry Duration in Milliseconds",
+          "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "5",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
             "comparison": "NOT_EQUALS",
-            "value": "LIST"
+            "value": "YES"
           }
         },
         {
-          "label": "Use Base64 encoding",
+          "label": "Base64 Encode File - Yes/No",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
           "controlType": "DROP_DOWN",
-          "initialValue": "NO",
+          "initialValue": "YES",
           "options": [
             {
               "label": "Yes",

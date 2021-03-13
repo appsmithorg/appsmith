@@ -778,17 +778,15 @@ const ApplicationsSection = (props: any) => {
                 )}
               {applications.map((application: any) => {
                 return (
-                  application.pages?.length > 0 && (
-                    <PaddingWrapper key={application.id}>
-                      <ApplicationCard
-                        key={application.id}
-                        application={application}
-                        delete={deleteApplication}
-                        update={updateApplicationDispatch}
-                        duplicate={duplicateApplicationDispatch}
-                      />
-                    </PaddingWrapper>
-                  )
+                  <PaddingWrapper key={application.id}>
+                    <ApplicationCard
+                      key={application.id}
+                      application={application}
+                      delete={deleteApplication}
+                      update={updateApplicationDispatch}
+                      duplicate={duplicateApplicationDispatch}
+                    />
+                  </PaddingWrapper>
                 );
               })}
               <PageSectionDivider />

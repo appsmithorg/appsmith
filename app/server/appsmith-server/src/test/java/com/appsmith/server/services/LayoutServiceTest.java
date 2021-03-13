@@ -461,9 +461,11 @@ public class LayoutServiceTest {
         Application app = new Application();
         app.setName("newApplication-testIncorrectDynamicBinding-Test");
 
-        Mono<PageDTO> pageMono = createPage(app, testPage).cache();
+        PageDTO page = createPage(app, testPage).block();
+        String pageId = page.getId();
+        String layoutId = page.getLayouts().get(0).getId();
 
-        Mono<LayoutDTO> testMono = pageMono
+        Mono<LayoutDTO> testMono = Mono.just(page)
                 .flatMap(page1 -> {
                     List<Mono<ActionDTO>> monos = new ArrayList<>();
 
@@ -495,6 +497,8 @@ public class LayoutServiceTest {
 
                     JSONObject obj = new JSONObject(Map.of(
                             "widgetName", "testWidget",
+                            "widgetId", "id",
+                            "type", "test_type",
                             "key", "value-updated",
                             "another", "Hello people of the {{input1.text}} planet!",
                             "dynamicGet", "some dynamic {{aGetAction.data}}"
@@ -512,13 +516,13 @@ public class LayoutServiceTest {
 
         StepVerifier
                 .create(testMono)
-                .assertNext(layout -> {
-                    assertThat(layout).isNotNull();
-                    assertThat(layout.getId()).isNotNull();
-                    assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
-                    assertThat(layout.getLayoutOnLoadActions()).hasSize(0);
+                .expectErrorMatches(throwable -> {
+                    assertThat(throwable instanceof AppsmithException);
+                    assertThat(throwable.getMessage().equals(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE
+                            .getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId)));
+                    return true;
                 })
-                .verifyComplete();
+                .verify();
     }
 
     @After

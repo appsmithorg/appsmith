@@ -1,3 +1,12 @@
+export function createMessage(
+  format: (...strArgs: any[]) => string,
+  ...args: any[]
+) {
+  const message = format(...args);
+  console.log("*** Formatted message: ", message);
+  return message;
+}
+
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
   `Please select an action type`;
@@ -157,6 +166,8 @@ export const AUTOFIT_ALL_COLUMNS = () => `Autofit all columns`;
 export const AUTOFIT_THIS_COLUMN = () => `Autofit this column`;
 export const AUTOFIT_COLUMN = () => `Autofit column`;
 
+export const DATE_WIDGET_DEFAULT_VALIDATION_ERROR = () => "Date out of range";
+
 export const TIMEZONE = () => `Timezone`;
 export const ENABLE_TIME = () => `Enable Time`;
 
@@ -242,11 +253,20 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
 
-export function createMessage(
-  format: (...strArgs: any[]) => string,
-  ...args: any[]
-) {
-  const message = format(...args);
-  console.log("*** Formatted message: ", message);
-  return message;
-}
+export const REST_API_AUTHORIZATION_SUCCESSFUL = () =>
+  "Authorization was successful!";
+export const REST_API_AUTHORIZATION_FAILED = () =>
+  "Authorization failed. Please check your details or try again.";
+// Todo: improve this for appsmith_error error message
+export const REST_API_AUTHORIZATION_APPSMITH_ERROR = () =>
+  "Something went wrong.";
+
+export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
+  "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
+export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
+  "Error saving a key in localStorage. You have run out of disk space";
+
+export const OMNIBAR_PLACEHOLDER = () =>
+  "Search Widgets, Queries, Documentation";
+export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
+export const NO_SEARCH_DATA_TEXT = () => "Search you must meaningful but";

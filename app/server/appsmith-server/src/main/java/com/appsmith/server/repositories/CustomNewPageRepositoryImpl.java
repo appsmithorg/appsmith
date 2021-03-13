@@ -4,10 +4,12 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
+import com.appsmith.server.dtos.PageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -112,5 +114,21 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
             nameKey = fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.name);
         }
         return where(nameKey).is(name);
+    }
+
+    @Override
+    public Mono<String> getNameByPageId(String pageId, boolean isPublishedName) {
+        return mongoOperations
+                .query(NewPage.class)
+                .matching(Query.query(Criteria.where(fieldName(QNewPage.newPage.id)).is(pageId)))
+                .one()
+                .map(p -> {
+                    PageDTO page = (isPublishedName ? p.getPublishedPage() : p.getUnpublishedPage());
+                    if (page != null) {
+                        return page.getName();
+                    }
+                    // If the page hasn't been published, just send the unpublished page name
+                    return p.getUnpublishedPage().getName();
+                });
     }
 }

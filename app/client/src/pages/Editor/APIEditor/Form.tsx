@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect, useSelector } from "react-redux";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,
@@ -11,8 +11,8 @@ import FormRow from "components/editorComponents/FormRow";
 import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
-import { PaginationType, Action } from "entities/Action";
-import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
+import { Action, PaginationType } from "entities/Action";
+import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -172,11 +172,12 @@ interface APIFormProps {
   paginationType: PaginationType;
   appName: string;
   httpMethodFromForm: string;
-  actionConfigurationBody: Record<string, unknown> | string;
   actionConfigurationHeaders?: any;
   actionName: string;
   apiId: string;
   apiName: string;
+  headersCount: number;
+  paramsCount: number;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -224,9 +225,10 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     handleSubmit,
     isRunning,
     actionConfigurationHeaders,
-    actionConfigurationBody,
     httpMethodFromForm,
     actionName,
+    headersCount,
+    paramsCount,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -251,8 +253,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     e.stopPropagation();
     history.replace(BUILDER_PAGE_URL(applicationId, pageId));
   };
-
-  // Enforcing the light theme
   const theme = EditorTheme.LIGHT;
 
   return (
@@ -269,12 +269,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 </Text>
               }
             >
-              <IconContainer>
+              <IconContainer onClick={handleClose}>
                 <Icon
                   name="close-modal"
                   size={IconSize.LARGE}
                   className="close-modal-icon"
-                  onClick={handleClose}
                 />
               </IconContainer>
             </TooltipComponent>
@@ -291,6 +290,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               text="Run"
               tag="button"
               size={Size.medium}
+              type="button"
               onClick={() => {
                 onRunClick();
               }}
@@ -324,6 +324,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               {
                 key: "headers",
                 title: "Headers",
+                count: headersCount,
                 panelComponent: (
                   <TabSection>
                     {apiBindHelpSectionVisible && (
@@ -358,7 +359,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                       actionConfig={actionConfigurationHeaders}
                       placeholder="Value"
                       dataTreePath={`${actionName}.config.headers`}
-                      pushFields
                     />
                   </TabSection>
                 ),
@@ -366,6 +366,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               {
                 key: "params",
                 title: "Params",
+                count: paramsCount,
                 panelComponent: (
                   <TabSection>
                     <KeyValueFieldArray
@@ -373,7 +374,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                       name="actionConfiguration.queryParameters"
                       label="Params"
                       dataTreePath={`${actionName}.config.queryParameters`}
-                      pushFields
                     />
                   </TabSection>
                 ),
@@ -385,9 +385,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   <>
                     {allowPostBody ? (
                       <PostBodyData
-                        actionConfigurationHeaders={actionConfigurationHeaders}
-                        actionConfiguration={actionConfigurationBody}
-                        change={props.change}
                         dataTreePath={`${actionName}.config`}
                         theme={theme}
                       />
@@ -441,20 +438,37 @@ const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 export default connect((state: AppState) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
-  const actionConfigurationBody = selector(state, "actionConfiguration.body");
   const actionConfigurationHeaders = selector(
     state,
     "actionConfiguration.headers",
   );
   const apiId = selector(state, "id");
   const actionName = getApiName(state, apiId) || "";
+  const headers = selector(state, "actionConfiguration.headers");
+  let headersCount = 0;
+
+  if (Array.isArray(headers)) {
+    const validHeaders = headers.filter(
+      (value) => value.key && value.key !== "",
+    );
+    headersCount = validHeaders.length;
+  }
+
+  const params = selector(state, "actionConfiguration.queryParameters");
+  let paramsCount = 0;
+
+  if (Array.isArray(params)) {
+    const validParams = params.filter((value) => value.key && value.key !== "");
+    paramsCount = validParams.length;
+  }
 
   return {
     actionName,
     apiId,
     httpMethodFromForm,
-    actionConfigurationBody,
     actionConfigurationHeaders,
+    headersCount,
+    paramsCount,
   };
 })(
   reduxForm<Action, APIFormProps>({

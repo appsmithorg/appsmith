@@ -93,22 +93,34 @@ export const pageListReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{ id: string; name: string }>,
+    action: ReduxAction<{ id: string; name: string; isHidden?: boolean }>,
   ) => {
     const pages = [...state.pages];
     const updatedPage = pages.find((page) => page.pageId === action.payload.id);
     if (updatedPage) {
       updatedPage.pageName = action.payload.name;
+      updatedPage.isHidden = !!action.payload.isHidden;
     }
     return { ...state, pages };
   },
 });
+
+export type SupportedLayouts =
+  | "DESKTOP"
+  | "TABLET_LARGE"
+  | "TABLET"
+  | "MOBILE"
+  | "FLUID";
+export interface AppLayoutConfig {
+  type: SupportedLayouts;
+}
 
 export interface PageListReduxState {
   pages: PageListPayload;
   applicationId?: string;
   defaultPageId?: string;
   currentPageId?: string;
+  appLayout?: AppLayoutConfig;
 }
 
 export default pageListReducer;

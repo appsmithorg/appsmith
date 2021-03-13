@@ -2,6 +2,7 @@ import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigRe
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
 import { generateReactKey } from "utils/generators";
+import { FileDataTypes } from "widgets/FilepickerWidget";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
@@ -14,6 +15,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
       isVisible: true,
       isDefaultClickDisabled: true,
+      version: 1,
     },
     TEXT_WIDGET: {
       text: "Label",
@@ -22,6 +24,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 1,
       columns: 4,
       widgetName: "Text",
+      version: 1,
     },
     RICH_TEXT_EDITOR_WIDGET: {
       defaultText: "This is the initial <b>content</b> of the editor",
@@ -31,6 +34,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisible: true,
       widgetName: "RichTextEditor",
       isDefaultClickDisabled: true,
+      inputType: "html",
+      version: 1,
     },
     IMAGE_WIDGET: {
       defaultImage:
@@ -41,6 +46,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 3,
       columns: 4,
       widgetName: "Image",
+      version: 1,
     },
     INPUT_WIDGET: {
       inputType: "TEXT",
@@ -48,19 +54,23 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "",
       columns: 5,
       widgetName: "Input",
+      version: 1,
       resetOnSubmit: true,
     },
-    // SWITCH_WIDGET: {
-    //   isOn: false,
-    //   label: "Switch",
-    //   rows: 1,
-    //   columns: 4,
-    //   widgetName: "Switch",
-    // },
+    SWITCH_WIDGET: {
+      label: "Label",
+      rows: 1,
+      columns: 2,
+      defaultSwitchState: true,
+      widgetName: "Switch",
+      alignWidget: "LEFT",
+      version: 1,
+    },
     ICON_WIDGET: {
       widgetName: "Icon",
       rows: 1,
       columns: 1,
+      version: 1,
     },
     CONTAINER_WIDGET: {
       backgroundColor: "#FFFFFF",
@@ -83,6 +93,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
+      version: 1,
     },
     DATE_PICKER_WIDGET: {
       isDisabled: false,
@@ -93,14 +104,26 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5,
       widgetName: "DatePicker",
       defaultDate: moment().format("DD/MM/YYYY HH:mm"),
+      version: 1,
     },
-
+    DATE_PICKER_WIDGET2: {
+      isDisabled: false,
+      datePickerType: "DATE_PICKER",
+      rows: 1,
+      label: "",
+      dateFormat: "DD/MM/YYYY HH:mm",
+      columns: 5,
+      widgetName: "DatePicker",
+      defaultDate: moment().toISOString(),
+      version: 2,
+    },
     VIDEO_WIDGET: {
       rows: 7,
       columns: 7,
       widgetName: "Video",
       url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
       autoPlay: false,
+      version: 1,
     },
     TABLE_WIDGET: {
       rows: 7,
@@ -108,6 +131,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "Data",
       widgetName: "Table",
       searchKey: "",
+      textSize: "PARAGRAPH",
+      horizontalAlignment: "LEFT",
+      verticalAlignment: "CENTER",
+      primaryColumns: {},
+      derivedColumns: {},
       tableData: [
         {
           id: 2381224,
@@ -131,6 +159,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           orderAmount: 19.99,
         },
       ],
+      version: 1,
     },
     DROP_DOWN_WIDGET: {
       rows: 1,
@@ -144,6 +173,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       ],
       widgetName: "Dropdown",
       defaultOptionValue: "VEG",
+      version: 1,
     },
     CHECKBOX_WIDGET: {
       rows: 1,
@@ -151,6 +181,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "Label",
       defaultCheckedState: true,
       widgetName: "Checkbox",
+      version: 1,
+      alignWidget: "LEFT",
     },
     RADIO_GROUP_WIDGET: {
       rows: 2,
@@ -162,6 +194,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       ],
       defaultOptionValue: "M",
       widgetName: "RadioGroup",
+      version: 1,
     },
     ALERT_WIDGET: {
       alertType: "NOTIFICATION",
@@ -171,6 +204,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       header: "",
       message: "",
       widgetName: "Alert",
+      version: 1,
     },
     FILE_PICKER_WIDGET: {
       rows: 1,
@@ -179,8 +213,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 4,
       maxNumFiles: 1,
       maxFileSize: 5,
+      fileDataType: FileDataTypes.Base64,
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
+      version: 1,
     },
     TABS_WIDGET: {
       rows: 7,
@@ -188,8 +224,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       shouldScrollContents: false,
       widgetName: "Tabs",
       tabs: [
-        { label: "Tab 1", id: "tab1", widgetId: "" },
-        { label: "Tab 2", id: "tab2", widgetId: "" },
+        { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
+        { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
       ],
       shouldShowTabs: true,
       defaultTab: "Tab 1",
@@ -217,17 +253,21 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
+      version: 1,
     },
     MODAL_WIDGET: {
-      rows: 456,
-      columns: 456,
+      rows: 6,
+      columns: 6,
       size: "MODAL_SMALL",
       canEscapeKeyClose: true,
+      // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
+      // setting it to true will only render the widgets(from sidebar) on the main container without any collision check.
       detachFromLayout: true,
       canOutsideClickClose: true,
       shouldScrollContents: true,
       widgetName: "Modal",
       children: [],
+      version: 1,
       blueprint: {
         view: [
           {
@@ -240,6 +280,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               isDisabled: false,
               shouldScrollContents: false,
               children: [],
+              version: 1,
               blueprint: {
                 view: [
                   {
@@ -250,6 +291,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       iconName: "cross",
                       iconSize: 24,
                       color: "#040627",
+                      version: 1,
                     },
                   },
                   {
@@ -259,6 +301,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     props: {
                       text: "Modal Title",
                       textStyle: "HEADING",
+                      version: 1,
                     },
                   },
                   {
@@ -268,6 +311,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     props: {
                       text: "Cancel",
                       buttonStyle: "SECONDARY_BUTTON",
+                      version: 1,
                     },
                   },
                   {
@@ -277,6 +321,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     props: {
                       text: "Confirm",
                       buttonStyle: "PRIMARY_BUTTON",
+                      version: 1,
                     },
                   },
                 ],
@@ -315,6 +360,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 0,
       columns: 0,
       widgetName: "Canvas",
+      version: 1,
     },
     CHART_WIDGET: {
       rows: 8,
@@ -323,6 +369,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       chartType: "LINE_CHART",
       chartName: "Sales on working days",
       allowHorizontalScroll: false,
+      version: 1,
       chartData: [
         {
           seriesName: "Sales",
@@ -367,6 +414,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "FormButton",
       text: "Submit",
       isDefaultClickDisabled: true,
+      version: 1,
     },
     FORM_WIDGET: {
       rows: 13,
@@ -384,6 +432,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canExtend: false,
               detachFromLayout: true,
               children: [],
+              version: 1,
               blueprint: {
                 view: [
                   {
@@ -393,6 +442,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     props: {
                       text: "Form",
                       textStyle: "HEADING",
+                      version: 1,
                     },
                   },
                   {
@@ -404,6 +454,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       buttonStyle: "PRIMARY_BUTTON",
                       disabledWhenInvalid: true,
                       resetFormOnClick: true,
+                      version: 1,
                     },
                   },
                   {
@@ -415,6 +466,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       buttonStyle: "SECONDARY_BUTTON",
                       disabledWhenInvalid: false,
                       resetFormOnClick: true,
+                      version: 1,
                     },
                   },
                 ],
@@ -436,12 +488,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       allowZoom: true,
       mapCenter: { lat: -34.397, long: 150.644 },
       defaultMarkers: [{ lat: -34.397, long: 150.644, title: "Test A" }],
+      version: 1,
     },
     SKELETON_WIDGET: {
       isLoading: true,
       rows: 1,
       columns: 1,
       widgetName: "Skeleton",
+      version: 1,
     },
   },
   configVersion: 1,

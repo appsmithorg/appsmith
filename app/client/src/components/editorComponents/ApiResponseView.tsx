@@ -17,7 +17,6 @@ import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
-  DONT_SHOW_THIS_AGAIN,
   SHOW_REQUEST,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
@@ -26,9 +25,8 @@ import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
-import Button from "components/ads/Button";
 
-const ResponseWrapper = styled.div`
+const ResponseContainer = styled.div`
   position: relative;
   flex: 1;
   height: 50%;
@@ -54,72 +52,12 @@ const ResponseMetaWrapper = styled.div`
   top: ${(props) => props.theme.spaces[4]}px;
 `;
 
-const StatusCodeText = styled(BaseText)<{ code: string }>`
-  color: ${(props) =>
-    props.code.match(/2\d\d/) ? props.theme.colors.primaryOld : Colors.RED};
+const ResponseTabWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 `;
-
-// const TableWrapper = styled.div`
-//   &&& {
-//     table {
-//       table-layout: fixed;
-//       width: 100%;
-//       td {
-//         font-size: 12px;
-//         width: 50%;
-//         white-space: nowrap;
-//         overflow: hidden;
-//         text-overflow: ellipsis;
-//       }
-//     }
-//   }
-// `;
-
-interface ReduxStateProps {
-  responses: Record<string, ActionResponse | undefined>;
-  isRunning: Record<string, boolean>;
-}
-
-// const ResponseHeadersView = (props: { data: Record<string, string[]> }) => {
-//   if (!props.data) return <div />;
-//   return (
-//     <TableWrapper>
-//       <table className="bp3-html-table bp3-html-table-striped bp3-html-table-condensed">
-//         <thead>
-//           <tr>
-//             <th>Key</th>
-//             <th>Value</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {Object.keys(props.data).map(k => (
-//             <tr key={k}>
-//               <td>{k}</td>
-//               <td>{props.data[k].join(", ")}</td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//     </TableWrapper>
-//   );
-// };
-
-type Props = ReduxStateProps &
-  RouteComponentProps<APIEditorRouteParams> & { theme?: EditorTheme };
-
-export const EMPTY_RESPONSE: ActionResponse = {
-  statusCode: "",
-  duration: "",
-  body: {},
-  headers: {},
-  request: {
-    headers: {},
-    body: {},
-    httpMethod: "",
-    url: "",
-  },
-  size: "",
-};
 
 const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
   height: calc(100% - 30px);
@@ -161,6 +99,12 @@ const Flex = styled.div`
 `;
 
 const NoResponseContainer = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
   .${Classes.ICON} {
     margin-right: 0px;
     svg {
@@ -177,20 +121,41 @@ const NoResponseContainer = styled.div`
 const FailedMessage = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
 `;
 
-const ButtonContainer = styled.div`
+const ShowRequestText = styled.a`
   display: flex;
-  align-items: center;
-  span {
-    color: ${Colors.Galliano};
-    cursor: pointer;
+  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+  .${Classes.ICON} {
+    margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   }
-  button {
-    margin-left: ${(props) => props.theme.spaces[9]}px;
-  }
+`;
+
+interface ReduxStateProps {
+  responses: Record<string, ActionResponse | undefined>;
+  isRunning: Record<string, boolean>;
+}
+
+type Props = ReduxStateProps &
+  RouteComponentProps<APIEditorRouteParams> & { theme?: EditorTheme };
+
+export const EMPTY_RESPONSE: ActionResponse = {
+  statusCode: "",
+  duration: "",
+  body: {},
+  headers: {},
+  request: {
+    headers: {},
+    body: {},
+    httpMethod: "",
+    url: "",
+  },
+  size: "",
+};
+
+const StatusCodeText = styled(BaseText)<{ code: string }>`
+  color: ${(props) =>
+    props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
 `;
 
 const ApiResponseView = (props: Props) => {
@@ -220,40 +185,32 @@ const ApiResponseView = (props: Props) => {
       key: "body",
       title: "Response Body",
       panelComponent: (
-        <>
+        <ResponseTabWrapper>
           {hasFailed && !isRunning && requestDebugVisible && (
             <Callout
-              variant={Variant.warning}
-              fill
+              text={createMessage(CHECK_REQUEST_BODY)}
               label={
                 <FailedMessage>
-                  <Text type={TextType.P2}>
-                    {createMessage(CHECK_REQUEST_BODY)}
-                  </Text>
-                  <ButtonContainer>
-                    <Text
-                      type={TextType.H6}
-                      case={Case.UPPERCASE}
-                      onClick={() => {
-                        setRequestDebugVisible(false);
-                      }}
-                    >
-                      {DONT_SHOW_THIS_AGAIN}
+                  <ShowRequestText
+                    href={"#!"}
+                    onClick={() => {
+                      setSelectedIndex(1);
+                    }}
+                  >
+                    <Text type={TextType.H6} case={Case.UPPERCASE}>
+                      {createMessage(SHOW_REQUEST)}
                     </Text>
-                    <Button
-                      tag="button"
-                      text={createMessage(SHOW_REQUEST)}
-                      variant={Variant.info}
-                      onClick={() => {
-                        setSelectedIndex(1);
-                      }}
-                    />
-                  </ButtonContainer>
+                    <Icon name="right-arrow" />
+                  </ShowRequestText>
                 </FailedMessage>
               }
+              variant={Variant.warning}
+              fill
+              closeButton
+              onClose={() => setRequestDebugVisible(false)}
             />
           )}
-          {_.isEmpty(response.body) ? (
+          {_.isEmpty(response.statusCode) ? (
             <NoResponseContainer>
               <Icon name="no-response" />
               <Text type={TextType.P1}>Hit Run to get a Response</Text>
@@ -268,7 +225,7 @@ const ApiResponseView = (props: Props) => {
               height={"100%"}
             />
           )}
-        </>
+        </ResponseTabWrapper>
       ),
     },
     {
@@ -290,7 +247,7 @@ const ApiResponseView = (props: Props) => {
   ];
 
   return (
-    <ResponseWrapper>
+    <ResponseContainer>
       <SectionDivider />
       {isRunning && (
         <LoadingOverlayScreen theme={props.theme}>
@@ -337,7 +294,7 @@ const ApiResponseView = (props: Props) => {
           onSelect={setSelectedIndex}
         />
       </TabbedViewWrapper>
-    </ResponseWrapper>
+    </ResponseContainer>
   );
 };
 

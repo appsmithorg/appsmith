@@ -4,6 +4,7 @@ import {
   API_REQUEST_HEADERS,
   API_STATUS_CODES,
   ERROR_CODES,
+  SERVER_ERROR_CODES,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL } from "constants/routes";
@@ -11,6 +12,7 @@ import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 import {
   createMessage,
+  ERROR_0,
   ERROR_500,
   SERVER_API_TIMEOUT_ERROR,
 } from "../constants/messages";
@@ -56,10 +58,19 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
+    // Return error when there is no internet
+    if (!window.navigator.onLine) {
+      return Promise.reject({
+        ...error,
+        message: createMessage(ERROR_0),
+      });
+    }
+
     // Return if the call was cancelled via cancel token
     if (axios.isCancel(error)) {
       return;
     }
+
     // Return modified response if action execution failed
     if (error.config && error.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(error.response);
@@ -105,7 +116,7 @@ axiosInstance.interceptors.response.use(
         const errorData = error.response.data.responseMeta;
         if (
           errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
-          errorData.error.code === 4028
+          errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND
         ) {
           return Promise.reject({
             code: ERROR_CODES.PAGE_NOT_FOUND,

@@ -8,11 +8,80 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText:
+              "Displays a list of options for a user to select. Values must be unique",
+            propertyName: "options",
+            label: "Options",
+            controlType: "OPTION_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Selects a value of the options entered by default",
+            propertyName: "defaultOptionValue",
+            label: "Default Selected Value",
+            placeholderText: "Enter option value",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText:
+              "Triggers an action when a user changes the selected option",
+            propertyName: "onSelectionChange",
+            label: "onSelectionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -30,11 +99,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         "{{_.find(this.options, { value: this.selectedOptionValue })}}",
       isValid: `{{ this.isRequired ? !!this.selectedOptionValue : true }}`,
       value: `{{this.selectedOptionValue}}`,
-    };
-  }
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onSelectionChange: true,
     };
   }
 

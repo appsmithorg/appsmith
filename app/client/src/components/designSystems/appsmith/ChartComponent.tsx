@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { isString } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -28,9 +28,12 @@ export interface ChartComponentProps {
   widgetId: string;
   isVisible?: boolean;
   allowHorizontalScroll: boolean;
+  onDataPointClick: (selectedDataPoint: { x: any; y: any }) => void;
 }
 
-const CanvasContainer = styled.div<ChartComponentProps>`
+const CanvasContainer = styled.div<
+  Omit<ChartComponentProps, "onDataPointClick">
+>`
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   border-radius: 0;
   height: 100%;
@@ -81,6 +84,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartData = () => {
     const chartData: ChartData[] = this.props.chartData;
+
     if (chartData.length === 0) {
       return [
         {
@@ -89,7 +93,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ];
     }
-    const data: ChartDataPoint[] = chartData[0].data;
+
+    let data: ChartDataPoint[] = chartData[0].data;
+    if (isString(chartData[0].data)) {
+      try {
+        data = JSON.parse(chartData[0].data);
+      } catch (e) {
+        data = [];
+      }
+    }
     if (data.length === 0) {
       return [
         {
@@ -123,9 +135,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartCategories = (chartData: ChartData[]) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
     if (categories.length === 0) {
-      return {
-        label: "",
-      };
+      return [
+        {
+          label: "",
+        },
+      ];
     }
     return categories.map((item) => {
       return {
@@ -157,9 +171,10 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartDataset = (chartData: ChartData[]) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
     return chartData.map((item: ChartData) => {
-      const seriesChartData: Array<
-        Record<string, unknown>
-      > = this.getSeriesChartData(item.data, categories);
+      const seriesChartData: Array<Record<
+        string,
+        unknown
+      >> = this.getSeriesChartData(item.data, categories);
       return {
         seriesName: item.seriesName,
         data: seriesChartData,
@@ -203,6 +218,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getScrollChartDataSource = () => {
     const chartConfig = this.getChartConfig();
+
     return {
       chart: {
         ...chartConfig,
@@ -216,6 +232,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           category: this.getChartCategories(this.props.chartData),
         },
       ],
+      data: this.getChartData(),
       dataset: this.getChartDataset(this.props.chartData),
     };
   };
@@ -225,6 +242,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       this.props.allowHorizontalScroll && this.props.chartType !== "PIE_CHART"
         ? this.getScrollChartDataSource()
         : this.getChartDataSource();
+
     const chartConfig = {
       type: this.getChartType(),
       renderAt: this.props.widgetId + "chart-container",
@@ -232,7 +250,17 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       height: "100%",
       dataFormat: "json",
       dataSource: dataSource,
+      events: {
+        dataPlotClick: (evt: any) => {
+          const data = evt.data;
+          this.props.onDataPointClick({
+            x: data.categoryLabel,
+            y: data.dataValue,
+          });
+        },
+      },
     };
+
     this.chartInstance = new FusionCharts(chartConfig);
   };
 
@@ -269,11 +297,10 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   }
 
   render() {
+    //eslint-disable-next-line  @typescript-eslint/no-unused-vars
+    const { onDataPointClick, ...rest } = this.props;
     return (
-      <CanvasContainer
-        {...this.props}
-        id={this.props.widgetId + "chart-container"}
-      />
+      <CanvasContainer {...rest} id={this.props.widgetId + "chart-container"} />
     );
   }
 }

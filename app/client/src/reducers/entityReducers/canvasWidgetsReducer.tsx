@@ -5,8 +5,9 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import _ from "lodash";
+import { UpdateCanvasLayout } from "actions/controlActions";
+import { set } from "lodash";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -27,17 +28,11 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
   ) => {
     return action.payload.widgets;
   },
-  [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: (
+  [ReduxActionTypes.UPDATE_CANVAS_LAYOUT]: (
     state: CanvasWidgetsReduxState,
-    action: ReduxAction<UpdateWidgetPropertyPayload>,
+    action: ReduxAction<UpdateCanvasLayout>,
   ) => {
-    // We loop over all updates
-    Object.entries(action.payload.updates).forEach(
-      ([propertyPath, propertyValue]) => {
-        // since property paths could be nested, we use lodash set method
-        _.set(state[action.payload.widgetId], propertyPath, propertyValue);
-      },
-    );
+    set(state[MAIN_CONTAINER_WIDGET_ID], "rightColumn", action.payload.width);
   },
 });
 

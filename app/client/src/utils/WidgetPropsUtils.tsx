@@ -22,6 +22,12 @@ import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { isString } from "lodash";
 import log from "loglevel";
+import {
+  migrateTablePrimaryColumnsBindings,
+  tableWidgetPropertyPaneMigrations,
+} from "utils/migrations/TableWidget";
+import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
+import * as Sentry from "@sentry/react";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -258,6 +264,18 @@ const dynamicPathListMigration = (
   return currentDSL;
 };
 
+const addVersionNumberMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(addVersionNumberMigration);
+  }
+  if (currentDSL.version === undefined) {
+    currentDSL.version = 1;
+  }
+  return currentDSL;
+};
+
 const canvasNameConflictMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
   props = { counter: 1 },
@@ -299,7 +317,40 @@ const renamedCanvasNameConflictMigration = (
   return currentDSL;
 };
 
+const rteDefaultValueMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+): ContainerWidgetProps<WidgetProps> => {
+  if (currentDSL.type === WidgetTypes.RICH_TEXT_EDITOR_WIDGET) {
+    currentDSL.inputType = "html";
+  }
+  currentDSL.children?.forEach((children) =>
+    rteDefaultValueMigration(children),
+  );
+
+  return currentDSL;
+};
+
 // A rudimentary transform function which updates the DSL based on its version.
+function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
+  if (currentDSL.type === WidgetTypes.CHART_WIDGET) {
+    if (isString(currentDSL.chartData)) {
+      try {
+        currentDSL.chartData = JSON.parse(currentDSL.chartData);
+      } catch (error) {
+        Sentry.captureException({
+          message: "Chart Migration Failed",
+          oldData: currentDSL.chartData,
+        });
+        currentDSL.chartData = [];
+      }
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(migrateOldChartData);
+  }
+  return currentDSL;
+}
+
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === undefined) {
@@ -359,6 +410,36 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 8) {
     currentDSL = renamedCanvasNameConflictMigration(currentDSL);
     currentDSL.version = 9;
+  }
+
+  if (currentDSL.version === 9) {
+    currentDSL = tableWidgetPropertyPaneMigrations(currentDSL);
+    currentDSL.version = 10;
+  }
+
+  if (currentDSL.version === 10) {
+    currentDSL = addVersionNumberMigration(currentDSL);
+    currentDSL.version = 11;
+  }
+
+  if (currentDSL.version === 11) {
+    currentDSL = migrateTablePrimaryColumnsBindings(currentDSL);
+    currentDSL.version = 12;
+  }
+
+  if (currentDSL.version === 12) {
+    currentDSL = migrateIncorrectDynamicBindingPathLists(currentDSL);
+    currentDSL.version = 13;
+  }
+
+  if (currentDSL.version === 13) {
+    currentDSL = migrateOldChartData(currentDSL);
+    currentDSL.version = 14;
+  }
+
+  if (currentDSL.version === 14) {
+    currentDSL = rteDefaultValueMigration(currentDSL);
+    currentDSL.version = 15;
   }
 
   return currentDSL;
@@ -439,6 +520,9 @@ export const noCollision = (
   cols?: number,
 ): boolean => {
   if (clientOffset && dropTargetOffset && widget) {
+    if (widget.detachFromLayout) {
+      return true;
+    }
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,
@@ -584,6 +668,7 @@ export const generateWidgetProps = (
     widgetId: string;
     renderMode: RenderMode;
   } & Partial<WidgetProps>,
+  version: number,
 ): ContainerWidgetProps<WidgetProps> => {
   if (parent) {
     const sizes = {
@@ -605,6 +690,7 @@ export const generateWidgetProps = (
       ...sizes,
       ...others,
       parentId: parent.widgetId,
+      version,
     };
     delete props.rows;
     delete props.columns;

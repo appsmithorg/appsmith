@@ -1,6 +1,10 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -8,9 +12,6 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
@@ -33,15 +34,15 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
@@ -125,7 +126,7 @@ public class RedshiftPlugin extends BasePlugin {
                 "         kcu.ordinal_position;\n";
 
         private void checkResultSetValidity(ResultSet resultSet) throws AppsmithPluginException {
-            if(resultSet == null) {
+            if (resultSet == null) {
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
                                 "Redshift plugin: getRow: driver failed to fetch result: resultSet is null."
@@ -146,18 +147,18 @@ public class RedshiftPlugin extends BasePlugin {
              * 1. Ideally metaData is never supposed to be null. Redshift JDBC driver does null check before returning
              *    ResultSetMetaData.
              */
-            if(metaData == null) {
+            if (metaData == null) {
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
-                        "Redshift plugin: getRow: metaData is null. Ideally this is never supposed to " +
-                        "happen as the Redshift JDBC driver does a null check before passing this object. This means " +
-                        "that something has gone wrong while processing the query result."
+                                "Redshift plugin: getRow: metaData is null. Ideally this is never supposed to " +
+                                "happen as the Redshift JDBC driver does a null check before passing this object. This means " +
+                                "that something has gone wrong while processing the query result."
                 );
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "metaData is null. Ideally this is never supposed to happen as the Redshift JDBC driver " +
-                        "does a null check before passing this object. This means that something has gone wrong " +
-                        "while processing the query result"
+                                "does a null check before passing this object. This means that something has gone wrong " +
+                                "while processing the query result"
                 );
             }
 
@@ -187,8 +188,7 @@ public class RedshiftPlugin extends BasePlugin {
                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                             resultSet.getObject(i, OffsetDateTime.class)
                     );
-                }
-                else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
+                } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
                     value = resultSet.getString(i);
                 } else {
                     value = resultSet.getObject(i);
@@ -215,6 +215,7 @@ public class RedshiftPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
+
             String query = actionConfiguration.getBody();
 
             if (query == null) {
@@ -226,7 +227,7 @@ public class RedshiftPlugin extends BasePlugin {
                 );
             }
 
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+            return Mono.fromCallable(() -> {
                 /*
                  * 1. If there is any issue with checking connection validity then assume that the connection is stale.
                  */
@@ -283,19 +284,40 @@ public class RedshiftPlugin extends BasePlugin {
                 result.setIsExecutionSuccess(true);
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
-                        "In RedshiftPlugin, got action execution result"
+                                "In RedshiftPlugin, got action execution result"
                 );
                 return Mono.just(result);
             })
-            .flatMap(obj -> obj)
-            .onErrorMap(e -> {
-                if(!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
-                    return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
-                }
+                    .flatMap(obj -> obj)
+                    .map(obj -> (ActionExecutionResult) obj)
+                    .onErrorMap(e -> {
+                        if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
+                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                        }
 
-                return e;
-            })
-            .subscribeOn(scheduler);
+                        return e;
+                    })
+                    .onErrorResume(error -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        if (error instanceof AppsmithPluginException) {
+                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
+                        result.setBody(error.getMessage());
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setQuery(query);
+                        ActionExecutionResult result = actionExecutionResult;
+                        result.setRequest(request);
+                        return result;
+                    })
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -359,9 +381,9 @@ public class RedshiftPlugin extends BasePlugin {
                     );
                 }
             })
-            .flatMap(obj -> obj)
-            .map(conn -> (Connection) conn)
-            .subscribeOn(scheduler);
+                    .flatMap(obj -> obj)
+                    .map(conn -> (Connection) conn)
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -605,16 +627,14 @@ public class RedshiftPlugin extends BasePlugin {
 
                     // Get templates for each table and put those in.
                     getTemplates(tablesByName);
-                }
-                catch (SQLException e) {
+                } catch (SQLException e) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                     e.getMessage()
                             )
                     );
-                }
-                catch (AppsmithPluginException e) {
+                } catch (AppsmithPluginException e) {
                     return Mono.error(e);
                 }
 
@@ -626,15 +646,15 @@ public class RedshiftPlugin extends BasePlugin {
 
                 return structure;
             })
-            .map(resultStructure -> (DatasourceStructure) resultStructure)
-            .onErrorMap(e -> {
-                if(!(e instanceof AppsmithPluginException)) {
-                    return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
-                }
+                    .map(resultStructure -> (DatasourceStructure) resultStructure)
+                    .onErrorMap(e -> {
+                        if (!(e instanceof AppsmithPluginException)) {
+                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                        }
 
-                return e;
-            })
-            .subscribeOn(scheduler);
+                        return e;
+                    })
+                    .subscribeOn(scheduler);
         }
     }
 }

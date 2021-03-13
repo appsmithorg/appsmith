@@ -11,7 +11,6 @@ import {
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import { Link } from "react-router-dom";
@@ -38,6 +37,7 @@ import EditableAppName from "./EditableAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import GlobalSearch from "components/editorComponents/GlobalSearch";
 import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -46,10 +46,13 @@ import Button, { Size } from "components/ads/Button";
 import { IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
+import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
+  width: 100%;
   padding-right: 0;
   padding-left: ${(props) => props.theme.spaces[7]}px;
   background-color: ${(props) => props.theme.colors.header.background};
@@ -80,14 +83,21 @@ const HeaderWrapper = styled(StyledHeader)`
   }
 `;
 
+// looks offset by 1px even though, checking bounding rect values
 const HeaderSection = styled.div`
+  position: relative;
+  top: -1px;
   display: flex;
   flex: 1;
+  overflow: hidden;
   align-items: center;
   :nth-child(1) {
     justify-content: flex-start;
   }
   :nth-child(2) {
+    justify-content: center;
+  }
+  :nth-child(3) {
     justify-content: flex-end;
   }
 `;
@@ -211,7 +221,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
                 defaultValue={currentApplication.name || ""}
                 editInteractionKind={EditInteractionKind.SINGLE}
                 className="t--application-name editable-application-name"
-                fill={false}
+                fill={true}
                 savingState={
                   isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
                 }
@@ -228,6 +238,10 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               />
             )}
           </Boxed>
+        </HeaderSection>
+        <HeaderSection>
+          <HelpBar />
+          <HelpButton />
         </HeaderSection>
         <HeaderSection>
           <Boxed step={OnboardingStep.FINISH}>
@@ -287,12 +301,13 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               <ProfileDropdown
                 userName={user?.username || ""}
                 hideThemeSwitch
+                name={user.name}
               />
             </ProfileDropdownContainer>
           )}
         </HeaderSection>
-        <HelpModal page={"Editor"} />
         <OnboardingHelper />
+        <GlobalSearch />
       </HeaderWrapper>
     </ThemeProvider>
   );

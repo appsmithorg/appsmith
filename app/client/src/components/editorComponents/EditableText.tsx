@@ -50,6 +50,7 @@ const EditableTextWrapper = styled.div<{
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
+    width: 100%;
     & .${Classes.EDITABLE_TEXT} {
       border: ${(props) =>
         props.isEditing && !props.minimal
@@ -101,12 +102,15 @@ export const EditableText = (props: EditableTextProps) => {
 
   useEffect(() => {
     setValue(props.defaultValue);
+  }, [props.defaultValue]);
+
+  useEffect(() => {
     setIsEditing(!!props.isEditingDefault);
-  }, [props.defaultValue, props.isEditingDefault, setValue]);
+  }, [props.defaultValue, props.isEditingDefault]);
 
   useEffect(() => {
     if (props.forceDefault === true) setValue(props.defaultValue);
-  }, [props.forceDefault, props.defaultValue, setValue]);
+  }, [props.forceDefault, props.defaultValue]);
 
   // at times onTextChange is not fired
   // for example when the modal is closed on clicking the overlay

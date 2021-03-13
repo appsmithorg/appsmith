@@ -6,13 +6,13 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.Base64;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -23,15 +23,17 @@ import reactor.test.StepVerifier;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.net.URL;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -44,12 +46,14 @@ public class AmazonS3PluginTest {
     private static String accessKey;
     private static String secretKey;
     private static String region;
+    private static String serviceProvider;
 
     @BeforeClass
     public static void setUp() {
         accessKey   = "access_key";
         secretKey   = "secret_key";
         region      = "ap-south-1";
+        serviceProvider = "amazon-s3";
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -61,8 +65,11 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
         ArrayList<Property> properties = new ArrayList<>();
-        properties.add(new Property("region", region));
+        properties.add(new Property("amazon s3 region", region));
+        properties.add(new Property("s3 service provider", serviceProvider));
+        properties.add(new Property("custom endpoint region", region));
         dsConfig.setProperties(properties);
+        dsConfig.setEndpoints(List.of(new Endpoint("s3-connection-url", 0L)));
         return dsConfig;
     }
 
@@ -115,11 +122,9 @@ public class AmazonS3PluginTest {
     }
 
     @Test
-    public void testValidateDatasourceWithMissingRegion() {
+    public void testValidateDatasourceWithMissingRegionWithAmazonS3() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        ArrayList<Property> properties = new ArrayList<>();
-        properties.add(new Property("region", ""));
-        datasourceConfiguration.setProperties(properties);
+        datasourceConfiguration.getProperties().get(0).setValue("");
 
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
@@ -127,10 +132,57 @@ public class AmazonS3PluginTest {
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
-                    Assert.assertNotEquals(0, res.size());
+                    assertNotEquals(0, res.size());
 
                     List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Mandatory parameter 'Region' is empty"));
+                    assertTrue(errorList.get(0).contains("Required parameter 'Region' is empty. Did you forget to " +
+                            "edit the 'Region' field in the datasource creation form ? You need to fill it with the " +
+                            "region where your AWS S3 instance is hosted."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testValidateDatasourceWithMissingRegionWithNonAmazonProvider() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getProperties().get(2).setValue("");
+
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+
+        StepVerifier.create(pluginExecutorMono)
+                .assertNext(executor -> {
+                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
+                    assertNotEquals(0, res.size());
+
+                    List<String> errorList = new ArrayList<>(res);
+                    assertTrue(errorList.get(0).contains("Required parameter 'Region' is empty. Did you forget to " +
+                            "edit the 'Region' field in the datasource creation form ? You need to fill it with the " +
+                            "region where your S3 instance is hosted."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testValidateDatasourceWithMissingUrlWithNonAmazonProvider() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getProperties().get(2).setValue("");
+        datasourceConfiguration.getEndpoints().get(0).setHost("");
+
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+
+        StepVerifier.create(pluginExecutorMono)
+                .assertNext(executor -> {
+                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
+                    assertNotEquals(0, res.size());
+
+                    List<String> errorList = new ArrayList<>(res);
+                    assertTrue(errorList.get(0).contains("Required parameter 'Endpoint URL' is empty. Did you forget " +
+                            "to edit the 'Endpoint URL' field in the datasource creation form ? You need to fill it " +
+                            "with the endpoint URL of your S3 instance."));
                 })
                 .verifyComplete();
     }
@@ -167,7 +219,7 @@ public class AmazonS3PluginTest {
     }
     
     @Test
-    public void testListFilesInBucket() {
+    public void testListFilesInBucketWithNoUrl() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
@@ -181,6 +233,7 @@ public class AmazonS3PluginTest {
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("action", "LIST"));
         properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property("getSignedUrl", "NO"));
         actionConfiguration.setPluginSpecifiedTemplates(properties);
 
         ObjectListing mockObjectListing = mock(ObjectListing.class);
@@ -209,13 +262,16 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    Map<String, ArrayList<String>> node = (Map<String, ArrayList<String>>)result.getBody();
+                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayList<String> resultFilenamesArray = new ArrayList<>();
+                    resultFilenamesArray.add(node.get(0).get("fileName"));
+                    resultFilenamesArray.add(node.get(1).get("fileName"));
                     assertArrayEquals(
                             new String[]{
                                     dummyKey1,
                                     dummyKey2
                             },
-                            node.get("files").toArray()
+                            resultFilenamesArray.toArray()
                     );
                 })
                 .verifyComplete();
@@ -228,7 +284,7 @@ public class AmazonS3PluginTest {
      *   regarding false credentials.
      */
     @Test
-    public void testCreateFileFromBodyWithFalseCredentials() {
+    public void testCreateFileFromBodyWithFalseCredentialsAndNonNullDuration() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
@@ -258,13 +314,21 @@ public class AmazonS3PluginTest {
                                                                     actionConfiguration);
 
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("The AWS Access Key Id you provided does not exist in " +
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    String message = (String) result.getBody();
+                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                });
+                })
+                .verifyComplete();
     }
 
+    /*
+     * - This method tests the create file program flow till the point where an actual call is made by the AmazonS3
+     *   connection to upload a file.
+     * - If everything goes well, then then only expected exception is the one thrown by AmazonS3 connection
+     *   regarding false credentials.
+     */
     @Test
     public void testFileUploadFromBodyWithMissingDuration() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
@@ -291,16 +355,20 @@ public class AmazonS3PluginTest {
 
         AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
         Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
-                                                                    connection,
-                                                                    datasourceConfiguration,
-                                                                    actionConfiguration);
+                connection,
+                datasourceConfiguration,
+                actionConfiguration);
 
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("Required parameter 'URL Expiry Duration' is missing"));
-                });
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    String message = (String) result.getBody();
+                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
+                            "our records"));
+                })
+                .verifyComplete();
     }
+
 
     @Test
     public void testFileUploadFromBodyWithFilepickerAndNonBase64() {
@@ -308,7 +376,7 @@ public class AmazonS3PluginTest {
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        String dummyBody = "dummyBody";
+        String dummyBody = "dummyBody;";
         actionConfiguration.setBody(dummyBody);
 
         String dummyPath = "path";
@@ -321,7 +389,7 @@ public class AmazonS3PluginTest {
         properties.add(new Property(null, null));
         properties.add(new Property(null, null));
         properties.add(new Property(null, null));
-        properties.add(new Property("usingFilepicker", "YES"));
+        properties.add(new Property("usingBase64Encoding", "YES"));
         properties.add(new Property("duration", "1000000"));
 
         actionConfiguration.setPluginSpecifiedTemplates(properties);
@@ -333,10 +401,12 @@ public class AmazonS3PluginTest {
                                                                     actionConfiguration);
 
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("Missing Base64 encoding"));
-                });
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    String message = (String) result.getBody();
+                    assertTrue(message.contains("File content is not base64 encoded"));
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -377,7 +447,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     Map<String, Object> body = (Map<String, Object>) result.getBody();
-                    assertEquals(dummyContent, body.get("data"));
+                    assertEquals(dummyContent, body.get("fileData"));
                 })
                 .verifyComplete();
     }
@@ -421,7 +491,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     Map<String, Object> body = (Map<String, Object>) result.getBody();
-                    assertEquals(new String(Base64.encode(dummyContent.getBytes())), body.get("data"));
+                    assertEquals(new String(Base64.encode(dummyContent.getBytes())), body.get("fileData"));
                 })
                 .verifyComplete();
     }
@@ -506,13 +576,16 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    Map<String, ArrayList<String>> node = (Map<String, ArrayList<String>>)result.getBody();
+                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayList<String> resultFilenamesArray = new ArrayList<>();
+                    resultFilenamesArray.add(node.get(0).get("fileName"));
+                    resultFilenamesArray.add(node.get(1).get("fileName"));
                     assertArrayEquals(
                             new String[]{
                                     dummyKey1,
                                     dummyKey2
                             },
-                            node.get("files").toArray()
+                            resultFilenamesArray.toArray()
                     );
                 })
                 .verifyComplete();
@@ -533,8 +606,8 @@ public class AmazonS3PluginTest {
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("action", "LIST"));
         properties.add(new Property("bucketName", "bucket_name"));
-        properties.add(new Property(null, "YES"));
-        properties.add(new Property(null, "1000"));
+        properties.add(new Property("getSignedUrl", "YES"));
+        properties.add(new Property("urlExpiry", "1000"));
         properties.add(new Property(null, ""));
         actionConfiguration.setPluginSpecifiedTemplates(properties);
 
@@ -568,30 +641,37 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    ArrayList<String> val1 = new ArrayList<>();
-                    val1.add(dummyKey1);
-                    val1.add(dummyUrl1.toString());
-
-                    ArrayList<String> val2 = new ArrayList<>();
-                    val2.add(dummyKey2);
-                    val2.add(dummyUrl2.toString());
-
-                    ArrayList<ArrayList<String>> expectedResult = new ArrayList<>();
-                    expectedResult.add(val1);
-                    expectedResult.add(val2);
-
-                    Map<String, ArrayList<ArrayList<String>>> node =
-                            (Map<String, ArrayList<ArrayList<String>>>)result.getBody();
+                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayList<String> resultFilenamesArray = new ArrayList<>();
+                    resultFilenamesArray.add(node.get(0).get("fileName"));
+                    resultFilenamesArray.add(node.get(1).get("fileName"));
                     assertArrayEquals(
-                            expectedResult.toArray(),
-                            node.get("files").toArray()
+                            new String[]{
+                                    dummyKey1,
+                                    dummyKey2
+                            },
+                            resultFilenamesArray.toArray()
                     );
+
+                    ArrayList<String> resultUrlArray = new ArrayList<>();
+                    resultUrlArray.add(node.get(0).get("signedUrl"));
+                    resultUrlArray.add(node.get(1).get("signedUrl"));
+                    assertArrayEquals(
+                            new String[]{
+                                    dummyUrl1.toString(),
+                                    dummyUrl2.toString()
+                            },
+                            resultUrlArray.toArray()
+                    );
+
+                    assertNotNull(node.get(0).get("urlExpiryDate"));
+                    assertNotNull(node.get(1).get("urlExpiryDate"));
                 })
                 .verifyComplete();
     }
 
     @Test
-    public void testListFilesWithUrlAndNullDuration() {
+    public void testListFilesWithUrlAndNullDuration() throws MalformedURLException {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
@@ -627,15 +707,45 @@ public class AmazonS3PluginTest {
         when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
         when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
 
+        URL dummyUrl1 = new URL("http", "dummy_url_1", "");
+        URL dummyUrl2 = new URL("http", "dummy_url_1", "");
+        when(mockConnection.generatePresignedUrl(any())).thenReturn(dummyUrl1).thenReturn(dummyUrl2);
+
         Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
                 mockConnection,
                 datasourceConfiguration,
                 actionConfiguration);
 
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("Required parameter 'URL Expiry Duration' is missing"));
-                });
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayList<String> resultFilenamesArray = new ArrayList<>();
+                    resultFilenamesArray.add(node.get(0).get("fileName"));
+                    resultFilenamesArray.add(node.get(1).get("fileName"));
+                    assertArrayEquals(
+                            new String[]{
+                                    dummyKey1,
+                                    dummyKey2
+                            },
+                            resultFilenamesArray.toArray()
+                    );
+
+                    ArrayList<String> resultUrlArray = new ArrayList<>();
+                    resultUrlArray.add(node.get(0).get("signedUrl"));
+                    resultUrlArray.add(node.get(1).get("signedUrl"));
+                    assertArrayEquals(
+                            new String[]{
+                                    dummyUrl1.toString(),
+                                    dummyUrl2.toString()
+                            },
+                            resultUrlArray.toArray()
+                    );
+
+                    assertNotNull(node.get(0).get("urlExpiryDate"));
+                    assertNotNull(node.get(1).get("urlExpiryDate"));
+                })
+                .verifyComplete();
     }
 }

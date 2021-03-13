@@ -97,10 +97,38 @@ export const BlueprintControlTransform = css`
         background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
       }
+      &.${Classes.SWITCH}
+        input:checked:disabled
+        ~ .${Classes.CONTROL_INDICATOR} {
+        opacity: 0.5;
+      }
     }
 
     .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
       border-radius: 0;
+    }
+
+    .${Classes.SWITCH} {
+      input:checked ~ .${Classes.CONTROL_INDICATOR} {
+        &::before {
+          left: calc(105% - 1em);
+        }
+      }
+
+      & .${Classes.CONTROL_INDICATOR} {
+        background: #d0d7dd;
+        border: 2px solid #d0d7dd;
+        &::before {
+          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+        }
+      }
+      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${(props) => props.theme.colors.primaryOld};
+      }
+      &:hover .${Classes.CONTROL_INDICATOR} {
+        background: #d0d7dd;
+        border: 2px solid #d0d7dd;
+      }
     }
 
     .${Classes.CONTROL_INDICATOR} {
@@ -479,6 +507,7 @@ const darkShades = [
   "#D4D4D4",
   "#E9E9E9",
   "#FFFFFF",
+  "#157A96",
 ] as const;
 
 const lightShades = [
@@ -494,6 +523,7 @@ const lightShades = [
   "#302D2D",
   "#090707",
   "#FFFFFF",
+  "#6A86CE",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -576,6 +606,11 @@ type ColorType = {
       bg: ShadeColor;
       icon: ShadeColor;
     };
+    hovered: {
+      text: ShadeColor;
+      bg: ShadeColor;
+      icon: ShadeColor;
+    };
     icon: ShadeColor;
   };
   toggle: {
@@ -644,6 +679,7 @@ type ColorType = {
     normal: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
+    countBg: ShadeColor;
   };
   settingHeading: ShadeColor;
   table: {
@@ -684,6 +720,7 @@ type ColorType = {
     color: ShadeColor;
   };
   profileDropdown: {
+    name: ShadeColor;
     userName: ShadeColor;
   };
   modal: {
@@ -765,6 +802,7 @@ type ColorType = {
     text: ShadeColor;
     dividerBg: ShadeColor;
     iconHoverBg: ShadeColor;
+    tabBg: ShadeColor;
     requestTree: {
       bg: string;
       header: {
@@ -843,6 +881,27 @@ type ColorType = {
     activeTabBorderBottom: string;
     activeTabText: string;
   };
+  globalSearch: {
+    containerBackground: string;
+    activeSearchItemBackground: string;
+    searchInputText: string;
+    containerShadow: string;
+    separator: string;
+    searchItemHighlight: string;
+    searchItemText: string;
+    highlightedTextUnderline: string;
+    documentationCtaBackground: string;
+    documentationCtaText: string;
+    emptyStateText: string;
+    navigateUsingEnterSection: string;
+    codeBackground: string;
+    documentLink: string;
+    helpBarBackground: string;
+    helpButtonBackground: string;
+    helpBarBorder: string;
+    sectionTitle: string;
+    navigateToEntityEnterkey: string;
+  };
   gif: {
     overlay: string;
     text: string;
@@ -878,7 +937,33 @@ const formMessage = {
   },
 };
 
+const globalSearch = {
+  containerBackground:
+    "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
+  activeSearchItemBackground: "rgba(0, 0, 0, 0.24)",
+  searchInputText: "#fff",
+  containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
+  separator: "#424242",
+  searchItemHighlight: "#fff",
+  searchItemText: "rgba(255, 255, 255, 0.6)",
+  highlightedTextUnderline: "#03B365",
+  helpBarText: "#C2C2C2",
+  documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
+  documentationCtaText: "#03B365",
+  emptyStateText: "#ABABAB",
+  navigateUsingEnterSection: "#154E6B",
+  codeBackground: "#494949",
+  documentLink: "#54a9fb",
+  helpBarBackground: "#000",
+  helpButtonBackground: "#333333",
+  helpBarBorder: "#404040",
+  helpButtonBorder: "#404040",
+  sectionTitle: "#D4D4D4",
+  navigateToEntityEnterkey: "#3DA5D9",
+};
+
 export const dark: ColorType = {
+  globalSearch,
   header: {
     separator: darkShades[4],
     appName: darkShades[7],
@@ -991,6 +1076,11 @@ export const dark: ColorType = {
       bg: darkShades[4],
       icon: darkShades[8],
     },
+    hovered: {
+      text: darkShades[9],
+      bg: darkShades[10],
+      icon: darkShades[8],
+    },
     icon: darkShades[6],
   },
   toggle: {
@@ -1059,6 +1149,7 @@ export const dark: ColorType = {
     normal: darkShades[6],
     hover: darkShades[7],
     border: darkShades[3],
+    countBg: darkShades[4],
   },
   settingHeading: darkShades[9],
   table: {
@@ -1099,7 +1190,8 @@ export const dark: ColorType = {
     color: darkShades[7],
   },
   profileDropdown: {
-    userName: darkShades[9],
+    name: darkShades[10],
+    userName: darkShades[7],
   },
   modal: {
     bg: darkShades[1],
@@ -1177,6 +1269,7 @@ export const dark: ColorType = {
   },
   apiPane: {
     bg: darkShades[0],
+    tabBg: lightShades[10],
     text: darkShades[6],
     dividerBg: darkShades[4],
     iconHoverBg: darkShades[1],
@@ -1234,7 +1327,7 @@ export const dark: ColorType = {
   codeMirror: {
     background: {
       defaultState: "#262626",
-      hoverState: "#1A191C",
+      hoverState: darkShades[10],
     },
     text: "#FFFFFF",
     dataType: {
@@ -1258,6 +1351,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  globalSearch,
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
@@ -1370,6 +1464,11 @@ export const light: ColorType = {
       bg: lightShades[2],
       icon: lightShades[8],
     },
+    hovered: {
+      text: lightShades[11],
+      bg: lightShades[12],
+      icon: lightShades[8],
+    },
     icon: lightShades[7],
   },
   toggle: {
@@ -1438,6 +1537,7 @@ export const light: ColorType = {
     normal: lightShades[6],
     hover: lightShades[10],
     border: lightShades[3],
+    countBg: lightShades[3],
   },
   settingHeading: lightShades[9],
   table: {
@@ -1478,7 +1578,8 @@ export const light: ColorType = {
     color: lightShades[7],
   },
   profileDropdown: {
-    userName: lightShades[9],
+    name: lightShades[10],
+    userName: lightShades[7],
   },
   modal: {
     bg: lightShades[11],
@@ -1555,7 +1656,8 @@ export const light: ColorType = {
     border: "#E0DEDE",
   },
   apiPane: {
-    bg: lightShades[11],
+    bg: lightShades[0],
+    tabBg: lightShades[11],
     text: lightShades[6],
     dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
@@ -1612,8 +1714,8 @@ export const light: ColorType = {
   },
   codeMirror: {
     background: {
-      defaultState: "#EBEBEB",
-      hoverState: "#FAFAFA",
+      defaultState: lightShades[0],
+      hoverState: lightShades[12],
     },
     text: "#090707",
     dataType: {
@@ -1726,17 +1828,29 @@ export const theme: Theme = {
       letterSpacing: -0.24,
       fontWeight: "normal",
     },
-    authCardHeader: {
+    cardHeader: {
       fontStyle: "normal",
       fontWeight: 600,
       fontSize: 25,
       lineHeight: 20,
     },
-    authCardSubheader: {
+    cardSubheader: {
       fontStyle: "normal",
       fontWeight: "normal",
       fontSize: 15,
       lineHeight: 20,
+    },
+    largeH1: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 28,
+      lineHeight: 36,
+    },
+    spacedOutP1: {
+      fontStyle: "normal",
+      fontWeight: "normal",
+      fontSize: 14,
+      lineHeight: 24,
     },
   },
   iconSizes: {
@@ -1847,7 +1961,7 @@ export const theme: Theme = {
       color: Colors.MYSTIC,
     },
   ],
-  sidebarWidth: "320px",
+  sidebarWidth: "250px",
   homePage: {
     header: 52,
     leftPane: {
@@ -1972,7 +2086,6 @@ export const theme: Theme = {
 
 export const scrollbarLight = css<{ backgroundColor?: Color }>`
   scrollbar-color: ${(props) => props.theme.colors.paneText};
-
   scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 4px;

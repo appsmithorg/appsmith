@@ -5,7 +5,6 @@ import MapComponent from "components/designSystems/appsmith/MapComponent";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/ActionConstants";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { getAppsmithConfigs } from "configs";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
@@ -41,6 +40,96 @@ type Center = {
   [x: string]: any;
 };
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "mapCenter",
+            label: "Initial location",
+            isJSConvertible: true,
+            controlType: "LOCATION_SEARCH",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "defaultMarkers",
+            label: "Default markers",
+            controlType: "INPUT_TEXT",
+            inputType: "ARRAY",
+            helpText: "Sets the default markers on the map",
+            placeholderText: 'Enter [{ "lat": "val1", "long": "val2" }]',
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "enableSearch",
+            label: "Enable search location",
+            helpText: "Enables locaton search",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "enablePickLocation",
+            label: "Enable pick location",
+            helpText: "Allows a user to pick their location",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "enableCreateMarker",
+            label: "Create new marker",
+            helpText: "Allows users to mark locations on the map",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "zoomLevel",
+            label: "Zoom Level",
+            controlType: "STEP",
+            helpText: "Changes the default zoom of the map",
+            stepType: "ZOOM_PERCENTAGE",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            propertyName: "onMarkerClick",
+            label: "onMarkerClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            propertyName: "onCreateMarker",
+            label: "onCreateMarker",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       defaultMarkers: VALIDATION_TYPES.MARKERS,
@@ -52,13 +141,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       allowZoom: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
       mapCenter: VALIDATION_TYPES.LAT_LONG,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onMarkerClick: true,
-      onCreateMarker: true,
     };
   }
 

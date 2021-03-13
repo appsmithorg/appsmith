@@ -1,21 +1,29 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -25,23 +33,34 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
+import java.sql.Array;
 import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 public class PostgresPlugin extends BasePlugin {
 
@@ -55,7 +74,7 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final int MAXIMUM_POOL_SIZE = 5;
 
-    private static final long LEAK_DETECTION_TIME_MS = 60*1000;
+    private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -68,61 +87,119 @@ public class PostgresPlugin extends BasePlugin {
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +
-                "       t1.typname                                                     as column_type,\n" +
-                "       case when a.atthasdef then pg_get_expr(d.adbin, d.adrelid) end as default_expr,\n" +
-                "       c.relkind                                                      as kind,\n" +
-                "       c.relname                                                      as table_name,\n" +
-                "       n.nspname                                                      as schema_name\n" +
-                "from pg_catalog.pg_attribute a\n" +
-                "         left join pg_catalog.pg_type t1 on t1.oid = a.atttypid\n" +
-                "         inner join pg_catalog.pg_class c on a.attrelid = c.oid\n" +
-                "         left join pg_catalog.pg_namespace n on c.relnamespace = n.oid\n" +
-                "         left join pg_catalog.pg_attrdef d on d.adrelid = c.oid and d.adnum = a.attnum\n" +
-                "where a.attnum > 0\n" +
-                "  and not a.attisdropped\n" +
-                "  and n.nspname not in ('information_schema', 'pg_catalog')\n" +
-                "  and c.relkind in ('r', 'v')\n" +
-                "  and pg_catalog.pg_table_is_visible(a.attrelid)\n" +
-                "order by c.relname, a.attnum;";
+                        "       t1.typname                                                     as column_type,\n" +
+                        "       case when a.atthasdef then pg_get_expr(d.adbin, d.adrelid) end as default_expr,\n" +
+                        "       c.relkind                                                      as kind,\n" +
+                        "       c.relname                                                      as table_name,\n" +
+                        "       n.nspname                                                      as schema_name\n" +
+                        "from pg_catalog.pg_attribute a\n" +
+                        "         left join pg_catalog.pg_type t1 on t1.oid = a.atttypid\n" +
+                        "         inner join pg_catalog.pg_class c on a.attrelid = c.oid\n" +
+                        "         left join pg_catalog.pg_namespace n on c.relnamespace = n.oid\n" +
+                        "         left join pg_catalog.pg_attrdef d on d.adrelid = c.oid and d.adnum = a.attnum\n" +
+                        "where a.attnum > 0\n" +
+                        "  and not a.attisdropped\n" +
+                        "  and n.nspname not in ('information_schema', 'pg_catalog')\n" +
+                        "  and c.relkind in ('r', 'v')\n" +
+                        "  and pg_catalog.pg_table_is_visible(a.attrelid)\n" +
+                        "order by c.relname, a.attnum;";
 
         public static final String KEYS_QUERY =
                 "select c.conname                                         as constraint_name,\n" +
-                "       c.contype                                         as constraint_type,\n" +
-                "       sch.nspname                                       as self_schema,\n" +
-                "       tbl.relname                                       as self_table,\n" +
-                "       array_agg(col.attname order by u.attposition)     as self_columns,\n" +
-                "       f_sch.nspname                                     as foreign_schema,\n" +
-                "       f_tbl.relname                                     as foreign_table,\n" +
-                "       array_agg(f_col.attname order by f_u.attposition) as foreign_columns,\n" +
-                "       pg_get_constraintdef(c.oid)                       as definition\n" +
-                "from pg_constraint c\n" +
-                "         left join lateral unnest(c.conkey) with ordinality as u(attnum, attposition) on true\n" +
-                "         left join lateral unnest(c.confkey) with ordinality as f_u(attnum, attposition)\n" +
-                "                   on f_u.attposition = u.attposition\n" +
-                "         join pg_class tbl on tbl.oid = c.conrelid\n" +
-                "         join pg_namespace sch on sch.oid = tbl.relnamespace\n" +
-                "         left join pg_attribute col on (col.attrelid = tbl.oid and col.attnum = u.attnum)\n" +
-                "         left join pg_class f_tbl on f_tbl.oid = c.confrelid\n" +
-                "         left join pg_namespace f_sch on f_sch.oid = f_tbl.relnamespace\n" +
-                "         left join pg_attribute f_col on (f_col.attrelid = f_tbl.oid and f_col.attnum = f_u.attnum)\n" +
-                "group by constraint_name, constraint_type, self_schema, self_table, definition, foreign_schema, foreign_table\n" +
-                "order by self_schema, self_table;";
+                        "       c.contype                                         as constraint_type,\n" +
+                        "       sch.nspname                                       as self_schema,\n" +
+                        "       tbl.relname                                       as self_table,\n" +
+                        "       array_agg(col.attname order by u.attposition)     as self_columns,\n" +
+                        "       f_sch.nspname                                     as foreign_schema,\n" +
+                        "       f_tbl.relname                                     as foreign_table,\n" +
+                        "       array_agg(f_col.attname order by f_u.attposition) as foreign_columns,\n" +
+                        "       pg_get_constraintdef(c.oid)                       as definition\n" +
+                        "from pg_constraint c\n" +
+                        "         left join lateral unnest(c.conkey) with ordinality as u(attnum, attposition) on true\n" +
+                        "         left join lateral unnest(c.confkey) with ordinality as f_u(attnum, attposition)\n" +
+                        "                   on f_u.attposition = u.attposition\n" +
+                        "         join pg_class tbl on tbl.oid = c.conrelid\n" +
+                        "         join pg_namespace sch on sch.oid = tbl.relnamespace\n" +
+                        "         left join pg_attribute col on (col.attrelid = tbl.oid and col.attnum = u.attnum)\n" +
+                        "         left join pg_class f_tbl on f_tbl.oid = c.confrelid\n" +
+                        "         left join pg_namespace f_sch on f_sch.oid = f_tbl.relnamespace\n" +
+                        "         left join pg_attribute f_col on (f_col.attrelid = f_tbl.oid and f_col.attnum = f_u.attnum)\n" +
+                        "group by constraint_name, constraint_type, self_schema, self_table, definition, foreign_schema, foreign_table\n" +
+                        "order by self_schema, self_table;";
 
+        private static final int PREPARED_STATEMENT_INDEX = 0;
+
+        /**
+         * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
+         * to use PreparedStatement (if configured) which requires the variable substitution, etc. to happen in a particular format
+         * supported by PreparedStatement. In case of PreparedStatement turned off, the action and datasource configurations are
+         * prepared (binding replacement) using PluginExecutor.variableSubstitution
+         *
+         * @param connection              : This is the connection that is established to the data source. This connection is according
+         *                                to the parameters in Datasource Configuration
+         * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
+         *                                which would be used for substitution
+         * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
+         * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
+         * @return
+         */
         @Override
-        public Mono<ActionExecutionResult> execute(HikariDataSource connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> executeParameterized(HikariDataSource connection,
+                                                                ExecuteActionDTO executeActionDTO,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
+
+            String query = actionConfiguration.getBody();
+            // Check for query parameter before performing the probably expensive fetch connection from the pool op.
+            if (query == null) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
+                        "parameter: Query."));
+            }
+
+            Boolean isPreparedStatement;
+
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
+                /**
+                 * TODO :
+                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
+                 * is no longer in beta.
+                 */
+                isPreparedStatement = false;
+            } else {
+                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+            }
+
+            // In case of non prepared statement, simply do binding replacement and execute
+            if (FALSE.equals(isPreparedStatement)) {
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+                return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
+            }
+
+            //Prepared Statement
+            // First extract all the bindings in order
+            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+            // Replace all the bindings with a ? as expected in a prepared statement.
+            String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            actionConfiguration.setBody(updatedQuery);
+            return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
+        }
+
+        private Mono<ActionExecutionResult> executeCommon(HikariDataSource connection,
+                                                          DatasourceConfiguration datasourceConfiguration,
+                                                          ActionConfiguration actionConfiguration,
+                                                          Boolean preparedStatement,
+                                                          List<String> mustacheValuesInOrder,
+                                                          ExecuteActionDTO executeActionDTO) {
+
+            final Map<String, Object> requestData = new HashMap<>();
+            requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
+
+            String query = actionConfiguration.getBody();
 
             return Mono.fromCallable(() -> {
 
-                String query = actionConfiguration.getBody();
-                // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-                if (query == null) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
-                            "parameter: Query."));
-                }
-
-                Connection connectionFromPool = null;
+                Connection connectionFromPool;
 
                 try {
                     connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
@@ -138,6 +215,8 @@ public class PostgresPlugin extends BasePlugin {
 
                 Statement statement = null;
                 ResultSet resultSet = null;
+                PreparedStatement preparedQuery = null;
+                boolean isResultSet;
 
                 HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
 
@@ -150,13 +229,47 @@ public class PostgresPlugin extends BasePlugin {
                         "] Hikari Pool stats : active - " + activeConnections +
                         ", idle - " + idleConnections +
                         ", awaiting - " + threadsAwaitingConnection +
-                        ", total - " + totalConnections );
+                        ", total - " + totalConnections);
                 try {
-                    statement = connectionFromPool.createStatement();
-                    boolean isResultSet = statement.execute(query);
-
-                    if (isResultSet) {
+                    if (FALSE.equals(preparedStatement)) {
+                        statement = connectionFromPool.createStatement();
+                        isResultSet = statement.execute(query);
                         resultSet = statement.getResultSet();
+                    } else {
+                        preparedQuery = connectionFromPool.prepareStatement(query);
+                        if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
+
+                            List<Param> params = executeActionDTO.getParams();
+                            List<String> parameters = new ArrayList<>();
+
+                            for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
+                                String key = mustacheValuesInOrder.get(i);
+                                Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
+
+                                // If the evaluated value of the mustache binding is present, set it in the prepared statement
+                                if (matchingParam.isPresent()) {
+                                    String value = matchingParam.get().getValue();
+                                    parameters.add(value);
+                                    preparedQuery = setValueInPreparedStatement(i + 1, key,
+                                            value, preparedQuery, connectionFromPool);
+                                }
+                            }
+                            requestData.put("parameters", parameters);
+                        }
+                        isResultSet = preparedQuery.execute();
+                        resultSet = preparedQuery.getResultSet();
+                    }
+
+                    if (!isResultSet) {
+
+                        Object updateCount = FALSE.equals(preparedStatement) ?
+                                ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0) :
+                                ObjectUtils.defaultIfNull(preparedQuery.getUpdateCount(), 0);
+
+                        rowsList.add(Map.of("affectedRows", updateCount));
+
+                    } else {
+
                         ResultSetMetaData metaData = resultSet.getMetaData();
                         int colCount = metaData.getColumnCount();
 
@@ -206,13 +319,6 @@ public class PostgresPlugin extends BasePlugin {
 
                             rowsList.add(row);
                         }
-
-                    } else {
-                        rowsList.add(Map.of(
-                                "affectedRows",
-                                ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0))
-                        );
-
                     }
 
                 } catch (SQLException e) {
@@ -226,7 +332,7 @@ public class PostgresPlugin extends BasePlugin {
                     System.out.println(Thread.currentThread().getName() + ": After executing postgres query, Hikari Pool stats active - " + activeConnections +
                             ", idle - " + idleConnections +
                             ", awaiting - " + threadsAwaitingConnection +
-                            ", total - " + totalConnections );
+                            ", total - " + totalConnections);
                     if (resultSet != null) {
                         try {
                             resultSet.close();
@@ -239,6 +345,15 @@ public class PostgresPlugin extends BasePlugin {
                     if (statement != null) {
                         try {
                             statement.close();
+                        } catch (SQLException e) {
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Execute Error closing Postgres Statement" + e.getMessage());
+                        }
+                    }
+
+                    if (preparedQuery != null) {
+                        try {
+                            preparedQuery.close();
                         } catch (SQLException e) {
                             System.out.println(Thread.currentThread().getName() +
                                     ": Execute Error closing Postgres Statement" + e.getMessage());
@@ -264,12 +379,36 @@ public class PostgresPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
-                    .map(obj -> {
-                        ActionExecutionResult result = (ActionExecutionResult) obj;
+                    .map(obj -> (ActionExecutionResult) obj)
+                    .onErrorResume(error  -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        if (error instanceof AppsmithPluginException) {
+                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
+                        result.setBody(error.getMessage());
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setQuery(query);
+                        request.setProperties(requestData);
+                        ActionExecutionResult result = actionExecutionResult;
+                        result.setRequest(request);
                         return result;
                     })
                     .subscribeOn(scheduler);
 
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> execute(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+            // Unused function
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
 
         @Override
@@ -380,7 +519,7 @@ public class PostgresPlugin extends BasePlugin {
                         " Hikari Pool stats : active - " + activeConnections +
                         ", idle - " + idleConnections +
                         ", awaiting - " + threadsAwaitingConnection +
-                        ", total - " + totalConnections );
+                        ", total - " + totalConnections);
 
                 // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
                 try (Statement statement = connectionFromPool.createStatement()) {
@@ -523,7 +662,7 @@ public class PostgresPlugin extends BasePlugin {
                     System.out.println(Thread.currentThread().getName() + ": After postgres db structure, Hikari Pool stats active - " + activeConnections +
                             ", idle - " + idleConnections +
                             ", awaiting - " + threadsAwaitingConnection +
-                            ", total - " + totalConnections );
+                            ", total - " + totalConnections);
 
                     if (connectionFromPool != null) {
                         try {
@@ -550,6 +689,7 @@ public class PostgresPlugin extends BasePlugin {
 
     /**
      * This function is blocking in nature which connects to the database and creates a connection pool
+     *
      * @param datasourceConfiguration
      * @return connection pool
      */
@@ -613,6 +753,7 @@ public class PostgresPlugin extends BasePlugin {
     /**
      * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
      * In case a connection is not available in the pool, SQL Exception is thrown
+     *
      * @param connectionPool
      * @return SQL Connection
      */
@@ -643,6 +784,112 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         return connection;
+    }
+
+    private static PreparedStatement setValueInPreparedStatement(int index,
+                                                                String binding,
+                                                                String value,
+                                                                PreparedStatement preparedStatement,
+                                                                Connection connection) throws AppsmithPluginException {
+        DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+
+        try {
+            switch (valueType) {
+                case NULL: {
+                    preparedStatement.setNull(index, Types.NULL);
+                    break;
+                }
+                case BINARY: {
+                    preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
+                    break;
+                }
+                case BYTES: {
+                    preparedStatement.setBytes(index, value.getBytes("UTF-8"));
+                    break;
+                }
+                case INTEGER: {
+                    preparedStatement.setInt(index, Integer.parseInt(value));
+                    break;
+                }
+                case LONG: {
+                    preparedStatement.setLong(index, Long.parseLong(value));
+                    break;
+                }
+                case FLOAT: {
+                    preparedStatement.setFloat(index, Float.parseFloat(value));
+                    break;
+                }
+                case DOUBLE: {
+                    preparedStatement.setDouble(index, Double.parseDouble(value));
+                    break;
+                }
+                case BOOLEAN: {
+                    preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+                    break;
+                }
+                case DATE: {
+                    preparedStatement.setDate(index, Date.valueOf(value));
+                    break;
+                }
+                case TIME: {
+                    preparedStatement.setTime(index, Time.valueOf(value));
+                    break;
+                }
+                case ARRAY: {
+                    List arrayListFromInput = objectMapper.readValue(value, List.class);
+                    if (arrayListFromInput.isEmpty()) {
+                        break;
+                    }
+                    // Find the type of the entries in the list
+                    Object firstEntry = arrayListFromInput.get(0);
+                    DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter((String.valueOf(firstEntry)));
+                    String typeName = toPostgresqlPrimitiveTypeName(dataType);
+
+                    // Create the Sql Array and set it.
+                    Array inputArray = connection.createArrayOf(typeName, arrayListFromInput.toArray());
+                    preparedStatement.setArray(index, inputArray);
+                    break;
+                }
+                case STRING: {
+                    preparedStatement.setString(index, value);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+        } catch (SQLException | IllegalArgumentException | IOException e) {
+            String message = "Query preparation failed while inserting value: "
+                    + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+        }
+
+        return preparedStatement;
+    }
+
+    private static String toPostgresqlPrimitiveTypeName(DataType type) {
+        switch (type) {
+            case LONG:
+                return "int8";
+            case INTEGER:
+                return "int4";
+            case FLOAT:
+                return "decimal";
+            case STRING:
+                return "varchar";
+            case BOOLEAN:
+                return "bool";
+            case DATE:
+                return "date";
+            case TIME:
+                return "time";
+            case DOUBLE:
+                return "float8";
+            case ARRAY:
+                throw new IllegalArgumentException("Array of Array datatype is not supported.");
+            default:
+                throw new IllegalArgumentException("Unable to map the computed data type to primitive Postgresql type");
+        }
     }
 
 }

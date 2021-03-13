@@ -11,6 +11,7 @@ import { Action } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -99,6 +100,10 @@ export const getPluginForm = (state: AppState, pluginId: string): any[] => {
 
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.editorConfigs[pluginId];
+};
+
+export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
+  return state.entities.plugins.settingConfigs[pluginId];
 };
 
 export const getActions = (state: AppState): ActionDataState =>
@@ -279,3 +284,52 @@ export const getAppData = (state: AppState) => state.entities.app;
 
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
+
+const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
+
+export const getAllWidgetsMap = createSelector(
+  getPageWidgets,
+  (widgetsByPage) => {
+    return Object.entries(widgetsByPage).reduce(
+      (res: any, [pageId, pageWidgets]: any) => {
+        const widgetsMap = Object.entries(pageWidgets).reduce(
+          (res, [widgetId, widget]: any) => {
+            let parentModalId;
+            let { parentId } = widget;
+            let parentWidget = pageWidgets[parentId];
+            while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
+              if (parentWidget?.type === "MODAL_WIDGET") {
+                parentModalId = parentId;
+                break;
+              }
+              parentId = parentWidget?.parentId;
+              parentWidget = pageWidgets[parentId];
+            }
+
+            return {
+              ...res,
+              [widgetId]: { ...widget, pageId, parentModalId },
+            };
+          },
+          {},
+        );
+
+        return {
+          ...res,
+          ...widgetsMap,
+        };
+      },
+      {},
+    );
+  },
+);
+
+export const getAllPageWidgets = createSelector(
+  getAllWidgetsMap,
+  (widgetsMap) => {
+    return Object.entries(widgetsMap).reduce(
+      (res: any[], [, widget]: any) => [...res, widget],
+      [],
+    );
+  },
+);

@@ -4,6 +4,7 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -27,5 +28,7 @@ public interface UserService extends CrudService<User, String> {
     Mono<User> userCreate(User user);
 
     Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader);
+
+    Mono<User> updateCurrentUser(User updates, ServerWebExchange exchange);
 
 }

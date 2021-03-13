@@ -7,7 +7,6 @@ import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
 import { ErrorReduxState } from "./uiReducers/errorReducer";
 import { ActionDataState } from "./entityReducers/actionsReducer";
-import { PropertyPaneConfigState } from "./entityReducers/propertyPaneConfigReducer";
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
 import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 import { WidgetSidebarReduxState } from "./uiReducers/widgetSidebarReducer";
@@ -31,7 +30,7 @@ import { ImportReduxState } from "reducers/uiReducers/importReducer";
 import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
-import { PageCanvasStructureReduxState } from "./uiReducers/pageCanvasStructure";
+import { PageCanvasStructureReduxState } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
@@ -39,6 +38,7 @@ import { EvaluatedTreeState } from "./evaluationReducers/treeReducer";
 import { EvaluationDependencyState } from "./evaluationReducers/dependencyReducer";
 import { PageWidgetsReduxState } from "./uiReducers/pageWidgetsReducer";
 import { OnboardingState } from "./uiReducers/onBoardingReducer";
+import { GlobalSearchReduxState } from "./uiReducers/globalSearchReducer";
 import { ReleasesState } from "./uiReducers/releasesReducer";
 import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
 
@@ -78,12 +78,12 @@ export interface AppState {
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
+    globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
     actions: ActionDataState;
-    propertyConfig: PropertyPaneConfigState;
     widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;
     pageList: PageListReduxState;

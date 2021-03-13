@@ -36,6 +36,11 @@ import { getDefaultPageId } from "./selectors";
 import { populatePageDSLsSaga } from "./PageSagas";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
+import {
+  restoreRecentEntitiesRequest,
+  resetRecentEntities,
+} from "actions/globalSearchActions";
+import { resetEditorSuccess } from "actions/initActions";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -51,6 +56,8 @@ function* initializeEditorSaga(
       put(fetchPage(pageId)),
       put(fetchApplication(applicationId, APP_MODE.EDIT)),
     ]);
+
+    yield put(restoreRecentEntitiesRequest(applicationId));
 
     const resultOfPrimaryCalls = yield race({
       success: all([
@@ -218,6 +225,11 @@ export function* initializeAppViewerSaga(
   }
 }
 
+function* resetEditorSaga() {
+  yield put(resetEditorSuccess());
+  yield put(resetRecentEntities());
+}
+
 export default function* watchInitSagas() {
   yield all([
     takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initializeEditorSaga),
@@ -225,5 +237,6 @@ export default function* watchInitSagas() {
       ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
       initializeAppViewerSaga,
     ),
+    takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
   ]);
 }

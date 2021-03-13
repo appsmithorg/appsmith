@@ -27,7 +27,7 @@ import {
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import { getPageList } from "selectors/editorSelectors";
+import { getViewModePageList } from "selectors/editorSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -101,6 +101,11 @@ class AppViewer extends Component<
                 exact
                 component={AppViewerPageContainer}
               />
+              <SentryRoute
+                path={`${getApplicationViewerPageURL()}/fork`}
+                component={AppViewerPageContainer}
+                exact
+              />
             </Switch>
           )}
         </AppViewerBody>
@@ -111,7 +116,7 @@ class AppViewer extends Component<
 
 const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
-  pages: getPageList(state),
+  pages: getViewModePageList(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
