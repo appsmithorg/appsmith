@@ -109,7 +109,6 @@ export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
 export const ERROR_403 = () =>
   `Permission Denied. Please contact your admin to gain access.`;
-export const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type"; // TODO: Lot's of changes in validations.ts file
 export const URL_HTTP_VALIDATION_ERROR = () => `Please enter a valid URL`;
 export const NAVIGATE_TO_VALIDATION_ERROR = () =>
   `Please enter a valid URL or page name`;
