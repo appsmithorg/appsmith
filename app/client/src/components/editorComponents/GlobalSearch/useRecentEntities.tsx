@@ -10,7 +10,8 @@ const recentEntitiesSelector = (state: AppState) =>
 
 const useResentEntities = () => {
   const widgetsMap = useSelector(getAllWidgetsMap);
-  const recentEntities = useSelector(recentEntitiesSelector);
+  let recentEntities = useSelector(recentEntitiesSelector);
+  recentEntities = recentEntities.slice(1);
   const actions = useSelector(getActions);
   const reducerDatasources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
