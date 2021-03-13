@@ -78,7 +78,6 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "constants/messages";
-import { getEditorConfig } from "selectors/entitiesSelector";
 import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
