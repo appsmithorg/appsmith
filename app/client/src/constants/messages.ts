@@ -270,3 +270,10 @@ export const OMNIBAR_PLACEHOLDER = () =>
   "Search Widgets, Queries, Documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "Search you must meaningful but";
+
+export const WIDGET_BIND_HELP = () =>
+  "Having trouble taking inputs from widgets?";
+
+export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
+
+export const PAGE_NOT_FOUND = () => "Page Not Found";
