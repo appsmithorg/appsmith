@@ -413,8 +413,8 @@ export const TableIconWrapper = styled.div<{
 
 export const SortIconWrapper = styled.div`
   display: inline-block;
-  height: 38px;
-  line-height: 38px;
+  height: 32px;
+  line-height: 32px;
 `;
 
 export const RenderOptionWrapper = styled.div<{ selected: boolean }>`

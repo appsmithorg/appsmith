@@ -32,27 +32,27 @@ export default {
   getPageSize: (props) => {
     const TABLE_SIZES = {
       DEFAULT: {
-        COLUMN_HEADER_HEIGHT: 38,
-        TABLE_HEADER_HEIGHT: 42,
+        COLUMN_HEADER_HEIGHT: 32,
+        TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 40,
         ROW_FONT_SIZE: 14,
       },
       SHORT: {
-        COLUMN_HEADER_HEIGHT: 38,
-        TABLE_HEADER_HEIGHT: 42,
+        COLUMN_HEADER_HEIGHT: 32,
+        TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 20,
         ROW_FONT_SIZE: 12,
       },
       TALL: {
-        COLUMN_HEADER_HEIGHT: 38,
-        TABLE_HEADER_HEIGHT: 42,
+        COLUMN_HEADER_HEIGHT: 32,
+        TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 60,
         ROW_FONT_SIZE: 18,
       },
     };
     const compactMode = props.compactMode || "DEFAULT";
     const componentHeight =
-      (props.bottomRow - props.topRow) * props.parentRowSpace;
+      (props.bottomRow - props.topRow) * props.parentRowSpace - 10;
     const tableSizes = TABLE_SIZES[compactMode];
     let pageSize = Math.floor(
       (componentHeight -
