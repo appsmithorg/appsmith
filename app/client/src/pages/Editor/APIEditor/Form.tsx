@@ -40,6 +40,7 @@ import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
+import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
 
 const Form = styled.form`
   display: flex;
@@ -330,7 +331,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                     {apiBindHelpSectionVisible && (
                       <HelpSection>
                         <Callout
-                          text="Having trouble taking inputs from widgets?"
+                          text={createMessage(WIDGET_BIND_HELP)}
                           label={
                             <CalloutContent>
                               <Link

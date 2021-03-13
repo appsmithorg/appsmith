@@ -4,6 +4,7 @@ import styled, { withTheme } from "styled-components";
 import Text, { TextType } from "./Text";
 import {
   ERROR_MESSAGE_NAME_EMPTY,
+  createMessage,
   FORM_VALIDATION_INVALID_EMAIL,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
@@ -24,7 +25,7 @@ export function emailValidator(email: string) {
   }
   return {
     isValid: isValid,
-    message: !isValid ? FORM_VALIDATION_INVALID_EMAIL : "",
+    message: !isValid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : "",
   };
 }
 
@@ -32,7 +33,7 @@ export function notEmptyValidator(value: string) {
   const isValid = !!value;
   return {
     isValid: isValid,
-    message: !isValid ? ERROR_MESSAGE_NAME_EMPTY : "",
+    message: !isValid ? createMessage(ERROR_MESSAGE_NAME_EMPTY) : "",
   };
 }
 

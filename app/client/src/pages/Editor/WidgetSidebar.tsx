@@ -14,7 +14,7 @@ import { Colors } from "constants/Colors";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
-import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
+import { createMessage, WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
@@ -153,7 +153,7 @@ const WidgetSidebar = (props: IPanelProps) => {
       <MainWrapper>
         <Header>
           <Info>
-            <p>{WIDGET_SIDEBAR_CAPTION}</p>
+            <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
           </Info>
           <CloseIcon
             className="t--close-widgets-sidebar"

@@ -18,8 +18,9 @@ import _, {
   toString,
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
-import { WIDGET_TYPE_VALIDATION_ERROR } from "../constants/messages";
 import moment from "moment";
+
+const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type"; // TODO: Lot's of changes in validations.ts file
 
 export const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.TEXT]: (value: any): ValidationResponse => {

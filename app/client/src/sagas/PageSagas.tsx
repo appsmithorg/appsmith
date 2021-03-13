@@ -76,6 +76,7 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import log from "loglevel";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -210,7 +211,7 @@ export function* fetchPageSaga(
       );
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -291,7 +292,7 @@ export function* fetchAllPublishedPagesSaga() {
       }),
     );
   } catch (error) {
-    console.log({ error });
+    log.error({ error });
   }
 }
 
