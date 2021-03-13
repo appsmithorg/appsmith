@@ -2,9 +2,7 @@ export function createMessage(
   format: (...strArgs: any[]) => string,
   ...args: any[]
 ) {
-  const message = format(...args);
-  console.log("*** Formatted message: ", message);
-  return message;
+  return format(...args);
 }
 
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
