@@ -109,7 +109,7 @@ export const useDefaultDocumentationResults = () => {
           const response = await fetch(doc.link);
           let document = await response.text();
           const assetRegex = new RegExp("[../]*?/.gitbook", "g");
-          document = document.replaceAll(assetRegex, githubDocsAssetsPath);
+          document = document.replace(assetRegex, githubDocsAssetsPath);
           return {
             _highlightResult: {
               document: {
