@@ -540,6 +540,7 @@ export default [
           "Bind the Table.pageNo property in your API and call it onPageChange",
         propertyName: "serverSidePaginationEnabled",
         label: "Server Side Pagination",
+        isJSConvertible: true,
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
@@ -612,6 +613,7 @@ export default [
         updateHook: updateColumnStyles,
         isBindProperty: false,
         isTriggerProperty: false,
+        isJSConvertible: true,
       },
       {
         propertyName: "textColor",
@@ -620,12 +622,14 @@ export default [
         updateHook: updateColumnStyles,
         isBindProperty: false,
         isTriggerProperty: false,
+        isJSConvertible: true,
       },
       {
         propertyName: "textSize",
         label: "Text Size",
         controlType: "DROP_DOWN",
         updateHook: updateColumnStyles,
+        isJSConvertible: true,
         options: [
           {
             label: "Heading 1",
@@ -666,6 +670,7 @@ export default [
         label: "Font Style",
         controlType: "BUTTON_TABS",
         updateHook: updateColumnStyles,
+        isJSConvertible: true,
         options: [
           {
             icon: "BOLD_FONT",
@@ -684,6 +689,7 @@ export default [
         label: "Text Align",
         controlType: "ICON_TABS",
         updateHook: updateColumnStyles,
+        isJSConvertible: true,
         options: [
           {
             icon: "LEFT_ALIGN",
@@ -707,6 +713,7 @@ export default [
         label: "Vertical Alignment",
         controlType: "ICON_TABS",
         updateHook: updateColumnStyles,
+        isJSConvertible: true,
         options: [
           {
             icon: "VERTICAL_TOP",
