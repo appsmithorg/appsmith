@@ -171,6 +171,10 @@ export default [
                       value: "text",
                     },
                     {
+                      label: "URL",
+                      value: "url",
+                    },
+                    {
                       label: "Number",
                       value: "number",
                     },

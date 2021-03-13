@@ -314,6 +314,7 @@ export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
   cellProperties?: CellLayoutProperties;
+  isHyperLink?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -343,6 +344,13 @@ export const CellWrapper = styled.div<{
   video {
     border-radius: 4px;
   }
+  ${(props) =>
+    props.isHyperLink &&
+    `
+    cursor: pointer;
+    &:hover {
+      color: ${Colors.ROYAL_BLUE};      
+    }`};
   &.video-cell {
     height: 100%;
     iframe {
