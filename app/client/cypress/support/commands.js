@@ -405,7 +405,7 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
   ).should("not.exist");
 });
 
-// expands all explor erentities
+// expands all explorer entities
 // todo replace all calls with expand all entities
 Cypress.Commands.add("ExpandAllExplorerEntities", () => {
   cy.get("body").then(($body) => {
@@ -419,6 +419,92 @@ Cypress.Commands.add("ExpandAllExplorerEntities", () => {
     }
   });
 });
+
+Cypress.Commands.add(
+  "ExpandEeItemByRef",
+  { prevSubject: true },
+  (subject) => {
+    cy.wrap(subject).find(explorer.expandBtn).click({ force: true });
+  },
+);
+
+Cypress.Commands.add("ExpandWidget", (widgetName) => {
+  cy.get("body").then(($body) => {
+    cy.window()
+      .its("store")
+      .invoke("getState")
+      .then((state) => {
+        const { pageWidgets } = state.ui;
+        const [widget, pageId] = Object.keys(pageWidgets).find((pageId) => {
+          const pageWidgetsMap = pageWidgets[pageId];
+          const widgetId = Object.keys(pageWidgetsMap).find((widgetId) => {
+            const widgetData = pageWidgetsMap[widgetId];
+            return widgetData.name.toLowerCase().indexOf(widgetName.toLowerCase()) !== -1;
+          });
+
+          if (widgetId) {
+            const widget = pageWidgetsMap[widgetId];
+            return [widget, pageId];
+          }
+        });
+
+        if (widget && pageId) {
+          const { pageList: { pages } } = state.entities;
+          const page = pages.find((page) => page.id === pageId);
+          if (page) {
+            cy.get(explorer.pagesGroupEntity).first().ExpandEeItemByRef();
+            cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().ExpandEeItemByRef();
+            cy.get(explorer.currentWidgetsGroupEntity).first().ExpandEeItemByRef();
+            cy.get(`${explorer.widgetEntity}:contains(${page.pageName})`).first().ExpandEeItemByRef();
+          }
+        }
+      });
+
+    // if ($body.find(`${explorer.collapse}.bp3-icon-caret-right`).length > 0) {
+    //   //evaluates as true
+    //   cy.get(`${explorer.collapse}.bp3-icon-caret-right`).click({
+    //     multiple: true,
+    //     force: true,
+    //   });
+    //   cy.ExpandAllExplorerEntities();
+    // }
+  });
+});
+
+Cypress.Commands.add("ExpandAction", (actionName) => {
+  cy.get("body").then(($body) => {
+    cy.window()
+      .its("store")
+      .invoke("getState")
+      .then((state) => {
+        const { actions } = state.entities;
+        const action = actions.find((action) => {
+          const { config } = action;
+          return config.name.toLowerCase().indexOf(actionName.toLowerCase()) !== -1;
+        });
+
+        if (action) {
+          const { config } = action;
+          const { pageId } = config;
+          const { pageList: { pages } } = state.entities;
+          const page = pages.find((page) => page.id === pageId);
+          if (page) {
+            cy.get(explorer.pagesGroupEntity).first().ExpandEeItemByRef();
+            cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().ExpandEeItemByRef();
+            if (config.pluginType === "DB") {
+              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().find(explorer.dbqueriesGroupEntity).first().ExpandEeItemByRef();
+              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().find(explorer.dbqueriesGroupEntity).find(`${actionEntity}:contains(${actionName})`);
+            } else {
+              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().find(explorer.apissGroupEntity).first().ExpandEeItemByRef();
+              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().find(explorer.apissGroupEntity).find(`${actionEntity}:contains(${actionName})`);
+            }
+          }
+        }
+      });
+  });
+});
+
+
 
 Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
   cy.xpath(apiwidget.responseStatus).should("be.visible");

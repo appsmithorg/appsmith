@@ -18,6 +18,8 @@
     "datasourceColumn": ".t--datasource-column",
     "templateMenuIcon": ".t--template-menu-trigger",
     "collapse": ".t--entity-collapse-toggle",
+    "expandBtn": ".t--entity-collapse-toggle.bp3-icon-caret-right",
+    "collapseBtn": ".t--entity-collapse-toggle.bp3-icon-caret-down",
     "property": ".language-appsmith-binding",
     "editNameField": ".editing input",
     "editEntityField": ".bp3-editable-text-input",
@@ -26,5 +28,13 @@
     "dropHere":".appsmith_widget_0",
     "closeWidgets":".t--close-widgets-sidebar",
     "addDBQueryEntity": ".dbqueries .t--entity-add-btn",
-    "editEntity": ".t--entity-name input"
+    "editEntity": ".t--entity-name input",
+    "apiGroupEntity": ".t--entity.group.apis",
+    "dbqueriesGroupEntity": ".t--entity.group.dbqueries",
+    "pagesGroupEntity": ".t--entity.group.pages",
+    "currentWidgetsGroupEntity": ".t--entity.group.widgets.current",
+    "widgetEntity": ".t--entity.widget",
+    "actionEntity": ".t--entity.action",
+    "datasourceEntity": ".t--entity.datasource",
+    "pageEntity": ".t--entity.page"
 }
