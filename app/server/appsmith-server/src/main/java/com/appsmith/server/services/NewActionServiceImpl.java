@@ -42,6 +42,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -753,10 +754,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     ));
 
                     data.putAll(Map.of(
-                            "pageId", actionDTO.getPageId(),
+                            "pageId", ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""),
                             "pageName", pageName,
-                            "isSuccessfulExecution", actionExecutionResult.getIsExecutionSuccess(),
-                            "statusCode", actionExecutionResult.getStatusCode(),
+                            "isSuccessfulExecution", ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),
+                            "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
                             "timeElapsed", timeElapsed
                     ));
 
