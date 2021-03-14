@@ -350,6 +350,7 @@ export const CellWrapper = styled.div<{
     cursor: pointer;
     &:hover {
       color: ${Colors.ROYAL_BLUE};      
+      text-decoration: underline;
     }`};
   &.video-cell {
     height: 100%;
