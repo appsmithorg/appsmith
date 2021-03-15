@@ -273,12 +273,9 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
     const columns: Record<string, ColumnProperties> =
       this.props.propertyValue || {};
     const derivedColumns = this.props.widgetProperties.derivedColumns || {};
+    const columnOrder = this.props.widgetProperties.columnOrder || [];
 
-    const originalColumn = getOriginalColumn(
-      columns,
-      index,
-      this.props.widgetProperties.columnOrder,
-    );
+    const originalColumn = getOriginalColumn(columns, index, columnOrder);
 
     if (originalColumn) {
       const propertiesToDelete = [
@@ -287,7 +284,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       if (derivedColumns[originalColumn.id])
         propertiesToDelete.push(`derivedColumns.${originalColumn.id}`);
 
-      const columnOrderIndex = this.props.widgetProperties.columnOrder.findIndex(
+      const columnOrderIndex = columnOrder.findIndex(
         (column: string) => column === originalColumn.id,
       );
       if (columnOrderIndex > -1)
