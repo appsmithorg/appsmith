@@ -2,7 +2,7 @@
  server {
     listen 80;
     server_name {{ custom_domain }};
-    client_max_body_size 10m;
+    client_max_body_size 100m;
 
     gzip on;
 
@@ -50,12 +50,12 @@
     location /oauth2 {
         proxy_pass http://appsmith-internal-server:8080;
     }
-    
+
     location /login {
         proxy_pass http://appsmith-internal-server:8080;
     }
  }
- 
+
 {{ ssl_cmt }} server {
 {{ ssl_cmt }}    listen 443 ssl;
 {{ ssl_cmt }}    server_name {{ custom_domain }};
