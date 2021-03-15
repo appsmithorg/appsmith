@@ -13,6 +13,7 @@ import styled from "styled-components";
 
 const MenuItemWrapper = styled(MenuItem)`
   z-index: 2;
+  justify-content: space-between;
   &&&& span {
     width: auto;
     font-size: 12px;

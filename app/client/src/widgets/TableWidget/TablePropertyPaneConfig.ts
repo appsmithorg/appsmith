@@ -238,6 +238,18 @@ export default [
                       value: "YYYY-MM-DDTHH:mm:ss.sssZ",
                     },
                     {
+                      label: "YYYY-MM-DDTHH:mm:ss",
+                      value: "YYYY-MM-DDTHH:mm:ss",
+                    },
+                    {
+                      label: "YYYY-MM-DD hh:mm:ss",
+                      value: "YYYY-MM-DD hh:mm:ss",
+                    },
+                    {
+                      label: "Do MMM YYYY",
+                      value: "Do MMM YYYY",
+                    },
+                    {
                       label: "DD/MM/YYYY",
                       value: "DD/MM/YYYY",
                     },
@@ -327,6 +339,18 @@ export default [
                     {
                       label: "YYYY-MM-DDTHH:mm:ss.sssZ",
                       value: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                    },
+                    {
+                      label: "YYYY-MM-DDTHH:mm:ss",
+                      value: "YYYY-MM-DDTHH:mm:ss",
+                    },
+                    {
+                      label: "YYYY-MM-DD hh:mm:ss",
+                      value: "YYYY-MM-DD hh:mm:ss",
+                    },
+                    {
+                      label: "Do MMM YYYY",
+                      value: "Do MMM YYYY",
                     },
                     {
                       label: "DD/MM/YYYY",
