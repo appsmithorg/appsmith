@@ -1,0 +1,63 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1118,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 15,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "isDisabled": false,
+        "datePickerType": "DATE_PICKER",
+        "label": "",
+        "dateFormat": "DD/MM/YYYY HH:mm",
+        "widgetName": "DatePicker1",
+        "defaultDate": "2021-03-15T10:43:21.285Z",
+        "version": 2,
+        "type": "DATE_PICKER_WIDGET2",
+        "isLoading": false,
+        "parentColumnSpace": 67.375,
+        "parentRowSpace": 40,
+        "leftColumn": 5,
+        "rightColumn": 10,
+        "topRow": 0,
+        "bottomRow": 1,
+        "parentId": "0",
+        "widgetId": "pmyus6irev"
+      },
+      {
+        "isVisible": true,
+        "label": "Label",
+        "defaultSwitchState": true,
+        "widgetName": "Switch1",
+        "alignWidget": "LEFT",
+        "version": 1,
+        "type": "SWITCH_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 67.375,
+        "parentRowSpace": 40,
+        "leftColumn": 6,
+        "rightColumn": 8,
+        "topRow": 2,
+        "bottomRow": 3,
+        "parentId": "0",
+        "widgetId": "53dyd9egae"
+      }
+    ],
+    "dynamicTriggerPathList": []
+  }
+}
