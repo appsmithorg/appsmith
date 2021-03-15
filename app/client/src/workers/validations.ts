@@ -395,9 +395,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       const isValidOption = (option: { label: any; value: any }) =>
         _.isObject(option) &&
         _.isString(option.label) &&
-        _.isString(option.value) &&
-        !_.isEmpty(option.label) &&
-        !_.isEmpty(option.value);
+        !_.isEmpty(option.label);
 
       const hasOptions = every(parsed, isValidOption);
       const validOptions = parsed.filter(isValidOption);
