@@ -76,7 +76,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
       filters: [],
-      compactMode: CompactModeTypes.DEFAULT,
     };
   }
 
@@ -800,7 +799,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -847,14 +845,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.props.updateWidgetMetaProperty("filters", filters);
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
-          updateCompactMode={(compactMode: CompactMode) => {
-            this.props.updateWidgetMetaProperty("compactMode", compactMode);
-          }}
+          updateCompactMode={this.handleCompactModeChange}
           sortTableColumn={this.handleColumnSorting}
         />
       </Suspense>
     );
   }
+
+  handleCompactModeChange = (compactMode: CompactMode) => {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("compactMode", compactMode);
+    } else {
+      this.props.updateWidgetMetaProperty("compactMode", compactMode);
+    }
+  };
 
   handleReorderColumn = (columnOrder: string[]) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
