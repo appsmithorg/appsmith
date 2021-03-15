@@ -23,24 +23,16 @@ import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
-import { ExplorerURLParams } from "../Explorer/helpers";
-import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { useHistory, useLocation, useParams } from "react-router-dom";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import Icon, { IconSize } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
+import { useParams } from "react-router-dom";
+import Icon from "components/ads/Icon";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
 import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
+import ActionHeader from "pages/common/Actions/ActionHeader";
 
 const Form = styled.form`
   display: flex;
@@ -70,16 +62,6 @@ const MainConfiguration = styled.div`
     ${(props) => props.theme.spaces[12]}px;
   background-color: ${(props) => props.theme.colors.apiPane.bg};
   height: 124px;
-`;
-
-const ActionButtons = styled.div`
-  justify-self: flex-end;
-  display: flex;
-  align-items: center;
-
-  button:last-child {
-    margin-left: ${(props) => props.theme.spaces[7]}px;
-  }
 `;
 
 const DatasourceWrapper = styled.div`
@@ -183,36 +165,6 @@ interface APIFormProps {
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
-export const NameWrapper = styled.div`
-  width: 49%;
-  display: flex;
-  align-items: center;
-  input {
-    margin: 0;
-    box-sizing: border-box;
-  }
-`;
-
-const IconContainer = styled.div`
-  width: 22px;
-  height: 22px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 16px;
-  cursor: pointer;
-  svg {
-    width: 12px;
-    height: 12px;
-    path {
-      fill: ${(props) => props.theme.colors.apiPane.closeIcon};
-    }
-  }
-  &:hover {
-    background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
-  }
-`;
-
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [
@@ -242,64 +194,24 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const history = useHistory();
-  const location = useLocation();
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
 
-  const handleClose = (e: React.MouseEvent) => {
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.CLOSE_SIDE_PANE,
-      { path: location.pathname },
-    );
-    e.stopPropagation();
-    history.replace(BUILDER_PAGE_URL(applicationId, pageId));
-  };
   const theme = EditorTheme.LIGHT;
 
   return (
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
-        <FormRow className="form-row-header">
-          <NameWrapper className="t--nameOfApi">
-            <TooltipComponent
-              minimal
-              position={Position.BOTTOM}
-              content={
-                <Text type={TextType.P3} style={{ color: "#ffffff" }}>
-                  Close
-                </Text>
-              }
-            >
-              <IconContainer onClick={handleClose}>
-                <Icon
-                  name="close-modal"
-                  size={IconSize.LARGE}
-                  className="close-modal-icon"
-                />
-              </IconContainer>
-            </TooltipComponent>
-            <ActionNameEditor page="API_PANE" />
-          </NameWrapper>
-          <ActionButtons className="t--formActionButtons">
-            <MoreActionsMenu
-              id={currentActionConfig ? currentActionConfig.id : ""}
-              name={currentActionConfig ? currentActionConfig.name : ""}
-              className="t--more-action-menu"
-              pageId={pageId}
-            />
-            <Button
-              text="Run"
-              tag="button"
-              size={Size.medium}
-              type="button"
-              onClick={() => {
-                onRunClick();
-              }}
-              isLoading={isRunning}
-              className="t--apiFormRunBtn"
-            />
-          </ActionButtons>
-        </FormRow>
+        <ActionHeader
+          isLoading={isRunning}
+          currentActionConfigId={
+            currentActionConfig ? currentActionConfig.id : ""
+          }
+          currentActionConfigName={
+            currentActionConfig ? currentActionConfig.name : ""
+          }
+          onRunClick={onRunClick}
+          actionTitle={<ActionNameEditor page="API_PANE" />}
+          runButtonClassName="t--apiFormRunBtn"
+        />
         <FormRow className="api-info-row">
           <RequestDropdownField
             placeholder="Method"

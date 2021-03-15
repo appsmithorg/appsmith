@@ -202,7 +202,11 @@ const PaneDrawer = (props: PaneDrawerProps) => {
       dispatch(closeAllModals());
     }
   }, [dispatch, props.isVisible, selectWidget, showPropertyPane, focusWidget]);
-  return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;
+  return (
+    <DrawerWrapper {...props} isAPIPath={true}>
+      {props.children}
+    </DrawerWrapper>
+  );
 };
 
 PaneDrawer.displayName = "PaneDrawer";

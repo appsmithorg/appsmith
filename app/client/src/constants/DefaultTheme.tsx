@@ -1930,6 +1930,7 @@ export const theme: Theme = {
       array: "#CDFFA5",
       number: "#FFB2B2",
     },
+    queryPaneIconBg: lightShades[2],
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
