@@ -898,6 +898,7 @@ type ColorType = {
     documentLink: string;
     helpBarBackground: string;
     helpButtonBackground: string;
+    helpIcon: string;
     helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
@@ -955,7 +956,8 @@ const globalSearch = {
   codeBackground: "#494949",
   documentLink: "#54a9fb",
   helpBarBackground: "#000",
-  helpButtonBackground: "#333333",
+  helpButtonBackground: "#000",
+  helpIcon: "#D4D4D4",
   helpBarBorder: "#404040",
   helpButtonBorder: "#404040",
   sectionTitle: "#D4D4D4",

@@ -6,7 +6,7 @@ import { SearchBoxProvided } from "react-instantsearch-core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Icon from "components/ads/Icon";
 import { AppState } from "reducers";
-import { OMNIBAR_PLACEHOLDER } from "constants/messages";
+import { createMessage, OMNIBAR_PLACEHOLDER } from "constants/messages";
 
 const Container = styled.div`
   padding: ${(props) => `0 ${props.theme.spaces[11]}px`};
@@ -71,7 +71,7 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
           onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           autoFocus
           onKeyDown={handleKeyDown}
-          placeholder={OMNIBAR_PLACEHOLDER}
+          placeholder={createMessage(OMNIBAR_PLACEHOLDER)}
           className="t--global-search-input"
         />
         {query && (
