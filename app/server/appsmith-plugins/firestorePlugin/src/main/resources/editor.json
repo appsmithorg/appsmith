@@ -51,7 +51,7 @@
         {
           "label": "Document/Collection Path",
           "configProperty": "actionConfiguration.path",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "isRequired": true,
           "initialValue": ""
         },
@@ -65,12 +65,13 @@
         {
           "label": "Order By (JSON array of field names to order by)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",
             "value": "GET_COLLECTION"
           },
+          "placeholderText": "[\"ascendingField\", \"-descendingField\", \"nestedObj.field\"]",
           "initialValue": ""
         },
         {
@@ -83,7 +84,7 @@
         {
           "label": "Start After",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",
@@ -101,7 +102,7 @@
         {
           "label": "End Before",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",
@@ -119,7 +120,7 @@
         {
           "label": "Limit Documents",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",
@@ -141,7 +142,7 @@
             {
               "label": "Where Condition: Field Path (leave empty to not apply any conditions)",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
-              "controlType": "INPUT_TEXT",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "hidden": {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_EQUALS",
@@ -211,7 +212,7 @@
             {
               "label": "Where Condition: Value",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
-              "controlType": "INPUT_TEXT",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "hidden": {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_EQUALS",

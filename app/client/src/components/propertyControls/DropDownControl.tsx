@@ -1,101 +1,44 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { Button, MenuItem } from "@blueprintjs/core";
-import { IItemRendererProps } from "@blueprintjs/select";
-import {
-  StyledDropDown,
-  StyledDropDownContainer,
-  DropdownStyles,
-} from "./StyledControls";
-import { ControlIcons, ControlIconName } from "icons/ControlIcons";
-import { DropdownOption } from "widgets/DropdownWidget";
-import styled from "styled-components";
-
-const MenuItemWrapper = styled(MenuItem)`
-  z-index: 2;
-  &&&& span {
-    width: auto;
-    font-size: 12px;
-    line-height: 20px;
-    color: #2e3d49;
-  }
-  &&&& div:first-child {
-    flex: none;
-  }
-`;
+import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
+import { DropdownOption } from "components/ads/Dropdown";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const selected: DropdownOption | undefined = this.props.options.find(
+    let defaultSelected: DropdownOption = {
+      label: "No results.",
+      value: undefined,
+    };
+
+    const selected: DropdownOption = this.props.options.find(
       (option) => option.value === this.props.propertyValue,
     );
-    const controlIconName: ControlIconName =
-      selected && selected.icon ? selected.icon : -1;
-    const ControlIcon =
-      controlIconName !== -1 ? ControlIcons[controlIconName] : null;
+
+    if (selected) {
+      defaultSelected = selected;
+    }
+
     return (
       <StyledDropDownContainer>
-        <DropdownStyles />
         <StyledDropDown
-          items={this.props.options}
-          filterable={false}
-          itemRenderer={this.renderItem}
-          onItemSelect={this.onItemSelect}
-          noResults={<MenuItem disabled={true} text="No results." />}
-          popoverProps={{
-            minimal: true,
-            usePortal: true,
-            popoverClassName: "select-popover-wrapper",
-          }}
-        >
-          <Button
-            icon={
-              selected && selected.icon && ControlIcon ? (
-                <ControlIcon width={24} height={24} />
-              ) : null
-            }
-            text={selected ? selected.label : "No Selection"}
-            rightIcon="chevron-down"
-          />
-        </StyledDropDown>
+          options={this.props.options}
+          selected={defaultSelected}
+          onSelect={this.onItemSelect}
+          width="100%"
+          showLabelOnly={true}
+          optionWidth="187px"
+        />
       </StyledDropDownContainer>
     );
   }
 
-  onItemSelect = (item: DropdownOption): void => {
-    this.updateProperty(this.props.propertyName, item.value);
-  };
-
-  renderItem = (option: DropdownOption, itemProps: IItemRendererProps) => {
-    if (!itemProps.modifiers.matchesPredicate) {
-      return null;
+  onItemSelect = (value?: string): void => {
+    if (value) {
+      this.updateProperty(this.props.propertyName, value);
     }
-    const isSelected: boolean = this.isOptionSelected(option);
-    const controlIconName: ControlIconName = option.icon ? option.icon : -1;
-    const ControlIcon =
-      controlIconName !== -1 ? ControlIcons[controlIconName] : null;
-    return (
-      <MenuItemWrapper
-        className="single-select"
-        active={isSelected}
-        key={option.value}
-        onClick={itemProps.handleClick}
-        text={option.label}
-        label={option.subText ? option.subText : undefined}
-        icon={
-          option.icon && ControlIcon ? (
-            <ControlIcon width={24} height={24} />
-          ) : (
-            undefined
-          )
-        }
-      />
-    );
-    // label={option.subText ? option.subText : undefined}
-    // icon={option.icon && ControlIcon ? <ControlIcon /> : undefined}
   };
 
-  isOptionSelected = (selectedOption: DropdownOption) => {
+  isOptionSelected = (selectedOption: any) => {
     return selectedOption.value === this.props.propertyValue;
   };
 
@@ -105,7 +48,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 }
 
 export interface DropDownControlProps extends ControlProps {
-  options: DropdownOption[];
+  options: any[];
   placeholderText: string;
   propertyValue: string;
 }

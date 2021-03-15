@@ -1,5 +1,6 @@
 import localforage from "localforage";
 import moment from "moment";
+import log from "loglevel";
 
 const STORAGE_KEYS: { [id: string]: string } = {
   AUTH_EXPIRATION: "Auth.expiration",
@@ -8,6 +9,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   DELETED_WIDGET_PREFIX: "DeletedWidget-",
   ONBOARDING_STATE: "OnboardingState",
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
+  RECENT_ENTITIES: "RecentEntities",
 };
 
 const store = localforage.createInstance({
@@ -38,7 +40,7 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
     await store.setItem(STORAGE_KEYS.COPIED_WIDGET, widgetJSON);
     return true;
   } catch (error) {
-    console.log("An error occurred when storing copied widget: ", error);
+    log.error("An error occurred when storing copied widget: ", error);
     return false;
   }
 };
@@ -52,7 +54,7 @@ export const getCopiedWidgets = async () => {
       return JSON.parse(widget);
     }
   } catch (error) {
-    console.log("An error occurred when fetching copied widget: ", error);
+    log.error("An error occurred when fetching copied widget: ", error);
     return;
   }
 };
@@ -65,7 +67,7 @@ export const saveDeletedWidgets = async (widgets: any, widgetId: string) => {
     );
     return true;
   } catch (error) {
-    console.log(
+    log.error(
       "An error occurred when temporarily storing delete widget: ",
       error,
     );
@@ -82,7 +84,7 @@ export const getDeletedWidgets = async (widgetId: string) => {
       return JSON.parse(widgets);
     }
   } catch (error) {
-    console.log("An error occurred when fetching deleted widget: ", error);
+    log.error("An error occurred when fetching deleted widget: ", error);
   }
 };
 
@@ -90,7 +92,7 @@ export const flushDeletedWidgets = async (widgetId: string) => {
   try {
     await store.removeItem(`${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`);
   } catch (error) {
-    console.log("An error occurred when flushing deleted widgets: ", error);
+    log.error("An error occurred when flushing deleted widgets: ", error);
   }
 };
 
@@ -99,7 +101,7 @@ export const setOnboardingState = async (onboardingState: boolean) => {
     await store.setItem(STORAGE_KEYS.ONBOARDING_STATE, onboardingState);
     return true;
   } catch (error) {
-    console.log("An error occurred when setting onboarding state: ", error);
+    log.error("An error occurred when setting onboarding state: ", error);
     return false;
   }
 };
@@ -109,7 +111,7 @@ export const getOnboardingState = async () => {
     const onboardingState = await store.getItem(STORAGE_KEYS.ONBOARDING_STATE);
     return onboardingState;
   } catch (error) {
-    console.log("An error occurred when getting onboarding state: ", error);
+    log.error("An error occurred when getting onboarding state: ", error);
   }
 };
 
@@ -137,5 +139,46 @@ export const getOnboardingWelcomeState = async () => {
       "An error occurred when getting onboarding welcome state: ",
       error,
     );
+  }
+};
+
+export const setRecentAppEntities = async (entities: any, appId: string) => {
+  try {
+    const recentEntities =
+      ((await store.getItem(STORAGE_KEYS.RECENT_ENTITIES)) as Record<
+        string,
+        any
+      >) || {};
+    recentEntities[appId] = entities;
+    await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
+  } catch (error) {
+    console.log("An error occurred while saving recent entities", error);
+  }
+};
+
+export const fetchRecentAppEntities = async (appId: string) => {
+  try {
+    const recentEntities = (await store.getItem(
+      STORAGE_KEYS.RECENT_ENTITIES,
+    )) as Record<string, any>;
+    return (recentEntities && recentEntities[appId]) || [];
+  } catch (error) {
+    console.log("An error occurred while fetching recent entities", error);
+  }
+};
+
+export const deleteRecentAppEntities = async (appId: string) => {
+  try {
+    const recentEntities =
+      ((await store.getItem(STORAGE_KEYS.RECENT_ENTITIES)) as Record<
+        string,
+        any
+      >) || {};
+    if (typeof recentEntities === "object") {
+      delete recentEntities[appId];
+    }
+    await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
+  } catch (error) {
+    console.log("An error occurred while saving recent entities", error);
   }
 };

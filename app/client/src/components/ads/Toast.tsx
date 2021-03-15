@@ -110,7 +110,7 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
   return (
     <ToastBody
       variant={props.variant || Variant.info}
-      isUndo={props.onUndo ? true : false}
+      isUndo={!!props.onUndo}
       dispatchableAction={props.dispatchableAction}
       className="t--toast-action"
     >

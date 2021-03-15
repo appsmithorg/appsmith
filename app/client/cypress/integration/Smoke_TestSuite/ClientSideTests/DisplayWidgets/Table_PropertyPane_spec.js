@@ -122,7 +122,7 @@ describe("Table Widget property pane feature validation", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "1", "color", "rgb(41, 204, 163)");
+    cy.readTabledataValidateCSS("1", "1", "color", "rgb(3, 179, 101)");
     cy.get(widgetsPage.toggleJsColor).click();
     cy.testCodeMirrorLast("purple");
     cy.wait("@updateLayout");
@@ -136,7 +136,7 @@ describe("Table Widget property pane feature validation", function() {
       "1",
       "1",
       "background",
-      "rgb(41, 204, 163) none repeat scroll 0% 0% / auto padding-box border-box",
+      "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
     );
     cy.get(widgetsPage.toggleJsBcgColor).click();
     cy.testCodeMirrorLast("purple");

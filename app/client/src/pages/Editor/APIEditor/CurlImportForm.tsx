@@ -96,6 +96,11 @@ const Header = styled.div`
   }
 `;
 
+const CurlLabel = styled.div`
+  font-size: 12px;
+  color: ${Colors.SLATE_GRAY};
+`;
+
 interface ReduxStateProps {
   actions: ActionDataState;
   initialValues: Record<string, unknown>;
@@ -133,12 +138,16 @@ class CurlImportForm extends React.Component<Props> {
             </span>
             <CurlContainer>
               <label className="inputLabel">{"Paste CURL Code Here"}</label>
+              <CurlLabel>
+                {
+                  "Hint: Try typing in the following curl command and then click on the 'Import' button: curl -X GET https://mock-api.appsmith.com/users"
+                }
+              </CurlLabel>
               <CurlImportFormContainer>
                 <Field
                   name="curl"
                   component="textarea"
                   className="textAreaStyles"
-                  placeholder="curl -X GET https://mock-api.appsmith.com/users"
                 />
                 <Field type="hidden" name="pageId" component="input" />
                 <Field type="hidden" name="name" component="input" />

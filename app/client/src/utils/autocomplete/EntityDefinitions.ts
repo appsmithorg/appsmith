@@ -211,7 +211,6 @@ export const entityDefinitions = {
   },
   MAP_WIDGET: {
     isVisible: isVisible,
-    mapCenter: "latLong",
     center: "latLong",
     markers: "[mapMarker]",
     selectedMarker: "mapMarker",
@@ -221,7 +220,7 @@ export const entityDefinitions = {
       "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
     "!url": "https://docs.appsmith.com/widget-reference/filepicker",
     isVisible: isVisible,
-    files: "[?]",
+    files: "[file]",
     isDisabled: "bool",
     uploadedFileUrls: "string",
   },
@@ -254,6 +253,11 @@ export const GLOBAL_DEFS = {
     title: "string",
     description: "string",
   },
+  file: {
+    data: "string",
+    name: "text",
+    type: "file",
+  },
 };
 
 export const GLOBAL_FUNCTIONS = {
@@ -284,5 +288,9 @@ export const GLOBAL_FUNCTIONS = {
   copyToClipboard: {
     "!doc": "Copy text to clipboard",
     "!type": "fn(data: string, options: object) -> void",
+  },
+  resetWidget: {
+    "!doc": "Reset widget values",
+    "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
   },
 };

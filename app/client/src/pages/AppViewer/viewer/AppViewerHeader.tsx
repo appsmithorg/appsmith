@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import styled, { ThemeProvider } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo.png";
-import { EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
+import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -13,11 +13,7 @@ import {
   ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import {
-  APPLICATIONS_URL,
-  AUTH_LOGIN_URL,
-  SIGN_UP_URL,
-} from "constants/routes";
+import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
@@ -37,6 +33,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -67,6 +64,14 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
     ${IconWrapper} path {
       fill: ${(props) => props.theme.colors.header.shareBtnHighlight};
     }
+  }
+
+  .header__application-fork-btn-wrapper {
+    height: 100%;
+  }
+
+  .header__application-fork-btn-wrapper .ads-dialog-trigger {
+    height: 100%;
   }
 
   & ${Profile} {
@@ -111,8 +116,8 @@ const ForkButton = styled(Cta)`
   svg {
     transform: rotate(-90deg);
   }
+  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
 `;
-
 const HeaderRightItemContainer = styled.div`
   display: flex;
   align-items: center;
@@ -136,7 +141,6 @@ type AppViewerHeaderProps = {
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
-  const isExampleApp = currentApplicationDetails?.appIsExample;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
@@ -155,8 +159,8 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   };
   if (hideHeader) return <HtmlTitle />;
 
-  const forkAppUrl = `${window.location.origin}${SIGN_UP_URL}?appId=${currentApplicationDetails?.id}`;
-  const loginAppUrl = `${window.location.origin}${AUTH_LOGIN_URL}?appId=${currentApplicationDetails?.id}`;
+  const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}/fork`;
+  const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
   let CTA = null;
 
@@ -166,15 +170,19 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         className="t--back-to-editor"
         href={props.url}
         icon="arrow-left"
-        text={EDIT_APP}
+        text={createMessage(EDIT_APP)}
       />
     );
-  } else if (isExampleApp) {
+  } else if (
+    currentApplicationDetails?.forkingEnabled &&
+    currentApplicationDetails?.isPublic &&
+    currentUser?.username === ANONYMOUS_USERNAME
+  ) {
     CTA = (
       <ForkButton
         className="t--fork-app"
-        href={forkAppUrl}
-        text={FORK_APP}
+        href={forkUrl}
+        text={createMessage(FORK_APP)}
         icon="fork"
       />
     );
@@ -182,7 +190,13 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
     currentApplicationDetails?.isPublic &&
     currentUser?.username === ANONYMOUS_USERNAME
   ) {
-    CTA = <Cta className="t--fork-app" href={loginAppUrl} text={SIGN_IN} />;
+    CTA = (
+      <Cta
+        className="t--sign-in"
+        href={loginUrl}
+        text={createMessage(SIGN_IN)}
+      />
+    );
   }
 
   return (
@@ -218,6 +232,15 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                   title={currentApplicationDetails.name}
                   canOutsideClickClose={true}
                 />
+                {currentUser &&
+                  currentUser.username !== ANONYMOUS_USERNAME &&
+                  currentApplicationDetails?.forkingEnabled && (
+                    <div className="header__application-fork-btn-wrapper">
+                      <ForkApplicationModal
+                        applicationId={currentApplicationDetails.id}
+                      />
+                    </div>
+                  )}
                 {CTA && (
                   <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
                 )}
@@ -226,6 +249,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
             {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
               <HeaderRightItemContainer>
                 <ProfileDropdown
+                  name={currentUser.name}
                   userName={currentUser?.username || ""}
                   hideThemeSwitch
                   modifiers={{

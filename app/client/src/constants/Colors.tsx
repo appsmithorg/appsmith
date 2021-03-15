@@ -29,6 +29,7 @@ export const Colors: Record<string, string> = {
   TUNDORA: "#404040",
   DOVE_GRAY: "#6D6D6D",
   SLATE_GRAY: "#768896",
+  SILVER_CHALICE: "#9F9F9F",
   PORCELAIN: "#EBEEF0",
   HIT_GRAY: "#A1ACB3",
   JUNGLE_MIST: "#BCCCD9",
@@ -72,6 +73,7 @@ export const Colors: Record<string, string> = {
   LIGHT_GREY: "#D4D4D4",
   Gallery: "#F0F0F0",
   Galliano: "#E0B30E",
+  ALTO2: "#E0DEDE",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

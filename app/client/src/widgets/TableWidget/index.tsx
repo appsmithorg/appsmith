@@ -76,7 +76,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
       filters: [],
-      compactMode: CompactModeTypes.DEFAULT,
     };
   }
 
@@ -208,7 +207,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: !!props.row.isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonStyle || "#29CCA3",
+              backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               columnActions: [
                 {
@@ -291,10 +290,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             switch (type) {
               case ColumnTypes.DATE:
                 let isValidDate = true;
-                let outputFormat = column.metaProperties.format;
+                let outputFormat = Array.isArray(column.metaProperties.format)
+                  ? column.metaProperties.format[row]
+                  : column.metaProperties.format;
                 let inputFormat;
                 try {
-                  const type = column.metaProperties.inputFormat;
+                  const type = Array.isArray(column.metaProperties.inputFormat)
+                    ? column.metaProperties.inputFormat[row]
+                    : column.metaProperties.inputFormat;
                   if (type !== "Epoch" && type !== "Milliseconds") {
                     inputFormat = type;
                     moment(value, inputFormat);
@@ -507,7 +510,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     | Record<string, ColumnProperties>
     | undefined => {
     const {
-      sanitizedTableData,
+      sanitizedTableData = [],
       primaryColumns = {},
       columnNameMap = {},
       columnTypeMap = {},
@@ -515,6 +518,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       hiddenColumns = [],
       migrated,
     } = this.props;
+    // Bail out if the data doesn't exist.
+    // This is a temporary measure,
+    // to solve for the scenario where the column properties are getting reset
+    // Repurcussion: The primary columns control will never go into the "no data" state.
+    if (isString(sanitizedTableData) || sanitizedTableData.length === 0) return;
 
     const previousColumnIds = Object.keys(primaryColumns);
     const tableColumns: Record<string, ColumnProperties> = {};
@@ -647,6 +655,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const { primaryColumns = {} } = this.props;
+
+    // Bail out if santizedTableData is a string. This signifies an error in evaluations
+    // Since, it is an error in evaluations, we should not attempt to process the data
+    if (isString(this.props.sanitizedTableData)) return;
+
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.sanitizedTableData) !==
@@ -695,7 +708,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         JSON.stringify(this.props.filteredTableData)
       ) {
         // Update filteredTableData meta property
-        this.props.updateWidgetMetaProperty(
+        this.props.syncUpdateWidgetMetaProperty(
           "filteredTableData",
           filteredTableData,
         );
@@ -743,12 +756,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (this.props.pageSize !== prevProps.pageSize) {
-      super.executeAction({
-        dynamicString: this.props.onPageSizeChange,
-        event: {
-          type: EventType.ON_PAGE_SIZE_CHANGE,
-        },
-      });
+      if (this.props.onPageSizeChange) {
+        super.executeAction({
+          dynamicString: this.props.onPageSizeChange,
+          event: {
+            type: EventType.ON_PAGE_SIZE_CHANGE,
+          },
+        });
+      }
     }
   }
 
@@ -784,7 +799,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -831,14 +845,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.props.updateWidgetMetaProperty("filters", filters);
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
-          updateCompactMode={(compactMode: CompactMode) => {
-            this.props.updateWidgetMetaProperty("compactMode", compactMode);
-          }}
+          updateCompactMode={this.handleCompactModeChange}
           sortTableColumn={this.handleColumnSorting}
         />
       </Suspense>
     );
   }
+
+  handleCompactModeChange = (compactMode: CompactMode) => {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("compactMode", compactMode);
+    } else {
+      this.props.updateWidgetMetaProperty("compactMode", compactMode);
+    }
+  };
 
   handleReorderColumn = (columnOrder: string[]) => {
     if (this.props.renderMode === RenderModes.CANVAS) {

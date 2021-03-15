@@ -86,9 +86,22 @@ import {
   evaluateActionBindings,
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
+import {
+  ACTION_RUN_SUCCESS,
+  createMessage,
+  ERROR_ACTION_EXECUTE_FAIL,
+  ERROR_API_EXECUTE,
+  ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
+  ERROR_WIDGET_DOWNLOAD,
+} from "constants/messages";
 import { EMPTY_RESPONSE } from "../components/editorComponents/ApiResponseView";
 
 import localStorage from "utils/localStorage";
+import { getWidgetByName } from "./selectors";
+import {
+  resetChildrenMetaProperty,
+  resetWidgetMetaProperty,
+} from "actions/metaActions";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -188,7 +201,10 @@ async function downloadSaga(
     const { data, name, type } = action;
     if (!name) {
       Toaster.show({
-        text: "Download failed. File name was not provided",
+        text: createMessage(
+          ERROR_WIDGET_DOWNLOAD,
+          "File name was not provided",
+        ),
         variant: Variant.danger,
       });
 
@@ -205,7 +221,7 @@ async function downloadSaga(
     if (event.callback) event.callback({ success: true });
   } catch (err) {
     Toaster.show({
-      text: `Download failed. ${err}`,
+      text: createMessage(ERROR_WIDGET_DOWNLOAD, err),
       variant: Variant.danger,
     });
     if (event.callback) event.callback({ success: false });
@@ -225,6 +241,30 @@ function* copySaga(
       event.callback({ success: result });
     }
   }
+}
+
+function* resetWidgetMetaByNameRecursiveSaga(
+  payload: { widgetName: string; resetChildren: boolean },
+  event: ExecuteActionPayloadEvent,
+) {
+  const fail = (msg: string) => {
+    console.error(msg);
+    if (event.callback) event.callback({ success: false });
+  };
+  if (typeof payload.widgetName !== "string") {
+    return fail("widgetName needs to be a string");
+  }
+
+  const widget = yield select(getWidgetByName, payload.widgetName);
+  if (!widget) {
+    return fail(`widget ${payload.widgetName} not found`);
+  }
+
+  yield put(resetWidgetMetaProperty(widget.widgetId));
+  if (payload.resetChildren) {
+    yield put(resetChildrenMetaProperty(widget.widgetId));
+  }
+  if (event.callback) event.callback({ success: true });
 }
 
 function* showAlertSaga(
@@ -450,7 +490,7 @@ export function* executeActionSaga(
         }
       }
       Toaster.show({
-        text: api.name + " failed to execute. Please check it's configuration",
+        text: createMessage(ERROR_API_EXECUTE, api.name),
         variant: Variant.danger,
       });
     } else {
@@ -478,6 +518,7 @@ export function* executeActionSaga(
     }
     return response;
   } catch (error) {
+    const api: Action = yield select(getAction, actionId);
     yield put(
       executeActionError({
         actionId: actionId,
@@ -489,7 +530,7 @@ export function* executeActionSaga(
       }),
     );
     Toaster.show({
-      text: "Action execution failed",
+      text: createMessage(ERROR_API_EXECUTE, api.name),
       variant: Variant.danger,
     });
     if (onError) {
@@ -543,6 +584,9 @@ function* executeActionTriggers(
       case "COPY_TO_CLIPBOARD":
         yield call(copySaga, trigger.payload, event);
         break;
+      case "RESET_WIDGET_META_RECURSIVE_BY_NAME":
+        yield call(resetWidgetMetaByNameRecursiveSaga, trigger.payload, event);
+        break;
       default:
         log.error("Trigger type unknown", trigger.type);
     }
@@ -554,6 +598,12 @@ function* executeActionTriggers(
 function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   log.debug({ dynamicString, responseData });
+
+  if (dynamicString === undefined) {
+    if (event.callback) event.callback({ success: false });
+    log.error("Executing undefined action", event);
+    return;
+  }
 
   const triggers = yield call(
     evaluateDynamicTrigger,
@@ -649,12 +699,12 @@ function* runActionSaga(
       });
       if (payload.isExecutionSuccess) {
         Toaster.show({
-          text: "Action ran successfully",
+          text: createMessage(ACTION_RUN_SUCCESS),
           variant: Variant.success,
         });
       } else {
         Toaster.show({
-          text: "Action returned an error response",
+          text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
           variant: Variant.warning,
         });
       }
@@ -808,7 +858,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     log.error(e);
 
     Toaster.show({
-      text: "Failed to load onPageLoad actions",
+      text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
       variant: Variant.danger,
     });
   }
