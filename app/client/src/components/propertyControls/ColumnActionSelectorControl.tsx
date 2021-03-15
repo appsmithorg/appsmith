@@ -7,8 +7,8 @@ import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
-import { ActionCreator } from "components/editorComponents/actioncreator/ActionCreator";
-
+import { ActionCreator } from "components/editorComponents/ActionCreator";
+import { Size, Category } from "components/ads/Button";
 export interface ColumnAction {
   label: string;
   id: string;
@@ -20,6 +20,9 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   right: 0px;
   cursor: pointer;
   top: 0px;
+  && svg path {
+    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
+  }
 `;
 
 const InputTextWrapper = styled.div`
@@ -56,6 +59,7 @@ class ColumnActionSelectorControl extends BaseControl<
                     )}
                     evaluatedValue={columnAction.label}
                     isValid={true}
+                    theme={this.props.theme}
                   />
                 </InputTextWrapper>
                 <Wrapper>
@@ -77,12 +81,15 @@ class ColumnActionSelectorControl extends BaseControl<
               </div>
             );
           })}
+
         <StyledPropertyPaneButton
-          text={"New Button"}
-          icon={"plus"}
-          color={"#FFFFFF"}
-          minimal={true}
+          icon="plus"
+          tag="button"
+          type="button"
+          text="New Button"
           onClick={this.addColumnAction}
+          size={Size.medium}
+          category={Category.tertiary}
         />
       </React.Fragment>
     );

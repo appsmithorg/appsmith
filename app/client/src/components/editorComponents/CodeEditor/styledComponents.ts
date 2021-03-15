@@ -4,12 +4,7 @@ import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  scrollbarDark,
-  scrollbarLight,
-  Skin,
-  Theme,
-} from "constants/DefaultTheme";
+import { Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 
 export const HintStyles = createGlobalStyle<{
@@ -31,8 +26,6 @@ export const HintStyles = createGlobalStyle<{
       props.editorTheme === EditorTheme.LIGHT ? "#FAFAFA" : "#262626"};
     box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
     border-radius: 0px;
-    ${(props) =>
-      props.editorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
   }
 
   .CodeMirror-hint {
@@ -255,7 +248,7 @@ export const EditorWrapper = styled.div<{
         border-radius: 0px;
         background: ${
           !props.isNotHover
-            ? Colors.WHITE_SNOW
+            ? Colors.Gallery
             : props.isFocused
             ? Colors.MERCURY
             : Colors.WHITE
@@ -435,7 +428,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         ? Colors.ALABASTER
         : "transparent"};
     .lightning-menu {
-      background: ${(props) => (!props.isNotHover ? "#716E6E" : "")};
+      background: ${(props) => (!props.isNotHover ? "#090707" : "")};
       svg {
         path,
         circle {
@@ -443,7 +436,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
             !props.isNotHover
               ? props.skin === Skin.DARK
                 ? Colors.BLUE_CHARCOAL
-                : Colors.WHITE
+                : Colors.ALTO2
               : ""};
         }
       }

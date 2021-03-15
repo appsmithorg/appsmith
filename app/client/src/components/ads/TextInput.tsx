@@ -4,6 +4,7 @@ import styled, { withTheme } from "styled-components";
 import Text, { TextType } from "./Text";
 import {
   ERROR_MESSAGE_NAME_EMPTY,
+  createMessage,
   FORM_VALIDATION_INVALID_EMAIL,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
@@ -24,7 +25,7 @@ export function emailValidator(email: string) {
   }
   return {
     isValid: isValid,
-    message: !isValid ? FORM_VALIDATION_INVALID_EMAIL : "",
+    message: !isValid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : "",
   };
 }
 
@@ -32,7 +33,7 @@ export function notEmptyValidator(value: string) {
   const isValid = !!value;
   return {
     isValid: isValid,
-    message: !isValid ? ERROR_MESSAGE_NAME_EMPTY : "",
+    message: !isValid ? createMessage(ERROR_MESSAGE_NAME_EMPTY) : "",
   };
 }
 
@@ -81,10 +82,17 @@ const boxStyles = (
 };
 
 const StyledInput = styled((props) => {
+  // we are removing non input related props before passing them in the components
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { inputStyle, inputRef, dataType, theme, ...inputProps } = props;
   return props.asyncControl ? (
-    <AsyncControllableInput {...props} />
+    <AsyncControllableInput
+      {...inputProps}
+      inputRef={inputRef}
+      dataType={dataType}
+    />
   ) : (
-    <input {...props} />
+    <input {...inputProps} />
   );
 })<TextInputProps & { inputStyle: boxReturnType; isValid: boolean }>`
   width: ${(props) => (props.fill ? "100%" : "320px")};
@@ -136,6 +144,7 @@ const InputWrapper = styled.div`
   flex-direction: column;
   align-items: flex-start;
   position: relative;
+  width: 100%;
 
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.danger.main};

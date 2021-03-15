@@ -8,11 +8,11 @@ import {
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { useSelector, useDispatch } from "react-redux";
-import TreeDropdown, { TreeDropdownOption } from "./TreeDropdown";
+import { useDispatch, useSelector } from "react-redux";
+import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
 import {
-  FieldWrapper,
   ControlWrapper,
+  FieldWrapper,
 } from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
@@ -25,11 +25,12 @@ import {
   createNewApiAction,
   createNewQueryAction,
 } from "actions/apiPaneActions";
-import { NavigationTargetType } from "../../../sagas/ActionExecutionSagas";
+import { NavigationTargetType } from "sagas/ActionExecutionSagas";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getWidgets } from "sagas/selectors";
 import { PluginType } from "entities/Action";
+import { Skin } from "constants/DefaultTheme";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -820,9 +821,16 @@ function renderField(props: {
             option.type === ActionType.api ||
             option.type === ActionType.query
           ) {
-            return <HightlightedCode codeText={`{{${option.label}.run()}}`} />;
+            return (
+              <HightlightedCode
+                codeText={`{{${option.label}.run()}}`}
+                skin={Skin.LIGHT}
+              />
+            );
           } else if (displayValue) {
-            return <HightlightedCode codeText={displayValue} />;
+            return (
+              <HightlightedCode codeText={displayValue} skin={Skin.LIGHT} />
+            );
           }
           return <span>{option.label}</span>;
         };
@@ -848,7 +856,7 @@ function renderField(props: {
       if (fieldType === FieldType.WIDGET_NAME_FIELD) {
         label = "Widget";
         options = props.widgetOptionTree;
-        defaultText = "";
+        defaultText = "Select Widget";
       }
       if (fieldType === FieldType.PAGE_SELECTOR_FIELD) {
         label = "Page Name";
@@ -1113,6 +1121,7 @@ function useApiOptionTree() {
     value: "api",
     id: "create",
     className: "t--create-api-btn",
+    icon: "plus",
     onSelect: (option: TreeDropdownOption, setter?: Function) => {
       const apiName = createNewApiName(actions, pageId);
       if (setter) {
@@ -1170,6 +1179,7 @@ function useQueryOptionTree() {
     label: "Create Query",
     value: "query",
     id: "create",
+    icon: "plus",
     className: "t--create-query-btn",
     onSelect: (option: TreeDropdownOption, setter?: Function) => {
       const queryName = createNewQueryName(queries, pageId);

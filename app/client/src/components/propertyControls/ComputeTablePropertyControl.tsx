@@ -14,14 +14,18 @@ import styled from "styled-components";
 import {
   JSToString,
   stringToJS,
-} from "components/editorComponents/actioncreator/ActionCreator";
+} from "components/editorComponents/ActionCreator";
 
+const PromptMessage = styled.span`
+  line-height: 17px;
+`;
 const CurlyBraces = styled.span`
-  color: white;
-  background-color: #f3672a;
+  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
+  background-color: #ffffff;
   border-radius: 2px;
   padding: 2px;
   margin: 0px 2px;
+  font-size: 10px;
 `;
 
 export function InputText(props: {
@@ -35,6 +39,7 @@ export function InputText(props: {
   placeholder?: string;
   dataTreePath?: string;
   additionalDynamicData: Record<string, Record<string, unknown>>;
+  theme: EditorTheme;
 }) {
   const {
     errorMessage,
@@ -46,6 +51,7 @@ export function InputText(props: {
     dataTreePath,
     evaluatedValue,
     additionalDynamicData,
+    theme,
   } = props;
   return (
     <StyledDynamicInput>
@@ -61,18 +67,18 @@ export function InputText(props: {
           error: isValid ? "" : errorMessage,
           touched: true,
         }}
-        theme={EditorTheme.DARK}
+        theme={theme}
         mode={EditorModes.TEXT_WITH_BINDING}
         tabBehaviour={TabBehaviour.INDENT}
         size={EditorSize.EXTENDED}
         placeholder={placeholder}
         additionalDynamicData={additionalDynamicData}
         promptMessage={
-          <React.Fragment>
+          <PromptMessage>
             Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
             currentRow.columnName
             <CurlyBraces>{"}}"}</CurlyBraces>
-          </React.Fragment>
+          </PromptMessage>
         }
       />
     </StyledDynamicInput>
@@ -91,6 +97,7 @@ class ComputeTablePropertyControl extends BaseControl<
       dataTreePath,
       validationMessage,
       defaultValue,
+      theme,
     } = this.props;
     const tableId = this.props.widgetProperties.widgetName;
     const value =
@@ -110,6 +117,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
     return (
       <InputText
+        theme={theme}
         label={label}
         value={value}
         onChange={this.onTextChange}

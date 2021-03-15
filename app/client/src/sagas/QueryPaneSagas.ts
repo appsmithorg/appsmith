@@ -47,6 +47,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { Datasource } from "entities/Datasource";
 import _ from "lodash";
+import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -216,15 +217,18 @@ function* handleNameChangeSuccessSaga(
   if (!actionObj) {
     // Error case, log to sentry
     Toaster.show({
-      text: "Error occured while renaming query",
+      text: createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name),
       variant: Variant.danger,
     });
 
-    Sentry.captureException(new Error("Error occured while renaming query"), {
-      extra: {
-        actionId: actionId,
+    Sentry.captureException(
+      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name)),
+      {
+        extra: {
+          actionId: actionId,
+        },
       },
-    });
+    );
     return;
   }
   if (actionObj.pluginType === PluginType.DB) {

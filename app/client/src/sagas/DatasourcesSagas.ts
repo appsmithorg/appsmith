@@ -66,6 +66,13 @@ import {
 import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
+import {
+  createMessage,
+  DATASOURCE_CREATE,
+  DATASOURCE_DELETE,
+  DATASOURCE_UPDATE,
+  DATASOURCE_VALID,
+} from "constants/messages";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -114,7 +121,7 @@ export function* deleteDatasourceSaga(
       }
 
       Toaster.show({
-        text: `${response.data.name} datasource deleted`,
+        text: createMessage(DATASOURCE_DELETE, response.data.name),
         variant: Variant.success,
       });
 
@@ -163,7 +170,7 @@ function* updateDatasourceSaga(
         datasourceName: response.data.name,
       });
       Toaster.show({
-        text: `${response.data.name} Datasource updated`,
+        text: createMessage(DATASOURCE_UPDATE, response.data.name),
         variant: Variant.success,
       });
 
@@ -343,7 +350,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           datasource: payload.name,
         });
         Toaster.show({
-          text: `${payload.name} is valid`,
+          text: createMessage(DATASOURCE_VALID, payload.name),
           variant: Variant.success,
         });
         yield put({
@@ -413,7 +420,7 @@ function* createDatasourceFromFormSaga(
         }),
       );
       Toaster.show({
-        text: `${response.data.name} Datasource created`,
+        text: createMessage(DATASOURCE_CREATE, response.data.name),
         variant: Variant.success,
       });
     }
