@@ -34,9 +34,9 @@ import Text, { TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import { scrollbarDark } from "constants/DefaultTheme";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -89,7 +89,6 @@ const UserList = styled.div`
   &&::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.theme.colors.modal.scrollbar};
   }
-  ${scrollbarDark};
 `;
 
 const User = styled.div`
@@ -199,7 +198,7 @@ const { mailEnabled } = getAppsmithConfigs();
 
 const OrgInviteUsersForm = (props: any) => {
   const [emailError, setEmailError] = useState("");
-
+  const userRef = React.createRef<HTMLDivElement>();
   const {
     handleSubmit,
     allUsers,
@@ -321,7 +320,7 @@ const OrgInviteUsersForm = (props: any) => {
                 </a>
               </MailConfigContainer>
             )}
-            <UserList style={{ justifyContent: "space-between" }}>
+            <UserList style={{ justifyContent: "space-between" }} ref={userRef}>
               {allUsersProfiles.map(
                 (user: {
                   username: string;
@@ -349,6 +348,7 @@ const OrgInviteUsersForm = (props: any) => {
                   );
                 },
               )}
+              <ScrollIndicator containerRef={userRef} mode="DARK" />
             </UserList>
           </React.Fragment>
         )}

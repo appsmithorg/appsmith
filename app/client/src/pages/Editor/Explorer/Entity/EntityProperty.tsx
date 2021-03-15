@@ -13,11 +13,12 @@ import { CurrentValueViewer } from "components/editorComponents/CodeEditor/Evalu
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
 import { Colors } from "constants/Colors";
-import { scrollbarDark, Skin } from "constants/DefaultTheme";
+import { Skin } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { EntityClassNames } from ".";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const StyledValue = styled.pre<{ step: number }>`
   & {
@@ -122,7 +123,6 @@ const Wrapper = styled.div<{ step: number }>`
 `;
 
 const StyledPopoverContent = styled.div`
-  ${scrollbarDark}
   background: black;
   max-height: 500px;
   width: 400px;
@@ -167,6 +167,7 @@ const transformedValue = (value: any) => {
 export const EntityProperty = memo((props: EntityPropertyProps) => {
   const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(propertyRef);
+  const popoverContentRef = React.createRef<HTMLDivElement>();
 
   const codeText = `{{${props.entityName}.${props.propertyName}}}`;
 
@@ -198,7 +199,7 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
         >
           {collapseIcon}
           {showPopup && (
-            <StyledPopoverContent>
+            <StyledPopoverContent ref={popoverContentRef}>
               {!isString && (
                 <CurrentValueViewer
                   theme={EditorTheme.DARK}
@@ -207,6 +208,7 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
                 />
               )}
               {isString && <pre>{props.value}</pre>}
+              <ScrollIndicator containerRef={popoverContentRef} mode="DARK" />
             </StyledPopoverContent>
           )}
         </Popover>

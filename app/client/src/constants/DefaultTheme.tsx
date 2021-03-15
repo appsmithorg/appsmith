@@ -50,77 +50,6 @@ export const hideScrollbar = css`
   }
 `;
 
-export const scrollbarDark = css<{
-  backgroundColor?: Color;
-  barColor?: Color;
-}>`
-  scrollbar-width: thin;
-
-  &::-webkit-scrollbar {
-    width: 12px;
-    height: 4px;
-    background-color: ${(props) =>
-      props.backgroundColor
-        ? props.backgroundColor
-        : getColorWithOpacity(props.theme.colors.scrollbarDarkBG, 0.5)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) =>
-      props.barColor
-        ? props.barColor
-        : getColorWithOpacity(props.theme.colors.scrollbarDark, 0.5)};
-    border-radius: ${(props) => props.theme.radii[3]}px;
-    border: 4px solid transparent;
-    background-clip: padding-box;
-  }
-
-  &::-webkit-scrollbar-button {
-    width: 0;
-    height: 0;
-    display: none;
-  }
-
-  &::-webkit-scrollbar-corner {
-    background-color: transparent;
-  }
-`;
-
-export const scrollbarLight = css<{
-  backgroundColor?: Color;
-  barColor?: Color;
-}>`
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 12px;
-    height: 4px;
-    background-color: ${(props) =>
-      props.backgroundColor
-        ? props.backgroundColor
-        : getColorWithOpacity(props.theme.colors.textOnDarkBG, 0.5)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) =>
-      props.barColor
-        ? props.barColor
-        : getColorWithOpacity(props.theme.colors.scrollbarLight, 0.5)};
-    border-radius: ${(props) => props.theme.radii[3]}px;
-    border: 4px solid transparent;
-    background-clip: padding-box;
-  }
-
-  &::-webkit-scrollbar-button {
-    width: 0;
-    height: 0;
-    display: none;
-  }
-
-  &::-webkit-scrollbar-corner {
-    background-color: transparent;
-  }
-`;
-
 export const getTypographyByKey = (props: Record<string, any>, key: string) => `
   font-weight: ${props.theme.typography[key].fontWeight};
   font-size: ${props.theme.typography[key].fontSize}px;
@@ -984,6 +913,8 @@ type ColorType = {
     multiDropdownBoxHoverBg: ShadeColor;
     iconColor: ShadeColor;
   };
+  scrollbar: string;
+  scrollbarBG: string;
 };
 
 const auth: any = {
@@ -1444,6 +1375,8 @@ export const dark: ColorType = {
     multiDropdownBoxHoverBg: darkShades[0],
     iconColor: darkShades[5],
   },
+  scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
+  scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
 };
 
 export const light: ColorType = {
@@ -1853,6 +1786,8 @@ export const light: ColorType = {
     multiDropdownBoxHoverBg: lightShades[11],
     iconColor: lightShades[5],
   },
+  scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
+  scrollbarBG: "transparent",
 };
 
 export const theme: Theme = {
@@ -2047,10 +1982,12 @@ export const theme: Theme = {
       array: "#CDFFA5",
       number: "#FFB2B2",
     },
-    scrollbarLight: Colors.CHARCOAL,
-    scrollbarDark: Colors.LIGHT_GREY,
-    scrollbarDarkBG: Colors.CODE_GRAY,
+    scrollbarLight: getColorWithOpacity(Colors.CHARCOAL, 0.5),
+    scrollbarLightBG: getColorWithOpacity(Colors.WHITE, 0.5),
+    scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
+    scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
   },
+
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
     text: FontFamilies.TextFonts,
