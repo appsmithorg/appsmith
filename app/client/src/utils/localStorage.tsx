@@ -3,6 +3,7 @@ import { Toaster } from "components/ads/Toast";
 import {
   LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE,
   LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE,
+  createMessage,
 } from "constants/messages";
 
 const getLocalStorage = () => {
@@ -18,7 +19,7 @@ const getLocalStorage = () => {
 
     if (message) {
       Toaster.show({
-        text: message,
+        text: createMessage(message),
         variant: Variant.danger,
       });
     } else {

@@ -14,6 +14,7 @@ export enum SEARCH_ITEM_TYPES {
   datasource = "datasource",
   page = "page",
   sectionTitle = "sectionTitle",
+  placeholder = "placeholder",
 }
 
 export type DocSearchItem = {
@@ -36,7 +37,8 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
   else if (
     item.kind === SEARCH_ITEM_TYPES.document ||
     item.kind === SEARCH_ITEM_TYPES.page ||
-    item.kind === SEARCH_ITEM_TYPES.sectionTitle
+    item.kind === SEARCH_ITEM_TYPES.sectionTitle ||
+    item.kind === SEARCH_ITEM_TYPES.placeholder
   )
     type = item.kind;
   else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;
@@ -59,6 +61,8 @@ export const getItemTitle = (item: SearchItem): string => {
     case SEARCH_ITEM_TYPES.page:
       return item?.pageName;
     case SEARCH_ITEM_TYPES.sectionTitle:
+      return item?.title;
+    case SEARCH_ITEM_TYPES.placeholder:
       return item?.title;
     default:
       return "";
@@ -109,7 +113,7 @@ export const useDefaultDocumentationResults = () => {
           const response = await fetch(doc.link);
           let document = await response.text();
           const assetRegex = new RegExp("[../]*?/.gitbook", "g");
-          document = document.replaceAll(assetRegex, githubDocsAssetsPath);
+          document = document.replace(assetRegex, githubDocsAssetsPath);
           return {
             _highlightResult: {
               document: {
