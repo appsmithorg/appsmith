@@ -238,10 +238,11 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
 
   const handleResizeStart = () => {
     setIsResizing && !isResizing && setIsResizing(true);
+    showPropertyPane &&
+      showPropertyPane(props.widgetId, selectedWidget === props.widgetId);
     selectWidget &&
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
-    showPropertyPane && showPropertyPane(props.widgetId, true);
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
       widgetName: props.widgetName,
       widgetType: props.type,
