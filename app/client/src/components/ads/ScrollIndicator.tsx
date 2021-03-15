@@ -7,13 +7,14 @@ const ScrollTrack = styled.div<{
   isVisible: boolean;
   top?: string;
   bottom?: string;
+  right?: string;
   mode?: "DARK" | "LIGHT";
 }>`
   position: absolute;
   z-index: 100;
   top: ${(props) => (props.top ? props.top : "0px")};
   bottom: ${(props) => (props.bottom ? props.bottom : "0px")};
-  right: 2px;
+  right: ${(props) => (props.right ? props.right : "2px")};
   width: 4px;
   box-shadow: inset 0 0 6px
     ${(props) =>
@@ -43,9 +44,10 @@ interface Props {
   containerRef: React.RefObject<HTMLElement>;
   top?: string;
   bottom?: string;
+  right?: string;
   mode?: "DARK" | "LIGHT";
 }
-const ScrollIndicator = ({ containerRef, top, bottom }: Props) => {
+const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
     config: {
@@ -102,7 +104,12 @@ const ScrollIndicator = ({ containerRef, top, bottom }: Props) => {
   }, 1500);
 
   return (
-    <ScrollTrack isVisible={isScrollVisible} top={top} bottom={bottom}>
+    <ScrollTrack
+      isVisible={isScrollVisible}
+      top={top}
+      bottom={bottom}
+      right={right}
+    >
       <ScrollThumb
         ref={thumbRef}
         style={{

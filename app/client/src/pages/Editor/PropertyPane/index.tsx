@@ -208,7 +208,11 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           }}
           showPanelHeader={false}
         />
-        <ScrollIndicator containerRef={this.panelWrapperRef} top="4px" />
+        <ScrollIndicator
+          containerRef={this.panelWrapperRef}
+          top="4px"
+          right="8px"
+        />
       </PropertyPaneWrapper>
     );
   }
