@@ -20,6 +20,7 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
   FORGOT_PASSWORD_SUCCESS_TEXT,
   FORGOT_PASSWORD_PAGE_LOGIN_LINK,
+  createMessage,
 } from "constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import FormMessage from "components/ads/formFields/FormMessage";
@@ -40,9 +41,9 @@ const { mailEnabled } = getAppsmithConfigs();
 const validate = (values: ForgotPasswordFormValues) => {
   const errors: ForgotPasswordFormValues = {};
   if (!values.email || isEmptyString(values.email)) {
-    errors.email = FORM_VALIDATION_EMPTY_EMAIL;
+    errors.email = createMessage(FORM_VALIDATION_EMPTY_EMAIL);
   } else if (!isEmail(values.email)) {
-    errors.email = FORM_VALIDATION_INVALID_EMAIL;
+    errors.email = createMessage(FORM_VALIDATION_INVALID_EMAIL);
   }
   return errors;
 };
@@ -66,7 +67,7 @@ export const ForgotPassword = withTheme(
     return (
       <>
         <AuthCardHeader>
-          <h1>{FORGOT_PASSWORD_PAGE_TITLE}</h1>
+          <h1>{createMessage(FORGOT_PASSWORD_PAGE_TITLE)}</h1>
         </AuthCardHeader>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <AuthCardNavLink to={AUTH_LOGIN_URL}>
@@ -74,14 +75,15 @@ export const ForgotPassword = withTheme(
               icon="arrow-left"
               style={{ marginRight: props.theme.spaces[3] }}
             />
-            {FORGOT_PASSWORD_PAGE_LOGIN_LINK}
+            {createMessage(FORGOT_PASSWORD_PAGE_LOGIN_LINK)}
           </AuthCardNavLink>
         </div>
         <FormMessagesContainer>
           {submitSucceeded && (
             <FormMessage
               intent="success"
-              message={`${FORGOT_PASSWORD_SUCCESS_TEXT} ${props.emailValue}`}
+              message={`${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)} 
+                ${props.emailValue}`}
             />
           )}
           {!mailEnabled && (
@@ -106,11 +108,13 @@ export const ForgotPassword = withTheme(
         <StyledForm onSubmit={handleSubmit(forgotPasswordSubmitHandler)}>
           <FormGroup
             intent={error ? "danger" : "none"}
-            label={FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL}
+            label={createMessage(FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL)}
           >
             <FormTextField
               name="email"
-              placeholder={FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER}
+              placeholder={createMessage(
+                FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER,
+              )}
               disabled={submitting}
             />
           </FormGroup>
@@ -118,7 +122,7 @@ export const ForgotPassword = withTheme(
             <Button
               tag="button"
               type="submit"
-              text={FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT}
+              text={createMessage(FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT)}
               fill
               size={Size.large}
               disabled={!isEmail(props.emailValue)}

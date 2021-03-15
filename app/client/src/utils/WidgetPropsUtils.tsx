@@ -318,6 +318,20 @@ const renamedCanvasNameConflictMigration = (
   return currentDSL;
 };
 
+const rteDefaultValueMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+): ContainerWidgetProps<WidgetProps> => {
+  if (currentDSL.type === WidgetTypes.RICH_TEXT_EDITOR_WIDGET) {
+    currentDSL.inputType = "html";
+  }
+  currentDSL.children?.forEach((children) =>
+    rteDefaultValueMigration(children),
+  );
+
+  return currentDSL;
+};
+
+// A rudimentary transform function which updates the DSL based on its version.
 function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
   if (currentDSL.type === WidgetTypes.CHART_WIDGET) {
     if (isString(currentDSL.chartData)) {
@@ -425,8 +439,13 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 14) {
-    currentDSL = migrateTextStyleFromTextWidget(currentDSL);
+    currentDSL = rteDefaultValueMigration(currentDSL);
     currentDSL.version = 15;
+  }
+
+  if (currentDSL.version === 15) {
+    currentDSL = migrateTextStyleFromTextWidget(currentDSL);
+    currentDSL.version = 16;
   }
 
   return currentDSL;
