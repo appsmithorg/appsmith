@@ -71,6 +71,7 @@ const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   font-size: 14px;
   -ms-overflow-style: none;
   white-space: pre-wrap;
+  word-break: break-all;
 `;
 
 const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
