@@ -291,10 +291,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             switch (type) {
               case ColumnTypes.DATE:
                 let isValidDate = true;
-                let outputFormat = column.metaProperties.format;
+                let outputFormat = Array.isArray(column.metaProperties.format)
+                  ? column.metaProperties.format[row]
+                  : column.metaProperties.format;
                 let inputFormat;
                 try {
-                  const type = column.metaProperties.inputFormat;
+                  const type = Array.isArray(column.metaProperties.inputFormat)
+                    ? column.metaProperties.inputFormat[row]
+                    : column.metaProperties.inputFormat;
                   if (type !== "Epoch" && type !== "Milliseconds") {
                     inputFormat = type;
                     moment(value, inputFormat);
