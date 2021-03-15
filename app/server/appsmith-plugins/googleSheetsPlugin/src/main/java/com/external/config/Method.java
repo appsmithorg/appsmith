@@ -28,7 +28,7 @@ public interface Method {
         }
     }
 
-    WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body);
+    WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body);
 
     default JsonNode transformResponse(JsonNode response, ObjectMapper objectMapper) {
         if (response == null) {

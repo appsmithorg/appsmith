@@ -30,18 +30,18 @@ import java.util.stream.StreamSupport;
 public class GetValuesMethod implements Method {
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
-        if (pluginSpecifiedTemplates.get(1).getValue() == null || pluginSpecifiedTemplates.get(1).getValue().isBlank()) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+        if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
-        if (pluginSpecifiedTemplates.get(2).getValue() == null || pluginSpecifiedTemplates.get(2).getValue().isBlank()) {
+        if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Data Range");
         }
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
-                pluginSpecifiedTemplates.get(1).getValue() /* spreadsheet Id */
+                methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + pluginSpecifiedTemplates.get(2).getValue() /* spreadsheet Range */
+                        + methodConfig.getSpreadsheetRange() /* spreadsheet Range */
         );
 
         return webClient.method(HttpMethod.GET)

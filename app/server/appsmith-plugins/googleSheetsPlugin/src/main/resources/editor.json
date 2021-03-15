@@ -19,20 +19,8 @@
           "initialValue": "GET",
           "options": [
             {
-              "label": "Get a range of values from a spreadsheet",
-              "value": "GET"
-            },
-            {
               "label": "Append a range of values to a spreadsheet",
               "value": "APPEND"
-            },
-            {
-              "label": "Update a range of values in a spreadsheet",
-              "value": "UPDATE"
-            },
-            {
-              "label": "Update multiple ranges of values in a spreadsheet",
-              "value": "BULK_UPDATE"
             },
             {
               "label": "Clear a range of values from a spreadsheet",
@@ -51,12 +39,24 @@
               "value": "DELETE"
             },
             {
-              "label": "List available spreadsheets",
-              "value": "LIST"
+              "label": "Get a range of values from a spreadsheet",
+              "value": "GET"
             },
             {
               "label": "Get spreadsheet information",
               "value": "INFO"
+            },
+            {
+              "label": "List available spreadsheets",
+              "value": "LIST"
+            },
+            {
+              "label": "Update a range of values in a spreadsheet",
+              "value": "UPDATE"
+            },
+            {
+              "label": "Update multiple ranges of values in a spreadsheet",
+              "value": "BULK_UPDATE"
             }
           ]
         },

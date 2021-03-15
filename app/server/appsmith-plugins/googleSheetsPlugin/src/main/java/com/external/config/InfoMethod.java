@@ -20,13 +20,13 @@ import java.util.List;
 public class InfoMethod implements Method {
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
-        if (pluginSpecifiedTemplates.get(1).getValue() == null || pluginSpecifiedTemplates.get(1).getValue().isBlank()) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+        if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
-                pluginSpecifiedTemplates.get(1).getValue() /* spreadsheet Id */);
+                methodConfig.getSpreadsheetId() /* spreadsheet Id */);
 
         uriBuilder.queryParam("includeGridData", Boolean.FALSE);
 

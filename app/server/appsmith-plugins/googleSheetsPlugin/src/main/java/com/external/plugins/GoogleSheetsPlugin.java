@@ -12,10 +12,10 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.Method;
+import com.external.config.MethodConfig;
 import com.external.utils.JSONUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
@@ -29,7 +29,6 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class GoogleSheetsPlugin extends BasePlugin {
@@ -72,6 +71,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
                 ));
             }
 
+            // Convert unreadable map to a DTO
+            MethodConfig methodConfig = new MethodConfig(properties);
+
             // Initializing webClient to be used for http call
             WebClient.Builder webClientBuilder = WebClient.builder();
 
@@ -100,7 +102,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Triggering the actual REST API call
             return method
                     // This method call will populate the request with all the configurations it needs for a particular method
-                    .getClient(client, actionConfiguration.getPluginSpecifiedTemplates(), requestBodyAsString)
+                    .getClient(client, methodConfig, requestBodyAsString)
                     .headers(headers -> headers.set("Authorization", "Bearer " + oauth2.getAuthenticationResponse().getToken()))
                     .exchange()
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))

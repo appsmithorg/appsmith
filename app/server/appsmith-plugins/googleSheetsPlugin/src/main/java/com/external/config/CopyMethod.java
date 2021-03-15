@@ -21,18 +21,18 @@ import java.util.List;
 public class CopyMethod implements Method {
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
-        if (pluginSpecifiedTemplates.get(1).getValue() == null || pluginSpecifiedTemplates.get(1).getValue().isBlank()) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+        if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
-        if (pluginSpecifiedTemplates.get(3).getValue() == null || pluginSpecifiedTemplates.get(3).getValue().isBlank()) {
+        if (methodConfig.getSheetId() == null || methodConfig.getSheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet Id");
         }
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
-                pluginSpecifiedTemplates.get(1).getValue() /* spreadsheet Id */
+                methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/sheets/"
-                        + pluginSpecifiedTemplates.get(3).getValue() /* sheet Id*/
+                        + methodConfig.getSheetId() /* sheet Id*/
                         + ":copyTo"
         );
 

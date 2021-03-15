@@ -18,7 +18,7 @@ import java.util.List;
 public class ListSheetsMethod implements Method {
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
                 "?q=mimeType='application/vnd.google-apps.spreadsheet'");
 
