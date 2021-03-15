@@ -48,6 +48,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       "Page",
       pages.map((page: Page) => page.pageName),
     );
+    // Default layout is extracted by adding dynamically computed properties like min-height.
     const defaultPageLayouts = [
       { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
     ];
