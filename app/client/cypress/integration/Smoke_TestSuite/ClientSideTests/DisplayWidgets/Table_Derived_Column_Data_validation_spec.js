@@ -39,7 +39,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       .first()
       .click({ force: true });
     cy.wait(1000);
-    cy.toggleJsAndUpdate("tabledata","Green");
+    cy.toggleJsAndUpdate("tabledata", "Green");
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
@@ -63,7 +63,6 @@ describe("Test Create Api and Bind to Table widget", function() {
     });
     cy.closePropertyPane();
   });
-
 
   it("Update table json data and check the column names updated", function() {
     cy.SearchEntityandOpen("Table1");
