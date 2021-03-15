@@ -405,8 +405,6 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
   ).should("not.exist");
 });
 
-// expands all explorer entities
-// todo replace all calls with expand all entities
 Cypress.Commands.add("ExpandAllExplorerEntities", () => {
   cy.get("body").then(($body) => {
     if ($body.find(`${explorer.collapse}.bp3-icon-caret-right`).length > 0) {
@@ -420,13 +418,16 @@ Cypress.Commands.add("ExpandAllExplorerEntities", () => {
   });
 });
 
-Cypress.Commands.add(
-  "ExpandEeItemByRef",
-  { prevSubject: true },
-  (subject) => {
-    cy.wrap(subject).find(explorer.expandBtn).click({ force: true });
-  },
-);
+Cypress.Commands.add("ExpandEeItemByRef", { prevSubject: true }, (subject) => {
+  cy.wrap(subject).then(($subject) => {
+    if ($subject.find(explorer.expandBtn).length > 0) {
+      cy.wrap(subject)
+        .find(explorer.expandBtn)
+        .first()
+        .click({ force: true });
+    }
+  });
+});
 
 Cypress.Commands.add("ExpandWidget", (widgetName) => {
   cy.get("body").then(($body) => {
@@ -439,7 +440,11 @@ Cypress.Commands.add("ExpandWidget", (widgetName) => {
           const pageWidgetsMap = pageWidgets[pageId];
           const widgetId = Object.keys(pageWidgetsMap).find((widgetId) => {
             const widgetData = pageWidgetsMap[widgetId];
-            return widgetData.name.toLowerCase().indexOf(widgetName.toLowerCase()) !== -1;
+            return (
+              widgetData.name
+                .toLowerCase()
+                .indexOf(widgetName.toLowerCase()) !== -1
+            );
           });
 
           if (widgetId) {
@@ -449,13 +454,23 @@ Cypress.Commands.add("ExpandWidget", (widgetName) => {
         });
 
         if (widget && pageId) {
-          const { pageList: { pages } } = state.entities;
+          const {
+            pageList: { pages },
+          } = state.entities;
           const page = pages.find((page) => page.id === pageId);
           if (page) {
-            cy.get(explorer.pagesGroupEntity).first().ExpandEeItemByRef();
-            cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().ExpandEeItemByRef();
-            cy.get(explorer.currentWidgetsGroupEntity).first().ExpandEeItemByRef();
-            cy.get(`${explorer.widgetEntity}:contains(${page.pageName})`).first().ExpandEeItemByRef();
+            cy.get(explorer.pagesGroupEntity)
+              .first()
+              .ExpandEeItemByRef();
+            cy.get(`${explorer.pageEntity}:contains(${page.pageName})`)
+              .first()
+              .ExpandEeItemByRef();
+            cy.get(explorer.currentWidgetsGroupEntity)
+              .first()
+              .ExpandEeItemByRef();
+            cy.get(`${explorer.widgetEntity}:contains(${page.pageName})`)
+              .first()
+              .ExpandEeItemByRef();
           }
         }
       });
@@ -480,31 +495,55 @@ Cypress.Commands.add("ExpandAction", (actionName) => {
         const { actions } = state.entities;
         const action = actions.find((action) => {
           const { config } = action;
-          return config.name.toLowerCase().indexOf(actionName.toLowerCase()) !== -1;
+          return (
+            config.name.toLowerCase().indexOf(actionName.toLowerCase()) !== -1
+          );
         });
 
         if (action) {
           const { config } = action;
           const { pageId } = config;
-          const { pageList: { pages } } = state.entities;
-          const page = pages.find((page) => page.id === pageId);
+          const {
+            pageList: { pages },
+          } = state.entities;
+          const page = pages.find((page) => page.pageId === pageId);
+
           if (page) {
-            cy.get(explorer.pagesGroupEntity).first().ExpandEeItemByRef();
-            cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().ExpandEeItemByRef();
+            cy.get(explorer.pagesGroupEntity)
+              .first()
+              .ExpandEeItemByRef();
+            cy.get(`${explorer.pageEntity}:contains(${page.pageName})`)
+              .first()
+              .ExpandEeItemByRef();
             if (config.pluginType === "DB") {
-              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().find(explorer.dbqueriesGroupEntity).first().ExpandEeItemByRef();
-              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().find(explorer.dbqueriesGroupEntity).find(`${actionEntity}:contains(${actionName})`);
+              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`)
+                .first()
+                .find(explorer.dbqueriesGroupEntity)
+                .ExpandEeItemByRef();
+              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`)
+                .first()
+                .find(explorer.dbqueriesGroupEntity)
+                .find(`${explorer.actionEntity}:contains(${actionName})`)
+                .ExpandEeItemByRef();
             } else {
-              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().find(explorer.apissGroupEntity).first().ExpandEeItemByRef();
-              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`).first().find(explorer.apissGroupEntity).find(`${actionEntity}:contains(${actionName})`);
+              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`)
+                .first()
+                .find(explorer.apiGroupEntity)
+                .first()
+                .ExpandEeItemByRef();
+              cy.get(`${explorer.pageEntity}:contains(${page.pageName})`)
+                .first()
+                .find(explorer.apiGroupEntity)
+                .first()
+                .find(`${explorer.actionEntity}:contains(${actionName})`)
+                .first()
+                .ExpandEeItemByRef();
             }
           }
         }
       });
   });
 });
-
-
 
 Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
   cy.xpath(apiwidget.responseStatus).should("be.visible");
@@ -577,8 +616,7 @@ Cypress.Commands.add(
     //   .last()
     //   .click({ force: true });
     cy.get(apiwidget.editName).click({ force: true });
-    cy.get(explorer.editNameField)
-      .clear()
+    cy.get(explorer.editNameField).clear();
     cy.get(explorer.editNameField)
       .type(apiname, { force: true })
       .should("have.value", apiname)
@@ -650,7 +688,7 @@ Cypress.Commands.add("ClearSearch", () => {
 });
 
 Cypress.Commands.add("collapseAllEntities", () => {
-  cy.get(`.${explorer.collapse}.bp3-icon-caret-down`).click({
+  cy.get(`${explorer.collapse}.bp3-icon-caret-down`).click({
     multiple: true,
     force: true,
   });
