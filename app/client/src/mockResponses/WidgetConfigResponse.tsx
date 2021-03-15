@@ -3,6 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
 import { generateReactKey } from "utils/generators";
 import { FileDataTypes } from "widgets/FilepickerWidget";
+import { Colors } from "constants/Colors";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
@@ -19,8 +20,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     TEXT_WIDGET: {
       text: "Label",
-      textStyle: "LABEL",
+      fontSize: "PARAGRAPH",
+      fontStyle: "BOLD",
       textAlign: "LEFT",
+      textColor: Colors.THUNDER,
       rows: 1,
       columns: 4,
       widgetName: "Text",

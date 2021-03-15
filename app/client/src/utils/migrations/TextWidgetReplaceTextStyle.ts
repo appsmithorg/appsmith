@@ -27,6 +27,7 @@ export const migrateTextStyleFromTextWidget = (
         default:
           break;
       }
+      child.textColor = "#231F20";
       delete child.textStyle;
     } else if (child.children && child.children.length > 0) {
       child = migrateTextStyleFromTextWidget(child);
