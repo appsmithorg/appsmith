@@ -21,6 +21,7 @@ export function InputText(props: {
   placeholder?: string;
   dataTreePath?: string;
   additionalAutocomplete?: Record<string, Record<string, unknown>>;
+  theme?: EditorTheme;
 }) {
   const {
     errorMessage,
@@ -46,7 +47,7 @@ export function InputText(props: {
           error: isValid ? "" : errorMessage,
           touched: true,
         }}
-        theme={EditorTheme.DARK}
+        theme={props.theme || EditorTheme.LIGHT}
         mode={EditorModes.TEXT_WITH_BINDING}
         tabBehaviour={TabBehaviour.INDENT}
         size={EditorSize.EXTENDED}
@@ -77,8 +78,9 @@ class InputTextControl extends BaseControl<InputControlProps> {
         isValid={isValid}
         errorMessage={validationMessage}
         expected={expected}
-        placeholder={placeholderText}
         dataTreePath={dataTreePath}
+        placeholder={placeholderText}
+        theme={this.props.theme}
       />
     );
   }

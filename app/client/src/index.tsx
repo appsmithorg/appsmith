@@ -23,6 +23,7 @@ const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 
 import AppErrorBoundary from "./AppErrorBoundry";
+import GlobalStyles from "globalStyles";
 appInitializer();
 
 const App = () => {
@@ -57,6 +58,7 @@ class ThemedApp extends React.Component<{
           closeButton={false}
           pauseOnHover={false}
         />
+        <GlobalStyles />
         <AppErrorBoundary>
           <AppRouter />
         </AppErrorBoundary>

@@ -86,7 +86,7 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
         autoFocus={false}
         hoverOpenDelay={1000}
         openOnTargetFocus={false}
-        minWidth={180}
+        minWidth={"180px"}
         position={Position.LEFT}
       >
         <Icon name="lightning" size={IconSize.LARGE} />
