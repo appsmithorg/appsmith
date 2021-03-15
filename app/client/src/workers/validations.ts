@@ -438,7 +438,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
   },
-  [VALIDATION_TYPES.DATE]: (
+  [VALIDATION_TYPES.DATE_ISO_STRING]: (
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
@@ -468,7 +468,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+        message: `Value does not match ISO 8601 standard date string`,
       };
     }
     return {
@@ -507,7 +507,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+        message: `Value does not match ISO 8601 standard date string`,
       };
     }
     return {
