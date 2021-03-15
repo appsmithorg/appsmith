@@ -61,7 +61,6 @@ public class ExamplesOrganizationCloner {
     private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
-    private static final int CLONE_SUFFIX_LIMIT = 20;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -397,8 +396,7 @@ public class ExamplesOrganizationCloner {
         datasource.setName(actualName);
         return datasourceService.create(datasource)
                 .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (suffix <= CLONE_SUFFIX_LIMIT
-                            && error.getMessage() != null
+                    if (error.getMessage() != null
                             && error.getMessage().contains("organization_datasource_deleted_compound_index")) {
                         // The duplicate key error is because of the `name` field.
                         return createSuffixedDatasource(datasource, name, 1 + suffix);
