@@ -5,11 +5,11 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/datepicker_switchDsl.json");
 const pages = require("../../../../locators/Pages.json");
 
-describe("Switch Widget within Form widget Functionality", function () {
+describe("Switch Widget within Form widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Switch Widget Functionality check with success message", function () {
+  it("Switch Widget Functionality check with success message", function() {
     cy.openPropertyPane("switchwidget");
     cy.widgetText(
       "Toggler",
@@ -23,7 +23,7 @@ describe("Switch Widget within Form widget Functionality", function () {
     cy.closePropertyPane();
   });
 
-  it("Form reset button valdiation with switch widget", function () {
+  it("Form reset button valdiation with switch widget", function() {
     cy.SearchEntityandOpen("DatePicker1");
     cy.get(formWidgetsPage.defaultDate).click();
     cy.setDate(1, "ddd MMM DD YYYY");
@@ -36,6 +36,7 @@ describe("Switch Widget within Form widget Functionality", function () {
       .children()
       .contains("Reset Widget")
       .click();
+    cy.wait(3000);
     cy.get(".t--open-dropdown-").click({ force: true });
     cy.get(commonlocators.chooseAction)
       .children()
@@ -54,9 +55,9 @@ describe("Switch Widget within Form widget Functionality", function () {
     cy.wait(5000);
   });
 
-  it("DatePicker-Date change and check how switch widget works", function () {
+  it("DatePicker-Date change and check how switch widget works", function() {
     cy.get(".t--draggable-datepickerwidget2 input").click({ force: true });
-    cy.get(".DayPicker-Day--today").click({ force: true })
+    cy.get(".DayPicker-Day--today").click({ force: true });
     /*
     cy.get(".t--toast-action span")
       .last()
