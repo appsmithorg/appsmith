@@ -10,7 +10,7 @@ const PropertyPaneConfig = [
         helpText:
           "Takes in an array of objects to display items in the grid. Bind data from an API using {{}}",
         propertyName: "items",
-        label: "Grid Items",
+        label: "Items",
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
         inputType: "ARRAY",
@@ -19,7 +19,7 @@ const PropertyPaneConfig = [
       },
       {
         propertyName: "backgroundColor",
-        label: "List Background",
+        label: "Background",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -27,51 +27,19 @@ const PropertyPaneConfig = [
       },
       {
         propertyName: "itemBackgroundColor",
-        label: "List Item Background",
+        label: "Item Background",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
       },
-      {
-        helpText: "Use a html color name, HEX, RGB or RGBA value",
-        placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-        propertyName: "backgroundColor",
-        label: "Background Color",
-        controlType: "INPUT_TEXT",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        propertyName: "allowPagination",
-        label: "Allow Pagination",
-        controlType: "SWITCH",
-        isBindProperty: true,
-        isTriggerProperty: false,
-      },
-      {
-        propertyName: "paginationPerPage",
-        label: "Items per page?",
-        controlType: "INPUT_TEXT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        hidden: (props: ListWidgetProps<WidgetProps>) => {
-          return !props.allowPagination;
-        },
-      },
+
       {
         helpText: "Gap between rows and columns",
         placeholderText: "0",
         propertyName: "gridGap",
         label: "Grid Gap",
         controlType: "INPUT_TEXT",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        propertyName: "shouldScrollContents",
-        label: "Scroll Contents",
-        controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
       },

@@ -1,6 +1,6 @@
 import React from "react";
 import log from "loglevel";
-import { get, set, xor } from "lodash";
+import { ceil, floor, get, set, xor } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -276,11 +276,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * @param children
    */
   paginateItems = (children: ContainerWidgetProps<WidgetProps>[]) => {
-    const { page, perPage } = this.state;
+    const { page } = this.state;
+    const { shouldPaginate, perPage } = this.shouldPaginate();
 
-    console.log({ page, perPage });
-
-    if (this.canPaginate()) {
+    if (shouldPaginate) {
       return children.slice((page - 1) * perPage, page * perPage);
     }
 
@@ -340,7 +339,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         // first item of the canvasChildren acts as a template
         const template = canvasChildren.slice(0, 1).shift();
 
-        console.log({ template });
         for (let i = 0; i < numberOfItemsInGrid; i++) {
           canvasChildren[i] = JSON.parse(JSON.stringify(template));
         }
@@ -355,14 +353,26 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   /**
+   * 400
+   * 200
    * can data be paginated
    */
-  canPaginate = () => {
-    const { perPage } = this.state;
+  shouldPaginate = () => {
+    const { items, children, gridGap } = this.props;
+    const { componentHeight } = this.getComponentDimensions();
+    const templateBottomRow = get(children, "0.children.0.bottomRow");
 
-    return (
-      Array.isArray(this.props.items) && this.props.allowPagination && perPage
+    const templateHeight = templateBottomRow * 40;
+
+    const shouldPaginate =
+      templateHeight * items.length +
+        parseInt(gridGap) * (items.length - 1) * 40 >
+      componentHeight;
+    const perPage = floor(
+      componentHeight / (templateHeight + parseInt(gridGap) * 40),
     );
+
+    return { shouldPaginate, perPage };
   };
 
   /**
@@ -370,21 +380,21 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const children = this.renderChildren();
-    const hasPagination = this.canPaginate();
+    const { shouldPaginate, perPage } = this.shouldPaginate();
 
     if (Array.isArray(this.props.items) && this.props.items.length === 0) {
       return <>Nothing to display</>;
     }
 
     return (
-      <ListComponent {...this.props} hasPagination={hasPagination}>
+      <ListComponent {...this.props} hasPagination={shouldPaginate}>
         {children}
 
-        {hasPagination && (
+        {shouldPaginate && (
           <ListPagination
             total={this.props.items.length}
             current={this.state.page}
-            perPage={this.state.perPage}
+            perPage={perPage}
             onChange={(page: number) => this.setState({ page })}
           />
         )}
