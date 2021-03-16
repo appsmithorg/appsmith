@@ -32,7 +32,9 @@ import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
-// import ScrollIndicator from "components/ads/ScrollIndicator";
+import ScrollIndicator from "components/ads/ScrollIndicator";
+import { getProppanePreference } from "selectors/usersSelectors";
+import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -160,6 +162,10 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return EditorTheme.LIGHT;
   }
 
+  getPopperTheme() {
+    return ThemeMode.LIGHT;
+  }
+
   render() {
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
@@ -167,8 +173,14 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
       const el = document.getElementsByClassName(
         generateClassName(this.props.widgetProperties?.widgetId),
       )[0];
+
       return (
         <Popper
+          themeMode={this.getPopperTheme()}
+          position={this.props?.propPanePreference?.position}
+          disablePopperEvents={this.props?.propPanePreference?.isMoved}
+          onPositionChange={this.props.setPropPanePoistion}
+          isDraggable={true}
           isOpen={true}
           targetNode={el}
           zIndex={3}
@@ -263,11 +275,23 @@ const mapStateToProps = (state: AppState) => {
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
     themeMode: getCurrentThemeMode(state),
+    propPanePreference: getProppanePreference(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
   return {
+    setPropPanePoistion: (position: any) => {
+      dispatch({
+        type: ReduxActionTypes.PROP_PANE_MOVED,
+        payload: {
+          position: {
+            left: position.left,
+            top: position.top,
+          },
+        },
+      });
+    },
     hidePropertyPane: () =>
       dispatch({
         type: ReduxActionTypes.HIDE_PROPERTY_PANE,
@@ -279,10 +303,12 @@ export interface PropertyPaneProps extends PropertyPaneFunctions {
   widgetProperties?: WidgetProps;
   isVisible: boolean;
   themeMode: ThemeMode;
+  propPanePreference?: PropertyPanePositionConfig;
 }
 
 export interface PropertyPaneFunctions {
   hidePropertyPane: () => void;
+  setPropPanePoistion: (position: any) => void;
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PropertyPane);
