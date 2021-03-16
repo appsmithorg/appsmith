@@ -12,6 +12,7 @@ import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export type PropertyControlsGeneratorProps = {
+  id: string;
   type: WidgetType;
   panel: IPanelProps;
   theme: EditorTheme;
@@ -27,7 +28,7 @@ export const generatePropertyControl = (
       const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
         <PropertySection
-          key={config.id}
+          key={config.id + props.id}
           id={config.id || sectionConfig.sectionName}
           name={sectionConfig.sectionName}
           hidden={sectionConfig.hidden}

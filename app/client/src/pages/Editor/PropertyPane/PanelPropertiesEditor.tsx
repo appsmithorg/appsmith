@@ -185,6 +185,7 @@ export const PanelPropertiesEditor = (
       />
       {panelConfigs &&
         generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
+          id: widgetProperties.widgetId,
           type: widgetProperties.type,
           panel,
           theme,

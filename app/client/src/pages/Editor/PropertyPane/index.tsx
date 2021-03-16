@@ -144,6 +144,7 @@ const PropertyPaneView = (
         ]}
       />
       <PropertyControlsGenerator
+        id={widgetProperties.widgetId}
         type={widgetProperties.type}
         panel={panel}
         theme={theme}
