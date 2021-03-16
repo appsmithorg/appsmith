@@ -50,7 +50,7 @@ export const hideScrollbar = css`
   }
 `;
 
-export const addEllipsisToTextBlock = css`
+export const truncateTextUsingEllipsis = css`
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
