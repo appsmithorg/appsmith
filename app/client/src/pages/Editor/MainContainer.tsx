@@ -7,7 +7,6 @@ import { Route, Switch } from "react-router";
 import { BUILDER_URL } from "constants/routes";
 
 import * as Sentry from "@sentry/react";
-import { HintStyles } from "components/editorComponents/CodeEditor/styledComponents";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Container = styled.div`
@@ -24,7 +23,6 @@ const EditorContainer = styled.div`
 const MainContainer = () => {
   return (
     <Container>
-      <HintStyles />
       <Sidebar />
       <EditorContainer>
         <Switch>
