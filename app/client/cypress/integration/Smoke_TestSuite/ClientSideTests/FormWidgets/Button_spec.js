@@ -98,7 +98,7 @@ describe("Button Widget Functionality", function() {
 
   it("Button-FormModal Validation", function() {
     //creating the Form Modal and verify Modal name
-    cy.createModal("Form Modal", this.data.FormModalName);
+    cy.updateModal("Form Modal", this.data.FormModalName);
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).click();
     cy.get(modalWidgetPage.modelTextField).should(

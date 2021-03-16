@@ -57,25 +57,6 @@ export const truncateTextUsingEllipsis = css`
   display: block;
 `;
 
-export const scrollbarDark = css`
-  scrollbar-color: ${(props) => props.theme.colors.paneCard}
-    ${(props) => props.theme.colors.paneBG};
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneCard};
-    border-radius: ${(props) => props.theme.radii[1]}px;
-  }
-`;
-
 export const getTypographyByKey = (props: Record<string, any>, key: string) => `
   font-weight: ${props.theme.typography[key].fontWeight};
   font-size: ${props.theme.typography[key].fontSize}px;
@@ -515,6 +496,7 @@ const darkShades = [
   "#E9E9E9",
   "#FFFFFF",
   "#157A96",
+  "#090707",
 ] as const;
 
 const lightShades = [
@@ -531,6 +513,9 @@ const lightShades = [
   "#090707",
   "#FFFFFF",
   "#6A86CE",
+  "#E0DEDE",
+  "#EBEBEB",
+  "#858282",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -553,6 +538,7 @@ type ColorType = {
   warning: buttonVariant;
   danger: buttonVariant;
   homepageBackground: string;
+  selected: ShadeColor;
   card: {
     hoverBG: Color;
     hoverBGOpacity: number;
@@ -823,22 +809,6 @@ type ColorType = {
         value: string;
       };
     };
-    moreActions: {
-      targetBg: string;
-      targetIcon: {
-        normal: string;
-        hover: string;
-      };
-      menuShadow: string;
-      menuBg: {
-        normal: ShadeColor;
-        hover: ShadeColor;
-      };
-      menuText: {
-        normal: ShadeColor;
-        hover: ShadeColor;
-      };
-    };
     closeIcon: ShadeColor;
     responseBody: {
       bg: ShadeColor;
@@ -916,6 +886,43 @@ type ColorType = {
     iconPath: string;
     iconCircle: string;
   };
+  treeDropdown: {
+    targetBg: string;
+    targetIcon: {
+      normal: string;
+      hover: string;
+    };
+    menuShadow: string;
+    menuBg: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+      selected: ShadeColor;
+    };
+    menuText: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+      selected: ShadeColor;
+    };
+  };
+  propertyPane: {
+    title: ShadeColor;
+    bg: ShadeColor;
+    label: ShadeColor;
+    jsIconBg: ShadeColor;
+    buttonBg: ShadeColor;
+    buttonText: ShadeColor;
+    radioGroupBg: ShadeColor;
+    radioGroupText: ShadeColor;
+    deleteIconColor: string;
+    zoomButtonBG: ShadeColor;
+    activeButtonText: ShadeColor;
+    jsButtonHoverBG: ShadeColor;
+    dropdownSelectBg: ShadeColor;
+    multiDropdownBoxHoverBg: ShadeColor;
+    iconColor: ShadeColor;
+  };
+  scrollbar: string;
+  scrollbarBG: string;
 };
 
 const auth: any = {
@@ -973,6 +980,7 @@ const globalSearch = {
 
 export const dark: ColorType = {
   globalSearch,
+  selected: darkShades[10],
   header: {
     separator: darkShades[4],
     appName: darkShades[7],
@@ -1079,7 +1087,7 @@ export const dark: ColorType = {
       disabledBg: darkShades[2],
     },
     menuBg: darkShades[3],
-    menuShadow: "rgba(0, 0, 0, 0.6)",
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: darkShades[9],
       bg: darkShades[4],
@@ -1295,22 +1303,6 @@ export const dark: ColorType = {
         value: darkShades[7],
       },
     },
-    moreActions: {
-      targetBg: "#090707",
-      targetIcon: {
-        normal: "#9F9F9F",
-        hover: "#9F9F9F",
-      },
-      menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
-      menuBg: {
-        normal: darkShades[3],
-        hover: darkShades[4],
-      },
-      menuText: {
-        normal: darkShades[7],
-        hover: darkShades[9],
-      },
-    },
     closeIcon: darkShades[9],
     responseBody: {
       bg: "#090707",
@@ -1357,10 +1349,48 @@ export const dark: ColorType = {
     iconPath: "#2b2b2b",
     iconCircle: "#d4d4d4",
   },
+  treeDropdown: {
+    targetBg: "#090707",
+    targetIcon: {
+      normal: "#9F9F9F",
+      hover: "#9F9F9F",
+    },
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
+    menuBg: {
+      normal: darkShades[3],
+      hover: darkShades[4],
+      selected: darkShades[4],
+    },
+    menuText: {
+      normal: darkShades[7],
+      hover: darkShades[9],
+      selected: darkShades[7],
+    },
+  },
+  propertyPane: {
+    title: darkShades[11],
+    bg: darkShades[1],
+    label: darkShades[7],
+    jsIconBg: darkShades[5],
+    buttonBg: darkShades[7],
+    buttonText: lightShades[10],
+    radioGroupBg: darkShades[0],
+    radioGroupText: darkShades[7],
+    deleteIconColor: "#A3B3BF",
+    zoomButtonBG: darkShades[3],
+    activeButtonText: lightShades[12],
+    jsButtonHoverBG: darkShades[2],
+    dropdownSelectBg: darkShades[2],
+    multiDropdownBoxHoverBg: darkShades[0],
+    iconColor: darkShades[5],
+  },
+  scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
+  scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
 };
 
 export const light: ColorType = {
   globalSearch,
+  selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
@@ -1467,7 +1497,7 @@ export const light: ColorType = {
       disabledBg: lightShades[1],
     },
     menuBg: lightShades[11],
-    menuShadow: "rgba(0, 0, 0, 0.32)",
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: lightShades[9],
       bg: lightShades[2],
@@ -1476,7 +1506,7 @@ export const light: ColorType = {
     hovered: {
       text: lightShades[11],
       bg: lightShades[12],
-      icon: lightShades[8],
+      icon: lightShades[11],
     },
     icon: lightShades[7],
   },
@@ -1667,7 +1697,7 @@ export const light: ColorType = {
   apiPane: {
     bg: lightShades[0],
     tabBg: lightShades[11],
-    text: lightShades[6],
+    text: lightShades[15],
     dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
     requestTree: {
@@ -1681,22 +1711,6 @@ export const light: ColorType = {
         hoverBg: lightShades[2],
         key: lightShades[7],
         value: lightShades[8],
-      },
-    },
-    moreActions: {
-      targetBg: "#E8E8E8",
-      targetIcon: {
-        normal: "#939090",
-        hover: "#4B4848",
-      },
-      menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.32)",
-      menuBg: {
-        normal: lightShades[11],
-        hover: lightShades[2],
-      },
-      menuText: {
-        normal: lightShades[6],
-        hover: lightShades[8],
       },
     },
     closeIcon: lightShades[10],
@@ -1745,6 +1759,44 @@ export const light: ColorType = {
     iconPath: "#c4c4c4",
     iconCircle: "#090707",
   },
+  treeDropdown: {
+    targetBg: "#FFFFFF",
+    targetIcon: {
+      normal: "#939090",
+      hover: "#4B4848",
+    },
+    menuShadow:
+      "0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1)",
+    menuBg: {
+      normal: lightShades[0],
+      hover: lightShades[12],
+      selected: lightShades[3],
+    },
+    menuText: {
+      normal: lightShades[8],
+      hover: lightShades[0],
+      selected: lightShades[8],
+    },
+  },
+  propertyPane: {
+    title: darkShades[11],
+    bg: lightShades[2],
+    label: lightShades[8],
+    jsIconBg: lightShades[5],
+    buttonBg: lightShades[8],
+    buttonText: lightShades[11],
+    radioGroupBg: lightShades[0],
+    radioGroupText: lightShades[8],
+    deleteIconColor: "#A3B3BF",
+    zoomButtonBG: lightShades[13],
+    activeButtonText: lightShades[12],
+    jsButtonHoverBG: lightShades[2],
+    dropdownSelectBg: lightShades[14],
+    multiDropdownBoxHoverBg: lightShades[11],
+    iconColor: lightShades[5],
+  },
+  scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
+  scrollbarBG: "transparent",
 };
 
 export const theme: Theme = {
@@ -1885,7 +1937,9 @@ export const theme: Theme = {
   colors: {
     tooltip: {
       lightBg: lightShades[0],
+      lightText: lightShades[10],
       darkBg: lightShades[10],
+      darkText: lightShades[0],
     },
     appBackground: "#EDEDED",
     artboard: "#F6F6F6",
@@ -1937,7 +1991,12 @@ export const theme: Theme = {
       array: "#CDFFA5",
       number: "#FFB2B2",
     },
+    scrollbarLight: getColorWithOpacity(Colors.CHARCOAL, 0.5),
+    scrollbarLightBG: getColorWithOpacity(Colors.WHITE, 0.5),
+    scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
+    scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
   },
+
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
     text: FontFamilies.TextFonts,
@@ -2006,8 +2065,8 @@ export const theme: Theme = {
   },
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: lightShades[0],
-      hoverText: lightShades[10],
+      hoverBG: lightShades[12],
+      hoverText: lightShades[0],
       inActiveBG: lightShades[3],
       inActiveText: lightShades[8],
     },
@@ -2092,26 +2151,6 @@ export const theme: Theme = {
     },
   },
 };
-
-export const scrollbarLight = css<{ backgroundColor?: Color }>`
-  scrollbar-color: ${(props) => props.theme.colors.paneText};
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) =>
-        props.backgroundColor
-          ? props.backgroundColor
-          : getColorWithOpacity(props.theme.colors.paneText, 0.3)};
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneText};
-    border-radius: ${(props) => props.theme.radii[1]}px;
-  }
-`;
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };
 

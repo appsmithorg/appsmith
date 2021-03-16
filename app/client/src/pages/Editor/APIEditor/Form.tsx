@@ -269,6 +269,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   Close
                 </Text>
               }
+              minWidth="auto !important"
             >
               <IconContainer onClick={handleClose}>
                 <Icon
@@ -306,7 +307,9 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"
             options={HTTP_METHOD_OPTIONS}
-            isSearchable={false}
+            width={"100px"}
+            optionWidth={"100px"}
+            height={"35px"}
           />
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField
