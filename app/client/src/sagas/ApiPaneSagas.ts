@@ -278,30 +278,50 @@ function* updateFormFields(
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
 
   if (field === "actionConfiguration.httpMethod") {
-    if (value !== "GET") {
-      const { actionConfiguration } = values;
-      const actionConfigurationHeaders = actionConfiguration.headers;
-      let contentType;
-      if (actionConfigurationHeaders) {
-        contentType = actionConfigurationHeaders.find(
-          (header: any) =>
-            header &&
-            header.key &&
-            header.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY,
-        );
-      }
+    const { actionConfiguration } = values;
+    const actionConfigurationHeaders = cloneDeep(actionConfiguration.headers);
+    if (actionConfigurationHeaders) {
+      const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
+        (header: { key: string; value: string }) =>
+          header &&
+          header.key &&
+          header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+      );
+      if (value !== "GET") {
+        if (contentTypeHeaderIndex < 0) {
+          const firstEmptyHeaderRowIndex: number = actionConfigurationHeaders.findIndex(
+            (header: { key: string; value: string }) =>
+              header && header.key === "" && header.value === "",
+          );
+          const newHeaderIndex =
+            firstEmptyHeaderRowIndex > -1
+              ? firstEmptyHeaderRowIndex
+              : actionConfigurationHeaders.length;
+          const indexToUpdate =
+            contentTypeHeaderIndex > -1
+              ? contentTypeHeaderIndex
+              : newHeaderIndex;
 
-      if (!contentType) {
-        yield put(
-          change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", [
-            ...actionConfigurationHeaders,
-            {
-              key: CONTENT_TYPE_HEADER_KEY,
-              value: POST_BODY_FORMAT_OPTIONS[0].value,
-            },
-          ]),
-        );
+          actionConfigurationHeaders[indexToUpdate] = {
+            key: CONTENT_TYPE_HEADER_KEY,
+            value: POST_BODY_FORMAT_OPTIONS[0].value,
+          };
+        }
+      } else {
+        if (contentTypeHeaderIndex > -1) {
+          actionConfigurationHeaders[contentTypeHeaderIndex] = {
+            key: "",
+            value: "",
+          };
+        }
       }
+      yield put(
+        change(
+          API_EDITOR_FORM_NAME,
+          "actionConfiguration.headers",
+          actionConfigurationHeaders,
+        ),
+      );
     }
   } else if (field.includes("actionConfiguration.headers")) {
     const actionConfigurationHeaders = get(
