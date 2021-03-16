@@ -10,7 +10,7 @@ import {
   StyledPropertyPaneButton,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { DroppableComponent } from "components/designSystems/appsmith/DraggableListComponent";
+import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import EmptyDataState from "components/utils/EmptyDataState";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -20,6 +20,7 @@ import {
   reorderColumns,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { debounce } from "lodash";
+import { Size, Category } from "components/ads/Button";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -35,7 +36,9 @@ const TabsWrapper = styled.div`
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
+  margin-bottom: 2px;
   width: 100%;
+  padding-left: 30px;
   &&& {
     input {
       padding-left: 24px;
@@ -53,6 +56,8 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
 
 const AddColumnButton = styled(StyledPropertyPaneButton)`
   width: 100%;
+  display: flex;
+  justify-content: center;
   &&&& {
     margin-top: 12px;
     margin-bottom: 8px;
@@ -106,12 +111,12 @@ function ColumnControlComponent(props: RenderComponentProps) {
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
-        type="text"
+        dataType="text"
         placeholder="Column Title"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          onChange(index, event.target.value);
+        onChange={(value: string) => {
+          onChange(index, value);
         }}
-        value={value}
+        defaultValue={value}
       />
       <StyledEditIcon
         className="t--edit-column-btn"
@@ -197,13 +202,16 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
           toggleVisibility={this.toggleVisibility}
           onEdit={this.onEdit}
         />
+
         <AddColumnButton
           className="t--add-column-btn"
-          text="Add a new column"
           icon="plus"
-          color="#FFFFFF"
-          minimal={true}
+          tag="button"
+          type="button"
+          text="Add a new column"
           onClick={this.addNewColumn}
+          size={Size.medium}
+          category={Category.tertiary}
         />
       </TabsWrapper>
     );
@@ -273,12 +281,9 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
     const columns: Record<string, ColumnProperties> =
       this.props.propertyValue || {};
     const derivedColumns = this.props.widgetProperties.derivedColumns || {};
+    const columnOrder = this.props.widgetProperties.columnOrder || [];
 
-    const originalColumn = getOriginalColumn(
-      columns,
-      index,
-      this.props.widgetProperties.columnOrder,
-    );
+    const originalColumn = getOriginalColumn(columns, index, columnOrder);
 
     if (originalColumn) {
       const propertiesToDelete = [
@@ -287,7 +292,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       if (derivedColumns[originalColumn.id])
         propertiesToDelete.push(`derivedColumns.${originalColumn.id}`);
 
-      const columnOrderIndex = this.props.widgetProperties.columnOrder.findIndex(
+      const columnOrderIndex = columnOrder.findIndex(
         (column: string) => column === originalColumn.id,
       );
       if (columnOrderIndex > -1)

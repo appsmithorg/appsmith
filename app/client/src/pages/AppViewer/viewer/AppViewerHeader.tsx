@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import styled, { ThemeProvider } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo.png";
-import { EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
+import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -170,7 +170,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         className="t--back-to-editor"
         href={props.url}
         icon="arrow-left"
-        text={EDIT_APP}
+        text={createMessage(EDIT_APP)}
       />
     );
   } else if (
@@ -182,7 +182,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
       <ForkButton
         className="t--fork-app"
         href={forkUrl}
-        text={FORK_APP}
+        text={createMessage(FORK_APP)}
         icon="fork"
       />
     );
@@ -190,7 +190,13 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
     currentApplicationDetails?.isPublic &&
     currentUser?.username === ANONYMOUS_USERNAME
   ) {
-    CTA = <Cta className="t--sign-in" href={loginUrl} text={SIGN_IN} />;
+    CTA = (
+      <Cta
+        className="t--sign-in"
+        href={loginUrl}
+        text={createMessage(SIGN_IN)}
+      />
+    );
   }
 
   return (

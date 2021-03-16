@@ -13,7 +13,7 @@ const TreeStructureWrapper = styled.div`
     margin-left: 9px;
     padding: 0;
     list-style: none;
-    color: ${(props) => props.theme.colors.paneText};
+    color: #a9a7a7;
     position: relative;
   }
 
@@ -54,7 +54,7 @@ const TreeStructureWrapper = styled.div`
   }
 
   .tree li:last-child:before {
-    background: ${(props) => props.theme.colors.paneBG};
+    background: #a9a7a7;
     height: auto;
     top: 18px;
     bottom: 0;

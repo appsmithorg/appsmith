@@ -39,6 +39,8 @@ import {
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  APPLICATION_NAME_UPDATE,
+  createMessage,
   DELETING_APPLICATION,
   DUPLICATING_APPLICATION,
 } from "constants/messages";
@@ -249,7 +251,7 @@ export function* updateApplicationSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse && request && request.name) {
       Toaster.show({
-        text: "Application name updated",
+        text: createMessage(APPLICATION_NAME_UPDATE),
         variant: Variant.success,
       });
       yield put({
@@ -277,7 +279,7 @@ export function* deleteApplicationSaga(
 ) {
   try {
     Toaster.show({
-      text: DELETING_APPLICATION,
+      text: createMessage(DELETING_APPLICATION),
     });
     const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
@@ -307,7 +309,7 @@ export function* duplicateApplicationSaga(
 ) {
   try {
     Toaster.show({
-      text: DUPLICATING_APPLICATION,
+      text: createMessage(DUPLICATING_APPLICATION),
     });
     const request: DuplicateApplicationRequest = action.payload;
     const response: ApiResponse = yield call(

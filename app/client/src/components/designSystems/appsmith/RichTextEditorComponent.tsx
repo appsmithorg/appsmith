@@ -3,8 +3,6 @@ import { debounce } from "lodash";
 import styled from "styled-components";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
 
-import { isString } from "utils/helpers";
-
 const StyledRTEditor = styled.div`
   && {
     width: 100%;
@@ -50,7 +48,7 @@ export const RichtextEditorComponent = (
       (editorContent.current.length === 0 ||
         editorContent.current !== props.defaultValue)
     ) {
-      const content = getContent();
+      const content = props.defaultValue;
 
       editorInstance.setContent(content, {
         format: "html",
@@ -73,20 +71,20 @@ export const RichtextEditorComponent = (
       resize: false,
       setup: (editor: any) => {
         editor.mode.set(props.isDisabled === true ? "readonly" : "design");
-        const content = getContent();
+        const content = props.defaultValue;
         editor.setContent(content, { format: "html" });
         editor
           .on("Change", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: "html" }));
           })
           .on("Undo", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: "html" }));
           })
           .on("Redo", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: "html" }));
           })
           .on("KeyUp", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: "html" }));
           });
         setEditorInstance(editor);
         editor.on("init", () => {
@@ -107,15 +105,6 @@ export const RichtextEditorComponent = (
       editorInstance !== null && editorInstance.remove();
     };
   }, [status]);
-
-  /**
-   * get content for rich text editor
-   */
-  const getContent = () => {
-    return props.defaultValue && isString(props.defaultValue)
-      ? props.defaultValue.replace(/\n/g, "<br/>")
-      : props.defaultValue;
-  };
 
   if (status !== ScriptStatus.READY) return null;
 

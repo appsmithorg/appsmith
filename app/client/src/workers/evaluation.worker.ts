@@ -6,7 +6,6 @@ import {
   EvalErrorTypes,
 } from "utils/DynamicBindingUtils";
 import {
-  addFunctions,
   CrashingError,
   getValidatedTree,
   removeFunctions,
@@ -107,10 +106,9 @@ ctx.addEventListener(
           return { triggers: [], errors: [] };
         }
         const evalTree = dataTreeEvaluator.updateDataTree(dataTree);
-        const withFunctions = addFunctions(evalTree);
         const triggers = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
-          withFunctions,
+          evalTree,
           true,
           callbackData,
         );

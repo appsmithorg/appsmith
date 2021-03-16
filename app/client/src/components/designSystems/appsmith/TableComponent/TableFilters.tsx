@@ -19,7 +19,10 @@ import {
   Operator,
   OperatorTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import { TABLE_FILTER_COLUMN_TYPE_CALLOUT } from "constants/messages";
+import {
+  createMessage,
+  TABLE_FILTER_COLUMN_TYPE_CALLOUT,
+} from "constants/messages";
 
 const TableFilterOuterWrapper = styled.div`
   display: flex;
@@ -236,7 +239,7 @@ const TableFilters = (props: TableFilterProps) => {
         </TableFilerWrapper>
         {props.editMode && (
           <ColumnTypeBindingMessage>
-            {TABLE_FILTER_COLUMN_TYPE_CALLOUT}
+            {createMessage(TABLE_FILTER_COLUMN_TYPE_CALLOUT)}
           </ColumnTypeBindingMessage>
         )}
       </TableFilterOuterWrapper>
