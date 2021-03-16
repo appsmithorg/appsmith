@@ -18,6 +18,7 @@ import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import {
   createMessage,
   INVITE_USERS_SUBMIT_SUCCESS,
+  INVITE_USER_SUBMIT_SUCCESS,
   INVITE_USERS_VALIDATION_EMAILS_EMPTY,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
@@ -362,7 +363,11 @@ const OrgInviteUsersForm = (props: any) => {
             <Callout
               variant={Variant.success}
               fill
-              text={createMessage(INVITE_USERS_SUBMIT_SUCCESS)}
+              text={
+                allUsers > 1
+                  ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
+                  : createMessage(INVITE_USER_SUBMIT_SUCCESS)
+              }
             />
           )}
           {((submitFailed && error) || emailError) && (
