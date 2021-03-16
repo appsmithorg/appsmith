@@ -432,7 +432,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
   "event": "Installation Started",
   "data": {
       "os": "'"$os"'",
-      "installMethod": "docker"
+      "platform": "docker"
    }
 }' > /dev/null
 
@@ -459,7 +459,7 @@ else
       "event": "OS Check Passed",
       "data": {
           "os": "'"$os"'",
-          "installMethod": "docker"
+          "platform": "docker"
        }
     }' > /dev/null
     echo "🙌 You're on an OS that is supported by this installation script."
@@ -489,7 +489,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
   "event": "Root Check Passed",
   "data": {
       "os": "'"$os"'",
-      "installMethod": "docker"
+      "platform": "docker"
    }
 }' > /dev/null
 
@@ -502,7 +502,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
   "event": "Port Check Passed",
   "data": {
       "os": "'"$os"'",
-      "installMethod": "docker"
+      "platform": "docker"
    }
 }' > /dev/null
 
@@ -538,7 +538,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
   "event": "Directory Check Passed",
   "data": {
       "os": "'"$os"'",
-      "installMethod": "docker"
+      "platform": "docker"
    }
 }' > /dev/null
 
@@ -573,7 +573,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
   "event": "Docker Check Passed",
   "data": {
       "os": "'"$os"'",
-      "installMethod": "docker"
+      "platform": "docker"
    }
 }' > /dev/null
 
@@ -599,7 +599,7 @@ if confirm y "Is this a fresh installation?"; then
       "event": "Fresh Install",
       "data": {
           "os": "'"$os"'",
-          "installMethod": "docker"
+          "platform": "docker"
        }
     }' > /dev/null
     mongo_host="mongo"
@@ -681,7 +681,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
   "event": "Salt Generation Done",
   "data": {
       "os": "'"$os"'",
-      "installMethod": "docker"
+      "platform": "docker"
    }
 }' > /dev/null
 
@@ -711,7 +711,7 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
           "event": "SSL Provisioning Start",
           "data": {
               "os": "'"$os"'",
-              "installMethod": "docker"
+              "platform": "docker"
            }
         }' > /dev/null
         read -rp 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
@@ -767,7 +767,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
     "event": "Config Files Generated",
     "data": {
         "os": "'"$os"'",
-        "installMethod": "docker"
+        "platform": "docker"
       }
   }' > /dev/null
 
