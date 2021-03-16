@@ -208,7 +208,7 @@ export default function Dropdown(props: DropdownProps) {
                 key={index}
                 selected={selected.value === option.value}
                 onClick={() => optionClickHandler(option)}
-                className="t--dropdown-option"
+                className={`t--dropdown-option t--dropdown-${option.value}-value`}
               >
                 {option.icon ? (
                   <Icon name={option.icon} size={IconSize.LARGE} />

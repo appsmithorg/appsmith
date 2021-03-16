@@ -27,7 +27,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
   it("Text widgets binding with datepicker", function() {
     cy.openPropertyPane("datepickerwidget2");
-    cy.selectDateFormat("DD/MM/YYYY");
+    cy.selectDateFormat("DD-MM-YYYY");
     cy.assertDateFormat();
     cy.closePropertyPane();
     cy.assertDateFormat();
