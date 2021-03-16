@@ -30,14 +30,14 @@ describe("Switch Widget within Form widget Functionality", function () {
       .children()
       .contains("Reset Widget")
       .click();
-    cy.get(".t--open-dropdown-").click({ force: true });
+    cy.get(widgetsPage.selectWidget).click({ force: true });
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Toggler")
       .click();
     cy.closePropertyPane();
-    cy.get(".t--widget-switchwidget").click();
-    cy.get(".t--toast-action span")
+    cy.get(widgetsPage.switchWidget).click();
+    cy.get(widgetsPage.toastMsg)
       .last()
       .invoke("text")
       .then((text) => {

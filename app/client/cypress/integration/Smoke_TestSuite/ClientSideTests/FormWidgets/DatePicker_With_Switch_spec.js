@@ -37,14 +37,14 @@ describe("Switch Widget within Form widget Functionality", function() {
       .contains("Reset Widget")
       .click();
     cy.wait(3000);
-    cy.get(".t--open-dropdown-").click({ force: true });
+    cy.get(widgetsPage.selectWidget).click({ force: true });
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Toggler")
       .click();
     cy.closePropertyPane();
-    cy.get(".t--widget-switchwidget").click();
-    cy.get(".t--toast-action span")
+    cy.get(widgetsPage.switchWidget).click();
+    cy.get(widgetsPage.toastMsg)
       .last()
       .invoke("text")
       .then((text) => {
@@ -56,8 +56,8 @@ describe("Switch Widget within Form widget Functionality", function() {
   });
 
   it("DatePicker-Date change and check how switch widget works", function() {
-    cy.get(".t--draggable-datepickerwidget2 input").click({ force: true });
-    cy.get(".DayPicker-Day--today").click({ force: true });
+    cy.get(widgetsPage.datepickerInput).click({ force: true });
+    cy.get(widgetsPage.selectToday).click({ force: true });
     /*
     cy.get(".t--toast-action span")
       .last()
