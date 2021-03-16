@@ -96,7 +96,7 @@ const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
 
   return ellipsisActive ? (
     <TooltipComponent
-      maxWidth={400}
+      maxWidth="400px"
       content={name}
       position={Position.BOTTOM}
       boundary="viewport"

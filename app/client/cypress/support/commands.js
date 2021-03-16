@@ -646,8 +646,10 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
 });
 
 Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
-  cy.get(commonlocators.changeZoomlevel).click();
-  cy.get("ul.bp3-menu")
+  cy.get(commonlocators.changeZoomlevel)
+    .last()
+    .click();
+  cy.get(".t--dropdown-option")
     .children()
     .contains(zoomValue)
     .click();
@@ -657,7 +659,7 @@ Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
     200,
   );
   cy.get(commonlocators.selectedZoomlevel)
-    .first()
+    .last()
     .invoke("text")
     .then((text) => {
       const someText = text;
@@ -666,8 +668,10 @@ Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
 });
 
 Cypress.Commands.add("changeColumnType", (dataType) => {
-  cy.get(commonlocators.changeColType).click();
-  cy.get("ul.bp3-menu")
+  cy.get(commonlocators.changeColType)
+    .last()
+    .click();
+  cy.get(".t--dropdown-option")
     .children()
     .contains(dataType)
     .click();
@@ -676,6 +680,7 @@ Cypress.Commands.add("changeColumnType", (dataType) => {
     "response.body.responseMeta.status",
     200,
   );
+  /*
   cy.get(commonlocators.selectedColType)
     .first()
     .invoke("text")
@@ -683,6 +688,7 @@ Cypress.Commands.add("changeColumnType", (dataType) => {
       const someText = text;
       expect(someText).to.equal(dataType);
     });
+    */
 });
 
 Cypress.Commands.add(
@@ -734,10 +740,10 @@ Cypress.Commands.add("switchToAPIInputTab", () => {
 });
 
 Cypress.Commands.add("selectDateFormat", (value) => {
-  cy.get(".t--property-control-dateformat button")
-    .first()
+  cy.get(".t--property-control-dateformat .bp3-popover-target")
+    .last()
     .click({ force: true });
-  cy.get("ul.bp3-menu")
+  cy.get(".t--dropdown-option")
     .children()
     .contains(value)
     .click();
@@ -991,9 +997,9 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
 
 Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(widgetsPage.buttonOnClick)
-    .get(commonlocators.dropdownSelectButton)
-    .click({ force: true })
-    .get("ul.bp3-menu")
+    .last()
+    .click({ force: true });
+  cy.get("ul.bp3-menu")
     .children()
     .contains("Open Modal")
     .click();
@@ -1001,9 +1007,9 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
 
   cy.get(modalWidgetPage.controlModalType)
-    .find(".bp3-button")
-    .click({ force: true })
-    .get("ul.bp3-menu")
+    .last()
+    .click({ force: true });
+  cy.get(commonlocators.dropdownmenu)
     .children()
     .contains(modalType)
     .click();
@@ -1024,7 +1030,9 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
 
   cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
   cy.testCodeMirror(ModalName);
-  cy.get(widgetsPage.textAlign + " " + commonlocators.dropDownBtn).click();
+  cy.get(widgetsPage.textAlign + " " + commonlocators.dropDownBtn)
+    .last()
+    .click();
   cy.get(widgetsPage.alignOpt)
     .contains("Center")
     .click();
@@ -1032,6 +1040,50 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
 
+Cypress.Commands.add("updateModal", (modalType, ModalName) => {
+  cy.get(".t--open-dropdown-Select-Action")
+    .first()
+    .click({ force: true });
+  cy.get("ul.bp3-menu")
+    .children()
+    .contains("Open Modal")
+    .click();
+  cy.get(modalWidgetPage.selectModal).click();
+  cy.get(modalWidgetPage.createModalButton).click({ force: true });
+
+  cy.get(modalWidgetPage.controlModalType)
+    .last()
+    .click({ force: true });
+  cy.get(commonlocators.dropdownmenu)
+    .children()
+    .contains(modalType)
+    .click();
+  cy.assertPageSave();
+
+  // changing the model name verify
+  cy.widgetText(
+    ModalName,
+    modalWidgetPage.modalName,
+    modalWidgetPage.modalName,
+  );
+  cy.get(commonlocators.editPropCrossButton).click();
+
+  //changing the Model label
+  cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
+    .first()
+    .trigger("mouseover");
+
+  cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
+  cy.testCodeMirror(ModalName);
+  cy.get(widgetsPage.textAlign + " " + commonlocators.dropDownBtn)
+    .last()
+    .click();
+  cy.get(widgetsPage.alignOpt)
+    .contains("Center")
+    .click();
+  cy.assertPageSave();
+  cy.get(".bp3-overlay-backdrop").click({ force: true });
+});
 Cypress.Commands.add("CheckWidgetProperties", (checkboxCss) => {
   cy.get(checkboxCss).check({
     force: true,
@@ -1049,8 +1101,10 @@ Cypress.Commands.add("UncheckWidgetProperties", (checkboxCss) => {
 Cypress.Commands.add(
   "ChangeTextStyle",
   (dropDownValue, textStylecss, labelName) => {
-    cy.get(commonlocators.dropDownIcon).click();
-    cy.get("ul.bp3-menu")
+    cy.get(commonlocators.dropDownIcon)
+      .last()
+      .click();
+    cy.get(".t--dropdown-option")
       .children()
       .contains(dropDownValue)
       .click();
@@ -1389,9 +1443,9 @@ Cypress.Commands.add("addSuccessMessage", (value) => {
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.datepickerFooter)
+  cy.get(formWidgetsPage.datepickerFooterPublish)
     .contains("Today")
-    .click();
+    .click({ force: true });
   cy.assertPageSave();
 });
 
@@ -1452,10 +1506,15 @@ Cypress.Commands.add("enterNavigatePageName", (value) => {
 });
 
 Cypress.Commands.add("ClearDate", () => {
-  cy.get(formWidgetsPage.datepickerFooter)
-    .contains("Clear")
-    .click();
+  cy.get(".t--property-control-defaultdate input").clear();
   cy.assertPageSave();
+});
+
+Cypress.Commands.add("ClearDateFooter", () => {
+  cy.get(formWidgetsPage.datepickerFooterPublish)
+    .contains("Clear")
+    .click({ force: true });
+  //cy.assertPageSave();
 });
 
 Cypress.Commands.add("DeleteModal", () => {
@@ -1570,14 +1629,22 @@ Cypress.Commands.add("optionValue", (value, value2) => {
 });
 Cypress.Commands.add("dropdownDynamic", (text) => {
   cy.wait(2000);
-  cy.get("ul[class='bp3-menu']")
-    .first()
+  cy.get("ul.bp3-menu")
     .contains(text)
     .click({ force: true })
     .should("have.text", text);
 });
+
+Cypress.Commands.add("dropdownDynamicUpdated", (text) => {
+  cy.wait(2000);
+  cy.get(commonlocators.dropdownmenu)
+    .contains(text)
+    .click({ force: true })
+    .should("have.text", text);
+});
+
 Cypress.Commands.add("selectTextSize", (text) => {
-  cy.get("ul[class='bp3-menu']")
+  cy.get(".t--dropdown-option")
     .first()
     .contains(text)
     .click({ force: true });

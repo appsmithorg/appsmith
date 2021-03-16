@@ -1,7 +1,7 @@
 {
   "checkboxWidget": ".t--draggable-checkboxwidget",
   "dropdownWidget": ".t--draggable-dropdownwidget",
-  "dropdownSelectionType": ".t--property-control-selectiontype",
+  "dropdownSelectionType": ".t--property-control-selectiontype .bp3-popover-target",
   "radioWidget": ".t--draggable-radiogroupwidget",
   "radioOnSelectionChangeDropdown": ".t--property-control-onselectionchange",
   "nextDayBtn": ".DayPicker-Day[aria-selected='true'] + div.DayPicker-Day",
@@ -28,6 +28,7 @@
   "radioAddButton": ".t--property-control-options button",
   "formD": "div[type='FORM_WIDGET']",
   "datepickerFooter": ".bp3-datepicker-footer span",
+  "datepickerFooterPublish": ".bp3-datepicker-footer span",
   "disableJs": ".t--property-control-disable input[type='checkbox']",
   "switchWidget": ".t--draggable-switchwidget",
   "toggleJsDefaultDate": ".t--property-control-defaultdate .t--js-toggle",

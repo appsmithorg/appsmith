@@ -14,7 +14,11 @@ import { Colors } from "constants/Colors";
 import _ from "lodash";
 import { RequestView } from "./RequestView";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import { CHECK_REQUEST_BODY, SHOW_REQUEST } from "constants/messages";
+import {
+  CHECK_REQUEST_BODY,
+  createMessage,
+  SHOW_REQUEST,
+} from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { Case, TextType } from "components/ads/Text";
 import Icon from "components/ads/Icon";
@@ -184,7 +188,7 @@ const ApiResponseView = (props: Props) => {
         <ResponseTabWrapper>
           {hasFailed && !isRunning && requestDebugVisible && (
             <Callout
-              text={CHECK_REQUEST_BODY}
+              text={createMessage(CHECK_REQUEST_BODY)}
               label={
                 <FailedMessage>
                   <ShowRequestText
@@ -194,7 +198,7 @@ const ApiResponseView = (props: Props) => {
                     }}
                   >
                     <Text type={TextType.H6} case={Case.UPPERCASE}>
-                      {SHOW_REQUEST}
+                      {createMessage(SHOW_REQUEST)}
                     </Text>
                     <Icon name="right-arrow" />
                   </ShowRequestText>

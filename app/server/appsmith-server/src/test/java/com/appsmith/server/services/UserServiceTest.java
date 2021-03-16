@@ -175,7 +175,7 @@ public class UserServiceTest {
                     // Since there is a template organization, the user won't have an empty default organization. They
                     // will get a clone of the default organization when they first login. So, we expect it to be
                     // empty here.
-                    assertThat(user.getOrganizationIds()).isNullOrEmpty();
+                    assertThat(user.getOrganizationIds()).hasSize(1);
                 })
                 .verifyComplete();
     }

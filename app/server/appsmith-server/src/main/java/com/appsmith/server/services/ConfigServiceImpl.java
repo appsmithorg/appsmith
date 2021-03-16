@@ -19,6 +19,8 @@ import javax.validation.Validator;
 import java.util.Collections;
 import java.util.List;
 
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+
 @Slf4j
 @Service
 public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, String> implements ConfigService {
@@ -74,14 +76,21 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
     @Override
     public Mono<String> getTemplateOrganizationId() {
         return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
-                .map(config -> config.getConfig().getAsString(FieldName.ORGANIZATION_ID));
+                .filter(config -> config.getConfig() != null)
+                .flatMap(config -> Mono.justOrEmpty(config.getConfig().getAsString(FieldName.ORGANIZATION_ID)))
+                .doOnError(error -> log.warn("Error getting template organization ID", error));
     }
 
     @Override
     public Flux<Application> getTemplateApplications() {
         return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
-                .map(config -> config.getConfig().getOrDefault("applicationIds", Collections.emptyList()))
+                .filter(config -> config.getConfig() != null)
+                .map(config -> defaultIfNull(
+                        config.getConfig().getOrDefault("applicationIds", null),
+                        Collections.emptyList()
+                ))
                 .cast(List.class)
+                .onErrorReturn(Collections.emptyList())
                 .flatMapMany(applicationRepository::findByIdIn);
     }
 }

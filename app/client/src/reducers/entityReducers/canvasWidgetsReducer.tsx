@@ -33,6 +33,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasLayout>,
   ) => {
     set(state[MAIN_CONTAINER_WIDGET_ID], "rightColumn", action.payload.width);
+    set(state[MAIN_CONTAINER_WIDGET_ID], "minHeight", action.payload.height);
   },
 });
 

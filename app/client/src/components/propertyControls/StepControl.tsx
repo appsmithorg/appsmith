@@ -1,7 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import StepComponent from "components/designSystems/appsmith/StepComponent";
-
+import StepComponent from "components/ads/StepComponent";
 class StepControl extends BaseControl<StepControlProps> {
   getStepTypeControls = () => {
     const { stepType } = this.props;
