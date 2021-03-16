@@ -67,7 +67,7 @@ class TernServer {
     if (additionalDataTree) {
       customDataTreeDef = customTreeTypeDefCreator(additionalDataTree);
     }
-    this.server = this.server = new tern.Server({
+    this.server = new tern.Server({
       async: true,
       defs: customDataTreeDef
         ? [...DEFS, dataTreeDef, customDataTreeDef]
