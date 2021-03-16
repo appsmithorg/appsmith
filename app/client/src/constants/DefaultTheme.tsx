@@ -50,6 +50,13 @@ export const hideScrollbar = css`
   }
 `;
 
+export const addEllipsisToTextBlock = css`
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+`;
+
 export const scrollbarDark = css`
   scrollbar-color: ${(props) => props.theme.colors.paneCard}
     ${(props) => props.theme.colors.paneBG};
