@@ -787,7 +787,7 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
+Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname, paste = true) => {
   cy.get(pages.addEntityAPI).click();
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
@@ -796,9 +796,22 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
+    .then((el) => {
+      const input = cy.get(el);
+      if (paste) {
+        input.invoke("val", apiname);
+      } else {
+        input.type(apiname, {
+          force: true,
+          parseSpecialCharSequences: false,
+        });
+      }
+    });
+  /*
     .type(apiname, { delay: 300 }, { force: true })
     .should("have.value", apiname)
     .focus();
+    */
   cy.WaitAutoSave();
   cy.get(".error-message").should(($x) => {
     console.log($x);
