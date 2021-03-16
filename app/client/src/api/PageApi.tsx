@@ -61,6 +61,7 @@ export interface SavePageResponse extends ApiResponse {
 export interface CreatePageRequest {
   applicationId: string;
   name: string;
+  layouts: Partial<PageLayout>[];
 }
 
 export interface UpdatePageRequest {
