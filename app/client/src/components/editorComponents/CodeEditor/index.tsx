@@ -41,6 +41,7 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -104,6 +105,7 @@ class CodeEditor extends Component<Props, State> {
   textArea = React.createRef<HTMLTextAreaElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
+  private editorWrapperRef = React.createRef<HTMLDivElement>();
 
   constructor(props: Props) {
     super(props);
@@ -350,7 +352,7 @@ class CodeEditor extends Component<Props, State> {
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
         isNotHover={this.state.isFocused || this.state.isOpened}
       >
-        {showLightningMenu !== false && (
+        {showLightningMenu !== false && !this.state.isFocused && (
           <Suspense fallback={<div />}>
             <LightningMenu
               skin={
@@ -388,6 +390,7 @@ class CodeEditor extends Component<Props, State> {
             isNotHover={this.state.isFocused || this.state.isOpened}
             hoverInteraction={hoverInteraction}
             fill={fill}
+            ref={this.editorWrapperRef}
           >
             <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (
@@ -427,6 +430,7 @@ class CodeEditor extends Component<Props, State> {
               promptMessage={this.props.promptMessage}
               editorTheme={this.props.theme}
             />
+            <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>

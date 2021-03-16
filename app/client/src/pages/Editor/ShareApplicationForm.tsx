@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { StyledSwitch } from "components/propertyControls/StyledControls";
+import Switch from "components/ads/Switch";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
@@ -46,7 +46,7 @@ export const ShareApplicationForm = (props: any) => {
           <Spinner size={20} />
         )}
         {currentApplicationDetails && (
-          <StyledSwitch
+          <Switch
             onChange={() => {
               changeAppViewAccess(
                 applicationId,

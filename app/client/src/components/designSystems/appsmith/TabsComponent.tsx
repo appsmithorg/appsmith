@@ -3,7 +3,8 @@ import styled, { css } from "styled-components";
 import { ComponentProps } from "./BaseComponent";
 import { TabsWidgetProps, TabContainerWidgetProps } from "widgets/TabsWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import { getBorderCSSShorthand, scrollbarLight } from "constants/DefaultTheme";
+import { getBorderCSSShorthand } from "constants/DefaultTheme";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -61,7 +62,6 @@ const TabsContainer = styled.div`
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  ${scrollbarLight};
   background: ${(props) => props.theme.colors.builderBodyBG};
   overflow: hidden;
   && {
@@ -115,6 +115,8 @@ const TabsComponent = (props: TabsComponentProps) => {
   const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
+  const tabsRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!props.shouldScrollContents) {
       tabContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
@@ -123,7 +125,7 @@ const TabsComponent = (props: TabsComponentProps) => {
   return (
     <TabsContainerWrapper ref={tabContainerRef}>
       {props.shouldShowTabs ? (
-        <TabsContainer>
+        <TabsContainer ref={tabsRef}>
           {props.tabs.map((tab, index) => (
             <StyledText
               className={`t--tab-${tab.label}`}
@@ -138,6 +140,7 @@ const TabsComponent = (props: TabsComponentProps) => {
             </StyledText>
           ))}
           <StyledTab />
+          <ScrollIndicator containerRef={tabContainerRef} mode="LIGHT" />
         </TabsContainer>
       ) : (
         undefined

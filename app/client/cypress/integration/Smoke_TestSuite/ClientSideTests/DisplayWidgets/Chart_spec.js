@@ -33,16 +33,17 @@ describe("Chart Widget Functionality", function() {
       .should("have.text", "App Sign Up");
 
     cy.get(viewWidgetsPage.chartType)
-      .find(commonlocators.dropdownbuttonclick)
-      .click({ force: true })
-      .get(commonlocators.dropdownmenu)
+      .last()
+      .click({ force: true });
+
+    cy.get(commonlocators.dropdownmenu)
       .children()
       .contains("Column Chart")
       .click();
     cy.get(viewWidgetsPage.chartType)
-      .find(commonlocators.menuSelection)
+      .last()
       .should("have.text", "Column Chart");
-    cy.testJsontext("chartdata", JSON.stringify(this.data.chartInput));
+    cy.testJsontext("chartseries", JSON.stringify(this.data.chartInput));
     cy.get(viewWidgetsPage.chartWidget)
       .should("be.visible")
       .and((chart) => {
