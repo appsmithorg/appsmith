@@ -269,9 +269,6 @@ describe("Table Widget Functionality", function() {
   });
 
   it("Check Selected Row(s) Resets When Table Data Changes", function() {
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
     cy.isSelectRow(1);
     cy.openPropertyPane("tablewidget");
 
