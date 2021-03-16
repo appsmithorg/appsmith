@@ -143,6 +143,7 @@ const descriptionByType = {
   [SEARCH_ITEM_TYPES.datasource]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.page]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.sectionTitle]: () => null,
+  [SEARCH_ITEM_TYPES.placeholder]: () => null,
 };
 
 const Description = (props: Props) => {

@@ -1,9 +1,9 @@
-import { scrollbarDark } from "constants/DefaultTheme";
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import AppIcon, { AppIconName, AppIconCollection } from "./AppIcon";
 import { Size } from "./Button";
 import { CommonComponentProps, Classes } from "./common";
+import ScrollIndicator from "./ScrollIndicator";
 
 type IconSelectorProps = CommonComponentProps & {
   onSelect?: (icon: AppIconName) => void;
@@ -25,7 +25,6 @@ const IconPalette = styled.div<{ fill?: boolean }>`
   &&::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.theme.colors.modal.scrollbar};
   }
-  ${scrollbarDark};
   &::-webkit-scrollbar {
     width: 4px;
   }
@@ -62,6 +61,7 @@ const IconBox = styled.div<{ selectedColor?: string }>`
 const IconSelector = (props: IconSelectorProps) => {
   const iconRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<AppIconName>(firstSelectedIcon());
+  const iconPaletteRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
     if (props.selectedIcon && iconRef.current) {
@@ -86,7 +86,11 @@ const IconSelector = (props: IconSelectorProps) => {
   }
 
   return (
-    <IconPalette fill={props.fill} data-cy={props.cypressSelector}>
+    <IconPalette
+      fill={props.fill}
+      data-cy={props.cypressSelector}
+      ref={iconPaletteRef}
+    >
       {props.iconPalette &&
         props.iconPalette.map((iconName: AppIconName, index: number) => {
           return (
@@ -110,6 +114,7 @@ const IconSelector = (props: IconSelectorProps) => {
             </IconBox>
           );
         })}
+      <ScrollIndicator containerRef={iconPaletteRef} mode="DARK" />
     </IconPalette>
   );
 };

@@ -27,6 +27,6 @@ describe("Datasource form related tests", function() {
 
     cy.get('.single-select:contains("Copy to page")').click();
     cy.get('.single-select:contains("Page1")').click();
-    cy.validateToastMessage("Testapi Action copied");
+    cy.validateToastMessage("Testapi action copied to page Page1 successfully");
   });
 });

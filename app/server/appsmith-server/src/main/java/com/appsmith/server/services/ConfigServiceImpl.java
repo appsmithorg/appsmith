@@ -74,7 +74,9 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
     @Override
     public Mono<String> getTemplateOrganizationId() {
         return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
-                .map(config -> config.getConfig().getAsString(FieldName.ORGANIZATION_ID));
+                .map(config -> config.getConfig().getAsString(FieldName.ORGANIZATION_ID))
+                .doOnError(error -> log.warn("Error getting template organization ID", error))
+                .onErrorReturn("");
     }
 
     @Override
@@ -82,6 +84,7 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
         return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
                 .map(config -> config.getConfig().getOrDefault("applicationIds", Collections.emptyList()))
                 .cast(List.class)
+                .onErrorReturn(Collections.emptyList())
                 .flatMapMany(applicationRepository::findByIdIn);
     }
 }

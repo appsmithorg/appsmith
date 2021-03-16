@@ -2,7 +2,11 @@ import React from "react";
 import { connect } from "react-redux";
 import { Form, reduxForm, InjectedFormProps, Field } from "redux-form";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
-import { ERROR_MESSAGE_NAME_EMPTY, NAME_SPACE_ERROR } from "constants/messages";
+import {
+  createMessage,
+  ERROR_MESSAGE_NAME_EMPTY,
+  NAME_SPACE_ERROR,
+} from "constants/messages";
 import { AppState } from "reducers";
 import {
   CreateApplicationFormValues,
@@ -29,10 +33,14 @@ type Props = InjectedFormProps<
 
 const validate = (values: CreateApplicationFormValues) => {
   if (!values[CREATE_APPLICATION_FORM_NAME_FIELD]) {
-    return { [CREATE_APPLICATION_FORM_NAME_FIELD]: ERROR_MESSAGE_NAME_EMPTY };
+    return {
+      [CREATE_APPLICATION_FORM_NAME_FIELD]: createMessage(
+        ERROR_MESSAGE_NAME_EMPTY,
+      ),
+    };
   } else if (!values[CREATE_APPLICATION_FORM_NAME_FIELD].trim()) {
     return {
-      [CREATE_APPLICATION_FORM_NAME_FIELD]: NAME_SPACE_ERROR,
+      [CREATE_APPLICATION_FORM_NAME_FIELD]: createMessage(NAME_SPACE_ERROR),
     };
   }
   return {};

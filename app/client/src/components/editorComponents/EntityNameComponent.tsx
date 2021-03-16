@@ -7,6 +7,7 @@ import {
   FIELD_REQUIRED_ERROR,
   VALID_FUNCTION_NAME_ERROR,
   UNIQUE_NAME_ERROR,
+  createMessage,
 } from "constants/messages";
 
 const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
@@ -56,11 +57,11 @@ export function validateEntityName(name: string, allNames?: string[]) {
 
   if (!/^[a-zA-Z_][0-9a-zA-Z_]*$/.test(name)) {
     validation.isValid = false;
-    validation.validationMessage += VALID_FUNCTION_NAME_ERROR;
+    validation.validationMessage += createMessage(VALID_FUNCTION_NAME_ERROR);
   }
   if (!name) {
     validation.isValid = false;
-    validation.validationMessage += FIELD_REQUIRED_ERROR;
+    validation.validationMessage += createMessage(FIELD_REQUIRED_ERROR);
   }
 
   if (
@@ -68,7 +69,7 @@ export function validateEntityName(name: string, allNames?: string[]) {
     allNames.findIndex((entityName) => entityName === name) !== -1
   ) {
     validation.isValid = false;
-    validation.validationMessage += UNIQUE_NAME_ERROR;
+    validation.validationMessage += createMessage(UNIQUE_NAME_ERROR);
   }
 
   return validation;
