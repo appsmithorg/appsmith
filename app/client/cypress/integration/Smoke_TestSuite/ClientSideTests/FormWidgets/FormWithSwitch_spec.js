@@ -5,11 +5,11 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/formSwitchDsl.json");
 const pages = require("../../../../locators/Pages.json");
 
-describe("Switch Widget within Form widget Functionality", function () {
+describe("Switch Widget within Form widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Switch Widget Functionality check with success message", function () {
+  it("Switch Widget Functionality check with success message", function() {
     cy.openPropertyPane("switchwidget");
     cy.widgetText(
       "Toggler",
@@ -23,7 +23,7 @@ describe("Switch Widget within Form widget Functionality", function () {
     cy.closePropertyPane();
   });
 
-  it("Form reset button valdiation with switch widget", function () {
+  it("Form reset button valdiation with switch widget", function() {
     cy.SearchEntityandOpen("FormButton2");
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
@@ -46,7 +46,7 @@ describe("Switch Widget within Form widget Functionality", function () {
         expect(text.trim()).to.equal(toasttext.trim());
       });
     cy.wait(7000);
-    cy.get("Button:contains('Reset')").click({ force: true })
+    cy.get("Button:contains('Reset')").click({ force: true });
     /*
     cy.get(".t--toast-action span")
       .last()
@@ -58,7 +58,6 @@ describe("Switch Widget within Form widget Functionality", function () {
       });
       */
   });
-
 });
 afterEach(() => {
   // put your clean up code if any
