@@ -266,9 +266,6 @@ describe("Table Widget Functionality", function() {
         expect(tabValue).to.be.equal("Ryan Holmes");
       });
     });
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
   });
 
   it("Check null values are displayed as empty cell", function() {
@@ -288,6 +285,7 @@ describe("Table Widget Functionality", function() {
       expect(tabValue).to.be.equal("");
     });
   });
+
   /*
   To enabled later
   
