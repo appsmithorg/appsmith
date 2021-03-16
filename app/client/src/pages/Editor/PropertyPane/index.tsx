@@ -43,6 +43,7 @@ const PropertyPaneWrapper = styled(PaneWrapper)<{
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
   margin: ${(props) => props.theme.spaces[2]}px;
+  margin-left: ${(props) => props.theme.spaces[10]}px;
   padding: ${(props) => props.theme.spaces[5]}px;
   padding-right: ${(props) => props.theme.spaces[5]}px;
   border-right: 0;

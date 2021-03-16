@@ -35,7 +35,6 @@ const PopperWrapper = styled.div<{ zIndex: number }>`
 const DragHandleBlock = styled.div`
   padding: 6px;
   margin-top: 6px;
-  margin-left: -16px;
   height: 28px;
   background-color: ${(props) =>
     props.theme.colors?.propertyPane?.bg || Colors.BLACK};
@@ -115,11 +114,17 @@ export default (props: PopperProps) => {
       );
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
-        draggableElement(_popper.popper, onPositionChange, position, () => (
-          <ThemeProvider theme={popperTheme}>
-            <PopperDragHandle {...props} />
-          </ThemeProvider>
-        ));
+        draggableElement(
+          "popper",
+          _popper.popper,
+          onPositionChange,
+          position,
+          () => (
+            <ThemeProvider theme={popperTheme}>
+              <PopperDragHandle {...props} />
+            </ThemeProvider>
+          ),
+        );
       }
 
       return () => {

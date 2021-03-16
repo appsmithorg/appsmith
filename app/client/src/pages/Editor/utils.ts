@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import ResizeObserver from "resize-observer-polyfill";
 
 export const draggableElement = (
+  id: string,
   element: any,
   onPositionChange: any,
   initPostion?: any,
@@ -113,7 +114,7 @@ export const draggableElement = (
 
   const OnInit = () => {
     if (dragHandle) {
-      dragHandler = createDragHandler(element, dragHandle);
+      dragHandler = createDragHandler(id, element, dragHandle);
     }
     if (initPostion) {
       setElementPosition();
@@ -124,12 +125,20 @@ export const draggableElement = (
   OnInit();
 };
 
-const createDragHandler = (el: any, dragHandle: () => JSX.Element) => {
+const createDragHandler = (
+  id: string,
+  el: any,
+  dragHandle: () => JSX.Element,
+) => {
+  const oldDragHandler = document.getElementById(`${id}-draghandler`);
   const dragElement = document.createElement("div");
+  dragElement.setAttribute("id", `${id}-draghandler`);
   dragElement.style.position = "absolute";
   dragElement.style.left = "0px";
   dragElement.style.top = "0px";
-  el.appendChild(dragElement);
+  oldDragHandler
+    ? el.replaceChild(dragElement, oldDragHandler)
+    : el.appendChild(dragElement);
   ReactDOM.render(dragHandle(), dragElement);
   return el;
 };
