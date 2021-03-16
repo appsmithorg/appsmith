@@ -4,7 +4,6 @@ import {
   CellLayoutProperties,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors, Color } from "constants/Colors";
-import { scrollbarLight } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
 
 export const TableWrapper = styled.div<{
@@ -360,7 +359,6 @@ export const TableHeaderWrapper = styled.div<{
   overflow-y: hidden;
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
-  ${scrollbarLight};
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div<{
