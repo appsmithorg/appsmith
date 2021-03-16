@@ -40,6 +40,7 @@ import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
+import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
 
 const Form = styled.form`
   display: flex;
@@ -172,7 +173,6 @@ interface APIFormProps {
   paginationType: PaginationType;
   appName: string;
   httpMethodFromForm: string;
-  actionConfigurationBody: Record<string, unknown> | string;
   actionConfigurationHeaders?: any;
   actionName: string;
   apiId: string;
@@ -226,7 +226,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     handleSubmit,
     isRunning,
     actionConfigurationHeaders,
-    actionConfigurationBody,
     httpMethodFromForm,
     actionName,
     headersCount,
@@ -270,6 +269,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   Close
                 </Text>
               }
+              minWidth="auto !important"
             >
               <IconContainer onClick={handleClose}>
                 <Icon
@@ -292,6 +292,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               text="Run"
               tag="button"
               size={Size.medium}
+              type="button"
               onClick={() => {
                 onRunClick();
               }}
@@ -306,7 +307,9 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"
             options={HTTP_METHOD_OPTIONS}
-            isSearchable={false}
+            width={"100px"}
+            optionWidth={"100px"}
+            height={"35px"}
           />
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField
@@ -331,7 +334,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                     {apiBindHelpSectionVisible && (
                       <HelpSection>
                         <Callout
-                          text="Having trouble taking inputs from widgets?"
+                          text={createMessage(WIDGET_BIND_HELP)}
                           label={
                             <CalloutContent>
                               <Link
@@ -386,9 +389,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   <>
                     {allowPostBody ? (
                       <PostBodyData
-                        actionConfigurationHeaders={actionConfigurationHeaders}
-                        actionConfiguration={actionConfigurationBody}
-                        change={props.change}
                         dataTreePath={`${actionName}.config`}
                         theme={theme}
                       />
@@ -442,7 +442,6 @@ const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 export default connect((state: AppState) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
-  const actionConfigurationBody = selector(state, "actionConfiguration.body");
   const actionConfigurationHeaders = selector(
     state,
     "actionConfiguration.headers",
@@ -450,16 +449,27 @@ export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const actionName = getApiName(state, apiId) || "";
   const headers = selector(state, "actionConfiguration.headers");
-  const headersCount = Array.isArray(headers) ? headers.length : 0;
+  let headersCount = 0;
+
+  if (Array.isArray(headers)) {
+    const validHeaders = headers.filter(
+      (value) => value.key && value.key !== "",
+    );
+    headersCount = validHeaders.length;
+  }
 
   const params = selector(state, "actionConfiguration.queryParameters");
-  const paramsCount = Array.isArray(params) ? params.length : 0;
+  let paramsCount = 0;
+
+  if (Array.isArray(params)) {
+    const validParams = params.filter((value) => value.key && value.key !== "");
+    paramsCount = validParams.length;
+  }
 
   return {
     actionName,
     apiId,
     httpMethodFromForm,
-    actionConfigurationBody,
     actionConfigurationHeaders,
     headersCount,
     paramsCount,

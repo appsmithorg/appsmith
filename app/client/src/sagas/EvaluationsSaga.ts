@@ -33,6 +33,11 @@ import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import _ from "lodash";
+import {
+  createMessage,
+  ERROR_EVAL_ERROR_GENERIC,
+  ERROR_EVAL_TRIGGER,
+} from "constants/messages";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -43,15 +48,29 @@ const evalErrorHandler = (errors: EvalError[]) => {
   errors.forEach((error) => {
     switch (error.type) {
       case EvalErrorTypes.DEPENDENCY_ERROR: {
-        Toaster.show({
-          text: error.message,
-          variant: Variant.danger,
-        });
+        if (error.context) {
+          // Add more info about node for the toast
+          const { node, entityType } = error.context;
+          Toaster.show({
+            text: `${error.message} Node was: ${node}`,
+            variant: Variant.danger,
+          });
+          // Send the generic error message to sentry for better grouping
+          Sentry.captureException(new Error(error.message), {
+            tags: {
+              node,
+              entityType,
+            },
+            // Level is warning because it could be a user error
+            level: Sentry.Severity.Warning,
+          });
+        }
+
         break;
       }
       case EvalErrorTypes.EVAL_TREE_ERROR: {
         Toaster.show({
-          text: "Unexpected error occurred while evaluating the app",
+          text: createMessage(ERROR_EVAL_ERROR_GENERIC),
           variant: Variant.danger,
         });
         break;
@@ -61,14 +80,20 @@ const evalErrorHandler = (errors: EvalError[]) => {
         break;
       }
       case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
+        log.debug(error);
         Toaster.show({
-          text: `Error occurred when executing trigger: ${error.message}`,
+          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
           variant: Variant.danger,
         });
         break;
       }
+      case EvalErrorTypes.EVAL_ERROR: {
+        log.debug(error);
+        break;
+      }
       default: {
         Sentry.captureException(error);
+        log.debug(error);
       }
     }
   });

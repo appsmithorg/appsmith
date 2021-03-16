@@ -147,7 +147,6 @@ const TextContainer = styled.div<{
 const IconWrapper = styled.div`
   width: ${(props) => props.theme.spaces[15]}px;
   padding-right: ${(props) => props.theme.spaces[5]}px;
-  height: ${(props) => props.theme.spaces[14] + 1}px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -177,6 +176,9 @@ export const EditableText = (props: EditableTextProps) => {
 
   useEffect(() => {
     setValue(defaultValue);
+  }, [defaultValue]);
+
+  useEffect(() => {
     setIsEditing(!!isEditingDefault);
   }, [defaultValue, isEditingDefault]);
 

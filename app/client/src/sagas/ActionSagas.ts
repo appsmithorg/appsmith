@@ -12,7 +12,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import { Datasource } from "entities/Datasource";
-import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
+import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
 import { GenericApiResponse } from "api/ApiResponses";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -32,6 +32,8 @@ import {
   updateActionSuccess,
 } from "actions/actionActions";
 import {
+  DynamicPath,
+  isChildPropertyPath,
   isDynamicValue,
   removeBindingsFromActionObject,
 } from "utils/DynamicBindingUtils";
@@ -40,6 +42,7 @@ import { transformRestAction } from "transformers/RestActionTransformer";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getDataSources,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
@@ -48,24 +51,33 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getEditorConfig,
   getPageNameByPageId,
   getSettingConfig,
 } from "selectors/entitiesSelector";
-import { getDataSources } from "selectors/editorSelectors";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
-  QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  QUERIES_EDITOR_ID_URL,
+  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getEditorConfig } from "selectors/entitiesSelector";
+import {
+  ACTION_COPY_SUCCESS,
+  ACTION_CREATED_SUCCESS,
+  ACTION_DELETE_SUCCESS,
+  ACTION_MOVE_SUCCESS,
+  createMessage,
+  ERROR_ACTION_COPY_FAIL,
+  ERROR_ACTION_MOVE_FAIL,
+  ERROR_ACTION_RENAME_FAIL,
+} from "constants/messages";
 import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -123,8 +135,11 @@ export function* createActionSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      const actionName = actionPayload.payload.name
+        ? actionPayload.payload.name
+        : "";
       Toaster.show({
-        text: `${actionPayload.payload.name} Action created`,
+        text: createMessage(ACTION_CREATED_SUCCESS, actionName),
         variant: Variant.success,
       });
 
@@ -330,7 +345,7 @@ export function* deleteActionSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       Toaster.show({
-        text: `${response.data.name} Action deleted`,
+        text: createMessage(ACTION_DELETE_SUCCESS, response.data.name),
         variant: Variant.success,
       });
       if (isApi) {
@@ -386,13 +401,14 @@ function* moveActionSaga(
     });
 
     const isValidResponse = yield validateResponse(response);
+    const pageName = yield select(getPageNameByPageId, response.data.pageId);
     if (isValidResponse) {
       Toaster.show({
-        text: `${response.data.name} Action moved`,
+        text: createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
         variant: Variant.success,
       });
     }
-    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+
     AnalyticsUtil.logEvent("MOVE_API", {
       apiName: response.data.name,
       pageName: pageName,
@@ -401,7 +417,7 @@ function* moveActionSaga(
     yield put(moveActionSuccess(response.data));
   } catch (e) {
     Toaster.show({
-      text: `Error while moving action ${actionObject.name}`,
+      text: createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name),
       variant: Variant.danger,
     });
     yield put(
@@ -432,14 +448,14 @@ function* copyActionSaga(
     const datasources = yield select(getDataSources);
 
     const isValidResponse = yield validateResponse(response);
+    const pageName = yield select(getPageNameByPageId, response.data.pageId);
     if (isValidResponse) {
       Toaster.show({
-        text: `${actionObject.name} Action copied`,
+        text: createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName),
         variant: Variant.success,
       });
     }
 
-    const pageName = yield select(getPageNameByPageId, response.data.pageId);
     AnalyticsUtil.logEvent("DUPLICATE_API", {
       apiName: response.data.name,
       pageName: pageName,
@@ -459,10 +475,9 @@ function* copyActionSaga(
 
     yield put(copyActionSuccess(payload));
   } catch (e) {
+    const actionName = actionObject ? actionObject.name : "";
     Toaster.show({
-      text: `Error while copying action ${
-        actionObject ? actionObject.name : ""
-      }`,
+      text: createMessage(ERROR_ACTION_COPY_FAIL, actionName),
       variant: Variant.danger,
     });
     yield put(copyActionError(action.payload));
@@ -544,7 +559,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       },
     });
     Toaster.show({
-      text: `Unable to update Action name`,
+      text: createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name),
       variant: Variant.danger,
     });
     console.error(e);
@@ -553,24 +568,33 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
 
 function getDynamicBindingsChangesSaga(
   action: Action,
-  value: string,
+  value: unknown,
   field: string,
 ) {
   const bindingField = field.replace("actionConfiguration.", "");
-  const isDynamic = isDynamicValue(value);
-  let dynamicBindings: Property[] = action.dynamicBindingPathList || [];
-  const fieldExists = _.some(dynamicBindings, { key: bindingField });
+  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
 
-  if (!isDynamic && fieldExists) {
-    dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+  if (typeof value === "object") {
+    dynamicBindings = dynamicBindings.filter((dynamicPath) => {
+      if (isChildPropertyPath(bindingField, dynamicPath.key)) {
+        const childPropertyValue = _.get(value, dynamicPath.key);
+        return isDynamicValue(childPropertyValue);
+      }
+    });
+  } else if (typeof value === "string") {
+    const fieldExists = _.some(dynamicBindings, { key: bindingField });
+
+    const isDynamic = isDynamicValue(value);
+
+    if (!isDynamic && fieldExists) {
+      dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+    }
+    if (isDynamic && !fieldExists) {
+      dynamicBindings.push({ key: bindingField });
+    }
   }
-  if (isDynamic && !fieldExists) {
-    dynamicBindings.push({ key: bindingField });
-  }
-  if (dynamicBindings !== action.dynamicBindingPathList) {
-    return dynamicBindings;
-  }
-  return action.dynamicBindingPathList;
+
+  return dynamicBindings;
 }
 
 function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {

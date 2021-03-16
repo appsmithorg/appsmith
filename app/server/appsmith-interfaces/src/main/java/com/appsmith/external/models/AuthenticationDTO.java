@@ -4,6 +4,7 @@ import com.appsmith.external.constants.Authentication;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
@@ -14,6 +15,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         visible = true,

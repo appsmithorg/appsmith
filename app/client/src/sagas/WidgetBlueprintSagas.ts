@@ -3,6 +3,7 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call } from "redux-saga/effects";
+import { get } from "lodash";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -84,7 +85,7 @@ export function* executeWidgetBlueprintOperations(
           | UpdatePropertyArgs[]
           | undefined = (operation.fn as BlueprintOperationModifyPropsFn)(
           widget as WidgetProps & { children?: WidgetProps[] },
-          widgets[widget.parentId],
+          get(widgets, widget.parentId || "", undefined),
         );
         updatePropertyPayloads &&
           updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {

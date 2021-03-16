@@ -11,7 +11,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES, SERVER_ERROR_CODES } from "constants/ApiConstants";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -21,6 +21,7 @@ import {
   ERROR_500,
   ERROR_0,
   DEFAULT_ERROR_MESSAGE,
+  createMessage,
 } from "constants/messages";
 
 /**
@@ -47,13 +48,15 @@ export function* callAPI(apiCall: any, requestPayload: any) {
 const getErrorMessage = (code: number) => {
   switch (code) {
     case 401:
-      return ERROR_401;
+      return createMessage(ERROR_401);
     case 500:
-      return ERROR_500;
+      return createMessage(ERROR_500);
     case 0:
-      return ERROR_0;
+      return createMessage(ERROR_0);
   }
 };
+
+export class IncorrectBindingError extends Error {}
 
 /**
  * validates if response does have any errors
@@ -74,14 +77,21 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
   if (response.responseMeta.success) {
     return true;
   } else {
-    yield put({
-      type: ReduxActionErrorTypes.API_ERROR,
-      payload: {
-        error: response.responseMeta.error,
-        show,
-      },
-    });
-    throw Error(response.responseMeta.error.message);
+    if (
+      response.responseMeta.error.code ===
+      SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
+    ) {
+      throw new IncorrectBindingError(response.responseMeta.error.message);
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.API_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+          show,
+        },
+      });
+      throw Error(response.responseMeta.error.message);
+    }
   }
 }
 
@@ -100,7 +110,7 @@ const ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {
   [ReduxActionErrorTypes.API_ERROR]: (error) =>
-    get(error, "message", DEFAULT_ERROR_MESSAGE),
+    get(error, "message", createMessage(DEFAULT_ERROR_MESSAGE)),
   [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: () =>
     getDefaultActionError("fetching the page"),
   [ReduxActionErrorTypes.SAVE_PAGE_ERROR]: () =>
@@ -116,7 +126,7 @@ const getErrorMessageFromActionType = (
     if (type in ActionErrorDisplayMap) {
       return ActionErrorDisplayMap[type](error);
     }
-    return DEFAULT_ERROR_MESSAGE;
+    return createMessage(DEFAULT_ERROR_MESSAGE);
   }
   return actionErrorMessage;
 };
@@ -158,7 +168,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
-        yield call(crashAppSaga);
+        yield call(crashAppSaga, error);
         break;
       }
     }
@@ -182,9 +192,10 @@ function showAlertAboutError(message: string) {
   Toaster.show({ text: message, variant: Variant.danger });
 }
 
-function* crashAppSaga() {
+function* crashAppSaga(error: ErrorPayloadType) {
   yield put({
     type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+    payload: error,
   });
 }
 

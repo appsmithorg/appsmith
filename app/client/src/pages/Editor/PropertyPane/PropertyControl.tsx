@@ -29,9 +29,11 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
+  theme: EditorTheme;
 };
 
 const PropertyControl = memo((props: Props) => {
@@ -71,13 +73,15 @@ const PropertyControl = memo((props: Props) => {
   const onBatchUpdateProperties = useCallback(
     (allUpdates: Record<string, unknown>) =>
       dispatch(
-        batchUpdateWidgetProperty(widgetProperties.widgetId, allUpdates),
+        batchUpdateWidgetProperty(widgetProperties.widgetId, {
+          modify: allUpdates,
+        }),
       ),
     [widgetProperties.widgetId, dispatch],
   );
 
   const onPropertyChange = useCallback(
-    (propertyName: string, propertyValue: any, isDynamicTrigger?: boolean) => {
+    (propertyName: string, propertyValue: any) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
         widgetName: widgetProperties.widgetName,
@@ -103,17 +107,16 @@ const PropertyControl = memo((props: Props) => {
         propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
           allUpdates[propertyPath] = propertyValue;
         });
-        if (!isDynamicTrigger) allUpdates[propertyName] = propertyValue;
+        allUpdates[propertyName] = propertyValue;
         onBatchUpdateProperties(allUpdates);
       }
-      if (!propertiesToUpdate || isDynamicTrigger) {
+      if (!propertiesToUpdate) {
         dispatch(
           updateWidgetPropertyRequest(
             widgetProperties.widgetId,
             propertyName,
             propertyValue,
             RenderModes.CANVAS, // This seems to be not needed anymore.
-            isDynamicTrigger,
           ),
         );
       }
@@ -132,6 +135,7 @@ const PropertyControl = memo((props: Props) => {
             onPropertiesChange: onBatchUpdateProperties,
             panelParentPropertyPath: props.propertyName,
             panel: props.panel,
+            theme: props.theme,
           },
         });
       }
@@ -223,7 +227,11 @@ const PropertyControl = memo((props: Props) => {
             }
           >
             <ControlPropertyLabelContainer>
-              <PropertyHelpLabel tooltip={props.helpText} label={label} />
+              <PropertyHelpLabel
+                tooltip={props.helpText}
+                label={label}
+                theme={props.theme}
+              />
               {isConvertible && (
                 <JSToggleButton
                   active={isDynamic}
@@ -244,6 +252,7 @@ const PropertyControl = memo((props: Props) => {
                   onPropertyChange: onPropertyChange,
                   openNextPanel: openPanel,
                   deleteProperties: onDeleteProperties,
+                  theme: props.theme,
                 },
                 isDynamic,
                 props.customJSControl,

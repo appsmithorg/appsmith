@@ -63,14 +63,16 @@ export const renderCell = (
           </CellWrapper>
         );
       }
-      const imageRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+      const imageSplitRegex = /[^(base64)],/;
+      const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+      const base64ImageRegex = /^data:image\/.*;base64/;
       return (
         <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
           {value
             .toString()
-            .split(",")
+            .split(imageSplitRegex)
             .map((item: string, index: number) => {
-              if (imageRegex.test(item)) {
+              if (imageUrlRegex.test(item) || base64ImageRegex.test(item)) {
                 return (
                   <a
                     onClick={(e) => e.stopPropagation()}
@@ -462,7 +464,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.tableData.map((currentRow) => { return currentRow.${accessor}})}}`,
+      : `{{${widgetName}.sanitizedTableData.map((currentRow) => { return currentRow.${accessor}})}}`,
   };
 
   return columnProps;

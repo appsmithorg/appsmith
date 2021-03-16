@@ -1,6 +1,6 @@
 import React from "react";
 import { IconProps } from "constants/IconConstants";
-import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
+import { createMessage, LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
 import { Theme, Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -82,11 +82,11 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
       isFocused={props.isFocused}
     >
       <Tooltip
-        content={LIGHTNING_MENU_DATA_TOOLTIP}
+        content={createMessage(LIGHTNING_MENU_DATA_TOOLTIP)}
         autoFocus={false}
         hoverOpenDelay={1000}
         openOnTargetFocus={false}
-        minWidth={180}
+        minWidth={"180px"}
         position={Position.LEFT}
       >
         <Icon name="lightning" size={IconSize.LARGE} />

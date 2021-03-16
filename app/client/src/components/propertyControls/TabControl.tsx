@@ -1,34 +1,20 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledInputGroup, StyledPropertyPaneButton } from "./StyledControls";
+import {
+  StyledHiddenIcon,
+  StyledInputGroup,
+  StyledPropertyPaneButton,
+  StyledVisibleIcon,
+  StyledDragIcon,
+  StyledDeleteIcon,
+} from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { FormIcons } from "icons/FormIcons";
-import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
 import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
+import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
-
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  margin-left: 15px;
-  cursor: pointer;
-`;
-
-const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  margin-right: 15px;
-  cursor: move;
-  svg {
-    path {
-      fill: ${(props) => props.theme.colors.paneSectionLabel};
-    }
-  }
-`;
+import { Category, Size } from "components/ads/Button";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -51,11 +37,14 @@ const TabsWrapper = styled.div`
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
+  margin-bottom: 2px;
+  width: 100%;
+  padding-left: 30px;
   &&& {
     input {
       border: none;
-      color: ${(props) => props.theme.colors.textOnDarkBG};
-      background: ${(props) => props.theme.colors.paneInputBG};
+      color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
+      background: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
       &:focus {
         border: none;
         color: ${(props) => props.theme.colors.textOnDarkBG};
@@ -69,31 +58,56 @@ type RenderComponentProps = {
   index: number;
   item: {
     label: string;
+    isVisible?: boolean;
   };
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
+  toggleVisibility?: (index: number) => void;
 };
 
 function TabControlComponent(props: RenderComponentProps) {
-  const { deleteOption, updateOption, item, index } = props;
+  const { deleteOption, updateOption, item, index, toggleVisibility } = props;
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
-        type="text"
+        dataType="text"
         placeholder="Tab Title"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          updateOption(index, event.target.value);
+        onChange={(value: string) => {
+          updateOption(index, value);
         }}
         defaultValue={item.label}
       />
       <StyledDeleteIcon
+        className="t--delete-tab-btn"
         height={20}
         width={20}
+        marginRight={12}
         onClick={() => {
           deleteOption(index);
         }}
       />
+      {item.isVisible || item.isVisible === undefined ? (
+        <StyledVisibleIcon
+          className="t--show-tab-btn"
+          height={20}
+          width={20}
+          marginRight={36}
+          onClick={() => {
+            toggleVisibility && toggleVisibility(index);
+          }}
+        />
+      ) : (
+        <StyledHiddenIcon
+          className="t--show-tab-btn"
+          height={20}
+          width={20}
+          marginRight={36}
+          onClick={() => {
+            toggleVisibility && toggleVisibility(index);
+          }}
+        />
+      )}
     </ItemWrapper>
   );
 }
@@ -147,18 +161,42 @@ class TabControl extends BaseControl<ControlProps> {
           deleteOption={this.deleteOption}
           updateOption={this.updateOption}
           updateItems={this.updateItems}
+          toggleVisibility={this.toggleVisibility}
         />
         <StyledPropertyPaneButtonWrapper>
           <StyledPropertyPaneButton
+            icon="plus"
+            tag="button"
+            type="button"
             text="Add a Tab"
-            color="#FFFFFF"
-            minimal
             onClick={this.addOption}
+            size={Size.medium}
+            category={Category.tertiary}
           />
         </StyledPropertyPaneButtonWrapper>
       </TabsWrapper>
     );
   }
+
+  toggleVisibility = (index: number) => {
+    const tabs: Array<{
+      id: string;
+      label: string;
+      isVisible: boolean;
+      widgetId: string;
+    }> = this.props.propertyValue.slice();
+    const isVisible = tabs[index].isVisible === true ? false : true;
+    const updatedTabs = tabs.map((tab, tabIndex) => {
+      if (index === tabIndex) {
+        return {
+          ...tab,
+          isVisible: isVisible,
+        };
+      }
+      return tab;
+    });
+    this.updateProperty(this.props.propertyName, updatedTabs);
+  };
 
   deleteOption = (index: number) => {
     let tabs: Array<Record<string, unknown>> = this.props.propertyValue.slice();

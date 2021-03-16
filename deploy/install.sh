@@ -431,7 +431,8 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Installation Started",
   "data": {
-      "os": "'"$os"'"
+      "os": "'"$os"'",
+      "platform": "docker"
    }
 }' > /dev/null
 
@@ -451,6 +452,16 @@ if [[ $desired_os -eq 0 ]];then
     }' > /dev/null
     exit 1
 else
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+      "event": "OS Check Passed",
+      "data": {
+          "os": "'"$os"'",
+          "platform": "docker"
+       }
+    }' > /dev/null
     echo "🙌 You're on an OS that is supported by this installation script."
     echo ""
 fi
@@ -471,8 +482,29 @@ if [[ $EUID -eq 0 ]]; then
     }' > /dev/null
     exit 1
 fi
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
+  "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+  "event": "Root Check Passed",
+  "data": {
+      "os": "'"$os"'",
+      "platform": "docker"
+   }
+}' > /dev/null
 
 check_ports_occupied
+
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
+  "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+  "event": "Port Check Passed",
+  "data": {
+      "os": "'"$os"'",
+      "platform": "docker"
+   }
+}' > /dev/null
 
 read -rp 'Installation Directory [appsmith]: ' install_dir
 install_dir="${install_dir:-appsmith}"
@@ -492,11 +524,23 @@ if [[ -e "$install_dir" ]]; then
         "event": "Installation Error",
         "data": {
             "os": "'"$os"'",
-            "error": "Directory Exists"
+            "error": "Directory Exists",
+            "directory": "'"$install_dir"'"
         }
     }' > /dev/null
     exit 1
 fi
+
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
+  "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+  "event": "Directory Check Passed",
+  "data": {
+      "os": "'"$os"'",
+      "platform": "docker"
+   }
+}' > /dev/null
 
 # Check is Docker daemon is installed and available. If not, the install & start Docker for Linux machines. We cannot automatically install Docker Desktop on Mac OS
 if ! is_command_present docker; then
@@ -522,6 +566,17 @@ if ! is_command_present docker; then
     fi
 fi
 
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
+  "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+  "event": "Docker Check Passed",
+  "data": {
+      "os": "'"$os"'",
+      "platform": "docker"
+   }
+}' > /dev/null
+
 # Install docker-compose
 if ! is_command_present docker-compose; then
     install_docker_compose
@@ -537,6 +592,16 @@ mkdir -p "$install_dir"
 echo ""
 
 if confirm y "Is this a fresh installation?"; then
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+      "event": "Fresh Install",
+      "data": {
+          "os": "'"$os"'",
+          "platform": "docker"
+       }
+    }' > /dev/null
     mongo_host="mongo"
     mongo_database="appsmith"
 
@@ -609,6 +674,17 @@ fi
 
 echo ""
 
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
+  "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+  "event": "Salt Generation Done",
+  "data": {
+      "os": "'"$os"'",
+      "platform": "docker"
+   }
+}' > /dev/null
+
 if confirm n "Do you have a custom domain that you would like to link? (Only for cloud installations)"; then
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
@@ -628,6 +704,16 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     echo ""
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
     if confirm y '(Your DNS records must be updated for us to proceed)'; then
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+          "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+          "event": "SSL Provisioning Start",
+          "data": {
+              "os": "'"$os"'",
+              "platform": "docker"
+           }
+        }' > /dev/null
         read -rp 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
     fi
 fi
@@ -673,6 +759,17 @@ overwrite_file "docker.env" "docker.env"
 overwrite_file "encryption.env" "encryption.env"
 
 echo ""
+
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+  --header 'Content-Type: text/plain' \
+  --data-raw '{
+    "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+    "event": "Config Files Generated",
+    "data": {
+        "os": "'"$os"'",
+        "platform": "docker"
+      }
+  }' > /dev/null
 
 cd "$install_dir"
 if [[ -n $custom_domain ]]; then

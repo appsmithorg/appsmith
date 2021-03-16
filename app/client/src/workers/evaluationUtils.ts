@@ -189,14 +189,6 @@ export const removeFunctions = (value: any) => {
   }
 };
 
-export const removeFunctionsFromDataTree = (dataTree: DataTree) => {
-  dataTree.actionPaths?.forEach((functionPath) => {
-    _.set(dataTree, functionPath, {});
-  });
-  delete dataTree.actionPaths;
-  return dataTree;
-};
-
 export const makeParentsDependOnChildren = (
   depMap: DependencyMap,
 ): DependencyMap => {
@@ -461,6 +453,17 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
     };
   };
   withFunction.actionPaths.push("copyToClipboard");
+
+  withFunction.resetWidget = function(
+    widgetName: string,
+    resetChildren = false,
+  ) {
+    return {
+      type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
+      payload: { widgetName, resetChildren },
+    };
+  };
+  withFunction.actionPaths.push("resetWidget");
 
   return withFunction;
 };

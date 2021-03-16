@@ -4,16 +4,19 @@ import {
   API_REQUEST_HEADERS,
   API_STATUS_CODES,
   ERROR_CODES,
+  SERVER_ERROR_CODES,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 import {
+  createMessage,
   ERROR_0,
   ERROR_500,
   SERVER_API_TIMEOUT_ERROR,
 } from "../constants/messages";
+import log from "loglevel";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -59,7 +62,7 @@ axiosInstance.interceptors.response.use(
     if (!window.navigator.onLine) {
       return Promise.reject({
         ...error,
-        message: ERROR_0,
+        message: createMessage(ERROR_0),
       });
     }
 
@@ -80,7 +83,7 @@ axiosInstance.interceptors.response.use(
     ) {
       return Promise.reject({
         ...error,
-        message: SERVER_API_TIMEOUT_ERROR,
+        message: createMessage(SERVER_API_TIMEOUT_ERROR),
         code: ERROR_CODES.REQUEST_TIMEOUT,
       });
     }
@@ -90,15 +93,12 @@ axiosInstance.interceptors.response.use(
         return Promise.reject({
           ...error,
           code: ERROR_CODES.SERVER_ERROR,
-          message: ERROR_500,
+          message: createMessage(ERROR_500),
         });
       }
 
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
-      // console.log(error.response.data);
-      // console.log(error.response.status);
-      // console.log(error.response.headers);
       if (!is404orAuthPath()) {
         const currentUrl = `${window.location.href}`;
         if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
@@ -116,7 +116,7 @@ axiosInstance.interceptors.response.use(
         const errorData = error.response.data.responseMeta;
         if (
           errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
-          errorData.error.code === 4028
+          errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND
         ) {
           return Promise.reject({
             code: ERROR_CODES.PAGE_NOT_FOUND,
@@ -133,10 +133,10 @@ axiosInstance.interceptors.response.use(
       // The request was made but no response was received
       // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
       // http.ClientRequest in node.js
-      console.log(error.request);
+      log.error(error.request);
     } else {
       // Something happened in setting up the request that triggered an Error
-      console.error("Error", error.message);
+      log.error("Error", error.message);
     }
     console.log(error.config);
     return Promise.resolve(error);

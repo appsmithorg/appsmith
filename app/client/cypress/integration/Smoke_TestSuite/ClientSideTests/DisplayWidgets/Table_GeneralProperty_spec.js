@@ -70,7 +70,9 @@ describe("Table Widget property pane feature validation", function() {
       .first()
       .click({ force: true });
     cy.wait(1000);
-    cy.get(widgetsPage.textSize).click({ force: true });
+    cy.get(widgetsPage.textSize)
+      .last()
+      .click({ force: true });
     cy.wait(1000);
     cy.selectTextSize("Heading 1");
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
@@ -87,7 +89,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.xpath(widgetsPage.greenColor).click();
     cy.wait(500);
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(41, 204, 163)");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)");
     cy.get(widgetsPage.textColor)
       .clear({ force: true })
       .type("purple", { force: true });
@@ -105,7 +107,7 @@ describe("Table Widget property pane feature validation", function() {
       "1",
       "0",
       "background",
-      "rgb(41, 204, 163) none repeat scroll 0% 0% / auto padding-box border-box",
+      "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
     );
     cy.get(widgetsPage.backgroundColor)
       .clear({ force: true })

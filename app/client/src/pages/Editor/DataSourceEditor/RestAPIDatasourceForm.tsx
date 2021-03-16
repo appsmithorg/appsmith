@@ -16,7 +16,9 @@ import {
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BackButton from "./BackButton";
-import InputTextControl from "components/formControls/InputTextControl";
+import InputTextControl, {
+  StyledInfo,
+} from "components/formControls/InputTextControl";
 import KeyValueInputControl from "components/formControls/KeyValueInputControl";
 import DropDownControl from "components/formControls/DropDownControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
@@ -47,9 +49,12 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
+  createMessage,
 } from "constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
+import FormLabel from "components/editorComponents/FormLabel";
+import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
@@ -180,7 +185,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       } else if (status === "appsmith_error") {
         message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
       }
-      Toaster.show({ text: display_message || message, variant });
+      Toaster.show({
+        text: display_message || createMessage(message),
+        variant,
+      });
     }
   };
 
@@ -194,6 +202,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   }
 
   ensureOAuthDefaultsAreCorrect = () => {
+    if (!this.props.formData) return;
     const { authentication } = this.props.formData;
 
     if (!authentication || !authentication.grantType) {
@@ -384,7 +393,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
-            label="Send Appsmith signature header (X-APPSMITH-SIGNATURE)"
+            label="Send Appsmith signature header"
+            subtitle="Header key: X-APPSMITH-SIGNATURE"
             configProperty="isSendSessionEnabled"
             isRequired={true}
             placeholderText=""
@@ -570,6 +580,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       "datasourceConfiguration.authentication.isAuthorized",
       false,
     );
+    const redirectURL =
+      window.location.origin + "/api/v1/datasources/authorize";
     return (
       <>
         {this.renderOauth2Common()}
@@ -580,6 +592,18 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             configProperty="authentication.authorizationUrl"
             placeholderText="https://example.com/login/oauth/authorize"
           />
+        </FormInputContainer>
+        <FormInputContainer>
+          <div style={{ width: "50vh" }}>
+            <FormLabel>
+              Redirect URL
+              <br />
+              <StyledInfo>
+                Url that the oauth server should redirect to
+              </StyledInfo>
+            </FormLabel>
+            <CopyToClipBoard copyText={redirectURL} />
+          </div>
         </FormInputContainer>
         <FormInputContainer>
           <KeyValueInputControl

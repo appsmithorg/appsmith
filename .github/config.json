@@ -150,6 +150,11 @@
       "color": "8de8ad",
       "description": ""
     },
+    "In App Comms": {
+      "name": "In App Comms",
+      "color": "56C8E3",
+      "description": ""
+    },
     "Input Widget": {
       "name": "Input Widget",
       "color": "ae65d8",
@@ -214,6 +219,11 @@
       "name": "Needs Triaging",
       "color": "e8b851",
       "description": "Needs attention from maintainers to triage"
+    },
+    "New Integration": {
+      "name": "New Integration",
+      "color": "BD53D8",
+      "description": "Requests for new integrations"
     },
     "New Widget": {
       "name": "New Widget",
@@ -493,6 +503,11 @@
                 "type": "hasLabel",
                 "label": "Actions",
                 "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "New Integration",
+                "value": true
               }
             ]
           },
@@ -667,6 +682,11 @@
               {
                 "type": "hasLabel",
                 "label": "Home Page",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "In App Comms",
                 "value": true
               },
               {

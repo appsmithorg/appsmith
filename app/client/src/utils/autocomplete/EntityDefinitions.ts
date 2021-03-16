@@ -84,9 +84,19 @@ export const entityDefinitions = {
       "!doc": "The value selected in a single select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a single select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
     selectedOptionValues: {
       "!type": "[string]",
       "!doc": "The array of values selected in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a multi select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
@@ -201,7 +211,6 @@ export const entityDefinitions = {
   },
   MAP_WIDGET: {
     isVisible: isVisible,
-    mapCenter: "latLong",
     center: "latLong",
     markers: "[mapMarker]",
     selectedMarker: "mapMarker",
@@ -211,7 +220,7 @@ export const entityDefinitions = {
       "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
     "!url": "https://docs.appsmith.com/widget-reference/filepicker",
     isVisible: isVisible,
-    files: "[?]",
+    files: "[file]",
     isDisabled: "bool",
     uploadedFileUrls: "string",
   },
@@ -244,6 +253,11 @@ export const GLOBAL_DEFS = {
     title: "string",
     description: "string",
   },
+  file: {
+    data: "string",
+    name: "text",
+    type: "file",
+  },
 };
 
 export const GLOBAL_FUNCTIONS = {
@@ -274,5 +288,9 @@ export const GLOBAL_FUNCTIONS = {
   copyToClipboard: {
     "!doc": "Copy text to clipboard",
     "!type": "fn(data: string, options: object) -> void",
+  },
+  resetWidget: {
+    "!doc": "Reset widget values",
+    "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
   },
 };

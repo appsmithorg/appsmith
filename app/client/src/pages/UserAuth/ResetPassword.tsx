@@ -41,14 +41,15 @@ import {
   RESET_PASSWORD_INVALID_TOKEN,
   RESET_PASSWORD_RESET_SUCCESS,
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
+  createMessage,
 } from "constants/messages";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
   if (!values.password || isEmptyString(values.password)) {
-    errors.password = FORM_VALIDATION_EMPTY_PASSWORD;
+    errors.password = createMessage(FORM_VALIDATION_EMPTY_PASSWORD);
   } else if (!isStrongPassword(values.password)) {
-    errors.password = FORM_VALIDATION_INVALID_PASSWORD;
+    errors.password = createMessage(FORM_VALIDATION_INVALID_PASSWORD);
   }
   return errors;
 };
@@ -97,24 +98,24 @@ export const ResetPassword = (props: ResetPasswordProps) => {
     messageActions = [
       {
         url: FORGOT_PASSWORD_URL,
-        text: RESET_PASSWORD_FORGOT_PASSWORD_LINK,
+        text: createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK),
         intent: "primary",
       },
     ];
   }
   if (showExpiredMessage) {
-    message = RESET_PASSWORD_EXPIRED_TOKEN;
+    message = createMessage(RESET_PASSWORD_EXPIRED_TOKEN);
   }
   if (showInvalidMessage) {
-    message = RESET_PASSWORD_INVALID_TOKEN;
+    message = createMessage(RESET_PASSWORD_INVALID_TOKEN);
   }
 
   if (showSuccessMessage) {
-    message = RESET_PASSWORD_RESET_SUCCESS;
+    message = createMessage(RESET_PASSWORD_RESET_SUCCESS);
     messageActions = [
       {
         url: AUTH_LOGIN_URL,
-        text: RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
+        text: createMessage(RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK),
         intent: "success",
       },
     ];
@@ -124,12 +125,14 @@ export const ResetPassword = (props: ResetPasswordProps) => {
     if (
       message
         .toLowerCase()
-        .includes(RESET_PASSWORD_FORGOT_PASSWORD_LINK.toLowerCase())
+        .includes(
+          createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK).toLowerCase(),
+        )
     ) {
       messageActions = [
         {
           url: FORGOT_PASSWORD_URL,
-          text: RESET_PASSWORD_FORGOT_PASSWORD_LINK,
+          text: createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK),
           intent: "primary",
         },
       ];
@@ -155,7 +158,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
   return (
     <>
       <AuthCardHeader>
-        <h1>{RESET_PASSWORD_PAGE_TITLE}</h1>
+        <h1>{createMessage(RESET_PASSWORD_PAGE_TITLE)}</h1>
       </AuthCardHeader>
       <div style={{ display: "flex", justifyContent: "center" }}>
         <AuthCardNavLink to={AUTH_LOGIN_URL}>
@@ -163,7 +166,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
             icon="arrow-left"
             style={{ marginRight: props.theme.spaces[3] }}
           />
-          {RESET_PASSWORD_LOGIN_LINK_TEXT}
+          {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
         </AuthCardNavLink>
       </div>
       {(showSuccessMessage || showFailureMessage) && (
@@ -172,12 +175,14 @@ export const ResetPassword = (props: ResetPasswordProps) => {
       <StyledForm onSubmit={handleSubmit(resetPasswordSubmitHandler)}>
         <FormGroup
           intent={error ? "danger" : "none"}
-          label={RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL}
+          label={createMessage(RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL)}
         >
           <FormTextField
             name="password"
             type="password"
-            placeholder={RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER}
+            placeholder={createMessage(
+              RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER,
+            )}
             disabled={submitSucceeded}
           />
         </FormGroup>
@@ -189,7 +194,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
             fill
             size={Size.large}
             type="submit"
-            text={RESET_PASSWORD_SUBMIT_BUTTON_TEXT}
+            text={createMessage(RESET_PASSWORD_SUBMIT_BUTTON_TEXT)}
             disabled={pristine || submitSucceeded}
             isLoading={submitting}
           />

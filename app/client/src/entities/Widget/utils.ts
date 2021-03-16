@@ -1,6 +1,7 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { get } from "lodash";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export const getAllPathsFromPropertyConfig = (
   widget: WidgetProps,
@@ -81,9 +82,50 @@ export const getAllPathsFromPropertyConfig = (
             );
           }
         }
+        if (controlConfig.children) {
+          // Property in array structure
+          const basePropertyPath = controlConfig.propertyName;
+          const widgetPropertyValue = get(widget, basePropertyPath, []);
+          if (Array.isArray(widgetPropertyValue)) {
+            widgetPropertyValue.forEach(
+              (arrayPropertyValue: any, index: number) => {
+                const arrayIndexPropertyPath = `${basePropertyPath}[${index}]`;
+                controlConfig.children.forEach((childPropertyConfig: any) => {
+                  const childArrayPropertyPath = `${arrayIndexPropertyPath}.${childPropertyConfig.propertyName}`;
+                  if (
+                    childPropertyConfig.isBindProperty &&
+                    !childPropertyConfig.isTriggerProperty
+                  ) {
+                    bindingPaths[childArrayPropertyPath] = true;
+                  } else if (
+                    childPropertyConfig.isBindProperty &&
+                    childPropertyConfig.isTriggerProperty
+                  ) {
+                    triggerPaths[childArrayPropertyPath] = true;
+                  }
+                });
+              },
+            );
+          }
+        }
       });
     }
   });
 
   return { bindingPaths, triggerPaths };
+};
+
+export const nextAvailableRowInContainer = (
+  parenContainertId: string,
+  canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
+) => {
+  return (
+    Object.values(canvasWidgets).reduce(
+      (prev: number, next: any) =>
+        next?.parentId === parenContainertId && next.bottomRow > prev
+          ? next.bottomRow
+          : prev,
+      0,
+    ) + 1
+  );
 };

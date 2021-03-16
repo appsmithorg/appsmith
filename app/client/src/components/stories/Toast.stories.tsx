@@ -39,7 +39,7 @@ export const ToastStory = () => {
         text="Show toast message"
         onClick={() => {
           Toaster.show({
-            text: text("message", "App name saved successfully"),
+            text: text("message", "Application name saved successfully"),
             duration: number("duration", 5000),
             variant: select("variant", Object.values(Variant), Variant.success),
             onUndo: action("on-undo"),

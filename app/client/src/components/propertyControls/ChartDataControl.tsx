@@ -12,7 +12,13 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import * as Sentry from "@sentry/react";
+import { Size, Category } from "components/ads/Button";
+
+const Wrapper = styled.div`
+  background-color: ${(props) =>
+    props.theme.colors.propertyPane.dropdownSelectBg};
+  padding: 0 8px;
+`;
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
@@ -42,6 +48,31 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   position: relative;
   margin-left: 15px;
   cursor: pointer;
+
+  &&& svg {
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.jsIconBg};
+    }
+  }
+`;
+
+const ActionHolder = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+
+const StyledLabel = styled.label`
+  margin: 8px auto 8px 0;
+
+  && {
+    color: ${(props) => props.theme.colors.propertyPane.label};
+  }
+`;
+
+const Box = styled.div`
+  height: 16px;
 `;
 
 type RenderComponentProps = {
@@ -59,6 +90,7 @@ type RenderComponentProps = {
     seriesName: string;
     data: Array<{ x: string; y: string }> | any;
   };
+  theme: EditorTheme;
 };
 
 function DataControlComponent(props: RenderComponentProps) {
@@ -73,6 +105,18 @@ function DataControlComponent(props: RenderComponentProps) {
   } = props;
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
+      <ActionHolder>
+        <StyledLabel>Series Tittle</StyledLabel>
+        {length > 1 && (
+          <StyledDeleteIcon
+            height={20}
+            width={20}
+            onClick={() => {
+              deleteOption(index);
+            }}
+          />
+        )}
+      </ActionHolder>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
         <CodeEditor
           expected={"string"}
@@ -89,22 +133,14 @@ function DataControlComponent(props: RenderComponentProps) {
             },
           }}
           evaluatedValue={evaluated?.seriesName}
-          theme={EditorTheme.DARK}
+          theme={props.theme}
           size={EditorSize.EXTENDED}
           mode={EditorModes.TEXT_WITH_BINDING}
           tabBehaviour={TabBehaviour.INPUT}
           placeholder="Series Name"
         />
-        {length > 1 && (
-          <StyledDeleteIcon
-            height={20}
-            width={20}
-            onClick={() => {
-              deleteOption(index);
-            }}
-          />
-        )}
       </StyledOptionControlWrapper>
+      <StyledLabel>Series Data</StyledLabel>
       <StyledDynamicInput
         className={"t--property-control-chart-series-data-control"}
       >
@@ -127,13 +163,14 @@ function DataControlComponent(props: RenderComponentProps) {
             error: isValid ? "" : "There is an error",
             touched: true,
           }}
-          theme={EditorTheme.DARK}
+          theme={props.theme}
           size={EditorSize.EXTENDED}
           mode={EditorModes.JSON_WITH_BINDING}
           tabBehaviour={TabBehaviour.INPUT}
           placeholder=""
         />
       </StyledDynamicInput>
+      <Box></Box>
     </StyledOptionControlWrapper>
   );
 }
@@ -174,32 +211,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
     return [];
   };
 
-  componentDidMount() {
-    this.migrateChartData(this.props.propertyValue);
-  }
-
-  migrateChartData(chartData: Array<{ seriesName: string; data: string }>) {
-    // Added a migration script for older chart data that was strings
-    // deprecate after enough charts have moved to the new format
-    if (_.isString(chartData)) {
-      try {
-        const parsedData: Array<{
-          seriesName: string;
-          data: string;
-        }> = JSON.parse(chartData);
-        this.updateProperty(this.props.propertyName, parsedData);
-        return parsedData;
-      } catch (error) {
-        Sentry.captureException({
-          message: "Chart Migration Failed",
-          oldData: this.props.propertyValue,
-        });
-      }
-    } else {
-      return this.props.propertyValue;
-    }
-  }
-
   render() {
     const chartData: Array<{ seriesName: string; data: string }> = _.isString(
       this.props.propertyValue,
@@ -235,44 +246,46 @@ class ChartDataControl extends BaseControl<ControlProps> {
           isValid={validations[0].isValid}
           validationMessage={validations[0].validationMessage}
           evaluated={evaluatedValue[0]}
+          theme={this.props.theme}
         />
       );
     }
     return (
       <React.Fragment>
-        {chartData.map((data, index) => {
-          return (
-            <DataControlComponent
-              key={index}
-              index={index}
-              item={data}
-              length={dataLength}
-              deleteOption={this.deleteOption}
-              updateOption={this.updateOption}
-              isValid={validations[index].isValid}
-              validationMessage={validations[index].validationMessage}
-              evaluated={evaluatedValue[index]}
-            />
-          );
-        })}
+        <Wrapper>
+          {chartData.map((data, index) => {
+            return (
+              <DataControlComponent
+                key={index}
+                index={index}
+                item={data}
+                length={dataLength}
+                deleteOption={this.deleteOption}
+                updateOption={this.updateOption}
+                isValid={validations[index].isValid}
+                validationMessage={validations[index].validationMessage}
+                evaluated={evaluatedValue[index]}
+                theme={this.props.theme}
+              />
+            );
+          })}
+        </Wrapper>
+
         <StyledPropertyPaneButton
-          text="Add Series"
           icon="plus"
-          color="#FFFFFF"
-          minimal
+          tag="button"
+          type="button"
+          text="Add Series"
           onClick={this.addOption}
+          size={Size.medium}
+          category={Category.tertiary}
         />
       </React.Fragment>
     );
   }
 
   deleteOption = (index: number) => {
-    const chartData: Array<{
-      seriesName: string;
-      data: string;
-    }> = this.props.propertyValue;
-    chartData.splice(index, 1);
-    this.updateProperty(this.props.propertyName, chartData);
+    this.deleteProperties([`${this.props.propertyName}[${index}]`]);
   };
 
   updateOption = (
@@ -280,20 +293,10 @@ class ChartDataControl extends BaseControl<ControlProps> {
     propertyName: string,
     updatedValue: string,
   ) => {
-    const chartData: Array<{
-      seriesName: string;
-      data: string;
-    }> = this.props.propertyValue;
-    const updatedChartData = chartData.map((item, i) => {
-      if (index === i) {
-        return {
-          ...item,
-          [propertyName]: updatedValue,
-        };
-      }
-      return item;
-    });
-    this.updateProperty(this.props.propertyName, updatedChartData);
+    this.updateProperty(
+      `${this.props.propertyName}[${index}].${propertyName}`,
+      updatedValue,
+    );
   };
 
   addOption = () => {
@@ -301,14 +304,10 @@ class ChartDataControl extends BaseControl<ControlProps> {
       seriesName: string;
       data: string;
     }> = this.props.propertyValue;
-    const updatedChartData = [
-      ...chartData,
-      {
-        seriesName: "",
-        data: JSON.stringify([{ x: "label", y: 50 }]),
-      },
-    ];
-    this.updateProperty(this.props.propertyName, updatedChartData);
+    this.updateProperty(`${this.props.propertyName}[${chartData.length}]`, {
+      seriesName: "",
+      data: JSON.stringify([{ x: "label", y: 50 }]),
+    });
   };
 
   static getControlType() {

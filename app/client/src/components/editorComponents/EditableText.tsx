@@ -36,7 +36,7 @@ type EditableTextProps = {
 
 const EditPen = styled.img`
   width: 14px;
-  : hover {
+  :hover {
     cursor: pointer;
   }
 `;
@@ -84,7 +84,9 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
         ? `border-color: ${props.isValid ? Colors.HIT_GRAY : "red"}`
         : ""};
     & .${Classes.EDITABLE_TEXT_CONTENT} {
-      text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
+      &:hover {
+        text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
+      }
     }
   }
 `;
@@ -102,12 +104,15 @@ export const EditableText = (props: EditableTextProps) => {
 
   useEffect(() => {
     setValue(props.defaultValue);
+  }, [props.defaultValue]);
+
+  useEffect(() => {
     setIsEditing(!!props.isEditingDefault);
-  }, [props.defaultValue, props.isEditingDefault, setValue]);
+  }, [props.defaultValue, props.isEditingDefault]);
 
   useEffect(() => {
     if (props.forceDefault === true) setValue(props.defaultValue);
-  }, [props.forceDefault, props.defaultValue, setValue]);
+  }, [props.forceDefault, props.defaultValue]);
 
   // at times onTextChange is not fired
   // for example when the modal is closed on clicking the overlay

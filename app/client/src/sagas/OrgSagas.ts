@@ -31,6 +31,7 @@ import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import history from "utils/history";
 import { getAllApplications } from "actions/applicationActions";
+import log from "loglevel";
 
 export function* fetchRolesSaga() {
   try {
@@ -43,7 +44,7 @@ export function* fetchRolesSaga() {
       });
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ORG_ROLES_ERROR,
       payload: {
@@ -256,7 +257,7 @@ export function* uploadOrgLogoSaga(action: ReduxAction<SaveOrgLogo>) {
       }
     }
   } catch (error) {
-    console.log("Error occured while uploading the logo", error);
+    log.error("Error occured while uploading the logo", error);
   }
 }
 
@@ -283,7 +284,7 @@ export function* deleteOrgLogoSaga(action: ReduxAction<{ id: string }>) {
       }
     }
   } catch (error) {
-    console.log("Error occured while removing the logo", error);
+    log.error("Error occured while removing the logo", error);
   }
 }
 

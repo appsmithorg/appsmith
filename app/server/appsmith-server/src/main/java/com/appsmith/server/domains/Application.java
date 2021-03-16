@@ -53,7 +53,13 @@ public class Application extends BaseDomain {
 
     String icon;
 
-    AppLayout appLayout;
+    @JsonIgnore
+    AppLayout unpublishedAppLayout;
+
+    @JsonIgnore
+    AppLayout publishedAppLayout;
+
+    Boolean forkingEnabled;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
@@ -65,12 +71,24 @@ public class Application extends BaseDomain {
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
         this.icon = application.getIcon();
-        this.appLayout = application.getAppLayout() == null ? null
-                : new AppLayout(application.getAppLayout().type, application.getAppLayout().getWidth());
+        this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
+        this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
     }
 
     public List<ApplicationPage> getPages() {
         return Boolean.TRUE.equals(viewMode) ? publishedPages : pages;
+    }
+
+    public AppLayout getAppLayout() {
+        return Boolean.TRUE.equals(viewMode) ? publishedAppLayout : unpublishedAppLayout;
+    }
+
+    public void setAppLayout(AppLayout appLayout) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedAppLayout = appLayout;
+        } else {
+            unpublishedAppLayout = appLayout;
+        }
     }
 
     @Data
@@ -78,10 +96,24 @@ public class Application extends BaseDomain {
     @AllArgsConstructor
     public static class AppLayout implements Serializable {
         Type type;
-        Integer width;
+
+        /**
+         * @deprecated The following field is deprecated and now removed, because it's needed in a migration. After the
+         * migration has been run, it may be removed (along with the migration or there'll be compile errors there).
+         */
+        @JsonIgnore
+        @Deprecated(forRemoval = true)
+        Integer width = null;
+
+        public AppLayout(Type type) {
+            this.type = type;
+        }
 
         public enum Type {
-            FIXED,
+            DESKTOP,
+            TABLET_LARGE,
+            TABLET,
+            MOBILE,
             FLUID,
         }
     }

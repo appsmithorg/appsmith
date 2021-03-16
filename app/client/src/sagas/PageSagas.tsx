@@ -57,7 +57,7 @@ import {
   getWidgets,
 } from "./selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { validateResponse } from "./ErrorSagas";
+import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -76,9 +76,15 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import log from "loglevel";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
+import * as Sentry from "@sentry/react";
+import { ERROR_CODES } from "constants/ApiConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import DEFAULT_TEMPLATE from "templates/default";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -205,7 +211,7 @@ export function* fetchPageSaga(
       );
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -253,11 +259,6 @@ export function* fetchPublishedPageSaga(
       // dispatch fetch page success
       yield put(
         fetchPublishedPageSuccess(
-          {
-            dsl: response.data.layouts[0].dsl,
-            pageId: request.pageId,
-            pageWidgetId: canvasWidgetsPayload.pageWidgetId,
-          },
           // Execute page load actions post published page eval
           [executePageLoadActions(canvasWidgetsPayload.pageActions)],
         ),
@@ -291,11 +292,11 @@ export function* fetchAllPublishedPagesSaga() {
       }),
     );
   } catch (error) {
-    console.log({ error });
+    log.error({ error });
   }
 }
 
-function* savePageSaga() {
+function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   const widgets = yield select(getWidgets);
   const editorConfigs = yield select(getEditorConfigs) as any;
   const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
@@ -305,6 +306,7 @@ function* savePageSaga() {
       pageId: savePageRequest.pageId,
     },
   );
+  AnalyticsUtil.logEvent("PAGE_SAVE", JSON.stringify(savePageRequest));
   try {
     // Store the updated DSL in the pageDSLs reducer
     yield put({
@@ -360,6 +362,39 @@ function* savePageSaga() {
         show: false,
       },
     });
+
+    if (error instanceof IncorrectBindingError) {
+      const { isRetry } = action.payload;
+      const incorrectBindingError = JSON.parse(error.message);
+      const { widgetId, message } = incorrectBindingError;
+      if (isRetry) {
+        Sentry.captureException(new Error("Failed to correct binding paths"));
+        yield put({
+          type: ReduxActionErrorTypes.FAILED_CORRECTING_BINDING_PATHS,
+          payload: {
+            error: {
+              message,
+              code: ERROR_CODES.FAILED_TO_CORRECT_BINDING,
+              crash: true,
+            },
+          },
+        });
+      } else {
+        const correctedWidget = migrateIncorrectDynamicBindingPathLists(
+          widgets[widgetId],
+        );
+        AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
+          error: error.message,
+          correctWidget: JSON.stringify(correctedWidget),
+        });
+        yield put(
+          updateAndSaveLayout(
+            { ...widgets, [widgetId]: correctedWidget },
+            true,
+          ),
+        );
+      }
+    }
   }
 }
 
@@ -379,10 +414,11 @@ function getLayoutSavePayload(
   };
 }
 
-export function* saveLayoutSaga() {
+export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
     yield put({
       type: ReduxActionTypes.SAVE_PAGE_INIT,
+      payload: action.payload,
     });
   } catch (error) {
     yield put({
@@ -719,13 +755,17 @@ function* fetchPageDSLSaga(pageId: string) {
     }
   } catch (error) {
     yield put({
-      type: ReduxActionTypes.FETCH_PAGE_DSL_ERROR,
+      type: ReduxActionErrorTypes.FETCH_PAGE_DSL_ERROR,
       payload: {
         pageId: pageId,
         error,
-        show: false,
+        show: true,
       },
     });
+    return {
+      pageId: pageId,
+      dsl: DEFAULT_TEMPLATE,
+    };
   }
 }
 
