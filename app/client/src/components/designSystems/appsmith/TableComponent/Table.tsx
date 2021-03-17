@@ -17,7 +17,6 @@ import {
   CompactMode,
   CompactModeTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import ScrollIndicator from "components/designSystems/appsmith/ScrollIndicator";
 import HorizontalScrollIndicator from "components/designSystems/appsmith/HorizontalScrollIndicator";
 import { Colors } from "constants/Colors";
 
