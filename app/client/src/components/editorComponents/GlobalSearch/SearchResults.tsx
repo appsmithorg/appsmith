@@ -33,7 +33,10 @@ export const SearchItemContainer = styled.div<{
   itemType: SEARCH_ITEM_TYPES;
 }>`
   cursor: ${(props) =>
-    props.itemType !== SEARCH_ITEM_TYPES.sectionTitle ? "pointer" : "default"};
+    props.itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
+    props.itemType !== SEARCH_ITEM_TYPES.placeholder
+      ? "pointer"
+      : "default"};
   display: flex;
   align-items: center;
   padding: ${(props) =>
@@ -41,13 +44,16 @@ export const SearchItemContainer = styled.div<{
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
   margin: ${(props) => props.theme.spaces[1]}px 0;
   background-color: ${(props) =>
-    props.isActiveItem && props.itemType !== SEARCH_ITEM_TYPES.sectionTitle
+    props.isActiveItem &&
+    props.itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
+    props.itemType !== SEARCH_ITEM_TYPES.placeholder
       ? props.theme.colors.globalSearch.activeSearchItemBackground
       : "unset"};
 
   &:hover {
     background-color: ${(props) =>
-      props.itemType !== SEARCH_ITEM_TYPES.sectionTitle
+      props.itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
+      props.itemType !== SEARCH_ITEM_TYPES.placeholder
         ? props.theme.colors.globalSearch.activeSearchItemBackground
         : "unset"};
     ${StyledActionLink} {
@@ -239,6 +245,8 @@ const SectionTitle = ({ item }: { item: SearchItem }) => (
   </StyledSectionTitleContainer>
 );
 
+const Placeholder = ({ item }: { item: SearchItem }) => <div>{item.title}</div>;
+
 const SearchItemByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationItem,
   [SEARCH_ITEM_TYPES.widget]: WidgetItem,
@@ -246,6 +254,7 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.datasource]: DatasourceItem,
   [SEARCH_ITEM_TYPES.page]: PageItem,
   [SEARCH_ITEM_TYPES.sectionTitle]: SectionTitle,
+  [SEARCH_ITEM_TYPES.placeholder]: Placeholder,
 };
 
 type ItemProps = {
@@ -276,7 +285,10 @@ const SearchItemComponent = (props: ItemProps) => {
     <SearchItemContainer
       ref={itemRef}
       onClick={() => {
-        if (itemType !== SEARCH_ITEM_TYPES.sectionTitle) {
+        if (
+          itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
+          itemType !== SEARCH_ITEM_TYPES.placeholder
+        ) {
           setActiveItemIndex(index);
           if (itemType !== SEARCH_ITEM_TYPES.document) {
             searchContext?.handleItemLinkClick(item, "SEARCH_ITEM");

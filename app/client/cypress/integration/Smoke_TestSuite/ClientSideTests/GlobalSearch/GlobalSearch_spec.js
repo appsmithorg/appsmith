@@ -1,3 +1,4 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../locators/commonlocators.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");

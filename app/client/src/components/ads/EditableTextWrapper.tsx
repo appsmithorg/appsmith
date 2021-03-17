@@ -4,6 +4,10 @@ import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Variant } from "./common";
 import { Toaster } from "./Toast";
+import {
+  createMessage,
+  ERROR_EMPTY_APPLICATION_NAME,
+} from "constants/messages";
 
 type EditableTextWrapperProps = EditableTextProps & {
   variant: "UNDERLINE" | "ICON";
@@ -106,7 +110,7 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
             return props.isInvalid(value);
           } else if (value.trim() === "") {
             Toaster.show({
-              text: "Application name can't be empty",
+              text: createMessage(ERROR_EMPTY_APPLICATION_NAME),
               variant: Variant.danger,
             });
             return false;
