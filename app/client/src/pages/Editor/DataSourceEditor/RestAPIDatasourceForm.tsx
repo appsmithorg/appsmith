@@ -49,6 +49,7 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
+  createMessage,
 } from "constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
@@ -184,7 +185,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       } else if (status === "appsmith_error") {
         message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
       }
-      Toaster.show({ text: display_message || message, variant });
+      Toaster.show({
+        text: display_message || createMessage(message),
+        variant,
+      });
     }
   };
 

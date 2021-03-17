@@ -9,10 +9,12 @@ import React from "react";
 import WidgetFactory from "utils/WidgetFactory";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export type PropertyControlsGeneratorProps = {
   type: WidgetType;
   panel: IPanelProps;
+  theme: EditorTheme;
 };
 
 export const generatePropertyControl = (
@@ -41,6 +43,7 @@ export const generatePropertyControl = (
           key={config.id}
           {...(config as PropertyPaneControlConfig)}
           panel={props.panel}
+          theme={props.theme}
         />
       );
     }

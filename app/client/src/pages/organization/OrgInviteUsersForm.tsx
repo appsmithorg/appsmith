@@ -16,6 +16,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import {
+  createMessage,
   INVITE_USERS_SUBMIT_SUCCESS,
   INVITE_USERS_VALIDATION_EMAILS_EMPTY,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
@@ -34,9 +35,9 @@ import Text, { TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import { scrollbarDark } from "constants/DefaultTheme";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -89,7 +90,6 @@ const UserList = styled.div`
   &&::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.theme.colors.modal.scrollbar};
   }
-  ${scrollbarDark};
 `;
 
 const User = styled.div`
@@ -160,27 +160,31 @@ const validateFormValues = (values: { users: string; role: string }) => {
     _users.forEach((user) => {
       if (!isEmail(user)) {
         throw new SubmissionError({
-          _error: INVITE_USERS_VALIDATION_EMAIL_LIST,
+          _error: createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST),
         });
       }
     });
   } else {
-    throw new SubmissionError({ _error: INVITE_USERS_VALIDATION_EMAILS_EMPTY });
+    throw new SubmissionError({
+      _error: createMessage(INVITE_USERS_VALIDATION_EMAILS_EMPTY),
+    });
   }
 
   if (values.role === undefined || values.role?.trim().length === 0) {
-    throw new SubmissionError({ _error: INVITE_USERS_VALIDATION_ROLE_EMPTY });
+    throw new SubmissionError({
+      _error: createMessage(INVITE_USERS_VALIDATION_ROLE_EMPTY),
+    });
   }
 };
 
 const validate = (values: any) => {
   const errors: any = {};
   if (!(values.users && values.users.length > 0)) {
-    errors["users"] = INVITE_USERS_VALIDATION_EMAILS_EMPTY;
+    errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAILS_EMPTY);
   }
 
   if (values.role === undefined || values.role?.trim().length === 0) {
-    errors["role"] = INVITE_USERS_VALIDATION_ROLE_EMPTY;
+    errors["role"] = createMessage(INVITE_USERS_VALIDATION_ROLE_EMPTY);
   }
 
   if (values.users && values.users.length > 0) {
@@ -188,7 +192,7 @@ const validate = (values: any) => {
 
     _users.forEach((user: string) => {
       if (!isEmail(user)) {
-        errors["users"] = INVITE_USERS_VALIDATION_EMAIL_LIST;
+        errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
       }
     });
   }
@@ -199,7 +203,7 @@ const { mailEnabled } = getAppsmithConfigs();
 
 const OrgInviteUsersForm = (props: any) => {
   const [emailError, setEmailError] = useState("");
-
+  const userRef = React.createRef<HTMLDivElement>();
   const {
     handleSubmit,
     allUsers,
@@ -321,7 +325,7 @@ const OrgInviteUsersForm = (props: any) => {
                 </a>
               </MailConfigContainer>
             )}
-            <UserList style={{ justifyContent: "space-between" }}>
+            <UserList style={{ justifyContent: "space-between" }} ref={userRef}>
               {allUsersProfiles.map(
                 (user: {
                   username: string;
@@ -349,6 +353,7 @@ const OrgInviteUsersForm = (props: any) => {
                   );
                 },
               )}
+              <ScrollIndicator containerRef={userRef} mode="DARK" />
             </UserList>
           </React.Fragment>
         )}
@@ -357,7 +362,7 @@ const OrgInviteUsersForm = (props: any) => {
             <Callout
               variant={Variant.success}
               fill
-              text={INVITE_USERS_SUBMIT_SUCCESS}
+              text={createMessage(INVITE_USERS_SUBMIT_SUCCESS)}
             />
           )}
           {((submitFailed && error) || emailError) && (

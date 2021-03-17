@@ -1,6 +1,7 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { get } from "lodash";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export const getAllPathsFromPropertyConfig = (
   widget: WidgetProps,
@@ -112,4 +113,19 @@ export const getAllPathsFromPropertyConfig = (
   });
 
   return { bindingPaths, triggerPaths };
+};
+
+export const nextAvailableRowInContainer = (
+  parenContainertId: string,
+  canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
+) => {
+  return (
+    Object.values(canvasWidgets).reduce(
+      (prev: number, next: any) =>
+        next?.parentId === parenContainertId && next.bottomRow > prev
+          ? next.bottomRow
+          : prev,
+      0,
+    ) + 1
+  );
 };

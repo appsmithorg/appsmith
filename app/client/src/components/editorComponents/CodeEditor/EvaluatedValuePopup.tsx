@@ -4,8 +4,9 @@ import _ from "lodash";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { theme, scrollbarDark, scrollbarLight } from "constants/DefaultTheme";
+import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const Wrapper = styled.div`
   position: relative;
@@ -53,8 +54,6 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
 `;
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  ${(props) =>
-    props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
   max-height: 300px;
   overflow-y: auto;
   -ms-overflow-style: none;
@@ -63,19 +62,16 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
-  ${(props) =>
-    props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
   margin: 0px 0px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
   font-size: 14px;
   -ms-overflow-style: none;
   white-space: pre-wrap;
+  word-break: break-all;
 `;
 
 const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
-  ${(props) =>
-    props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
   padding: ${(props) => props.theme.spaces[3]}px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
@@ -124,8 +120,14 @@ export const CurrentValueViewer = (props: {
   evaluatedValue: any;
   hideLabel?: boolean;
 }) => {
+  const currentValueWrapperRef = React.createRef<HTMLDivElement>();
+  const codeWrapperRef = React.createRef<HTMLPreElement>();
+
   let content = (
-    <CodeWrapper colorTheme={props.theme}>{"undefined"}</CodeWrapper>
+    <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
+      {"undefined"}
+      <ScrollIndicator containerRef={codeWrapperRef} />
+    </CodeWrapper>
   );
   if (props.evaluatedValue !== undefined) {
     if (
@@ -147,10 +149,11 @@ export const CurrentValueViewer = (props: {
       content = <ReactJson src={props.evaluatedValue} {...reactJsonProps} />;
     } else {
       content = (
-        <CodeWrapper colorTheme={props.theme}>
+        <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
           {props.evaluatedValue === null
             ? "null"
             : props.evaluatedValue.toString()}
+          <ScrollIndicator containerRef={codeWrapperRef} />
         </CodeWrapper>
       );
     }
@@ -159,13 +162,18 @@ export const CurrentValueViewer = (props: {
     <React.Fragment>
       {!props.hideLabel && <StyledTitle>Evaluated Value</StyledTitle>}
       <CurrentValueWrapper colorTheme={props.theme}>
-        {content}
+        <>
+          {content}
+          <ScrollIndicator containerRef={currentValueWrapperRef} />
+        </>
       </CurrentValueWrapper>
     </React.Fragment>
   );
 };
 
 const PopoverContent = (props: PopoverContentProps) => {
+  const typeTextRef = React.createRef<HTMLPreElement>();
+
   return (
     <ContentWrapper
       onMouseEnter={props.onMouseEnter}
@@ -179,7 +187,10 @@ const PopoverContent = (props: PopoverContentProps) => {
       {!props.hasError && props.expected && (
         <React.Fragment>
           <StyledTitle>Expected Data Type</StyledTitle>
-          <TypeText colorTheme={props.theme}>{props.expected}</TypeText>
+          <TypeText colorTheme={props.theme} ref={typeTextRef}>
+            {props.expected}
+            <ScrollIndicator containerRef={typeTextRef} />
+          </TypeText>
         </React.Fragment>
       )}
       <CurrentValueViewer
