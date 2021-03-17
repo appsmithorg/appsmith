@@ -1,8 +1,8 @@
 import React from "react";
 import styled, { withTheme } from "styled-components";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
-import Icon, { IconSize } from "components/ads/Icon";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
+import CommentContextMenu from "./CommentContextMenu";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -48,11 +48,7 @@ const CommentCard = ({ comment, theme }: { comment: any; theme: Theme }) => {
           <ProfileImage userName={userName} side={24} />
           <UserName>{userName}</UserName>
         </div>
-        <Icon
-          name="card-context-menu"
-          fillColor={theme.colors.comments.profileUserName}
-          size={IconSize.LARGE}
-        />
+        <CommentContextMenu />
       </CommentHeader>
       <CommentBody>{bodyText}</CommentBody>
     </StyledContainer>
