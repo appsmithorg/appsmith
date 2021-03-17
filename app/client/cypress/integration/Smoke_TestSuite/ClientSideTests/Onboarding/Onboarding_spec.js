@@ -16,7 +16,7 @@ describe("Onboarding", function() {
     );
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.wait(5000);
 
     cy.get(".t--start-building")
       .should("be.visible")
