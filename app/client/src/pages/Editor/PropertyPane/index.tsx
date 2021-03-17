@@ -16,7 +16,7 @@ import {
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import styled, { hideScrollbar } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import AnalyticsUtil from "utils/AnalyticsUtil";
