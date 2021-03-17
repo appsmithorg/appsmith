@@ -15,8 +15,14 @@ describe("Onboarding", function() {
       201,
     );
     cy.wait("@getDataSources");
-    cy.get(".t--start-building").click();
-
+    cy.wait("@getPluginForm").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(".t--start-building")
+      .should("be.visible")
+      .click({ force: true });
     // Create and run query
     cy.get(".t--onboarding-indicator").should("be.visible");
     cy.get(".t--create-query").click();
