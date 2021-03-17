@@ -7,6 +7,7 @@ import {
   ThreadContainer,
   ThreadHeader,
   ThreadHeaderTitle,
+  CommentsContainer,
 } from "./StyledComponents";
 
 import { addCommentToThreadRequest } from "actions/commentActions";
@@ -33,10 +34,12 @@ const InlineCommentThreadContainer = ({
       <ThreadHeader>
         <ThreadHeaderTitle>Comments</ThreadHeaderTitle>
       </ThreadHeader>
-      {comments &&
-        comments.map((comment, index) => (
-          <CommentCard key={index} comment={comment} />
-        ))}
+      <CommentsContainer>
+        {comments &&
+          comments.map((comment, index) => (
+            <CommentCard key={index} comment={comment} />
+          ))}
+      </CommentsContainer>
       <AddCommentInput onSave={addComment} />
     </ThreadContainer>
   );

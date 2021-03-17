@@ -14,16 +14,6 @@ const StyledInputContainer = styled.div`
     ${(props) => props.theme.colors.comments.addCommentInputBorder};
   background: ${(props) =>
     props.theme.colors.comments.addCommentInputBackground};
-
-  & input {
-    flex: 1;
-    border: none;
-    ${(props) => getTypographyByKey(props, "p1")};
-    line-height: 24px;
-    color: ${(props) => props.theme.colors.comments.commentBody};
-    background: ${(props) =>
-      props.theme.colors.comments.addCommentInputBackground};
-  }
 `;
 
 const StyledSendButton = styled.button`
@@ -45,13 +35,32 @@ const PaddingContainer = styled.div`
   padding-top: 0;
 `;
 
+/** TODO: make input autogrow */
+const StyledTextArea = styled.textarea`
+  flex: 1;
+  border: none;
+  ${(props) => getTypographyByKey(props, "p1")};
+  line-height: 24px;
+  color: ${(props) => props.theme.colors.comments.commentBody};
+  background: ${(props) =>
+    props.theme.colors.comments.addCommentInputBackground};
+  word-wrap: break-word;
+  word-break: break-word;
+  resize: none;
+  outline: none;
+  height: 29px;
+`;
+
 const AddCommentInput = withTheme(({ onSave, theme }: any) => {
   const [value, setValue] = useState("");
 
   return (
     <PaddingContainer>
       <StyledInputContainer>
-        <input onChange={(e) => setValue(e.target.value)} value={value} />
+        <StyledTextArea
+          onChange={(e) => setValue(e.target.value)}
+          value={value}
+        />
         <StyledEmojiTrigger>
           <Icon name="emoji" size={IconSize.LARGE} />
         </StyledEmojiTrigger>

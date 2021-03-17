@@ -15,3 +15,8 @@ export const ThreadHeaderTitle = styled.div`
   ${(props) => getTypographyByKey(props, "h5")}
   color: ${(props) => props.theme.colors.comments.commentBody};
 `;
+
+export const CommentsContainer = styled.div`
+  max-height: 285px;
+  overflow: auto;
+`;
