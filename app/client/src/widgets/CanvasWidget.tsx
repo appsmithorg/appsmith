@@ -88,6 +88,7 @@ class CanvasWidget extends ContainerWidget {
   }
 
   getCanvasView() {
+    if (this.props.dropDisabled) return this.getPageView();
     return this.renderAsDropTarget();
   }
 }

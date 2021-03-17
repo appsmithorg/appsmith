@@ -34,7 +34,6 @@ import {
   WidgetEvaluatedProps,
 } from "../utils/DynamicBindingUtils";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { ControlType } from "constants/PropertyControlConstants";
 
 /***
  * BaseWidget

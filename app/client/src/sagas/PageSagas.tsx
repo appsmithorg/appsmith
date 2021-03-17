@@ -1,5 +1,3 @@
-import { get } from "lodash";
-
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppState } from "reducers";
 import {
