@@ -70,7 +70,9 @@ describe("Table Widget property pane feature validation", function() {
       .first()
       .click({ force: true });
     cy.wait(1000);
-    cy.get(widgetsPage.textSize).click({ force: true });
+    cy.get(widgetsPage.textSize)
+      .last()
+      .click({ force: true });
     cy.wait(1000);
     cy.selectTextSize("Heading 1");
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");

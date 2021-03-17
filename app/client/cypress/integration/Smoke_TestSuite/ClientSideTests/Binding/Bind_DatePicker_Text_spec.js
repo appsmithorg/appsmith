@@ -25,6 +25,7 @@ describe("Binding the Datepicker and Text Widget", function() {
      */
     cy.openPropertyPane("datepickerwidget");
     cy.get(formWidgetsPage.defaultDate).click();
+    cy.ClearDateFooter();
     cy.SetDateToToday();
 
     cy.getDate(1, "YYYY-MM-DD").then((date) => {
@@ -41,6 +42,7 @@ describe("Binding the Datepicker and Text Widget", function() {
       cy.get(publishPage.datepickerWidget + commonlocators.inputField)
         .eq(0)
         .click();
+      cy.ClearDateFooter();
       cy.setDate(1, "ddd MMM DD YYYY");
       cy.get(commonlocators.labelTextStyle).should("contain", nextDay);
     });
@@ -73,7 +75,7 @@ describe("Binding the Datepicker and Text Widget", function() {
      */
     cy.openPropertyPane("datepickerwidget");
     cy.get(formWidgetsPage.defaultDate).click();
-    cy.SetDateToToday();
+    cy.ClearDateFooter();
     cy.setDate(1, "ddd MMM DD YYYY");
     cy.get(commonlocators.onDateSelectedField).click();
     cy.get(commonlocators.editPropCrossButton).click();
@@ -134,6 +136,7 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.get(formWidgetsPage.datepickerWidget)
       .first()
       .click();
+    cy.ClearDateFooter();
     cy.SetDateToToday();
     cy.get(commonlocators.toastmsg).contains("hello");
 
@@ -141,6 +144,9 @@ describe("Binding the Datepicker and Text Widget", function() {
      * checking if on deselecting the date triggers the message or not.
      * It should not trigger any message on deselection
      */
+    cy.get(formWidgetsPage.datepickerWidget)
+      .first()
+      .click();
     cy.get(formWidgetsPage.datepickerFooter)
       .contains("Clear")
       .click();

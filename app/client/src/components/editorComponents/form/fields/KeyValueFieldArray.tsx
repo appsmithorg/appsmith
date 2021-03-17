@@ -72,7 +72,6 @@ const FlexContainer = styled.div`
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.apiPane.text};
     }
-    border-bottom: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   }
   .key-value:nth-child(2) {
     margin-left: ${(props) => props.theme.spaces[4]}px;
@@ -93,12 +92,12 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
     <KeyValueStackContainer>
       <FlexContainer>
         <Flex size={1} className="key-value">
-          <Text type={TextType.H6} case={Case.UPPERCASE}>
+          <Text type={TextType.H6} case={Case.CAPITALIZE}>
             Key
           </Text>
         </Flex>
         <Flex size={3} className="key-value">
-          <Text type={TextType.H6} case={Case.UPPERCASE}>
+          <Text type={TextType.H6} case={Case.CAPITALIZE}>
             Value
           </Text>
         </Flex>
@@ -128,7 +127,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                     theme={props.theme}
                     className={`t--${field}.key.${index}`}
                     name={`${field}.key`}
-                    placeholder="Key"
+                    placeholder={`Key ${index + 1}`}
                     showLightningMenu={false}
                     dataTreePath={`${props.dataTreePath}[${index}].key`}
                     hoverInteraction={true}
@@ -142,7 +141,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                       theme={props.theme}
                       className={`t--${field}.value.${index}`}
                       name={`${field}.value`}
-                      placeholder="Value"
+                      placeholder={`Value ${index + 1}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={FIELD_VALUES.API_ACTION.params}
                       hoverInteraction={true}
@@ -161,7 +160,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                       expected={FIELD_VALUES.API_ACTION.params}
                       placeholder={
                         props.placeholder
-                          ? props.placeholder
+                          ? `${props.placeholder} ${index + 1}`
                           : props.actionConfig[index].mandatory &&
                             props.actionConfig[index].type
                           ? `${props.actionConfig[index].type}`

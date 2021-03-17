@@ -1,20 +1,16 @@
 import Dropdown from "components/ads/Dropdown";
 import React, { useEffect, useState } from "react";
 import { WrappedFieldInputProps } from "redux-form";
-import styled from "styled-components";
 
 type DropdownWrapperProps = {
   placeholder: string;
   input: WrappedFieldInputProps;
   options: Array<{ id?: string; value: string; label?: string }>;
   className?: string;
+  width?: string;
+  height?: string;
+  optionWidth?: string;
 };
-
-const StyledDropdown = styled(Dropdown)`
-  height: 35px !important;
-  display: flex;
-  align-items: center;
-`;
 
 const DropdownFieldWrapper = (props: DropdownWrapperProps) => {
   const selectedValueHandler = () => {
@@ -42,12 +38,14 @@ const DropdownFieldWrapper = (props: DropdownWrapperProps) => {
   }, [props.input.value, props.placeholder]);
 
   return (
-    <StyledDropdown
+    <Dropdown
       className={props.className}
       options={props.options}
       selected={selectedOption}
       onSelect={onSelectHandler}
-      width={120}
+      width={props.width}
+      height={props.height}
+      optionWidth={props.optionWidth}
     />
   );
 };

@@ -4,7 +4,6 @@ import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { AppState } from "reducers";
 import {
   AppLayoutConfig,
   SupportedLayouts,
@@ -13,9 +12,8 @@ import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { useSelector } from "store";
-import styled, { ThemeProvider } from "styled-components";
+import styled from "styled-components";
 import { noop } from "utils/AppsmithUtils";
 
 interface AppsmithLayoutConfigOption {
@@ -61,25 +59,14 @@ const LayoutControlWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  .dropdown-wrapper {
-    margin-left: 220px;
-    width: 260px;
-  }
   .bp3-popover-target {
     pointer-events: none;
   }
   .layout-control {
     pointer-events: all;
-    width: 40px;
     cursor: pointer;
     font-size: 14px;
     border: none;
-    &:hover {
-      background-color: rgb(246, 246, 246);
-    }
-    &:focus {
-      background-color: rgb(246, 246, 246);
-    }
     box-shadow: none;
   }
 `;
@@ -101,9 +88,6 @@ export const MainContainerLayoutControl: React.FC<any> = () => {
     ? layoutOptions.find((each) => each.type === appLayout.type)
     : layoutOptions[0];
   const dispatch = useDispatch();
-  const lightTheme = useSelector((state: AppState) =>
-    getThemeDetails(state, ThemeMode.LIGHT),
-  );
 
   const updateAppLayout = (layoutConfig: AppLayoutConfig) => {
     const { type } = layoutConfig;
@@ -118,25 +102,23 @@ export const MainContainerLayoutControl: React.FC<any> = () => {
   return (
     <LayoutControlWrapper>
       <div className="layout-control t--layout-control-wrapper">
-        <ThemeProvider theme={lightTheme}>
-          <Dropdown
-            width={260}
-            SelectedValueNode={({ selected }) => {
-              return (
-                <Icon
-                  fillColor={Colors.BLACK}
-                  name={selected.icon}
-                  size={IconSize.SMALL}
-                />
-              );
-            }}
-            className="layout-control"
-            showDropIcon={false}
-            options={layoutOptions}
-            selected={selectedLayout || layoutOptions[0]}
-            onSelect={noop}
-          ></Dropdown>
-        </ThemeProvider>
+        <Dropdown
+          width={"30px"}
+          SelectedValueNode={({ selected }) => {
+            return (
+              <Icon
+                fillColor={Colors.BLACK}
+                name={selected.icon}
+                size={IconSize.SMALL}
+              />
+            );
+          }}
+          className="layout-control"
+          showDropIcon={false}
+          options={layoutOptions}
+          selected={selectedLayout || layoutOptions[0]}
+          onSelect={noop}
+        />
       </div>
     </LayoutControlWrapper>
   );

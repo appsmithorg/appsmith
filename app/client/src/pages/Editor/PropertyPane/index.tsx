@@ -1,17 +1,22 @@
-import React, { Component } from "react";
-import styled from "styled-components";
-import { connect, useSelector } from "react-redux";
+import React, { Component, useCallback } from "react";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
+import {
+  PanelStack,
+  IPanel,
+  Classes,
+  IPanelProps,
+  Icon,
+} from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { scrollbarDark } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -21,21 +26,27 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import PropertyControlsGenerator from "./Generator";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
+import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import { ControlIcons } from "icons/ControlIcons";
+import { FormIcons } from "icons/FormIcons";
+import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
+// import ScrollIndicator from "components/ads/ScrollIndicator";
 
-const PropertyPaneWrapper = styled(PaneWrapper)`
+const PropertyPaneWrapper = styled(PaneWrapper)<{
+  themeMode?: EditorTheme;
+}>`
   width: 100%;
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
   margin: ${(props) => props.theme.spaces[2]}px;
-  box-shadow: 0px 0px 10px ${(props) => props.theme.colors.paneCard};
-  border: ${(props) => props.theme.spaces[5]}px solid
-    ${(props) => props.theme.colors.paneBG};
+  padding: ${(props) => props.theme.spaces[5]}px;
+  padding-right: ${(props) => props.theme.spaces[5]}px;
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 ${(props) => props.theme.spaces[5]}px 0 0;
   text-transform: none;
-  ${scrollbarDark};
 `;
 
 const StyledPanelStack = styled(PanelStack)`
@@ -55,6 +66,8 @@ const StyledPanelStack = styled(PanelStack)`
   }
 `;
 
+const CopyIcon = ControlIcons.COPY_CONTROL;
+const DeleteIcon = FormIcons.DELETE_ICON;
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
@@ -62,10 +75,18 @@ interface PropertyPaneState {
 const PropertyPaneView = (
   props: {
     hidePropertyPane: () => void;
+    theme: EditorTheme;
   } & IPanelProps,
 ) => {
-  const { hidePropertyPane, ...panel } = props;
+  const { hidePropertyPane, theme, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+
+  const dispatch = useDispatch();
+  const handleDelete = useCallback(
+    () => dispatch(deleteSelectedWidget(false)),
+    [dispatch],
+  );
+  const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
   return (
     <>
@@ -74,15 +95,70 @@ const PropertyPaneView = (
         title={widgetProperties.widgetName}
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
-        onClose={hidePropertyPane}
+        actions={[
+          {
+            tooltipContent: "Copy Widget",
+            icon: (
+              <CopyIcon
+                className="t--copy-widget"
+                width={14}
+                height={14}
+                onClick={handleCopy}
+              />
+            ),
+          },
+          {
+            tooltipContent: "Delete Widget",
+            icon: (
+              <DeleteIcon
+                className="t--delete-widget"
+                width={16}
+                height={16}
+                onClick={handleDelete}
+              />
+            ),
+          },
+          {
+            tooltipContent: <span>Explore widget related docs</span>,
+            icon: <PropertyPaneHelpButton />,
+          },
+          {
+            tooltipContent: "Close",
+            icon: (
+              <Icon
+                onClick={(e: any) => {
+                  AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+                    widgetType: widgetProperties.widgetType,
+                    widgetId: widgetProperties.widgetId,
+                  });
+                  hidePropertyPane();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                iconSize={16}
+                icon="cross"
+                className={"t--property-pane-close-btn"}
+              />
+            ),
+          },
+        ]}
       />
-      <PropertyControlsGenerator type={widgetProperties.type} panel={panel} />
+      <PropertyControlsGenerator
+        type={widgetProperties.type}
+        panel={panel}
+        theme={theme}
+      />
     </>
   );
 };
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   private panelWrapperRef = React.createRef<HTMLDivElement>();
+
+  getTheme() {
+    return EditorTheme.LIGHT;
+  }
+
   render() {
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
@@ -107,9 +183,11 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
   renderPropertyPane() {
     const { widgetProperties } = this.props;
-    if (!widgetProperties) return <PropertyPaneWrapper />;
+    if (!widgetProperties)
+      return <PropertyPaneWrapper themeMode={this.getTheme()} />;
     return (
       <PropertyPaneWrapper
+        themeMode={this.getTheme()}
         ref={this.panelWrapperRef}
         onClick={(e: any) => {
           e.stopPropagation();
@@ -124,6 +202,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
             component: PropertyPaneView,
             props: {
               hidePropertyPane: this.props.hidePropertyPane,
+              theme: this.getTheme(),
             },
           }}
           showPanelHeader={false}
@@ -182,6 +261,7 @@ const mapStateToProps = (state: AppState) => {
   return {
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
+    themeMode: getCurrentThemeMode(state),
   };
 };
 
@@ -197,6 +277,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
 export interface PropertyPaneProps extends PropertyPaneFunctions {
   widgetProperties?: WidgetProps;
   isVisible: boolean;
+  themeMode: ThemeMode;
 }
 
 export interface PropertyPaneFunctions {
