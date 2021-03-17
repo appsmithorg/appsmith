@@ -43,22 +43,22 @@ const InlineCommentPin = withTheme(
         }}
       >
         <Popover
+          hasBackdrop
+          autoFocus
+          canEscapeKeyClose
           minimal
           position={Position.BOTTOM_RIGHT}
           boundary="viewport"
           popoverClassName="comment-thread"
-          isOpen={commentThread.isVisible}
+          isOpen={!!commentThread.isVisible}
           onInteraction={(nextOpenState) => {
-            if (!nextOpenState) {
-              setIsCommentThreadVisible(false);
-            }
+            setIsCommentThreadVisible(nextOpenState);
           }}
         >
           <Icon
             name="pin"
             fillColor={theme.colors.comments.pin}
             size={IconSize.XXL}
-            onClick={() => setIsCommentThreadVisible(true)}
           />
           <InlineCommentThreadContainer commentThread={commentThread} />
         </Popover>

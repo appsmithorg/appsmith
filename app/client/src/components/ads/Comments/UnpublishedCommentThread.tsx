@@ -49,13 +49,14 @@ const UnpublishedCommentThread = withTheme(
       >
         <CommentTriggerContainer top={top} left={left}>
           <Popover
-            popoverClassName="comment-thread"
-            captureDismiss
-            isOpen={true}
+            hasBackdrop
+            autoFocus
+            canEscapeKeyClose
             minimal
+            isOpen={true}
             position={Position.BOTTOM_RIGHT}
             boundary="viewport"
-            onClosing={onClosing}
+            popoverClassName="comment-thread"
             onInteraction={(nextOpenState) => {
               if (!nextOpenState) {
                 onClosing();
@@ -67,7 +68,7 @@ const UnpublishedCommentThread = withTheme(
               fillColor={theme.colors.comments.pin}
               size={IconSize.XXL}
             />
-            <ThreadContainer>
+            <ThreadContainer tabIndex={0}>
               <ThreadHeader>
                 <ThreadHeaderTitle>Add a Comment</ThreadHeaderTitle>
               </ThreadHeader>

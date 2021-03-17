@@ -38,7 +38,7 @@ const InlineCommentThreadContainer = ({
   };
 
   return (
-    <ThreadContainer>
+    <ThreadContainer tabIndex={0}>
       <ThreadHeader>
         <ThreadHeaderTitle>Comments</ThreadHeaderTitle>
         <ResolveCommentButton handleClick={resolveCommentThread} />
