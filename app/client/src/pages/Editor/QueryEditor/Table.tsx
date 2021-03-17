@@ -1,11 +1,14 @@
 import React from "react";
-import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
-import { useTable, useFlexLayout } from "react-table";
 import styled from "styled-components";
-import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
-import { getType, Types } from "utils/TypeHelpers";
+import { FixedSizeList } from "react-window";
+import { useTable, useFlexLayout } from "react-table";
+
 import { Colors } from "constants/Colors";
+import { scrollbarWidth } from "utils/helpers";
+import { getType, Types } from "utils/TypeHelpers";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
+import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
 
 interface TableProps {
   data: Record<string, any>[];
@@ -203,6 +206,7 @@ const Table = (props: TableProps) => {
     headerGroups,
     rows,
     prepareRow,
+    totalColumnsWidth,
   } = useTable(
     {
       columns,
@@ -210,6 +214,41 @@ const Table = (props: TableProps) => {
       manualPagination: true,
     },
     useFlexLayout,
+  );
+
+  const scrollBarSize = React.useMemo(() => scrollbarWidth(), []);
+
+  const RenderRow = React.useCallback(
+    ({ index, style }) => {
+      const row = rows[index];
+
+      prepareRow(row);
+      return (
+        <div
+          {...row.getRowProps({
+            style,
+          })}
+          className="tr"
+        >
+          {row.cells.map((cell: any, cellIndex: number) => {
+            return (
+              <div
+                key={cellIndex}
+                {...cell.getCellProps()}
+                className="td"
+                data-rowindex={index}
+                data-colindex={cellIndex}
+              >
+                <CellWrapper isHidden={false}>
+                  {cell.render("Cell")}
+                </CellWrapper>
+              </div>
+            );
+          })}
+        </div>
+      );
+    },
+    [prepareRow, rows],
   );
 
   if (rows.length === 0 || headerGroups.length === 0) return null;
@@ -242,29 +281,16 @@ const Table = (props: TableProps) => {
                 ))}
               </div>
             ))}
+
             <div {...getTableBodyProps()} className="tbody">
-              {rows.map((row: any, index: number) => {
-                prepareRow(row);
-                return (
-                  <div key={index} {...row.getRowProps()} className={"tr"}>
-                    {row.cells.map((cell: any, cellIndex: number) => {
-                      return (
-                        <div
-                          key={cellIndex}
-                          {...cell.getCellProps()}
-                          className="td"
-                          data-rowindex={index}
-                          data-colindex={cellIndex}
-                        >
-                          <CellWrapper isHidden={false}>
-                            {cell.render("Cell")}
-                          </CellWrapper>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+              <FixedSizeList
+                height={400}
+                itemCount={rows.length}
+                itemSize={35}
+                width={totalColumnsWidth + scrollBarSize}
+              >
+                {RenderRow}
+              </FixedSizeList>
             </div>
           </div>
         </div>

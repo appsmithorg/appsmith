@@ -18,14 +18,14 @@ describe("Text-Chart Binding Functionality", function() {
     cy.closePropertyPane();
     cy.openPropertyPane("chartwidget");
     cy.get(viewWidgetsPage.chartType)
-      .find(commonlocators.dropdownbuttonclick)
-      .click({ force: true })
-      .get(commonlocators.dropdownmenu)
+      .last()
+      .click({ force: true });
+    cy.get(".t--dropdown-option")
       .children()
       .contains("Column Chart")
       .click();
-    cy.get(viewWidgetsPage.chartType)
-      .find(commonlocators.menuSelection)
+    cy.get(" .t--property-control-charttype .bp3-popover-target")
+      .last()
       .should("have.text", "Column Chart");
     cy.testJsontext("chart-series-data-control", "{{Text1.text}}");
     cy.closePropertyPane();

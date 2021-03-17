@@ -105,10 +105,14 @@ export const pageListReducer = createReducer(initialState, {
   },
 });
 
-export type AppLayoutType = "FIXED" | "FLUID";
+export type SupportedLayouts =
+  | "DESKTOP"
+  | "TABLET_LARGE"
+  | "TABLET"
+  | "MOBILE"
+  | "FLUID";
 export interface AppLayoutConfig {
-  type: AppLayoutType;
-  width: number;
+  type: SupportedLayouts;
 }
 
 export interface PageListReduxState {

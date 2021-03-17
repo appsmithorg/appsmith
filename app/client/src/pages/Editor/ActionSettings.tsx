@@ -1,6 +1,7 @@
 import React from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import FormControl from "./FormControl";
+import log from "loglevel";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 
@@ -37,7 +38,7 @@ const renderEachConfig = (section: any, formName: string): any => {
           </FormRow>
         );
       } catch (e) {
-        console.log(e);
+        log.error(e);
       }
     }
     return null;

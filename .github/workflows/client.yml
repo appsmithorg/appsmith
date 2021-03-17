@@ -11,7 +11,7 @@ on:
       - 'app/client/**'
       - '!app/client/cypress/manual_TestSuite/**'
 
-  pull_request_target:
+  pull_request:
     branches: [release, master]
     paths:
       - 'app/client/**'
@@ -33,7 +33,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -53,20 +53,22 @@ jobs:
         with:
           node-version: "14.15.4"
 
+      - name: Get yarn cache directory path
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
+        id: yarn-dep-cache
         uses: actions/cache@v2
         env:
           cache-name: cache-yarn-dependencies
         with:
-          # Node dependencies are stored in `./node_modules` on Linux/macOS
           path: |
-            '**/node_modules'
-            '~/.npm'
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.OS }}-node-
-            ${{ runner.OS }}-
+            ${{ runner.os }}-yarn-dep-
 
       # Install all the dependencies
       - name: Install dependencies
@@ -142,7 +144,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v2
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
@@ -156,20 +158,22 @@ jobs:
         with:
           node-version: "14.15.4"
 
+      - name: Get yarn cache directory path
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
+        id: yarn-dep-cache
         uses: actions/cache@v2
         env:
           cache-name: cache-yarn-dependencies
         with:
-          # Node dependencies are stored in `./node_modules` on Linux/macOS
           path: |
-            '**/node_modules'
-            '~/.npm'
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.OS }}-node-
-            ${{ runner.OS }}-
+            ${{ runner.os }}-yarn-dep-
 
       # Install all the dependencies
       - name: Install dependencies
@@ -182,7 +186,7 @@ jobs:
           path: app/client/build
 
       - name: Pull release server docker container and start it locally
-        if: github.ref == 'refs/heads/release'
+        if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release'
         shell: bash
         run: |
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -199,7 +203,7 @@ jobs:
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
 
       - name: Pull master server docker container and start it locally
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.event.pull_request.base.ref == 'master'
         shell: bash
         run: |
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -262,7 +266,7 @@ jobs:
           group: "Electrons on Github Action"
           spec: "cypress/integration/Smoke_TestSuite/**/*.js"
           working-directory: app/client
-          # tag will be either "push" or "pull_request_target"
+          # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
@@ -285,7 +289,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v2
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge

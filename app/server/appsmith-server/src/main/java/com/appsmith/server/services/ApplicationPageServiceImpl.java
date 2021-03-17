@@ -33,7 +33,6 @@ import reactor.core.publisher.Mono;
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -93,9 +92,16 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         if (layoutList == null) {
             layoutList = new ArrayList<>();
         }
+
         if (layoutList.isEmpty()) {
             layoutList.add(newPageService.createDefaultLayout());
             page.setLayouts(layoutList);
+        }
+
+        for (final Layout layout : layoutList) {
+            if (StringUtils.isEmpty(layout.getId())) {
+                layout.setId(new ObjectId().toString());
+            }
         }
 
         Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
@@ -236,7 +242,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    private Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
+    @Override
+    public Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
         return userMono
                 .flatMap(user -> {
                     Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
@@ -249,32 +256,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         return application;
                     });
                 });
-    }
-
-    @Override
-    public Mono<Application> cloneExampleApplication(Application application) {
-        if (!StringUtils.hasText(application.getName())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
-        }
-
-        String orgId = application.getOrganizationId();
-        if (!StringUtils.hasText(orgId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
-        }
-
-        // Clean the object so that it will be saved as a new application for the currently signed in user.
-        application.setClonedFromApplicationId(application.getId());
-        application.setId(null);
-        application.setPolicies(new HashSet<>());
-        application.setPages(new ArrayList<>());
-        application.setPublishedPages(new ArrayList<>());
-        application.setIsPublic(false);
-
-        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
-
-        return applicationWithPoliciesMono
-                .flatMap(applicationService::createDefault);
     }
 
     private void generateAndSetPagePolicies(Application application, PageDTO page) {

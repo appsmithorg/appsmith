@@ -61,6 +61,13 @@ export const apiActionSettingsConfig = [
         info:
           "Encode query params for all APIs. Also encode form body when Content-Type header is set to x-www-form-encoded",
       },
+      {
+        label: "[Beta] Smart JSON Substitution",
+        configProperty: "actionConfiguration.pluginSpecifiedTemplates[0].value",
+        controlType: "CHECKBOX",
+        info:
+          "Turning on this property fixes the JSON substitution of bindings in API body by adding/removing quotes intelligently and reduces developer errors",
+      },
       // {
       //   label: "Cache response",
       //   configProperty: "shouldCacheResponse",

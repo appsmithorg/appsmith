@@ -1,5 +1,6 @@
 package com.appsmith.external.helpers;
 
+import com.appsmith.external.models.ActionConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.BeanWrapper;
@@ -15,8 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.isDomainModel;
 
@@ -30,6 +33,14 @@ public class MustacheHelper {
      * This pattern should return ["JSON.stringify", "fetchUsers"]
      */
     private final static Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9._]*");
+    /**
+     * Appsmith smart replacement : The regex pattern below looks for '?' or "?". This pattern is later replaced with ?
+     * to fit the requirements of prepared statements/Appsmith's JSON smart replacement.
+     */
+    private static String regexQuotesTrimming = "([\"']\\?[\"'])";
+    private static Pattern quoteQuestionPattern = Pattern.compile(regexQuotesTrimming);
+    // The final replacement string of ? for replacing '?' or "?"
+    private static String postQuoteTrimmingQuestionMark = "\\?";
 
 
     /**
@@ -332,4 +343,25 @@ public class MustacheHelper {
         }
     }
 
+    public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(query);
+
+        Set<String> mustacheSet = new HashSet<>();
+        mustacheSet.addAll(mustacheBindings);
+
+        Map<String, String> replaceParamsMap = mustacheSet
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), v -> "?"));
+
+        ActionConfiguration updatedActionConfiguration = renderFieldValues(actionConfiguration, replaceParamsMap);
+
+        String body = updatedActionConfiguration.getBody();
+
+        // Trim the quotes around ? if present
+        body = quoteQuestionPattern.matcher(body).replaceAll(postQuoteTrimmingQuestionMark);
+
+        return body;
+    }
 }

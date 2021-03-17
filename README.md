@@ -144,6 +144,7 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
     <td align="center"><a href="https://github.com/zegerhoogeboom"><img src="https://avatars.githubusercontent.com/u/5371096?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Zeger Hoogeboom</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=zegerhoogeboom" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/Devedunkey"><img src="https://avatars.githubusercontent.com/u/29448764?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Young Yoo</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=Devedunkey" title="Code">💻</a></td>
     <td align="center"><a href="http://dwayne.io"><img src="https://avatars.githubusercontent.com/u/347097?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dwayne Forde</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=osis" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=osis" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/monarch0111"><img src="https://avatars.githubusercontent.com/u/2965013?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Abhishek</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=monarch0111" title="Code">💻</a></td>
   </tr>
 </table>
 

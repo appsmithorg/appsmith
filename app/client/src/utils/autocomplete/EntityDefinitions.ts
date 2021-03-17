@@ -220,7 +220,7 @@ export const entityDefinitions = {
       "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
     "!url": "https://docs.appsmith.com/widget-reference/filepicker",
     isVisible: isVisible,
-    files: "[?]",
+    files: "[file]",
     isDisabled: "bool",
     uploadedFileUrls: "string",
   },
@@ -252,6 +252,11 @@ export const GLOBAL_DEFS = {
     long: "number",
     title: "string",
     description: "string",
+  },
+  file: {
+    data: "string",
+    name: "text",
+    type: "file",
   },
 };
 

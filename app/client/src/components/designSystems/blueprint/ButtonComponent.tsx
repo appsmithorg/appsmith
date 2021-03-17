@@ -14,6 +14,7 @@ import { useScript, ScriptStatus } from "utils/hooks/useScript";
 import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
+  createMessage,
 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
@@ -195,11 +196,11 @@ const RecaptchaComponent = (
                 })
                 .catch(() => {
                   // Handle corrent key with wrong
-                  handleError(event, GOOGLE_RECAPTCHA_KEY_ERROR);
+                  handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
                 });
             } catch (ex) {
               // Handle wrong key
-              handleError(event, GOOGLE_RECAPTCHA_DOMAIN_ERROR);
+              handleError(event, createMessage(GOOGLE_RECAPTCHA_DOMAIN_ERROR));
             }
           });
         }
