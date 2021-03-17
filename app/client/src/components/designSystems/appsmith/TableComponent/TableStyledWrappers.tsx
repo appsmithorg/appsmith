@@ -26,7 +26,14 @@ export const TableWrapper = styled.div<{
   .tableWrap {
     height: 100%;
     display: block;
-    overflow: auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      -webkit-appearance: none;
+    }
   }
   .table {
     border-spacing: 0;
@@ -35,16 +42,35 @@ export const TableWrapper = styled.div<{
     background: ${Colors.ATHENS_GRAY_DARKER};
     display: table;
     width: 100%;
+    .tr {
+      width: 100%;
+    }
     .thead,
     .tbody {
       overflow: hidden;
     }
     .tbody {
+      height: ${(props) => props.height - 80}px;
+      width: 100%;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        width: 0px;
+        -webkit-appearance: none;
+      }
+      .scrollbar-track {
+        top: 32px !important;
+      }
+      .scrollbar-thumb {
+        background: #666666;
+      }
       .tr {
         width: 100%;
       }
     }
     .tr {
+      width: calc(100% - 8px);
       overflow: hidden;
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};

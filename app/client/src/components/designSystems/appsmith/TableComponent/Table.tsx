@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   useTable,
   usePagination,
@@ -17,6 +17,8 @@ import {
   CompactMode,
   CompactModeTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
+import ScrollIndicator from "components/designSystems/appsmith/ScrollIndicator";
+import HorizontalScrollIndicator from "components/designSystems/appsmith/HorizontalScrollIndicator";
 import { Colors } from "constants/Colors";
 
 import { EventType } from "constants/ActionConstants";
@@ -138,6 +140,8 @@ export const Table = (props: TableProps) => {
   const selectedRowIndex = props.selectedRowIndex;
   const selectedRowIndices = props.selectedRowIndices || [];
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
+  const tableWrapperRef = useRef<HTMLDivElement | null>(null);
+  const tableBodyRef = useRef<HTMLDivElement | null>(null);
   /* Subtracting 9px to handling widget padding */
   return (
     <TableWrapper
@@ -175,7 +179,10 @@ export const Table = (props: TableProps) => {
         updateCompactMode={props.updateCompactMode}
         tableSizes={tableSizes}
       />
-      <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
+      <div
+        className={props.isLoading ? Classes.SKELETON : "tableWrap"}
+        ref={tableWrapperRef}
+      >
         <div {...getTableProps()} className="table">
           <div
             onMouseOver={props.disableDrag}
@@ -218,6 +225,7 @@ export const Table = (props: TableProps) => {
             className={`tbody ${
               props.pageSize > subPage.length ? "no-scroll" : ""
             }`}
+            ref={tableBodyRef}
           >
             {subPage.map((row, rowIndex) => {
               prepareRow(row);
@@ -264,8 +272,10 @@ export const Table = (props: TableProps) => {
                 subPage,
                 prepareRow,
               )}
+            <ScrollIndicator containerRef={tableBodyRef} />
           </div>
         </div>
+        <HorizontalScrollIndicator containerRef={tableWrapperRef} />
       </div>
     </TableWrapper>
   );

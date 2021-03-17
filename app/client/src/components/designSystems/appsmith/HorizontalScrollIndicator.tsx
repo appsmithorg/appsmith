@@ -8,10 +8,10 @@ const ScrollTrack = styled.div<{
 }>`
   position: absolute;
   z-index: 100;
-  top: 0;
-  right: 2px;
-  width: 4px;
-  height: 100%;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   opacity: ${(props) => (props.isVisible ? 1 : 0)};
@@ -19,16 +19,17 @@ const ScrollTrack = styled.div<{
 `;
 
 const ScrollThumb = styled(animated.div)`
-  width: 4px;
-  background-color: #ebeef0aa;
+  height: 4px;
+  background-color: #666666;
   border-radius: 3px;
   transform: translate3d(0, 0, 0);
+  position: relative;
 `;
 
 interface Props {
   containerRef: React.RefObject<HTMLDivElement>;
 }
-const ScrollIndicator = ({ containerRef }: Props) => {
+const HorizontalScrollIndicator = ({ containerRef }: Props) => {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
     config: {
@@ -52,12 +53,12 @@ const ScrollIndicator = ({ containerRef }: Props) => {
   useEffect(() => {
     const handleContainerScroll = (e: any): void => {
       setIsScrollVisible(true);
-      const thumbHeight =
-        e.target.offsetHeight / (e.target.scrollHeight / e.target.offsetHeight);
-      const thumbPosition = (e.target.scrollTop / e.target.offsetHeight) * 100;
+      const thumbFromLeft =
+        e.target.offsetWidth / (e.target.scrollWidth / e.target.offsetWidth);
+      const thumbPosition = e.target.scrollLeft;
       /* set scroll thumb height */
       if (thumbRef.current) {
-        thumbRef.current.style.height = thumbHeight + "px";
+        thumbRef.current.style.width = thumbFromLeft + "px";
       }
       setThumbPosition({
         thumbPosition,
@@ -90,14 +91,11 @@ const ScrollIndicator = ({ containerRef }: Props) => {
         className="scrollbar-thumb"
         ref={thumbRef}
         style={{
-          transform: interpolate(
-            [thumbPosition],
-            (top: number) => `translate3d(0px, ${top}%, 0)`,
-          ),
+          left: interpolate([thumbPosition], (left: number) => `${left}px`),
         }}
       />
     </ScrollTrack>
   );
 };
 
-export default ScrollIndicator;
+export default HorizontalScrollIndicator;
