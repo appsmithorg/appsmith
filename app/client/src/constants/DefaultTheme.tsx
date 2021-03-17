@@ -945,7 +945,7 @@ const comments = {
   pin: "#EF4141",
   commentModeButtonIcon: "#6A86CE",
   commentModeButtonBackground: "#262626",
-}
+};
 
 const auth: any = {
   background: darkShades[1],
