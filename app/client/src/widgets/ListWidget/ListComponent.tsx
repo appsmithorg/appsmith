@@ -1,5 +1,5 @@
 import { Color } from "constants/Colors";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import React, { RefObject, ReactNode } from "react";
 
 import { ListWidgetProps } from "./ListWidget";

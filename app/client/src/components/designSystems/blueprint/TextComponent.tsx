@@ -6,7 +6,6 @@ import { TextStyle, TextAlign } from "widgets/TextWidget";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import { labelStyle } from "constants/DefaultTheme";
-import { isString } from "utils/helpers";
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
 };

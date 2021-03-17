@@ -4,7 +4,6 @@ import { createSelector } from "reselect";
 
 import { WidgetProps } from "widgets/BaseWidget";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";

@@ -1,6 +1,6 @@
 import React from "react";
 import log from "loglevel";
-import { ceil, floor, get, set, xor } from "lodash";
+import { compact, floor, get, set, xor } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -177,76 +177,120 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     });
   };
 
+  updateTemplateWidgetProperties = (widget: WidgetProps, itemIndex: number) => {
+    const { template, dynamicBindingPathList } = this.props;
+    const { widgetName = "" } = widget;
+    // Update properties if they're dynamic
+    // `template` property should have an array of values
+    // if it is a dynamicbinding
+
+    if (
+      Array.isArray(dynamicBindingPathList) &&
+      dynamicBindingPathList.length > 0
+    ) {
+      // Get all paths in the dynamicBindingPathList sans the List Widget name prefix
+      const dynamicPaths: string[] = compact(
+        dynamicBindingPathList.map((path: Record<"key", string>) =>
+          path.key.split(".").pop(),
+        ),
+      );
+
+      // Update properties in the widget based on the paths
+      // By picking the correct value from the evaluated values in the template
+      dynamicPaths.forEach((path: string) => {
+        const evaluatedProperty = get(template, `${widgetName}.${path}`);
+        if (
+          Array.isArray(evaluatedProperty) &&
+          evaluatedProperty.length > itemIndex
+        ) {
+          set(widget, path, evaluatedProperty[itemIndex]);
+        }
+      });
+    }
+
+    return this.updateNonTemplateWidgetProperties(widget, itemIndex);
+  };
+
+  updateNonTemplateWidgetProperties = (
+    widget: WidgetProps,
+    itemIndex: number,
+  ) => {
+    if (itemIndex > 0 && this.props.renderMode === RenderModes.CANVAS) {
+      set(
+        widget,
+        `widgetId`,
+        `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
+      );
+      set(widget, `resizeDisabled`, true);
+      set(widget, `settingsControlDisabled`, true);
+      set(widget, `dragDisabled`, true);
+      set(widget, `dropDisabled`, true);
+    }
+    return widget;
+  };
+
   /**
    * @param children
    */
   useNewValues = (children: ContainerWidgetProps<WidgetProps>[]) => {
-    const { template, dynamicBindingPathList } = this.props;
-
-    for (let i = 0; i < children.length; i++) {
-      const container = children[i];
-
-      if (Array.isArray(container.children)) {
-        for (let j = 0; j < container.children.length; j++) {
-          const canvas = container.children[j];
-
-          if (Array.isArray(canvas.children)) {
-            for (let k = 0; k < canvas.children.length; k++) {
-              const child = canvas.children[k];
-
-              if (Array.isArray(dynamicBindingPathList)) {
-                const dynamicKeys = dynamicBindingPathList.map((path) =>
-                  path.key.split(".").pop(),
-                );
-
-                for (let l = 0; l < dynamicKeys.length; l++) {
-                  const key = dynamicKeys[l];
-
-                  if (
-                    Array.isArray(get(template, `${child.widgetName}.${key}`))
-                  ) {
-                    set(
-                      children[i],
-                      `children.[${j}].children[${k}].${key}`,
-                      get(template, `${child.widgetName}.${key}.[${i}]`),
-                    );
-                  }
-                }
-              }
-
-              // disabled config options for items other than template
-              if (i > 0 && this.props.renderMode === RenderModes.CANVAS) {
-                set(
-                  children[i],
-                  `children.[${j}].children[${k}].widgetId`,
-                  `list-widget-child-id-${i}`,
-                );
-
-                set(
-                  children[i],
-                  `children.[${j}].children[${k}].resizeDisabled`,
-                  true,
-                );
-
-                set(
-                  children[i],
-                  `children.[${j}].children[${k}].settingsControlDisabled`,
-                  true,
-                );
-
-                set(
-                  children[i],
-                  `children.[${j}].children[${k}].dragDisabled`,
-                  true,
-                );
-              }
-            }
-          }
+    const updatedChildren = children.map(
+      (
+        listItemContainer: ContainerWidgetProps<WidgetProps>,
+        listItemIndex: number,
+      ) => {
+        let updatedListItemContainer = listItemContainer;
+        // Get an array of children in the current list item
+        const listItemChildren = get(
+          updatedListItemContainer,
+          "children[0].children",
+          [],
+        );
+        // If children exist
+        if (listItemChildren.length > 0) {
+          // Update the properties of all the children
+          const updatedListItemChildren = listItemChildren.map(
+            (templateWidget: WidgetProps) => {
+              // This will return the updated child widget
+              return this.updateTemplateWidgetProperties(
+                templateWidget,
+                listItemIndex,
+              );
+            },
+          );
+          // Set the update list of children as the new children for the current list item
+          set(
+            updatedListItemContainer,
+            "children[0].children",
+            updatedListItemChildren,
+          );
         }
-      }
-    }
+        // Get the item container's canvas child widget
+        const listItemContainerCanvas = get(
+          updatedListItemContainer,
+          "children[0]",
+        );
+        // Set properties of the container's canvas child widget
+        const updatedListItemContainerCanvas = this.updateNonTemplateWidgetProperties(
+          listItemContainerCanvas,
+          listItemIndex,
+        );
+        // Set the item container's canvas child widget
+        set(
+          updatedListItemContainer,
+          "children[0]",
+          updatedListItemContainerCanvas,
+        );
+        // Set properties of the item container
+        updatedListItemContainer = this.updateNonTemplateWidgetProperties(
+          listItemContainer,
+          listItemIndex,
+        );
+        return updatedListItemContainer;
+      },
+    );
 
-    return children;
+    console.log("List Widget", { updatedChildren });
+    return updatedChildren;
   };
 
   updateGridChildrenProps = (children: ContainerWidgetProps<WidgetProps>[]) => {

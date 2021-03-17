@@ -16,7 +16,7 @@ import { generateClassName } from "utils/generators";
 import { scrollbarDark } from "constants/DefaultTheme";
 import { hidePropertyPane } from "actions/propertyPaneActions";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
-import PropertyPaneView, { UpdatePropertyPayload } from "./PropertyPaneView";
+import PropertyPaneView from "./PropertyPaneView";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";

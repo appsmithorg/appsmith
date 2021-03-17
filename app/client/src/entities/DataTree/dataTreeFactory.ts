@@ -160,6 +160,7 @@ export class DataTreeFactory {
           // Stringify this because composite controls may have bindings in the sub controls
           _.set(widget, propertyPath, JSON.stringify(propertyValue));
         }
+        bindingPaths[propertyPath] = true;
       });
       Object.keys(derivedPropertyMap).forEach((propertyName) => {
         // TODO regex is too greedy

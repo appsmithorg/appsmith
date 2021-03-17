@@ -137,8 +137,6 @@ export function useChildWidgetEnhancementFn(
   // Get the parent which wants to enhance this widget
   const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, widgets);
   // If such a parent is found
-
-  console.log({ widgets, parentWithEnhancementFn });
   // Get the parent's evaluated data from the evaluatedTree
   const parentDataFromDataTree: unknown = useSelector((state: AppState) =>
     getPropsFromTree(state, parentWithEnhancementFn?.widgetName),

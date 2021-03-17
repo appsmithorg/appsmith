@@ -511,6 +511,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       gridType: "vertical",
       enhancements: {
         child: {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           customJSControl: (parentProps: any) => {
             return ComputeListPropertyControl.getControlType();
           },
@@ -520,7 +521,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           propertyUpdateHook: (
             parentProps: any,
             widgetName: string,
-            propertyPath: string,
+            propertyPath: string, // onClick
             propertyValue: string,
           ) => {
             let value = propertyValue;
