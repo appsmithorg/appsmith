@@ -16,6 +16,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
     cy.get(widgetsPage.inputOnTextChange)
       .first()
+      .focus()
       .click();
     cy.get(commonlocators.chooseAction)
       .children()
