@@ -221,6 +221,10 @@ const OrgInviteUsersForm = (props: any) => {
     isLoading,
   } = props;
 
+  // set state for checking number of users invited
+  const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
+
+  console.log("INVITING USERS:", allUsers, props);
   const currentOrg = useSelector(getCurrentAppOrg);
 
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
@@ -276,6 +280,9 @@ const OrgInviteUsersForm = (props: any) => {
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           validateFormValues(values);
           AnalyticsUtil.logEvent("INVITE_USER", values);
+          const usersAsStringsArray = values.users.split(",");
+          // update state to show success message correctly
+          updateNumberOfUsersInvited(usersAsStringsArray.length);
           return inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
         })}
       >
@@ -364,9 +371,9 @@ const OrgInviteUsersForm = (props: any) => {
               variant={Variant.success}
               fill
               text={
-                allUsers > 1
-                  ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
-                  : createMessage(INVITE_USER_SUBMIT_SUCCESS)
+                numberOfUsersInvited > 1
+                  ? INVITE_USERS_SUBMIT_SUCCESS()
+                  : INVITE_USER_SUBMIT_SUCCESS()
               }
             />
           )}

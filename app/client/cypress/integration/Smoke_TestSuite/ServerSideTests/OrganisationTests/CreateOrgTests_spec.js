@@ -19,7 +19,7 @@ describe("Create new org and share with a user", function() {
         Cypress.env("TESTUSERNAME1"),
         homePage.viewerRole,
       );
-      // check that the error message is correct
+      // check that the success message is correct
       cy.checkSuccessMessageForOneUserInvite(
         orgid,
         "The user has been invited successfully",
