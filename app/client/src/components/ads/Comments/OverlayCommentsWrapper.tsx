@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import Comments from "./Comments";
 import { isCommentMode as isCommentModeSelector } from "components/ads/Comments/selectors";
@@ -7,6 +8,7 @@ import { createUnpublishedCommentThreadRequest } from "actions/commentActions";
 type Props = {
   children: React.ReactNode;
   refId: string;
+  widgetType: string;
 };
 
 const getOffsetPos = (clickEvent: any, containerRef: any) => {
@@ -36,7 +38,28 @@ const getOffsetPos = (clickEvent: any, containerRef: any) => {
   };
 };
 
-const OverlayCommentsWrapper = ({ children, refId }: Props) => {
+const PreventClicksOverlay = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+`;
+
+const Container = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+`;
+
+const preventInteractionsBlacklist = [
+  "CONTAINER_WIDGET",
+  "CANVAS_WIDGET",
+  "TABS_WIDGET",
+  "FORM_WIDGET",
+];
+
+const OverlayCommentsWrapper = ({ children, refId, widgetType }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isCommentMode = useSelector(isCommentModeSelector);
   const dispatch = useDispatch();
@@ -56,15 +79,16 @@ const OverlayCommentsWrapper = ({ children, refId }: Props) => {
 
   if (!isCommentMode) return <>{children}</>;
 
+  const shouldNotPreventComponentInteraction =
+    preventInteractionsBlacklist.indexOf(widgetType) !== -1;
+
   return (
-    <div
-      ref={containerRef}
-      onClick={clickHandler}
-      style={{ width: "100%", height: "100%" }}
-    >
+    <Container ref={containerRef} onClick={clickHandler}>
       {children}
+      {/* Prevent clicks to the component in the comment mode */}
+      {!shouldNotPreventComponentInteraction && <PreventClicksOverlay />}
       <Comments refId={refId} />
-    </div>
+    </Container>
   );
 };
 
