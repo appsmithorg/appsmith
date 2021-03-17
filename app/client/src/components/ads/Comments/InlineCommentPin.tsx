@@ -1,5 +1,5 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import styled, { withTheme } from "styled-components";
 import InlineCommentThreadContainer from "./InlineCommentThreadContainer";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -7,6 +7,7 @@ import { Popover, Position } from "@blueprintjs/core";
 import { get } from "lodash";
 import { commentThreadsSelector } from "./selectors";
 import { Theme } from "constants/DefaultTheme";
+import { setIsCommentThreadVisible as setIsCommentThreadVisibleAction } from "actions/commentActions";
 
 const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   position: absolute;
@@ -21,6 +22,15 @@ const InlineCommentPin = withTheme(
       top: 0,
       left: 0,
     });
+
+    const dispatch = useDispatch();
+    const setIsCommentThreadVisible = (isVisible: boolean) =>
+      dispatch(
+        setIsCommentThreadVisibleAction({
+          commentThreadId,
+          isVisible,
+        }),
+      );
 
     return (
       <CommentTriggerContainer
@@ -37,11 +47,18 @@ const InlineCommentPin = withTheme(
           position={Position.BOTTOM_RIGHT}
           boundary="viewport"
           popoverClassName="comment-thread"
+          isOpen={commentThread.isVisible}
+          onInteraction={(nextOpenState) => {
+            if (!nextOpenState) {
+              setIsCommentThreadVisible(false);
+            }
+          }}
         >
           <Icon
             name="pin"
             fillColor={theme.colors.comments.pin}
             size={IconSize.XXL}
+            onClick={() => setIsCommentThreadVisible(true)}
           />
           <InlineCommentThreadContainer commentThread={commentThread} />
         </Popover>

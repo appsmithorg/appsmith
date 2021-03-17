@@ -28,13 +28,14 @@ export type CommentThread = {
   body?: string;
   id: string;
   comments: Array<Comment>;
+  isVisible: boolean;
 };
 
 const initialState: CommentsReduxState = {
   commentThreadsMap: {},
   refCommentThreads: {},
   unpublishedCommentThreads: {},
-  isCommentMode: false,
+  isCommentMode: true,
 };
 
 const commentsReducer = createReducer(initialState, {
@@ -105,6 +106,19 @@ const commentsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isCommentMode: action.payload,
+  }),
+  [ReduxActionTypes.SET_IS_COMMENT_THREAD_VISIBLE]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{ isVisible: boolean; commentThreadId: string }>,
+  ) => ({
+    ...state,
+    commentThreadsMap: {
+      ...state.commentThreadsMap,
+      [action.payload.commentThreadId]: {
+        ...state.commentThreadsMap[action.payload.commentThreadId],
+        isVisible: action.payload.isVisible,
+      },
+    },
   }),
 });
 

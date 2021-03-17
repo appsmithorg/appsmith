@@ -61,3 +61,11 @@ export const setCommentMode = (payload: boolean) => ({
   type: ReduxActionTypes.SET_COMMENT_MODE,
   payload,
 });
+
+export const setIsCommentThreadVisible = (payload: {
+  commentThreadId: string;
+  isVisible: boolean;
+}) => ({
+  type: ReduxActionTypes.SET_IS_COMMENT_THREAD_VISIBLE,
+  payload,
+});
