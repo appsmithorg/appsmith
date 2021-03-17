@@ -19,6 +19,7 @@ type EntityContextMenuProps = {
   name: string;
   className?: string;
   pageId: string;
+  popModifier?: any;
 };
 export const MoreActionsMenu = (props: EntityContextMenuProps) => {
   const nextEntityName = useNewActionName();
@@ -65,7 +66,9 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
     <TreeDropdown
       className={props.className}
       defaultText=""
-      modifiers={ContextMenuPopoverModifiers}
+      modifiers={
+        props.popModifier ? props.popModifier : ContextMenuPopoverModifiers
+      }
       onSelect={noop}
       selectedValue=""
       optionTree={[

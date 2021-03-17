@@ -211,6 +211,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           onRunClick={onRunClick}
           actionTitle={<ActionNameEditor page="API_PANE" />}
           runButtonClassName="t--apiFormRunBtn"
+          popModifier={{ offset: { offset: "38px 0" } }}
         />
         <FormRow className="api-info-row">
           <RequestDropdownField

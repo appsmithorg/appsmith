@@ -52,6 +52,7 @@ import OnboardingIndicator from "components/editorComponents/Onboarding/Indicato
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
+  overflow:hidden;
   width: 100%;
   padding-right: 0;
   padding-left: ${(props) => props.theme.spaces[7]}px;

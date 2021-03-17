@@ -18,6 +18,7 @@ export const NameWrapper = styled.div`
   width: 49%;
   display: flex;
   align-items: center;
+
   input {
     margin: 0;
     box-sizing: border-box;
@@ -32,6 +33,7 @@ const IconContainer = styled.div`
   align-items: center;
   margin-right: 16px;
   cursor: pointer;
+
   svg {
     width: 12px;
     height: 12px;
@@ -52,6 +54,10 @@ const ActionButtons = styled.div`
   button:last-child {
     margin-left: ${(props) => props.theme.spaces[7]}px;
   }
+
+  & ul li a {
+    margin-top: 0;
+  }
 `;
 
 interface ActionHeaderProps {
@@ -61,6 +67,7 @@ interface ActionHeaderProps {
   onRunClick: () => void;
   isLoading: boolean;
   runButtonClassName: string;
+  popModifier?: any;
 }
 
 const ActionHeader = (props: ActionHeaderProps) => {
@@ -106,6 +113,7 @@ const ActionHeader = (props: ActionHeaderProps) => {
           name={props.currentActionConfigName || ""}
           className="t--more-action-menu"
           pageId={pageId}
+          popModifier={props.popModifier}
         />
 
         <Button

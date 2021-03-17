@@ -36,13 +36,16 @@ import styled from "constants/DefaultTheme";
 const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   width: 100%;
   height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+
   a {
     font-size: 14px;
     line-height: 20px;
     margin-top: 15px;
   }
+
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
@@ -54,6 +57,7 @@ const QueryFormContainer = styled.form`
     max-width: 30%;
     padding-right: 10px;
   }
+
   span.bp3-popover-target {
     display: initial !important;
   }
@@ -100,7 +104,7 @@ const LoadingContainer = styled(CenteredWrapper)`
 
 const TabContainerView = styled.div`
   .react-tabs__tab-panel {
-    overflow: scroll;
+    overflow: hidden;
   }
   .react-tabs__tab-list {
     margin: 0px;
@@ -149,21 +153,17 @@ const OutputWrapper = styled.div``;
 
 const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[8]}px
-    ${(props) => props.theme.spaces[12]}px 0px
     ${(props) => props.theme.spaces[12]}px;
   background-color: ${(props) => props.theme.colors.apiPane.bg};
-  height: 74px;
 `;
 
 const HeaderHolder = styled.div`
   display: flex;
   align-items: center;
+  min-width: 50%;
 
-  &&& .bp3-editable-text {
-    padding: 0;
-    width: auto;
-    height: auto;
-    margin-bottom: 1px;
+  & > div:last-child {
+    flex: 1 0 auto;
   }
 `;
 
@@ -172,15 +172,22 @@ const HeaderIconHolder = styled.div`
   height: 30px;
   background-color: ${(props) => props.theme.colors.queryPaneIconBg};
   overflow: hidden;
-  border-radius: 50%;
-  margin-right: 8px;
+  border-radius: 100%;
+  margin-right: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   img {
-    height: 100%;
-    width: 100%;
+    height: 18px;
+    width: 18px;
     display: block;
     object-fit: contain;
   }
+`;
+
+const HeaderLabel = styled(Text)`
+  margin-left: 12px;
 `;
 
 type QueryFormProps = {
@@ -303,6 +310,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             currentActionConfig ? currentActionConfig.name : ""
           }
           onRunClick={onRunClick}
+          popModifier={{ offset: { offset: "23px 0" } }}
           actionTitle={
             <HeaderHolder>
               <HeaderIconHolder>
@@ -317,9 +325,9 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               <div>
                 <ActionNameEditor page="API_PANE" />
                 {selectedDb.length ? (
-                  <Text type={TextType.P3} style={{ color: "#4B4848" }}>
+                  <HeaderLabel type={TextType.P3} style={{ color: "#4B4848" }}>
                     {selectedDb[0].label}
-                  </Text>
+                  </HeaderLabel>
                 ) : null}
               </div>
             </HeaderHolder>
