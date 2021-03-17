@@ -58,12 +58,21 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
     setValue("");
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+    if (isEnterKey && !e.shiftKey) {
+      onSaveComment();
+      e.preventDefault();
+    }
+  };
+
   return (
     <PaddingContainer>
       <StyledInputContainer>
         <StyledTextArea
           onChange={(e) => setValue(e.target.value)}
           value={value}
+          onKeyDown={handleKeyDown}
         />
         <StyledEmojiTrigger>
           <Icon name="emoji" size={IconSize.LARGE} />
