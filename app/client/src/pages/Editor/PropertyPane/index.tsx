@@ -32,7 +32,6 @@ import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
-import ScrollIndicator from "components/ads/ScrollIndicator";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 
