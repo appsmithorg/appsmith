@@ -416,12 +416,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       componentHeight / (templateHeight + parseInt(gridGap) * 40) - 1,
     );
 
-    console.log({
-      a: templateHeight + parseInt(gridGap) * 40,
-      b: componentHeight,
-      perPage,
-    });
-
     return { shouldPaginate, perPage };
   };
 
