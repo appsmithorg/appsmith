@@ -109,11 +109,13 @@ interface Props {
   expected?: string;
   evaluatedValue?: any;
   children: JSX.Element;
+  error?: string;
 }
 
 interface PopoverContentProps {
   hasError: boolean;
   expected?: string;
+  error?: string;
   evaluatedValue: any;
   theme: EditorTheme;
   onMouseEnter: () => void;
@@ -175,7 +177,11 @@ const PopoverContent = (props: PopoverContentProps) => {
       className="t--CodeEditor-evaluatedValue"
     >
       {props.hasError && (
-        <ErrorText>{`This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}</ErrorText>
+        <ErrorText>
+          {props.error
+            ? props.error
+            : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+        </ErrorText>
       )}
       {!props.hasError && props.expected && (
         <React.Fragment>
@@ -221,6 +227,7 @@ const EvaluatedValuePopup = (props: Props) => {
           <PopoverContent
             expected={props.expected}
             evaluatedValue={props.evaluatedValue}
+            error={props.error}
             hasError={props.hasError}
             theme={props.theme}
             onMouseLeave={() => {

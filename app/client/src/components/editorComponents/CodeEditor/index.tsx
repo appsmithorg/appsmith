@@ -374,6 +374,7 @@ class CodeEditor extends Component<Props, State> {
           evaluatedValue={evaluated}
           expected={expected}
           hasError={hasError}
+          error={meta?.error}
         >
           <EditorWrapper
             editorTheme={this.props.theme}
