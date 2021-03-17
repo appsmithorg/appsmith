@@ -41,7 +41,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
                     comment.setAuthorName(user.getName());
-                    return super.create(comment);
+                    return repository.save(comment);
                 });
     }
 

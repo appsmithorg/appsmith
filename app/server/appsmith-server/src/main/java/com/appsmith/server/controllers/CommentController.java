@@ -28,10 +28,11 @@ public class CommentController extends BaseController<CommentService, Comment, S
         super(service);
     }
 
+    @Override
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Comment>> create(@Valid @RequestBody Comment resource,
-                                             @RequestParam String orgId,
+                                             @RequestParam(required = false) String orgId,
                                              ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return service.create(resource)
