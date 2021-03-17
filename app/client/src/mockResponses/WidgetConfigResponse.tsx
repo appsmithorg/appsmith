@@ -504,7 +504,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     [WidgetTypes.LIST_WIDGET]: {
-      backgroundColor: "transparent",
+      backgroundColor: "",
       itemBackgroundColor: "white",
       rows: 10,
       columns: 8,
