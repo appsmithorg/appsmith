@@ -130,6 +130,11 @@ export const TableWrapper = styled.div<{
       top: 0;
       z-index: 1;
     }
+    .thead {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
   }
   .draggable-header,
   .hidden-header {
