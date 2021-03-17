@@ -100,7 +100,7 @@ class CreatableDropdown extends React.Component<DropdownProps> {
         styles={selectStyles}
         isLoading={isLoading}
         {...input}
-        onChange={value => {
+        onChange={(value) => {
           const formattedValue = value;
           if (formattedValue && formattedValue.length > 1) {
             formattedValue.shift();

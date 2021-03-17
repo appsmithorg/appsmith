@@ -1,7 +1,6 @@
 import React, { memo, useCallback } from "react";
 import Entity from "../Entity";
 import { pageGroupIcon } from "../ExplorerIcons";
-import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { createPage } from "actions/pageActions";
@@ -10,9 +9,10 @@ import { ExplorerURLParams } from "../helpers";
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerPageEntity from "./PageEntity";
 import { AppState } from "reducers";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
-import { Datasource } from "api/DatasourcesApi";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
@@ -48,10 +48,14 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       "Page",
       pages.map((page: Page) => page.pageName),
     );
-    dispatch(createPage(params.applicationId, name));
+    // Default layout is extracted by adding dynamically computed properties like min-height.
+    const defaultPageLayouts = [
+      { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
+    ];
+    dispatch(createPage(params.applicationId, name, defaultPageLayouts));
   }, [dispatch, pages, params.applicationId]);
 
-  const pageEntities = pages.map(page => {
+  const pageEntities = pages.map((page) => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];
     const pageActions = props.actions[page.pageId] || [];
     const datasources = props.datasources[page.pageId] || [];
@@ -80,7 +84,6 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       className="group pages"
       icon={pageGroupIcon}
       isDefaultExpanded
-      action={noop}
       entityId="Pages"
       step={props.step}
       onCreate={createPageCallback}

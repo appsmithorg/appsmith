@@ -55,6 +55,106 @@
             "comparison": "EQUALS",
             "value": "N"
           }
+        },
+        {
+          "label": "Authentication Type",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "DROP_DOWN",
+          "options": [
+            {
+              "label": "None",
+              "value": "dbAuth"
+            },
+            {
+              "label": "OAuth2 (Client credentials)",
+              "value": "oAuth2"
+            }
+          ]
+        },
+        {
+          "label": "Grant Type",
+          "configProperty": "datasourceConfiguration.authentication.grantType",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true
+        },
+        {
+          "label": "Access Token URL",
+          "configProperty": "datasourceConfiguration.authentication.accessTokenUrl",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Client Id",
+          "configProperty": "datasourceConfiguration.authentication.clientId",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Client Secret",
+          "configProperty": "datasourceConfiguration.authentication.clientSecret",
+          "dataType": "PASSWORD",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Scope(s)",
+          "configProperty": "datasourceConfiguration.authentication.scopeString",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Header Prefix",
+          "configProperty": "datasourceConfiguration.authentication.headerPrefix",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Bearer (default)",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Add token to",
+          "configProperty": "datasourceConfiguration.authentication.isTokenHeader",
+          "controlType": "DROP_DOWN",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          },
+          "options": [
+            {
+              "label": "Header",
+              "value": true
+            },
+            {
+              "label": "Query parameters",
+              "value": false
+            }
+          ]
         }
       ]
     }

@@ -20,6 +20,8 @@ export function InputText(props: {
   expected?: string;
   placeholder?: string;
   dataTreePath?: string;
+  additionalAutocomplete?: Record<string, Record<string, unknown>>;
+  theme?: EditorTheme;
 }) {
   const {
     errorMessage,
@@ -45,11 +47,12 @@ export function InputText(props: {
           error: isValid ? "" : errorMessage,
           touched: true,
         }}
-        theme={EditorTheme.DARK}
+        theme={props.theme || EditorTheme.LIGHT}
         mode={EditorModes.TEXT_WITH_BINDING}
         tabBehaviour={TabBehaviour.INDENT}
         size={EditorSize.EXTENDED}
         placeholder={placeholder}
+        additionalDynamicData={props.additionalAutocomplete}
       />
     </StyledDynamicInput>
   );
@@ -65,17 +68,19 @@ class InputTextControl extends BaseControl<InputControlProps> {
       placeholderText,
       dataTreePath,
       validationMessage,
+      defaultValue,
     } = this.props;
     return (
       <InputText
         label={label}
-        value={propertyValue}
+        value={propertyValue ? propertyValue : defaultValue}
         onChange={this.onTextChange}
         isValid={isValid}
         errorMessage={validationMessage}
         expected={expected}
-        placeholder={placeholderText}
         dataTreePath={dataTreePath}
+        placeholder={placeholderText}
+        theme={this.props.theme}
       />
     );
   }
@@ -111,6 +116,7 @@ export interface InputControlProps extends ControlProps {
   inputType: InputType;
   validationMessage?: string;
   isDisabled?: boolean;
+  defaultValue?: any;
 }
 
 export default InputTextControl;

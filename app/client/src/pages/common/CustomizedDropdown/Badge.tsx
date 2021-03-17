@@ -19,12 +19,12 @@ const BadgeWrapper = styled.div`
       align-self: center;
       & h3,
       h5 {
-        font-weight: ${props => props.theme.fontWeights[1]};
+        font-weight: ${(props) => props.theme.fontWeights[1]};
         margin: 0;
       }
       & h5 {
-        color: ${props => props.theme.colors.paneText};
-        font-size: ${props => props.theme.fontSizes[3]}px;
+        color: ${(props) => props.theme.colors.paneText};
+        font-size: ${(props) => props.theme.fontSizes[3]}px;
       }
     }
   }

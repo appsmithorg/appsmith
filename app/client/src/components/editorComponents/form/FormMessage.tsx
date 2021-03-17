@@ -20,12 +20,12 @@ export type MessageAction = {
 const StyledMessage = styled.div`
   & {
     width: 100%;
-    padding: ${props => props.theme.spaces[8]}px;
-    font-size: ${props => props.theme.fontSizes[4]}px;
-    background: ${props =>
+    padding: ${(props) => props.theme.spaces[8]}px;
+    font-size: ${(props) => props.theme.fontSizes[4]}px;
+    background: ${(props) =>
       getColorWithOpacity(props.theme.colors.messageBG, 0.4)};
     text-align: left;
-    margin-bottom: ${props => props.theme.spaces[4]}px;
+    margin-bottom: ${(props) => props.theme.spaces[4]}px;
   }
 `;
 
@@ -41,7 +41,7 @@ const MessageContainer = styled.div<{ iconbgcolor: string }>`
         position: absolute;
         width: 32px;
         height: 32px;
-        background: ${props => props.iconbgcolor};
+        background: ${(props) => props.iconbgcolor};
         border-radius: 50%;
         left: -6px;
         top: -6px;
@@ -53,7 +53,7 @@ const MessageContainer = styled.div<{ iconbgcolor: string }>`
       }
     }
     p {
-      margin: 0 ${props => props.theme.spaces[8]}px;
+      margin: 0 ${(props) => props.theme.spaces[8]}px;
       align-self: flex-start;
     }
   }
@@ -64,7 +64,7 @@ export const ActionsContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   margin-left: 38px;
-  margin: ${props => props.theme.spaces[6]}px 0 0 38px;
+  margin: ${(props) => props.theme.spaces[6]}px 0 0 38px;
 
   & .appsmith-message-action-button {
     border: none;
@@ -108,7 +108,9 @@ export type FormMessageProps = {
 export const FormMessage = (props: FormMessageProps) => {
   const actions =
     props.actions &&
-    props.actions.map(action => <ActionButton key={action.text} {...action} />);
+    props.actions.map((action) => (
+      <ActionButton key={action.text} {...action} />
+    ));
   const Icon = IntentIcons[props.intent];
   const iconbgcolor = tinycolor(IntentColors[props.intent])
     .lighten()

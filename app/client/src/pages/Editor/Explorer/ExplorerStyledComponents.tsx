@@ -5,7 +5,7 @@ export const EntityTogglesWrapper = styled.div`
   &&& {
     width: 100%;
     height: 100%;
-    font-size: ${props => props.theme.fontSizes[4]}px;
+    font-size: ${(props) => props.theme.fontSizes[4]}px;
     display: flex;
     justify-content: center;
     align-items: center;

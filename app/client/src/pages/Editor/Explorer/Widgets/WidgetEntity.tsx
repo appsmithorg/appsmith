@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, ReactNode, memo } from "react";
+import React, { useMemo, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
@@ -17,12 +17,11 @@ import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import { AppState } from "reducers";
 import { getWidgetIcon } from "../ExplorerIcons";
 
-import { noop } from "lodash";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityProperties from "../Entity/EntityProperties";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
@@ -44,15 +43,42 @@ export const navigateToCanvas = (
   }
 };
 
+export const useNavigateToWidget = () => {
+  const params = useParams<ExplorerURLParams>();
+  const dispatch = useDispatch();
+  const { selectWidget } = useWidgetSelection();
+
+  const navigateToWidget = useCallback(
+    (
+      widgetId: string,
+      widgetType: WidgetType,
+      pageId: string,
+      isWidgetSelected?: boolean,
+      parentModalId?: string,
+    ) => {
+      if (widgetType === WidgetTypes.MODAL_WIDGET) {
+        dispatch(showModal(widgetId));
+        return;
+      }
+      if (parentModalId) dispatch(showModal(parentModalId));
+      else dispatch(closeAllModals());
+      navigateToCanvas(params, window.location.pathname, pageId, widgetId);
+      flashElementById(widgetId);
+      if (!isWidgetSelected) selectWidget(widgetId);
+      dispatch(forceOpenPropertyPane(widgetId));
+    },
+    [dispatch, params, selectWidget],
+  );
+
+  return { navigateToWidget };
+};
+
 const useWidget = (
   widgetId: string,
   widgetType: WidgetType,
   pageId: string,
   parentModalId?: string,
 ) => {
-  const params = useParams<ExplorerURLParams>();
-  const dispatch = useDispatch();
-  const { selectWidget } = useWidgetSelection();
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
@@ -61,29 +87,21 @@ const useWidget = (
     widgetId,
   ]);
 
-  const navigateToWidget = useCallback(() => {
-    if (widgetType === WidgetTypes.MODAL_WIDGET) {
-      dispatch(showModal(widgetId));
-      return;
-    }
-    if (parentModalId) dispatch(showModal(parentModalId));
-    else dispatch(closeAllModals());
-    navigateToCanvas(params, window.location.pathname, pageId, widgetId);
-    flashElementById(widgetId);
-    if (!isWidgetSelected) selectWidget(widgetId);
-    dispatch(forceOpenPropertyPane(widgetId));
-  }, [
-    dispatch,
-    params,
-    selectWidget,
-    widgetType,
-    widgetId,
-    parentModalId,
-    pageId,
-    isWidgetSelected,
-  ]);
+  const { navigateToWidget } = useNavigateToWidget();
 
-  return { navigateToWidget, isWidgetSelected };
+  const boundNavigateToWidget = useCallback(
+    () =>
+      navigateToWidget(
+        widgetId,
+        widgetType,
+        pageId,
+        isWidgetSelected,
+        parentModalId,
+      ),
+    [widgetId, widgetType, pageId, isWidgetSelected, parentModalId],
+  );
+
+  return { navigateToWidget: boundNavigateToWidget, isWidgetSelected };
 };
 
 export type WidgetEntityProps = {
@@ -112,6 +130,16 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     props.parentModalId,
   );
 
+  const { widgetType, widgetId, parentModalId } = props;
+  /**
+   * While navigating to a widget we need to show a modal if the widget is nested within it
+   * Since the immediate parent for the widget would be a canvas instead of the modal,
+   * so we track the immediate modal parent for the widget
+   */
+  const parentModalIdForChildren = useMemo(() => {
+    return widgetType === "MODAL_WIDGET" ? widgetId : parentModalId;
+  }, [widgetType, widgetId, parentModalId]);
+
   if (UNREGISTERED_WIDGETS.indexOf(props.widgetType) > -1)
     return <React.Fragment />;
 
@@ -133,7 +161,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       name={props.widgetName}
       entityId={props.widgetId}
       step={props.step}
-      updateEntityName={props.pageId === pageId ? updateWidgetName : noop}
+      updateEntityName={props.pageId === pageId ? updateWidgetName : undefined}
       searchKeyword={props.searchKeyword}
       isDefaultExpanded={
         shouldExpand ||
@@ -144,7 +172,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     >
       {props.childWidgets &&
         props.childWidgets.length > 0 &&
-        props.childWidgets.map(child => (
+        props.childWidgets.map((child) => (
           <WidgetEntity
             step={props.step + 1}
             widgetId={child.widgetId}
@@ -154,6 +182,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
             key={child.widgetId}
             searchKeyword={props.searchKeyword}
             pageId={props.pageId}
+            parentModalId={parentModalIdForChildren}
           />
         ))}
       {!(props.childWidgets && props.childWidgets.length > 0) &&

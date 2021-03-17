@@ -15,7 +15,7 @@ const StyledIncreaseIcon = styled(
   height: 32px;
   svg {
     path {
-      fill: ${props => props.theme.colors.paneSectionLabel};
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
     }
   }
 `;
@@ -32,7 +32,7 @@ const StyledDecreaseIcon = styled(
   height: 32px;
   svg {
     path {
-      fill: ${props => props.theme.colors.paneSectionLabel};
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
     }
   }
 `;
@@ -54,7 +54,7 @@ const InputWrapper = styled.div`
   line-height: 32px;
   background: #23292e;
   font-size: 14px;
-  color: ${props => props.theme.colors.textOnDarkBG};
+  color: ${(props) => props.theme.colors.textOnDarkBG};
   text-align: center;
   letter-spacing: 1.44px;
 `;

@@ -31,7 +31,10 @@ import {
   getCurrentApplicationId,
   getPageList,
 } from "selectors/editorSelectors";
-import { ADD_API_TO_PAGE_SUCCESS_MESSAGE } from "constants/messages";
+import {
+  ADD_API_TO_PAGE_SUCCESS_MESSAGE,
+  createMessage,
+} from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { Toaster } from "components/ads/Toast";
@@ -84,7 +87,7 @@ export function* addApiToPageSaga(
     if (isValidResponse) {
       const { payload } = action;
       const pageList: Page[] = yield select(getPageList);
-      const page = pageList.find(page => page.pageId === payload.pageId);
+      const page = pageList.find((page) => page.pageId === payload.pageId);
       AnalyticsUtil.logEvent("ADD_API_PAGE", {
         apiName: payload.name,
         providerName: payload.marketplaceElement.item.name,
@@ -92,7 +95,7 @@ export function* addApiToPageSaga(
         source: payload.source,
       });
       Toaster.show({
-        text: ADD_API_TO_PAGE_SUCCESS_MESSAGE,
+        text: createMessage(ADD_API_TO_PAGE_SUCCESS_MESSAGE, payload.name),
         variant: Variant.success,
       });
       yield put({

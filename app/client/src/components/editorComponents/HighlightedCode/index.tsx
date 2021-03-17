@@ -22,7 +22,7 @@ Prism.languages["appsmith-binding"] = {
 
 const StyledCode = styled.div<{ skin: Skin }>`
   position: relative;
-  ${props => (props.skin === Skin.DARK ? themes.DARK : themes.LIGHT)};
+  ${(props) => (props.skin === Skin.DARK ? themes.DARK : themes.LIGHT)};
   padding: 0 0px;
 
   }
@@ -37,7 +37,7 @@ export enum SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES {
 type HighlightedCodeProps = {
   codeText: string;
   language?: SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES;
-  skin?: Skin;
+  skin: Skin;
   multiline?: boolean;
   onClick?: () => void;
   className?: string;
@@ -64,7 +64,7 @@ export const HighlightedCode = forwardRef(
 
     return (
       <StyledCode
-        skin={props.skin || Skin.DARK}
+        skin={props.skin}
         onClick={props.onClick}
         ref={ref}
         className={props.className}

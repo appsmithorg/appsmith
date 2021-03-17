@@ -31,7 +31,7 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
           placeholder={placeholderText}
           type={this.getType(dataType)}
           showError
-          format={value => {
+          format={(value) => {
             // Get the value property
             if (value) {
               return value.value;
@@ -39,7 +39,7 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
 
             return "";
           }}
-          parse={value => {
+          parse={(value) => {
             // Store the value in this field as {key: fixedKey, value: <user-input>}
             return {
               key: fixedKey,

@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useMemo } from "react";
 import { apiIcon, dbQueryIcon, MethodTag, QueryIcon } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
@@ -12,9 +12,14 @@ import {
 
 import { Page } from "constants/ReduxActionConstants";
 import { ExplorerURLParams } from "../helpers";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import PluginGroup from "../PluginGroup/PluginGroup";
+import { useSelector } from "react-redux";
+import { AppState } from "reducers";
+import { groupBy } from "lodash";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 export type ActionGroupConfig = {
   groupName: string;
@@ -90,6 +95,12 @@ export const ACTION_PLUGIN_MAP: Array<
   }
 });
 
+export const getActionConfig = (type: PluginType) =>
+  ACTION_PLUGIN_MAP.find(
+    (configByType: ActionGroupConfig | undefined) =>
+      configByType?.type === type,
+  );
+
 export const getPluginGroups = (
   page: Page,
   step: number,
@@ -97,8 +108,9 @@ export const getPluginGroups = (
   datasources: Datasource[],
   plugins: Plugin[],
   searchKeyword?: string,
+  actionPluginMap = ACTION_PLUGIN_MAP,
 ) => {
-  return ACTION_PLUGIN_MAP?.map((config?: ActionGroupConfig) => {
+  return actionPluginMap?.map((config?: ActionGroupConfig) => {
     if (!config) return null;
 
     const entries = actions?.filter(
@@ -106,10 +118,10 @@ export const getPluginGroups = (
     );
 
     const filteredPlugins = plugins.filter(
-      plugin => plugin.type === config.type,
+      (plugin) => plugin.type === config.type,
     );
-    const filteredPluginIds = filteredPlugins.map(plugin => plugin.id);
-    const filteredDatasources = datasources.filter(datasource => {
+    const filteredPluginIds = filteredPlugins.map((plugin) => plugin.id);
+    const filteredDatasources = datasources.filter((datasource) => {
       return filteredPluginIds.includes(datasource.pluginId);
     });
 
@@ -133,4 +145,26 @@ export const getPluginGroups = (
       />
     );
   });
+};
+
+export const useNewActionName = () => {
+  // This takes into consideration only the current page widgets
+  // If we're moving to a different page, there could be a widget
+  // with the same name as the generated API name
+  // TODO: Figure out how to handle this scenario
+  const actions = useSelector((state: AppState) => state.entities.actions);
+  const groupedActions = useMemo(() => {
+    return groupBy(actions, "config.pageId");
+  }, [actions]);
+  return (name: string, destinationPageId: string) => {
+    const pageActions = groupedActions[destinationPageId];
+    // Get action names of the destination page only
+    const actionNames = pageActions
+      ? pageActions.map((action: ActionData) => action.config.name)
+      : [];
+
+    return actionNames.indexOf(name) > -1
+      ? getNextEntityName(name, actionNames)
+      : name;
+  };
 };

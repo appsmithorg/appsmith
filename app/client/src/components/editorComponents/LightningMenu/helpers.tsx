@@ -1,5 +1,5 @@
 import React from "react";
-import { RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { Directions } from "utils/helpers";
 import { WidgetProps } from "widgets/BaseWidget";
 import CustomizedDropdown, {
@@ -18,13 +18,14 @@ import {
   LIGHTNING_MENU_OPTION_JS,
   LIGHTNING_MENU_QUERY_CREATE_NEW,
   LIGHTNING_MENU_API_CREATE_NEW,
+  createMessage,
 } from "constants/messages";
 import { Skin } from "constants/DefaultTheme";
 import { ReduxAction } from "constants/ReduxActionConstants";
 
 export const getApiOptions = (
   skin: Skin,
-  apis: RestAction[],
+  apis: Action[],
   pageId: string,
   dispatch: (action: ReduxAction<unknown>) => void,
   updateDynamicInputValue: (value: string, cursor?: number) => void,
@@ -36,7 +37,7 @@ export const getApiOptions = (
         {
           content: (
             <Button
-              text={LIGHTNING_MENU_API_CREATE_NEW}
+              text={createMessage(LIGHTNING_MENU_API_CREATE_NEW)}
               icon="plus"
               iconAlignment="left"
               skin={skin}
@@ -50,7 +51,7 @@ export const getApiOptions = (
       ],
     },
     {
-      options: apis.map(api => ({
+      options: apis.map((api) => ({
         content: api.name,
         onSelect: () => {
           updateDynamicInputValue(`{{${api.name}.data}}`);
@@ -59,7 +60,7 @@ export const getApiOptions = (
     },
   ],
   trigger: {
-    text: LIGHTNING_MENU_DATA_API,
+    text: createMessage(LIGHTNING_MENU_DATA_API),
   },
   openDirection: Directions.RIGHT,
   openOnHover: true,
@@ -73,7 +74,7 @@ export const getApiOptions = (
 
 export const getQueryOptions = (
   skin: Skin,
-  queries: RestAction[],
+  queries: Action[],
   pageId: string,
   dispatch: (action: ReduxAction<unknown>) => void,
   updateDynamicInputValue: (value: string, cursor?: number) => void,
@@ -85,7 +86,7 @@ export const getQueryOptions = (
         {
           content: (
             <Button
-              text={LIGHTNING_MENU_QUERY_CREATE_NEW}
+              text={createMessage(LIGHTNING_MENU_QUERY_CREATE_NEW)}
               icon="plus"
               iconAlignment="left"
               skin={skin}
@@ -99,7 +100,7 @@ export const getQueryOptions = (
       ],
     },
     {
-      options: queries.map(query => ({
+      options: queries.map((query) => ({
         content: query.name,
         onSelect: () => {
           updateDynamicInputValue(`{{${query.name}.data}}`);
@@ -108,7 +109,7 @@ export const getQueryOptions = (
     },
   ],
   trigger: {
-    text: LIGHTNING_MENU_DATA_QUERY,
+    text: createMessage(LIGHTNING_MENU_DATA_QUERY),
   },
   openDirection: Directions.RIGHT,
   openOnHover: true,
@@ -127,7 +128,7 @@ export const getWidgetOptions = (
 ) => ({
   sections: [
     {
-      options: widgets.map(widget => ({
+      options: widgets.map((widget) => ({
         content: widget.widgetName,
         disabled: false,
         shouldCloseDropdown: true,
@@ -138,7 +139,7 @@ export const getWidgetOptions = (
     },
   ],
   trigger: {
-    text: LIGHTNING_MENU_DATA_WIDGET,
+    text: createMessage(LIGHTNING_MENU_DATA_WIDGET),
   },
   openDirection: Directions.RIGHT,
   openOnHover: true,
@@ -151,8 +152,8 @@ export const getWidgetOptions = (
 });
 
 export const getLightningMenuOptions = (
-  apis: RestAction[],
-  queries: RestAction[],
+  apis: Action[],
+  queries: Action[],
   widgets: WidgetProps[],
   pageId: string,
   dispatch: (action: ReduxAction<unknown>) => void,
@@ -208,7 +209,7 @@ export const getLightningMenuOptions = (
   return [
     ...options,
     {
-      content: LIGHTNING_MENU_OPTION_JS,
+      content: createMessage(LIGHTNING_MENU_OPTION_JS),
       disabled: false,
       shouldCloseDropdown: true,
       onSelect: () => {
@@ -216,7 +217,7 @@ export const getLightningMenuOptions = (
       },
     },
     {
-      content: LIGHTNING_MENU_OPTION_HTML,
+      content: createMessage(LIGHTNING_MENU_OPTION_HTML),
       disabled: false,
       shouldCloseDropdown: true,
       onSelect: () => {

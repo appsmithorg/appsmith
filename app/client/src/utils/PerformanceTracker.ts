@@ -7,6 +7,8 @@ import * as log from "loglevel";
 export enum PerformanceTransactionName {
   DEPLOY_APPLICATION = "DEPLOY_APPLICATION",
   DATA_TREE_EVALUATION = "DATA_TREE_EVALUATION",
+  DATA_TREE_WORKER_EVALUATION = "DATA_TREE_WORKER_EVALUATION",
+  EVAL_REDUX_UPDATE = "EVAL_REDUX_UPDATE",
   CONSTRUCT_UNEVAL_TREE = "CONSTRUCT_UNEVAL_TREE",
   CONSTRUCT_CANVAS_DSL = "CONSTRUCT_CANVAS_DSL",
   CREATE_DEPENDENCIES = "CREATE_DEPENDENCIES",
@@ -38,6 +40,7 @@ export enum PerformanceTransactionName {
   USER_ME_API = "USER_ME_API",
   SIGN_UP = "SIGN_UP",
   LOGIN_CLICK = "LOGIN_CLICK",
+  SET_EVALUATED = "SET_EVALUATED",
 }
 
 export enum PerformanceTagNames {
@@ -91,7 +94,7 @@ class PerformanceTracker {
         }
         const newTransaction = Sentry.startTransaction({ name: eventName });
         newTransaction.setData("startData", data);
-        Sentry.getCurrentHub().configureScope(scope =>
+        Sentry.getCurrentHub().configureScope((scope) =>
           scope.setSpan(newTransaction),
         );
         PerformanceTracker.perfLogQueue.push({
@@ -135,7 +138,7 @@ class PerformanceTracker {
       if (eventName) {
         const index = _.findLastIndex(
           PerformanceTracker.perfLogQueue,
-          (perfLog, i) => {
+          (perfLog) => {
             return perfLog.eventName === eventName;
           },
         );

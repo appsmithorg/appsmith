@@ -23,6 +23,42 @@ class ContainerWidget extends BaseWidget<
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
+
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "backgroundColor",
+            label: "Background Color",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+    ];
+  }
+
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     return {
@@ -69,7 +105,7 @@ class ContainerWidget extends BaseWidget<
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      _.sortBy(_.compact(this.props.children), child => child.topRow),
+      _.sortBy(_.compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
     );
   };

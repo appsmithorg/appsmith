@@ -1,5 +1,7 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -7,14 +9,12 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.ConnectionFactoryOptions;
 import lombok.extern.log4j.Log4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -29,11 +29,12 @@ import reactor.test.StepVerifier;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
-import static org.junit.Assert.assertNotEquals;
+
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertArrayEquals;
 
 @Log4j
 public class MySqlPluginTest {
@@ -114,6 +115,14 @@ public class MySqlPluginTest {
                                     "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31', 2019," +
                                     " '15:45:30'," +
                                     " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
+                                    ")"
+                            )
+                            .add("INSERT INTO users VALUES (" +
+                                    "3, 'MiniJackJill', 'jaji', 'jaji@exemplars.com', NULL, '2021-01-31'," +
+                                    " '15:45:30', '04:05:06 PST'," +
+                                    " TIMESTAMP '2021-01-31 23:59:59', TIMESTAMP WITH TIME ZONE '2021-01-31 23:59:59 CET'," +
+                                    " '0 years'," +
+                                    " '{1, 2, 3}', '{\"a\", \"b\"}'" +
                                     ")"
                             );
                 })
@@ -204,7 +213,7 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -222,7 +231,7 @@ public class MySqlPluginTest {
         Connection connection = pluginExecutor.datasourceCreate(dsConfig).block();
 
         Flux<ActionExecutionResult> resultFlux = Mono.from(connection.close())
-                .thenMany(pluginExecutor.execute(connection, dsConfig, actionConfiguration));
+                .thenMany(pluginExecutor.executeParameterized(connection, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(resultFlux)
                 .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
@@ -258,6 +267,18 @@ public class MySqlPluginTest {
     }
 
     @Test
+    public void testValidateDatasource_NullHost() {
+        dsConfig.setEndpoints(List.of(new Endpoint()));
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertEquals(output.size(), 1);
+        assertTrue(output.contains("Host value cannot be empty"));
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(address);
+        endpoint.setPort(port.longValue());
+        dsConfig.setEndpoints(List.of(endpoint));
+    }
+
+    @Test
     public void testValidateDatasourceInvalidEndpoint() {
         String hostname = "r2dbc:mysql://localhost";
         dsConfig.getEndpoints().get(0).setHost(hostname);
@@ -274,7 +295,7 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -303,7 +324,7 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -344,8 +365,8 @@ public class MySqlPluginTest {
      * 1. Add a test to check that mysql driver can interpret and read all the regular data types used in mysql.
      * 2. List of the data types is taken is from https://dev.mysql.com/doc/refman/8.0/en/data-types.html
      * 3. Data types tested here are: INTEGER, SMALLINT, TINYINT, MEDIUMINT, BIGINT, DECIMAL, FLOAT, DOUBLE, BIT,
-     *    DATE, DATETIME, TIMESTAMP, TIME, YEAR, CHAR, VARCHAR, BINARY, VARBINARY, TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB,
-     *    TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT, ENUM, SET, JSON, GEOMETRY, POINT    
+     * DATE, DATETIME, TIMESTAMP, TIME, YEAR, CHAR, VARCHAR, BINARY, VARBINARY, TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB,
+     * TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT, ENUM, SET, JSON, GEOMETRY, POINT
      */
     @Test
     public void testExecuteDataTypesExtensive() {
@@ -420,7 +441,7 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(query);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;

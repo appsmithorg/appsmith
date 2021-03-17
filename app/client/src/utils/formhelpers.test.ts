@@ -15,7 +15,7 @@ describe("isEmail test", () => {
       "appsmith-100@yahoo-test.com",
     ];
 
-    validEmails.forEach(validEmail => {
+    validEmails.forEach((validEmail) => {
       expect(isEmail(validEmail)).toBeTruthy();
     });
   });
@@ -36,7 +36,7 @@ describe("isEmail test", () => {
       "appsmith@gmail.com.1a",
     ];
 
-    invalidEmails.forEach(invalidEmail => {
+    invalidEmails.forEach((invalidEmail) => {
       expect(isEmail(invalidEmail)).toBeFalsy();
     });
   });

@@ -11,12 +11,13 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Container = styled.div`
   display: flex;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  background-color: ${(props) => props.theme.appBackground};
 `;
 
 const EditorContainer = styled.div`
   position: relative;
-  width: calc(100vw - ${props => props.theme.sidebarWidth});
+  width: calc(100vw - ${(props) => props.theme.sidebarWidth});
 `;
 
 const MainContainer = () => {

@@ -32,7 +32,7 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<Void> deleteAll();
 
-    Mono<ApplicationPagesDTO> findNamesByApplicationIdAndViewMode(String applicationId, Boolean view);
+    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String applicationId, Boolean view);
 
     Layout createDefaultLayout();
 
@@ -53,4 +53,6 @@ public interface NewPageService extends CrudService<NewPage, String> {
     Mono<Boolean> archiveById(String id);
 
     Flux<NewPage> saveAll(List<NewPage> pages);
+
+    Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 }

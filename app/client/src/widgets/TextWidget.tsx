@@ -19,6 +19,85 @@ const LINE_HEIGHTS: { [key in TextStyle]: number } = {
 };
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "text",
+            helpText: "Sets the text of the widget",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "textAlign",
+            helpText: "Sets the alignments of the text",
+            label: "Text Align",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Left",
+                value: "LEFT",
+              },
+              {
+                label: "Center",
+                value: "CENTER",
+              },
+              {
+                label: "Right",
+                value: "RIGHT",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "textStyle",
+            helpText: "Sets the font and style of the text",
+            label: "Text Style",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Heading",
+                value: "HEADING",
+              },
+              {
+                label: "Label",
+                value: "LABEL",
+              },
+              {
+                label: "Body",
+                value: "BODY",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "shouldScroll",
+            label: "Enable Scroll",
+            helpText: "Allows scrolling text instead of truncation",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

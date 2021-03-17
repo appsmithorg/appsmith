@@ -28,8 +28,13 @@ import {
   getWidgetMetaProps,
 } from "sagas/selectors";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { updateWidgetMetaProperty } from "actions/metaActions";
+import {
+  resetChildrenMetaProperty,
+  updateWidgetMetaProperty,
+} from "actions/metaActions";
 import { focusWidget } from "actions/widgetActions";
+import log from "loglevel";
+import { flatten } from "lodash";
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
@@ -57,7 +62,7 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       payload: { modalId: modalWidgetId },
     });
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.CREATE_MODAL_ERROR,
       payload: { error },
@@ -81,6 +86,17 @@ export function* showModalByNameSaga(
       payload: {
         modalId: modal.widgetId,
       },
+    });
+  }
+}
+
+export function* showIfModalSaga(
+  action: ReduxAction<{ widgetId: string; type: string }>,
+) {
+  if (action.payload.type === "MODAL_WIDGET") {
+    yield put({
+      type: ReduxActionTypes.SHOW_MODAL,
+      payload: { modalId: action.payload.widgetId },
     });
   }
 }
@@ -159,13 +175,18 @@ export function* closeModalSaga(
     // If we have modals to close, set its isVisible to false to close.
     if (widgetIds) {
       yield all(
-        widgetIds.map((widgetId: string) =>
-          put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
+        flatten(
+          widgetIds.map((widgetId: string) => {
+            return [
+              put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
+              put(resetChildrenMetaProperty(widgetId)),
+            ];
+          }),
         ),
       );
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
   }
 }
 
@@ -175,5 +196,6 @@ export default function* modalSagas() {
     takeLatest(ReduxActionTypes.CREATE_MODAL_INIT, createModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL, showModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL_BY_NAME, showModalByNameSaga),
+    takeLatest(ReduxActionTypes.WIDGET_CHILD_ADDED, showIfModalSaga),
   ]);
 }

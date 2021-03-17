@@ -6,8 +6,10 @@
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
-    "plugin:prettier/recommended",
-    "plugin:cypress/recommended"
+    "plugin:cypress/recommended",
+    // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
+    // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
+    "plugin:prettier/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features
@@ -24,18 +26,21 @@
     "import/no-webpack-loader-syntax": 0,
     "no-undef": 0,
     "react/prop-types": 0,
-    "@typescript-eslint/explicit-module-boundary-types": 0
+    "@typescript-eslint/explicit-module-boundary-types": 0,
+    "cypress/no-unnecessary-waiting": 0,
+    "cypress/no-assigning-return-values": 0
   },
   "settings": {
     "react": {
       "pragma": "React",
       // Tells eslint-plugin-react to automatically detect the version of React to use
-      "version": "detect" 
+      "version": "detect"
     }
   },
   "env": {
     "browser": true,
     "node": true,
-    "cypress/globals": true
+    "cypress/globals": true,
+    "worker": true
   }
 }

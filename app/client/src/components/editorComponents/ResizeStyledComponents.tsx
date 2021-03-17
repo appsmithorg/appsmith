@@ -9,7 +9,7 @@ export const VisibilityContainer = styled.div<{
   visible: boolean;
   padding: number;
 }>`
-  ${props => (!props.visible ? invisible : "")}
+  ${(props) => (!props.visible ? invisible : "")}
   height: 100%;
   width: 100%;
 `;

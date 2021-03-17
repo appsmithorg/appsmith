@@ -2,9 +2,8 @@ import React from "react";
 import { Route, RouteComponentProps } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { connect } from "react-redux";
-import { getThemeDetails } from "selectors/themeSelectors";
+import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "reducers";
-import { ThemeMode } from "reducers/uiReducers/themeReducer";
 import { setThemeMode } from "actions/themeActions";
 import equal from "fast-deep-equal/es6";
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -28,7 +27,7 @@ class AppRouteWithoutProps extends React.Component<AppRouteProps> {
   }
 
   render() {
-    const { component: Component, currentTheme, ...rest } = this.props;
+    const { currentTheme, ...rest } = this.props;
     if (
       window.location.pathname === "/applications" ||
       window.location.pathname.indexOf("/settings/") !== -1
@@ -38,11 +37,11 @@ class AppRouteWithoutProps extends React.Component<AppRouteProps> {
     } else {
       document.body.style.backgroundColor = currentTheme.colors.appBackground;
     }
-    return <SentryRoute {...rest} component={this.props.component} />;
+    return <SentryRoute {...rest} />;
   }
 }
 const mapStateToProps = (state: AppState) => ({
-  currentTheme: getThemeDetails(state).theme,
+  currentTheme: getCurrentThemeDetails(state),
 });
 const mapDispatchToProps = (dispatch: any) => ({
   setTheme: (mode: ThemeMode) => {

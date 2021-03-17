@@ -91,7 +91,7 @@
                       },
                       {
                         "isVisible": true,
-                        "defaultText": "This is the initial <b>content</b> of the editor",
+                        "defaultText": "",
                         "isDisabled": false,
                         "widgetName": "RichTextEditor1",
                         "isDefaultClickDisabled": true,

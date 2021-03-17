@@ -21,6 +21,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 public class RedirectHelper {
 
     public static final String DEFAULT_REDIRECT_URL = "/applications";
+    public static final String DEFAULT_REDIRECT_ORIGIN = "https://app.appsmith.com";
     private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
     private static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
     private static final String FORK_APP_ID_QUERY_PARAM = "appId";
@@ -122,6 +123,39 @@ public class RedirectHelper {
         }
 
         return redirectUrl;
+    }
+
+    /**
+     * This function only checks the incoming request for all possible sources of a redirection domain
+     * and returns with the first valid domain that it finds
+     *
+     * @param httpHeaders The headers received for the current request, used to inspect redirection details.
+     * @return A String that represents the origin that the request came from
+     */
+    public String getRedirectDomain(HttpHeaders httpHeaders) {
+        // This is the failsafe for when nothing could be identified
+        String redirectOrigin = DEFAULT_REDIRECT_ORIGIN;
+
+        if (!StringUtils.isEmpty(httpHeaders.getOrigin())) {
+            // For PUT/POST requests or CORS?
+            redirectOrigin = httpHeaders.getOrigin();
+        } else if (!StringUtils.isEmpty(httpHeaders.getFirst(Security.REFERER_HEADER))) {
+            // For generic web application requests
+            URI uri;
+            try {
+                uri = new URI(httpHeaders.getFirst(Security.REFERER_HEADER));
+                String authority = uri.getAuthority();
+                String scheme = uri.getScheme();
+                redirectOrigin = scheme + "://" + authority;
+            } catch (URISyntaxException ignored) {
+            }
+        } else if (!StringUtils.isEmpty(httpHeaders.getHost())) {
+            // For HTTP v1 requests
+            String port = httpHeaders.getHost().getPort() != 80 ? ":" + httpHeaders.getHost().getPort() : "";
+            redirectOrigin = httpHeaders.getHost().getHostName() + port;
+        }
+
+        return redirectOrigin;
     }
 
 }

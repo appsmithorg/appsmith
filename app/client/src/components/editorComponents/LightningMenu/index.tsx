@@ -4,19 +4,19 @@ import CustomizedDropdown, {
 } from "pages/common/CustomizedDropdown";
 
 import { Directions } from "utils/helpers";
-import { RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getLightningMenuOptions } from "./helpers";
 import { LightningMenuTrigger } from "./LightningMenuTrigger";
 import { useActions, useWidgets, usePageId } from "./hooks";
 import { Theme, Skin } from "constants/DefaultTheme";
-import { withTheme } from "styled-components";
+import { createGlobalStyle, withTheme } from "styled-components";
 import { useDispatch } from "react-redux";
 
 const lightningMenuOptions = (
   skin: Skin,
-  apis: RestAction[],
-  queries: RestAction[],
+  apis: Action[],
+  queries: Action[],
   widgets: WidgetProps[],
   pageId: string,
   dispatch: (action: unknown) => void,
@@ -68,6 +68,13 @@ type LightningMenuProps = {
   theme: Theme;
 };
 
+const CustomDropdownStyles = createGlobalStyle`
+  .bp3-popover {
+    box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.6);
+    border-radius: 0px;
+  }
+`;
+
 export const LightningMenu = (props: LightningMenuProps) => {
   const widgets = useWidgets();
   const { apis, queries } = useActions();
@@ -75,25 +82,28 @@ export const LightningMenu = (props: LightningMenuProps) => {
   const dispatch = useDispatch();
 
   return (
-    <CustomizedDropdown
-      {...lightningMenuOptions(
-        props.skin,
-        apis,
-        queries,
-        widgets,
-        pageId,
-        dispatch,
-        props.updateDynamicInputValue,
-        <LightningMenuTrigger
-          skin={props.skin}
-          theme={props.theme}
-          isFocused={props.isFocused}
-          isOpened={props.isOpened}
-          onOpenLightningMenu={props.onOpenLightningMenu}
-        />,
-        props.onCloseLightningMenu,
-      )}
-    />
+    <>
+      <CustomizedDropdown
+        {...lightningMenuOptions(
+          props.skin,
+          apis,
+          queries,
+          widgets,
+          pageId,
+          dispatch,
+          props.updateDynamicInputValue,
+          <LightningMenuTrigger
+            skin={props.skin}
+            theme={props.theme}
+            isFocused={props.isFocused}
+            isOpened={props.isOpened}
+            onOpenLightningMenu={props.onOpenLightningMenu}
+          />,
+          props.onCloseLightningMenu,
+        )}
+      />
+      <CustomDropdownStyles />
+    </>
   );
 };
 

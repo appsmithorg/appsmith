@@ -155,14 +155,14 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
             if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
                 addPkceParameters(attributes, additionalParameters);
             }
-            if (!commonConfig.getAllowedDomains().isEmpty()) {
-                if (commonConfig.getAllowedDomains().size() == 1) {
+            if (!commonConfig.getOauthAllowedDomains().isEmpty()) {
+                if (commonConfig.getOauthAllowedDomains().size() == 1) {
                     // Incase there's only 1 domain, we can do a further optimization to let the user select a specific one
                     // from the list
-                    additionalParameters.put("hd", commonConfig.getAllowedDomains().get(0));
+                    additionalParameters.put("hd", commonConfig.getOauthAllowedDomains().get(0));
                 } else {
                     // Add multiple domains to the list of allowed domains
-                    additionalParameters.put("hd", commonConfig.getAllowedDomains());
+                    additionalParameters.put("hd", commonConfig.getOauthAllowedDomains());
                 }
             }
 

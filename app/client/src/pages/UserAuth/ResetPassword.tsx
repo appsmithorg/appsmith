@@ -7,33 +7,32 @@ import { RESET_PASSWORD_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
-import FormTextField from "components/editorComponents/form/fields/TextField";
+import FormGroup from "components/ads/formFields/FormGroup";
+import FormTextField from "components/ads/formFields/TextField";
 import FormMessage, {
-  FormMessageProps,
   MessageAction,
-} from "components/editorComponents/form/FormMessage";
+  FormMessageProps,
+} from "components/ads/formFields/FormMessage";
 import Spinner from "components/editorComponents/Spinner";
-import Button from "components/editorComponents/Button";
-import FormGroup from "components/editorComponents/form/FormGroup";
+import Button, { Size } from "components/ads/Button";
+
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
 import {
   AuthCardHeader,
-  AuthCardFooter,
-  AuthCardContainer,
-  AuthCardBody,
   AuthCardNavLink,
   FormActions,
 } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
+import { withTheme } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
 
 import {
   RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL,
   RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER,
   RESET_PASSWORD_LOGIN_LINK_TEXT,
   RESET_PASSWORD_SUBMIT_BUTTON_TEXT,
-  RESET_PASSWORD_PAGE_SUBTITLE,
   RESET_PASSWORD_PAGE_TITLE,
   FORM_VALIDATION_INVALID_PASSWORD,
   FORM_VALIDATION_EMPTY_PASSWORD,
@@ -42,15 +41,15 @@ import {
   RESET_PASSWORD_INVALID_TOKEN,
   RESET_PASSWORD_RESET_SUCCESS,
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
+  createMessage,
 } from "constants/messages";
-import { TncPPLinks } from "./SignUp";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
   if (!values.password || isEmptyString(values.password)) {
-    errors.password = FORM_VALIDATION_EMPTY_PASSWORD;
+    errors.password = createMessage(FORM_VALIDATION_EMPTY_PASSWORD);
   } else if (!isStrongPassword(values.password)) {
-    errors.password = FORM_VALIDATION_INVALID_PASSWORD;
+    errors.password = createMessage(FORM_VALIDATION_INVALID_PASSWORD);
   }
   return errors;
 };
@@ -66,6 +65,7 @@ type ResetPasswordProps = InjectedFormProps<
   verifyToken: (token: string, email: string) => void;
   isTokenValid: boolean;
   validatingToken: boolean;
+  theme: Theme;
 } & RouteComponentProps<{ email: string; token: string }>;
 
 export const ResetPassword = (props: ResetPasswordProps) => {
@@ -98,24 +98,24 @@ export const ResetPassword = (props: ResetPasswordProps) => {
     messageActions = [
       {
         url: FORGOT_PASSWORD_URL,
-        text: RESET_PASSWORD_FORGOT_PASSWORD_LINK,
+        text: createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK),
         intent: "primary",
       },
     ];
   }
   if (showExpiredMessage) {
-    message = RESET_PASSWORD_EXPIRED_TOKEN;
+    message = createMessage(RESET_PASSWORD_EXPIRED_TOKEN);
   }
   if (showInvalidMessage) {
-    message = RESET_PASSWORD_INVALID_TOKEN;
+    message = createMessage(RESET_PASSWORD_INVALID_TOKEN);
   }
 
   if (showSuccessMessage) {
-    message = RESET_PASSWORD_RESET_SUCCESS;
+    message = createMessage(RESET_PASSWORD_RESET_SUCCESS);
     messageActions = [
       {
         url: AUTH_LOGIN_URL,
-        text: RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
+        text: createMessage(RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK),
         intent: "success",
       },
     ];
@@ -125,12 +125,14 @@ export const ResetPassword = (props: ResetPasswordProps) => {
     if (
       message
         .toLowerCase()
-        .includes(RESET_PASSWORD_FORGOT_PASSWORD_LINK.toLowerCase())
+        .includes(
+          createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK).toLowerCase(),
+        )
     ) {
       messageActions = [
         {
           url: FORGOT_PASSWORD_URL,
-          text: RESET_PASSWORD_FORGOT_PASSWORD_LINK,
+          text: createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK),
           intent: "primary",
         },
       ];
@@ -154,50 +156,51 @@ export const ResetPassword = (props: ResetPasswordProps) => {
     return <Spinner />;
   }
   return (
-    <AuthCardContainer>
+    <>
+      <AuthCardHeader>
+        <h1>{createMessage(RESET_PASSWORD_PAGE_TITLE)}</h1>
+      </AuthCardHeader>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <AuthCardNavLink to={AUTH_LOGIN_URL}>
+          <Icon
+            icon="arrow-left"
+            style={{ marginRight: props.theme.spaces[3] }}
+          />
+          {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
+        </AuthCardNavLink>
+      </div>
       {(showSuccessMessage || showFailureMessage) && (
         <FormMessage {...messageTagProps} />
       )}
-      <AuthCardHeader>
-        <h1>{RESET_PASSWORD_PAGE_TITLE}</h1>
-        <h5>{RESET_PASSWORD_PAGE_SUBTITLE}</h5>
-      </AuthCardHeader>
-      <AuthCardBody>
-        <StyledForm onSubmit={handleSubmit(resetPasswordSubmitHandler)}>
-          <FormGroup
-            intent={error ? "danger" : "none"}
-            label={RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL}
-          >
-            <FormTextField
-              name="password"
-              type="password"
-              placeholder={RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER}
-              disabled={submitSucceeded}
-            />
-          </FormGroup>
-          <Field type="hidden" name="email" component="input" />
-          <Field type="hidden" name="token" component="input" />
-          <FormActions>
-            <Button
-              filled
-              size="large"
-              type="submit"
-              text={RESET_PASSWORD_SUBMIT_BUTTON_TEXT}
-              intent="primary"
-              disabled={pristine || submitSucceeded}
-              loading={submitting}
-            />
-          </FormActions>
-        </StyledForm>
-      </AuthCardBody>
-      <AuthCardNavLink to={AUTH_LOGIN_URL}>
-        {RESET_PASSWORD_LOGIN_LINK_TEXT}
-        <Icon icon="arrow-right" intent="primary" />
-      </AuthCardNavLink>
-      <AuthCardFooter>
-        <TncPPLinks></TncPPLinks>
-      </AuthCardFooter>
-    </AuthCardContainer>
+      <StyledForm onSubmit={handleSubmit(resetPasswordSubmitHandler)}>
+        <FormGroup
+          intent={error ? "danger" : "none"}
+          label={createMessage(RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL)}
+        >
+          <FormTextField
+            name="password"
+            type="password"
+            placeholder={createMessage(
+              RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER,
+            )}
+            disabled={submitSucceeded}
+          />
+        </FormGroup>
+        <Field type="hidden" name="email" component="input" />
+        <Field type="hidden" name="token" component="input" />
+        <FormActions>
+          <Button
+            tag="button"
+            fill
+            size={Size.large}
+            type="submit"
+            text={createMessage(RESET_PASSWORD_SUBMIT_BUTTON_TEXT)}
+            disabled={pristine || submitSucceeded}
+            isLoading={submitting}
+          />
+        </FormActions>
+      </StyledForm>
+    </>
   );
 };
 
@@ -232,5 +235,5 @@ export default connect(
     validate,
     form: RESET_PASSWORD_FORM_NAME,
     touchOnBlur: true,
-  })(withRouter(ResetPassword)),
+  })(withRouter(withTheme(ResetPassword))),
 );

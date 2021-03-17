@@ -4,6 +4,7 @@ import CodeEditor, {
   EditorStyleProps,
 } from "components/editorComponents/CodeEditor";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
@@ -17,6 +18,8 @@ class DynamicTextField extends React.Component<
       tabBehaviour?: TabBehaviour;
       mode?: EditorModes;
       theme?: EditorTheme;
+      hoverInteraction?: boolean;
+      border?: CodeEditorBorder;
     }
 > {
   render() {

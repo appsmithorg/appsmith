@@ -26,7 +26,7 @@ export const createApplicationFormSubmitHandler = (
         orgId,
       },
     });
-  }).catch(error => {
+  }).catch((error) => {
     throw new SubmissionError(error);
   });
 };

@@ -55,6 +55,22 @@ describe("isHidden test", () => {
         },
       },
       {
+        values: { name: "Name", config: { type: "Different BODY" } },
+        hidden: {
+          path: "config.type",
+          value: ["EMAIL", "BODY"],
+          comparison: "IN",
+        },
+      },
+      {
+        values: { name: "Name", config: { type: "BODY" } },
+        hidden: {
+          path: "config.type",
+          value: ["EMAIL", "BODY"],
+          comparison: "NOT_IN",
+        },
+      },
+      {
         values: undefined,
         hidden: false,
       },
@@ -154,7 +170,7 @@ describe("getConfigInitialValues test", () => {
       },
     ];
 
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       expect(getConfigInitialValues(testCase.input)).toEqual(testCase.output);
     });
   });

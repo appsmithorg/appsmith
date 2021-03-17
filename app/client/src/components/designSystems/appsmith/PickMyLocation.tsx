@@ -43,7 +43,7 @@ export default class PickMyLocation extends React.Component<
   }
   getUserLocation = () => {
     if ("geolocation" in navigator) {
-      return navigator.geolocation.getCurrentPosition(data => {
+      return navigator.geolocation.getCurrentPosition((data) => {
         const {
           coords: { latitude: lat, longitude: long },
         } = data;

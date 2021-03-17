@@ -21,7 +21,7 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
     AnalyticsUtil.logEvent("APPLICATIONS_PAGE_LOAD");
     retryPromise(() =>
       import(/* webpackChunkName: "applications" */ "./index"),
-    ).then(module => {
+    ).then((module) => {
       this.setState({ Page: module.default });
     });
   }

@@ -10,7 +10,7 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { AppState } from "reducers";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;
@@ -22,9 +22,9 @@ type ExplorerWidgetGroupProps = {
 
 const StyledLink = styled(Link)`
   & {
-    color: ${props => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.primary};
     &:hover {
-      color: ${props => props.theme.colors.primary};
+      color: ${(props) => props.theme.colors.primary};
     }
   }
 `;
@@ -69,7 +69,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       onCreate={props.addWidgetsFn}
       searchKeyword={props.searchKeyword}
     >
-      {props.widgets?.children?.map(child => (
+      {props.widgets?.children?.map((child) => (
         <WidgetEntity
           widgetId={child.widgetId}
           widgetName={child.widgetName}

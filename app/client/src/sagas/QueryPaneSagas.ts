@@ -34,20 +34,20 @@ import {
   getDatasource,
   getPluginTemplates,
 } from "selectors/entitiesSelector";
-import { RestAction } from "entities/Action";
+import { QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
-import { getQueryParams } from "utils/AppsmithUtils";
-import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const state = yield select();
   const editorConfigs = state.entities.plugins.editorConfigs;
+  const settingConfigs = state.entities.plugins.settingConfigs;
   let configInitialValues = {};
   // // Typescript says Element does not have blur function but it does;
   // document.activeElement &&
@@ -66,6 +66,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     history.push(QUERIES_EDITOR_URL(applicationId, pageId));
     return;
   }
+
   let currentEditorConfig = editorConfigs[action.datasource.pluginId];
 
   if (!currentEditorConfig) {
@@ -82,6 +83,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
       currentEditorConfig = success.payload.editor;
     }
   }
+  const currentSettingConfig = settingConfigs[action.datasource.pluginId];
 
   // If config exists
   if (currentEditorConfig) {
@@ -90,6 +92,14 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
       getConfigInitialValues,
       currentEditorConfig,
     );
+  }
+
+  if (currentSettingConfig) {
+    const settingInitialValues = yield call(
+      getConfigInitialValues,
+      currentSettingConfig,
+    );
+    configInitialValues = merge(configInitialValues, settingInitialValues);
   }
 
   // Merge the initial values and action.
@@ -138,15 +148,13 @@ function* formValueChangeSaga(
   );
 }
 
-function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
+function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const {
     id,
     pluginType,
     pluginId,
     actionConfiguration,
   } = actionPayload.payload;
-  const action = yield select(getAction, id);
-  const data = { ...action };
   if (pluginType === "DB") {
     const state = yield select();
     const editorConfigs = state.entities.plugins.editorConfigs;
@@ -155,16 +163,15 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
       yield put(fetchPluginForm({ id: pluginId }));
     }
 
-    yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
+    yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
     const pluginTemplates = yield select(getPluginTemplates);
-    const queryTemplate = pluginTemplates[action.pluginId];
+    const queryTemplate = pluginTemplates[pluginId];
     // Do not show template view if the query has body(code) or if there are no templates
     const showTemplate = !(
       !!actionConfiguration.body || isEmpty(queryTemplate)
     );
-
     history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
@@ -189,27 +196,19 @@ function* handleNameChangeSuccessSaga(
   if (!actionObj) {
     // Error case, log to sentry
     Toaster.show({
-      text: "Error occured while renaming query",
+      text: createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name),
       variant: Variant.danger,
     });
 
-    Sentry.captureException(new Error("Error occured while renaming query"), {
-      extra: {
-        actionId: actionId,
+    Sentry.captureException(
+      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name)),
+      {
+        extra: {
+          actionId: actionId,
+        },
       },
-    });
-    return;
-  }
-  if (actionObj.pluginType === QUERY_CONSTANT) {
-    const params = getQueryParams();
-    if (params.editName) {
-      params.editName = "false";
-    }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
-    history.replace(
-      QUERIES_EDITOR_ID_URL(applicationId, pageId, actionId, params),
     );
+    return;
   }
 }
 

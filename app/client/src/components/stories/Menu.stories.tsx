@@ -22,14 +22,6 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-const calls = (value: string, callback: any) => {
-  setTimeout(() => {
-    return callback(false, SavingState.SUCCESS);
-  }, 2000);
-
-  return callback(true);
-};
-
 const errorFunction = (name: string) => {
   if (name === "") {
     return "Name cannot be empty";

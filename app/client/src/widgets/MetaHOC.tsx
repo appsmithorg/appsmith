@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
 import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
-import { clearEvalPropertyCache } from "sagas/evaluationsSaga";
+import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
 import { ExecuteActionPayload } from "../constants/ActionConstants";
 
 type DebouncedExecuteActionPayload = Omit<
@@ -17,6 +17,10 @@ export interface WithMeta {
     propertyName: string,
     propertyValue: any,
     actionExecution?: DebouncedExecuteActionPayload,
+  ) => void;
+  syncUpdateWidgetMetaProperty: (
+    propertyName: string,
+    propertyValue: any,
   ) => void;
 }
 
@@ -39,7 +43,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       this.state = _.fromPairs(
-        Object.keys(metaProperties).map(metaProperty => {
+        Object.keys(metaProperties).map((metaProperty) => {
           return [metaProperty, this.props[metaProperty]];
         }),
       );
@@ -48,8 +52,18 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     componentDidUpdate(prevProps: WidgetProps) {
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       const defaultProperties = WrappedWidget.getDefaultPropertiesMap();
-      Object.keys(metaProperties).forEach(metaProperty => {
+      Object.keys(metaProperties).forEach((metaProperty) => {
         const defaultProperty = defaultProperties[metaProperty];
+        /*
+          Generally the meta property value of a widget will directly be
+          controlled by itself and the platform will not interfere except:
+          When we reset the meta property value to it's default property value.
+          This operation happens by the platform and is outside the widget logic
+          so to identify this change, we want to see if the meta value has
+          changed to the current default value. If this has happened, we should
+          set the state of the meta property value (controlled by inside the
+          widget) to the current value that is outside (controlled by platform)
+        */
         if (
           !_.isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
           _.isEqual(this.props[defaultProperty], this.props[metaProperty])
@@ -78,15 +92,32 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       );
     };
 
+    // To be used when there is a race condition noticed on updating different
+    // properties from a widget in quick succession
+    syncUpdateWidgetMetaProperty = (
+      propertyName: string,
+      propertyValue: any,
+    ): void => {
+      const { updateWidgetMetaProperty } = this.context;
+      const { widgetId, widgetName } = this.props;
+      this.setState({
+        [propertyName]: propertyValue,
+      });
+      clearEvalPropertyCache(`${widgetName}.${propertyName}`);
+      updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+    };
+
     handleUpdateWidgetMetaProperty() {
       const { updateWidgetMetaProperty, executeAction } = this.context;
       const { widgetId, widgetName } = this.props;
-      // We have kept a map of all updated properties. After debouncing we will
-      // go through these properties and update with the final value. This way
-      // we will only update a certain property once per debounce interval.
-      // Then we will execute any action associated with the trigger of
-      // that value changing
-      [...this.updatedProperties.keys()].forEach(propertyName => {
+      /*
+       We have kept a map of all updated properties. After debouncing we will
+       go through these properties and update with the final value. This way
+       we will only update a certain property once per debounce interval.
+       Then we will execute any action associated with the trigger of
+       that value changing
+      */
+      [...this.updatedProperties.keys()].forEach((propertyName) => {
         if (updateWidgetMetaProperty) {
           const propertyValue = this.state[propertyName];
           clearEvalPropertyCache(`${widgetName}.${propertyName}`);
@@ -110,6 +141,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
         ...this.props,
         ...this.state,
         updateWidgetMetaProperty: this.updateWidgetMetaProperty,
+        syncUpdateWidgetMetaProperty: this.syncUpdateWidgetMetaProperty,
       };
     };
 

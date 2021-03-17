@@ -2,10 +2,8 @@ import React, { Component } from "react";
 import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import {
-  BuilderRouteParams,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { Spinner } from "@blueprintjs/core";
+import { BuilderRouteParams } from "constants/routes";
 import { AppState } from "reducers";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
@@ -18,33 +16,22 @@ import {
   getIsPublishingApplication,
   getPublishingError,
 } from "selectors/editorSelectors";
-import {
-  AnchorButton,
-  Classes,
-  Dialog,
-  Hotkey,
-  Hotkeys,
-  Spinner,
-} from "@blueprintjs/core";
-import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
-import { initEditor } from "actions/initActions";
+import { initEditor, resetEditorRequest } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
-import {
-  ENTITY_EXPLORER_SEARCH_ID,
-  WIDGETS_SEARCH_ID,
-} from "constants/Explorer";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import * as Sentry from "@sentry/react";
-import {
-  copyWidget,
-  cutWidget,
-  deleteSelectedWidget,
-  pasteWidget,
-} from "actions/widgetActions";
-import { isMac } from "utils/helpers";
+import { getSelectedWidget } from "selectors/ui";
+import Welcome from "./Welcome";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
+import GlobalHotKeys from "./GlobalHotKeys";
+import { handlePathUpdated } from "actions/recentEntityActions";
+
+import history from "utils/history";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -55,107 +42,20 @@ type EditorProps = {
   isEditorInitialized: boolean;
   isEditorInitializeError: boolean;
   errorPublishing: boolean;
-  copySelectedWidget: () => void;
-  pasteCopiedWidget: () => void;
-  deleteSelectedWidget: () => void;
-  cutSelectedWidget: () => void;
+  creatingOnboardingDatabase: boolean;
   user?: User;
+  selectedWidget?: string;
+  lightTheme: Theme;
+  resetEditorRequest: () => void;
+  handlePathUpdated: (pathName: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
-@HotkeysTarget
+
 class Editor extends Component<Props> {
-  public renderHotkeys() {
-    return (
-      <Hotkeys>
-        <Hotkey
-          global={true}
-          combo="mod + f"
-          label="Search entities"
-          onKeyDown={(e: any) => {
-            const entitySearchInput = document.getElementById(
-              ENTITY_EXPLORER_SEARCH_ID,
-            );
-            const widgetSearchInput = document.getElementById(
-              WIDGETS_SEARCH_ID,
-            );
-            if (entitySearchInput) entitySearchInput.focus();
-            if (widgetSearchInput) widgetSearchInput.focus();
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        />
-        <Hotkey
-          global={true}
-          combo="mod + c"
-          label="Copy Widget"
-          group="Canvas"
-          onKeyDown={(e: any) => {
-            this.props.copySelectedWidget();
-          }}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          global={true}
-          combo="mod + v"
-          label="Paste Widget"
-          group="Canvas"
-          onKeyDown={(e: any) => {
-            this.props.pasteCopiedWidget();
-          }}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          global={true}
-          combo="del"
-          label="Delete Widget"
-          group="Canvas"
-          onKeyDown={(e: any) => {
-            if (!isMac()) this.props.deleteSelectedWidget();
-          }}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          global={true}
-          combo="backspace"
-          label="Delete Widget"
-          group="Canvas"
-          onKeyDown={(e: any) => {
-            if (isMac()) this.props.deleteSelectedWidget();
-          }}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          global={true}
-          combo="del"
-          label="Delete Widget"
-          group="Canvas"
-          onKeyDown={(e: any) => {
-            this.props.deleteSelectedWidget();
-          }}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          global={true}
-          combo="mod + x"
-          label="Cut Widget"
-          group="Canvas"
-          onKeyDown={(e: any) => {
-            this.props.cutSelectedWidget();
-          }}
-          preventDefault
-          stopPropagation
-        />
-      </Hotkeys>
-    );
-  }
+  unlisten: any;
+
   public state = {
-    isDialogOpen: false,
     registered: false,
   };
 
@@ -167,22 +67,11 @@ class Editor extends Component<Props> {
     if (applicationId && pageId) {
       this.props.initEditor(applicationId, pageId);
     }
-  }
-  componentDidUpdate(previously: Props) {
-    if (
-      previously.isPublishing &&
-      !(this.props.isPublishing || this.props.errorPublishing)
-    ) {
-      this.setState({
-        isDialogOpen: true,
-      });
-    }
+    this.props.handlePathUpdated(window.location.pathname);
+    this.unlisten = history.listen(this.handleHistoryChange);
   }
 
-  shouldComponentUpdate(
-    nextProps: Props,
-    nextState: { isDialogOpen: boolean; registered: boolean },
-  ) {
+  shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
     return (
       nextProps.currentPageId !== this.props.currentPageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
@@ -192,66 +81,53 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
-      nextState.isDialogOpen !== this.state.isDialogOpen ||
+      nextProps.creatingOnboardingDatabase !==
+        this.props.creatingOnboardingDatabase ||
       nextState.registered !== this.state.registered
     );
   }
 
-  handleDialogClose = () => {
-    this.setState({
-      isDialogOpen: false,
-    });
+  componentWillUnmount() {
+    this.props.resetEditorRequest();
+    if (typeof this.unlisten === "function") this.unlisten();
+  }
+
+  handleHistoryChange = (location: any) => {
+    this.props.handlePathUpdated(location.pathname);
   };
+
   public render() {
+    if (this.props.creatingOnboardingDatabase) {
+      return <Welcome />;
+    }
+
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (
-        <CenteredWrapper style={{ height: "calc(100vh - 48px)" }}>
+        <CenteredWrapper style={{ height: "calc(100vh - 35px)" }}>
           <Spinner />
         </CenteredWrapper>
       );
     }
     return (
-      <DndProvider
-        backend={TouchBackend}
-        options={{
-          enableMouseEvents: true,
-        }}
-      >
-        <div>
-          <Helmet>
-            <meta charSet="utf-8" />
-            <title>Editor | Appsmith</title>
-          </Helmet>
-          <MainContainer />
-          <Dialog
-            isOpen={this.state.isDialogOpen}
-            canOutsideClickClose={true}
-            canEscapeKeyClose={true}
-            title="Application Published"
-            onClose={this.handleDialogClose}
-            icon="tick-circle"
-          >
-            <div className={Classes.DIALOG_BODY}>
-              <p>
-                {"Your application is now published with the current changes!"}
-              </p>
-            </div>
-            <div className={Classes.DIALOG_FOOTER}>
-              <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                <AnchorButton
-                  target={this.props.currentApplicationId}
-                  href={getApplicationViewerPageURL(
-                    this.props.currentApplicationId,
-                    this.props.currentPageId,
-                  )}
-                  text="View Application"
-                />
-              </div>
-            </div>
-          </Dialog>
-        </div>
-        <ConfirmRunModal />
-      </DndProvider>
+      <ThemeProvider theme={this.props.lightTheme}>
+        <DndProvider
+          backend={TouchBackend}
+          options={{
+            enableMouseEvents: true,
+          }}
+        >
+          <div>
+            <Helmet>
+              <meta charSet="utf-8" />
+              <title>Editor | Appsmith</title>
+            </Helmet>
+            <GlobalHotKeys>
+              <MainContainer />
+            </GlobalHotKeys>
+          </div>
+          <ConfirmRunModal />
+        </DndProvider>
+      </ThemeProvider>
     );
   }
 }
@@ -264,16 +140,18 @@ const mapStateToProps = (state: AppState) => ({
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
+  selectedWidget: getSelectedWidget(state),
+  creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
+  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (applicationId: string, pageId: string) =>
       dispatch(initEditor(applicationId, pageId)),
-    copySelectedWidget: () => dispatch(copyWidget(true)),
-    pasteCopiedWidget: () => dispatch(pasteWidget()),
-    deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
-    cutSelectedWidget: () => dispatch(cutWidget()),
+    resetEditorRequest: () => dispatch(resetEditorRequest()),
+    handlePathUpdated: (pathName: string) =>
+      dispatch(handlePathUpdated(pathName)),
   };
 };
 

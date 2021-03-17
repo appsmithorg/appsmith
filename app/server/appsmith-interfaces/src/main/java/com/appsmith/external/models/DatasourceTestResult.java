@@ -1,11 +1,14 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -21,6 +24,15 @@ public class DatasourceTestResult {
      * @param invalids String messages that explain why the test failed.
      */
     public DatasourceTestResult(String... invalids) {
+        if (invalids == null) {
+            invalids = new String[]{AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()};
+        } else {
+            invalids = Arrays
+                    .stream(invalids)
+                    .map(x -> x == null ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage() : x)
+                    .toArray(String[]::new);
+        }
+
         this.invalids = Set.of(invalids);
     }
 

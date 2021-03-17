@@ -1,5 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EventLocation } from "utils/AnalyticsUtil";
+import { ApiContentTypes } from "constants/ApiEditorConstants";
 
 export const changeApi = (
   id: string,
@@ -59,4 +60,12 @@ export const createNewQueryAction = (
 ): ReduxAction<{ pageId: string; from: EventLocation }> => ({
   type: ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
   payload: { pageId, from },
+});
+
+export const updateBodyContentType = (
+  title: ApiContentTypes,
+  apiId: string,
+): ReduxAction<{ title: ApiContentTypes; apiId: string }> => ({
+  type: ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
+  payload: { title, apiId },
 });

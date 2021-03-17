@@ -5,8 +5,10 @@ import {
 } from "constants/BindingsConstants";
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
-import { WidgetProps } from "../widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import parser from "fast-xml-parser";
+
+export type DependencyMap = Record<string, Array<string>>;
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -70,7 +72,7 @@ export const getDynamicBindings = (
   // Get the {{binding}} bound values
   const stringSegments = getDynamicStringSegments(sanitisedString);
   // Get the "binding" path values
-  const paths = stringSegments.map(segment => {
+  const paths = stringSegments.map((segment) => {
     const length = segment.length;
     const matches = isDynamicValue(segment);
     if (matches) {
@@ -87,6 +89,9 @@ export enum EvalErrorTypes {
   EVAL_TREE_ERROR = "EVAL_TREE_ERROR",
   UNESCAPE_STRING_ERROR = "UNESCAPE_STRING_ERROR",
   EVAL_ERROR = "EVAL_ERROR",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
+  BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
+  EVAL_TRIGGER_ERROR = "EVAL_TRIGGER_ERROR",
 }
 
 export type EvalError = {
@@ -97,7 +102,7 @@ export type EvalError = {
 
 export enum EVAL_WORKER_ACTIONS {
   EVAL_TREE = "EVAL_TREE",
-  EVAL_SINGLE = "EVAL_SINGLE",
+  EVAL_ACTION_BINDINGS = "EVAL_ACTION_BINDINGS",
   EVAL_TRIGGER = "EVAL_TRIGGER",
   CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
   CLEAR_PROPERTY_CACHE_OF_WIDGET = "CLEAR_PROPERTY_CACHE_OF_WIDGET",
@@ -154,7 +159,7 @@ export interface WidgetEvaluatedProps {
   evaluatedValues?: Record<string, any>;
 }
 
-interface EntityWithBindings {
+export interface EntityWithBindings {
   dynamicBindingPathList?: DynamicPath[];
 }
 
@@ -245,3 +250,11 @@ export const unsafeFunctionForEval = [
   "setInterval",
   "Promise",
 ];
+
+export const isChildPropertyPath = (
+  parentPropertyPath: string,
+  childPropertyPath: string,
+): boolean =>
+  parentPropertyPath === childPropertyPath ||
+  childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
+  childPropertyPath.startsWith(`${parentPropertyPath}[`);

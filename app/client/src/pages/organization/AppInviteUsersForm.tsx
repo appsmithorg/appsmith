@@ -4,7 +4,7 @@ import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
+import CopyToClipBoard from "components/ads/CopyToClipBoard";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -65,10 +65,10 @@ const AppInviteUsersForm = (props: any) => {
   };
 
   useEffect(() => {
-    if (currentUser.name !== ANONYMOUS_USERNAME) {
+    if (currentUser?.name !== ANONYMOUS_USERNAME) {
       fetchCurrentOrg(props.orgId);
     }
-  }, [props.orgId, fetchCurrentOrg, currentUser.name]);
+  }, [props.orgId, fetchCurrentOrg, currentUser?.name]);
 
   return (
     <>

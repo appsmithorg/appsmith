@@ -39,4 +39,6 @@ public class PageDTO {
 
     Instant deletedAt = null;
 
+    Boolean isHidden;
+
 }

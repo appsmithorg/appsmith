@@ -9,7 +9,7 @@ import withMeta from "./MetaHOC";
 
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
-    return _.some(children, child => {
+    return _.some(children, (child) => {
       if ("children" in child) {
         return this.checkInvalidChildren(child.children);
       }
@@ -46,7 +46,7 @@ class FormWidget extends ContainerWidget {
   getFormData(formWidget: ContainerWidgetProps<WidgetProps>) {
     const formData: any = {};
     if (formWidget.children)
-      formWidget.children.forEach(widgetData => {
+      formWidget.children.forEach((widgetData) => {
         if (widgetData.value) {
           formData[widgetData.widgetName] = widgetData.value;
         }

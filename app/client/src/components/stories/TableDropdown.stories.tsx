@@ -33,7 +33,7 @@ export const TableDropdownStory = () => (
     <TableDropdown
       position={select("position", Object.values(Position), Position.BOTTOM)}
       options={options}
-      onSelect={selectedValue => console.log(selectedValue)}
+      onSelect={(selectedValue) => console.log(selectedValue)}
       selectedIndex={0}
     ></TableDropdown>
   </StoryWrapper>

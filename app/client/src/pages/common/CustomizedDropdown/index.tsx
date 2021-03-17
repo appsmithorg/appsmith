@@ -61,8 +61,8 @@ export const getIcon = (icon?: string | MaybeElement, intent?: Intent) => {
         height: 16,
       });
     }
-    const iconNames = Object.values({ ...IconNames });
-    if (iconNames.indexOf(icon as IconName) > -1) {
+    const iconNames: string[] = Object.values({ ...IconNames });
+    if (iconNames.indexOf(icon) > -1) {
       return (
         <Icon
           icon={icon as IconName}

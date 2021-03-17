@@ -5,7 +5,7 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import _ from "lodash";
-import { RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { ActionResponse } from "api/ActionAPI";
 
 const initialState: QueryPaneReduxState = {
@@ -66,7 +66,7 @@ const queryPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
     state: QueryPaneReduxState,
-    action: ReduxAction<{ data: RestAction }>,
+    action: ReduxAction<{ data: Action }>,
   ) => ({
     ...state,
     isSaving: {

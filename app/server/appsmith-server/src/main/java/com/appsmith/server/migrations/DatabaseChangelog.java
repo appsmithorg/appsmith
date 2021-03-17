@@ -1,8 +1,11 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -23,21 +26,27 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QConfig;
+import com.appsmith.server.domains.QDatasource;
+import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
-import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.google.gson.Gson;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -53,11 +62,14 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.CollectionCallback;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
 
@@ -65,23 +77,29 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -96,7 +114,7 @@ public class DatabaseChangelog {
      * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering and we try
      * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
      * WILL happen.
-     *
+     * <p>
      * Also, please check out the following blog on how to best create indexes :
      * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
@@ -306,18 +324,8 @@ public class DatabaseChangelog {
                 makeIndex("packageName").unique()
         );
 
-        ensureIndexes(mongoTemplate, Query.class,
-                createdAtIndex,
-                makeIndex("name").unique()
-        );
-
         ensureIndexes(mongoTemplate, Role.class,
                 createdAtIndex
-        );
-
-        ensureIndexes(mongoTemplate, Setting.class,
-                createdAtIndex,
-                makeIndex("key").unique()
         );
 
         ensureIndexes(mongoTemplate, User.class,
@@ -593,11 +601,11 @@ public class DatabaseChangelog {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
                 plugin.setDocumentationLink(
-                        "https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-postgres");
+                        "");
 
             } else if ("mongo-plugin".equals(plugin.getPackageName())) {
                 plugin.setDocumentationLink(
-                        "https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-mongodb");
+                        "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
 
             } else {
                 continue;
@@ -791,7 +799,7 @@ public class DatabaseChangelog {
                     final Map<String, Object> datasource = (Map) action.get("datasource");
                     datasource.put("pluginId", plugins.get(datasource.remove("$pluginPackageName")));
                     datasource.put(FieldName.ORGANIZATION_ID, organizationId);
-                    if (Boolean.FALSE.equals(datasource.remove("$isEmbedded"))) {
+                    if (FALSE.equals(datasource.remove("$isEmbedded"))) {
                         datasource.put("_id", new ObjectId(datasourceIdsByName.get(datasource.get("name"))));
                     }
                     action.put(FieldName.ORGANIZATION_ID, organizationId);
@@ -972,7 +980,7 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, PasswordResetToken.class,
                 makeIndex(FieldName.CREATED_AT)
-                    .expire(2, TimeUnit.DAYS),
+                        .expire(2, TimeUnit.DAYS),
                 makeIndex(FieldName.EMAIL).unique()
         );
     }
@@ -986,7 +994,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.JSON);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-elasticsearch");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1006,7 +1014,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.JSON);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/DynamoDB.png");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-dynamodb");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1036,7 +1044,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/redis.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redis");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1056,7 +1064,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MsSQL.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-mssql");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1230,8 +1238,8 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, NewAction.class,
                 makeIndex("applicationId", "deleted", "unpublishedAction.pageId")
-                          .named("applicationId_deleted_unpublishedPageId_compound_index")
-                );
+                        .named("applicationId_deleted_unpublishedPageId_compound_index")
+        );
     }
 
     @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
@@ -1264,7 +1272,7 @@ public class DatabaseChangelog {
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Firestore.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-firestore");
+        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -1495,4 +1503,504 @@ public class DatabaseChangelog {
             }
         });
     }
+
+    @ChangeSet(order = "046", id = "ensure-encrypted-field-for-datasources", author = "")
+    public void ensureIsEncryptedFieldForDatasources(MongoTemplate mongoTemplate) {
+        final String isEncryptedField = "datasourceConfiguration.authentication.isEncrypted";
+        final String passwordField = "datasourceConfiguration.authentication.password";
+
+        final org.springframework.data.mongodb.core.query.Query query = query(new Criteria().andOperator(
+                where(passwordField).exists(true),
+                where(isEncryptedField).exists(false)
+        ));
+        query.fields().include("_id");
+
+        for (final Datasource datasource : mongoTemplate.find(query, Datasource.class)) {
+            mongoTemplate.updateFirst(
+                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    update(isEncryptedField, true),
+                    Datasource.class
+            );
+        }
+    }
+
+    @ChangeSet(order = "047", id = "add-isSendSessionEnabled-key-for-datasources", author = "")
+    public void addIsSendSessionEnabledPropertyInDatasources(MongoTemplate mongoTemplate) {
+
+        String keyName = "isSendSessionEnabled";
+
+        Plugin restApiPlugin = mongoTemplate.findOne(
+                query(where("packageName").is("restapi-plugin")),
+                Plugin.class
+        );
+
+        final org.springframework.data.mongodb.core.query.Query query = query(where("pluginId").is(restApiPlugin.getId()));
+
+        for (Datasource datasource : mongoTemplate.find(query, Datasource.class)) {
+            // Find if the datasource should be updated with the new key
+            Boolean updateRequired = false;
+            if (datasource.getDatasourceConfiguration() == null) {
+                updateRequired = true;
+                datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+                datasource.getDatasourceConfiguration().setProperties(new ArrayList<>());
+            } else if (datasource.getDatasourceConfiguration().getProperties() == null) {
+                updateRequired = true;
+                datasource.getDatasourceConfiguration().setProperties(new ArrayList<>());
+            } else {
+                List<Property> properties = datasource.getDatasourceConfiguration().getProperties();
+                Optional<Property> isSendSessionEnabledOptional = properties
+                        .stream()
+                        .filter(property -> keyName.equals(property.getKey()))
+                        .findFirst();
+
+                if (!isSendSessionEnabledOptional.isPresent()) {
+                    updateRequired = true;
+                }
+            }
+
+            // If the property does not exist, add the same.
+            if (updateRequired) {
+                Property newProperty = new Property();
+                newProperty.setKey(keyName);
+                newProperty.setValue("N");
+                datasource.getDatasourceConfiguration().getProperties().add(newProperty);
+                mongoTemplate.save(datasource);
+            }
+
+        }
+    }
+
+    @ChangeSet(order = "048", id = "add-redshift-plugin", author = "")
+    public void addRedshiftPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Redshift");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("redshift-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "049", id = "clear-userdata-collection", author = "")
+    public void clearUserDataCollection(MongoTemplate mongoTemplate) {
+        mongoTemplate.dropCollection(UserData.class);
+    }
+
+    @ChangeSet(order = "050", id = "update-database-documentation-links-v1-2-1", author = "")
+    public void updateDatabaseDocumentationLinks_v1_2_1(MongoTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            switch (plugin.getPackageName()) {
+                case "postgres-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-postgres");
+                    break;
+                case "mongo-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
+                    break;
+                case "elasticsearch-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
+                    break;
+                case "dynamo-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
+                    break;
+                case "redis-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
+                    break;
+                case "mssql-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
+                    break;
+                case "firestore-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
+                    break;
+                case "redshift-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
+                    break;
+                case "mysql-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mysql");
+                    break;
+                default:
+                    continue;
+            }
+
+            mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "051", id = "add-amazons3-plugin", author = "")
+    public void addAmazonS3Plugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Amazon S3");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("amazons3-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-amazon-s3");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "052", id = "add-app-viewer-invite-policy", author = "")
+    public void addAppViewerInvitePolicy(MongoTemplate mongoTemplate) {
+        final List<Organization> organizations = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QOrganization.organization.userRoles) + ".role").is(AppsmithRole.ORGANIZATION_VIEWER.name())
+                )),
+                Organization.class
+        );
+
+        for (final Organization org : organizations) {
+            final Set<String> viewers = org.getUserRoles().stream()
+                    .filter(role -> AppsmithRole.ORGANIZATION_VIEWER == role.getRole())
+                    .map(UserRole::getUsername)
+                    .collect(Collectors.toSet());
+            mongoTemplate.updateFirst(
+                    query(new Criteria().andOperator(
+                            where(fieldName(QOrganization.organization.id)).is(org.getId()),
+                            where(fieldName(QOrganization.organization.policies) + ".permission").is(ORGANIZATION_INVITE_USERS.getValue())
+                    )),
+                    new Update().addToSet("policies.$.users").each(viewers.toArray()),
+                    Organization.class
+            );
+        }
+
+    }
+
+    @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
+    public void updatePluginDatasourceFormComponents(MongoTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            switch (plugin.getPackageName()) {
+                case "postgres-plugin":
+                case "mongo-plugin":
+                case "elasticsearch-plugin":
+                case "dynamo-plugin":
+                case "redis-plugin":
+                case "mssql-plugin":
+                case "firestore-plugin":
+                case "redshift-plugin":
+                case "mysql-plugin":
+                case "amazons3-plugin":
+                    plugin.setDatasourceComponent("AutoForm");
+                    break;
+                case "restapi-plugin":
+                    plugin.setDatasourceComponent("RestAPIDatasourceForm");
+                    break;
+                default:
+                    continue;
+            }
+
+            mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "054", id = "update-database-encode-params-toggle", author = "")
+    public void updateEncodeParamsToggle(MongoTemplate mongoTemplate) {
+
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+            if (action.getPluginType() != null && action.getPluginType().equals("API")) {
+                if (action.getUnpublishedAction() != null
+                        && action.getUnpublishedAction().getActionConfiguration() != null) {
+                    action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                }
+
+                if (action.getPublishedAction() != null
+                        && action.getPublishedAction().getActionConfiguration() != null) {
+                    action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                }
+                mongoTemplate.save(action);
+            }
+        }
+    }
+
+    @ChangeSet(order = "055", id = "update-postgres-plugin-preparedStatement-config", author = "")
+    public void updatePostgresActionsSetPreparedStatementConfiguration(MongoTemplate mongoTemplate) {
+
+        List<Plugin> plugins = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QPlugin.plugin.packageName)).is("postgres-plugin")
+                )),
+                Plugin.class);
+
+        if (plugins.size() < 1) {
+            return;
+        }
+
+        Plugin postgresPlugin = plugins.get(0);
+
+        // Fetch all the actions built on top of a postgres database
+        List<NewAction> postgresActions = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(postgresPlugin.getId())
+                )),
+                NewAction.class
+        );
+
+        for (NewAction action : postgresActions) {
+            List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+            pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+
+            // We have found an action of postgres plugin type
+            if (action.getUnpublishedAction().getActionConfiguration() != null) {
+                action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            }
+
+            if (action.getPublishedAction() != null && action.getPublishedAction().getActionConfiguration() != null) {
+                action.getPublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            }
+
+            mongoTemplate.save(action);
+        }
+    }
+
+    @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
+    public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+
+            // We have found an action with dynamic binding path list set by the client.
+            List<Property> dynamicBindingPaths = action.getUnpublishedAction().getDynamicBindingPathList();
+
+            // Only investigate actions which have atleast one dynamic binding path list
+            if (action.getUnpublishedAction().getActionConfiguration() != null && !isNullOrEmpty(dynamicBindingPaths)) {
+
+                List<String> dynamicBindingPathNames = dynamicBindingPaths
+                        .stream()
+                        .map(property -> property.getKey())
+                        .collect(Collectors.toList());
+
+                // Initialize the final updated binding path list with the existing path names.
+                List<String> finalDynamicBindingPathList = new ArrayList<>();
+                finalDynamicBindingPathList.addAll(dynamicBindingPathNames);
+
+                Set<String> pathsToRemove = new HashSet<>();
+
+                for (String path : dynamicBindingPathNames) {
+
+                    if (path != null) {
+
+                        String[] fields = path.split("[].\\[]");
+
+                        // Convert actionConfiguration into JSON Object and then walk till we reach the path specified.
+                        Map<String, Object> actionConfigurationMap = mapper.convertValue(action.getUnpublishedAction().getActionConfiguration(), Map.class);
+                        Object parent = new JSONObject(actionConfigurationMap);
+                        Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                        Boolean isLeafNode = false;
+
+                        while (fieldsIterator.hasNext()) {
+                            String nextKey = fieldsIterator.next();
+                            if (parent instanceof JSONObject) {
+                                parent = ((JSONObject) parent).get(nextKey);
+                            } else if (parent instanceof Map) {
+                                parent = ((Map<String, ?>) parent).get(nextKey);
+                            } else if (parent instanceof List) {
+                                if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
+                                    try {
+                                        parent = ((List) parent).get(Integer.parseInt(nextKey));
+                                    } catch (IndexOutOfBoundsException e) {
+                                        // The index being referred does not exist. Hence the path would not exist.
+                                        pathsToRemove.add(path);
+                                    }
+                                } else {
+                                    // Parent is a list but does not match the pattern. Hence the path would not exist.
+                                    pathsToRemove.add(path);
+                                    break;
+                                }
+                            }
+
+                            // After updating the parent, check for the types
+                            if (parent == null) {
+                                pathsToRemove.add(path);
+                                break;
+                            } else if (parent instanceof String) {
+                                // If we get String value, then this is a leaf node
+                                isLeafNode = true;
+                            }
+                        }
+                        // Only extract mustache keys from leaf nodes
+                        if (parent != null && isLeafNode) {
+                            Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+
+                            // We found the path. But if the path does not have any mustache bindings, remove it from the path list
+                            if (mustacheKeysFromFields.isEmpty()) {
+                                pathsToRemove.add(path);
+                            }
+                        }
+                    }
+
+                }
+
+                Boolean actionEdited = pathsToRemove.size() > 0 ? TRUE : FALSE;
+
+                // Only update the action if required
+                if (actionEdited) {
+                    // We have walked all the dynamic binding paths which either dont exist or they exist but don't contain any mustache bindings
+                    for (String path : dynamicBindingPathNames) {
+                        if (pathsToRemove.contains(path)) {
+                            finalDynamicBindingPathList.remove(path);
+                        }
+                    }
+
+                    List<Property> updatedDynamicBindingPathList = finalDynamicBindingPathList
+                            .stream()
+                            .map(path -> {
+                                Property property = new Property();
+                                property.setKey(path);
+                                return property;
+                            })
+                            .collect(Collectors.toList());
+
+                    action.getUnpublishedAction().setDynamicBindingPathList(updatedDynamicBindingPathList);
+                    mongoTemplate.save(action);
+                }
+            }
+        }
+    }
+
+    @ChangeSet(order = "057", id = "update-database-action-configuration-timeout", author = "")
+    public void updateActionConfigurationTimeout(MongoTemplate mongoTemplate) {
+
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+            boolean updateTimeout = false;
+
+            if (action.getUnpublishedAction() != null
+                    && action.getUnpublishedAction().getActionConfiguration() != null
+                    && action.getUnpublishedAction().getActionConfiguration().getTimeoutInMillisecond() != null
+                    && action.getUnpublishedAction().getActionConfiguration().getTimeoutInMillisecond() > 60000) {
+                action.getUnpublishedAction().getActionConfiguration().setTimeoutInMillisecond("60000");
+                updateTimeout = true;
+            }
+
+            if (action.getPublishedAction() != null
+                    && action.getPublishedAction().getActionConfiguration() != null
+                    && action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond() != null
+                    && action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond() > 60000) {
+                action.getPublishedAction().getActionConfiguration().setTimeoutInMillisecond("60000");
+                updateTimeout = true;
+            }
+
+            if(updateTimeout) {
+                mongoTemplate.save(action);
+            }
+        }
+    }
+
+    @ChangeSet(order = "058", id = "update-s3-datasource-configuration-and-label", author = "")
+    public void updateS3DatasourceConfigurationAndLabel(MongoTemplate mongoTemplate) {
+        Plugin s3Plugin = mongoTemplate
+                .find(query(where("name").is("Amazon S3")), Plugin.class).get(0);
+        s3Plugin.setName("S3");
+        mongoTemplate.save(s3Plugin);
+
+        List<Datasource> s3Datasources = mongoTemplate
+                .find(query(where("pluginId").is(s3Plugin.getId())), Datasource.class);
+
+        s3Datasources
+                .stream()
+                .forEach(datasource -> {
+                    datasource
+                            .getDatasourceConfiguration()
+                            .getProperties()
+                            .add(new Property("s3Provider", "amazon-s3"));
+
+                    mongoTemplate.save(datasource);
+                });
+    }
+
+    @ChangeSet(order = "059", id = "change-applayout-type-definition", author = "")
+    public void changeAppLayoutTypeDefinition(MongoOperations mongoOperations, MongoClient mongoClient) {
+        // Unset an old version of this field, that is no longer used.
+        mongoOperations.updateMulti(
+                query(where("appLayout").exists(true)),
+                new Update().unset("appLayout"),
+                Application.class
+        );
+
+        // For the published and unpublished app layouts, migrate the old way of specifying the device width to the new
+        // way of doing it. Table of migrations:
+        //     Desktop: Old - 1224, New 1160 - 1280
+        //     Tablet L: Old - NA, New 960 - 1080
+        //     Tablet: Old - 1024, New 650 - 800
+        //     Mobile: Old - 720, New 350 - 450
+        final Criteria criteria = new Criteria().orOperator(
+                where(fieldName(QApplication.application.unpublishedAppLayout)).exists(true),
+                where(fieldName(QApplication.application.publishedAppLayout)).exists(true)
+        );
+
+        final Query query = query(criteria);
+        query.fields()
+                .include(fieldName(QApplication.application.unpublishedAppLayout))
+                .include(fieldName(QApplication.application.publishedAppLayout));
+
+        List<Application> apps = mongoOperations.find(query, Application.class);
+
+        for (final Application app : apps) {
+            final Integer unpublishedWidth = app.getUnpublishedAppLayout() == null ? null : app.getUnpublishedAppLayout().getWidth();
+            final Integer publishedWidth = app.getPublishedAppLayout() == null ? null : app.getPublishedAppLayout().getWidth();
+            final Update update = new Update().unset("unpublishedAppLayout.width").unset("publishedAppLayout.width");
+
+            if (unpublishedWidth != null) {
+                final String typeField = "unpublishedAppLayout.type";
+                if (unpublishedWidth == -1) {
+                    update.set(typeField, Application.AppLayout.Type.FLUID.name());
+                } else {
+                    if (unpublishedWidth == 1024) {
+                        update.set(typeField, Application.AppLayout.Type.TABLET.name());
+                    } else if (unpublishedWidth == 720) {
+                        update.set(typeField, Application.AppLayout.Type.MOBILE.name());
+                    } else {
+                        // Default to Desktop.
+                        update.set(typeField, Application.AppLayout.Type.DESKTOP.name());
+                    }
+                }
+            }
+
+            if (publishedWidth != null) {
+                final String typeField = "publishedAppLayout.type";
+                if (publishedWidth == -1) {
+                    update.set(typeField, Application.AppLayout.Type.FLUID.name());
+                } else {
+                    if (publishedWidth == 1024) {
+                        update.set(typeField, Application.AppLayout.Type.TABLET.name());
+                    } else if (publishedWidth == 720) {
+                        update.set(typeField, Application.AppLayout.Type.MOBILE.name());
+                    } else {
+                        // Default to Desktop.
+                        update.set(typeField, Application.AppLayout.Type.DESKTOP.name());
+                    }
+                }
+            }
+
+            mongoOperations.updateFirst(
+                    query(where(fieldName(QApplication.application.id)).is(app.getId())),
+                    update,
+                    Application.class
+            );
+
+        }
+    }
+
+    @ChangeSet(order = "060", id = "clear-example-apps", author = "")
+    public void clearExampleApps(MongoTemplate mongoTemplate) {
+        mongoTemplate.updateFirst(
+                query(where(fieldName(QConfig.config1.name)).is("template-organization")),
+                update("config.applicationIds", Collections.emptyList()).set("config.organizationId", null),
+                Config.class
+        );
+    }
+
 }

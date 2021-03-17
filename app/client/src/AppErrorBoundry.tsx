@@ -10,9 +10,9 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   .bold-text {
-    font-weight: ${props => props.theme.fontWeights[3]};
+    font-weight: ${(props) => props.theme.fontWeights[3]};
     font-size: 24px;
   }
   .page-unavailable-img {

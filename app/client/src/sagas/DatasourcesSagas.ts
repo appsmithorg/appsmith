@@ -15,6 +15,7 @@ import {
   ReduxActionTypes,
   ReduxFormActionTypes,
   ReduxActionWithMeta,
+  ReduxActionWithCallbacks,
 } from "constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
@@ -35,10 +36,8 @@ import {
 } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { GenericApiResponse } from "api/ApiResponses";
-import DatasourcesApi, {
-  CreateDatasourceConfig,
-  Datasource,
-} from "api/DatasourcesApi";
+import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import PluginApi, { DatasourceForm } from "api/PluginApi";
 
 import {
@@ -57,6 +56,13 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/actionActions";
+import {
+  createMessage,
+  DATASOURCE_CREATE,
+  DATASOURCE_DELETE,
+  DATASOURCE_UPDATE,
+  DATASOURCE_VALID,
+} from "constants/messages";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -105,7 +111,7 @@ export function* deleteDatasourceSaga(
       }
 
       Toaster.show({
-        text: `${response.data.name} datasource deleted`,
+        text: createMessage(DATASOURCE_DELETE, response.data.name),
         variant: Variant.success,
       });
 
@@ -132,7 +138,9 @@ export function* deleteDatasourceSaga(
   }
 }
 
-function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
+function* updateDatasourceSaga(
+  actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
+) {
   try {
     const datasourcePayload = _.omit(actionPayload.payload, "name");
 
@@ -146,7 +154,7 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         datasourceName: response.data.name,
       });
       Toaster.show({
-        text: `${response.data.name} Datasource updated`,
+        text: createMessage(DATASOURCE_UPDATE, response.data.name),
         variant: Variant.success,
       });
 
@@ -159,6 +167,9 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
+      if (actionPayload.onSuccess) {
+        yield put(actionPayload.onSuccess);
+      }
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
         payload: {
@@ -178,7 +189,16 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
       payload: { error },
     });
+    if (actionPayload.onError) {
+      yield put(actionPayload.onError);
+    }
   }
+}
+
+function RedirectAuthorizationCodeSaga(
+  actionPayload: ReduxAction<{ datasourceId: string; pageId: string }>,
+) {
+  window.location.href = `/api/v1/datasources/${actionPayload.payload.datasourceId}/pages/${actionPayload.payload.pageId}/code`;
 }
 
 function* saveDatasourceNameSaga(
@@ -254,7 +274,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           datasource: payload.name,
         });
         Toaster.show({
-          text: `${payload.name} is valid`,
+          text: createMessage(DATASOURCE_VALID, payload.name),
           variant: Variant.success,
         });
         yield put({
@@ -327,7 +347,7 @@ function* createDatasourceFromFormSaga(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
       );
       Toaster.show({
-        text: `${response.data.name} Datasource created`,
+        text: createMessage(DATASOURCE_CREATE, response.data.name),
         variant: Variant.success,
       });
     }
@@ -392,7 +412,9 @@ function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
       (datasource: Datasource) => datasource.id === datasourceId,
     ),
   );
-  yield put(changeDatasource(datasource));
+  if (datasource) {
+    yield put(changeDatasource(datasource));
+  }
 }
 
 function* formValueChangeSaga(
@@ -543,6 +565,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
       updateDatasourceSuccessSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
+      RedirectAuthorizationCodeSaga,
     ),
     takeEvery(
       ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,

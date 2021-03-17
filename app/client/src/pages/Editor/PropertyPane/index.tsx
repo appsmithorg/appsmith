@@ -1,76 +1,171 @@
-import React, { Component } from "react";
-import styled from "styled-components";
-import { connect } from "react-redux";
+import React, { Component, useCallback } from "react";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import _ from "lodash";
-import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
 import {
-  updateWidgetPropertyRequest,
-  setWidgetDynamicProperty,
-} from "actions/controlActions";
-import {
-  getCurrentWidgetId,
-  getPropertyConfig,
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
+import {
+  PanelStack,
+  IPanel,
+  Classes,
+  IPanelProps,
+  Icon,
+} from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
-import { ControlProps } from "components/propertyControls/BaseControl";
 import { generateClassName } from "utils/generators";
-import { RenderModes } from "constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { scrollbarDark } from "constants/DefaultTheme";
+import styled, { hideScrollbar } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
-import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
-import PaneWrapper from "pages/common/PaneWrapper";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import PropertyControlsGenerator from "./Generator";
+import PaneWrapper from "components/editorComponents/PaneWrapper";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
+import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import { ControlIcons } from "icons/ControlIcons";
+import { FormIcons } from "icons/FormIcons";
+import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
-const PropertySectionLabel = styled.div`
-  color: ${props => props.theme.colors.paneSectionLabel};
-  padding: ${props => props.theme.spaces[2]}px 0;
-  font-size: ${props => props.theme.fontSizes[3]}px;
-  display: flex;
-  font-weight: bold;
-  justify-content: flex-start;
-  align-items: center;
-`;
-
-const PropertyPaneWrapper = styled(PaneWrapper)`
+const PropertyPaneWrapper = styled(PaneWrapper)<{
+  themeMode?: EditorTheme;
+}>`
   width: 100%;
-  max-height: ${props => props.theme.propertyPane.height}px;
-  width: ${props => props.theme.propertyPane.width}px;
-  margin: ${props => props.theme.spaces[2]}px;
-  box-shadow: 0px 0px 10px ${props => props.theme.colors.paneCard};
-  border: ${props => props.theme.spaces[5]}px solid
-    ${props => props.theme.colors.paneBG};
+  max-height: ${(props) => props.theme.propertyPane.height}px;
+  width: ${(props) => props.theme.propertyPane.width}px;
+  margin: ${(props) => props.theme.spaces[2]}px;
+  padding: ${(props) => props.theme.spaces[5]}px;
+  padding-right: ${(props) => props.theme.spaces[5]}px;
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 ${props => props.theme.spaces[5]}px 0 0;
   text-transform: none;
-  ${scrollbarDark};
+  ${hideScrollbar}
 `;
 
-class PropertyPane extends Component<
-  PropertyPaneProps & PropertyPaneFunctions
-> {
-  constructor(props: PropertyPaneProps & PropertyPaneFunctions) {
-    super(props);
-    this.onPropertyChange = this.onPropertyChange.bind(this);
+const StyledPanelStack = styled(PanelStack)`
+  height: auto;
+  width: 100%;
+  margin: 0;
+  &&& .bp3-panel-stack-view {
+    margin: 0;
+    border: none;
+    background: transparent;
+  }
+  overflow: visible;
+  position: static;
+  &&& .${Classes.PANEL_STACK_VIEW} {
+    position: static;
+    overflow: hidden;
+  }
+`;
+
+const CopyIcon = ControlIcons.COPY_CONTROL;
+const DeleteIcon = FormIcons.DELETE_ICON;
+interface PropertyPaneState {
+  currentPanelStack: IPanel[];
+}
+
+const PropertyPaneView = (
+  props: {
+    hidePropertyPane: () => void;
+    theme: EditorTheme;
+  } & IPanelProps,
+) => {
+  const { hidePropertyPane, theme, ...panel } = props;
+  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+
+  const dispatch = useDispatch();
+  const handleDelete = useCallback(
+    () => dispatch(deleteSelectedWidget(false)),
+    [dispatch],
+  );
+  const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
+
+  return (
+    <>
+      <PropertyPaneTitle
+        key={widgetProperties.widgetId}
+        title={widgetProperties.widgetName}
+        widgetId={widgetProperties.widgetId}
+        widgetType={widgetProperties?.type}
+        actions={[
+          {
+            tooltipContent: "Copy Widget",
+            icon: (
+              <CopyIcon
+                className="t--copy-widget"
+                width={14}
+                height={14}
+                onClick={handleCopy}
+              />
+            ),
+          },
+          {
+            tooltipContent: "Delete Widget",
+            icon: (
+              <DeleteIcon
+                className="t--delete-widget"
+                width={16}
+                height={16}
+                onClick={handleDelete}
+              />
+            ),
+          },
+          {
+            tooltipContent: <span>Explore widget related docs</span>,
+            icon: <PropertyPaneHelpButton />,
+          },
+          {
+            tooltipContent: "Close",
+            icon: (
+              <Icon
+                onClick={(e: any) => {
+                  AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+                    widgetType: widgetProperties.widgetType,
+                    widgetId: widgetProperties.widgetId,
+                  });
+                  hidePropertyPane();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                iconSize={16}
+                icon="cross"
+                className={"t--property-pane-close-btn"}
+              />
+            ),
+          },
+        ]}
+      />
+      <PropertyControlsGenerator
+        type={widgetProperties.type}
+        panel={panel}
+        theme={theme}
+      />
+    </>
+  );
+};
+
+class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
+  private panelWrapperRef = React.createRef<HTMLDivElement>();
+
+  getTheme() {
+    return EditorTheme.LIGHT;
   }
 
   render() {
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
-      const content = this.renderPropertyPane(this.props.propertySections);
+      const content = this.renderPropertyPane();
       const el = document.getElementsByClassName(
-        generateClassName(this.props.widgetId),
+        generateClassName(this.props.widgetProperties?.widgetId),
       )[0];
       return (
         <Popper
@@ -87,93 +182,40 @@ class PropertyPane extends Component<
     }
   }
 
-  renderPropertyPane(propertySections?: PropertySection[]) {
+  renderPropertyPane() {
     const { widgetProperties } = this.props;
-    if (!widgetProperties) return <PropertyPaneWrapper />;
+    if (!widgetProperties)
+      return <PropertyPaneWrapper themeMode={this.getTheme()} />;
     return (
       <PropertyPaneWrapper
+        themeMode={this.getTheme()}
+        ref={this.panelWrapperRef}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
       >
-        <PropertyPaneTitle
-          key={this.props.widgetId}
-          title={widgetProperties.widgetName}
-          widgetId={this.props.widgetId}
-          widgetType={this.props.widgetProperties?.type}
-          onClose={this.props.hidePropertyPane}
+        <StyledPanelStack
+          onOpen={() => {
+            const parent = this.panelWrapperRef.current;
+            parent?.scrollTo(0, 0);
+          }}
+          initialPanel={{
+            component: PropertyPaneView,
+            props: {
+              hidePropertyPane: this.props.hidePropertyPane,
+              theme: this.getTheme(),
+            },
+          }}
+          showPanelHeader={false}
         />
-
-        {!_.isNil(propertySections)
-          ? _.map(propertySections, (propertySection: PropertySection) => {
-              return this.renderPropertySection(
-                propertySection,
-                this.props.widgetId + propertySection.id,
-              );
-            })
-          : undefined}
+        <ScrollIndicator
+          containerRef={this.panelWrapperRef}
+          top="4px"
+          right="8px"
+        />
       </PropertyPaneWrapper>
     );
   }
-
-  renderPropertySection(propertySection: PropertySection, key: string) {
-    const { widgetProperties } = this.props;
-    return (
-      <div key={key}>
-        {!_.isNil(propertySection) ? (
-          <PropertySectionLabel>
-            {propertySection.sectionName}
-          </PropertySectionLabel>
-        ) : (
-          undefined
-        )}
-        <div>
-          {_.map(
-            propertySection.children,
-            (propertyControlOrSection: ControlProps | PropertySection) => {
-              if ("children" in propertyControlOrSection) {
-                return this.renderPropertySection(
-                  propertyControlOrSection,
-                  propertyControlOrSection.id,
-                );
-              } else if (widgetProperties) {
-                try {
-                  return (
-                    <PropertyControl
-                      key={propertyControlOrSection.id}
-                      propertyConfig={propertyControlOrSection}
-                      widgetProperties={widgetProperties}
-                      onPropertyChange={this.onPropertyChange}
-                      toggleDynamicProperty={this.toggleDynamicProperty}
-                    />
-                  );
-                } catch (e) {
-                  console.log(e);
-                }
-              }
-            },
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  toggleDynamicProperty = (propertyName: string, isDynamic: boolean) => {
-    const { widgetId } = this.props;
-    this.props.setWidgetDynamicProperty(
-      widgetId as string,
-      propertyName,
-      !isDynamic,
-    );
-    if (this.props.widgetProperties) {
-      AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
-        widgetType: this.props.widgetProperties.type,
-        widgetName: this.props.widgetProperties.widgetName,
-        propertyName: propertyName,
-        propertyState: !isDynamic ? "JS" : "NORMAL",
-      });
-    }
-  };
 
   componentDidMount() {
     PerformanceTracker.stopTracking(
@@ -181,117 +223,70 @@ class PropertyPane extends Component<
     );
   }
 
-  componentDidUpdate(prevProps: PropertyPaneProps & PropertyPaneFunctions) {
+  componentDidUpdate(prevProps: PropertyPaneProps) {
     if (
-      this.props.widgetId !== prevProps.widgetId &&
-      this.props.widgetId !== undefined
+      this.props.widgetProperties?.widgetId !==
+        prevProps.widgetProperties?.widgetId &&
+      this.props.widgetProperties?.widgetId !== undefined
     ) {
       PerformanceTracker.stopTracking(
         PerformanceTransactionName.OPEN_PROPERTY_PANE,
       );
-      if (prevProps.widgetId && prevProps.widgetProperties) {
+      if (prevProps.widgetProperties?.widgetId && prevProps.widgetProperties) {
         AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE", {
           widgetType: prevProps.widgetProperties.type,
-          widgetId: prevProps.widgetId,
+          widgetId: prevProps.widgetProperties.widgetId,
         });
       }
       if (this.props.widgetProperties) {
         AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
           widgetType: this.props.widgetProperties.type,
-          widgetId: this.props.widgetId,
+          widgetId: this.props.widgetProperties.widgetId,
         });
       }
     }
 
     if (
-      this.props.widgetId === prevProps.widgetId &&
+      this.props.widgetProperties?.widgetId ===
+        prevProps.widgetProperties?.widgetId &&
       this.props.isVisible &&
       !prevProps.isVisible &&
       this.props.widgetProperties !== undefined
     ) {
       AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
         widgetType: this.props.widgetProperties.type,
-        widgetId: this.props.widgetId,
+        widgetId: this.props.widgetProperties.widgetId,
       });
     }
 
     return true;
   }
-
-  onPropertyChange(propertyName: string, propertyValue: any) {
-    if (this.props.widgetId) {
-      this.props.updateWidgetProperty(
-        this.props.widgetId,
-        propertyName,
-        propertyValue,
-      );
-      if (this.props.widgetProperties) {
-        AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
-          widgetType: this.props.widgetProperties.type,
-          widgetName: this.props.widgetProperties.widgetName,
-          propertyName: propertyName,
-          updatedValue: propertyValue,
-        });
-      }
-    }
-  }
 }
 
-const mapStateToProps = (state: AppState): PropertyPaneProps => {
-  const props = {
-    propertySections: getPropertyConfig(state),
-    widgetId: getCurrentWidgetId(state),
+const mapStateToProps = (state: AppState) => {
+  return {
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
+    themeMode: getCurrentThemeMode(state),
   };
-  return props;
 };
 
 const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
   return {
-    updateWidgetProperty: (
-      widgetId: string,
-      propertyName: string,
-      propertyValue: any,
-    ) =>
-      dispatch(
-        updateWidgetPropertyRequest(
-          widgetId,
-          propertyName,
-          propertyValue,
-          RenderModes.CANVAS,
-        ),
-      ),
     hidePropertyPane: () =>
       dispatch({
         type: ReduxActionTypes.HIDE_PROPERTY_PANE,
       }),
-    setWidgetDynamicProperty: (
-      widgetId: string,
-      propertyName: string,
-      isDynamic: boolean,
-    ) => dispatch(setWidgetDynamicProperty(widgetId, propertyName, isDynamic)),
   };
 };
 
-export interface PropertyPaneProps {
-  propertySections?: PropertySection[];
-  widgetId?: string;
+export interface PropertyPaneProps extends PropertyPaneFunctions {
   widgetProperties?: WidgetProps;
   isVisible: boolean;
+  themeMode: ThemeMode;
 }
 
 export interface PropertyPaneFunctions {
-  setWidgetDynamicProperty: (
-    widgetId: string,
-    propertyName: string,
-    isDynamic: boolean,
-  ) => void;
-  updateWidgetProperty: (
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ) => void;
   hidePropertyPane: () => void;
 }
 

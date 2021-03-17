@@ -1,37 +1,36 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledDatePicker } from "./StyledControls";
 import moment from "moment-timezone";
 import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { WidgetProps } from "widgets/BaseWidget";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import DatePickerComponent from "components/ads/DatePickerComponent";
 
 const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
   display: flex;
   flex-direction: column;
   margin: 8px 0 0 0;
-  &&& {
+  /* &&& {
     input {
-      background: ${props => props.theme.colors.paneTextBG};
-      color: ${props => props.theme.colors.textOnDarkBG};
-      font-size: ${props => props.theme.fontSizes[3]}px;
+      background: ${(props) => props.theme.colors.paneTextBG};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
       box-shadow: none;
-      border: ${props =>
+      border: ${(props) =>
         !props.isValid
           ? `1px solid ${props.theme.colors.error}`
           : `1px solid transparent`};
     }
-  }
+  } */
   .vertical-center {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 16px 0 4px 0;
     .label {
-      color: ${props => props.theme.colors.paneText};
-      font-size: ${props => props.theme.fontSizes[3]}px;
+      color: ${(props) => props.theme.colors.paneText};
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
     .bp3-control {
       margin-bottom: 0px;
@@ -62,27 +61,42 @@ class DatePickerControl extends BaseControl<
   }
 
   render() {
+    const version = this.props.widgetProperties.version;
+    const dateFormat =
+      version === 2
+        ? ISO_DATE_FORMAT
+        : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
+    const isValid = this.state.selectedDate
+      ? this.validateDate(moment(this.state.selectedDate, dateFormat).toDate())
+      : true;
+    const value =
+      this.props.propertyValue && isValid
+        ? version === 2
+          ? new Date(this.props.propertyValue)
+          : this.parseDate(this.props.propertyValue)
+        : null;
     return (
-      <DatePickerControlWrapper isValid={this.props.isValid}>
-        <StyledDatePicker
+      <DatePickerControlWrapper isValid={true}>
+        <DatePickerComponent
           formatDate={this.formatDate}
           parseDate={this.parseDate}
-          placeholder="DD/MM/YYYY HH:mm"
-          showActionsBar
-          timePrecision={TimePrecision.MINUTE}
-          closeOnSelection
-          onChange={this.onDateSelected}
           maxDate={this.maxDate}
           minDate={this.minDate}
-          value={
-            this.props.propertyValue
-              ? this.parseDate(this.props.propertyValue)
-              : null
-          }
+          placeholder="DD/MM/YYYY HH:mm"
+          timePrecision={TimePrecision.MINUTE}
+          closeOnSelection={true}
+          onChange={this.onDateSelected}
+          value={value}
+          showActionsBar={true}
         />
       </DatePickerControlWrapper>
     );
   }
+
+  getValidDate = (date: string, format: string) => {
+    const _date = moment(date, format);
+    return _date.isValid() ? _date.toDate() : undefined;
+  };
 
   /**
    * here we put the selected state into state
@@ -91,79 +105,47 @@ class DatePickerControl extends BaseControl<
    *
    * @param date
    */
-  onDateSelected = (date: Date): void => {
-    const selectedDate = date ? this.formatDate(date) : undefined;
-    const isValid = this.validateDate(date);
-
-    if (!isValid) return;
-
-    // if everything is ok, put date in state
-    this.setState({ selectedDate: selectedDate });
-    this.updateProperty(this.props.propertyName, selectedDate);
+  onDateSelected = (date: Date, isUserChange: boolean): void => {
+    if (isUserChange) {
+      const selectedDate = date
+        ? this.props.widgetProperties.version === 2
+          ? date.toISOString()
+          : this.formatDate(date)
+        : undefined;
+      const isValid = this.validateDate(date);
+      if (!isValid) return;
+      // if everything is ok, put date in state
+      this.setState({ selectedDate: selectedDate });
+      this.updateProperty(this.props.propertyName, selectedDate);
+    }
   };
 
   /**
-   * checks:
-   * 1. if max date is greater than the default date
-   * 2. if default date is in range of min and max date
+   * checks if date is of valid date format
    */
   validateDate = (date: Date): boolean => {
-    const parsedSelectedDate = moment(
-      date,
-      this.props.widgetProperties.dateFormat,
-    );
-
-    if (this.props.widgetProperties?.evaluatedValues?.value) {
-      const parsedWidgetDate = moment(
-        this.props.widgetProperties.evaluatedValues.value,
-        this.props.widgetProperties.dateFormat,
-      );
-
-      // checking if widget date is after min date
-      if (this.props.propertyName === "minDate") {
-        if (
-          parsedSelectedDate.isValid() &&
-          parsedWidgetDate.isBefore(parsedSelectedDate)
-        ) {
-          Toaster.show({
-            text: "Min date cannot be greater than current widget value.",
-            variant: Variant.danger,
-          });
-
-          return false;
-        }
-      }
-
-      // checking if widget date is before max date
-      if (this.props.propertyName === "maxDate") {
-        if (
-          parsedSelectedDate.isValid() &&
-          parsedWidgetDate.isAfter(parsedSelectedDate)
-        ) {
-          Toaster.show({
-            text: "Max date cannot be less than current widget value.",
-            variant: Variant.danger,
-          });
-
-          return false;
-        }
-      }
-    }
-
-    return true;
+    const dateFormat =
+      this.props.widgetProperties.version === 2
+        ? ISO_DATE_FORMAT
+        : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
+    return date ? moment(date, dateFormat).isValid() : true;
   };
 
   formatDate = (date: Date): string => {
-    return moment(date).format(
-      this.props.widgetProperties.dateFormat || "DD/MM/YYYY HH:mm",
-    );
+    const dateFormat =
+      this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
+    return moment(date).format(dateFormat);
   };
 
   parseDate = (dateStr: string): Date => {
-    return moment(
-      dateStr,
-      this.props.widgetProperties.dateFormat || "DD/MM/YYYY HH:mm",
-    ).toDate();
+    const dateFormat =
+      this.props.widgetProperties.version === 2
+        ? ISO_DATE_FORMAT
+        : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
+    const date = moment(dateStr, dateFormat);
+
+    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
+    else return moment().toDate();
   };
 
   static getControlType() {

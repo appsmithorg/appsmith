@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -10,13 +11,16 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserServiceImpl;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +30,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 
 @Component
+@RequiredArgsConstructor
 public class ApplicationFetcher {
     /**
      * A component responsible for generating a list of applications accessible by the currently logged-in user.
@@ -34,19 +39,10 @@ public class ApplicationFetcher {
 
     private final SessionUserServiceImpl sessionUserService;
     private final UserService userService;
+    private final UserDataService userDataService;
     private final OrganizationService organizationService;
     private final ApplicationRepository applicationRepository;
-
-    public ApplicationFetcher(
-            SessionUserServiceImpl sessionUserService,
-            UserService userService,
-            OrganizationService organizationService,
-            ApplicationRepository applicationRepository) {
-        this.sessionUserService = sessionUserService;
-        this.userService = userService;
-        this.organizationService = organizationService;
-        this.applicationRepository = applicationRepository;
-    }
+    private final ReleaseNotesService releaseNotesService;
 
     /**
      * For the current user, it first fetches all the organizations that its part of. For each organization, in turn all
@@ -108,6 +104,28 @@ public class ApplicationFetcher {
                                 userHomepageDTO.setOrganizationApplications(organizationApplicationsDTOS);
                                 return userHomepageDTO;
                             });
+                })
+                .flatMap(userHomepageDTO -> Mono.zip(
+                        Mono.just(userHomepageDTO),
+                        releaseNotesService.getReleaseNodes()
+                                // In case of an error or empty response from CS Server, continue without this data.
+                                .onErrorResume(error -> Mono.empty())
+                                .defaultIfEmpty(Collections.emptyList()),
+                        userDataService.getForUser(userHomepageDTO.getUser())
+                ))
+                .flatMap(tuple -> {
+                    final UserHomepageDTO userHomepageDTO = tuple.getT1();
+                    final List<ReleaseNotesService.ReleaseNode> releaseNodes = tuple.getT2();
+                    final UserData userData = tuple.getT3();
+
+                    final User user = userHomepageDTO.getUser();
+                    userHomepageDTO.setReleaseItems(releaseNodes);
+
+                    final String count = releaseNotesService.computeNewFrom(userData.getReleaseNotesViewedVersion());
+                    userHomepageDTO.setNewReleasesCount("0".equals(count) ? "" : count);
+
+                    return userDataService.ensureViewedCurrentVersionReleaseNotes(user)
+                            .thenReturn(userHomepageDTO);
                 });
     }
 }

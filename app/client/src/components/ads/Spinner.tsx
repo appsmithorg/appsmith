@@ -26,15 +26,15 @@ const dash = keyframes`
 
 const SvgContainer = styled.svg<SpinnerProp>`
   animation: ${rotate} 2s linear infinite;
-  width: ${props => sizeHandler(props.size)}px;
-  height: ${props => sizeHandler(props.size)}px;
+  width: ${(props) => sizeHandler(props.size)}px;
+  height: ${(props) => sizeHandler(props.size)}px;
 `;
 
 const SvgCircle = styled.circle`
-  stroke: ${props => props.theme.colors.spinner};
+  stroke: ${(props) => props.theme.colors.spinner};
   stroke-linecap: round;
   animation: ${dash} 1.5s ease-in-out infinite;
-  stroke-width: ${props => props.theme.spaces[1]}px;
+  stroke-width: ${(props) => props.theme.spaces[1]}px;
 `;
 
 export type SpinnerProp = {

@@ -19,6 +19,7 @@ import useClick from "utils/hooks/useClick";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
+  RIGHT_ICON = "entity-right-icon",
   ADD_BUTTON = "t--entity-add-btn",
   NAME = "t--entity-name",
   COLLAPSE_TOGGLE = "t--entity-collapse-toggle",
@@ -27,7 +28,7 @@ export enum EntityClassNames {
 }
 
 const Wrapper = styled.div<{ active: boolean }>`
-  line-height: ${props => props.theme.lineHeights[2]}px;
+  line-height: ${(props) => props.theme.lineHeights[2]}px;
 `;
 
 export const EntityItem = styled.div<{
@@ -37,15 +38,16 @@ export const EntityItem = styled.div<{
 }>`
   position: relative;
   font-size: 12px;
-  padding-left: ${props => props.step * props.theme.spaces[2]}px;
-  background: ${props => (props.active ? Colors.TUNDORA : "none")};
+  padding-left: ${(props) =>
+    props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
+  background: ${(props) => (props.active ? Colors.TUNDORA : "none")};
   height: 30px;
   width: 100%;
   display: inline-grid;
-  grid-template-columns: ${props =>
-    props.spaced ? "20px auto 1fr 30px" : "8px auto 1fr 30px"};
+  grid-template-columns: ${(props) =>
+    props.spaced ? "20px auto 1fr auto 30px" : "8px auto 1fr auto 30px"};
   border-radius: 0;
-  color: ${props => (props.active ? Colors.WHITE : Colors.ALTO)};
+  color: ${(props) => (props.active ? Colors.WHITE : Colors.ALTO)};
   cursor: pointer;
   align-items: center;
   &:hover {
@@ -70,6 +72,18 @@ export const EntityItem = styled.div<{
   &&&&:hover .${EntityClassNames.CONTEXT_MENU} {
     visibility: visible;
   }
+
+  & .${EntityClassNames.RIGHT_ICON} {
+    visibility: hidden;
+    padding-right: ${(props) => props.theme.spaces[2]}px;
+  }
+  &:hover .${EntityClassNames.RIGHT_ICON} {
+    visibility: visible;
+  }
+`;
+
+const IconWrapper = styled.span`
+  line-height: ${(props) => props.theme.lineHeights[0]}px;
 `;
 
 export type EntityProps = {
@@ -78,6 +92,7 @@ export type EntityProps = {
   name: string;
   children?: ReactNode;
   icon: ReactNode;
+  rightIcon?: ReactNode;
   disabled?: boolean;
   action?: () => void;
   active?: boolean;
@@ -156,7 +171,7 @@ export const Entity = forwardRef(
             disabled={!!props.disabled}
             className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
           />
-          <span onClick={handleClick}>{props.icon}</span>
+          <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
           <EntityName
             entityId={props.entityId}
             className={`${EntityClassNames.NAME}`}
@@ -167,6 +182,9 @@ export const Entity = forwardRef(
             updateEntityName={updateNameCallback}
             searchKeyword={props.searchKeyword}
           />
+          <IconWrapper className={EntityClassNames.RIGHT_ICON}>
+            {props.rightIcon}
+          </IconWrapper>
           <AddButton
             onClick={props.onCreate}
             className={`${EntityClassNames.ADD_BUTTON}`}

@@ -16,7 +16,7 @@ const Canvas = memo((props: CanvasProps) => {
     return (
       <React.Fragment>
         <PropertyPane />
-        <ArtBoard width={props.dsl.rightColumn}>
+        <ArtBoard className="t--canvas-artboard" width={props.dsl.rightColumn}>
           {props.dsl.widgetId &&
             WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
         </ArtBoard>

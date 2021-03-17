@@ -9,19 +9,19 @@ type FormButtonProps = {
 
 export default styled(Button)<FormButtonProps>`
   &&& {
-    font-weight: ${props => props.theme.fontWeights[2]};
+    font-weight: ${(props) => props.theme.fontWeights[2]};
     border: none;
     flex-grow: 1;
     outline: none;
     box-shadow: none;
-    background: ${props => IntentColors[props.intent]};
+    background: ${(props) => IntentColors[props.intent]};
     &:hover {
-      background: ${props =>
+      background: ${(props) =>
         new tinycolor(IntentColors[props.intent]).darken(10).toString()};
     }
     &:active {
       outline: none;
-      background: ${props =>
+      background: ${(props) =>
         new tinycolor(IntentColors[props.intent]).darken(20).toString()};
     }
   }

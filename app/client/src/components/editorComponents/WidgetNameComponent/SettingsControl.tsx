@@ -25,9 +25,9 @@ const SettingsWrapper = styled.div`
   & {
     pre {
       margin: 0 5px 0 0;
-      font-size: ${props => props.theme.fontSizes[3]}px;
-      height: ${props => props.theme.fontSizes[3]}px;
-      line-height: ${props => props.theme.fontSizes[3] - 1}px;
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
+      height: ${(props) => props.theme.fontSizes[3]}px;
+      line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
   border-radius: 2px;

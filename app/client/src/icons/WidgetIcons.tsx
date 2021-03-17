@@ -51,7 +51,7 @@ export const WidgetIcons: {
       <ContainerIcon />
     </IconWrapper>
   ),
-  DATE_PICKER_WIDGET: (props: IconProps) => (
+  DATE_PICKER_WIDGET2: (props: IconProps) => (
     <IconWrapper {...props}>
       <DatePickerIcon />
     </IconWrapper>

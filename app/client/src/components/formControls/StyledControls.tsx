@@ -19,16 +19,17 @@ type ControlWrapperProps = {
 };
 
 export const ControlWrapper = styled.div<ControlWrapperProps>`
-  display: ${props => (props.orientation === "HORIZONTAL" ? "flex" : "block")};
+  display: ${(props) =>
+    props.orientation === "HORIZONTAL" ? "flex" : "block"};
   justify-content: space-between;
   align-items: center;
-  flex-direction: ${props =>
+  flex-direction: ${(props) =>
     props.orientation === "VERTICAL" ? "column" : "row"}
-  margin: ${props => props.theme.spaces[3]}px 0;
+  margin: ${(props) => props.theme.spaces[3]}px 0;
   & > label {
-    color: ${props => props.theme.colors.paneText};
-    margin-bottom: ${props => props.theme.spaces[1]}px;
-    font-size: ${props => props.theme.fontSizes[3]}px;
+    color: ${(props) => props.theme.colors.paneText};
+    margin-bottom: ${(props) => props.theme.spaces[1]}px;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
   &&& > label:first-of-type {
     display: block;
@@ -42,12 +43,12 @@ export const ControlPropertyLabelContainer = styled.div`
   display: flex;
   align-items: center;
   label {
-    color: ${props => props.theme.colors.paneText};
-    margin-bottom: ${props => props.theme.spaces[1]}px;
-    font-size: ${props => props.theme.fontSizes[3]}px;
+    color: ${(props) => props.theme.colors.paneText};
+    margin-bottom: ${(props) => props.theme.spaces[1]}px;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
   .underline {
-    color: ${props => props.theme.colors.paneTextUnderline};
+    color: ${(props) => props.theme.colors.paneTextUnderline};
   }
 `;
 
@@ -58,7 +59,7 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
   svg {
     height: 24px;
     rect {
-      fill: ${props =>
+      fill: ${(props) =>
         props.active
           ? props.theme.colors.primaryOld
           : props.theme.colors.paneIcon};
@@ -75,13 +76,13 @@ export const StyledDropDownContainer = styled.div`
     background-image: none;
   }
   &&&& .${Classes.MENU_ITEM} {
-    border-radius: ${props => props.theme.radii[1]}px;
+    border-radius: ${(props) => props.theme.radii[1]}px;
     &:hover {
       background: ${Colors.POLAR};
     }
     &.${Classes.ACTIVE} {
       background: ${Colors.POLAR};
-      color: ${props => props.theme.colors.textDefault};
+      color: ${(props) => props.theme.colors.textDefault};
       position: relative;
       &.single-select {
         &:before {
@@ -89,7 +90,7 @@ export const StyledDropDownContainer = styled.div`
           top: -2px;
           position: absolute;
           content: "";
-          background: ${props => props.theme.colors.primaryOld};
+          background: ${(props) => props.theme.colors.primaryOld};
           border-radius: 4px 0 0 4px;
           width: 4px;
           height: 100%;
@@ -99,9 +100,9 @@ export const StyledDropDownContainer = styled.div`
   }
   && .${Classes.POPOVER} {
     width: 100%;
-    border-radius: ${props => props.theme.radii[1]}px;
+    border-radius: ${(props) => props.theme.radii[1]}px;
     box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
-    padding: ${props => props.theme.spaces[3]}px;
+    padding: ${(props) => props.theme.spaces[3]}px;
     background: white;
   }
 
@@ -185,13 +186,13 @@ export const StyledPopover = styled(Popover)`
 
 export const StyledMenuItem = styled(MenuItem)`
   &&&&&& {
-    border-radius: ${props => props.theme.radii[1]}px;
+    border-radius: ${(props) => props.theme.radii[1]}px;
     &:hover {
       background: ${Colors.POLAR};
     }
     &.${Classes.ACTIVE} {
       background: ${Colors.POLAR};
-      color: ${props => props.theme.colors.textDefault};
+      color: ${(props) => props.theme.colors.textDefault};
       position: relative;
       &.single-select {
         &:before {
@@ -199,7 +200,7 @@ export const StyledMenuItem = styled(MenuItem)`
           top: -2px;
           position: absolute;
           content: "";
-          background: ${props => props.theme.colors.primaryOld};
+          background: ${(props) => props.theme.colors.primaryOld};
           border-radius: 4px 0 0 4px;
           width: 4px;
           height: 100%;
@@ -212,8 +213,8 @@ export const StyledMenuItem = styled(MenuItem)`
 const MultiSelectDropDown = MultiSelect.ofType<DropdownOption>();
 export const StyledMultiSelectDropDown = styled(MultiSelectDropDown)`
   &&& button {
-    background: ${props => props.theme.colors.paneInputBG};
-    color: ${props => props.theme.colors.textOnDarkBG};
+    background: ${(props) => props.theme.colors.paneInputBG};
+    color: ${(props) => props.theme.colors.textOnDarkBG};
     box-shadow: none;
   }
 `;
@@ -221,7 +222,7 @@ export const StyledMultiSelectDropDown = styled(MultiSelectDropDown)`
 export const StyledSwitch = styled(Switch)`
   margin-left: 10px;
   &&&&& input:checked ~ span {
-    background: ${props => props.theme.colors.primaryOld};
+    background: ${(props) => props.theme.colors.primaryOld};
   }
 `;
 
@@ -229,12 +230,12 @@ export const StyledDynamicInput = styled.div`
   &&& {
     input {
       border: none;
-      color: ${props => props.theme.colors.textOnDarkBG};
-      background: ${props => props.theme.colors.paneInputBG};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      background: ${(props) => props.theme.colors.paneInputBG};
       &:focus {
         border: none;
-        color: ${props => props.theme.colors.textOnDarkBG};
-        background: ${props => props.theme.colors.paneInputBG};
+        color: ${(props) => props.theme.colors.textOnDarkBG};
+        background: ${(props) => props.theme.colors.paneInputBG};
       }
     }
   }
@@ -242,18 +243,18 @@ export const StyledDynamicInput = styled.div`
 
 export const StyledInputGroup = styled(InputGroup)`
   & > input {
-    placeholder-text: ${props => props.placeholder};
-    color: ${props => props.theme.colors.textOnDarkBG};
-    background: ${props => props.theme.colors.paneInputBG};
+    placeholder-text: ${(props) => props.placeholder};
+    color: ${(props) => props.theme.colors.textOnDarkBG};
+    background: ${(props) => props.theme.colors.paneInputBG};
   }
 `;
 
 export const StyledDatePicker = styled(DateInput)`
   & {
     input {
-      placeholderText: ${props => props.placeholder};
-      color: ${props => props.theme.colors.textOnDarkBG};
-      background: ${props => props.theme.colors.paneInputBG};
+      placeholderText: ${(props) => props.placeholder};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      background: ${(props) => props.theme.colors.paneInputBG};
     }
   }
 }
@@ -261,15 +262,15 @@ export const StyledDatePicker = styled(DateInput)`
 
 export const StyledTimeZonePicker = styled(TimezonePicker)`
   &&& button {
-    background: ${props => props.theme.colors.paneInputBG};
-    color: ${props => props.theme.colors.textOnDarkBG};
+    background: ${(props) => props.theme.colors.paneInputBG};
+    color: ${(props) => props.theme.colors.textOnDarkBG};
     box-shadow: none;
   }
 `;
 
 export const StyledPropertyPaneButton = styled(Button)`
   &&&& {
-    background-color: ${props => props.theme.colors.infoOld};
+    background-color: ${(props) => props.theme.colors.infoOld};
     color: #ffffff;
     .bp3-icon {
       color: #ffffff;

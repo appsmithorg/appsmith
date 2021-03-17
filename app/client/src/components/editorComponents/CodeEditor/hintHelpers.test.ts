@@ -46,11 +46,11 @@ describe("hint helpers", () => {
         },
       ];
 
-      cases.forEach(testCase => {
+      cases.forEach((testCase) => {
         MockCodemirrorEditor.getValue.mockReturnValueOnce(testCase.value);
         MockCodemirrorEditor.getCursor.mockReturnValueOnce(testCase.cursor);
         if (testCase.getLine) {
-          testCase.getLine.forEach(line => {
+          testCase.getLine.forEach((line) => {
             MockCodemirrorEditor.getLine.mockReturnValueOnce(line);
           });
         }
@@ -67,11 +67,12 @@ describe("hint helpers", () => {
       });
 
       // Assert
-      const showHintCount = cases.filter(c => c.toCall === "showHint").length;
+      const showHintCount = cases.filter((c) => c.toCall === "showHint").length;
       expect(MockCodemirrorEditor.showHint).toHaveBeenCalledTimes(
         showHintCount,
       );
-      const closeHintCount = cases.filter(c => c.toCall === "closeHint").length;
+      const closeHintCount = cases.filter((c) => c.toCall === "closeHint")
+        .length;
       expect(MockCodemirrorEditor.closeHint).toHaveBeenCalledTimes(
         closeHintCount,
       );

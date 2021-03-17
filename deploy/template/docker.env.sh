@@ -9,7 +9,7 @@ disable_telemetry="$4"
 
 cat << EOF
 # Read our documentation on how to configure these features
-# https://docs.appsmith.com/v/v1.1/enabling-3p-services
+# https://docs.appsmith.com/v/v1.2.1/setup/docker#enabling-services-for-self-hosting
 
 # ***** Email **********
 APPSMITH_MAIL_ENABLED=false

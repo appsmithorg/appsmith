@@ -13,10 +13,7 @@ import {
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType, ExecutionResult } from "constants/ActionConstants";
-import {
-  DerivedPropertiesMap,
-  TriggerPropertiesMap,
-} from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
@@ -27,23 +24,180 @@ class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
 > {
-  uppy: any;
-
   constructor(props: FilePickerWidgetProps) {
     super(props);
     this.state = {
-      version: 0,
       isLoading: false,
+      uppy: this.initializeUppy(),
     };
   }
 
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "label",
+            label: "Label",
+            controlType: "INPUT_TEXT",
+            helpText: "Sets the label of the button",
+            placeholderText: "Enter label text",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "maxNumFiles",
+            label: "Max No. files",
+            helpText:
+              "Sets the maximum number of files that can be uploaded at once",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter no. of files",
+            inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "maxFileSize",
+            helpText: "Sets the maximum size of each file that can be uploaded",
+            label: "Max file size",
+            controlType: "INPUT_TEXT",
+            placeholderText: "File size in mb",
+            inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "allowedFileTypes",
+            helpText: "Restricts the type of files which can be uploaded",
+            label: "Allowed File Types",
+            controlType: "MULTI_SELECT",
+            placeholderText: "Select file types",
+            options: [
+              {
+                label: "Any File",
+                value: "*",
+              },
+              {
+                label: "Images",
+                value: "image/*",
+              },
+              {
+                label: "Videos",
+                value: "video/*",
+              },
+              {
+                label: "Audio",
+                value: "audio/*",
+              },
+              {
+                label: "Text",
+                value: "text/*",
+              },
+              {
+                label: "MS Word",
+                value: ".doc",
+              },
+              {
+                label: "JPEG",
+                value: "image/jpeg",
+              },
+              {
+                label: "PNG",
+                value: ".png",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Set the format of the data read from the files",
+            propertyName: "fileDataType",
+            label: "Data Format",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: FileDataTypes.Base64,
+                value: FileDataTypes.Base64,
+              },
+              {
+                label: FileDataTypes.Binary,
+                value: FileDataTypes.Binary,
+              },
+              {
+                label: FileDataTypes.Text,
+                value: FileDataTypes.Text,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "uploadedFileUrlPaths",
+            helpText:
+              "Stores the url of the uploaded file so that it can be referenced in an action later",
+            label: "Uploaded File URLs",
+            controlType: "INPUT_TEXT",
+            placeholderText: 'Enter [ "url1", "url2" ]',
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disable",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText:
+              "Triggers an action when the user selects a file. Upload files to a CDN here and store their urls in uploadedFileUrls",
+            propertyName: "onFilesSelected",
+            label: "onFilesSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
       label: VALIDATION_TYPES.TEXT,
       maxNumFiles: VALIDATION_TYPES.NUMBER,
       allowedFileTypes: VALIDATION_TYPES.ARRAY,
-      files: VALIDATION_TYPES.ARRAY,
+      selectedFiles: VALIDATION_TYPES.ARRAY,
       isRequired: VALIDATION_TYPES.BOOLEAN,
       // onFilesSelected: VALIDATION_TYPES.ACTION_SELECTOR,
     };
@@ -52,20 +206,51 @@ class FilePickerWidget extends BaseWidget<
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
-      value: `{{this.files}}`,
+      files: `{{this.selectedFiles.map((file) => { return { ...file, data: this.fileDataType === "Base64" ? file.base64 : this.fileDataType === "Binary" ? file.raw : file.text } })}}`,
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      files: [],
+      selectedFiles: [],
       uploadedFileData: {},
     };
   }
 
-  refreshUppy = (props: FilePickerWidgetProps) => {
-    this.uppy = Uppy({
+  /**
+   * if uppy is not initialized before, initialize it
+   * else setState of uppy instance
+   */
+  initializeUppy = () => {
+    const uppyState = {
       id: this.props.widgetId,
+      autoProceed: false,
+      allowMultipleUploads: true,
+      debug: false,
+      restrictions: {
+        maxFileSize: this.props.maxFileSize
+          ? this.props.maxFileSize * 1024 * 1024
+          : null,
+        maxNumberOfFiles: this.props.maxNumFiles,
+        minNumberOfFiles: null,
+        allowedFileTypes:
+          this.props.allowedFileTypes &&
+          (this.props.allowedFileTypes.includes("*") ||
+            _.isEmpty(this.props.allowedFileTypes))
+            ? null
+            : this.props.allowedFileTypes,
+      },
+    };
+
+    return Uppy(uppyState);
+  };
+
+  /**
+   * set states on the uppy instance with new values
+   */
+  reinitializeUppy = (props: FilePickerWidgetProps) => {
+    const uppyState = {
+      id: props.widgetId,
       autoProceed: false,
       allowMultipleUploads: true,
       debug: false,
@@ -75,12 +260,21 @@ class FilePickerWidget extends BaseWidget<
         minNumberOfFiles: null,
         allowedFileTypes:
           props.allowedFileTypes &&
-          (props.allowedFileTypes.includes("*") ||
+          (this.props.allowedFileTypes.includes("*") ||
             _.isEmpty(props.allowedFileTypes))
             ? null
             : props.allowedFileTypes,
       },
-    })
+    };
+
+    this.state.uppy.setOptions(uppyState);
+  };
+
+  /**
+   * add all uppy events listeners needed
+   */
+  initializeUppyEventListeners = () => {
+    this.state.uppy
       .use(Dashboard, {
         target: "body",
         metaFields: [],
@@ -101,7 +295,11 @@ class FilePickerWidget extends BaseWidget<
         disablePageScrollWhenModalOpen: true,
         proudlyDisplayPoweredByUppy: false,
         onRequestCloseModal: () => {
-          this.uppy.getPlugin("Dashboard").closeModal();
+          const plugin = this.state.uppy.getPlugin("Dashboard");
+
+          if (plugin) {
+            plugin.closeModal();
+          }
         },
         locale: {},
       })
@@ -117,47 +315,69 @@ class FilePickerWidget extends BaseWidget<
         facingMode: "user",
         locale: {},
       });
-    this.uppy.on("file-removed", (file: any) => {
-      const updatedFiles = this.props.files
-        ? this.props.files.filter(dslFile => {
+
+    this.state.uppy.on("file-removed", (file: any) => {
+      const updatedFiles = this.props.selectedFiles
+        ? this.props.selectedFiles.filter((dslFile) => {
             return file.id !== dslFile.id;
           })
         : [];
       this.props.updateWidgetMetaProperty("files", updatedFiles);
     });
-    this.uppy.on("file-added", (file: any) => {
-      const dslFiles = this.props.files || [];
-      const reader = new FileReader();
 
-      reader.readAsDataURL(file.data);
-      reader.onloadend = () => {
-        const base64data = reader.result;
-        const binaryReader = new FileReader();
-        binaryReader.readAsBinaryString(file.data);
-        binaryReader.onloadend = () => {
-          const rawData = binaryReader.result;
-          const newFile = {
-            id: file.id,
-            base64: base64data,
-            blob: file.data,
-            raw: rawData,
+    this.state.uppy.on("files-added", (files: any[]) => {
+      const dslFiles = this.props.selectedFiles
+        ? [...this.props.selectedFiles]
+        : [];
+
+      const fileReaderPromises = files.map((file) => {
+        const reader = new FileReader();
+        return new Promise((resolve) => {
+          reader.readAsDataURL(file.data);
+          reader.onloadend = () => {
+            const base64data = reader.result;
+            const binaryReader = new FileReader();
+            binaryReader.readAsBinaryString(file.data);
+            binaryReader.onloadend = () => {
+              const rawData = binaryReader.result;
+              const textReader = new FileReader();
+              textReader.readAsText(file.data);
+              textReader.onloadend = () => {
+                const text = textReader.result;
+                const newFile = {
+                  type: file.type,
+                  id: file.id,
+                  base64: base64data,
+                  raw: rawData,
+                  text: text,
+                  data:
+                    this.props.fileDataType === FileDataTypes.Base64
+                      ? base64data
+                      : this.props.fileDataType === FileDataTypes.Binary
+                      ? rawData
+                      : text,
+                  name: file.meta ? file.meta.name : undefined,
+                };
+
+                resolve(newFile);
+              };
+            };
           };
-          dslFiles.push(newFile);
-          this.props.updateWidgetMetaProperty("files", dslFiles);
-        };
-      };
+        });
+      });
+
+      Promise.all(fileReaderPromises).then((files) => {
+        this.props.updateWidgetMetaProperty(
+          "selectedFiles",
+          dslFiles.concat(files),
+        );
+      });
     });
-    this.uppy.on("upload", () => {
+
+    this.state.uppy.on("upload", () => {
       this.onFilesSelected();
     });
-    this.setState({ version: this.state.version + 1 });
   };
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onFilesSelected: true,
-    };
-  }
 
   /**
    * this function is called when user selects the files and it do two things:
@@ -197,37 +417,38 @@ class FilePickerWidget extends BaseWidget<
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
     super.componentDidUpdate(prevProps);
     if (
-      prevProps.files &&
-      prevProps.files.length > 0 &&
-      this.props.files === undefined
+      prevProps.selectedFiles &&
+      prevProps.selectedFiles.length > 0 &&
+      this.props.selectedFiles === undefined
     ) {
-      this.uppy.reset();
+      this.state.uppy.reset();
     } else if (
       !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
       prevProps.maxNumFiles !== this.props.maxNumFiles ||
       prevProps.maxFileSize !== this.props.maxFileSize
     ) {
-      this.refreshUppy(this.props);
+      this.reinitializeUppy(this.props);
     }
   }
 
   componentDidMount() {
     super.componentDidMount();
-    this.refreshUppy(this.props);
+
+    this.initializeUppyEventListeners();
   }
 
   componentWillUnmount() {
-    this.uppy.close();
+    this.state.uppy.close();
   }
 
   getPageView() {
     return (
       <FilePickerComponent
-        uppy={this.uppy}
+        uppy={this.state.uppy}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         label={this.props.label}
-        files={this.props.files || []}
+        files={this.props.selectedFiles || []}
         isLoading={this.props.isLoading || this.state.isLoading}
         isDisabled={this.props.isDisabled}
       />
@@ -240,19 +461,26 @@ class FilePickerWidget extends BaseWidget<
 }
 
 export interface FilePickerWidgetState extends WidgetState {
-  version: number;
   isLoading: boolean;
+  uppy: any;
 }
 
 export interface FilePickerWidgetProps extends WidgetProps, WithMeta {
   label: string;
   maxNumFiles?: number;
   maxFileSize?: number;
-  files?: any[];
+  selectedFiles?: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;
+  fileDataType: FileDataTypes;
   isRequired?: boolean;
   uploadedFileUrlPaths?: string;
+}
+
+export enum FileDataTypes {
+  Base64 = "Base64",
+  Text = "Text",
+  Binary = "Binary",
 }
 
 export default FilePickerWidget;

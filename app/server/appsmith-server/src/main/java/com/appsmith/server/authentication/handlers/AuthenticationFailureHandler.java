@@ -1,9 +1,11 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.constants.Security;
+import com.appsmith.server.exceptions.AppsmithError;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -14,6 +16,8 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
@@ -62,8 +66,17 @@ public class AuthenticationFailureHandler implements ServerAuthenticationFailure
             }
         }
 
-        URI defaultRedirectLocation = URI.create(originHeader + "/user/login?error=true");
-        return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
+        // Authentication failure message can hold sensitive information, directly or indirectly. So we don't show all
+        // possible error messages. Only the ones we know are okay to be read by the user. Like a whitelist.
+        URI defaultRedirectLocation;
+        if (exception instanceof OAuth2AuthenticationException
+                && AppsmithError.SIGNUP_DISABLED.getAppErrorCode().toString().equals(((OAuth2AuthenticationException) exception).getError().getErrorCode())) {
+            defaultRedirectLocation = URI.create("/user/signup?error=" + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8));
+        } else {
+            defaultRedirectLocation = URI.create(originHeader + "/user/login?error=true");
+        }
 
+        return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
     }
+
 }

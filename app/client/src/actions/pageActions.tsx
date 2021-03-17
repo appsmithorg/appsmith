@@ -1,5 +1,5 @@
-import { FetchPageRequest, SavePageResponse } from "api/PageApi";
-import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
+import { WidgetOperation } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   EvaluationReduxAction,
@@ -8,7 +8,6 @@ import {
   UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 
@@ -57,19 +56,12 @@ export const fetchPageSuccess = (
   };
 };
 
-export type FetchPublishedPageSuccessPayload = {
-  pageId: string;
-  dsl: ContainerWidgetProps<WidgetProps>;
-  pageWidgetId: string;
-};
-
 export const fetchPublishedPageSuccess = (
-  payload: FetchPublishedPageSuccessPayload,
   postEvalActions: ReduxAction<unknown>[],
-): EvaluationReduxAction<FetchPublishedPageSuccessPayload> => ({
+): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-  payload,
   postEvalActions,
+  payload: undefined,
 });
 
 export const updateCurrentPage = (id: string) => ({
@@ -77,11 +69,11 @@ export const updateCurrentPage = (id: string) => ({
   payload: { id },
 });
 
-export const updateCanvas = (
+export const initCanvasLayout = (
   payload: UpdateCanvasPayload,
 ): ReduxAction<UpdateCanvasPayload> => {
   return {
-    type: ReduxActionTypes.UPDATE_CANVAS,
+    type: ReduxActionTypes.INIT_CANVAS_LAYOUT,
     payload,
   };
 };
@@ -105,14 +97,27 @@ export const deletePageSuccess = () => {
   };
 };
 
-export const updateAndSaveLayout = (widgets: CanvasWidgetsReduxState) => {
+export const updateAndSaveLayout = (
+  widgets: CanvasWidgetsReduxState,
+  isRetry?: boolean,
+) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
-    payload: { widgets },
+    payload: { widgets, isRetry },
   };
 };
 
-export const createPage = (applicationId: string, pageName: string) => {
+export const saveLayout = () => {
+  return {
+    type: ReduxActionTypes.SAVE_PAGE_INIT,
+  };
+};
+
+export const createPage = (
+  applicationId: string,
+  pageName: string,
+  layouts: Partial<PageLayout>[],
+) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
   });
@@ -121,6 +126,7 @@ export const createPage = (applicationId: string, pageName: string) => {
     payload: {
       applicationId,
       name: pageName,
+      layouts,
     },
   };
 };
@@ -149,12 +155,13 @@ export const clonePageSuccess = (
   };
 };
 
-export const updatePage = (id: string, name: string) => {
+export const updatePage = (id: string, name: string, isHidden: boolean) => {
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,
     payload: {
       id,
       name,
+      isHidden,
     },
   };
 };

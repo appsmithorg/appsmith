@@ -15,6 +15,7 @@ import {
   SIGN_UP_URL,
   USER_AUTH_URL,
   USERS_URL,
+  PROFILE,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -27,8 +28,7 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import { getThemeDetails } from "selectors/themeSelectors";
-import { ThemeMode } from "reducers/uiReducers/themeReducer";
+import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
 import { connect } from "react-redux";
@@ -37,6 +37,7 @@ import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { trimTrailingSlash } from "utils/helpers";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
+import UserProfile from "pages/UserProfile";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -45,7 +46,8 @@ const loadingIndicator = <PageLoadingBar />;
 function changeAppBackground(currentTheme: any) {
   if (
     trimTrailingSlash(window.location.pathname) === "/applications" ||
-    window.location.pathname.indexOf("/settings/") !== -1
+    window.location.pathname.indexOf("/settings/") !== -1 ||
+    trimTrailingSlash(window.location.pathname) === "/profile"
   ) {
     document.body.style.backgroundColor =
       currentTheme.colors.homepageBackground;
@@ -104,6 +106,7 @@ class AppRouter extends React.Component<any, any> {
                   path={getApplicationViewerPageURL()}
                   component={AppViewerLoader}
                 />
+                <SentryRoute exact path={PROFILE} component={UserProfile} />
                 <SentryRoute path={APP_VIEW_URL} component={AppViewerLoader} />
                 <SentryRoute component={PageNotFound} />
               </Switch>
@@ -115,7 +118,7 @@ class AppRouter extends React.Component<any, any> {
   }
 }
 const mapStateToProps = (state: AppState) => ({
-  currentTheme: getThemeDetails(state).theme,
+  currentTheme: getCurrentThemeDetails(state),
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
 });

@@ -1,59 +1,9 @@
+import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "constants/ApiConstants";
 import API from "./Api";
 import { GenericApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
-import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "constants/ApiConstants";
-import { Property } from "entities/Action";
 
-interface DatasourceAuthentication {
-  authType?: string;
-  username?: string;
-  password?: string;
-}
-
-export interface QueryTemplate {
-  title: string;
-  body: string;
-}
-
-export interface DatasourceColumns {
-  name: string;
-  type: string;
-}
-
-export interface DatasourceKeys {
-  name: string;
-  type: string;
-}
-
-export interface DatasourceTable {
-  type: string;
-  name: string;
-  columns: DatasourceColumns[];
-  keys: DatasourceKeys[];
-  templates: QueryTemplate[];
-}
-
-export interface DatasourceStructure {
-  tables?: DatasourceTable[];
-}
-
-export interface Datasource {
-  id: string;
-  name: string;
-  pluginId: string;
-  organizationId?: string;
-  datasourceConfiguration: {
-    url: string;
-    authentication?: DatasourceAuthentication;
-    properties?: Record<string, string>;
-    headers?: Property[];
-    databaseName?: string;
-  };
-  invalids?: string[];
-  isValid?: boolean;
-  structure?: DatasourceStructure;
-}
-
+import { DatasourceAuthentication, Datasource } from "entities/Datasource";
 export interface CreateDatasourceConfig {
   name: string;
   pluginId: string;
@@ -64,6 +14,15 @@ export interface CreateDatasourceConfig {
   };
   //Passed for logging purposes.
   appName?: string;
+}
+
+export interface EmbeddedRestDatasourceRequest {
+  datasourceConfiguration: { url: string };
+  invalids: Array<string>;
+  isValid: boolean;
+  name: string;
+  organizationId: string;
+  pluginId: string;
 }
 
 class DatasourcesApi extends API {

@@ -30,7 +30,7 @@ const WidgetBoundaries = styled.div`
   height: calc(100% + ${WIDGET_PADDING - 2}px);
   position: absolute;
   border: 1px dashed
-    ${props => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
+    ${(props) => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
   pointer-events: none;
 `;
 

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.EnumSet;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AppsmithRole.APPLICATION_ADMIN;
@@ -43,7 +43,7 @@ public class RoleGraph {
     public Set<AppsmithRole> generateHierarchicalRoles(String roleName) {
         AppsmithRole role = AppsmithRole.generateAppsmithRoleFromName(roleName);
 
-        Set<AppsmithRole> childrenRoles = new HashSet<>();
+        Set<AppsmithRole> childrenRoles = new LinkedHashSet<>();
         childrenRoles.add(role);
         BreadthFirstIterator<AppsmithRole, DefaultEdge> breadthFirstIterator = new BreadthFirstIterator<>(hierarchyGraph, role);
         while(breadthFirstIterator.hasNext()) {

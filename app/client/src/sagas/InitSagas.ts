@@ -34,6 +34,13 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
 import { populatePageDSLsSaga } from "./PageSagas";
+import log from "loglevel";
+import * as Sentry from "@sentry/react";
+import {
+  restoreRecentEntitiesRequest,
+  resetRecentEntities,
+} from "actions/globalSearchActions";
+import { resetEditorSuccess } from "actions/initActions";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -49,6 +56,8 @@ function* initializeEditorSaga(
       put(fetchPage(pageId)),
       put(fetchApplication(applicationId, APP_MODE.EDIT)),
     ]);
+
+    yield put(restoreRecentEntitiesRequest(applicationId));
 
     const resultOfPrimaryCalls = yield race({
       success: all([
@@ -67,7 +76,7 @@ function* initializeEditorSaga(
 
     if (resultOfPrimaryCalls.failure) {
       yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
             resultOfPrimaryCalls,
@@ -94,7 +103,7 @@ function* initializeEditorSaga(
 
     if (resultOfSecondaryCalls.failure) {
       yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
             resultOfPrimaryCalls,
@@ -122,8 +131,10 @@ function* initializeEditorSaga(
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
   } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
     yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {
         code: ERROR_CODES.SERVER_ERROR,
       },
@@ -162,7 +173,7 @@ export function* initializeAppViewerSaga(
 
   if (resultOfPrimaryCalls.failure) {
     yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {
         code: get(
           resultOfPrimaryCalls,
@@ -188,7 +199,7 @@ export function* initializeAppViewerSaga(
 
     if (resultOfFetchPage.failure) {
       yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
             resultOfFetchPage,
@@ -214,6 +225,11 @@ export function* initializeAppViewerSaga(
   }
 }
 
+function* resetEditorSaga() {
+  yield put(resetEditorSuccess());
+  yield put(resetRecentEntities());
+}
+
 export default function* watchInitSagas() {
   yield all([
     takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initializeEditorSaga),
@@ -221,5 +237,6 @@ export default function* watchInitSagas() {
       ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
       initializeAppViewerSaga,
     ),
+    takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
   ]);
 }

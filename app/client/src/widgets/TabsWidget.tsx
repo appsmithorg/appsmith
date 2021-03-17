@@ -2,7 +2,7 @@ import React from "react";
 import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import WidgetFactory, { TriggerPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
@@ -16,6 +16,72 @@ class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Takes an array of tab names to render tabs",
+            propertyName: "tabs",
+            isJSConvertible: true,
+            label: "Tabs",
+            controlType: "TABS_INPUT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "defaultTab",
+            helpText: "Selects a tab name specified by default",
+            placeholderText: "Enter tab name",
+            label: "Default Tab",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "shouldShowTabs",
+            helpText:
+              "Hides the tabs so that different widgets can be displayed based on the default tab",
+            label: "Show Tabs",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the button is clicked",
+            propertyName: "onTabSelected",
+            label: "onTabSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       tabs: VALIDATION_TYPES.TABS_DATA,
@@ -38,19 +104,23 @@ class TabsWidget extends BaseWidget<
     };
   }
 
+  static getMetaPropertiesMap() {
+    return {
+      selectedTabWidgetId: undefined,
+    };
+  }
+
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
   }
 
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onTabSelected: true,
-    };
-  }
-
   getPageView() {
+    const tabsComponentProps = {
+      ...this.props,
+      tabs: this.getVisibleTabs(),
+    };
     return (
-      <TabsComponent {...this.props} onTabChange={this.onTabChange}>
+      <TabsComponent {...tabsComponentProps} onTabChange={this.onTabChange}>
         {this.renderComponent()}
       </TabsComponent>
     );
@@ -60,7 +130,7 @@ class TabsWidget extends BaseWidget<
     const selectedTabWidgetId = this.props.selectedTabWidgetId;
     const childWidgetData: TabContainerWidgetProps = this.props.children
       ?.filter(Boolean)
-      .filter(item => {
+      .filter((item) => {
         return selectedTabWidgetId === item.widgetId;
       })[0];
     if (!childWidgetData) {
@@ -86,7 +156,7 @@ class TabsWidget extends BaseWidget<
 
   addTabContainer = (widgetIds: string[]) => {
     widgetIds.forEach((newWidgetId: string) => {
-      const tab = this.props.tabs.find(tab => tab.widgetId === newWidgetId);
+      const tab = this.props.tabs.find((tab) => tab.widgetId === newWidgetId);
       if (tab) {
         const columns =
           (this.props.rightColumn - this.props.leftColumn) *
@@ -128,14 +198,11 @@ class TabsWidget extends BaseWidget<
   };
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    if (
-      this.props.tabs.length !== prevProps.tabs.length &&
-      this.props.children.length !== this.props.tabs.length
-    ) {
-      const tabWidgetIds = this.props.tabs.map(tab => tab.widgetId);
+    if (JSON.stringify(this.props.tabs) !== JSON.stringify(prevProps.tabs)) {
+      const tabWidgetIds = this.props.tabs.map((tab) => tab.widgetId);
       const childWidgetIds = this.props.children
         .filter(Boolean)
-        .map(child => child.widgetId);
+        .map((child) => child.widgetId);
       // If the tabs and children are different,
       // add and/or remove tab container widgets
 
@@ -163,9 +230,10 @@ class TabsWidget extends BaseWidget<
         }
       }
     }
+    const visibleTabs = this.getVisibleTabs();
     if (this.props.defaultTab) {
       if (this.props.defaultTab !== prevProps.defaultTab) {
-        const selectedTab = _.find(this.props.tabs, {
+        const selectedTab = _.find(visibleTabs, {
           label: this.props.defaultTab,
         });
         const selectedTabWidgetId = selectedTab
@@ -177,21 +245,49 @@ class TabsWidget extends BaseWidget<
         );
       }
     }
+    // if selected tab is deleted
+    if (this.props.selectedTabWidgetId) {
+      if (visibleTabs.length > 0) {
+        const selectedTabWithinTabs = _.find(visibleTabs, {
+          widgetId: this.props.selectedTabWidgetId,
+        });
+        if (!selectedTabWithinTabs) {
+          // try to select default else select first
+          const defaultTab = _.find(visibleTabs, {
+            label: this.props.defaultTab,
+          });
+
+          this.props.updateWidgetMetaProperty(
+            "selectedTabWidgetId",
+            (defaultTab && defaultTab.widgetId) || visibleTabs[0].widgetId,
+          );
+        }
+      } else {
+        this.props.updateWidgetMetaProperty("selectedTabWidgetId", undefined);
+      }
+    } else if (!this.props.selectedTabWidgetId) {
+      if (visibleTabs.length > 0) {
+        this.props.updateWidgetMetaProperty(
+          "selectedTabWidgetId",
+          visibleTabs[0].widgetId,
+        );
+      }
+    }
   }
 
   generateTabContainers = () => {
     const { tabs, widgetId } = this.props;
     const childWidgetIds = this.props.children
       ?.filter(Boolean)
-      .map(child => child.widgetId);
+      .map((child) => child.widgetId);
     let tabsToCreate = tabs;
     if (childWidgetIds && childWidgetIds.length > 0) {
       tabsToCreate = tabs.filter(
-        tab => childWidgetIds.indexOf(tab.widgetId) === -1,
+        (tab) => childWidgetIds.indexOf(tab.widgetId) === -1,
       );
     }
 
-    const tabContainers = tabsToCreate.map(tab => ({
+    const tabContainers = tabsToCreate.map((tab) => ({
       type: WidgetTypes.CANVAS_WIDGET,
       tabId: tab.id,
       tabName: tab.label,
@@ -215,15 +311,26 @@ class TabsWidget extends BaseWidget<
     });
   };
 
+  getVisibleTabs = () => {
+    return this.props.tabs.filter(
+      (tab) => tab.isVisible === undefined || tab.isVisible === true,
+    );
+  };
+
   componentDidMount() {
+    const visibleTabs = this.getVisibleTabs();
     // If we have a defaultTab
-    if (this.props.defaultTab) {
+    if (this.props.defaultTab && this.props.tabs.length) {
       // Find the default Tab object
-      const selectedTab = _.find(this.props.tabs, {
+      const selectedTab = _.find(visibleTabs, {
         label: this.props.defaultTab,
       });
       // Find the default Tab id
-      const selectedTabWidgetId = selectedTab?.widgetId;
+      const selectedTabWidgetId = selectedTab
+        ? selectedTab.widgetId
+        : visibleTabs.length
+        ? visibleTabs[0].widgetId
+        : undefined; // in case the default tab is deleted
       // If we have a legitimate default tab Id and it is not already the selected Tab
       if (
         selectedTabWidgetId &&
@@ -235,12 +342,12 @@ class TabsWidget extends BaseWidget<
           selectedTabWidgetId,
         );
       }
-    } else if (!this.props.selectedTabWidgetId) {
+    } else if (!this.props.selectedTabWidgetId && this.props.tabs.length) {
       // If no tab is selected
       // Select the first tab in the tabs list.
       this.props.updateWidgetMetaProperty(
         "selectedTabWidgetId",
-        this.props.tabs[0].widgetId,
+        visibleTabs.length ? visibleTabs[0].widgetId : undefined,
       );
     }
     this.generateTabContainers();
@@ -260,6 +367,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
     id: string;
     label: string;
     widgetId: string;
+    isVisible?: boolean;
   }>;
   shouldShowTabs: boolean;
   children: T[];

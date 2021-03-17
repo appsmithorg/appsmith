@@ -21,6 +21,7 @@ import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
 import {
+  CodeEditorBorder,
   EditorConfig,
   EditorModes,
   EditorSize,
@@ -40,6 +41,7 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -73,11 +75,17 @@ export type EditorStyleProps = {
   evaluatedValue?: any;
   expected?: string;
   borderLess?: boolean;
+  border?: CodeEditorBorder;
+  hoverInteraction?: boolean;
+  fill?: boolean;
 };
 
 export type EditorProps = EditorStyleProps &
   EditorConfig & {
     input: Partial<WrappedFieldInputProps>;
+  } & {
+    additionalDynamicData?: Record<string, Record<string, unknown>>;
+    promptMessage?: React.ReactNode | string;
   };
 
 type Props = ReduxStateProps & EditorProps;
@@ -97,6 +105,7 @@ class CodeEditor extends Component<Props, State> {
   textArea = React.createRef<HTMLTextAreaElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
+  private editorWrapperRef = React.createRef<HTMLDivElement>();
 
   constructor(props: Props) {
     super(props);
@@ -194,27 +203,31 @@ class CodeEditor extends Component<Props, State> {
       // Update the dynamic bindings for autocomplete
       if (prevProps.dynamicData !== this.props.dynamicData) {
         this.hinters.forEach(
-          hinter => hinter.update && hinter.update(this.props.dynamicData),
+          (hinter) => hinter.update && hinter.update(this.props.dynamicData),
         );
       }
     }
   }
 
   startAutocomplete() {
-    this.hinters = this.props.hinting.map(helper => {
-      return helper(this.editor, this.props.dynamicData);
+    this.hinters = this.props.hinting.map((helper) => {
+      return helper(
+        this.editor,
+        this.props.dynamicData,
+        this.props.additionalDynamicData,
+      );
     });
   }
 
   onFocusTrigger = (cm: CodeMirror.Editor) => {
     if (!cm.state.completionActive) {
-      this.hinters.forEach(hinter => hinter.trigger && hinter.trigger(cm));
+      this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
     }
   };
 
   onChangeTigger = (cm: CodeMirror.Editor) => {
     if (this.state.isFocused) {
-      this.hinters.forEach(hinter => hinter.trigger && hinter.trigger(cm));
+      this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
     }
   };
 
@@ -267,7 +280,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    this.hinters.forEach(hinter => hinter.showHint(cm));
+    this.hinters.forEach((hinter) => hinter.showHint(cm));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -277,7 +290,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   updateMarkings = () => {
-    this.props.marking.forEach(helper => this.editor && helper(this.editor));
+    this.props.marking.forEach((helper) => this.editor && helper(this.editor));
   };
 
   updatePropertyValue(value: string, cursor?: number) {
@@ -317,6 +330,9 @@ class CodeEditor extends Component<Props, State> {
       evaluatedValue,
       height,
       borderLess,
+      border,
+      hoverInteraction,
+      fill,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
@@ -336,7 +352,7 @@ class CodeEditor extends Component<Props, State> {
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
         isNotHover={this.state.isFocused || this.state.isOpened}
       >
-        {showLightningMenu !== false && (
+        {showLightningMenu !== false && !this.state.isFocused && (
           <Suspense fallback={<div />}>
             <LightningMenu
               skin={
@@ -362,7 +378,7 @@ class CodeEditor extends Component<Props, State> {
           hasError={hasError}
         >
           <EditorWrapper
-            editorTheme={theme}
+            editorTheme={this.props.theme}
             hasError={hasError}
             size={size}
             isFocused={this.state.isFocused}
@@ -370,6 +386,11 @@ class CodeEditor extends Component<Props, State> {
             className={className}
             height={height}
             borderLess={borderLess}
+            border={border}
+            isNotHover={this.state.isFocused || this.state.isOpened}
+            hoverInteraction={hoverInteraction}
+            fill={fill}
+            ref={this.editorWrapperRef}
           >
             <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (
@@ -406,7 +427,10 @@ class CodeEditor extends Component<Props, State> {
             )}
             <BindingPrompt
               isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
+              promptMessage={this.props.promptMessage}
+              editorTheme={this.props.theme}
             />
+            <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>

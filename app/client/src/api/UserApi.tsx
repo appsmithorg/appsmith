@@ -46,12 +46,8 @@ export interface InviteUserRequest {
   status?: string;
 }
 
-export interface SwitchUserOrgRequest {
-  orgId: string;
-}
-
-export interface AddUserToOrgRequest {
-  orgId: string;
+export interface UpdateUserRequest {
+  name: string;
 }
 
 class UserApi extends Api {
@@ -62,7 +58,6 @@ class UserApi extends Api {
   static inviteUserURL = "v1/users/invite";
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
-  static switchUserOrgURL = `${UserApi.usersURL}/switchOrganization`;
   static addOrgURL = `${UserApi.usersURL}/addOrganization`;
   static logoutURL = "v1/logout";
   static currentUserURL = "v1/users/me";
@@ -71,6 +66,10 @@ class UserApi extends Api {
     request: CreateUserRequest,
   ): AxiosPromise<CreateUserResponse> {
     return Api.post(UserApi.usersURL, request);
+  }
+
+  static updateUser(request: UpdateUserRequest): AxiosPromise<ApiResponse> {
+    return Api.put(UserApi.usersURL, request);
   }
 
   static fetchUser(request: FetchUserRequest): AxiosPromise<FetchUserResponse> {
@@ -113,18 +112,6 @@ class UserApi extends Api {
     request: TokenPasswordUpdateRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.put(UserApi.confirmUserInviteURL, request);
-  }
-
-  static switchUserOrg(
-    request: SwitchUserOrgRequest,
-  ): AxiosPromise<ApiResponse> {
-    return Api.put(UserApi.switchUserOrgURL + "/" + request.orgId);
-  }
-
-  static addOrganization(
-    request: AddUserToOrgRequest,
-  ): AxiosPromise<ApiResponse> {
-    return Api.put(UserApi.addOrgURL + "/" + request.orgId);
   }
 
   static logoutUser(): AxiosPromise<ApiResponse> {

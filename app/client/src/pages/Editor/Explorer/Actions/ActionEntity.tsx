@@ -5,11 +5,13 @@ import history from "utils/history";
 import { saveActionName } from "actions/actionActions";
 import EntityProperties from "../Entity/EntityProperties";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { ExplorerURLParams } from "../helpers";
-import { useParams } from "react-router";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { fetchPage } from "actions/pageActions";
+import { useParams } from "react-router";
+import { ExplorerURLParams } from "../helpers";
+import { useDispatch } from "react-redux";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -27,12 +29,17 @@ type ExplorerActionEntityProps = {
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const { pageId } = useParams<ExplorerURLParams>();
+  const dispatch = useDispatch();
   const switchToAction = useCallback(() => {
     PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
       url: props.url,
     });
     props.url && history.push(props.url);
-  }, [props.url]);
+
+    if (pageId !== props.pageId) {
+      dispatch(fetchPage(props.pageId));
+    }
+  }, [props.url, pageId, props.pageId]);
 
   const contextMenu = (
     <ActionEntityContextMenu
@@ -48,7 +55,6 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       icon={props.icon}
       name={props.action.config.name}
       action={switchToAction}
-      isDefaultExpanded={props.active}
       active={props.active}
       entityId={props.action.config.id}
       step={props.step}

@@ -1,17 +1,21 @@
 import React, { createRef, useState } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import TextInput from "components/ads/TextInput";
-import Button, { Category, Size } from "components/ads/Button";
+import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 
 const Wrapper = styled.div`
   display: flex;
 
   div {
-    flex-basis: calc(100% - 110px);
+    flex-basis: calc(100% - 90px);
   }
-  a {
-    flex-basis: 110px;
+  input:disabled {
+    color: #555;
+  }
+  button {
+    flex-basis: 80px;
+    margin-left: 10px;
   }
 `;
 
@@ -35,23 +39,20 @@ const CopyToClipboard = (props: any) => {
   };
   return (
     <Wrapper>
-      <TextInput
+      <BaseTextInput
         fill
-        ref={copyURLInput}
-        readOnly
+        disabled={true}
         onChange={() => {
           selectText();
         }}
         defaultValue={copyText}
       />
 
-      <Button
+      <BaseButton
         text={isCopied ? "Copied" : "Copy"}
-        category={Category.tertiary}
         onClick={() => {
           copyToClipboard(copyText);
         }}
-        size={Size.large}
       />
     </Wrapper>
   );

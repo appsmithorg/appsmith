@@ -24,5 +24,7 @@
         <module>redisPlugin</module>
         <module>mssqlPlugin</module>
         <module>firestorePlugin</module>
+        <module>redshiftPlugin</module>
+        <module>amazons3Plugin</module>
     </modules>
 </project>

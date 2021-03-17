@@ -10,6 +10,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.ApplicationForkingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,17 +33,21 @@ import javax.validation.Valid;
 @RequestMapping(Url.APPLICATION_URL)
 @Slf4j
 public class ApplicationController extends BaseController<ApplicationService, Application, String> {
+
     private final ApplicationPageService applicationPageService;
     private final ApplicationFetcher applicationFetcher;
+    private final ApplicationForkingService applicationForkingService;
 
     @Autowired
     public ApplicationController(
             ApplicationService service,
             ApplicationPageService applicationPageService,
-            ApplicationFetcher applicationFetcher) {
+            ApplicationFetcher applicationFetcher,
+            ApplicationForkingService applicationForkingService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
+        this.applicationForkingService = applicationForkingService;
     }
 
     @PostMapping
@@ -100,6 +105,15 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     @GetMapping("/view/{applicationId}")
     public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String applicationId) {
         return service.getApplicationInViewMode(applicationId)
+                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
+    }
+
+    @PostMapping("/{applicationId}/fork/{organizationId}")
+    public Mono<ResponseDTO<Application>> forkApplication(
+            @PathVariable String applicationId,
+            @PathVariable String organizationId
+    ) {
+        return applicationForkingService.forkApplicationToOrganization(applicationId, organizationId)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 

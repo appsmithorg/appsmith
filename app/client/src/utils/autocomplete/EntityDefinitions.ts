@@ -25,7 +25,7 @@ export const entityDefinitions = {
     return {
       "!doc":
         "Actions allow you to connect your widgets to your backend data in a secure manner.",
-      "!url": "https://docs.appsmith.com/quick-start#connect-your-apis",
+      "!url": "https://docs.appsmith.com/v/v1.2.1/framework-reference/run",
       isLoading: "bool",
       data,
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
@@ -34,10 +34,10 @@ export const entityDefinitions = {
   CONTAINER_WIDGET: {
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
-    "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+    "!url": "https://docs.appsmith.com/widget-reference/container",
     backgroundColor: {
       "!type": "string",
-      "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+      "!url": "https://docs.appsmith.com/widget-reference/container",
     },
     isVisible: isVisible,
   },
@@ -67,13 +67,13 @@ export const entityDefinitions = {
     isVisible: isVisible,
     searchText: "string",
   }),
-  VIDEO_WIDGET: (widget: any) => ({
+  VIDEO_WIDGET: {
     "!doc":
       "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
     "!url": "https://docs.appsmith.com/widget-reference/video",
     playState: "number",
     autoPlay: "bool",
-  }),
+  },
   DROP_DOWN_WIDGET: {
     "!doc":
       "Dropdown is used to capture user input/s from a specified list of permitted inputs. A Dropdown can capture a single choice as well as multiple choices",
@@ -84,9 +84,19 @@ export const entityDefinitions = {
       "!doc": "The value selected in a single select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a single select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
     selectedOptionValues: {
       "!type": "[string]",
       "!doc": "The array of values selected in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a multi select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
@@ -124,12 +134,29 @@ export const entityDefinitions = {
     selectedDate: "string",
     isDisabled: "bool",
   },
+  DATE_PICKER_WIDGET2: {
+    "!doc":
+      "Datepicker is used to capture the date and time from a user. It can be used to filter data base on the input date range as well as to capture personal information such as date of birth",
+    "!url": "https://docs.appsmith.com/widget-reference/datepicker",
+    isVisible: isVisible,
+    selectedDate: "string",
+    formattedDate: "string",
+    isDisabled: "bool",
+  },
   CHECKBOX_WIDGET: {
     "!doc":
       "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
     "!url": "https://docs.appsmith.com/widget-reference/checkbox",
     isVisible: isVisible,
     isChecked: "bool",
+    isDisabled: "bool",
+  },
+  SWITCH_WIDGET: {
+    "!doc":
+      "Switch is a simple UI widget you can use when you want users to make a binary choice",
+    "!url": "https://docs.appsmith.com/widget-reference/switch",
+    isVisible: isVisible,
+    isSwitchedOn: "bool",
     isDisabled: "bool",
   },
   RADIO_GROUP_WIDGET: {
@@ -163,6 +190,7 @@ export const entityDefinitions = {
     chartData: "chartData",
     xAxisName: "string",
     yAxisName: "string",
+    selectedDataPoint: "chartDataPoint",
   },
   FORM_WIDGET: (widget: any) => ({
     "!doc":
@@ -183,7 +211,6 @@ export const entityDefinitions = {
   },
   MAP_WIDGET: {
     isVisible: isVisible,
-    mapCenter: "latLong",
     center: "latLong",
     markers: "[mapMarker]",
     selectedMarker: "mapMarker",
@@ -193,7 +220,7 @@ export const entityDefinitions = {
       "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
     "!url": "https://docs.appsmith.com/widget-reference/filepicker",
     isVisible: isVisible,
-    files: "[?]",
+    files: "[file]",
     isDisabled: "bool",
     uploadedFileUrls: "string",
   },
@@ -226,12 +253,17 @@ export const GLOBAL_DEFS = {
     title: "string",
     description: "string",
   },
+  file: {
+    data: "string",
+    name: "text",
+    type: "file",
+  },
 };
 
 export const GLOBAL_FUNCTIONS = {
   navigateTo: {
     "!doc": "Action to navigate the user to another page or url",
-    "!type": "fn(pageNameOrUrl: string, params: {}) -> void",
+    "!type": "fn(pageNameOrUrl: string, params: {}, target?: string) -> void",
   },
   showAlert: {
     "!doc": "Show a temporary notification style message to the user",
@@ -252,5 +284,13 @@ export const GLOBAL_FUNCTIONS = {
   download: {
     "!doc": "Download anything as a file",
     "!type": "fn(data: any, fileName: string, fileType?: string) -> void",
+  },
+  copyToClipboard: {
+    "!doc": "Copy text to clipboard",
+    "!type": "fn(data: string, options: object) -> void",
+  },
+  resetWidget: {
+    "!doc": "Reset widget values",
+    "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
   },
 };

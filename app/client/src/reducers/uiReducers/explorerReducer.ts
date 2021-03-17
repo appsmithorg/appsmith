@@ -103,10 +103,7 @@ const explorerReducer = createReducer(initialState, {
   ) => {
     return { editingEntityName: action.payload.id };
   },
-  [ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT]: (
-    state: ExplorerReduxState,
-    action: ReduxAction<{ id: string }>,
-  ) => {
+  [ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT]: () => {
     return {};
   },
 });

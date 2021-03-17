@@ -12,8 +12,7 @@ import UserApi, {
   ForgotPasswordRequest,
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
-  SwitchUserOrgRequest,
-  AddUserToOrgRequest,
+  UpdateUserRequest,
 } from "api/UserApi";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
 import history from "utils/history";
@@ -36,8 +35,11 @@ import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { ERROR_CODES } from "constants/ApiConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
+import localStorage from "utils/localStorage";
+import log from "loglevel";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -118,6 +120,13 @@ export function* getCurrentUserSaga() {
         error,
       },
     });
+
+    yield put({
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      payload: {
+        code: ERROR_CODES.SERVER_ERROR,
+      },
+    });
   }
 }
 
@@ -143,7 +152,7 @@ export function* forgotPasswordSaga(
       yield call(resolve);
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.FORGOT_PASSWORD_ERROR,
@@ -173,7 +182,7 @@ export function* resetPasswordSaga(
       yield call(resolve);
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.RESET_USER_PASSWORD_ERROR,
@@ -203,7 +212,7 @@ export function* invitedUserSignupSaga(
       yield call(resolve);
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield call(reject, { _error: error.message });
     yield put(invitedUserSignupError(error));
   }
@@ -211,13 +220,11 @@ export function* invitedUserSignupSaga(
 
 type InviteUserPayload = {
   email: string;
-  groupIds: string[];
+  orgId: string;
+  roleName: string;
 };
 
-export function* inviteUser(
-  payload: { email: string; orgId: string; roleName: string },
-  reject: any,
-) {
+export function* inviteUser(payload: InviteUserPayload, reject: any) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
   const isValidResponse = yield validateResponse(response);
   if (!isValidResponse) {
@@ -265,6 +272,28 @@ export function* inviteUsers(
   }
 }
 
+export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
+  try {
+    const { name } = action.payload;
+    const response: ApiResponse = yield callAPI(UserApi.updateUser, {
+      name,
+    });
+    const isValidResponse = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_USER_DETAILS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_USER_DETAILS_ERROR,
+      payload: error.message,
+    });
+  }
+}
+
 export function* verifyResetPasswordTokenSaga(
   action: ReduxAction<VerifyTokenRequest>,
 ) {
@@ -281,7 +310,7 @@ export function* verifyResetPasswordTokenSaga(
       });
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.RESET_PASSWORD_VERIFY_TOKEN_ERROR,
     });
@@ -297,56 +326,8 @@ export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
       yield put(verifyInviteSuccess());
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put(verifyInviteError(error));
-  }
-}
-
-export function* switchUserOrgSaga(action: ReduxAction<SwitchUserOrgRequest>) {
-  try {
-    const request: SwitchUserOrgRequest = action.payload;
-    const response: ApiResponse = yield call(UserApi.switchUserOrg, request);
-    const isValidResponse = yield validateResponse(response);
-
-    if (isValidResponse) {
-      window.location.reload();
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.SWITCH_ORGANIZATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
-export function* addUserToOrgSaga(
-  action: ReduxAction<AddUserToOrgRequest & { switchToOrg?: boolean }>,
-) {
-  try {
-    const { orgId, switchToOrg } = action.payload;
-    const request: AddUserToOrgRequest = { orgId };
-    const response: ApiResponse = yield call(UserApi.addOrganization, request);
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      if (switchToOrg) {
-        yield put({
-          type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
-          payload: { orgId },
-        });
-      }
-      yield put({
-        type: ReduxActionTypes.ADD_USER_TO_ORG_SUCCESS,
-      });
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.ADD_USER_TO_ORG_ERROR,
-      payload: {
-        error,
-      },
-    });
   }
 }
 
@@ -361,7 +342,7 @@ export function* logoutSaga() {
       yield put(flushErrorsAndRedirect(AUTH_LOGIN_URL));
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put(logoutUserError(error));
   }
 }
@@ -383,7 +364,9 @@ export default function* userSagas() {
       ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
       invitedUserSignupSaga,
     ),
-    takeLatest(ReduxActionTypes.SWITCH_ORGANIZATION_INIT, switchUserOrgSaga),
-    takeLatest(ReduxActionTypes.ADD_USER_TO_ORG_INIT, addUserToOrgSaga),
+    takeLatest(
+      ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
+      updateUserDetailsSaga,
+    ),
   ]);
 }

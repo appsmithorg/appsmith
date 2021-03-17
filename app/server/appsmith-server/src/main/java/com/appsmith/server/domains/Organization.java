@@ -29,8 +29,6 @@ public class Organization extends BaseDomain {
 
     private String email;
 
-    private List<OrganizationSetting> organizationSettings;
-
     private List<OrganizationPlugin> plugins;
 
     private String slug;

@@ -13,7 +13,9 @@ export type ComparisonOperations =
   | "EQUALS"
   | "NOT_EQUALS"
   | "LESSER"
-  | "GREATER";
+  | "GREATER"
+  | "IN"
+  | "NOT_IN";
 
 export type HiddenType =
   | boolean
@@ -41,6 +43,7 @@ export interface ControlData {
   dataType?: InputType;
   isRequired?: boolean;
   hidden?: HiddenType;
+  placeholderText?: string;
 }
 
 export interface ControlFunctions {

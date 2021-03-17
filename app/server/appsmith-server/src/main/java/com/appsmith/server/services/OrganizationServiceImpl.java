@@ -8,8 +8,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
-import com.appsmith.server.domains.OrganizationSetting;
-import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -21,8 +19,6 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -30,13 +26,14 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,19 +43,18 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
-import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
 public class OrganizationServiceImpl extends BaseService<OrganizationRepository, Organization, String> implements OrganizationService {
 
-    private final SettingService settingService;
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
     private final UserRepository userRepository;
     private final RoleGraph roleGraph;
     private final AssetRepository assetRepository;
+    private final AssetService assetService;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -66,22 +62,22 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    MongoConverter mongoConverter,
                                    ReactiveMongoTemplate reactiveMongoTemplate,
                                    OrganizationRepository repository,
-                                   SettingService settingService,
                                    AnalyticsService analyticsService,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,
                                    UserOrganizationService userOrganizationService,
                                    UserRepository userRepository,
                                    RoleGraph roleGraph,
-                                   AssetRepository assetRepository) {
+                                   AssetRepository assetRepository,
+                                   AssetService assetService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.settingService = settingService;
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
         this.userRepository = userRepository;
         this.roleGraph = roleGraph;
         this.assetRepository = assetRepository;
+        this.assetService = assetService;
     }
 
     @Override
@@ -104,8 +100,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<String> getNextUniqueSlug(String initialSlug) {
-        return repository.countSlugsByPrefix(initialSlug)
-                .map(max -> initialSlug + (max == 0 ? "" : (max + 1)));
+        return repository.nextSlugNumber(initialSlug)
+                .map(number -> initialSlug + (number == 0 ? "" : number));
     }
 
     /**
@@ -146,7 +142,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue()));
 
         if (!isManageOrgPolicyPresent) {
-            return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create organization"));
         }
 
         if (organization.getEmail() == null) {
@@ -166,8 +162,6 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
         return setSlugMono
                 .flatMap(this::validateObject)
-                //transform the organization data to embed setting object in each object in organizationSetting list.
-                .flatMap(this::enhanceOrganizationSettingList)
                 // Install all the default plugins when the org is created
                 /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
                     Not using it right now because of circular dependency b/w organizationService and pluginService
@@ -208,32 +202,6 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userRepository.findByEmail(user.getUsername(), READ_USERS))
                 .flatMap(user -> create(organization, user));
-    }
-
-    private Mono<Organization> enhanceOrganizationSettingList(Organization organization) {
-
-        if (organization.getOrganizationSettings() == null) {
-            organization.setOrganizationSettings(new ArrayList<>());
-        }
-
-        Flux<OrganizationSetting> organizationSettingFlux = Flux.fromIterable(organization.getOrganizationSettings());
-        // For each organization setting, fetch and embed the setting, and once all the organization setting are done, collect it
-        // back into a single list of organization settings.
-        Mono<List<OrganizationSetting>> listMono = organizationSettingFlux.flatMap(this::fetchAndEmbedSetting).collectList();
-        return listMono.map(list -> {
-            organization.setOrganizationSettings(list);
-            return list;
-        }).thenReturn(organization);
-    }
-
-    private Mono<OrganizationSetting> fetchAndEmbedSetting(OrganizationSetting organizationSetting) {
-
-        String key = organizationSetting.getSetting().getKey();
-        Mono<Setting> setting = settingService.getByKey(key);
-        return setting.map(setting1 -> {
-            organizationSetting.setSetting(setting1);
-            return organizationSetting;
-        });
     }
 
     @Override
@@ -302,9 +270,10 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
                     Set<AppsmithRole> appsmithRoles = roleGraph.generateHierarchicalRoles(roleName);
 
-                    Map<String, String> appsmithRolesMap = appsmithRoles
-                            .stream()
-                            .collect(toMap(AppsmithRole::getName, AppsmithRole::getDescription));
+                    final Map<String, String> appsmithRolesMap = new LinkedHashMap<>();
+                    for (final AppsmithRole role : appsmithRoles) {
+                        appsmithRolesMap.put(role.getName(), role.getDescription());
+                    }
 
                     return Mono.just(appsmithRolesMap);
                 });
@@ -323,50 +292,26 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<Organization> uploadLogo(String organizationId, Part filePart) {
-        return repository
-                .findById(organizationId, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
-                .flatMap(organization -> {
-                    if (filePart != null && filePart.headers().getContentType() != null) {
-                        // Default implementation for the BufferFactory used breaks down the FilePart into chunks of 4KB
-                        // To limit file size to 250KB, we only allow 63 (250/4 = 62.5) such chunks to be derived from the incoming FilePart
-                        return filePart.content().count().flatMap(count -> {
-                            if (count > (int) Math.ceil(Constraint.ORGANIZATION_LOGO_SIZE_KB / 4.0)) {
-                                return Mono.error(new AppsmithException(AppsmithError.PAYLOAD_TOO_LARGE, Constraint.ORGANIZATION_LOGO_SIZE_KB));
-                            } else {
-                                return Mono.zip(Mono.just(organization), DataBufferUtils.join(filePart.content()));
-                            }
-                        });
-                    } else {
-                        return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
-                    }
-                })
+        final Mono<Organization> findOrganizationMono = repository.findById(organizationId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)));
+
+        // We don't execute the upload Mono if we don't find the organization.
+        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.ORGANIZATION_LOGO_SIZE_KB);
+
+        return findOrganizationMono
+                .flatMap(organization -> Mono.zip(Mono.just(organization), uploadAssetMono))
                 .flatMap(tuple -> {
                     final Organization organization = tuple.getT1();
-                    final DataBuffer dataBuffer = tuple.getT2();
+                    final Asset uploadedAsset = tuple.getT2();
                     final String prevAssetId = organization.getLogoAssetId();
 
-                    byte[] data = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(data);
-                    DataBufferUtils.release(dataBuffer);
-
-                    return assetRepository
-                            .save(new Asset(filePart.headers().getContentType(), data))
-                            .flatMap(asset -> {
-                                organization.setLogoAssetId(asset.getId());
-                                Mono<Organization> savedOrganization = repository.save(organization);
-                                Mono<Asset> createdAsset = analyticsService.sendCreateEvent(asset);
-                                return savedOrganization.zipWith(createdAsset);
-                            })
-                            .flatMap(savedTuple -> {
-                                Organization savedOrganization = savedTuple.getT1();
-                                if (prevAssetId != null) {
-                                    return assetRepository.findById(prevAssetId)
-                                            .flatMap(asset -> assetRepository.delete(asset).thenReturn(asset))
-                                            .flatMap(analyticsService::sendDeleteEvent)
-                                            .thenReturn(savedOrganization);
-                                } else {
+                    organization.setLogoAssetId(uploadedAsset.getId());
+                    return repository.save(organization)
+                            .flatMap(savedOrganization -> {
+                                if (StringUtils.isEmpty(prevAssetId)) {
                                     return Mono.just(savedOrganization);
+                                } else {
+                                    return assetService.remove(prevAssetId).thenReturn(savedOrganization);
                                 }
                             });
                 });

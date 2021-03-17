@@ -11,7 +11,7 @@ import { AppState } from "reducers";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin } from "api/PluginApi";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import {
   getPluginIdsOfPackageNames,
   getPlugins,
@@ -29,6 +29,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -58,6 +59,7 @@ type ReduxStateProps = {
   isCreating: boolean;
   pluginImages: Record<string, string>;
   editorConfig: any;
+  settingConfig: any;
   loadingFormConfigs: boolean;
   isEditorInitialized: boolean;
 };
@@ -118,6 +120,7 @@ class QueryEditor extends React.Component<Props> {
       runErrorMessage,
       loadingFormConfigs,
       editorConfig,
+      settingConfig,
       isEditorInitialized,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
@@ -136,7 +139,7 @@ class QueryEditor extends React.Component<Props> {
       );
     }
 
-    const DATASOURCES_OPTIONS = dataSources.map(dataSource => ({
+    const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
       label: dataSource.name,
       value: dataSource.id,
       image: pluginImages[dataSource.pluginId],
@@ -154,6 +157,7 @@ class QueryEditor extends React.Component<Props> {
             onRunClick={this.handleRunClick}
             dataSources={dataSources}
             editorConfig={editorConfig}
+            settingConfig={settingConfig}
             loadingFormConfigs={loadingFormConfigs}
             DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
             executedQueryData={responses[queryId]}
@@ -178,14 +182,29 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { runErrorMessage } = state.ui.queryPane;
   const { plugins } = state.entities;
 
-  const { editorConfigs, loadingFormConfigs } = plugins;
+  const { editorConfigs, loadingFormConfigs, settingConfigs } = plugins;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
-  const queryAction = getAction(state, props.match.params.queryId);
+  const queryAction = getAction(
+    state,
+    props.match.params.queryId,
+  ) as QueryAction;
+  let pluginId;
+  if (queryAction) {
+    pluginId = queryAction.pluginId;
+  }
   let editorConfig: any;
-  const pluginId = queryAction?.datasource?.pluginId;
 
   if (editorConfigs && pluginId) {
     editorConfig = editorConfigs[pluginId];
+  }
+
+  let settingConfig: any;
+
+  if (settingConfigs && pluginId) {
+    settingConfig = settingConfigs[pluginId];
+  }
+  if (!settingConfig) {
+    settingConfig = queryActionSettingsConfig;
   }
 
   return {
@@ -199,6 +218,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDeleting: state.ui.queryPane.isDeleting[props.match.params.queryId],
     formData,
     editorConfig,
+    settingConfig,
     loadingFormConfigs,
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),

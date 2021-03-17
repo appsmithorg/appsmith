@@ -2,17 +2,24 @@ version = 1
 
 test_patterns = ["**/test/**"]
 
+exclude_patterns = [
+    "static/**",
+    "deploy/**",
+    "contributions/**"
+]
+
 [[analyzers]]
 name = "javascript"
 enabled = true
 
   [analyzers.meta]
-  environment = [
-    "browser",
-    "nodejs",
-    "jest"
-  ]
   plugins = ["react"]
+  environment = [
+    "nodejs",
+    "browser",
+    "cypress"
+  ]
+  dialect = "typescript"
   dependency_file_paths = [
   '/app/client/'
   ]

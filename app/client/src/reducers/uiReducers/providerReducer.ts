@@ -57,7 +57,7 @@ const providersReducer = createReducer(initialState, {
     state: ProvidersReduxState,
     action: any,
   ) => {
-    const updatedProviderTemplates = state.providerTemplates.map(item => {
+    const updatedProviderTemplates = state.providerTemplates.map((item) => {
       if (item.templateData.id === action.payload.marketplaceElement.item.id) {
         item.addToPageLoading = true;
         return item;
@@ -133,7 +133,7 @@ const providersReducer = createReducer(initialState, {
     state: ProvidersReduxState,
     action: ReduxAction<ProviderTemplates[]>,
   ) => {
-    const templates = action.payload.map(payload => ({
+    const templates = action.payload.map((payload) => ({
       isOpen: false,
       templateData: payload,
       addToPageStatus: false,
@@ -153,7 +153,7 @@ const providersReducer = createReducer(initialState, {
     state: ProvidersReduxState,
     action: ProviderTemplates,
   ) => {
-    const updatedProviderTemplates = state.providerTemplates.map(item => {
+    const updatedProviderTemplates = state.providerTemplates.map((item) => {
       if (item.templateData.id === action.data.templateId) {
         item.addToPageStatus = true;
         item.addToPageLoading = false;
@@ -167,7 +167,7 @@ const providersReducer = createReducer(initialState, {
     state: ProvidersReduxState,
     action: any,
   ) => {
-    const updatedProviderTemplates = state.providerTemplates.map(item => {
+    const updatedProviderTemplates = state.providerTemplates.map((item) => {
       if (item.templateData.id === action.payload.templateId) {
         item.addToPageLoading = false;
         return item;

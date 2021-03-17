@@ -22,7 +22,7 @@ import {
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
-import { RapidApiAction, RestAction, PaginationType } from "entities/Action";
+import { Action, PaginationType, RapidApiAction } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
@@ -32,7 +32,10 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { Theme } from "constants/DefaultTheme";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -49,9 +52,10 @@ interface ReduxStateProps {
   pages: any;
   plugins: Plugin[];
   pluginId: any;
-  apiAction: RestAction | ActionData | RapidApiAction | undefined;
+  apiAction: Action | ActionData | RapidApiAction | undefined;
   paginationType: PaginationType;
   isEditorInitialized: boolean;
+  lightTheme: Theme;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -90,7 +94,7 @@ class ApiEditor extends React.Component<Props> {
   };
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.isRunning === true && this.props.isRunning === false) {
+    if (prevProps.isRunning && !this.props.isRunning) {
       PerformanceTracker.stopTracking(PerformanceTransactionName.RUN_API_CLICK);
     }
     if (prevProps.match.params.apiId !== this.props.match.params.apiId) {
@@ -118,14 +122,14 @@ class ApiEditor extends React.Component<Props> {
     id: string,
     plugins: Plugin[],
   ): string | undefined => {
-    const plugin = plugins.find(plugin => plugin.id === id);
+    const plugin = plugins.find((plugin) => plugin.id === id);
     if (!plugin) return undefined;
     return plugin.uiComponent;
   };
 
   getPluginUiComponentOfName = (plugins: Plugin[]): string | undefined => {
     const plugin = plugins.find(
-      plugin => plugin.packageName === REST_PLUGIN_PACKAGE_NAME,
+      (plugin) => plugin.packageName === REST_PLUGIN_PACKAGE_NAME,
     );
     if (!plugin) return undefined;
     return plugin.uiComponent;
@@ -144,6 +148,9 @@ class ApiEditor extends React.Component<Props> {
       paginationType,
       isEditorInitialized,
     } = this.props;
+    if (!this.props.pluginId && this.props.match.params.apiId) {
+      return <EntityNotFoundPane />;
+    }
     if (isCreating || !isEditorInitialized) {
       return (
         <LoadingContainer>
@@ -226,7 +233,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
   const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
-  const apiEditorState = {
+  return {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
     currentPageName: getCurrentPageName(state),
@@ -240,8 +247,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDeleting: isDeleting[props.match.params.apiId],
     isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
+    lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
   };
-  return apiEditorState;
 };
 
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({

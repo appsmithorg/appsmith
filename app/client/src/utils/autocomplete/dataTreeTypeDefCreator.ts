@@ -14,7 +14,7 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
   const def: any = {
     "!name": "dataTree",
   };
-  Object.keys(dataTree).forEach(entityName => {
+  Object.keys(dataTree).forEach((entityName) => {
     const entity = dataTree[entityName];
     if (entity && "ENTITY_TYPE" in entity) {
       if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
@@ -54,7 +54,7 @@ export function generateTypeDef(
     }
     case Types.OBJECT: {
       const objType: Record<string, string | Record<string, unknown>> = {};
-      Object.keys(obj).forEach(k => {
+      Object.keys(obj).forEach((k) => {
         objType[k] = generateTypeDef(obj[k]);
       });
       return objType;

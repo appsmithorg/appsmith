@@ -4,6 +4,6 @@
     "tabName": ".t--property-control-tabs  input",
     "tabDefault": ".t--property-control-defaulttab .CodeMirror-code",
     "tabButton": ".t--property-control-tabs  button",
-    "tabDelete": ".t--property-control-tabs  mask",
+    "tabDelete": ".t--property-control-tabs  .t--delete-tab-btn",
     "tabContainer": "div[type='TABS_WIDGET']"
 }

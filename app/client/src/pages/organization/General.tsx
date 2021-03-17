@@ -36,7 +36,7 @@ const SettingWrapper = styled.div`
 `;
 
 export const SettingsHeading = styled(Text)`
-  color: ${props => props.theme.colors.settingHeading};
+  color: ${(props) => props.theme.colors.settingHeading};
   display: inline-block;
   margin-top: 25px;
   margin-bottom: 32px;
@@ -58,7 +58,7 @@ export function GeneralSettings() {
   const { orgId } = useParams<{ orgId: string }>();
   const dispatch = useDispatch();
   const currentOrg = useSelector(getCurrentOrg).filter(
-    el => el.id === orgId,
+    (el) => el.id === orgId,
   )[0];
   function saveChanges(settings: SaveOrgRequest) {
     dispatch(saveOrg(settings));

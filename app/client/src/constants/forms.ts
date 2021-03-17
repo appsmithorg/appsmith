@@ -7,6 +7,7 @@ export const LOGIN_FORM_EMAIL_FIELD_NAME = "username";
 export const LOGIN_FORM_PASSWORD_FIELD_NAME = "password";
 
 export const SIGNUP_FORM_NAME = "SignupForm";
+export const SIGNUP_FORM_EMAIL_FIELD_NAME = "email";
 export const FORGOT_PASSWORD_FORM_NAME = "ForgotPasswordForm";
 export const RESET_PASSWORD_FORM_NAME = "ResetPasswordForm";
 export const CREATE_PASSWORD_FORM_NAME = "CreatePasswordForm";
@@ -18,3 +19,4 @@ export const QUERY_EDITOR_FORM_NAME = "QueryEditorForm";
 export const API_HOME_SCREEN_FORM = "APIHomeScreenForm";
 
 export const DATASOURCE_DB_FORM = "DatasourceDBForm";
+export const DATASOURCE_REST_API_FORM = "DatasourceRestAPIForm";

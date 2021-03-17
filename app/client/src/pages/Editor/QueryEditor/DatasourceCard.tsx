@@ -1,10 +1,12 @@
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
+import { isStoredDatasource } from "entities/Action";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import React from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
+
 import {
   getPluginImages,
   getQueryActionsForCurrentPage,
@@ -27,6 +29,7 @@ const ActionButton = styled(BaseButton)`
   &&&& {
     height: 36px;
     max-width: 120px;
+    width: auto;
   }
 `;
 
@@ -40,6 +43,7 @@ const EditDatasourceButton = styled(BaseButton)`
     height: 36px;
     max-width: 160px;
     border: 1px solid ${Colors.GEYSER_LIGHT};
+    width: auto;
   }
 `;
 
@@ -68,11 +72,8 @@ const Queries = styled.div`
 `;
 
 const ButtonsWrapper = styled.div`
-  flex-direction: row;
-  display: inline-flex;
+  display: flex;
   gap: 10px;
-  flex: 1;
-  justify-content: flex-end;
 `;
 
 type DatasourceCardProps = {
@@ -90,7 +91,9 @@ const DatasourceCard = (props: DatasourceCardProps) => {
   );
   const queryActions = useSelector(getQueryActionsForCurrentPage);
   const queriesWithThisDatasource = queryActions.filter(
-    action => action.config.datasource.id === datasource.id,
+    (action) =>
+      isStoredDatasource(action.config.datasource) &&
+      action.config.datasource.id === datasource.id,
   ).length;
 
   const currentFormConfig: Array<any> =
@@ -111,7 +114,7 @@ const DatasourceCard = (props: DatasourceCardProps) => {
   return (
     <Wrapper>
       <DatasourceCardHeader className="t--datasource-name">
-        <div>
+        <div style={{ flex: 1 }}>
           <DatasourceNameWrapper>
             <DatasourceImage
               src={pluginImages[datasource.pluginId]}

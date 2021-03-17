@@ -7,6 +7,7 @@ import {
   FIELD_REQUIRED_ERROR,
   VALID_FUNCTION_NAME_ERROR,
   UNIQUE_NAME_ERROR,
+  createMessage,
 } from "constants/messages";
 
 const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
@@ -18,10 +19,10 @@ const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
     padding: 3px 6px;
     margin-left: 10px;
     transition: font-size 0.2s;
-    font-size: ${props => (props.focused ? "17px" : "18px")};
+    font-size: ${(props) => (props.focused ? "17px" : "18px")};
     border 1px solid;
     border-radius: 3px;
-    border-color: ${props => {
+    border-color: ${(props) => {
       let color = props.focused ? "hsl(0,0%,80%)" : "white";
       color = !props.isValid ? "red" : color;
       return color;
@@ -33,7 +34,7 @@ const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
     text-overflow: ellipsis;
     :hover {
       border-color: hsl(0, 0 %, 80 %);
-      cursor: ${props => (props.focused ? "auto" : "pointer")};
+      cursor: ${(props) => (props.focused ? "auto" : "pointer")};
     }
   }
 `;
@@ -56,19 +57,19 @@ export function validateEntityName(name: string, allNames?: string[]) {
 
   if (!/^[a-zA-Z_][0-9a-zA-Z_]*$/.test(name)) {
     validation.isValid = false;
-    validation.validationMessage += VALID_FUNCTION_NAME_ERROR;
+    validation.validationMessage += createMessage(VALID_FUNCTION_NAME_ERROR);
   }
   if (!name) {
     validation.isValid = false;
-    validation.validationMessage += FIELD_REQUIRED_ERROR;
+    validation.validationMessage += createMessage(FIELD_REQUIRED_ERROR);
   }
 
   if (
     allNames &&
-    allNames.findIndex(entityName => entityName === name) !== -1
+    allNames.findIndex((entityName) => entityName === name) !== -1
   ) {
     validation.isValid = false;
-    validation.validationMessage += UNIQUE_NAME_ERROR;
+    validation.validationMessage += createMessage(UNIQUE_NAME_ERROR);
   }
 
   return validation;
@@ -139,7 +140,7 @@ class EntityNameComponent extends React.Component<
             value={value}
             placeholder={placeholder}
             onChange={onChange}
-            onKeyPress={e => {
+            onKeyPress={(e) => {
               if (e.key === "Enter") {
                 this.onPressEnter(e);
               }

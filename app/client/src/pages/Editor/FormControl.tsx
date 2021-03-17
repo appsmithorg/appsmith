@@ -12,7 +12,9 @@ interface FormControlProps {
 }
 
 const FormControl = (props: FormControlProps) => {
-  const formValues = useSelector(state => getFormValues(props.formName)(state));
+  const formValues = useSelector((state) =>
+    getFormValues(props.formName)(state),
+  );
   const hidden = isHidden(formValues, props.config.hidden);
 
   if (hidden) return null;

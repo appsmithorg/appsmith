@@ -29,6 +29,9 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
+import history from "utils/history";
+import { getAllApplications } from "actions/applicationActions";
+import log from "loglevel";
 
 export function* fetchRolesSaga() {
   try {
@@ -41,7 +44,7 @@ export function* fetchRolesSaga() {
       });
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ORG_ROLES_ERROR,
       payload: {
@@ -81,7 +84,7 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const users = response.data.map(user => ({
+      const users = response.data.map((user) => ({
         ...user,
         isDeleting: false,
         isChangingRole: false,
@@ -213,14 +216,13 @@ export function* createOrgSaga(
         payload: response.data,
       });
 
-      yield put({
-        type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
-        payload: {
-          orgId: response.data.id,
-        },
-      });
+      yield put(getAllApplications());
       yield call(resolve);
     }
+
+    // get created org in focus
+    const slug = response.data.slug;
+    history.push(`${window.location.pathname}#${slug}`);
   } catch (error) {
     yield call(reject, { _error: error.message });
     yield put({
@@ -255,7 +257,7 @@ export function* uploadOrgLogoSaga(action: ReduxAction<SaveOrgLogo>) {
       }
     }
   } catch (error) {
-    console.log("Error occured while uploading the logo", error);
+    log.error("Error occured while uploading the logo", error);
   }
 }
 
@@ -282,7 +284,7 @@ export function* deleteOrgLogoSaga(action: ReduxAction<{ id: string }>) {
       }
     }
   } catch (error) {
-    console.log("Error occured while removing the logo", error);
+    log.error("Error occured while removing the logo", error);
   }
 }
 

@@ -11,7 +11,7 @@ const initialState: ApiNameReduxState = {
 };
 
 const apiNameReducer = createReducer(initialState, {
-  [ReduxActionErrorTypes.SAVE_API_NAME_ERROR]: (
+  [ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR]: (
     state: ApiNameReduxState,
     action: ReduxAction<{ actionId: string }>,
   ) => {
@@ -28,7 +28,7 @@ const apiNameReducer = createReducer(initialState, {
     };
   },
 
-  [ReduxActionTypes.SAVE_API_NAME]: (
+  [ReduxActionTypes.SAVE_ACTION_NAME_INIT]: (
     state: ApiNameReduxState,
     action: ReduxAction<{ id: string }>,
   ) => {
@@ -44,7 +44,7 @@ const apiNameReducer = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionTypes.SAVE_API_NAME_SUCCESS]: (
+  [ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS]: (
     state: ApiNameReduxState,
     action: ReduxAction<{ actionId: string }>,
   ) => {

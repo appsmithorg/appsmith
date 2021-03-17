@@ -8,10 +8,10 @@ import { FormIcons } from "icons/FormIcons";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 
-const StyledInfo = styled.span`
+export const StyledInfo = styled.span`
   font-weight: normal;
   line-height: normal;
-  color: ${Colors.CADET_BLUE};
+  color: ${Colors.DOVE_GRAY};
   font-size: 12px;
   margin-left: 1px;
 `;
@@ -20,23 +20,40 @@ export function InputText(props: {
   label: string;
   value: string;
   isValid: boolean;
+  subtitle?: string;
   validationMessage?: string;
   placeholder?: string;
   dataType?: string;
   isRequired?: boolean;
   name: string;
   encrypted?: boolean;
+  disabled?: boolean;
 }) {
-  const { name, placeholder, dataType, label, isRequired } = props;
+  const {
+    name,
+    placeholder,
+    dataType,
+    label,
+    isRequired,
+    disabled,
+    subtitle,
+    encrypted,
+  } = props;
 
   return (
     <div style={{ width: "50vh" }} data-cy={name}>
       <FormLabel>
         {label} {isRequired && "*"}{" "}
-        {props.encrypted && (
+        {encrypted && (
           <>
             <FormIcons.LOCK_ICON width={12} height={12} keepColors />
             <StyledInfo>Encrypted</StyledInfo>
+          </>
+        )}
+        {subtitle && (
+          <>
+            <br />
+            <StyledInfo>{subtitle}</StyledInfo>
           </>
         )}
       </FormLabel>
@@ -44,6 +61,7 @@ export function InputText(props: {
         name={name}
         placeholder={placeholder}
         type={dataType}
+        disabled={disabled || false}
         showError
       />
     </div>
@@ -60,6 +78,8 @@ class InputTextControl extends BaseControl<InputControlProps> {
       placeholderText,
       dataType,
       configProperty,
+      disabled,
+      subtitle,
     } = this.props;
 
     return (
@@ -72,6 +92,8 @@ class InputTextControl extends BaseControl<InputControlProps> {
         placeholder={placeholderText}
         dataType={this.getType(dataType)}
         encrypted={this.props.encrypted}
+        disabled={disabled}
+        subtitle={subtitle}
       />
     );
   }
@@ -109,7 +131,9 @@ export interface InputControlProps extends ControlProps {
   placeholderText: string;
   inputType?: InputType;
   dataType?: InputType;
+  subtitle?: string;
   encrypted?: boolean;
+  disabled?: boolean;
 }
 
 export default InputTextControl;

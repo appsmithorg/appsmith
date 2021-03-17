@@ -41,32 +41,29 @@ export enum Skin {
   DARK,
 }
 
-export const scrollbarDark = css`
-  scrollbar-color: ${props => props.theme.colors.paneCard}
-    ${props => props.theme.colors.paneBG};
-  scrollbar-width: thin;
+export const hideScrollbar = css`
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   &::-webkit-scrollbar {
-    width: 6px;
+    display: none;
+    -webkit-appearance: none;
   }
+`;
 
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneCard};
-    border-radius: ${props => props.theme.radii[1]}px;
-  }
+export const getTypographyByKey = (props: Record<string, any>, key: string) => `
+  font-weight: ${props.theme.typography[key].fontWeight};
+  font-size: ${props.theme.typography[key].fontSize}px;
+  line-height: ${props.theme.typography[key].lineHeight}px;
+  letter-spacing: ${props.theme.typography[key].letterSpacing}px;
 `;
 
 export const BlueprintControlTransform = css`
   && {
     .${Classes.CONTROL} {
       & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${props => props.theme.colors.primaryOld};
+        background: ${(props) => props.theme.colors.primaryOld};
         box-shadow: none;
-        border: 2px solid ${props => props.theme.colors.primaryOld};
+        border: 2px solid ${(props) => props.theme.colors.primaryOld};
       }
       & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
         box-shadow: none;
@@ -81,7 +78,40 @@ export const BlueprintControlTransform = css`
         background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
       }
+      &.${Classes.SWITCH}
+        input:checked:disabled
+        ~ .${Classes.CONTROL_INDICATOR} {
+        opacity: 0.5;
+      }
     }
+
+    .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
+      border-radius: 0;
+    }
+
+    .${Classes.SWITCH} {
+      input:checked ~ .${Classes.CONTROL_INDICATOR} {
+        &::before {
+          left: calc(105% - 1em);
+        }
+      }
+
+      & .${Classes.CONTROL_INDICATOR} {
+        background: #d0d7dd;
+        border: 2px solid #d0d7dd;
+        &::before {
+          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+        }
+      }
+      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${(props) => props.theme.colors.primaryOld};
+      }
+      &:hover .${Classes.CONTROL_INDICATOR} {
+        background: #d0d7dd;
+        border: 2px solid #d0d7dd;
+      }
+    }
+
     .${Classes.CONTROL_INDICATOR} {
       box-shadow: none;
       background: none;
@@ -105,9 +135,8 @@ export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
       box-shadow: none;
-      border-radius: 4px;
+      border-radius: 0;
       background: white;
-      border: 1px solid ${Colors.GEYSER};
     }
     .${Classes.INTENT_PRIMARY} {
       background: ${IntentColors.primary};
@@ -168,7 +197,7 @@ export const BlueprintButtonIntentsCSS = css`
       color: ${IntentColors.none};
     }
     & span {
-      font-weight: ${props => props.theme.fontWeights[3]};
+      font-weight: ${(props) => props.theme.fontWeights[3]};
     }
     background: ${Colors.WHITE};
   }
@@ -231,11 +260,11 @@ export const BlueprintButtonIntentsCSS = css`
 export const BlueprintInputTransform = css`
   && {
     .${Classes.INPUT} {
-      border-radius: ${props => props.theme.radii[1]}px;
+      border-radius: ${(props) => props.theme.radii[1]}px;
       box-shadow: none;
-      border: ${props => getBorderCSSShorthand(props.theme.borders[2])};
+      border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
       &:focus {
-        border: ${props => getBorderCSSShorthand(props.theme.borders[2])};
+        border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
         box-shadow: none;
       }
     }
@@ -278,6 +307,7 @@ export type Theme = {
   };
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
+  smallHeaderHeight: string;
   homePage: any;
   sidebarWidth: string;
   canvasPadding: string;
@@ -297,26 +327,24 @@ export type Theme = {
   };
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: Color;
-      hoverText: Color;
-      inActiveBG: Color;
-      inActiveText: Color;
+      hoverBG: ShadeColor;
+      hoverText: ShadeColor;
+      inActiveBG: ShadeColor;
+      inActiveText: ShadeColor;
     };
     [Skin.DARK]: {
-      hoverBG: Color;
-      hoverText: Color;
-      inActiveBG: Color;
-      inActiveText: Color;
+      hoverBG: ShadeColor;
+      hoverText: ShadeColor;
+      inActiveBG: ShadeColor;
+      inActiveText: ShadeColor;
       border: Color;
+      background: Color;
     };
   };
   authCard: {
     width: number;
-    borderRadius: number;
-    background: Color;
-    padding: number;
     dividerSpacing: number;
-    shadow: string;
+    formMessageWidth: number;
   };
   shadows: string[];
   widgets: {
@@ -347,16 +375,16 @@ export type Theme = {
     };
     [Skin.LIGHT]: {
       default: {
-        color: Color;
-        background: Color;
+        color: string;
+        background: string;
       };
       active: {
-        color: Color;
-        background: Color;
+        color: string;
+        background: string;
       };
       hover: {
-        color: Color;
-        background: Color;
+        color: string;
+        background: string;
       };
       none: {
         color: string;
@@ -398,7 +426,7 @@ export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
 };
 
 export const labelStyle = css`
-  font-weight: ${props => props.theme.fontWeights[3]};
+  font-weight: ${(props) => props.theme.fontWeights[3]};
 `;
 
 // export const adsTheme: any = {
@@ -407,24 +435,25 @@ export const labelStyle = css`
 // 3, 7, 11, 26
 
 export const smallButton = css`
-  font-size: ${props => props.theme.typography.btnSmall.fontSize}px;
-  font-weight: ${props => props.theme.typography.btnSmall.fontWeight};
-  line-height: ${props => props.theme.typography.btnSmall.lineHeight}px;
-  letter-spacing: ${props => props.theme.typography.btnSmall.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.btnSmall.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.btnSmall.fontWeight};
+  line-height: ${(props) => props.theme.typography.btnSmall.lineHeight}px;
+  letter-spacing: ${(props) => props.theme.typography.btnSmall.letterSpacing}px;
 `;
 
 export const mediumButton = css`
-  font-size: ${props => props.theme.typography.btnMedium.fontSize}px;
-  font-weight: ${props => props.theme.typography.btnMedium.fontWeight};
-  line-height: ${props => props.theme.typography.btnMedium.lineHeight}px;
-  letter-spacing: ${props => props.theme.typography.btnMedium.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.btnMedium.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.btnMedium.fontWeight};
+  line-height: ${(props) => props.theme.typography.btnMedium.lineHeight}px;
+  letter-spacing: ${(props) =>
+    props.theme.typography.btnMedium.letterSpacing}px;
 `;
 
 export const largeButton = css`
-  font-size: ${props => props.theme.typography.btnLarge.fontSize}px;
-  font-weight: ${props => props.theme.typography.btnLarge.fontWeight};
-  line-height: ${props => props.theme.typography.btnLarge.lineHeight}px;
-  letter-spacing: ${props => props.theme.typography.btnLarge.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.btnLarge.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.btnLarge.fontWeight};
+  line-height: ${(props) => props.theme.typography.btnLarge.lineHeight}px;
+  letter-spacing: ${(props) => props.theme.typography.btnLarge.letterSpacing}px;
 `;
 
 export const appColors = [
@@ -459,6 +488,8 @@ const darkShades = [
   "#D4D4D4",
   "#E9E9E9",
   "#FFFFFF",
+  "#157A96",
+  "#090707",
 ] as const;
 
 const lightShades = [
@@ -474,6 +505,10 @@ const lightShades = [
   "#302D2D",
   "#090707",
   "#FFFFFF",
+  "#6A86CE",
+  "#E0DEDE",
+  "#EBEBEB",
+  "#858282",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -496,6 +531,7 @@ type ColorType = {
   warning: buttonVariant;
   danger: buttonVariant;
   homepageBackground: string;
+  selected: ShadeColor;
   card: {
     hoverBG: Color;
     hoverBGOpacity: number;
@@ -505,7 +541,7 @@ type ColorType = {
   text: {
     normal: ShadeColor;
     heading: ShadeColor;
-    hightlight: ShadeColor;
+    highlight: ShadeColor;
   };
   icon: {
     normal: ShadeColor;
@@ -556,6 +592,11 @@ type ColorType = {
       bg: ShadeColor;
       icon: ShadeColor;
     };
+    hovered: {
+      text: ShadeColor;
+      bg: ShadeColor;
+      icon: ShadeColor;
+    };
     icon: ShadeColor;
   };
   toggle: {
@@ -601,6 +642,7 @@ type ColorType = {
   radio: {
     disable: ShadeColor;
     border: ShadeColor;
+    text: ShadeColor;
   };
   searchInput: {
     placeholder: ShadeColor;
@@ -623,6 +665,7 @@ type ColorType = {
     normal: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
+    countBg: ShadeColor;
   };
   settingHeading: ShadeColor;
   table: {
@@ -663,6 +706,7 @@ type ColorType = {
     color: ShadeColor;
   };
   profileDropdown: {
+    name: ShadeColor;
     userName: ShadeColor;
   };
   modal: {
@@ -678,6 +722,10 @@ type ColorType = {
     };
     manageUser: ShadeColor;
     scrollbar: ShadeColor;
+    separator: ShadeColor;
+    title: ShadeColor;
+    link: string;
+    hoverState: ShadeColor;
   };
   tagInput: {
     bg: ShadeColor;
@@ -729,9 +777,216 @@ type ColorType = {
     textColor: string;
     bg: ShadeColor;
   };
+  multiSwitch: {
+    bg: ShadeColor;
+    selectedBg: ShadeColor;
+    text: ShadeColor;
+    border: string;
+  };
+  apiPane: {
+    bg: ShadeColor;
+    text: ShadeColor;
+    dividerBg: ShadeColor;
+    iconHoverBg: ShadeColor;
+    tabBg: ShadeColor;
+    requestTree: {
+      bg: string;
+      header: {
+        text: string;
+        icon: string;
+        bg: string;
+      };
+      row: {
+        hoverBg: string;
+        key: string;
+        value: string;
+      };
+    };
+    closeIcon: ShadeColor;
+    responseBody: {
+      bg: ShadeColor;
+    };
+    codeEditor: {
+      placeholderColor: ShadeColor;
+    };
+    body: {
+      text: string;
+    };
+    settings: {
+      textColor: ShadeColor;
+    };
+    pagination: {
+      label: ShadeColor;
+      description: ShadeColor;
+      stepTitle: ShadeColor;
+      numberBg: string;
+      bindingBg: ShadeColor;
+      numberColor: ShadeColor;
+    };
+  };
+  codeMirror: {
+    background: {
+      defaultState: string;
+      hoverState: string;
+    };
+    text: string;
+    dataType: {
+      shortForm: string;
+      fullForm: string;
+    };
+  };
+  floatingBtn: any;
+  auth: any;
+  formMessage: Record<string, Record<Intent, string>>;
+  header: {
+    separator: string;
+    appName: ShadeColor;
+    background: string;
+    deployToolTipBackground: string;
+    deployToolTipText: ShadeColor;
+    shareBtnHighlight: string;
+    shareBtn: string;
+    tabsHorizontalSeparator: string;
+    tabText: string;
+    activeTabBorderBottom: string;
+    activeTabText: string;
+  };
+  globalSearch: {
+    containerBackground: string;
+    activeSearchItemBackground: string;
+    searchInputText: string;
+    containerShadow: string;
+    separator: string;
+    searchItemHighlight: string;
+    searchItemText: string;
+    highlightedTextUnderline: string;
+    documentationCtaBackground: string;
+    documentationCtaText: string;
+    emptyStateText: string;
+    navigateUsingEnterSection: string;
+    codeBackground: string;
+    documentLink: string;
+    helpBarBackground: string;
+    helpButtonBackground: string;
+    helpIcon: string;
+    helpBarBorder: string;
+    sectionTitle: string;
+    navigateToEntityEnterkey: string;
+  };
+  gif: {
+    overlay: string;
+    text: string;
+    iconPath: string;
+    iconCircle: string;
+  };
+  treeDropdown: {
+    targetBg: string;
+    targetIcon: {
+      normal: string;
+      hover: string;
+    };
+    menuShadow: string;
+    menuBg: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+      selected: ShadeColor;
+    };
+    menuText: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+      selected: ShadeColor;
+    };
+  };
+  propertyPane: {
+    title: ShadeColor;
+    bg: ShadeColor;
+    label: ShadeColor;
+    jsIconBg: ShadeColor;
+    buttonBg: ShadeColor;
+    buttonText: ShadeColor;
+    radioGroupBg: ShadeColor;
+    radioGroupText: ShadeColor;
+    deleteIconColor: string;
+    zoomButtonBG: ShadeColor;
+    activeButtonText: ShadeColor;
+    jsButtonHoverBG: ShadeColor;
+    dropdownSelectBg: ShadeColor;
+    multiDropdownBoxHoverBg: ShadeColor;
+    iconColor: ShadeColor;
+  };
+  scrollbar: string;
+  scrollbarBG: string;
+};
+
+const auth: any = {
+  background: darkShades[1],
+  cardBackground: lightShades[10],
+  btnPrimary: "#F86A2B",
+  inputBackground: darkShades[1],
+  headingText: "#FFF",
+  link: "#106ba3",
+  text: darkShades[7],
+  placeholder: darkShades[5],
+  socialBtnText: darkShades[8],
+  socialBtnBorder: darkShades[8],
+  socialBtnHighlight: darkShades[1],
+};
+
+const formMessage = {
+  background: {
+    danger: "rgba(226,44,44,0.08)",
+    success: "#172320",
+    warning: "rgba(224, 179, 14, 0.08)",
+  },
+  text: {
+    danger: "#E22C2C",
+    success: "#03B365",
+    warning: "#E0B30E",
+  },
+};
+
+const globalSearch = {
+  containerBackground:
+    "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
+  activeSearchItemBackground: "rgba(0, 0, 0, 0.24)",
+  searchInputText: "#fff",
+  containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
+  separator: "#424242",
+  searchItemHighlight: "#fff",
+  searchItemText: "rgba(255, 255, 255, 0.6)",
+  highlightedTextUnderline: "#03B365",
+  helpBarText: "#C2C2C2",
+  documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
+  documentationCtaText: "#03B365",
+  emptyStateText: "#ABABAB",
+  navigateUsingEnterSection: "#154E6B",
+  codeBackground: "#494949",
+  documentLink: "#54a9fb",
+  helpBarBackground: "#000",
+  helpButtonBackground: "#000",
+  helpIcon: "#D4D4D4",
+  helpBarBorder: "#404040",
+  helpButtonBorder: "#404040",
+  sectionTitle: "#D4D4D4",
+  navigateToEntityEnterkey: "#3DA5D9",
 };
 
 export const dark: ColorType = {
+  globalSearch,
+  selected: darkShades[10],
+  header: {
+    separator: darkShades[4],
+    appName: darkShades[7],
+    background: darkShades[2],
+    deployToolTipBackground: lightShades[10],
+    deployToolTipText: darkShades[7],
+    shareBtnHighlight: "#F86A2B",
+    shareBtn: "#fff",
+    tabsHorizontalSeparator: "#EFEFEF",
+    tabText: "#6F6D6D",
+    activeTabBorderBottom: "#FF6D2D",
+    activeTabText: "#000",
+  },
   button: {
     disabledText: darkShades[6],
   },
@@ -780,7 +1035,7 @@ export const dark: ColorType = {
   text: {
     normal: darkShades[6],
     heading: darkShades[7],
-    hightlight: darkShades[9],
+    highlight: darkShades[9],
   },
   icon: {
     normal: darkShades[6],
@@ -821,14 +1076,19 @@ export const dark: ColorType = {
     header: {
       text: darkShades[7],
       disabledText: darkShades[6],
-      bg: darkShades[0],
+      bg: "#090707",
       disabledBg: darkShades[2],
     },
     menuBg: darkShades[3],
-    menuShadow: "rgba(0, 0, 0, 0.6)",
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: darkShades[9],
       bg: darkShades[4],
+      icon: darkShades[8],
+    },
+    hovered: {
+      text: darkShades[9],
+      bg: darkShades[10],
       icon: darkShades[8],
     },
     icon: darkShades[6],
@@ -857,8 +1117,8 @@ export const dark: ColorType = {
     },
     normal: {
       bg: lightShades[10],
-      text: darkShades[9],
       border: darkShades[0],
+      text: darkShades[7],
     },
     placeholder: darkShades[5],
     readOnly: {
@@ -876,6 +1136,7 @@ export const dark: ColorType = {
   radio: {
     disable: darkShades[5],
     border: darkShades[4],
+    text: lightShades[11],
   },
   searchInput: {
     placeholder: darkShades[5],
@@ -896,8 +1157,9 @@ export const dark: ColorType = {
   },
   tabs: {
     normal: darkShades[6],
-    hover: darkShades[9],
+    hover: darkShades[7],
     border: darkShades[3],
+    countBg: darkShades[4],
   },
   settingHeading: darkShades[9],
   table: {
@@ -938,7 +1200,8 @@ export const dark: ColorType = {
     color: darkShades[7],
   },
   profileDropdown: {
-    userName: darkShades[9],
+    name: darkShades[10],
+    userName: darkShades[7],
   },
   modal: {
     bg: darkShades[1],
@@ -953,9 +1216,13 @@ export const dark: ColorType = {
     },
     manageUser: darkShades[6],
     scrollbar: darkShades[5],
+    separator: darkShades[4],
+    title: darkShades[8],
+    link: "#F86A2B",
+    hoverState: darkShades[3],
   },
   tagInput: {
-    bg: darkShades[0],
+    bg: "#090707",
     tag: {
       text: darkShades[9],
     },
@@ -1004,9 +1271,132 @@ export const dark: ColorType = {
     textColor: "#090707",
     bg: darkShades[8],
   },
+  multiSwitch: {
+    bg: darkShades[2],
+    selectedBg: lightShades[10],
+    text: darkShades[8],
+    border: darkShades[3],
+  },
+  apiPane: {
+    bg: darkShades[0],
+    tabBg: lightShades[10],
+    text: darkShades[6],
+    dividerBg: darkShades[4],
+    iconHoverBg: darkShades[1],
+    requestTree: {
+      bg: lightShades[10],
+      header: {
+        text: darkShades[7],
+        icon: darkShades[7],
+        bg: darkShades[1],
+      },
+      row: {
+        hoverBg: darkShades[1],
+        key: darkShades[6],
+        value: darkShades[7],
+      },
+    },
+    closeIcon: darkShades[9],
+    responseBody: {
+      bg: "#090707",
+    },
+    codeEditor: {
+      placeholderColor: darkShades[5],
+    },
+    body: {
+      text: "#6D6D6D",
+    },
+    settings: {
+      textColor: "#FFFFFF",
+    },
+    pagination: {
+      label: darkShades[7],
+      description: darkShades[5],
+      stepTitle: darkShades[9],
+      numberBg: darkShades[3],
+      bindingBg: darkShades[4],
+      numberColor: lightShades[11],
+    },
+  },
+  codeMirror: {
+    background: {
+      defaultState: "#262626",
+      hoverState: darkShades[10],
+    },
+    text: "#FFFFFF",
+    dataType: {
+      shortForm: "#858282",
+      fullForm: "#6D6D6D",
+    },
+  },
+  floatingBtn: {
+    tagBackground: "#e22c2c",
+    backgroundColor: darkShades[3],
+    iconColor: darkShades[6],
+  },
+  auth,
+  formMessage,
+  gif: {
+    overlay: "#000000",
+    text: "#d4d4d4",
+    iconPath: "#2b2b2b",
+    iconCircle: "#d4d4d4",
+  },
+  treeDropdown: {
+    targetBg: "#090707",
+    targetIcon: {
+      normal: "#9F9F9F",
+      hover: "#9F9F9F",
+    },
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
+    menuBg: {
+      normal: darkShades[3],
+      hover: darkShades[4],
+      selected: darkShades[4],
+    },
+    menuText: {
+      normal: darkShades[7],
+      hover: darkShades[9],
+      selected: darkShades[7],
+    },
+  },
+  propertyPane: {
+    title: darkShades[11],
+    bg: darkShades[1],
+    label: darkShades[7],
+    jsIconBg: darkShades[5],
+    buttonBg: darkShades[7],
+    buttonText: lightShades[10],
+    radioGroupBg: darkShades[0],
+    radioGroupText: darkShades[7],
+    deleteIconColor: "#A3B3BF",
+    zoomButtonBG: darkShades[3],
+    activeButtonText: lightShades[12],
+    jsButtonHoverBG: darkShades[2],
+    dropdownSelectBg: darkShades[2],
+    multiDropdownBoxHoverBg: darkShades[0],
+    iconColor: darkShades[5],
+  },
+  scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
+  scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
 };
 
 export const light: ColorType = {
+  globalSearch,
+  selected: lightShades[12],
+  header: {
+    separator: "#E0DEDE",
+    appName: lightShades[8],
+    background: lightShades[0],
+    deployToolTipText: lightShades[8],
+    deployToolTipBackground: "#FFF",
+    shareBtnHighlight: "#F86A2B",
+    shareBtn: "#4B4848",
+    tabsHorizontalSeparator: "#EFEFEF",
+    tabText: "#6F6D6D",
+    activeTabBorderBottom: "#FF6D2D",
+    activeTabText: "#000",
+  },
   button: {
     disabledText: lightShades[6],
   },
@@ -1055,7 +1445,7 @@ export const light: ColorType = {
   text: {
     normal: lightShades[8],
     heading: lightShades[9],
-    hightlight: lightShades[11],
+    highlight: lightShades[11],
   },
   icon: {
     normal: lightShades[4],
@@ -1100,11 +1490,16 @@ export const light: ColorType = {
       disabledBg: lightShades[1],
     },
     menuBg: lightShades[11],
-    menuShadow: "rgba(0, 0, 0, 0.32)",
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: lightShades[9],
       bg: lightShades[2],
       icon: lightShades[8],
+    },
+    hovered: {
+      text: lightShades[11],
+      bg: lightShades[12],
+      icon: lightShades[11],
     },
     icon: lightShades[7],
   },
@@ -1151,6 +1546,7 @@ export const light: ColorType = {
   radio: {
     disable: lightShades[4],
     border: lightShades[3],
+    text: lightShades[10],
   },
   searchInput: {
     placeholder: lightShades[6],
@@ -1173,6 +1569,7 @@ export const light: ColorType = {
     normal: lightShades[6],
     hover: lightShades[10],
     border: lightShades[3],
+    countBg: lightShades[3],
   },
   settingHeading: lightShades[9],
   table: {
@@ -1213,12 +1610,13 @@ export const light: ColorType = {
     color: lightShades[7],
   },
   profileDropdown: {
-    userName: lightShades[9],
+    name: lightShades[10],
+    userName: lightShades[7],
   },
   modal: {
     bg: lightShades[11],
     headerText: lightShades[10],
-    iconColor: "#A9A7A7",
+    iconColor: lightShades[5],
     user: {
       textColor: lightShades[9],
     },
@@ -1228,6 +1626,10 @@ export const light: ColorType = {
     },
     manageUser: lightShades[6],
     scrollbar: lightShades[5],
+    separator: lightShades[4],
+    title: lightShades[8],
+    link: "#F86A2B",
+    hoverState: lightShades[3],
   },
   tagInput: {
     bg: lightShades[2],
@@ -1244,16 +1646,16 @@ export const light: ColorType = {
       bgColor: "#F8F3F0",
     },
     success: {
-      color: "#007340",
-      bgColor: "#D9FDED",
+      color: "#03B365",
+      bgColor: "#E4F4ED",
     },
     danger: {
-      color: "#C60707",
-      bgColor: "#FFE9E9",
+      color: "#F22B2B",
+      bgColor: "#F9E9E9",
     },
     warning: {
-      color: "#DCAD00",
-      bgColor: "#FAF6E6",
+      color: "#FEB811",
+      bgColor: "#FAF3E3",
     },
   },
   loader: {
@@ -1279,6 +1681,115 @@ export const light: ColorType = {
     textColor: "#F7F7F7",
     bg: lightShades[10],
   },
+  multiSwitch: {
+    bg: lightShades[3],
+    selectedBg: lightShades[11],
+    text: lightShades[8],
+    border: "#E0DEDE",
+  },
+  apiPane: {
+    bg: lightShades[0],
+    tabBg: lightShades[11],
+    text: lightShades[15],
+    dividerBg: lightShades[3],
+    iconHoverBg: lightShades[1],
+    requestTree: {
+      bg: lightShades[11],
+      header: {
+        text: lightShades[8],
+        icon: lightShades[8],
+        bg: lightShades[2],
+      },
+      row: {
+        hoverBg: lightShades[2],
+        key: lightShades[7],
+        value: lightShades[8],
+      },
+    },
+    closeIcon: lightShades[10],
+    responseBody: {
+      bg: lightShades[11],
+    },
+    codeEditor: {
+      placeholderColor: lightShades[5],
+    },
+    body: {
+      text: "#A9A7A7",
+    },
+    settings: {
+      textColor: "#090707",
+    },
+    pagination: {
+      label: lightShades[8],
+      description: lightShades[5],
+      stepTitle: lightShades[10],
+      numberBg: "#E0DEDE",
+      bindingBg: lightShades[3],
+      numberColor: lightShades[10],
+    },
+  },
+  codeMirror: {
+    background: {
+      defaultState: lightShades[0],
+      hoverState: lightShades[12],
+    },
+    text: "#090707",
+    dataType: {
+      shortForm: "#858282",
+      fullForm: "#6D6D6D",
+    },
+  },
+  floatingBtn: {
+    tagBackground: "#e22c2c",
+    backgroundColor: lightShades[3],
+    iconColor: lightShades[7],
+  },
+  auth,
+  formMessage,
+  gif: {
+    overlay: "#ffffff",
+    text: "#6f6f6f",
+    iconPath: "#c4c4c4",
+    iconCircle: "#090707",
+  },
+  treeDropdown: {
+    targetBg: "#FFFFFF",
+    targetIcon: {
+      normal: "#939090",
+      hover: "#4B4848",
+    },
+    menuShadow:
+      "0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1)",
+    menuBg: {
+      normal: lightShades[0],
+      hover: lightShades[12],
+      selected: lightShades[3],
+    },
+    menuText: {
+      normal: lightShades[8],
+      hover: lightShades[0],
+      selected: lightShades[8],
+    },
+  },
+  propertyPane: {
+    title: darkShades[11],
+    bg: lightShades[2],
+    label: lightShades[8],
+    jsIconBg: lightShades[5],
+    buttonBg: lightShades[8],
+    buttonText: lightShades[11],
+    radioGroupBg: lightShades[0],
+    radioGroupText: lightShades[8],
+    deleteIconColor: "#A3B3BF",
+    zoomButtonBG: lightShades[13],
+    activeButtonText: lightShades[12],
+    jsButtonHoverBG: lightShades[2],
+    dropdownSelectBg: lightShades[14],
+    multiDropdownBoxHoverBg: lightShades[11],
+    iconColor: lightShades[5],
+  },
+  scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
+  scrollbarBG: "transparent",
 };
 
 export const theme: Theme = {
@@ -1290,19 +1801,19 @@ export const theme: Theme = {
     h1: {
       fontSize: 20,
       lineHeight: 27,
-      letterSpacing: "normal",
+      letterSpacing: -0.204,
       fontWeight: 500,
     },
     h2: {
       fontSize: 18,
       lineHeight: 25,
-      letterSpacing: "normal",
+      letterSpacing: -0.204,
       fontWeight: 500,
     },
     h3: {
       fontSize: 17,
       lineHeight: 22,
-      letterSpacing: "normal",
+      letterSpacing: -0.204,
       fontWeight: 500,
     },
     h4: {
@@ -1359,6 +1870,42 @@ export const theme: Theme = {
       letterSpacing: 0.4,
       fontWeight: 600,
     },
+    floatingBtn: {
+      fontSize: 14,
+      lineHeight: 17,
+      letterSpacing: -0.24,
+      fontWeight: "normal",
+    },
+    releaseList: {
+      fontSize: 14,
+      lineHeight: 23,
+      letterSpacing: -0.24,
+      fontWeight: "normal",
+    },
+    cardHeader: {
+      fontStyle: "normal",
+      fontWeight: 600,
+      fontSize: 25,
+      lineHeight: 20,
+    },
+    cardSubheader: {
+      fontStyle: "normal",
+      fontWeight: "normal",
+      fontSize: 15,
+      lineHeight: 20,
+    },
+    largeH1: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 28,
+      lineHeight: 36,
+    },
+    spacedOutP1: {
+      fontStyle: "normal",
+      fontWeight: "normal",
+      fontSize: 14,
+      lineHeight: 24,
+    },
   },
   iconSizes: {
     XXS: 8,
@@ -1383,9 +1930,12 @@ export const theme: Theme = {
   colors: {
     tooltip: {
       lightBg: lightShades[0],
+      lightText: lightShades[10],
       darkBg: lightShades[10],
+      darkText: lightShades[0],
     },
-    appBackground: "#EFEFEF",
+    appBackground: "#EDEDED",
+    artboard: "#F6F6F6",
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
@@ -1427,7 +1977,19 @@ export const theme: Theme = {
     lightningborder: Colors.ALABASTER,
     formButtonColor: Colors.WHITE,
     appCardColors: appColors,
+    dataTypeBg: {
+      function: "#BDB2FF",
+      object: "#FFD6A5",
+      unknown: "#4bb",
+      array: "#CDFFA5",
+      number: "#FFB2B2",
+    },
+    scrollbarLight: getColorWithOpacity(Colors.CHARCOAL, 0.5),
+    scrollbarLightBG: getColorWithOpacity(Colors.WHITE, 0.5),
+    scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
+    scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
   },
+
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
     text: FontFamilies.TextFonts,
@@ -1460,7 +2022,7 @@ export const theme: Theme = {
       color: Colors.MYSTIC,
     },
   ],
-  sidebarWidth: "320px",
+  sidebarWidth: "250px",
   homePage: {
     header: 52,
     leftPane: {
@@ -1474,6 +2036,7 @@ export const theme: Theme = {
     },
   },
   headerHeight: "48px",
+  smallHeaderHeight: "35px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,
@@ -1495,26 +2058,24 @@ export const theme: Theme = {
   },
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: Colors.GREEN,
-      hoverText: Colors.WHITE,
-      inActiveBG: Colors.WHITE,
-      inActiveText: Colors.BLACK_PEARL,
+      hoverBG: lightShades[12],
+      hoverText: lightShades[0],
+      inActiveBG: lightShades[3],
+      inActiveText: lightShades[8],
     },
     [Skin.DARK]: {
-      hoverBG: Colors.TROUT_DARK,
-      hoverText: Colors.WHITE,
-      inActiveBG: Colors.BLUE_CHARCOAL,
-      inActiveText: Colors.WHITE,
+      hoverBG: darkShades[0],
+      hoverText: darkShades[9],
+      inActiveBG: darkShades[2],
+      inActiveText: darkShades[7],
       border: Colors.TROUT_DARK,
+      background: darkShades[4],
     },
   },
   authCard: {
-    width: 612,
-    borderRadius: 16,
-    background: Colors.WHITE,
-    padding: 40,
+    width: 440,
     dividerSpacing: 32,
-    shadow: "0px 4px 8px rgba(9, 30, 66, 0.25)",
+    formMessageWidth: 370,
   },
   shadows: [
     /* 0. tab */
@@ -1547,16 +2108,16 @@ export const theme: Theme = {
   lightningMenu: {
     [Skin.DARK]: {
       default: {
-        color: Colors.ALABASTER,
-        background: Colors.BLUE_CHARCOAL,
+        color: darkShades[7],
+        background: "transparent",
       },
       active: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.JAFFA_DARK,
+        color: darkShades[9],
+        background: dark.info.main,
       },
       hover: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.ALABASTER,
+        color: darkShades[9],
+        background: darkShades[7],
       },
       none: {
         color: "transparent",
@@ -1565,16 +2126,16 @@ export const theme: Theme = {
     },
     [Skin.LIGHT]: {
       default: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.WHITE,
+        color: lightShades[7],
+        background: "transparent",
       },
       active: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.JAFFA_DARK,
+        color: lightShades[11],
+        background: dark.info.light,
       },
       hover: {
-        color: Colors.WHITE,
-        background: Colors.BLUE_CHARCOAL,
+        color: lightShades[11],
+        background: lightShades[7],
       },
       none: {
         color: "transparent",
@@ -1584,26 +2145,6 @@ export const theme: Theme = {
   },
 };
 
-export const scrollbarLight = css<{ backgroundColor?: Color }>`
-  scrollbar-color: ${props => props.theme.colors.paneText}
-
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${props =>
-        props.backgroundColor
-          ? props.backgroundColor
-          : getColorWithOpacity(props.theme.colors.paneText, 0.3)};
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneText};
-    border-radius: ${props => props.theme.radii[1]}px;
-  }
-`;
-
 export { css, createGlobalStyle, keyframes, ThemeProvider };
+
 export default styled;

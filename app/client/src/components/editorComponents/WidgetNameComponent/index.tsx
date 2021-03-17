@@ -10,15 +10,14 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetType } from "constants/WidgetConstants";
-import HelpControl from "./HelpControl";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
 const PositionStyle = styled.div`
   position: absolute;
-  top: -${props => props.theme.spaces[10]}px;
-  height: ${props => props.theme.spaces[10]}px;
+  top: -${(props) => props.theme.spaces[10]}px;
+  height: ${(props) => props.theme.spaces[10]}px;
   width: 100%;
   left: 0;
   display: flex;
@@ -110,10 +109,6 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
   return showWidgetName ? (
     <PositionStyle>
       <ControlGroup>
-        <HelpControl
-          type={props.type}
-          show={selectedWidget === props.widgetId}
-        />
         <SettingsControl
           toggleSettings={togglePropertyEditor}
           activity={currentActivity}

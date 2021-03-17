@@ -22,11 +22,11 @@ const ItemRow = styled.a<{ disabled?: boolean; selected?: boolean }>`
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
-  padding: 0px ${props => props.theme.spaces[6]}px;
-  background-color: ${props =>
+  padding: 0px ${(props) => props.theme.spaces[6]}px;
+  background-color: ${(props) =>
     props.selected ? props.theme.colors.menuItem.hoverBg : "transparent"};
   .${Classes.TEXT} {
-    color: ${props =>
+    color: ${(props) =>
       props.selected
         ? props.theme.colors.menuItem.hoverText
         : props.theme.colors.menuItem.normalText};
@@ -34,7 +34,7 @@ const ItemRow = styled.a<{ disabled?: boolean; selected?: boolean }>`
   .${Classes.ICON} {
     svg {
       path {
-        fill: ${props =>
+        fill: ${(props) =>
           props.selected
             ? props.theme.colors.menuItem.hoverIcon
             : props.theme.colors.menuItem.normalIcon};
@@ -43,7 +43,7 @@ const ItemRow = styled.a<{ disabled?: boolean; selected?: boolean }>`
   }
   height: 38px;
 
-  ${props =>
+  ${(props) =>
     !props.disabled
       ? `
     &:hover {
@@ -84,7 +84,7 @@ const IconContainer = styled.span`
   align-items: center;
 
   .${Classes.ICON} {
-    margin-right: ${props => props.theme.spaces[5]}px;
+    margin-right: ${(props) => props.theme.spaces[5]}px;
   }
 `;
 const MenuItem = forwardRef(

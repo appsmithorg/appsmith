@@ -6,6 +6,7 @@
   "backToEditor": ".t--back-to-editor",
   "inputWidget": ".t--widget-inputwidget",
   "checkboxWidget": ".t--widget-checkboxwidget",
+  "switchwidget": ".t--widget-switchwidget",
   "radioWidget": ".t--widget-radiogroupwidget",
   "formWidget": ".t--widget-formwidget",
   "imageWidget": ".t--widget-imagewidget",

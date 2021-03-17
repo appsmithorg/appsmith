@@ -31,12 +31,12 @@ const IconContainer = styled.div<{
   justify-content: center;
   margin: 0 auto;
   margin-bottom: 5px;
-  background-color: ${props => props.theme.colors.menuButtonBGInactive};
-  border-radius: ${props => props.theme.radii[1]}px;
-  width: ${props => props.width + 8}px;
-  height: ${props => props.width + 8}px;
+  background-color: ${(props) => props.theme.colors.menuButtonBGInactive};
+  border-radius: ${(props) => props.theme.radii[1]}px;
+  width: ${(props) => props.width + 8}px;
+  height: ${(props) => props.width + 8}px;
   svg path {
-    fill: ${props => props.theme.colors.menuIconColorInactive};
+    fill: ${(props) => props.theme.colors.menuIconColorInactive};
   }
 `;
 
@@ -47,9 +47,9 @@ const ItemContainer = styled.div`
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: ${props => props.theme.spaces[5]}px 0;
-      color: ${props => props.theme.colors.textOnDarkBG};
-      font-size: ${props => props.theme.fontSizes[1]}px;
+      padding: ${(props) => props.theme.spaces[5]}px 0;
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      font-size: ${(props) => props.theme.fontSizes[1]}px;
       cursor: pointer;
       &:hover {
         background: ${Colors.TUNDORA};
@@ -57,11 +57,11 @@ const ItemContainer = styled.div`
       }
       &.active {
         background: ${Colors.TUNDORA};
-        color: ${props => props.theme.colors.textOnDarkBG};
+        color: ${(props) => props.theme.colors.textOnDarkBG};
         & > div {
-          background-color: ${props => props.theme.colors.primaryOld};
+          background-color: ${(props) => props.theme.colors.primaryOld};
           svg path {
-            fill: ${props => props.theme.colors.textOnDarkBG};
+            fill: ${(props) => props.theme.colors.textOnDarkBG};
           }
         }
       }

@@ -104,6 +104,9 @@ const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
                     name={`${field}.${keyName[1]}`}
                     showError
                     validate={keyFieldValidate}
+                    placeholder={
+                      (extraData && extraData[0].placeholderText) || ""
+                    }
                   />
                 </div>
                 {!props.actionConfig && (
@@ -116,6 +119,9 @@ const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
                         <StyledTextField
                           name={`${field}.${valueName[1]}`}
                           type={valueDataType}
+                          placeholder={
+                            (extraData && extraData[1].placeholderText) || ""
+                          }
                         />
                       </div>
                       {index === props.fields.length - 1 ? (

@@ -23,10 +23,12 @@ export const executeAction = (
 
 export const executeActionError = (
   executeErrorPayload: ExecuteErrorPayload,
-): ReduxAction<ExecuteErrorPayload> => ({
-  type: ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
-  payload: executeErrorPayload,
-});
+): ReduxAction<ExecuteErrorPayload> => {
+  return {
+    type: ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
+    payload: executeErrorPayload,
+  };
+};
 
 export const executePageLoadActions = (
   payload: PageAction[][],
@@ -61,6 +63,13 @@ export const focusWidget = (
   widgetId?: string,
 ): ReduxAction<{ widgetId?: string }> => ({
   type: ReduxActionTypes.FOCUS_WIDGET,
+  payload: { widgetId },
+});
+
+export const selectWidget = (
+  widgetId?: string,
+): ReduxAction<{ widgetId?: string }> => ({
+  type: ReduxActionTypes.SELECT_WIDGET,
   payload: { widgetId },
 });
 

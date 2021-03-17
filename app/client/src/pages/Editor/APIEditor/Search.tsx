@@ -19,20 +19,10 @@ const SearchBar = styled(BaseTextInput)`
 `;
 
 class Search extends React.Component {
-  handleSearchChange = (e: any) => {
-    console.log("test");
-  };
-
   render() {
     return (
       <Container>
-        <SearchBar
-          icon="search"
-          input={{
-            onChange: this.handleSearchChange,
-          }}
-          placeholder="Search"
-        />
+        <SearchBar icon="search" placeholder="Search" />
         <p className="heading">Providers</p>
       </Container>
     );

@@ -4,18 +4,19 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import reactor.core.publisher.Mono;
 
 public interface LayoutActionService {
-    public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout);
+    Mono<LayoutDTO> updateLayout(String pageId, String layoutId, Layout layout);
 
-    public Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO);
+    Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO);
 
-    public Mono<Layout> refactorWidgetName(RefactorNameDTO refactorNameDTO);
+    Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO);
 
-    public Mono<Layout> refactorActionName(RefactorNameDTO refactorNameDTO);
+    Mono<LayoutDTO> refactorActionName(RefactorNameDTO refactorNameDTO);
 
-    public Mono<ActionDTO> updateAction(String id, ActionDTO action);
+    Mono<ActionDTO> updateAction(String id, ActionDTO action);
 
     Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad);
 }

@@ -18,5 +18,6 @@
     "editName": ".single-select >div:contains('Edit Name')",
     "clonePage": ".single-select >div:contains('Clone')",
     "deletePage": ".single-select >div:contains('Delete')",
+    "hidePage": ".single-select >div:contains('Hide')",
     "entityQuery": ".t--entity-name:contains('Queries')"
   }

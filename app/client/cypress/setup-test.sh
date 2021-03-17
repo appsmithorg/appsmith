@@ -20,6 +20,7 @@ echo "$APPSMITH_SSL_KEY" > ./docker/dev.appsmith.com-key.pem
 
 echo "Going to run the nginx server"
 sudo docker pull nginx:latest
+sudo docker pull postgres:latest
 
 sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
 	-v `pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf \
@@ -34,8 +35,8 @@ sudo docker run --network host --name postgres -d -p 5432:5432 \
  --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
  postgres:latest &
 
-echo "Sleeping for 20 seconds to let the servers start"
-sleep 20
+echo "Sleeping for 30 seconds to let the servers start"
+sleep 30
 
 echo "Checking if the containers have started"
 sudo docker ps -a 

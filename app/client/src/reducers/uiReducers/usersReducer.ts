@@ -49,6 +49,27 @@ const usersReducer = createReducer(initialState, {
       currentUser: action.payload,
     };
   },
+  [ReduxActionTypes.UPDATE_USER_DETAILS_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<User>,
+  ) => {
+    const users = [...state.users];
+    const userIndex = _.findIndex(users, { username: action.payload.username });
+    if (userIndex > -1) {
+      users[userIndex] = action.payload;
+    } else {
+      users.push(action.payload);
+    }
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        fetchingUser: false,
+      },
+      users,
+      currentUser: action.payload,
+    };
+  },
   [ReduxActionTypes.FETCH_USER_SUCCESS]: (
     state: UsersReduxState,
     action: ReduxAction<User>,

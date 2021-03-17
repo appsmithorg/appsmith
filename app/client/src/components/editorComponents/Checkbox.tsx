@@ -26,13 +26,13 @@ export const StyledCheckbox = styled(BlueprintCheckbox)<CheckboxProps>`
     span.bp3-control-indicator {
       outline: none;
       box-shadow: none;
-      border-radius: ${props => props.theme.radii[1]}px;
-      border: ${props => getBorderCSSShorthand(props.theme.borders[3])};
-      height: ${props => props.theme.fontSizes[5]}px;
-      width: ${props => props.theme.fontSizes[5]}px;
+      border-radius: ${(props) => props.theme.radii[1]}px;
+      border: ${(props) => getBorderCSSShorthand(props.theme.borders[3])};
+      height: ${(props) => props.theme.fontSizes[5]}px;
+      width: ${(props) => props.theme.fontSizes[5]}px;
     }
     input:checked ~ span.bp3-control-indicator {
-      background: ${props => IntentColors[props.intent]};
+      background: ${(props) => IntentColors[props.intent]};
       box-shadow: none;
       outline: none;
     }

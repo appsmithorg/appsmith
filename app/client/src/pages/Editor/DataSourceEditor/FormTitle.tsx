@@ -8,12 +8,13 @@ import EditableText, {
 import { AppState } from "reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { getDataSources } from "selectors/editorSelectors";
-import { getDataTree } from "selectors/dataTreeSelectors";
 import { isNameValid } from "utils/helpers";
 import { saveDatasourceName } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
+import { checkCurrentStep } from "sagas/OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const Wrapper = styled.div`
   margin-left: 10px;
@@ -36,8 +37,8 @@ const FormTitle = (props: FormTitleProps) => {
     | undefined = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
+
   const datasources: Datasource[] = useSelector(getDataSources);
-  const evalTree = useSelector(getDataTree);
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   const saveStatus: {
@@ -52,16 +53,21 @@ const FormTitle = (props: FormTitleProps) => {
     };
   });
 
+  // For onboarding
+  const hideEditIcon = useSelector((state: AppState) =>
+    checkCurrentStep(state, OnboardingStep.SUCCESSFUL_BINDING, "LESSER"),
+  );
+
   const hasNameConflict = React.useCallback(
     (name: string) => {
       const datasourcesNames: Record<string, any> = {};
       datasources
-        .filter(datasource => datasource.id !== currentDatasource?.id)
-        .map(datasource => {
+        .filter((datasource) => datasource.id !== currentDatasource?.id)
+        .map((datasource) => {
           datasourcesNames[datasource.name] = datasource;
         });
 
-      return !isNameValid(name, { ...datasourcesNames, ...evalTree });
+      return !isNameValid(name, { ...datasourcesNames });
     },
     [datasources, currentDatasource],
   );
@@ -104,13 +110,14 @@ const FormTitle = (props: FormTitleProps) => {
       <EditableText
         className="t--edit-datasource-name"
         type="text"
+        hideEditIcon={hideEditIcon}
         forceDefault={forceUpdate}
         defaultValue={currentDatasource ? currentDatasource.name : ""}
         isInvalid={isInvalidDatasourceName}
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
         editInteractionKind={EditInteractionKind.SINGLE}
-        isEditingDefault={props.focusOnMount}
+        isEditingDefault={props.focusOnMount && !hideEditIcon}
         updating={saveStatus.isSaving}
       />
       {saveStatus.isSaving && <Spinner size={16} />}

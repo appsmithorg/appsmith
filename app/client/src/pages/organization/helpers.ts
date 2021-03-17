@@ -26,7 +26,7 @@ export const createOrganizationSubmitHandler = (
         name: values.name,
       },
     });
-  }).catch(error => {
+  }).catch((error) => {
     throw new SubmissionError(error);
   });
 };
@@ -35,7 +35,7 @@ export const inviteUsersToOrgSubmitHandler = (
   values: InviteUsersToOrgFormValues,
   dispatch: any,
 ): Promise<any> => {
-  const data = values.usersByRole.map(value => ({
+  const data = values.usersByRole.map((value) => ({
     roleId: value.role,
     emails: value.users ? value.users.split(",") : [],
   }));
@@ -48,7 +48,7 @@ export const inviteUsersToOrgSubmitHandler = (
         data,
       },
     });
-  }).catch(error => {
+  }).catch((error) => {
     throw new SubmissionError(error);
   });
 };
@@ -68,7 +68,7 @@ export const inviteUsersToOrg = (values: any, dispatch: any): Promise<any> => {
         data,
       },
     });
-  }).catch(error => {
+  }).catch((error) => {
     throw new SubmissionError(error);
   });
 };

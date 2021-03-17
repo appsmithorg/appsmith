@@ -40,13 +40,6 @@ type DropTargetComponentProps = WidgetProps & {
   minHeight: number;
 };
 
-type DropTargetBounds = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
 const StyledDropTarget = styled.div`
   transition: height 100ms ease-in;
   width: 100%;
@@ -172,7 +165,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
           dropTargetOffset,
           props.snapColumnSpace,
           props.snapRowSpace,
-          props.widgetId,
+          widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : props.widgetId,
         );
 
         // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);

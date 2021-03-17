@@ -1,7 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.DocumentType;
-import com.appsmith.external.constants.AuthType;
+import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.constants.FieldName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@DocumentType(AuthType.DB_AUTH)
+@DocumentType(Authentication.DB_AUTH)
 public class DBAuth extends AuthenticationDTO {
 
     public enum Type {
@@ -36,7 +36,7 @@ public class DBAuth extends AuthenticationDTO {
 
     @Override
     public Map<String, String> getEncryptionFields() {
-        if (this.password != null && !this.password.isEmpty()) {
+        if (this.password != null && !this.password.isBlank()) {
             return Map.of(FieldName.PASSWORD, this.password);
         }
         return Map.of();
@@ -51,7 +51,7 @@ public class DBAuth extends AuthenticationDTO {
 
     @Override
     public Set<String> getEmptyEncryptionFields() {
-        if (this.password == null || this.password.isEmpty()) {
+        if (this.password == null || this.password.isBlank()) {
             return Set.of(FieldName.PASSWORD);
         }
         return Set.of();

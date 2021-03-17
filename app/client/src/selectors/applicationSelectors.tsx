@@ -91,7 +91,7 @@ export const getUserApplicationsOrgsList = createSelector(
     ) {
       const fuzzy = new Fuse(applicationsOrgs, fuzzySearchOptions);
       let organizationList = fuzzy.search(keyword) as OrganizationDetails[];
-      organizationList = organizationList.map(org => {
+      organizationList = organizationList.map((org) => {
         const applicationFuzzy = new Fuse(org.applications, {
           ...fuzzySearchOptions,
           keys: ["name"],

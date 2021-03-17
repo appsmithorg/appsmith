@@ -19,7 +19,7 @@ const ErrorBoundaryContainer = styled.div`
 //   isValid ? "transparent" : theme.colors.error};
 
 const RetryLink = styled.span`
-  color: ${props => props.theme.colors.primaryDarkest};
+  color: ${(props) => props.theme.colors.primaryDarkest};
   cursor: pointer;
 `;
 

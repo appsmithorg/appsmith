@@ -14,4 +14,6 @@ public interface CustomOrganizationRepository extends AppsmithRepository<Organiz
 
     Flux<Organization> findByIdsIn(Set<String> orgIds, AclPermission aclPermission, Sort sort);
 
+    Mono<Long> nextSlugNumber(String slugPrefix);
+
 }

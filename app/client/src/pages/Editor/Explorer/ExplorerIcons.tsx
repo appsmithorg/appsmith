@@ -38,6 +38,10 @@ export const homePageIcon = (
   <Icon icon="home" iconSize={ENTITY_ICON_SIZE} color={Colors.JUNGLE_GREEN} />
 );
 
+export const hiddenPageIcon = (
+  <Icon icon="eye-off" iconSize={ENTITY_ICON_SIZE} color={Colors.ALTO} />
+);
+
 const WidgetIcon = MenuIcons.WIDGETS_COLORED_ICON;
 export const widgetIcon = (
   <WidgetIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
@@ -151,10 +155,11 @@ const StyledTag = styled.div<{ color: string }>`
   width: 40px;
   font-weight: 700;
   color: #fff;
-  background: ${props => props.color};
+  background: ${(props) => props.color};
   display: flex;
   justify-content: center;
   align-items: center;
+  line-height: 16px;
 `;
 
 export const MethodTag = (props: { type: typeof HTTP_METHODS[number] }) => {

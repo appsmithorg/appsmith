@@ -5,19 +5,19 @@ import styled, { createGlobalStyle } from "styled-components";
 
 export const LoadingAnimation = createGlobalStyle<{ theme: Theme }>`
 	&&&& .${Classes.SKELETON} {
-		background:  ${props => props.theme.colors.loader.light};;
-		border-color:  ${props => props.theme.colors.loader.light};;
+		background:  ${(props) => props.theme.colors.loader.light};;
+		border-color:  ${(props) => props.theme.colors.loader.light};;
 		animation: 1000ms linear infinite alternate loaderAnimation;
 
 		@keyframes loaderAnimation {
 			from {
-				background: ${props => props.theme.colors.loader.light};
-				border-color:  ${props => props.theme.colors.loader.light};;
+				background: ${(props) => props.theme.colors.loader.light};
+				border-color:  ${(props) => props.theme.colors.loader.light};;
 			}
 
 			to {
-				background: ${props => props.theme.colors.loader.dark};
-				border-color: ${props => props.theme.colors.loader.dark};
+				background: ${(props) => props.theme.colors.loader.dark};
+				border-color: ${(props) => props.theme.colors.loader.dark};
 			}
 		}
 	}
@@ -82,7 +82,6 @@ export const loadingUserOrgs = [
         ],
         appIsExample: false,
         new: false,
-        pageCount: 1,
         defaultPageId: "5f7c3bc3b295692137139bd7",
       },
       {
@@ -106,7 +105,6 @@ export const loadingUserOrgs = [
         appIsExample: false,
         color: "#5CE7EF",
         new: false,
-        pageCount: 1,
         defaultPageId: "5f7daa65349e65508a53e3c1",
       },
     ],
@@ -181,7 +179,6 @@ export const loadingUserOrgs = [
         ],
         appIsExample: false,
         new: false,
-        pageCount: 1,
         defaultPageId: "5f7da6d6e71ebc07bb2699f5",
       },
       {
@@ -204,7 +201,6 @@ export const loadingUserOrgs = [
         ],
         appIsExample: false,
         new: false,
-        pageCount: 1,
         defaultPageId: "5f7da88ee71ebc07bb269a03",
       },
       {
@@ -227,7 +223,6 @@ export const loadingUserOrgs = [
         ],
         appIsExample: false,
         new: false,
-        pageCount: 1,
         defaultPageId: "5f7da915349e65508a53e3b6",
       },
     ],

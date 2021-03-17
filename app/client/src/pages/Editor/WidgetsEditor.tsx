@@ -22,14 +22,16 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
+import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 
 const EditorWrapper = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
   overflow: hidden;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
 `;
 
 const CanvasContainer = styled.section`
@@ -60,7 +62,7 @@ const WidgetsEditor = () => {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-
+  useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -109,14 +111,17 @@ const WidgetsEditor = () => {
   if (isFetchingPage) {
     node = pageLoading;
   }
+
   if (!isFetchingPage && widgets) {
     node = <Canvas dsl={widgets} />;
   }
+
   log.debug("Canvas rendered");
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
+        <MainContainerLayoutControl />
         <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
           {node}
         </CanvasContainer>

@@ -2,33 +2,35 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Classes, TagInput } from "@blueprintjs/core";
 import { Intent } from "constants/DefaultTheme";
-import { WrappedFieldMetaProps } from "redux-form";
-import { INVITE_USERS_VALIDATION_EMAIL_LIST } from "constants/messages";
+import {
+  createMessage,
+  INVITE_USERS_VALIDATION_EMAIL_LIST,
+} from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
   margin-right: 8px;
 
   &&& {
     .${Classes.TAG_INPUT} {
-      background-color: ${props => props.theme.colors.tagInput.bg};
+      background-color: ${(props) => props.theme.colors.tagInput.bg};
       min-height: 38px;
-      border: 1px solid ${props => props.theme.colors.tagInput.bg};
+      border: 1px solid ${(props) => props.theme.colors.tagInput.bg};
       border-radius: 0px;
     }
     .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-      border: 1px solid ${props => props.theme.colors.info.main};
-      box-shadow: ${props => props.theme.colors.tagInput.shadow};
+      border: 1px solid ${(props) => props.theme.colors.info.main};
+      box-shadow: ${(props) => props.theme.colors.tagInput.shadow};
     }
     .${Classes.INPUT_GHOST} {
-      color: ${props => props.theme.colors.tagInput.text};
+      color: ${(props) => props.theme.colors.tagInput.text};
       &::placeholder {
-        color: ${props => props.theme.colors.tagInput.placeholder};
+        color: ${(props) => props.theme.colors.tagInput.placeholder};
       }
     }
     .${Classes.TAG} {
       padding: 3px 10px;
-      color: ${props => props.theme.colors.tagInput.tag.text};
-      background-color: ${props => props.theme.colors.info.main};
+      color: ${(props) => props.theme.colors.tagInput.tag.text};
+      background-color: ${(props) => props.theme.colors.info.main};
       border-radius: 0px;
       font-size: 11px;
       line-height: 13px;
@@ -80,7 +82,7 @@ const TagInputComponent = (props: TagInputProps) => {
       let error = "";
       newValues.forEach((user: any) => {
         if (!isEmail(user)) {
-          error = INVITE_USERS_VALIDATION_EMAIL_LIST;
+          error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
         }
       });
       props.customError(error);

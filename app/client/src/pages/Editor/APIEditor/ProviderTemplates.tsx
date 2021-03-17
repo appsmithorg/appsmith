@@ -32,7 +32,7 @@ import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppCardColorPallete } from "selectors/themeSelectors";
+import { getAppCardColorPalette } from "selectors/themeSelectors";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
@@ -94,7 +94,7 @@ const ProviderInfoTopSection = styled.div`
 const TemplatesCardsContainer = styled.div`
   height: calc(
     100vh - ${TEMPLATES_TOP_SECTION_HEIGHT} -
-      ${props => props.theme.headerHeight}
+      ${(props) => props.theme.headerHeight}
   );
   overflow: auto;
   .noProvidersMessage {
@@ -230,8 +230,8 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
       destinationPageId = pageId;
     }
     const pageApiNames = this.props.actions
-      .filter(a => a.config.pageId === destinationPageId)
-      .map(a => a.config.name);
+      .filter((a) => a.config.pageId === destinationPageId)
+      .map((a) => a.config.name);
     let name = templateData.templateData.name.replace(/ /g, "");
     if (pageApiNames.indexOf(name) > -1) {
       name = getDuplicateName(name, pageApiNames);
@@ -249,10 +249,6 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
     const { addedTemplates } = this.state;
     this.props.addApiToPage(addApiRequestObject);
     this.setState({ addedTemplates });
-  };
-
-  handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
-    const value = e.target.value;
   };
 
   handleIsOpen = (templateId: string) => {
@@ -383,7 +379,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             </p>
           ) : (
             <React.Fragment>
-              {providerTemplates.map(template => (
+              {providerTemplates.map((template) => (
                 <TemplateCard key={template.templateData.id}>
                   <CardTopContent>
                     <TemplateCardLeftContent>
@@ -513,7 +509,7 @@ const mapStateToProps = (state: AppState) => ({
   isFetchingProviderTemplates: getProvidersTemplatesLoadingState(state),
   actions: state.entities.actions,
   providerDetails: state.ui.providers.providerDetailsByProviderId,
-  appCardColors: getAppCardColorPallete(state),
+  appCardColors: getAppCardColorPalette(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

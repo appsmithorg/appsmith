@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet";
 import styled from "styled-components";
 
 const Wrapper = styled.section`
-  margin-top: ${props => props.theme.homePage.header}px;
+  margin-top: ${(props) => props.theme.homePage.header}px;
   && .fade {
     position: relative;
   }
@@ -27,13 +27,13 @@ const Wrapper = styled.section`
 
 const PageBody = styled.div`
   height: calc(
-    100vh - ${props => props.theme.homePage.header}px
+    100vh - ${(props) => props.theme.homePage.header}px
   );
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  // padding-top: ${props => props.theme.spaces[12]}px;
+  // padding-top: ${(props) => props.theme.spaces[12]}px;
   margin: 0 auto;
   & > * {
     width: 100%;

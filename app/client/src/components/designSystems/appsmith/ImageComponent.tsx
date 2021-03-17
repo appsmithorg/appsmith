@@ -19,10 +19,10 @@ export const StyledImage = styled.div<
   position: relative;
   display: flex;                                                                                                                                                                                                                                                                                                                                                                          
   flex-direction: "row";
-  cursor: ${props =>
+  cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
-  background: ${props => props.backgroundColor};
-  background-image: url("${props =>
+  background: ${(props) => props.backgroundColor};
+  background-image: url("${(props) =>
     props.imageError ? props.defaultImageUrl : props.imageUrl}");
   background-position: center;
   background-repeat: no-repeat;
@@ -120,7 +120,7 @@ class ImageComponent extends React.Component<
             }
           }}
         >
-          {({ zoomIn, zoomOut, setScale, ...rest }: any) => (
+          {({ zoomIn, zoomOut }: any) => (
             <React.Fragment>
               <TransformComponent>
                 <StyledImage

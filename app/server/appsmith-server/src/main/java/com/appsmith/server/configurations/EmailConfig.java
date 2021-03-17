@@ -18,4 +18,8 @@ public class EmailConfig {
 
     @Value("${reply.to}")
     private String replyTo;
+
+    @Value("${emails.welcome.enabled:true}")
+    private boolean isWelcomeEmailEnabled;
+
 }

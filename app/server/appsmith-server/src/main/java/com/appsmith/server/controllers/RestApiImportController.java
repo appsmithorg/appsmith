@@ -41,7 +41,7 @@ public class RestApiImportController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<ActionDTO>> create(@Valid @RequestBody Object input,
+    public Mono<ResponseDTO<ActionDTO>> create(@RequestBody(required = false) Object input,
                                                @RequestParam RestApiImporterType type,
                                                @RequestParam String pageId,
                                                @RequestParam String name,

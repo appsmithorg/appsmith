@@ -4,6 +4,7 @@ import {
 } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { WidgetTypes } from "../../constants/WidgetConstants";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
@@ -14,7 +15,7 @@ describe("dataTreeTypeDefCreator", () => {
         parentId: "123",
         renderMode: "CANVAS",
         text: "yo",
-        type: "INPUT_WIDGET",
+        type: WidgetTypes.INPUT_WIDGET,
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
         parentColumnSpace: 1,
         parentRowSpace: 2,
@@ -23,6 +24,13 @@ describe("dataTreeTypeDefCreator", () => {
         topRow: 1,
         bottomRow: 2,
         isLoading: false,
+        version: 1,
+        bindingPaths: {
+          defaultText: true,
+        },
+        triggerPaths: {
+          onTextChange: true,
+        },
       },
     };
     const def = dataTreeTypeDefCreator(dataTree);

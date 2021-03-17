@@ -1,7 +1,7 @@
 /**
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
-import { get, omit } from "lodash";
+import { get, omit, cloneDeep } from "lodash";
 import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
@@ -14,12 +14,13 @@ import {
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import {
-  DEFAULT_API_ACTION,
+  DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS,
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
-  CONTENT_TYPE,
-  PLUGIN_TYPE_API,
+  CONTENT_TYPE_HEADER_KEY,
+  ApiContentTypes,
+  EMPTY_KEY_VALUE_PAIRS,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -35,19 +36,15 @@ import {
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import {
-  createNewApiName,
-  getNextEntityName,
-  getQueryParams,
-} from "utils/AppsmithUtils";
+import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest, setActionProperty } from "actions/actionActions";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import { RestAction } from "entities/Action";
+import { Action, ApiAction } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
@@ -56,6 +53,9 @@ import PerformanceTracker, {
 import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
+import { checkCurrentStep } from "./OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -68,7 +68,7 @@ function* syncApiParamsSaga(
   if (field === "actionConfiguration.path") {
     if (value.indexOf("?") > -1) {
       const paramsString = value.substr(value.indexOf("?") + 1);
-      const params = paramsString.split("&").map(p => {
+      const params = paramsString.split("&").map((p) => {
         const keyValue = p.split("=");
         return { key: keyValue[0], value: keyValue[1] || "" };
       });
@@ -132,6 +132,77 @@ function* syncApiParamsSaga(
   PerformanceTracker.stopTracking();
 }
 
+function* handleUpdateBodyContentType(
+  action: ReduxAction<{ title: ApiContentTypes; apiId: string }>,
+) {
+  const { title, apiId } = action.payload;
+  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+  const displayFormatObject = POST_BODY_FORMAT_OPTIONS.find(
+    (el) => el.label === title,
+  );
+  if (!displayFormatObject) {
+    log.error("Display format not supported", title);
+    return;
+  }
+  if (displayFormatObject.value === POST_BODY_FORMATS[3]) {
+    // Dont update the content type header if raw has been selected
+    yield put({
+      type: ReduxActionTypes.SET_EXTRA_FORMDATA,
+      payload: {
+        id: apiId,
+        values: {
+          displayFormat: POST_BODY_FORMAT_OPTIONS[3],
+        },
+      },
+    });
+    return;
+  }
+
+  const headers = cloneDeep(values.actionConfiguration.headers);
+  const bodyFormData = cloneDeep(values.actionConfiguration.bodyFormData);
+
+  const contentTypeHeaderIndex = headers.findIndex(
+    (element: { key: string; value: string }) =>
+      element &&
+      element.key &&
+      element.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+  );
+
+  const firstEmptyHeaderRowIndex: number = headers.findIndex(
+    (element: { key: string; value: string }) =>
+      element && element.key === "" && element.value === "",
+  );
+
+  const newHeaderIndex =
+    firstEmptyHeaderRowIndex > -1 ? firstEmptyHeaderRowIndex : headers.length;
+
+  // If there is an existing header with content type, use that or
+  // create a new header
+  const indexToUpdate =
+    contentTypeHeaderIndex > -1 ? contentTypeHeaderIndex : newHeaderIndex;
+
+  headers[indexToUpdate] = {
+    key: CONTENT_TYPE_HEADER_KEY,
+    value: displayFormatObject.value,
+  };
+
+  yield put(
+    change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
+  );
+
+  if (displayFormatObject.value === POST_BODY_FORMATS[1]) {
+    if (!bodyFormData || bodyFormData.length === 0) {
+      yield put(
+        change(
+          API_EDITOR_FORM_NAME,
+          "actionConfiguration.bodyFormData",
+          EMPTY_KEY_VALUE_PAIRS.slice(),
+        ),
+      );
+    }
+  }
+}
+
 function* initializeExtraFormDataSaga() {
   const state = yield select();
   const { extraformData } = state.ui.apiPane;
@@ -140,7 +211,7 @@ function* initializeExtraFormDataSaga() {
   const headers = get(
     values,
     "actionConfiguration.headers",
-    DEFAULT_API_ACTION.actionConfiguration?.headers,
+    DEFAULT_API_ACTION_CONFIG.headers,
   );
 
   const queryParameters = get(
@@ -157,7 +228,7 @@ function* initializeExtraFormDataSaga() {
         change(
           API_EDITOR_FORM_NAME,
           "actionConfiguration.queryParameters",
-          DEFAULT_API_ACTION.actionConfiguration?.queryParameters,
+          DEFAULT_API_ACTION_CONFIG.queryParameters,
         ),
       );
   }
@@ -214,7 +285,9 @@ function* updateFormFields(
       if (actionConfigurationHeaders) {
         contentType = actionConfigurationHeaders.find(
           (header: any) =>
-            header && header.key && header.key.toLowerCase() === CONTENT_TYPE,
+            header &&
+            header.key &&
+            header.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY,
         );
       }
 
@@ -223,7 +296,7 @@ function* updateFormFields(
           change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", [
             ...actionConfigurationHeaders,
             {
-              key: CONTENT_TYPE,
+              key: CONTENT_TYPE_HEADER_KEY,
               value: POST_BODY_FORMAT_OPTIONS[0].value,
             },
           ]),
@@ -241,7 +314,9 @@ function* updateFormFields(
     if (actionConfigurationHeaders) {
       const contentType = actionConfigurationHeaders.find(
         (header: any) =>
-          header && header.key && header.key.toLowerCase() === CONTENT_TYPE,
+          header &&
+          header.key &&
+          header.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY,
       );
 
       if (contentType && POST_BODY_FORMATS.includes(contentType.value)) {
@@ -302,7 +377,7 @@ function* formValueChangeSaga(
   ]);
 }
 
-function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
+function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginType } = actionPayload.payload;
   const action = yield select(getAction, id);
   const data = { ...action };
@@ -336,9 +411,11 @@ function* handleCreateNewApiActionSaga(
       (a: ActionData) => a.config.pageId === pageId,
     );
     const newActionName = createNewApiName(pageActions, pageId);
+    // Note: Do NOT send pluginId on top level here.
+    // It breaks embedded rest datasource flow.
     yield put(
       createActionRequest({
-        ...DEFAULT_API_ACTION,
+        actionConfiguration: DEFAULT_API_ACTION_CONFIG,
         name: newActionName,
         datasource: {
           name: "DEFAULT_REST_DATASOURCE",
@@ -350,7 +427,7 @@ function* handleCreateNewApiActionSaga(
           from: action.payload.from,
         },
         pageId,
-      }),
+      } as ApiAction), // We don't have recursive partial in typescript for now.
     );
     history.push(
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
@@ -381,21 +458,36 @@ function* handleCreateNewQueryActionSaga(
       .map((a: ActionData) => a.config.name);
     const newQueryName = getNextEntityName("Query", pageApiNames);
     const dataSourceId = validDataSources[0].id;
-    yield put(
-      createActionRequest({
-        name: newQueryName,
-        pageId,
-        datasource: {
-          id: dataSourceId,
-        },
-        eventData: {
-          actionType: "Query",
-          from: action.payload.from,
-          dataSource: validDataSources[0].name,
-        },
-        actionConfiguration: {},
-      }),
+    let createActionPayload = {
+      name: newQueryName,
+      pageId,
+      datasource: {
+        id: dataSourceId,
+      },
+      eventData: {
+        actionType: "Query",
+        from: action.payload.from,
+        dataSource: validDataSources[0].name,
+      },
+      actionConfiguration: {},
+    };
+
+    //For onboarding
+    const updateActionPayload = yield select(
+      checkCurrentStep,
+      OnboardingStep.ADD_INPUT_WIDGET,
     );
+    if (updateActionPayload) {
+      createActionPayload = {
+        ...createActionPayload,
+        name: "add_standup_updates",
+        actionConfiguration: {
+          body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
+        },
+      };
+    }
+
+    yield put(createActionRequest(createActionPayload));
     history.push(
       QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
     );
@@ -418,25 +510,19 @@ function* handleApiNameChangeSuccessSaga(
   if (!actionObj) {
     // Error case, log to sentry
     Toaster.show({
-      text: "Error occured while renaming API",
+      text: createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name),
       variant: Variant.danger,
     });
 
-    Sentry.captureException(new Error("Error occured while renaming API"), {
-      extra: {
-        actionId: actionId,
+    Sentry.captureException(
+      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name)),
+      {
+        extra: {
+          actionId: actionId,
+        },
       },
-    });
+    );
     return;
-  }
-  if (actionObj.pluginType === PLUGIN_TYPE_API) {
-    const params = getQueryParams();
-    if (params.editName) {
-      params.editName = "false";
-    }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
-    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
   }
 }
 
@@ -466,6 +552,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
       handleCreateNewQueryActionSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
+      handleUpdateBodyContentType,
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),

@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -31,7 +33,6 @@ import reactor.core.publisher.Mono;
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -91,13 +92,21 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         if (layoutList == null) {
             layoutList = new ArrayList<>();
         }
+
         if (layoutList.isEmpty()) {
             layoutList.add(newPageService.createDefaultLayout());
             page.setLayouts(layoutList);
         }
 
+        for (final Layout layout : layoutList) {
+            if (StringUtils.isEmpty(layout.getId())) {
+                layout.setId(new ObjectId().toString());
+            }
+        }
+
         Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, page.getApplicationId())));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, page.getApplicationId())))
+                .cache();
 
         Mono<PageDTO> pageMono = applicationMono
                 .map(application -> {
@@ -157,9 +166,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return applicationService
                 .findByName(applicationName, appPermission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by application name", applicationName)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by application name", applicationName)))
                 .flatMap(application -> newPageService.findByNameAndApplicationIdAndViewMode(pageName, application.getId(), pagePermission, viewMode))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by page name", pageName)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by page name", pageName)));
     }
 
     @Override
@@ -181,7 +190,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     return Mono.error(new AppsmithException(AppsmithError.PAGE_DOESNT_BELONG_TO_APPLICATION, page.getName(), applicationId));
                 })
                 .then(applicationService.findById(applicationId, MANAGE_APPLICATIONS))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application ->
                         applicationRepository
                                 .setDefaultPage(applicationId, pageId)
@@ -226,13 +235,15 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     return newPageService
                             .createDefault(page)
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
-                            // fetch the application again because the application.pages has changed post the addition of
-                            // the newly created page to the application.
-                            .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS));
+                            // Now publish this newly created app with default states so that
+                            // launching of newly created application is possible.
+                            .flatMap(updatedApplication -> publish(savedApplication.getId())
+                                    .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS)));
                 });
     }
 
-    private Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
+    @Override
+    public Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
         return userMono
                 .flatMap(user -> {
                     Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
@@ -245,32 +256,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         return application;
                     });
                 });
-    }
-
-    @Override
-    public Mono<Application> cloneExampleApplication(Application application) {
-        if (!StringUtils.hasText(application.getName())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
-        }
-
-        String orgId = application.getOrganizationId();
-        if (!StringUtils.hasText(orgId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
-        }
-
-        // Clean the object so that it will be saved as a new application for the currently signed in user.
-        application.setClonedFromApplicationId(application.getId());
-        application.setId(null);
-        application.setPolicies(new HashSet<>());
-        application.setPages(new ArrayList<>());
-        application.setPublishedPages(new ArrayList<>());
-        application.setIsPublic(false);
-
-        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
-
-        return applicationWithPoliciesMono
-                .flatMap(applicationService::createDefault);
     }
 
     private void generateAndSetPagePolicies(Application application, PageDTO page) {
@@ -289,7 +274,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         log.debug("Archiving application with id: {}", id);
 
         Mono<Application> applicationMono = applicationService.findById(id, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
                     log.debug("Archiving pages for applicationId: {}", id);
                     return newPageService.archivePagesByApplicationId(id, MANAGE_PAGES)
@@ -305,7 +290,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> clonePage(String pageId) {
 
         return newPageService.findById(pageId, MANAGE_PAGES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Page")))
                 .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy"));
     }
 
@@ -338,7 +323,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         return sourcePageMono
                 .flatMap(page -> {
                     Mono<ApplicationPagesDTO> pageNamesMono = newPageService
-                            .findNamesByApplicationIdAndViewMode(page.getApplicationId(), false);
+                            .findApplicationPagesByApplicationIdAndViewMode(page.getApplicationId(), false);
                     return pageNamesMono
                             // If a new page name suffix is given,
                             // set a unique name for the cloned page and then create the page.
@@ -374,8 +359,17 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 // Set new page id in the actionDTO
                                 action.getUnpublishedAction().setPageId(newPageId);
 
-                                // Now create the new action from the template of the source action.
-                                return newActionService.createAction(action.getUnpublishedAction());
+                                /*
+                                 * - Now create the new action from the template of the source action.
+                                 * - Use CLONE_PAGE context to make sure that page / application clone quirks are
+                                 *   taken care of - e.g. onPageLoad setting is copied from action setting instead of
+                                 *   being set to off by default.
+                                 */
+                                AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
+                                return newActionService.createAction(
+                                        action.getUnpublishedAction(),
+                                        eventContext
+                                );
                             })
                             .collectList()
                             .thenReturn(clonedPage);
@@ -411,7 +405,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<Application> cloneApplication(String applicationId) {
 
         Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Application")))
                 .cache();
 
         // Find the name for the cloned application which wouldn't lead to duplicate key exception
@@ -438,7 +432,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     // Create a new clone application object without the pages using the parametrized Application constructor
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
-                    
+
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
@@ -494,7 +488,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> deleteUnpublishedPage(String id) {
 
         return newPageService.findById(id, AclPermission.MANAGE_PAGES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(page -> {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
                     Mono<Application> applicationMono = applicationService.getById(page.getApplicationId())
@@ -547,7 +541,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<Boolean> publish(String applicationId) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
 
         Flux<NewPage> publishApplicationAndPages = applicationMono
                 //Return all the pages in the Application
@@ -589,6 +583,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     application.setPublishedPages(pages);
 
+                    application.setPublishedAppLayout(application.getUnpublishedAppLayout());
+
                     // Archive the deleted pages and save the application changes and then return the pages so that
                     // the pages can also be published
                     return Mono.zip(archivePageListMono, applicationService.save(application))
@@ -598,7 +594,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 //In each page, copy each layout's dsl to publishedDsl field
                 .flatMap(applicationPage -> newPageService
                         .findById(applicationPage.getId(), MANAGE_PAGES)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", applicationPage.getId())))
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, applicationPage.getId())))
                         .map(page -> {
                             page.setPublishedPage(page.getUnpublishedPage());
                             return page;

@@ -1,6 +1,5 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import styled from "styled-components";
 import IconComponent, {
@@ -14,10 +13,8 @@ const IconWrapper = styled.div`
   justify-content: flex-end;
 `;
 class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onClick: true,
-    };
+  static getPropertyPaneConfig() {
+    return [];
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
   /* eslint-disable @typescript-eslint/no-empty-function */

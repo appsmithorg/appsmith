@@ -8,8 +8,8 @@ import styled from "styled-components";
 const ToggleIcon = styled(ControlIcons.MORE_VERTICAL_CONTROL)`
   &&& {
     flex-grow: 0;
-    width: ${props => props.theme.fontSizes[3]}px;
-    height: ${props => props.theme.fontSizes[3]}px;
+    width: ${(props) => props.theme.fontSizes[3]}px;
+    height: ${(props) => props.theme.fontSizes[3]}px;
   }
 `;
 export const ContextMenuTrigger = (props: {

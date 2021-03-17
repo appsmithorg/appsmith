@@ -3,12 +3,12 @@ import styled from "styled-components";
 import PageUnavailableImage from "assets/images/404-image.png";
 
 const Wrapper = styled.div`
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   background-color: #fafafa;
   text-align: center;
-  padding-top: calc(${props => props.theme.headerHeight} + 50px);
+  padding-top: calc(${(props) => props.theme.headerHeight} + 50px);
   .bold-text {
-    font-weight: ${props => props.theme.fontWeights[3]};
+    font-weight: ${(props) => props.theme.fontWeights[3]};
     font-size: 24px;
   }
   .page-unavailable-img {

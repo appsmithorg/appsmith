@@ -25,7 +25,7 @@ export type TextInputProps = CommonComponentProps & {
 const StyledInput = styled.input<
   TextInputProps & { value?: string; isFocused: boolean }
 >`
-  width: ${props =>
+  width: ${(props) =>
     props.value && props.variant === SearchVariant.BACKGROUND && props.isFocused
       ? "calc(100% - 50px)"
       : "100%"};
@@ -35,16 +35,16 @@ const StyledInput = styled.input<
   border: none;
   padding: 0;
   background-color: transparent;
-  font-size: ${props => props.theme.typography.p1.fontSize}px;
-  font-weight: ${props => props.theme.typography.p1.fontWeight};
-  line-height: ${props => props.theme.typography.p1.lineHeight}px;
-  letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.p1.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.p1.fontWeight};
+  line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
+  letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
   text-overflow: ellipsis;
 
-  color: ${props => props.theme.colors.searchInput.text};
+  color: ${(props) => props.theme.colors.searchInput.text};
 
   &::placeholder {
-    color: ${props => props.theme.colors.searchInput.placeholder};
+    color: ${(props) => props.theme.colors.searchInput.placeholder};
   }
 `;
 
@@ -56,15 +56,15 @@ const InputWrapper = styled.div<{
 }>`
   display: flex;
   align-items: center;
-  padding: ${props => props.theme.spaces[3]}px
-    ${props => props.theme.spaces[4]}px ${props => props.theme.spaces[3]}px
-    ${props => props.theme.spaces[6]}px;
-  width: ${props => (props.fill ? "100%" : "210px")};
-  background-color: ${props =>
+  padding: ${(props) => props.theme.spaces[3]}px
+    ${(props) => props.theme.spaces[4]}px ${(props) => props.theme.spaces[3]}px
+    ${(props) => props.theme.spaces[6]}px;
+  width: ${(props) => (props.fill ? "100%" : "210px")};
+  background-color: ${(props) =>
     props.variant === SearchVariant.SEAMLESS
       ? "transparent"
       : props.theme.colors.searchInput.bg};
-  ${props =>
+  ${(props) =>
     props.variant === SearchVariant.BACKGROUND
       ? props.isFocused || props.value
         ? `box-shadow: 0px 1px 0px ${props.theme.colors.info.main}`
@@ -77,12 +77,12 @@ const SearchIcon = styled.div<{
   isFocused: boolean;
 }>`
   .${Classes.ICON} {
-    margin-right: ${props => props.theme.spaces[5]}px;
+    margin-right: ${(props) => props.theme.spaces[5]}px;
 
     svg {
       path,
       circle {
-        stroke: ${props =>
+        stroke: ${(props) =>
           props.isFocused || props.value
             ? props.theme.colors.searchInput.icon.focused
             : props.theme.colors.searchInput.icon.normal};
@@ -93,8 +93,8 @@ const SearchIcon = styled.div<{
 
 const CloseIcon = styled.div`
   .${Classes.ICON} {
-    margin-right: ${props => props.theme.spaces[4]}px;
-    margin-left: ${props => props.theme.spaces[4]}px;
+    margin-right: ${(props) => props.theme.spaces[4]}px;
+    margin-left: ${(props) => props.theme.spaces[4]}px;
   }
 `;
 
@@ -108,7 +108,7 @@ const SearchInput = forwardRef(
     }, [props.defaultValue]);
 
     const memoizedChangeHandler = useCallback(
-      el => {
+      (el) => {
         setSearchValue(el.target.value);
         return props.onChange && props.onChange(el.target.value);
       },

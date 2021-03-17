@@ -1,216 +1,133 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { change, formValueSelector } from "redux-form";
-import Select from "react-select";
+import { formValueSelector } from "redux-form";
 import {
-  CONTENT_TYPE,
+  ApiContentTypes,
   POST_BODY_FORMAT_OPTIONS,
-  POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART,
-  POST_BODY_FORMATS,
+  POST_BODY_FORMAT_TITLES_NO_MULTI_PART,
 } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
-import FormLabel from "components/editorComponents/FormLabel";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "reducers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import {
   EditorModes,
   EditorSize,
+  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import MultiSwitch from "components/ads/MultiSwitch";
+import { updateBodyContentType } from "actions/apiPaneActions";
 
-const DropDownContainer = styled.div`
-  width: 300px;
-  margin: 5px;
-  margin-bottom: 21px;
-`;
-
-const PostbodyContainer = styled.div`
-  margin-top: 41px;
+const PostBodyContainer = styled.div`
+  padding: 12px 0px 0px;
+  background-color: ${(props) => props.theme.colors.apiPane.bg};
+  height: 100%;
 `;
 
 const JSONEditorFieldWrapper = styled.div`
-  margin: 5px;
+  margin: 0 30px;
   .CodeMirror {
     height: auto;
-    min-height: 300px;
+    min-height: 250px;
   }
 `;
-export interface RapidApiAction {
-  editable: boolean;
-  mandatory: boolean;
-  description: string;
-  key: string;
-  value?: string;
-  type: string;
-}
 
 interface PostDataProps {
-  actionConfiguration: any;
   displayFormat: any;
-  actionConfigurationHeaders?: any;
-  change: any;
-  onDisplayFormatChange: (headers: any[]) => void;
-  apiId: string;
-  setDisplayFormat: (
-    apiId: string,
-    displayFormat: { label: string; value: string },
-  ) => void;
   dataTreePath: string;
+  theme?: EditorTheme;
+  updateBodyContentType: (contentType: ApiContentTypes, apiId: string) => void;
+  apiId: string;
 }
 
 type Props = PostDataProps;
 
 const PostBodyData = (props: Props) => {
   const {
-    onDisplayFormatChange,
-    actionConfigurationHeaders,
     displayFormat,
-    setDisplayFormat,
-    apiId,
     dataTreePath,
+    updateBodyContentType,
+    theme,
+    apiId,
   } = props;
+
   return (
-    <PostbodyContainer>
-      <FormLabel>{"Body"}</FormLabel>
-      <DropDownContainer>
-        <Select
-          className={"t--apiFormPostBodyType"}
-          defaultValue={POST_BODY_FORMAT_OPTIONS[0]}
-          placeholder="Format"
-          isSearchable={false}
-          onChange={(displayFormatObject: any) => {
-            if (
-              displayFormatObject &&
-              displayFormatObject.value === POST_BODY_FORMATS[3]
-            ) {
-              setDisplayFormat(apiId, POST_BODY_FORMAT_OPTIONS[3]);
-              return;
-            }
-
-            const elementsIndex = actionConfigurationHeaders.findIndex(
-              (element: { key: string; value: string }) =>
-                element &&
-                element.key &&
-                element.key.trim().toLowerCase() === CONTENT_TYPE,
+    <PostBodyContainer>
+      <MultiSwitch
+        selected={displayFormat}
+        tabs={POST_BODY_FORMAT_TITLES_NO_MULTI_PART.map((el) => {
+          let component = (
+            <JSONEditorFieldWrapper
+              className={"t--apiFormPostBody"}
+              key={el.key}
+            >
+              <DynamicTextField
+                name="actionConfiguration.body"
+                expected={FIELD_VALUES.API_ACTION.body}
+                showLineNumbers
+                tabBehaviour={TabBehaviour.INDENT}
+                size={EditorSize.EXTENDED}
+                mode={EditorModes.JSON_WITH_BINDING}
+                placeholder={
+                  '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
+                }
+                dataTreePath={`${dataTreePath}.body`}
+                theme={theme}
+              />
+            </JSONEditorFieldWrapper>
+          );
+          if (el.title === ApiContentTypes.FORM_URLENCODED) {
+            component = (
+              <KeyValueFieldArray
+                key={el.key}
+                name="actionConfiguration.bodyFormData"
+                dataTreePath={`${dataTreePath}.bodyFormData`}
+                label=""
+                theme={theme}
+              />
             );
-
-            if (elementsIndex >= 0 && displayFormatObject) {
-              const updatedHeaders = [...actionConfigurationHeaders];
-
-              updatedHeaders[elementsIndex] = {
-                ...updatedHeaders[elementsIndex],
-                key: CONTENT_TYPE,
-                value: displayFormatObject.value,
-              };
-
-              onDisplayFormatChange(updatedHeaders);
-            } else {
-              setDisplayFormat(apiId, POST_BODY_FORMAT_OPTIONS[3]);
-            }
-          }}
-          value={displayFormat}
-          width={300}
-          options={POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART}
-        />
-      </DropDownContainer>
-
-      {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[0].value && (
-        <React.Fragment>
-          <JSONEditorFieldWrapper className={"t--apiFormPostBody"}>
-            <DynamicTextField
-              name="actionConfiguration.body"
-              expected={FIELD_VALUES.API_ACTION.body}
-              showLineNumbers
-              tabBehaviour={TabBehaviour.INDENT}
-              size={EditorSize.EXTENDED}
-              mode={EditorModes.JSON_WITH_BINDING}
-              placeholder={
-                '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
-              }
-              dataTreePath={`${dataTreePath}.body`}
-            />
-          </JSONEditorFieldWrapper>
-        </React.Fragment>
-      )}
-
-      {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[1].value && (
-        <React.Fragment>
-          <KeyValueFieldArray
-            name="actionConfiguration.bodyFormData"
-            dataTreePath={`${dataTreePath}.bodyFormData`}
-            label=""
-            pushFields
-          />
-        </React.Fragment>
-      )}
-
-      {/* Commenting this till we figure the code to create a multipart request
-      {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[2].value && (
-        <React.Fragment>
-          <KeyValueFieldArray name="actionConfiguration.bodyFormData" label="" />
-        </React.Fragment>
-      )} */}
-
-      {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[3].value && (
-        <React.Fragment>
-          <JSONEditorFieldWrapper>
-            <DynamicTextField
-              name="actionConfiguration.body"
-              height={300}
-              tabBehaviour={TabBehaviour.INDENT}
-              size={EditorSize.EXTENDED}
-              dataTreePath={`${dataTreePath}.body`}
-            />
-          </JSONEditorFieldWrapper>
-        </React.Fragment>
-      )}
-    </PostbodyContainer>
+          } else if (el.title === ApiContentTypes.RAW) {
+            component = (
+              <JSONEditorFieldWrapper key={el.key}>
+                <DynamicTextField
+                  name="actionConfiguration.body"
+                  tabBehaviour={TabBehaviour.INDENT}
+                  size={EditorSize.EXTENDED}
+                  mode={EditorModes.TEXT_WITH_BINDING}
+                  dataTreePath={`${dataTreePath}.body`}
+                  theme={theme}
+                />
+              </JSONEditorFieldWrapper>
+            );
+          }
+          return { key: el.key, title: el.title, panelComponent: component };
+        })}
+        onSelect={(title: ApiContentTypes) =>
+          updateBodyContentType(title, apiId)
+        }
+      />
+    </PostBodyContainer>
   );
 };
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 const mapDispatchToProps = (dispatch: any) => ({
-  onDisplayFormatChange: (value: any[]) =>
-    dispatch(
-      change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", value),
-    ),
-  setDisplayFormat: (
-    id: string,
-    displayFormat: { label: string; value: string },
-  ) => {
-    dispatch({
-      type: ReduxActionTypes.SET_EXTRA_FORMDATA,
-      payload: {
-        id,
-        values: {
-          displayFormat,
-        },
-      },
-    });
-  },
+  updateBodyContentType: (contentType: ApiContentTypes, apiId: string) =>
+    dispatch(updateBodyContentType(contentType, apiId)),
 });
 
 export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
-  const headers = selector(state, "actionConfiguration.headers");
-  let contentType;
-  if (headers) {
-    contentType = headers.find(
-      (header: any) =>
-        header && header.key && header.key.toLowerCase() === CONTENT_TYPE,
-    );
-  }
+  const displayFormat =
+    extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[3];
 
   return {
-    displayFormat:
-      extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[3],
-    contentType,
+    displayFormat,
     apiId,
   };
 }, mapDispatchToProps)(PostBodyData);

@@ -4,8 +4,9 @@ import _ from "lodash";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { theme, scrollbarDark, scrollbarLight } from "constants/DefaultTheme";
+import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const Wrapper = styled.div`
   position: relative;
@@ -24,72 +25,72 @@ type PopupTheme = Record<EditorTheme, ThemeConfig>;
 
 const THEMES: PopupTheme = {
   [EditorTheme.LIGHT]: {
-    backgroundColor: "#fff",
-    textColor: "#1E242B",
-    editorBackground: "#F4F4F4",
+    backgroundColor: "#EBEBEB",
+    textColor: "#4B4848",
+    editorBackground: "#FAFAFA",
     editorColor: "#1E242B",
   },
   [EditorTheme.DARK]: {
-    backgroundColor: "#23292e",
-    textColor: "#F4F4F4",
-    editorBackground: "#090a0f",
+    backgroundColor: "#262626",
+    textColor: "#D4D4D4",
+    editorBackground: "#1A191C",
     editorColor: "#F4F4F4",
   },
 };
 
 const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  width: ${props => props.theme.evaluatedValuePopup.width}px;
-  max-height: ${props => props.theme.evaluatedValuePopup.height}px;
+  width: ${(props) => props.theme.evaluatedValuePopup.width}px;
+  max-height: ${(props) => props.theme.evaluatedValuePopup.height}px;
   overflow-y: auto;
   ::-webkit-scrollbar {
     display: none;
   }
   -ms-overflow-style: none;
-  background-color: ${props => THEMES[props.colorTheme].backgroundColor};
-  color: ${props => THEMES[props.colorTheme].textColor};
+  background-color: ${(props) => THEMES[props.colorTheme].backgroundColor};
+  color: ${(props) => THEMES[props.colorTheme].textColor};
   padding: 10px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 4px;
+  box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+  border-radius: 0px;
 `;
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  ${props =>
-    props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
   max-height: 300px;
   overflow-y: auto;
   -ms-overflow-style: none;
+  padding: ${(props) => props.theme.spaces[3]}px;
+  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
-  ${props =>
-    props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
-  padding: 10px;
   margin: 0px 0px;
-  background-color: ${props => THEMES[props.colorTheme].editorBackground};
-  color: ${props => THEMES[props.colorTheme].editorColor};
+  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  color: ${(props) => THEMES[props.colorTheme].editorColor};
   font-size: 14px;
   -ms-overflow-style: none;
   white-space: pre-wrap;
+  word-break: break-all;
 `;
 
 const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
-  ${props =>
-    props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
-  padding: 5px;
-  background-color: ${props => THEMES[props.colorTheme].editorBackground};
-  color: ${props => THEMES[props.colorTheme].editorColor};
+  padding: ${(props) => props.theme.spaces[3]}px;
+  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  color: ${(props) => THEMES[props.colorTheme].editorColor};
   font-size: 12px;
   margin: 5px 0;
   -ms-overflow-style: none;
 `;
 
 const ErrorText = styled.p`
-  margin: 5px 0;
-  padding: 5px;
-  border-radius: 2px;
-  font-size: 13px;
-  background-color: rgba(226, 44, 4, 0.1);
-  color: ${props => props.theme.colors.errorMessage};
+  margin: ${(props) => props.theme.spaces[2]}px 0px;
+  padding: ${(props) => props.theme.spaces[3]}px
+    ${(props) => props.theme.spaces[5]}px;
+  border-radius: 0px;
+  font-size: 14px;
+  line-height: 19px;
+  letter-spacing: -0.24px;
+  background-color: rgba(226, 44, 44, 0.08);
+  border: 1.2px solid ${(props) => props.theme.colors.errorMessage};
+  color: ${(props) => props.theme.colors.errorMessage};
 `;
 
 const StyledTitle = styled.p`
@@ -119,8 +120,14 @@ export const CurrentValueViewer = (props: {
   evaluatedValue: any;
   hideLabel?: boolean;
 }) => {
+  const currentValueWrapperRef = React.createRef<HTMLDivElement>();
+  const codeWrapperRef = React.createRef<HTMLPreElement>();
+
   let content = (
-    <CodeWrapper colorTheme={props.theme}>{"undefined"}</CodeWrapper>
+    <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
+      {"undefined"}
+      <ScrollIndicator containerRef={codeWrapperRef} />
+    </CodeWrapper>
   );
   if (props.evaluatedValue !== undefined) {
     if (
@@ -142,10 +149,11 @@ export const CurrentValueViewer = (props: {
       content = <ReactJson src={props.evaluatedValue} {...reactJsonProps} />;
     } else {
       content = (
-        <CodeWrapper colorTheme={props.theme}>
+        <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
           {props.evaluatedValue === null
             ? "null"
             : props.evaluatedValue.toString()}
+          <ScrollIndicator containerRef={codeWrapperRef} />
         </CodeWrapper>
       );
     }
@@ -154,13 +162,18 @@ export const CurrentValueViewer = (props: {
     <React.Fragment>
       {!props.hideLabel && <StyledTitle>Evaluated Value</StyledTitle>}
       <CurrentValueWrapper colorTheme={props.theme}>
-        {content}
+        <>
+          {content}
+          <ScrollIndicator containerRef={currentValueWrapperRef} />
+        </>
       </CurrentValueWrapper>
     </React.Fragment>
   );
 };
 
 const PopoverContent = (props: PopoverContentProps) => {
+  const typeTextRef = React.createRef<HTMLPreElement>();
+
   return (
     <ContentWrapper
       onMouseEnter={props.onMouseEnter}
@@ -174,7 +187,10 @@ const PopoverContent = (props: PopoverContentProps) => {
       {!props.hasError && props.expected && (
         <React.Fragment>
           <StyledTitle>Expected Data Type</StyledTitle>
-          <TypeText colorTheme={props.theme}>{props.expected}</TypeText>
+          <TypeText colorTheme={props.theme} ref={typeTextRef}>
+            {props.expected}
+            <ScrollIndicator containerRef={typeTextRef} />
+          </TypeText>
         </React.Fragment>
       )}
       <CurrentValueViewer
@@ -216,7 +232,7 @@ const EvaluatedValuePopup = (props: Props) => {
             expected={props.expected}
             evaluatedValue={props.evaluatedValue}
             hasError={props.hasError}
-            theme={EditorTheme.DARK}
+            theme={props.theme}
             onMouseLeave={() => {
               setContentHovered(false);
             }}

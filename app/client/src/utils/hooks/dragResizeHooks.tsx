@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { focusWidget } from "actions/widgetActions";
-import { useCallback } from "react";
+import { focusWidget, selectWidget } from "actions/widgetActions";
+import { useCallback, useEffect, useState } from "react";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
@@ -64,10 +64,7 @@ export const useWidgetSelection = () => {
   return {
     selectWidget: useCallback(
       (widgetId?: string) => {
-        dispatch({
-          type: ReduxActionTypes.SELECT_WIDGET,
-          payload: { widgetId },
-        });
+        dispatch(selectWidget(widgetId));
       },
       [dispatch],
     ),
@@ -105,4 +102,24 @@ export const useWidgetDragResize = () => {
       [dispatch],
     ),
   };
+};
+
+export const useWindowSizeHooks = () => {
+  const [windowSize, updateWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+  const onResize = () => {
+    updateWindowSize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  };
+  useEffect(() => {
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+  return windowSize;
 };
