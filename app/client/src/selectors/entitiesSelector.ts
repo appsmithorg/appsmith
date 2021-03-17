@@ -282,6 +282,8 @@ export const isActionDirty = (id: string) =>
 
 export const getAppData = (state: AppState) => state.entities.app;
 
+export const getAppStoreData = (state: AppState) => state.entities.app.store;
+
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 

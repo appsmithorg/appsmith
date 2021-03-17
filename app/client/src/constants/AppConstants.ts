@@ -10,7 +10,7 @@ const APP_STORE_NAMESPACE = "APPSMITH_LOCAL_STORE";
 export const getAppStoreName = (appId: string) =>
   `${APP_STORE_NAMESPACE}-${appId}`;
 
-export const getAppStore = (appId: string) => {
+export const getPersistentAppStore = (appId: string) => {
   const appStoreName = getAppStoreName(appId);
   let storeString = "{}";
   // Check if localStorage exists

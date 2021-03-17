@@ -57,6 +57,7 @@ import ActionAPI, {
 } from "api/ActionAPI";
 import {
   getAction,
+  getAppStoreData,
   getCurrentPageNameByActionId,
   isActionDirty,
   isActionSaving,
@@ -175,18 +176,19 @@ function* navigateActionSaga(
 }
 
 function* storeValueLocally(
-  action: { key: string; value: string },
+  action: { key: string; value: string; persist: boolean },
   event: ExecuteActionPayloadEvent,
 ) {
   try {
     const appId = yield select(getCurrentApplicationId);
     const appStoreName = getAppStoreName(appId);
-    const existingStore = yield localStorage.getItem(appStoreName) || "{}";
-    const storeObj = JSON.parse(existingStore);
-    storeObj[action.key] = action.value;
-    const storeString = JSON.stringify(storeObj);
-    yield localStorage.setItem(appStoreName, storeString);
-    yield put(updateAppStore(storeObj));
+    const existingStore = yield select(getAppStoreData);
+    existingStore[action.key] = action.value;
+    if (action.persist) {
+      const storeString = JSON.stringify(existingStore);
+      yield localStorage.setItem(appStoreName, storeString);
+    }
+    yield put(updateAppStore(existingStore));
     if (event.callback) event.callback({ success: true });
   } catch (err) {
     if (event.callback) event.callback({ success: false });

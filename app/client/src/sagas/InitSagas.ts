@@ -31,7 +31,7 @@ import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
-import { getAppStore } from "constants/AppConstants";
+import { getPersistentAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
 import { populatePageDSLsSaga } from "./PageSagas";
 import log from "loglevel";
@@ -115,7 +115,7 @@ function* initializeEditorSaga(
       return;
     }
 
-    yield put(updateAppStore(getAppStore(applicationId)));
+    yield put(updateAppStore(getPersistentAppStore(applicationId)));
 
     const currentApplication = yield select(getCurrentApplication);
 
@@ -185,7 +185,7 @@ export function* initializeAppViewerSaga(
     return;
   }
 
-  yield put(updateAppStore(getAppStore(applicationId)));
+  yield put(updateAppStore(getPersistentAppStore(applicationId)));
   const defaultPageId = yield select(getDefaultPageId);
   const toLoadPageId = pageId || defaultPageId;
 
@@ -212,7 +212,7 @@ export function* initializeAppViewerSaga(
     }
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
-    yield put(updateAppStore(getAppStore(applicationId)));
+    yield put(updateAppStore(getPersistentAppStore(applicationId)));
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
