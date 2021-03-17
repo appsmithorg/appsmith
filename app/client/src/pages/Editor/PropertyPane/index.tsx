@@ -16,7 +16,7 @@ import {
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import styled, { hideScrollbar } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -32,7 +32,7 @@ import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+// import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -47,7 +47,6 @@ const PropertyPaneWrapper = styled(PaneWrapper)<{
   overflow-y: auto;
   overflow-x: hidden;
   text-transform: none;
-  ${hideScrollbar}
 `;
 
 const StyledPanelStack = styled(PanelStack)`
@@ -207,11 +206,6 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
             },
           }}
           showPanelHeader={false}
-        />
-        <ScrollIndicator
-          containerRef={this.panelWrapperRef}
-          top="4px"
-          right="8px"
         />
       </PropertyPaneWrapper>
     );
