@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -144,6 +144,12 @@ export const PanelPropertiesEditor = (
     }),
     [props.openPanel, props.closePanel],
   );
+
+  useEffect(() => {
+    if (!panelConfigs) {
+      props.closePanel();
+    }
+  }, [widgetProperties.widgetId]);
 
   if (!widgetProperties) return null;
   const updatePropertyTitle = (title: string) => {

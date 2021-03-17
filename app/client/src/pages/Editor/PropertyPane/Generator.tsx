@@ -41,7 +41,7 @@ export const generatePropertyControl = (
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
         <PropertyControl
-          key={config.id}
+          key={config.id + props.id}
           {...(config as PropertyPaneControlConfig)}
           panel={props.panel}
           theme={props.theme}
