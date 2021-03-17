@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled, { withTheme } from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import EmojiPicker from "./EmojiPicker";
 
 const StyledInputContainer = styled.div`
   display: flex;
@@ -66,6 +67,10 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
     }
   };
 
+  const handleEmojiClick = (e: any, emojiObject: any) => {
+    setValue(`${value}${emojiObject.emoji}`);
+  };
+
   return (
     <PaddingContainer>
       <StyledInputContainer>
@@ -75,7 +80,7 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
           onKeyDown={handleKeyDown}
         />
         <StyledEmojiTrigger>
-          <Icon name="emoji" size={IconSize.LARGE} />
+          <EmojiPicker onSelectEmoji={handleEmojiClick} />
         </StyledEmojiTrigger>
         <StyledSendButton onClick={onSaveComment}>
           <Icon
@@ -83,7 +88,7 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
             fillColor={theme.colors.comments.sendButton}
             size={IconSize.XL}
           />
-        </StyledSendButton>{" "}
+        </StyledSendButton>
       </StyledInputContainer>
     </PaddingContainer>
   );
