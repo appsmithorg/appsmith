@@ -45,8 +45,8 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.readTabledataValidateCSS(
       "1",
       "0",
-      "background",
-      "rgb(0, 128, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+      "background-color",
+      "rgb(0, 128, 0)",
     );
   });
 
