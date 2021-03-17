@@ -21,7 +21,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
-import ScrollIndicator from "components/designSystems/appsmith/ScrollIndicator";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const Wrapper = styled.div`
   height: 100%;

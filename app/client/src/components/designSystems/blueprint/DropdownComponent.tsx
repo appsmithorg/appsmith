@@ -138,7 +138,7 @@ const DropdownStyles = createGlobalStyle`
         &::before {
           width: auto;
           height: 1em;
-        }&
+        }
       }
       .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
         background: ${(props) => props.theme.colors.primaryOld};
