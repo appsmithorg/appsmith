@@ -23,6 +23,11 @@ import propertyPaneConfig from "./ListPropertyPaneConfig";
 import { EventType } from "constants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination from "./ListPagination";
+import {
+  GridDefaults,
+  WIDGET_PADDING,
+  CONTAINER_GRID_PADDING,
+} from "constants/WidgetConstants";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -169,8 +174,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         ...child,
         gap,
         backgroundColor: this.props.itemBackgroundColor,
-        topRow: index * children[0].bottomRow + index * gap,
-        bottomRow: (index + 1) * children[0].bottomRow + index * gap,
+        topRow:
+          index * children[0].bottomRow +
+          index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
+        bottomRow:
+          (index + 1) * children[0].bottomRow +
+          index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
         resizeDisabled:
           index > 0 && this.props.renderMode === RenderModes.CANVAS,
       };
@@ -408,15 +417,15 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     const templateHeight = templateBottomRow * 40;
 
+    console.log({ WIDGET_PADDING });
     const shouldPaginate =
-      templateHeight * items.length +
-        parseInt(gridGap) * (items.length - 1) * 40 >
+      templateHeight * items.length + parseInt(gridGap) * (items.length - 1) >
       componentHeight;
-    const perPage = ceil(
-      componentHeight / (templateHeight + parseInt(gridGap) * 40) - 1,
-    );
+    const perPage =
+      (componentHeight - WIDGET_PADDING * 2) /
+      (templateHeight + parseInt(gridGap));
 
-    return { shouldPaginate, perPage };
+    return { shouldPaginate, perPage: floor(perPage) };
   };
 
   /**
@@ -425,6 +434,15 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   getPageView() {
     const children = this.renderChildren();
     const { shouldPaginate, perPage } = this.shouldPaginate();
+
+    if (isNaN(perPage) || perPage === 0) {
+      return (
+        <>
+          Please make sure your list widget size atleast greater than the list
+          template
+        </>
+      );
+    }
 
     if (Array.isArray(this.props.items) && this.props.items.length === 0) {
       return <>Nothing to display</>;
