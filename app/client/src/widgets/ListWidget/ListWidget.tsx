@@ -1,6 +1,6 @@
 import React from "react";
 import log from "loglevel";
-import { compact, floor, get, set, xor } from "lodash";
+import { compact, floor, ceil, get, set, xor } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -412,9 +412,15 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       templateHeight * items.length +
         parseInt(gridGap) * (items.length - 1) * 40 >
       componentHeight;
-    const perPage = floor(
-      componentHeight / (templateHeight + parseInt(gridGap) * 40),
+    const perPage = ceil(
+      componentHeight / (templateHeight + parseInt(gridGap) * 40) - 1,
     );
+
+    console.log({
+      a: templateHeight + parseInt(gridGap) * 40,
+      b: componentHeight,
+      perPage,
+    });
 
     return { shouldPaginate, perPage };
   };

@@ -19,7 +19,6 @@ const GridContainer = styled.div<GridComponentProps>`
   height: 100%;
   width: 100%;
   position: relative;
-  padding-bottom: ${(props) => (props.hasPagination ? "28px" : 0)};
   background: ${(props) => props.backgroundColor};
 `;
 
@@ -31,7 +30,6 @@ const ScrollableCanvasWrapper = styled.div<
   width: 100%;
   height: 100%;
   overflow: hidden;
-  overflow-y: ${(props) => (props.shouldScrollContents ? "scroll" : "inherit")};
 `;
 
 const ListComponent = (props: GridComponentProps) => {
