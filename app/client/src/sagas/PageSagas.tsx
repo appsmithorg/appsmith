@@ -306,7 +306,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       pageId: savePageRequest.pageId,
     },
   );
-  AnalyticsUtil.logEvent("PAGE_SAVE", savePageRequest);
+  AnalyticsUtil.logEvent("PAGE_SAVE", JSON.stringify(savePageRequest));
   try {
     // Store the updated DSL in the pageDSLs reducer
     yield put({
@@ -384,8 +384,8 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
           widgets[widgetId],
         );
         AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
-          error: incorrectBindingError,
-          correctWidget: correctedWidget,
+          error: error.message,
+          correctWidget: JSON.stringify(correctedWidget),
         });
         yield put(
           updateAndSaveLayout(

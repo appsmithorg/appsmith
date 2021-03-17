@@ -382,7 +382,7 @@ public class ExamplesOrganizationClonerTests {
                                 app.setName(originalName);
                                 return app;
                             })
-                            .flatMap(app -> examplesOrganizationCloner.cloneApplications(app.getOrganizationId(), orgId, Flux.fromArray(new Application[]{ app })))
+                            .flatMap(app -> examplesOrganizationCloner.cloneApplications(orgId, Flux.fromArray(new Application[]{ app })))
                             .then();
                     // Clone this application into the same organization thrice.
                     return cloneMono
@@ -851,7 +851,6 @@ public class ExamplesOrganizationClonerTests {
                                             return app;
                                         })
                                         .flatMap(app -> examplesOrganizationCloner.cloneApplications(
-                                                app.getOrganizationId(),
                                                 targetOrg1.getId(),
                                                 Flux.fromArray(new Application[]{ app })
                                         ))
