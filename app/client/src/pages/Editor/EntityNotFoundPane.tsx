@@ -2,7 +2,11 @@ import React from "react";
 import styled from "styled-components";
 import Button, { Size, Category } from "components/ads/Button";
 import PageUnavailableImage from "assets/images/invalid-page.png";
-import { PAGE_NOT_FOUND_ERROR, INVALID_URL_ERROR } from "constants/messages";
+import {
+  PAGE_NOT_FOUND_ERROR,
+  INVALID_URL_ERROR,
+  createMessage,
+} from "constants/messages";
 import { useHistory } from "react-router-dom";
 
 const Wrapper = styled.div`
@@ -52,8 +56,8 @@ const EntityNotFoundPane = () => {
         className="page-unavailable-img"
       />
       <div className="page-details">
-        <p className="bold-text">{INVALID_URL_ERROR}</p>
-        <p className="page-message">{PAGE_NOT_FOUND_ERROR}</p>
+        <p className="bold-text">{createMessage(INVALID_URL_ERROR)}</p>
+        <p className="page-message">{createMessage(PAGE_NOT_FOUND_ERROR)}</p>
         <Button
           tag="button"
           text="Go Back"

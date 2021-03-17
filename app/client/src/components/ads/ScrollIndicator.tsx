@@ -5,30 +5,49 @@ import { useSpring, animated, interpolate } from "react-spring";
 
 const ScrollTrack = styled.div<{
   isVisible: boolean;
+  top?: string;
+  bottom?: string;
+  right?: string;
+  mode?: "DARK" | "LIGHT";
 }>`
   position: absolute;
   z-index: 100;
-  top: 0;
-  right: 2px;
+  top: ${(props) => (props.top ? props.top : "0px")};
+  bottom: ${(props) => (props.bottom ? props.bottom : "0px")};
+  right: ${(props) => (props.right ? props.right : "2px")};
   width: 4px;
-  height: 100%;
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 6px
+    ${(props) =>
+      props.mode
+        ? props.mode === "LIGHT"
+          ? props.theme.colors.scrollbarLightBG
+          : props.theme.colors.scrollbarDarkBG
+        : props.theme.colors.scrollbarBG};
   overflow: hidden;
   opacity: ${(props) => (props.isVisible ? 1 : 0)};
   transition: opacity 0.15s ease-in;
 `;
 
-const ScrollThumb = styled(animated.div)`
+const ScrollThumb = styled(animated.div)<{ mode?: "DARK" | "LIGHT" }>`
   width: 4px;
-  background-color: #ebeef0aa;
-  border-radius: 3px;
+  background-color: ${(props) =>
+    props.mode
+      ? props.mode === "LIGHT"
+        ? props.theme.colors.scrollbarLight
+        : props.theme.colors.scrollbarDark
+      : props.theme.colors.scrollbar};
+  border-radius: ${(props) => props.theme.radii[3]}px;
   transform: translate3d(0, 0, 0);
 `;
 
 interface Props {
-  containerRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLElement>;
+  top?: string;
+  bottom?: string;
+  right?: string;
+  mode?: "DARK" | "LIGHT";
 }
-const ScrollIndicator = ({ containerRef }: Props) => {
+const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
     config: {
@@ -85,7 +104,13 @@ const ScrollIndicator = ({ containerRef }: Props) => {
   }, 1500);
 
   return (
-    <ScrollTrack isVisible={isScrollVisible} className="scrollbar-track">
+    <ScrollTrack
+      className="scrollbar-track"
+      isVisible={isScrollVisible}
+      top={top}
+      bottom={bottom}
+      right={right}
+    >
       <ScrollThumb
         className="scrollbar-thumb"
         ref={thumbRef}

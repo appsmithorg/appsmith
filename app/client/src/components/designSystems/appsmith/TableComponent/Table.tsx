@@ -22,6 +22,7 @@ import HorizontalScrollIndicator from "components/designSystems/appsmith/Horizon
 import { Colors } from "constants/Colors";
 
 import { EventType } from "constants/ActionConstants";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 interface TableProps {
   width: number;
@@ -67,6 +68,8 @@ const defaultColumn = {
 
 export const Table = (props: TableProps) => {
   const isResizingColumn = React.useRef(false);
+  const tableWrapperRef = React.useRef<HTMLDivElement>(null);
+
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnSizeMap = {
       ...props.columnSizeMap,
@@ -151,6 +154,7 @@ export const Table = (props: TableProps) => {
       id={`table${props.widgetId}`}
       triggerRowSelection={props.triggerRowSelection}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
+      ref={tableWrapperRef}
     >
       <TableHeader
         width={props.width}
@@ -277,6 +281,7 @@ export const Table = (props: TableProps) => {
         </div>
         <HorizontalScrollIndicator containerRef={tableWrapperRef} />
       </div>
+      <ScrollIndicator containerRef={tableWrapperRef} mode="LIGHT" />
     </TableWrapper>
   );
 };
