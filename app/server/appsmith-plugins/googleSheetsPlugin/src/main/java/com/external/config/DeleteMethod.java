@@ -33,10 +33,6 @@ public class DeleteMethod implements Method {
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + ":batchUpdate");
 
-        uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
-        uriBuilder.queryParam("insertDataOption", "OVERWRITE");
-        uriBuilder.queryParam("includeValuesInResponse", Boolean.TRUE);
-
         return webClient.method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromValue(
