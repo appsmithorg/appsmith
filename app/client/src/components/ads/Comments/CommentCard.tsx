@@ -38,19 +38,18 @@ const UserName = styled.span`
 
 // eslint-disable-next-line
 const CommentCard = ({ comment, theme }: { comment: any; theme: Theme }) => {
-  const userName = "sampleUserName";
-  const bodyText = "@Bruce Can we change the title to something else";
+  const { authorName, body } = comment;
 
   return (
     <StyledContainer>
       <CommentHeader>
         <div style={{ display: "flex" }}>
-          <ProfileImage userName={userName} side={24} />
-          <UserName>{userName}</UserName>
+          <ProfileImage userName={authorName} side={24} />
+          <UserName>{authorName}</UserName>
         </div>
         <CommentContextMenu />
       </CommentHeader>
-      <CommentBody>{bodyText}</CommentBody>
+      <CommentBody>{body}</CommentBody>
     </StyledContainer>
   );
 };

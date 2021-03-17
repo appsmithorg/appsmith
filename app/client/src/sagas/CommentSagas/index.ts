@@ -26,6 +26,7 @@ import {
   transformPublishedCommentActionPayload,
   transformUnpublishCommentThreadToCreateNew,
 } from "components/ads/Comments/utils";
+import { uniqueId } from "lodash";
 
 import { getAppsmithConfigs } from "configs";
 
@@ -79,7 +80,7 @@ function* addCommentToThread(action: ReduxAction<any>) {
   yield put(
     addCommentToThreadSuccess({
       commentThreadId: commentThread.id,
-      comment: { body: commentBody },
+      comment: { body: commentBody, authorName: uniqueId() },
     }),
   );
 }

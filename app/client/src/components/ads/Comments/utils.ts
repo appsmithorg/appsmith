@@ -40,7 +40,7 @@ export const transformUnpublishCommentThreadToCreateNew = (payload: any) => {
   return {
     ...commentThread,
     id: uniqueId(),
-    comments: [{ body: commentBody }],
+    comments: [{ body: commentBody, authorName: uniqueId() }],
     isVisible: true,
   };
 };

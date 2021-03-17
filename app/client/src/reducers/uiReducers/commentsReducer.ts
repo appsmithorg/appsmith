@@ -19,7 +19,7 @@ type CommentThreadMetadata = {
   position: { top: number; left: number }; // percentage
 };
 
-type Comment = { body: string };
+type Comment = { body: string; authorName: string };
 
 export type CommentThread = {
   // parentType: CommentThreadParentTypes;

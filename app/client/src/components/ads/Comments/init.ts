@@ -1,4 +1,5 @@
 import { updateAndSaveLayout } from "actions/pageActions";
+import { uniqueId } from "lodash";
 
 const dsl = require("./dsl.json");
 
@@ -12,8 +13,8 @@ export const getTestComments = () => {
         meta: {
           position: { top: 10, left: 15 },
         },
-        id: `${index}`,
-        comments: [{ body: widgetId }],
+        id: uniqueId(),
+        comments: [{ body: widgetId, authorName: uniqueId() }],
       };
     },
   );
