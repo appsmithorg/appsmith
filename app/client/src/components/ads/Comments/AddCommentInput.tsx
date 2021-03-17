@@ -53,6 +53,10 @@ const StyledTextArea = styled.textarea`
 
 const AddCommentInput = withTheme(({ onSave, theme }: any) => {
   const [value, setValue] = useState("");
+  const onSaveComment = () => {
+    onSave(value);
+    setValue("");
+  };
 
   return (
     <PaddingContainer>
@@ -64,7 +68,7 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
         <StyledEmojiTrigger>
           <Icon name="emoji" size={IconSize.LARGE} />
         </StyledEmojiTrigger>
-        <StyledSendButton onClick={() => onSave(value)}>
+        <StyledSendButton onClick={onSaveComment}>
           <Icon
             name="send-button"
             fillColor={theme.colors.comments.sendButton}
