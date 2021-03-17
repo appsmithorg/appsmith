@@ -69,3 +69,15 @@ export const setIsCommentThreadVisible = (payload: {
   type: ReduxActionTypes.SET_IS_COMMENT_THREAD_VISIBLE,
   payload,
 });
+
+export const resolveCommentThread = (payload: { commentThreadId: string }) => ({
+  type: ReduxActionTypes.RESOLVE_COMMENT_THREAD,
+  payload,
+});
+
+export const unresolveCommentThread = (payload: {
+  commentThreadId: string;
+}) => ({
+  type: ReduxActionTypes.UNRESOLVE_COMMENT_THREAD,
+  payload,
+});

@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 
 import CommentCard from "./CommentCard";
 import AddCommentInput from "./AddCommentInput";
+import ResolveCommentButton from "./ResolveCommentButton";
 import {
   ThreadContainer,
   ThreadHeader,
@@ -10,7 +11,10 @@ import {
   CommentsContainer,
 } from "./StyledComponents";
 
-import { addCommentToThreadRequest } from "actions/commentActions";
+import {
+  addCommentToThreadRequest,
+  resolveCommentThread as resolveCommentThreadAction,
+} from "actions/commentActions";
 import { CommentThread } from "reducers/uiReducers/commentsReducer";
 
 const InlineCommentThreadContainer = ({
@@ -29,10 +33,15 @@ const InlineCommentThreadContainer = ({
     );
   };
 
+  const resolveCommentThread = () => {
+    dispatch(resolveCommentThreadAction({ commentThreadId: commentThread.id }));
+  };
+
   return (
     <ThreadContainer>
       <ThreadHeader>
         <ThreadHeaderTitle>Comments</ThreadHeaderTitle>
+        <ResolveCommentButton handleClick={resolveCommentThread} />
       </ThreadHeader>
       <CommentsContainer>
         {comments &&

@@ -44,6 +44,7 @@ import { ReactComponent as CardContextMenu } from "assets/icons/ads/card-context
 import { ReactComponent as SendButton } from "assets/icons/comments/send-button.svg";
 import { ReactComponent as Emoji } from "assets/icons/comments/emoji.svg";
 import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
+import { ReactComponent as OvalCheck } from "assets/icons/comments/check-oval.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -142,6 +143,7 @@ export const IconCollection = [
   "send-button",
   "emoji",
   "pin",
+  "oval-check",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -326,6 +328,9 @@ const Icon = forwardRef(
         break;
       case "pin":
         returnIcon = <Pin />;
+        break;
+      case "oval-check":
+        returnIcon = <OvalCheck />;
         break;
       default:
         returnIcon = null;

@@ -9,6 +9,8 @@ export const ThreadContainer = styled.div`
 
 export const ThreadHeader = styled.div`
   padding: ${(props) => props.theme.spaces[6]}px;
+  display: flex;
+  justify-content: space-between;
 `;
 
 export const ThreadHeaderTitle = styled.div`

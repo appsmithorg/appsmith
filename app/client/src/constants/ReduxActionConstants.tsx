@@ -5,6 +5,8 @@ import { ERROR_CODES } from "constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  UNRESOLVE_COMMENT_THREAD: "UNRESOLVE_COMMENT_THREAD",
+  RESOLVE_COMMENT_THREAD: "RESOLVE_COMMENT_THREAD",
   SET_IS_COMMENT_THREAD_VISIBLE: "SET_IS_COMMENT_THREAD_VISIBLE",
   SET_COMMENT_MODE: "SET_COMMENT_MODE",
   HANDLE_PATH_UPDATED: "HANDLE_PATH_UPDATED",
