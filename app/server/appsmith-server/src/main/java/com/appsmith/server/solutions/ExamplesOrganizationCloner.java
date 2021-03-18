@@ -362,7 +362,19 @@ public class ExamplesOrganizationCloner {
                     final Datasource templateDatasource = tuple.getT1();
                     final List<Datasource> existingDatasources = tuple.getT2();
 
+                    final AuthenticationDTO authentication = templateDatasource.getDatasourceConfiguration() == null
+                            ? null : templateDatasource.getDatasourceConfiguration().getAuthentication();
+                    if (authentication != null) {
+                        authentication.setIsAuthorized(null);
+                        authentication.setAuthenticationResponse(null);
+                    }
+
                     return Flux.fromIterable(existingDatasources)
+                            .map(ds -> {
+                                ds.getDatasourceConfiguration().getAuthentication().setIsAuthorized(null);
+                                ds.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
+                                return ds;
+                            })
                             .filter(templateDatasource::softEquals)
                             .next()  // Get the first matching datasource, we don't need more than one here.
                             .switchIfEmpty(Mono.defer(() -> {
@@ -370,13 +382,8 @@ public class ExamplesOrganizationCloner {
                                 makePristine(templateDatasource);
 
                                 templateDatasource.setOrganizationId(toOrganizationId);
-                                if (templateDatasource.getDatasourceConfiguration() != null) {
-                                    final AuthenticationDTO authentication = templateDatasource.getDatasourceConfiguration().getAuthentication();
-                                    if (authentication != null) {
-                                        authentication.setAuthenticationResponse(null);
-                                        authentication.setIsAuthorized(false);
-                                        datasourceContextService.decryptSensitiveFields(authentication);
-                                    }
+                                if (authentication != null) {
+                                    datasourceContextService.decryptSensitiveFields(authentication);
                                 }
 
                                 return createSuffixedDatasource(templateDatasource);
