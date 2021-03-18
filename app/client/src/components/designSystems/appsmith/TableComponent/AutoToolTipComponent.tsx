@@ -5,11 +5,18 @@ import {
   CellLayoutProperties,
   ColumnTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
+import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
   max-width: ${(props) => props.width}px;
+`;
+
+export const OpenNewTabIconWrapper = styled.div`
+  left: 4px;
+  top: 2px;
+  position: relative;
 `;
 
 const AutoToolTipComponent = (props: {
@@ -54,10 +61,24 @@ const AutoToolTipComponent = (props: {
           }
           position="top"
         >
-          {props.children}
+          <React.Fragment>
+            {props.children}
+            {isLink && (
+              <OpenNewTabIconWrapper className="hidden-icon">
+                <OpenNewTabIcon />
+              </OpenNewTabIconWrapper>
+            )}
+          </React.Fragment>
         </Tooltip>
       ) : (
-        props.children
+        <React.Fragment>
+          {props.children}
+          {isLink && (
+            <OpenNewTabIconWrapper className="hidden-icon">
+              <OpenNewTabIcon />
+            </OpenNewTabIconWrapper>
+          )}
+        </React.Fragment>
       )}
     </CellWrapper>
   );

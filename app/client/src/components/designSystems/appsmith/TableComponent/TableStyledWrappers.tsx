@@ -358,6 +358,14 @@ export const CellWrapper = styled.div<{
       border-radius: 4px;
     }
   }
+  .hidden-icon {
+    display: none;
+  }
+  &:hover {
+    .hidden-icon {
+      display: inline;
+    }
+  }
 `;
 
 export const TableHeaderWrapper = styled.div<{
