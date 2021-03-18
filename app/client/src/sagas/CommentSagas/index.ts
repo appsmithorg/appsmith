@@ -27,7 +27,6 @@ import {
   transformPublishedCommentActionPayload,
   transformUnpublishCommentThreadToCreateNew,
 } from "components/ads/Comments/utils";
-import { uniqueId } from "lodash";
 
 import CommentsApi from "api/CommentsAPI";
 
@@ -86,7 +85,12 @@ function* createCommentThread(action: ReduxAction<any>) {
   const isValidResponse = yield validateResponse(response);
 
   if (isValidResponse) {
-    yield put(createCommentThreadSuccess(response.data));
+    yield put(
+      createCommentThreadSuccess({
+        ...response.data,
+        isVisible: true,
+      }),
+    );
   } else {
     // todo handle error here
     console.log(response, "invalid response");
@@ -96,12 +100,25 @@ function* createCommentThread(action: ReduxAction<any>) {
 function* addCommentToThread(action: ReduxAction<any>) {
   const { payload } = action;
   const { commentBody, commentThread } = payload;
-  yield put(
-    addCommentToThreadSuccess({
-      commentThreadId: commentThread.id,
-      comment: { body: commentBody, authorName: uniqueId() },
-    }),
+
+  const response = yield CommentsApi.createNewThreadComment(
+    { body: commentBody },
+    commentThread.id,
   );
+
+  const isValidResponse = yield validateResponse(response);
+
+  if (isValidResponse) {
+    yield put(
+      addCommentToThreadSuccess({
+        commentThreadId: commentThread.id,
+        comment: response.data,
+      }),
+    );
+  } else {
+    // todo handle error here
+    console.log(response, "invalid response");
+  }
 }
 
 export default function* commentSagas() {
