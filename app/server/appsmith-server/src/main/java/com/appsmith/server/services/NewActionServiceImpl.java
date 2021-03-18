@@ -902,6 +902,33 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));
     }
 
+    public Mono<ActionDTO> populateHintMessages(ActionDTO action) {
+        if(action == null) {
+            //TODO: give correct error.
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ""));
+        }
+
+        //TODO: remove it.
+        System.out.println("devtest: a.name: " + action.getName());
+        System.out.println("devtest: a: " + action);
+
+        Set<String> messages = new HashSet<>();
+
+        if(action.getDatasource() != null
+                && action.getDatasource().getDatasourceConfiguration() != null
+                && !StringUtils.isEmpty(action.getDatasource().getDatasourceConfiguration().getUrl())) {
+            boolean usingLocalhostUrl = action.getDatasource().getDatasourceConfiguration().getUrl().contains(
+                    "localhost");
+            if(usingLocalhostUrl) {
+                messages.add("You may not able to access localhost if Appsmith is running inside a docker container");
+            }
+        }
+
+        action.getDatasource().setMessages(messages);
+
+        return Mono.just(action);
+    }
+
     @Override
     public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params) {
         String name = null;
@@ -923,10 +950,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             // function call is made which takes care of returning only the essential fields of an action
             return repository
                     .findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false, READ_ACTIONS)
-                    .flatMap(this::setTransientFieldsInUnpublishedAction);
+                    .flatMap(this::setTransientFieldsInUnpublishedAction)
+                    .flatMap(this::populateHintMessages);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
-                .flatMap(this::setTransientFieldsInUnpublishedAction);
+                .flatMap(this::setTransientFieldsInUnpublishedAction)
+                .flatMap(this::populateHintMessages);
     }
 
     @Override

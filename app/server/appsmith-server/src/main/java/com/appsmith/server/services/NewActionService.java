@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.NestedTransactionNotSupportedException;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -54,6 +55,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
+
+    Mono<ActionDTO> populateHintMessages(ActionDTO action);
 
     Mono<NewAction> save(NewAction action);
 

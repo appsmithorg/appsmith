@@ -140,7 +140,33 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                             });
                                 })
                 )
-                .flatMap(this::validateAndSaveDatasourceToRepository);
+                .flatMap(this::validateAndSaveDatasourceToRepository)
+                .flatMap(this::populateHintMessages); // For REST API datasource create flow.
+    }
+
+    private Mono<Datasource> populateHintMessages(Datasource datasource) {
+        //TODO: add NPE checks
+        Set<String> messages = new HashSet<>();
+
+        boolean usingLocalhostUrl = false;
+        if(!StringUtils.isEmpty(datasource.getDatasourceConfiguration().getUrl())) {
+            usingLocalhostUrl = datasource.getDatasourceConfiguration().getUrl().contains("localhost");
+        }
+        else if(!CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
+            usingLocalhostUrl = datasource
+                    .getDatasourceConfiguration()
+                    .getEndpoints()
+                    .stream()
+                    .anyMatch(endpoint -> endpoint.getHost().contains("localhost"));
+        }
+
+        if(usingLocalhostUrl) {
+            messages.add("You may not able to access localhost if Appsmith is running inside a docker container");
+        }
+
+        datasource.setMessages(messages);
+
+        return Mono.just(datasource);
     }
 
     @Override
@@ -170,7 +196,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     }
                     return dbDatasource;
                 })
-                .flatMap(this::validateAndSaveDatasourceToRepository);
+                .flatMap(this::validateAndSaveDatasourceToRepository)
+                .flatMap(this::populateHintMessages);
     }
 
     @Override
@@ -294,12 +321,23 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         return datasourceMono
                 .flatMap(this::validateDatasource)
+                .flatMap(this::populateHintMessages)
                 .flatMap(datasource1 -> {
+                    Mono<DatasourceTestResult> datasourceTestResultMono;
                     if (CollectionUtils.isEmpty(datasource1.getInvalids())) {
-                        return testDatasourceViaPlugin(datasource1);
+                        datasourceTestResultMono = testDatasourceViaPlugin(datasource1);
                     } else {
-                        return Mono.just(new DatasourceTestResult(datasource1.getInvalids()));
+                        datasourceTestResultMono = Mono.just(new DatasourceTestResult(datasource1.getInvalids()));
                     }
+
+                    return datasourceTestResultMono
+                            .map(datasourceTestResult -> {
+                                if(!CollectionUtils.isEmpty(datasource1.getMessages())) {
+                                    datasourceTestResult.setMessages(datasource1.getMessages());
+                                }
+
+                                return datasourceTestResult;
+                            });
                 });
     }
 
@@ -349,7 +387,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
-        return repository.findAllByOrganizationId(organizationId, permission);
+        return repository.findAllByOrganizationId(organizationId, permission)
+                .flatMap(this::populateHintMessages);
     }
 
     @Override
