@@ -9,7 +9,6 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import org.springframework.data.domain.Sort;
-import org.springframework.transaction.NestedTransactionNotSupportedException;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
