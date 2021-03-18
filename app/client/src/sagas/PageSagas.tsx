@@ -306,7 +306,6 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       pageId: savePageRequest.pageId,
     },
   );
-  AnalyticsUtil.logEvent("PAGE_SAVE", JSON.stringify(savePageRequest));
   try {
     // Store the updated DSL in the pageDSLs reducer
     yield put({
