@@ -345,9 +345,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
                     return datasourceTestResultMono
                             .map(datasourceTestResult -> {
-                                if(!CollectionUtils.isEmpty(datasource1.getMessages())) {
-                                    datasourceTestResult.setMessages(datasource1.getMessages());
-                                }
+                                datasourceTestResult.setMessages(datasource1.getMessages());
 
                                 return datasourceTestResult;
                             });
