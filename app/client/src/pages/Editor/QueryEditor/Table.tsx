@@ -57,6 +57,7 @@ export const TableWrapper = styled.div`
     }
     .tr {
       overflow: hidden;
+      border-right: 1px solid ${Colors.GEYSER_LIGHT};
       :nth-child(even) {
         background: ${Colors.ATHENS_GRAY_DARKER};
       }
