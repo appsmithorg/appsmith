@@ -284,6 +284,7 @@ describe("Table Widget Functionality", function() {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("");
     });
+    cy.get(commonlocators.editPropCrossButton).click();
   });
 
   it("Check Selected Row(s) Resets When Table Data Changes", function() {
