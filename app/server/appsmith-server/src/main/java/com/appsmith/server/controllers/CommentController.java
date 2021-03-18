@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.CommentService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +33,19 @@ public class CommentController extends BaseController<CommentService, Comment, S
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Comment>> create(@Valid @RequestBody Comment resource,
-                                             @RequestParam(required = false) String orgId,
+                                             @RequestParam String threadId,
                                              ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return service.create(resource)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @PostMapping("/threads")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<CommentThread>> createThread(@Valid @RequestBody CommentThread resource,
+                                             ServerWebExchange exchange) {
+        log.debug("Going to create resource {}", resource.getClass().getName());
+        return service.createThread(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 

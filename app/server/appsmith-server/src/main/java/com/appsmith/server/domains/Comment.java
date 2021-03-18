@@ -11,12 +11,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Comment extends BaseDomain {
 
+    String threadId;
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String authorName;
 
     String body;
-
-    // TODO: Can we infer this from the widget/entity this comment is connected to?
-    String applicationId;
 
 }
