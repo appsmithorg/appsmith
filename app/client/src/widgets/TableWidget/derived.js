@@ -224,7 +224,7 @@ export default {
     let sortedTableData;
     if (props.sortedColumn) {
       const sortedColumn = props.sortedColumn.column;
-      const sortOrder = sortedColumn.asc;
+      const sortOrder = props.sortedColumn.asc;
       const column = columns.find((column) => column.id === props.sortedColumn);
       const columnType = column && column.type ? column.type : "text";
 
@@ -311,7 +311,7 @@ export default {
         return numericA >= numericB;
       },
       contains: (a, b) => {
-        if (isString(a) && isString(b)) {
+        if (_.isString(a) && _.isString(b)) {
           return a.includes(b);
         }
         return false;
@@ -359,6 +359,7 @@ export default {
         : true;
       if (!searchFound) return false;
       if (!props.filters || props.filters.length === 0) return true;
+      const filters = props.filters;
       const filterOperator = filters.length >= 2 ? filters[1].operator : "OR";
       let filter = filterOperator === "AND";
       for (let i = 0; i < filters.length; i++) {

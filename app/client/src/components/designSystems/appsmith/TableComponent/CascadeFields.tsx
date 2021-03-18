@@ -463,21 +463,6 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
     });
   };
 
-  useEffect(() => {
-    const { operator, column, condition, value, isDeleted, isUpdate } = state;
-    if (!isDeleted && isUpdate) {
-      applyFilter({ operator, column, condition, value }, index);
-    } else if (isDeleted) {
-      removeFilter(index);
-    }
-  }, [state, index, applyFilter, removeFilter]);
-
-  useEffect(() => {
-    dispatch({
-      type: CascadeFieldActionTypes.UPDATE_FILTER,
-      payload: props,
-    });
-  }, [props]);
   const {
     operator,
     column,
@@ -487,7 +472,34 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
     showInput,
     showDateInput,
     conditions,
+    isDeleted,
+    isUpdate,
   } = state;
+  useEffect(() => {
+    if (!isDeleted && isUpdate) {
+      applyFilter({ operator, column, condition, value }, index);
+    } else if (isDeleted) {
+      removeFilter(index);
+    }
+  }, [
+    operator,
+    column,
+    condition,
+    value,
+    isDeleted,
+    isUpdate,
+    index,
+    applyFilter,
+    removeFilter,
+  ]);
+
+  useEffect(() => {
+    dispatch({
+      type: CascadeFieldActionTypes.UPDATE_FILTER,
+      payload: props,
+    });
+  }, [props]);
+
   return (
     <FieldWrapper className="t--table-filter">
       <StyledRemoveIcon
