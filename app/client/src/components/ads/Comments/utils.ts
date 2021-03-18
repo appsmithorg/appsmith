@@ -1,5 +1,4 @@
 import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
-import { uniqueId } from "lodash";
 
 export const reduceCommentsByRef = (comments: any[]) => {
   return comments.reduce((res, curr) => {
@@ -35,8 +34,10 @@ export const transformPublishedCommentActionPayload = (
 
 export const transformUnpublishCommentThreadToCreateNew = (payload: any) => {
   const { commentBody, commentThread } = payload;
+  // eslint-disable-next-line
+  const { id, ...rest } = commentThread;
   return {
-    ...commentThread,
-    comments: [{ body: commentBody, authorName: uniqueId() }],
+    ...rest,
+    comments: [{ body: commentBody }],
   };
 };

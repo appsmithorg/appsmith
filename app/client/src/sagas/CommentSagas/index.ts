@@ -8,6 +8,7 @@ import {
   call,
   actionChannel,
   fork,
+  select,
 } from "redux-saga/effects";
 import { updateLayout, getTestComments } from "components/ads/Comments/init";
 import {
@@ -28,7 +29,13 @@ import {
 } from "components/ads/Comments/utils";
 import { uniqueId } from "lodash";
 
+import CommentsApi from "api/CommentsAPI";
+
 import { getAppsmithConfigs } from "configs";
+
+import { validateResponse } from "../ErrorSagas";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const { commentsTestModeEnabled } = getAppsmithConfigs();
 
@@ -71,7 +78,19 @@ function* createCommentThread(action: ReduxAction<any>) {
   const newCommentThreadPayload = transformUnpublishCommentThreadToCreateNew(
     action.payload,
   );
-  yield put(createCommentThreadSuccess(newCommentThreadPayload));
+  const applicationId = yield select(getCurrentApplicationId);
+  const response = yield call(CommentsApi.createNewThread, {
+    ...newCommentThreadPayload,
+    applicationId,
+  });
+  const isValidResponse = yield validateResponse(response);
+
+  if (isValidResponse) {
+    yield put(createCommentThreadSuccess(response.data));
+  } else {
+    // todo handle error here
+    console.log(response, "invalid response");
+  }
 }
 
 function* addCommentToThread(action: ReduxAction<any>) {

@@ -7,6 +7,7 @@ const initialState: CommentsReduxState = {
   refCommentThreads: {},
   unpublishedCommentThreads: {},
   isCommentMode: true,
+  creatingNewThread: false,
 };
 
 const commentsReducer = createReducer(initialState, {
@@ -45,6 +46,7 @@ const commentsReducer = createReducer(initialState, {
         ...state.commentThreadsMap,
         [id]: action.payload,
       },
+      creatingNewThread: false,
     };
   },
   [ReduxActionTypes.ADD_COMMENT_TO_THREAD_SUCCESS]: (
@@ -91,6 +93,12 @@ const commentsReducer = createReducer(initialState, {
       },
     },
   }),
+  [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    creatingNewThread: true,
+  }),
 });
 
 export interface CommentsReduxState {
@@ -98,6 +106,7 @@ export interface CommentsReduxState {
   refCommentThreads: Record<string, Array<string>>;
   unpublishedCommentThreads: Record<string, CommentThread>;
   isCommentMode: boolean;
+  creatingNewThread: boolean;
 }
 
 export default commentsReducer;
