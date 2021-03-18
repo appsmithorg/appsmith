@@ -10,6 +10,7 @@ export type DropdownOption = {
   value?: string;
   id?: string;
   icon?: IconName;
+  subText?: string;
   onSelect?: (value?: string) => void;
 };
 
@@ -91,6 +92,12 @@ const OptionWrapper = styled.div<{
   background-color: ${(props) =>
     props.selected ? props.theme.colors.propertyPane.dropdownSelectBg : null};
 
+  &&& svg {
+    rect {
+      fill: ${(props) => props.theme.colors.dropdownIconBg};
+    }
+  }
+
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.propertyPane.label};
   }
@@ -109,6 +116,12 @@ const OptionWrapper = styled.div<{
 
   &:hover {
     background-color: ${(props) => props.theme.colors.dropdown.hovered.bg};
+
+    &&& svg {
+      rect {
+        fill: ${(props) => props.theme.colors.textOnDarkBG};
+      }
+    }
 
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.textOnDarkBG};
@@ -138,6 +151,39 @@ const LabelWrapper = styled.div<{ label?: string }>`
   }
 `;
 
+const StyledSubText = styled(Text)`
+  margin-left: auto;
+  && {
+    color: ${(props) => props.theme.colors.apiPane.body.text};
+  }
+`;
+
+const SelectedDropDownHolder = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const SelectedIcon = styled(Icon)`
+  margin-right: 6px;
+  & > div:first-child {
+    height: 18px;
+    width: 18px;
+
+    svg {
+      height: 18px;
+      width: 18px;
+
+      rect {
+        fill: ${(props) => props.theme.colors.dropdownIconBg};
+        rx: 0;
+      }
+      path {
+        fill: ${(props) => props.theme.colors.propertyPane.label};
+      }
+    }
+  }
+`;
+
 const DefaultDropDownValueNode = ({
   selected,
   showLabelOnly,
@@ -145,9 +191,14 @@ const DefaultDropDownValueNode = ({
   selected: DropdownOption;
   showLabelOnly?: boolean;
 }) => (
-  <Text type={TextType.P1}>
-    {showLabelOnly ? selected.label : selected.value}
-  </Text>
+  <SelectedDropDownHolder>
+    {selected.icon ? (
+      <SelectedIcon name={selected.icon} size={IconSize.XXS} />
+    ) : null}
+    <Text type={TextType.P1}>
+      {showLabelOnly ? selected.label : selected.value}
+    </Text>
+  </SelectedDropDownHolder>
 );
 
 export default function Dropdown(props: DropdownProps) {
@@ -211,8 +262,9 @@ export default function Dropdown(props: DropdownProps) {
                 className="t--dropdown-option"
               >
                 {option.icon ? (
-                  <Icon name={option.icon} size={IconSize.LARGE} />
+                  <SelectedIcon name={option.icon} size={IconSize.XXS} />
                 ) : null}
+
                 {props.showLabelOnly ? (
                   <Text type={TextType.P3}>{option.label}</Text>
                 ) : option.label && option.value ? (
@@ -223,6 +275,12 @@ export default function Dropdown(props: DropdownProps) {
                 ) : (
                   <Text type={TextType.P3}>{option.value}</Text>
                 )}
+
+                {option.subText ? (
+                  <StyledSubText type={TextType.P3}>
+                    {option.subText}
+                  </StyledSubText>
+                ) : null}
               </OptionWrapper>
             );
           })}
