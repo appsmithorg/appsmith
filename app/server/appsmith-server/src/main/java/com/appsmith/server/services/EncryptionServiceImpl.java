@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.EncryptionConfig;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
