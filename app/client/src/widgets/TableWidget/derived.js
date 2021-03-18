@@ -95,7 +95,52 @@ export default {
   getTableColumns: (props) => {
     let columns = [];
     let allColumns = props.primaryColumns || {};
+    const data = props.sanitizedTableData || [];
+    if (data.length > 0) {
+      const columnIdsFromData = [];
+      for (let i = 0, tableRowCount = data.length; i < tableRowCount; i++) {
+        const row = data[i];
+        for (const key in row) {
+          if (!columnIdsFromData.includes(key)) {
+            columnIdsFromData.push(key);
+          }
+        }
+      }
 
+      columnIdsFromData.forEach((id) => {
+        if (!allColumns[id]) {
+          const currIndex = Object.keys(allColumns).length;
+          allColumns[id] = {
+            index: currIndex,
+            width: 150,
+            id,
+            horizontalAlignment: "LEFT",
+            verticalAlignment: "CENTER",
+            columnType: "text",
+            textColor: "#231F20",
+            textSize: "PARAGRAPH",
+            fontStyle: "REGULAR",
+            enableFilter: true,
+            enableSort: true,
+            isVisible: true,
+            isDerived: false,
+            label: id,
+            computedValue: props.sanitizedTableData.map((currentRow) => {
+              return currentRow[id];
+            }),
+          };
+        }
+      });
+      const existingColumnIds = Object.keys(allColumns);
+      const idsNotToShow = _.without(existingColumnIds, ...columnIdsFromData)
+        .map((idNotInData) => {
+          if (allColumns[idNotInData] && !allColumns[idNotInData].isDerived)
+            return idNotInData;
+          return undefined;
+        })
+        .filter(Boolean);
+      idsNotToShow.forEach((id) => delete allColumns[id]);
+    }
     const sortColumn = props.sortedColumn?.column;
     const sortOrder = props.sortedColumn?.asc;
     if (
