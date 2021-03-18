@@ -80,7 +80,7 @@ const ItemTitle = styled.div`
 `;
 
 const StyledDocumentIcon = styled(DocumentIcon)`
-  svg {
+  && svg {
     width: 14px;
     height: 14px;
     path {
