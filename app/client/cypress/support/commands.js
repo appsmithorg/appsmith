@@ -943,7 +943,7 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
 //   cy.get(modalWidgetPage.controlModalType)
 //     .find(".bp3-button > .bp3-button-text")
 //     .should("have.text", "Alert Modal");
-//   cy.get(commonlocators.editPropCrossButton).click();
+//   cy.get(commonlocators.editPropCrossButton).click({force: true});
 //   cy.reload();
 // });
 
@@ -973,7 +973,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     modalWidgetPage.modalName,
     modalWidgetPage.modalName,
   );
-  cy.get(commonlocators.editPropCrossButton).click();
+  cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
   //changing the Model label
   cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
@@ -1018,7 +1018,7 @@ Cypress.Commands.add("updateModal", (modalType, ModalName) => {
     modalWidgetPage.modalName,
     modalWidgetPage.modalName,
   );
-  cy.get(commonlocators.editPropCrossButton).click();
+  cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
   //changing the Model label
   cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
@@ -1965,7 +1965,7 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
 });
 
 Cypress.Commands.add("closePropertyPane", () => {
-  cy.get(commonlocators.editPropCrossButton).click();
+  cy.get(commonlocators.editPropCrossButton).click({ force: true });
 });
 
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {
