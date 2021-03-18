@@ -21,11 +21,16 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
 public class CommentServiceImpl extends BaseService<CommentRepository, Comment, String> implements CommentService {
+
+    // TODO: Set permissions on the comment and thread objects directly, so we don't have to look up the application.
 
     private final CommentThreadRepository threadRepository;
 
@@ -50,11 +55,13 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     }
 
     @Override
-    public Mono<Comment> create(Comment comment) {
+    public Mono<Comment> create(String threadId, Comment comment) {
         if (StringUtils.isWhitespace(comment.getAuthorName())) {
             // Error: User can't explicitly set the author name. It will be the currently logged in user.
             return Mono.empty();
         }
+
+        comment.setThreadId(threadId);
 
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
@@ -99,6 +106,30 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     return commentThread;
                 });
 
+    }
+
+    @Override
+    public Mono<List<CommentThread>> getThreadsByApplicationId(String applicationId) {
+        return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                .flatMap(ignored -> threadRepository.findByApplicationId(applicationId).collectList())
+                .flatMap(threads -> {
+                    final Map<String, CommentThread> threadsByThreadId = new HashMap<>();
+
+                    for (CommentThread thread : threads) {
+                        thread.setComments(new LinkedList<>());
+                        threadsByThreadId.put(thread.getId(), thread);
+                    }
+
+                    return repository.findByThreadIdInOrderByCreatedAt(new ArrayList<>(threadsByThreadId.keySet()))
+                            // TODO: Can we use `doOnSuccess` here?
+                            .map(comment -> {
+                                threadsByThreadId.get(comment.getThreadId()).getComments().add(comment);
+                                return comment;
+                            })
+                            .then()
+                            .thenReturn(threads);
+                });
     }
 
 }

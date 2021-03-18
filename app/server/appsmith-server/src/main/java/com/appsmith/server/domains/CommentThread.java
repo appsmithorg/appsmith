@@ -19,8 +19,6 @@ public class CommentThread extends BaseDomain {
 
     String refId;
 
-    Boolean isVisible;
-
     // TODO: Can we infer this from the widget/entity this comment is connected to?
     String applicationId;
 
