@@ -310,7 +310,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             currentActionConfig ? currentActionConfig.name : ""
           }
           onRunClick={onRunClick}
-          popModifier={{ offset: { offset: "23px 0" } }}
           actionTitle={
             <HeaderHolder>
               <HeaderIconHolder>

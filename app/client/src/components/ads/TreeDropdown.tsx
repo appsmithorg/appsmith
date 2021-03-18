@@ -79,7 +79,7 @@ const MoreActionableContainer = styled.div<{ isOpen: boolean }>`
 
 const StyledPopover = styled.div`
   .bp3-transition-container {
-    top: 4px !important;
+    /* top: 4px !important; */
   }
 
   .bp3-popover {
@@ -128,6 +128,11 @@ const StyledPopover = styled.div`
           props.theme.colors.apiPane.moreActions.menuText.hover};
       }
     }
+  }
+
+  /* to overwrite global .css */
+  .bp3-popover.bp3-minimal {
+    margin-top: 0px !important;
   }
 `;
 
@@ -229,7 +234,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         isOpen={isOpen}
         minimal
         content={menuItems}
-        position={PopoverPosition.LEFT}
+        position={PopoverPosition.LEFT_TOP}
         className="wrapper-popover"
         modifiers={props.modifiers}
         onClose={() => {

@@ -67,7 +67,6 @@ interface ActionHeaderProps {
   onRunClick: () => void;
   isLoading: boolean;
   runButtonClassName: string;
-  popModifier?: any;
 }
 
 const ActionHeader = (props: ActionHeaderProps) => {
@@ -113,7 +112,6 @@ const ActionHeader = (props: ActionHeaderProps) => {
           name={props.currentActionConfigName || ""}
           className="t--more-action-menu"
           pageId={pageId}
-          popModifier={props.popModifier}
         />
 
         <Button
