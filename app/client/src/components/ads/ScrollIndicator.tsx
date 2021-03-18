@@ -42,12 +42,21 @@ const ScrollThumb = styled(animated.div)<{ mode?: "DARK" | "LIGHT" }>`
 
 interface Props {
   containerRef: React.RefObject<HTMLElement>;
+  horizontalScrollContainerRef?: React.RefObject<HTMLElement>;
   top?: string;
   bottom?: string;
   right?: string;
+  alwaysShowScrollbar?: boolean;
   mode?: "DARK" | "LIGHT";
 }
-const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
+const ScrollIndicator = ({
+  containerRef,
+  top,
+  bottom,
+  right,
+  alwaysShowScrollbar,
+  horizontalScrollContainerRef,
+}: Props) => {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
     config: {
@@ -65,8 +74,11 @@ const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
       tension: 800,
     },
   }));
-  const [isScrollVisible, setIsScrollVisible] = useState(false);
+  const [isScrollVisible, setIsScrollVisible] = useState(
+    alwaysShowScrollbar || false,
+  );
   const thumbRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleContainerScroll = (e: any): void => {
@@ -83,13 +95,33 @@ const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
       });
     };
 
+    const handlehorizontalScroll = (e: any): void => {
+      const trackPosition = e.target.scrollLeft;
+      if (trackRef.current) {
+        trackRef.current.style.right = `${-trackPosition + 2}px`;
+      }
+    };
+
     containerRef.current?.addEventListener("scroll", handleContainerScroll);
+
+    if (horizontalScrollContainerRef) {
+      horizontalScrollContainerRef.current?.addEventListener(
+        "scroll",
+        handlehorizontalScroll,
+      );
+    }
 
     return () => {
       containerRef.current?.removeEventListener(
         "scroll",
         handleContainerScroll,
       );
+      if (horizontalScrollContainerRef) {
+        horizontalScrollContainerRef.current?.removeEventListener(
+          "scroll",
+          handlehorizontalScroll,
+        );
+      }
     };
   }, []);
 
@@ -100,7 +132,7 @@ const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
   }, [isScrollVisible]);
 
   const hideScrollbar = _.debounce(() => {
-    setIsScrollVisible(false);
+    setIsScrollVisible(alwaysShowScrollbar || false);
   }, 1500);
 
   return (
@@ -109,6 +141,7 @@ const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
       top={top}
       bottom={bottom}
       right={right}
+      ref={trackRef}
     >
       <ScrollThumb
         ref={thumbRef}

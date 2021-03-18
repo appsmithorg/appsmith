@@ -22,7 +22,7 @@ import TableDataDownload from "components/designSystems/appsmith/TableComponent/
 import TableCompactMode from "components/designSystems/appsmith/TableComponent/TableCompactMode";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/ActionConstants";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import HorizontalScrollIndicator from "components/ads/HorizontalScrollIndicator";
 
 const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {
@@ -214,7 +214,10 @@ const TableHeader = (props: TableHeaderProps) => {
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
-      <ScrollIndicator containerRef={tableHeaderWrapperRef} mode="LIGHT" />
+      <HorizontalScrollIndicator
+        containerRef={tableHeaderWrapperRef}
+        mode="LIGHT"
+      />
     </TableHeaderWrapper>
   );
 };

@@ -43,9 +43,15 @@ interface Props {
   containerRef: React.RefObject<HTMLDivElement>;
   bottom?: string;
   left?: string;
+  alwaysShowScrollbar?: boolean;
   mode?: "DARK" | "LIGHT";
 }
-const HorizontalScrollIndicator = ({ containerRef, bottom, left }: Props) => {
+const HorizontalScrollIndicator = ({
+  containerRef,
+  bottom,
+  left,
+  alwaysShowScrollbar,
+}: Props) => {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
     config: {
@@ -63,26 +69,27 @@ const HorizontalScrollIndicator = ({ containerRef, bottom, left }: Props) => {
       tension: 800,
     },
   }));
-  const [isScrollVisible, setIsScrollVisible] = useState(false);
+  const [isScrollVisible, setIsScrollVisible] = useState(
+    alwaysShowScrollbar || false,
+  );
   const thumbRef = useRef<HTMLDivElement>(null);
 
+  const handleContainerScroll = (e: any): void => {
+    setIsScrollVisible(true);
+    const { offsetWidth, scrollWidth, scrollLeft } = e.target;
+    const thumbWidth = offsetWidth * (offsetWidth / scrollWidth);
+    const thumbPosition =
+      (scrollLeft / (scrollWidth - offsetWidth)) * (offsetWidth - thumbWidth);
+    if (thumbRef.current) {
+      thumbRef.current.style.width = thumbWidth + "px";
+    }
+    setThumbPosition({
+      thumbPosition,
+    });
+  };
+
   useEffect(() => {
-    const handleContainerScroll = (e: any): void => {
-      setIsScrollVisible(true);
-      const thumbFromLeft =
-        e.target.offsetWidth - (e.target.scrollWidth - e.target.offsetWidth);
-      const thumbPosition = e.target.scrollLeft;
-      /* set scroll thumb height */
-      if (thumbRef.current) {
-        thumbRef.current.style.width = thumbFromLeft + "px";
-      }
-      setThumbPosition({
-        thumbPosition,
-      });
-    };
-
     containerRef.current?.addEventListener("scroll", handleContainerScroll);
-
     return () => {
       containerRef.current?.removeEventListener(
         "scroll",
@@ -98,7 +105,7 @@ const HorizontalScrollIndicator = ({ containerRef, bottom, left }: Props) => {
   }, [isScrollVisible]);
 
   const hideScrollbar = _.debounce(() => {
-    setIsScrollVisible(false);
+    setIsScrollVisible(alwaysShowScrollbar || false);
   }, 1500);
 
   return (

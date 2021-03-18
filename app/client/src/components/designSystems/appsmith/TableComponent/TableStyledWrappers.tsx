@@ -384,14 +384,22 @@ export const TableHeaderWrapper = styled.div<{
   tableSizes: TableSizes;
   backgroundColor?: Color;
 }>`
+  position: relative;
   display: flex;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-  width: ${(props) => props.width}px;
+  width: ${(props) => props.width - 8}px;
   .show-page-items {
     display: ${(props) => (props.width < 700 ? "none" : "flex")};
   }
   overflow-x: auto;
   overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    -webkit-appearance: none;
+  }
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
 `;

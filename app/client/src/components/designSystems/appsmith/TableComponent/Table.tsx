@@ -274,16 +274,18 @@ export const Table = (props: TableProps) => {
                 subPage,
                 prepareRow,
               )}
-            <ScrollIndicator
-              containerRef={tableBodyRef}
-              mode="LIGHT"
-              top="32px"
-            />
           </div>
+          <HorizontalScrollIndicator
+            containerRef={tableWrapperRef}
+            mode="LIGHT"
+            alwaysShowScrollbar
+          />
         </div>
-        <HorizontalScrollIndicator
-          containerRef={tableWrapperRef}
+        <ScrollIndicator
+          containerRef={tableBodyRef}
+          horizontalScrollContainerRef={tableWrapperRef}
           mode="LIGHT"
+          top="32px"
         />
       </div>
       {/* <ScrollIndicator containerRef={tableWrapperRef} mode="LIGHT" /> */}
