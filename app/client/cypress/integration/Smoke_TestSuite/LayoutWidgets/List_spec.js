@@ -11,7 +11,7 @@ describe("Container Widget Functionality", function() {
 
   it("checks if list shows correct no. of items", function() {
     cy.get(commonlocators.containerWidget).then(function($lis) {
-      expect($lis).to.have.length(items.length);
+      expect($lis).to.have.length(2);
     });
   });
 
@@ -26,13 +26,37 @@ describe("Container Widget Functionality", function() {
         });
     });
 
-    cy.wait(5000);
+    cy.wait(1000);
+
+    cy.closePropertyPane();
 
     cy.get(commonlocators.TextInside).then(function($lis) {
-      expect($lis).to.have.length(items.length);
       expect($lis.eq(0)).to.contain(items[0].first_name);
       expect($lis.eq(1)).to.contain(items[1].first_name);
     });
+  });
+
+  it("it checks pagination", function() {
+    // clicking on second pagination button
+    cy.get(`${commonlocators.paginationButton}-2`).click();
+
+    // now we are on the second page which shows first the 3rd item in the list
+    cy.get(commonlocators.TextInside).then(function($lis) {
+      expect($lis.eq(0)).to.contain(items[2].first_name);
+    });
+  });
+
+  it("it cheks onListItem click action", function() {
+    cy.SearchEntityandOpen("List1");
+    cy.addAction("{{currentItem.first_name}}");
+
+    cy.PublishtheApp();
+
+    cy.get(
+      "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
+    ).click();
+
+    cy.get(commonlocators.toastmsg).contains(items[0].first_name);
   });
 
   afterEach(() => {
