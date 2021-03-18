@@ -129,7 +129,7 @@ const WidgetItem = (props: {
   const { type } = item || {};
   let title = getItemTitle(item);
   const pageName = usePageName(item.pageId);
-  title = `${pageName} / ${title}`;
+  title = `${title} / ${pageName}`;
 
   return (
     <>
@@ -168,7 +168,7 @@ const ActionItem = (props: {
 
   let title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
-  title = `${pageName} / ${title}`;
+  title = `${title} / ${pageName}`;
 
   return (
     <>
