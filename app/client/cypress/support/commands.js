@@ -85,11 +85,6 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
     200,
   );
   cy.contains(email);
-  cy.get(homePage.manageUsers).click({ force: true });
-  cy.xpath(homePage.appHome)
-    .first()
-    .should("be.visible")
-    .click();
 });
 
 Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
