@@ -5,6 +5,7 @@ metadata:
 spec:
   selector:
     app: appsmith-editor
+  type: NodePort
   ports:
   - port: 80
     targetPort: 80

@@ -20,7 +20,7 @@ if [[ "$ssl_enable" == "true" ]]; then
             - $custom_domain
           secretName: lego-tls
       backend:
-        serviceName: "appsmith-editor"
+        serviceName: appsmith-editor
         servicePort: 80
       rules:
       - host: $custom_domain
@@ -29,17 +29,17 @@ if [[ "$ssl_enable" == "true" ]]; then
           - path: /api
             pathType: Prefix
             backend:
-              serviceName: appsmith-backend-service
+              serviceName: appsmith-internal-server
               servicePort: 8080
           - path: /oauth
             pathType: Prefix
             backend:
-              serviceName: appsmith-backend-service
+              serviceName: appsmith-internal-server
               servicePort: 8080
           - path: /login
             pathType: Prefix
             backend:
-              serviceName: appsmith-backend-service
+              serviceName: appsmith-internal-server
               servicePort: 8080
           - path: /static
             pathType: Prefix
@@ -63,7 +63,7 @@ else
     spec:
 
       backend:
-        serviceName: "appsmith-editor"
+        serviceName: appsmith-editor
         servicePort: 80
       rules:
       - host: $custom_domain
@@ -72,17 +72,17 @@ else
           - path: /api
             pathType: Prefix
             backend:
-              serviceName: appsmith-backend-service
+              serviceName: appsmith-internal-server
               servicePort: 8080
           - path: /oauth
             pathType: Prefix
             backend:
-              serviceName: appsmith-backend-service
+              serviceName: appsmith-internal-server
               servicePort: 8080
           - path: /login
             pathType: Prefix
             backend:
-              serviceName: appsmith-backend-service
+              serviceName: appsmith-internal-server
               servicePort: 8080
           - path: /static
             pathType: Prefix
