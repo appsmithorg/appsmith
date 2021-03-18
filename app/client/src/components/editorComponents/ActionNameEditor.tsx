@@ -22,6 +22,7 @@ import {
 } from "components/ads/EditableText";
 import { Classes } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import log from "loglevel";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -64,7 +65,7 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   if (!params.apiId && !params.queryId) {
-    console.log("No API id or Query id found in the url.");
+    log.error("No API id or Query id found in the url.");
   }
 
   // For onboarding

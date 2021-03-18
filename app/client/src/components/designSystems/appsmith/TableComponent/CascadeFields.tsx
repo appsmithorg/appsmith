@@ -34,7 +34,7 @@ const StyledRemoveIcon = styled(
 `;
 
 const LabelWrapper = styled.div`
-  width: 85px;
+  width: 105px;
   text-align: center;
   color: ${Colors.BLUE_BAYOUX};
   font-size: 14px;
@@ -500,7 +500,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
         }`}
       />
       {index === 1 ? (
-        <DropdownWrapper width={75}>
+        <DropdownWrapper width={95}>
           <RenderOptions
             columns={operatorOptions}
             selectItem={selectOperator}

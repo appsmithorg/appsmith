@@ -39,6 +39,7 @@ import { ERROR_CODES } from "constants/ApiConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
+import log from "loglevel";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -151,7 +152,7 @@ export function* forgotPasswordSaga(
       yield call(resolve);
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.FORGOT_PASSWORD_ERROR,
@@ -181,7 +182,7 @@ export function* resetPasswordSaga(
       yield call(resolve);
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.RESET_USER_PASSWORD_ERROR,
@@ -211,7 +212,7 @@ export function* invitedUserSignupSaga(
       yield call(resolve);
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield call(reject, { _error: error.message });
     yield put(invitedUserSignupError(error));
   }
@@ -309,7 +310,7 @@ export function* verifyResetPasswordTokenSaga(
       });
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.RESET_PASSWORD_VERIFY_TOKEN_ERROR,
     });
@@ -325,7 +326,7 @@ export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
       yield put(verifyInviteSuccess());
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put(verifyInviteError(error));
   }
 }
@@ -341,7 +342,7 @@ export function* logoutSaga() {
       yield put(flushErrorsAndRedirect(AUTH_LOGIN_URL));
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put(logoutUserError(error));
   }
 }
