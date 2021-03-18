@@ -270,12 +270,8 @@ describe("Table Widget Functionality", function() {
 
   it("Check null values are displayed as empty cell", function() {
     cy.openPropertyPane("tablewidget");
-
-    /**
-     * @param{Text} Random Text
-     * @param{ChartWidget}Mouseover
-     * @param{ChartPre Css} Assertion
-     */
+    cy.testJsontext("tabledata", "[]");
+    cy.wait("@updateLayout");
     const newTableData = [...this.data.TableInput];
     newTableData[0].orderAmount = null;
     cy.testJsontext("tabledata", JSON.stringify(newTableData));
@@ -290,7 +286,8 @@ describe("Table Widget Functionality", function() {
   it("Check Selected Row(s) Resets When Table Data Changes", function() {
     cy.isSelectRow(1);
     cy.openPropertyPane("tablewidget");
-
+    cy.testJsontext("tabledata", "[]");
+    cy.wait("@updateLayout");
     const newTableData = [...this.data.TableInput];
     newTableData[0].userName = "";
     cy.testJsontext("tabledata", JSON.stringify(newTableData));
