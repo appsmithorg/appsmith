@@ -1,4 +1,4 @@
-import { CommentThread } from "reducers/uiReducers/commentsReducer";
+import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
 import { uniqueId } from "lodash";
 
 export const reduceCommentsByRef = (comments: any[]) => {

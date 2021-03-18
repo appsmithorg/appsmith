@@ -15,7 +15,7 @@ import {
   addCommentToThreadRequest,
   resolveCommentThread as resolveCommentThreadAction,
 } from "actions/commentActions";
-import { CommentThread } from "reducers/uiReducers/commentsReducer";
+import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
 
 const InlineCommentThreadContainer = ({
   commentThread,

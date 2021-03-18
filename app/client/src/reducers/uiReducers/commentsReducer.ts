@@ -1,35 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
-
-// export enum CommentThreadParentTypes {
-//   widget = "widget",
-//   action = "action",
-//   datasource = "datasource",
-// }
-
-// ref ui sections within a parent
-// enum CommentRefChild {
-//   body = "body",
-//   header = "header",
-// }
-
-type CommentThreadMetadata = {
-  tabId: string;
-  // refChild: CommentRefChild;
-  position: { top: number; left: number }; // percentage
-};
-
-type Comment = { body: string; authorName: string };
-
-export type CommentThread = {
-  // parentType: CommentThreadParentTypes;
-  meta: Partial<CommentThreadMetadata>;
-  refId: string; // could be an id to refer any parent based on parent type
-  body?: string;
-  id: string;
-  comments: Array<Comment>;
-  isVisible: boolean;
-};
+import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
 
 const initialState: CommentsReduxState = {
   commentThreadsMap: {},
