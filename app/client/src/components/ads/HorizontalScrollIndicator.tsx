@@ -5,31 +5,47 @@ import { useSpring, animated, interpolate } from "react-spring";
 
 const ScrollTrack = styled.div<{
   isVisible: boolean;
+  bottom?: string;
+  left?: string;
+  mode?: "DARK" | "LIGHT";
 }>`
   position: absolute;
   z-index: 100;
-  bottom: 0;
-  left: 0;
+  bottom: ${(props) => (props.bottom ? props.bottom : "0px")};
+  left: ${(props) => (props.left ? props.left : "0")};
   height: 4px;
-  width: 100%;
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 6px
+    ${(props) =>
+      props.mode
+        ? props.mode === "LIGHT"
+          ? props.theme.colors.scrollbarLightBG
+          : props.theme.colors.scrollbarDarkBG
+        : props.theme.colors.scrollbarBG};
   overflow: hidden;
   opacity: ${(props) => (props.isVisible ? 1 : 0)};
   transition: opacity 0.15s ease-in;
 `;
 
-const ScrollThumb = styled(animated.div)`
+const ScrollThumb = styled(animated.div)<{ mode?: "DARK" | "LIGHT" }>`
   height: 4px;
-  background-color: #666666;
-  border-radius: 3px;
+  background-color: ${(props) =>
+    props.mode
+      ? props.mode === "LIGHT"
+        ? props.theme.colors.scrollbarLight
+        : props.theme.colors.scrollbarDark
+      : props.theme.colors.scrollbar};
+  border-radius: ${(props) => props.theme.radii[3]}px;
   transform: translate3d(0, 0, 0);
-  position: relative;
+  position: fixed;
 `;
 
 interface Props {
   containerRef: React.RefObject<HTMLDivElement>;
+  bottom?: string;
+  left?: string;
+  mode?: "DARK" | "LIGHT";
 }
-const HorizontalScrollIndicator = ({ containerRef }: Props) => {
+const HorizontalScrollIndicator = ({ containerRef, bottom, left }: Props) => {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
     config: {
@@ -54,7 +70,7 @@ const HorizontalScrollIndicator = ({ containerRef }: Props) => {
     const handleContainerScroll = (e: any): void => {
       setIsScrollVisible(true);
       const thumbFromLeft =
-        e.target.offsetWidth / (e.target.scrollWidth / e.target.offsetWidth);
+        e.target.offsetWidth - (e.target.scrollWidth - e.target.offsetWidth);
       const thumbPosition = e.target.scrollLeft;
       /* set scroll thumb height */
       if (thumbRef.current) {
@@ -86,12 +102,15 @@ const HorizontalScrollIndicator = ({ containerRef }: Props) => {
   }, 1500);
 
   return (
-    <ScrollTrack isVisible={isScrollVisible} className="scrollbar-track">
+    <ScrollTrack isVisible={isScrollVisible} bottom={bottom} left={left}>
       <ScrollThumb
         className="scrollbar-thumb"
         ref={thumbRef}
         style={{
-          left: interpolate([thumbPosition], (left: number) => `${left}px`),
+          marginLeft: interpolate(
+            [thumbPosition],
+            (left: number) => `${left}px`,
+          ),
         }}
       />
     </ScrollTrack>

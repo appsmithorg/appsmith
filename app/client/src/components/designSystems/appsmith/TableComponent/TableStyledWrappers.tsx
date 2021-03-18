@@ -25,6 +25,8 @@ export const TableWrapper = styled.div<{
   .tableWrap {
     height: 100%;
     display: block;
+    position: relative;
+    width: ${(props) => props.width - 8}px;
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -57,12 +59,6 @@ export const TableWrapper = styled.div<{
       &::-webkit-scrollbar {
         width: 0px;
         -webkit-appearance: none;
-      }
-      .scrollbar-track {
-        top: 32px !important;
-      }
-      .scrollbar-thumb {
-        background: #666666;
       }
       .tr {
         width: 100%;

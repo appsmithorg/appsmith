@@ -17,7 +17,7 @@ import {
   CompactMode,
   CompactModeTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import HorizontalScrollIndicator from "components/designSystems/appsmith/HorizontalScrollIndicator";
+import HorizontalScrollIndicator from "components/ads/HorizontalScrollIndicator";
 import { Colors } from "constants/Colors";
 
 import { EventType } from "constants/ActionConstants";
@@ -67,7 +67,7 @@ const defaultColumn = {
 
 export const Table = (props: TableProps) => {
   const isResizingColumn = React.useRef(false);
-  const tableWrapperRef = React.useRef<HTMLDivElement>(null);
+  // const tableWrapperRef = React.useRef<HTMLDivElement>(null);
 
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnSizeMap = {
@@ -153,7 +153,6 @@ export const Table = (props: TableProps) => {
       id={`table${props.widgetId}`}
       triggerRowSelection={props.triggerRowSelection}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
-      ref={tableWrapperRef}
     >
       <TableHeader
         width={props.width}
@@ -275,12 +274,19 @@ export const Table = (props: TableProps) => {
                 subPage,
                 prepareRow,
               )}
-            <ScrollIndicator containerRef={tableBodyRef} />
+            <ScrollIndicator
+              containerRef={tableBodyRef}
+              mode="LIGHT"
+              top="32px"
+            />
           </div>
         </div>
-        <HorizontalScrollIndicator containerRef={tableWrapperRef} />
+        <HorizontalScrollIndicator
+          containerRef={tableWrapperRef}
+          mode="LIGHT"
+        />
       </div>
-      <ScrollIndicator containerRef={tableWrapperRef} mode="LIGHT" />
+      {/* <ScrollIndicator containerRef={tableWrapperRef} mode="LIGHT" /> */}
     </TableWrapper>
   );
 };

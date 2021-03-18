@@ -105,14 +105,12 @@ const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
 
   return (
     <ScrollTrack
-      className="scrollbar-track"
       isVisible={isScrollVisible}
       top={top}
       bottom={bottom}
       right={right}
     >
       <ScrollThumb
-        className="scrollbar-thumb"
         ref={thumbRef}
         style={{
           transform: interpolate(
