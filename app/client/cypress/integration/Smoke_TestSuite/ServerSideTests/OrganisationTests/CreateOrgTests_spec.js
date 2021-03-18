@@ -20,10 +20,8 @@ describe("Create new org and share with a user", function() {
         homePage.viewerRole,
       );
       // check that the success message is correct
-      cy.checkSuccessMessageForOneUserInvite(
-        orgid,
-        "The user has been invited successfully",
-      );
+      const successMessage = "The user has been invited successfully";
+      cy.contains(message);
       cy.get(homePage.manageUsers).click({ force: true });
       cy.xpath(homePage.appHome)
         .first()

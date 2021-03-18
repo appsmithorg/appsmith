@@ -223,8 +223,6 @@ const OrgInviteUsersForm = (props: any) => {
 
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
-
-  console.log("INVITING USERS:", allUsers, props);
   const currentOrg = useSelector(getCurrentAppOrg);
 
   const userOrgPermissions = currentOrg?.userPermissions ?? [];

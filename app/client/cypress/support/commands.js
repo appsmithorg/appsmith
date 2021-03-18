@@ -87,13 +87,6 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.contains(email);
 });
 
-Cypress.Commands.add(
-  "checkSuccessMessageForOneUserInvite",
-  (orgName, message) => {
-    cy.contains(message);
-  },
-);
-
 Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
