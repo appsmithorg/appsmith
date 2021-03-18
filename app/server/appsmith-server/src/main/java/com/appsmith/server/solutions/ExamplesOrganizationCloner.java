@@ -371,8 +371,12 @@ public class ExamplesOrganizationCloner {
 
                     return Flux.fromIterable(existingDatasources)
                             .map(ds -> {
-                                ds.getDatasourceConfiguration().getAuthentication().setIsAuthorized(null);
-                                ds.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
+                                final AuthenticationDTO auth = ds.getDatasourceConfiguration() == null
+                                        ? null : ds.getDatasourceConfiguration().getAuthentication();
+                                if (auth != null) {
+                                    auth.setIsAuthorized(null);
+                                    auth.setAuthenticationResponse(null);
+                                }
                                 return ds;
                             })
                             .filter(templateDatasource::softEquals)
