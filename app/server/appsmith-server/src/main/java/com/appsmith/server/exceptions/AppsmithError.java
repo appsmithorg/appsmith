@@ -79,6 +79,8 @@ public enum AppsmithError {
     APPLICATION_FORKING_NOT_ALLOWED(403, 4034, "Forking this application is not permitted at this time.", AppsmithErrorAction.DEFAULT),
     GOOGLE_RECAPTCHA_TIMEOUT(504, 5042, "Google recaptcha verification timeout. Please try again.", AppsmithErrorAction.DEFAULT),
     GOOGLE_RECAPTCHA_FAILED(401, 4034, "Google recaptcha verification failed. Please try again.", AppsmithErrorAction.DEFAULT),
+    BAD_DATASOURCE_OBJECT(400, 4035, "{0}", AppsmithErrorAction.LOG_EXTERNALLY),
+    BAD_ACTION_OBJECT(400, 4036, "{0}", AppsmithErrorAction.LOG_EXTERNALLY),
     ;
 
 

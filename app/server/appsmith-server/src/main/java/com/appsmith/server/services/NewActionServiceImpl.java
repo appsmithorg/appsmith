@@ -904,13 +904,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     public Mono<ActionDTO> populateHintMessages(ActionDTO action) {
         if(action == null) {
-            //TODO: give correct error.
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ""));
+            return Mono.error(
+                    new AppsmithException(
+                            AppsmithError.BAD_ACTION_OBJECT,
+                            "Appsmith has encountered a null ActionDTO object. Please reach out to Appsmith customer " +
+                                    "support to resolve this."
+                    )
+            );
         }
-
-        //TODO: remove it.
-        System.out.println("devtest: a.name: " + action.getName());
-        System.out.println("devtest: a: " + action);
 
         Set<String> messages = new HashSet<>();
 

@@ -145,23 +145,36 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     private Mono<Datasource> populateHintMessages(Datasource datasource) {
-        //TODO: add NPE checks
+
+        if(datasource == null) {
+            return Mono.error(
+                    new AppsmithException(
+                            AppsmithError.BAD_DATASOURCE_OBJECT,
+                            "Appsmith has encountered a null Datasource object. Please reach out to Appsmith customer" +
+                                    " support to resolve this."
+                    )
+            );
+        }
+
         Set<String> messages = new HashSet<>();
 
-        boolean usingLocalhostUrl = false;
-        if(!StringUtils.isEmpty(datasource.getDatasourceConfiguration().getUrl())) {
-            usingLocalhostUrl = datasource.getDatasourceConfiguration().getUrl().contains("localhost");
-        }
-        else if(!CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
-            usingLocalhostUrl = datasource
-                    .getDatasourceConfiguration()
-                    .getEndpoints()
-                    .stream()
-                    .anyMatch(endpoint -> endpoint.getHost().contains("localhost"));
-        }
+        if (datasource.getDatasourceConfiguration() != null) {
+            boolean usingLocalhostUrl = false;
 
-        if(usingLocalhostUrl) {
-            messages.add("You may not able to access localhost if Appsmith is running inside a docker container");
+            if(!StringUtils.isEmpty(datasource.getDatasourceConfiguration().getUrl())) {
+                usingLocalhostUrl = datasource.getDatasourceConfiguration().getUrl().contains("localhost");
+            }
+            else if(!CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
+                usingLocalhostUrl = datasource
+                        .getDatasourceConfiguration()
+                        .getEndpoints()
+                        .stream()
+                        .anyMatch(endpoint -> endpoint.getHost().contains("localhost"));
+            }
+
+            if(usingLocalhostUrl) {
+                messages.add("You may not able to access localhost if Appsmith is running inside a docker container");
+            }
         }
 
         datasource.setMessages(messages);
