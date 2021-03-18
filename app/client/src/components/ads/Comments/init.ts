@@ -6,18 +6,14 @@ const dsl = require("./dsl.json");
 export const updateLayout = () => updateAndSaveLayout(dsl.widgets as any);
 
 export const getTestComments = () => {
-  const commentThreads = Object.entries(dsl.widgets).map(
-    ([widgetId], index) => {
-      return {
-        refId: widgetId,
-        meta: {
-          position: { top: 10, left: 15 },
-        },
-        id: uniqueId(),
-        comments: [{ body: widgetId, authorName: uniqueId() }],
-      };
-    },
-  );
+  const commentThreads = Object.entries(dsl.widgets).map(([widgetId]) => {
+    return {
+      refId: widgetId,
+      position: { top: 10, left: 15 },
+      id: uniqueId(),
+      comments: [{ body: widgetId, authorName: uniqueId() }],
+    };
+  });
 
   // const [widgetId] = Object.entries(dsl.widgets)[0];
   // const commentThreads = [

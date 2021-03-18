@@ -24,7 +24,7 @@ const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
 
 const UnpublishedCommentThread = withTheme(
   ({ theme, commentThread }: { commentThread: any; theme: Theme }) => {
-    const { top, left } = get(commentThread, "meta.position", {
+    const { top, left } = get(commentThread, "position", {
       top: 0,
       left: 0,
     });

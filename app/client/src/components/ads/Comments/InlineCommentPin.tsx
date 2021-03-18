@@ -18,7 +18,7 @@ const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
 const InlineCommentPin = withTheme(
   ({ commentThreadId, theme }: { commentThreadId: string; theme: Theme }) => {
     const commentThread = useSelector(commentThreadsSelector(commentThreadId));
-    const { top, left } = get(commentThread, "meta.position", {
+    const { top, left } = get(commentThread, "position", {
       top: 0,
       left: 0,
     });

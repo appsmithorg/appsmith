@@ -27,9 +27,7 @@ export const transformPublishedCommentActionPayload = (
   return {
     [payload.refId]: {
       ...payload,
-      meta: {
-        position: payload.position,
-      },
+      position: payload.position,
       id: "UNPUBLISHED",
     },
   };
@@ -39,8 +37,6 @@ export const transformUnpublishCommentThreadToCreateNew = (payload: any) => {
   const { commentBody, commentThread } = payload;
   return {
     ...commentThread,
-    id: uniqueId(),
     comments: [{ body: commentBody, authorName: uniqueId() }],
-    isVisible: true,
   };
 };
