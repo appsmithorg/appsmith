@@ -27,7 +27,7 @@ describe("Binding the Table and input Widget", function() {
       .type("0", { force: true });
     cy.get(".draggable-header ")
       .first()
-      .click();
+      .click({ force: true });
     cy.readTabledataPublish("0", "0").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("6788734");
@@ -39,7 +39,7 @@ describe("Binding the Table and input Widget", function() {
     });
     cy.get(".draggable-header ")
       .first()
-      .click();
+      .click({ force: true });
     cy.readTabledataPublish("0", "0").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("2381224");
