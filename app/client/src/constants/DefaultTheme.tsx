@@ -50,6 +50,13 @@ export const hideScrollbar = css`
   }
 `;
 
+export const truncateTextUsingEllipsis = css`
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+`;
+
 export const getTypographyByKey = (props: Record<string, any>, key: string) => `
   font-weight: ${props.theme.typography[key].fontWeight};
   font-size: ${props.theme.typography[key].fontSize}px;
