@@ -65,7 +65,7 @@ sudo chown ubuntu:ubuntu $boot_script_path/$boot_file_name && sudo chmod +x $boo
 sudo chown ubuntu:ubuntu $boot_script_path/$first_time_setup_file_name && sudo chmod +x $boot_script_path/$first_time_setup_file_name
 sudo chown ubuntu:ubuntu $boot_script_path/$config_ssl_file_name && sudo chmod +x $boot_script_path/$config_ssl_file_name
 sudo chown ubuntu:ubuntu $boot_script_path/$init_letsencrypt_file_name && sudo chmod +x $boot_script_path/$init_letsencrypt_file_name
-sudo chown root:root $boot_script_path/$user_data_script && sudmo chmod +x $boot_script_path/$user_data_script
+sudo chown root:root $boot_script_path/$user_data_script && sudo chmod +x $boot_script_path/$user_data_script
 
 CRON_FILE="/etc/cron.d/appsmith"
 echo "@reboot $USER $boot_script_path/$boot_file_name" > $CRON_FILE
