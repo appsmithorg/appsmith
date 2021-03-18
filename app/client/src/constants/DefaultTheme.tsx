@@ -50,6 +50,13 @@ export const hideScrollbar = css`
   }
 `;
 
+export const truncateTextUsingEllipsis = css`
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+`;
+
 export const getTypographyByKey = (props: Record<string, any>, key: string) => `
   font-weight: ${props.theme.typography[key].fontWeight};
   font-size: ${props.theme.typography[key].fontSize}px;
@@ -1988,6 +1995,7 @@ export const theme: Theme = {
     scrollbarLightBG: getColorWithOpacity(Colors.WHITE, 0.5),
     scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
     scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
+    dropdownIconBg: Colors.ALTO2,
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
