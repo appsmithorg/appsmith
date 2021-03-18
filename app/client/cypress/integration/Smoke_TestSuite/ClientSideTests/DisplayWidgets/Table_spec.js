@@ -279,7 +279,7 @@ describe("Table Widget Functionality", function() {
     const newTableData = [...this.data.TableInput];
     newTableData[0].orderAmount = null;
     cy.testJsontext("tabledata", JSON.stringify(newTableData));
-    // cy.wait("@updateLayout");
+    cy.wait("@updateLayout");
     cy.readTabledataPublish("0", "5").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("");
