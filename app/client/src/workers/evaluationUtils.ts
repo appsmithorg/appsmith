@@ -189,14 +189,6 @@ export const removeFunctions = (value: any) => {
   }
 };
 
-export const removeFunctionsFromDataTree = (dataTree: DataTree) => {
-  dataTree.actionPaths?.forEach((functionPath) => {
-    _.set(dataTree, functionPath, {});
-  });
-  delete dataTree.actionPaths;
-  return dataTree;
-};
-
 export const makeParentsDependOnChildren = (
   depMap: DependencyMap,
 ): DependencyMap => {

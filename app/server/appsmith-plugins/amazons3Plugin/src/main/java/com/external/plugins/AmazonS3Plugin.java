@@ -535,15 +535,17 @@ public class AmazonS3Plugin extends BasePlugin {
                         return Mono.error(e);
                     })
                     .onErrorResume(e -> {
-                        if (e instanceof AppsmithPluginException) {
-                            ActionExecutionResult result = new ActionExecutionResult();
-                            result.setIsExecutionSuccess(false);
-                            result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
-                            result.setBody(e.getMessage());
-                            return Mono.just(result);
+                        if (e instanceof StaleConnectionException) {
+                            return Mono.error(e);
                         }
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setBody(e.getMessage());
+                        if (e instanceof AppsmithPluginException) {
+                            result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
+                        }
+                        return Mono.just(result);
 
-                        return Mono.error(e);
                     })
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
@@ -583,14 +585,14 @@ public class AmazonS3Plugin extends BasePlugin {
 
             return (Mono<AmazonS3>) Mono.fromCallable(() -> {
                 List<Property> properties = datasourceConfiguration.getProperties();
-                
+
                 /*
-                 * - Ideally, properties must never be null because the fields contained in the properties list have a 
-                 *   default value defined. 
+                 * - Ideally, properties must never be null because the fields contained in the properties list have a
+                 *   default value defined.
                  * - Ideally, properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) must never be null/empty, because the
                  *   `S3 Service Provider` dropdown has a default value.
                  */
-                if(properties == null 
+                if (properties == null
                         || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
                         || StringUtils.isEmpty(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
                     return Mono.error(
@@ -599,13 +601,13 @@ public class AmazonS3Plugin extends BasePlugin {
                                     "Appsmith has failed to fetch the 'S3 Service Provider' field properties. Please " +
                                             "reach out to Appsmith customer support to resolve this."
                             )
-                    ); 
+                    );
                 }
 
                 final boolean usingCustomEndpoint =
                         !AMAZON_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
 
-                if (!usingCustomEndpoint 
+                if (!usingCustomEndpoint
                         && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
                         || properties.get(AWS_S3_REGION_PROPERTY_INDEX) == null
                         || StringUtils.isEmpty(properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
@@ -633,7 +635,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             )
                     );
                 }
-                
+
                 if (usingCustomEndpoint
                         && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
                         || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
@@ -685,7 +687,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         .standard()
                         .withCredentials(new AWSStaticCredentialsProvider(awsCreds));
 
-                if(!usingCustomEndpoint) {
+                if (!usingCustomEndpoint) {
                     Regions clientRegion = null;
 
                     try {
@@ -702,8 +704,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     }
 
                     s3ClientBuilder = s3ClientBuilder.withRegion(clientRegion);
-                }
-                else {
+                } else {
                     String endpoint = datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX).getHost();
                     s3ClientBuilder = s3ClientBuilder
                             .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region));
@@ -776,7 +777,7 @@ public class AmazonS3Plugin extends BasePlugin {
              * - Ideally, properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) must never be null/empty, because the
              *   `S3 Service Provider` dropdown has a default value.
              */
-            if(properties == null
+            if (properties == null
                     || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
                     || StringUtils.isEmpty(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
                 invalids.add("Appsmith has failed to fetch the 'S3 Service Provider' field properties. Please " +
@@ -789,9 +790,9 @@ public class AmazonS3Plugin extends BasePlugin {
                     && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
                     || properties.get(AWS_S3_REGION_PROPERTY_INDEX) == null
                     || StringUtils.isEmpty(properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
-               invalids.add("Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
-                       " in the datasource creation form ? You need to fill it with the region where " +
-                       "your AWS S3 instance is hosted.");
+                invalids.add("Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
+                        " in the datasource creation form ? You need to fill it with the region where " +
+                        "your AWS S3 instance is hosted.");
             }
 
             if (usingCustomEndpoint

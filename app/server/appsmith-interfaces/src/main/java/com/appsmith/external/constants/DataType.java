@@ -14,4 +14,5 @@ public enum DataType {
     STRING,
     NULL,
     ARRAY,
+    JSON_OBJECT
 }

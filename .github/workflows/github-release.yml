@@ -78,10 +78,10 @@ jobs:
 
       - name: Create the bundle
         env:
-          REACT_APP_ENVIRONMENT: 'PRODUCTION'
-          REACT_APP_FUSIONCHARTS_LICENSE_KEY: '${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}'
-          REACT_APP_SEGMENT_CE_KEY: '${{ secrets.APPSMITH_SEGMENT_CE_KEY }}'
-          REACT_APP_VERSION_ID: '${{ needs.prelude.outputs.tag }}'
+          REACT_APP_ENVIRONMENT: "PRODUCTION"
+          REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}"
+          REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
+          REACT_APP_VERSION_ID: "${{ needs.prelude.outputs.tag }}"
         run: |
           REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
             yarn build
@@ -89,15 +89,15 @@ jobs:
       # Build Docker image and push to Docker Hub
       - name: Push production image to Docker Hub with commit tag
         run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{needs.prelude.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{needs.prelude.outputs.tag}}
 
           # Only build & tag with latest if the tag doesn't contain beta
           if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
             docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:latest
           fi
-
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee
 
   build-server:
     needs:
@@ -142,12 +142,12 @@ jobs:
       # Build Docker image and push to Docker Hub
       - name: Push image to Docker Hub
         run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}}
 
           # Only build & tag with latest if the tag doesn't contain beta
           if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
             docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:latest
           fi
-
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee

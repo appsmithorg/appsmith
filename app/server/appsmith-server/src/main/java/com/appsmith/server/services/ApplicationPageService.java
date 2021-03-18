@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.PageDTO;
 import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Mono;
@@ -22,7 +23,7 @@ public interface ApplicationPageService {
 
     Mono<Application> makePageDefault(String applicationId, String pageId);
 
-    Mono<Application> cloneExampleApplication(Application application);
+    Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application);
 
     Mono<Application> deleteApplication(String id);
 

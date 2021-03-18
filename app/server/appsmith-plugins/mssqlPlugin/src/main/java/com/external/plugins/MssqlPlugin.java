@@ -6,7 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.helpers.SqlStringUtils;
+import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -133,7 +133,7 @@ public class MssqlPlugin extends BasePlugin {
             // First extract all the bindings in order
             List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
-            String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(connection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
         }
@@ -293,10 +293,15 @@ public class MssqlPlugin extends BasePlugin {
             })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
-                    .onErrorResume(AppsmithPluginException.class, error -> {
+                    .onErrorResume(error  -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setStatusCode(error.getAppErrorCode().toString());
+                        if (error instanceof AppsmithPluginException) {
+                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
                         result.setBody(error.getMessage());
                         return Mono.just(result);
                     })
@@ -456,7 +461,7 @@ public class MssqlPlugin extends BasePlugin {
                                                                      String binding,
                                                                      String value,
                                                                      PreparedStatement preparedStatement) throws AppsmithPluginException {
-            DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+            DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
             try {
                 switch (valueType) {

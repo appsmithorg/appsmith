@@ -7,6 +7,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ import static org.springframework.security.web.server.context.WebSessionServerSe
 public class UserSignup {
 
     private final UserService userService;
+    private final CaptchaService captchaService;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
@@ -86,7 +88,14 @@ public class UserSignup {
      * @return Publisher of the created user object, with an `id` value.
      */
     public Mono<Void> signupAndLoginFromFormData(ServerWebExchange exchange) {
-        return exchange.getFormData()
+        String recaptchaToken = exchange.getRequest().getQueryParams().getFirst("recaptchaToken");
+
+        return captchaService.verify(recaptchaToken).flatMap(verified -> {
+                  if (!verified) {
+                    return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_FAILED));
+                  }
+                  return exchange.getFormData();
+                })
                 .map(formData -> {
                     final User user = new User();
                     user.setEmail(formData.getFirst(FieldName.EMAIL));

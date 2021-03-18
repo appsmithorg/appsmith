@@ -17,7 +17,7 @@ describe("Dynamic Layout Functionality", function() {
       .click({ force: true });
     cy.get(commonlocators.canvas)
       .invoke("width")
-      .should("be.eq", 720);
+      .should("be.eq", 450);
   });
   it("Dynamic Layout - New Page should have selected Layout", function() {
     cy.get(pages.AddPage)
@@ -25,6 +25,6 @@ describe("Dynamic Layout Functionality", function() {
       .click();
     cy.get(commonlocators.canvas)
       .invoke("width")
-      .should("be.eq", 720);
+      .should("be.eq", 450);
   });
 });

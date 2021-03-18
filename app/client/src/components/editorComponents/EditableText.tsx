@@ -36,7 +36,7 @@ type EditableTextProps = {
 
 const EditPen = styled.img`
   width: 14px;
-  : hover {
+  :hover {
     cursor: pointer;
   }
 `;
@@ -84,7 +84,9 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
         ? `border-color: ${props.isValid ? Colors.HIT_GRAY : "red"}`
         : ""};
     & .${Classes.EDITABLE_TEXT_CONTENT} {
-      text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
+      &:hover {
+        text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
+      }
     }
   }
 `;
