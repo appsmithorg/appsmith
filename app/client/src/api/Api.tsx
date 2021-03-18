@@ -8,7 +8,6 @@ import {
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 import {
   createMessage,
@@ -16,6 +15,9 @@ import {
   ERROR_500,
   SERVER_API_TIMEOUT_ERROR,
 } from "../constants/messages";
+import { logoutUser } from "actions/userActions";
+import store from "../store";
+
 import log from "loglevel";
 
 //TODO(abhinav): Refactor this to make more composable.
@@ -103,10 +105,11 @@ axiosInstance.interceptors.response.use(
         const currentUrl = `${window.location.href}`;
         if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
           // Redirect to login and set a redirect url.
-          history.replace({
-            pathname: AUTH_LOGIN_URL,
-            search: `redirectUrl=${currentUrl}`,
-          });
+          store.dispatch(
+            logoutUser({
+              redirectURL: `${AUTH_LOGIN_URL}?redirectUrl=${currentUrl}`,
+            }),
+          );
           return Promise.reject({
             code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
             message: "Unauthorized. Redirecting to login page...",
