@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -370,7 +371,12 @@ public class ExamplesOrganizationCloner {
 
                                 templateDatasource.setOrganizationId(toOrganizationId);
                                 if (templateDatasource.getDatasourceConfiguration() != null) {
-                                    datasourceContextService.decryptSensitiveFields(templateDatasource.getDatasourceConfiguration().getAuthentication());
+                                    final AuthenticationDTO authentication = templateDatasource.getDatasourceConfiguration().getAuthentication();
+                                    if (authentication != null) {
+                                        authentication.setAuthenticationResponse(null);
+                                        authentication.setIsAuthorized(false);
+                                        datasourceContextService.decryptSensitiveFields(authentication);
+                                    }
                                 }
 
                                 return createSuffixedDatasource(templateDatasource);
