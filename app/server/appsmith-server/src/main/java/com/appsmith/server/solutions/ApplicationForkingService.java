@@ -52,7 +52,6 @@ public class ApplicationForkingService {
                     }
 
                     return examplesOrganizationCloner.cloneApplications(
-                            application.getOrganizationId(),
                             targetOrganization.getId(),
                             Flux.fromIterable(Collections.singletonList(application))
                     );

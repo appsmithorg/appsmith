@@ -136,27 +136,26 @@ public class ExamplesOrganizationCloner {
                             .when(
                                     userService.update(user.getId(), userUpdate),
                                     applicationsFlux == null
-                                            ? cloneApplications(templateOrganizationId, newOrganization.getId())
-                                            : cloneApplications(templateOrganizationId, newOrganization.getId(), applicationsFlux)
+                                            ? cloneApplications(newOrganization.getId())
+                                            : cloneApplications(newOrganization.getId(), applicationsFlux)
                             )
                             .thenReturn(newOrganization);
                 })
                 .doOnError(error -> log.error("Error cloning examples organization.", error));
     }
 
-    private Mono<List<String>> cloneApplications(String fromOrganizationId, String toOrganizationId) {
-        return cloneApplications(fromOrganizationId, toOrganizationId, configService.getTemplateApplications());
+    private Mono<List<String>> cloneApplications(String toOrganizationId) {
+        return cloneApplications(toOrganizationId, configService.getTemplateApplications());
     }
 
     /**
      * Clone all applications (except deleted ones), including it's pages and actions from one organization into
      * another. Also clones all datasources (not just the ones used by any applications) in the given organizations.
      *
-     * @param fromOrganizationId ID of the organization that is the source to copy objects from.
      * @param toOrganizationId   ID of the organization that is the target to copy objects to.
      * @return Empty Mono.
      */
-    public Mono<List<String>> cloneApplications(String fromOrganizationId, String toOrganizationId, Flux<Application> applicationsFlux) {
+    public Mono<List<String>> cloneApplications(String toOrganizationId, Flux<Application> applicationsFlux) {
         final List<NewPage> clonedPages = new ArrayList<>();
         final List<String> newApplicationIds = new ArrayList<>();
 
