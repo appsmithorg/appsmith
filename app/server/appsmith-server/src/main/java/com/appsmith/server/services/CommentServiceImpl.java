@@ -61,6 +61,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             return Mono.empty();
         }
 
+        // TODO: Check if a thread with this ID exists and if this user has permission to comment on that thread.
         comment.setThreadId(threadId);
 
         return sessionUserService.getCurrentUser()

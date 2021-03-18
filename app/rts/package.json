@@ -1,0 +1,16 @@
+{
+  "name": "appsmith-rts",
+  "version": "0.0.1",
+  "description": "Realtime component microservice for Appsmith",
+  "main": "index.js",
+  "author": "Appsmith Team",
+  "license": "Apache-2.0",
+  "private": true,
+  "devDependencies": {
+    "@koa/router": "^10.0.0",
+    "axios": "^0.21.1",
+    "express": "^4.17.1",
+    "mongodb": "^3.6.4",
+    "socket.io": "^3.1.2"
+  }
+}
