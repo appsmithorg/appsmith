@@ -509,29 +509,23 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     private Mono<Boolean> sendUpdateLayoutAnalyticsEvent(String pageId, String layoutId, JSONObject dsl, boolean isSuccess, Throwable error) {
-        final Map<String, Object> data = new HashMap<>();
-
-        return Mono.zip(sessionUserService.getCurrentUser(),
-                newPageService.getById(pageId))
+        return Mono.zip(
+                sessionUserService.getCurrentUser(),
+                newPageService.getById(pageId)
+        )
                 .flatMap(tuple -> {
                     User t1 = tuple.getT1();
                     NewPage t2 = tuple.getT2();
 
-                    data.putAll(Map.of(
+                    final Map<String, Object> data = Map.of(
                             "username", t1.getUsername(),
                             "appId", t2.getApplicationId(),
                             "pageId", pageId,
                             "layoutId", layoutId,
                             "dsl", dsl.toJSONString(),
-                            "isSuccessfulExecution", isSuccess
-                    ));
-
-                    // Add the error message in case of erroneous execution
-                    if (error != null) {
-                        data.putAll(Map.of(
-                                "error", error.getMessage()
-                        ));
-                    }
+                            "isSuccessfulExecution", isSuccess,
+                            "error", error == null ? "" : error.getMessage()
+                    );
 
                     analyticsService.sendEvent(AnalyticsEvents.UPDATE_LAYOUT.getEventName(), t1.getUsername(), data);
                     return Mono.just(isSuccess);
