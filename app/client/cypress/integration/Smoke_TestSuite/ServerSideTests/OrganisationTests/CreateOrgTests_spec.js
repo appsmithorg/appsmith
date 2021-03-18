@@ -21,7 +21,7 @@ describe("Create new org and share with a user", function() {
       );
       // check that the success message is correct
       const successMessage = "The user has been invited successfully";
-      cy.contains(message);
+      cy.contains(successMessage);
       cy.get(homePage.manageUsers).click({ force: true });
       cy.xpath(homePage.appHome)
         .first()
