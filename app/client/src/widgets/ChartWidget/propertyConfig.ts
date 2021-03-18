@@ -51,7 +51,20 @@ export default [
     ],
   },
   {
+    helpText:
+      "Manually configure a FusionChart, see https://www.fusioncharts.com",
+    propertyName: "customFusionChartConfig",
+    placeholderText: `Enter {type: "bar2d","dataSource": {}}`,
+    label: "Custom Fusion Chart Configuration",
+    controlType: "CUSTOM_FUSION_CHARTS_DATA",
+    isBindProperty: true,
+    isTriggerProperty: false,
+    hidden: (x: any) => x.chartType !== "CUSTOM_FUSION_CHART",
+  },
+  {
     sectionName: "Chart Data",
+    hidden: (props: ChartWidgetProps) =>
+      props.chartType === "CUSTOM_FUSION_CHART",
     children: [
       {
         helpText: "Populates the chart with the data",
@@ -59,8 +72,7 @@ export default [
         placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
         label: "Chart Series",
         controlType: "CHART_DATA",
-        hidden: (props: ChartWidgetProps) =>
-          props.chartType === "CUSTOM_FUSION_CHART",
+
         isBindProperty: false,
         isTriggerProperty: false,
         children: [
@@ -86,17 +98,9 @@ export default [
   },
   {
     sectionName: "Axis",
+    hidden: (props: ChartWidgetProps) =>
+      props.chartType === "CUSTOM_FUSION_CHART",
     children: [
-      {
-        helpText: "Manually configure a FusionChart, see fusioncharts.com",
-        propertyName: "customFusionChartConfig",
-        placeholderText: `Enter {type: "bar2d","dataSource": {}}`,
-        label: "Custom Fusion Chart Configuration",
-        controlType: "CUSTOM_FUSION_CHARTS_DATA",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        hidden: (x: any) => x.chartType !== "CUSTOM_FUSION_CHART",
-      },
       {
         helpText: "Specifies the label of the x-axis",
         propertyName: "xAxisName",
