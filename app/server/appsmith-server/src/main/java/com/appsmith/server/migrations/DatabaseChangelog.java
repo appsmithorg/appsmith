@@ -28,6 +28,7 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QOrganization;
@@ -1995,6 +1996,15 @@ public class DatabaseChangelog {
         }
     }
 
+    @ChangeSet(order = "060", id = "clear-example-apps", author = "")
+    public void clearExampleApps(MongoTemplate mongoTemplate) {
+        mongoTemplate.updateFirst(
+                query(where(fieldName(QConfig.config1.name)).is("template-organization")),
+                update("config.applicationIds", Collections.emptyList()).set("config.organizationId", null),
+                Config.class
+        );
+    }
+
     @ChangeSet(order = "061", id = "update-mysql-postgres-mongo-ssl-mode", author = "")
     public void updateMysqlPostgresMongoSslMode(MongoTemplate mongoTemplate) {
         Plugin mysqlPlugin = mongoTemplate
@@ -2064,6 +2074,7 @@ public class DatabaseChangelog {
                                 && !SSLDetails.AuthType.DISABLE.equals(authType))) {
                             datasource.getDatasourceConfiguration().getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
                         }
+                      
                         mongoTemplate.save(datasource);
                     }
                 });

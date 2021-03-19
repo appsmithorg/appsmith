@@ -3,17 +3,14 @@ import {
   EntityWithBindings,
   EvalError,
   EvalErrorTypes,
-  extraLibraries,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   isChildPropertyPath,
   isPathADynamicBinding,
   isPathADynamicTrigger,
-  unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import {
-  ActionDescription,
   DataTree,
   DataTreeAction,
   DataTreeEntity,
@@ -23,7 +20,6 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import {
   addDependantsOfNestedPropertyPaths,
-  addFunctions,
   convertPathToString,
   CrashingError,
   DataTreeDiffEvent,
@@ -32,7 +28,6 @@ import {
   getValidatedTree,
   makeParentsDependOnChildren,
   removeFunctions,
-  removeFunctionsFromDataTree,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   validateWidgetProperty,
@@ -40,18 +35,13 @@ import {
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
 import toposort from "toposort";
-import unescapeJS from "unescape-js";
 import equal from "fast-deep-equal/es6";
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
 } from "constants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-
-type EvalResult = {
-  result: any;
-  triggers?: ActionDescription<any>[];
-};
+import evaluate, { EvalResult } from "workers/evaluate";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -77,11 +67,9 @@ export default class DataTreeEvaluator {
 
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
-    // Add functions to the tree
-    const withFunctions = addFunctions(unEvalTree);
     // Create dependency map
     const createDependencyStart = performance.now();
-    this.dependencyMap = this.createDependencyMap(withFunctions);
+    this.dependencyMap = this.createDependencyMap(unEvalTree);
     const createDependencyEnd = performance.now();
     // Sort
     const sortDependenciesStart = performance.now();
@@ -92,16 +80,15 @@ export default class DataTreeEvaluator {
     // Evaluate
     const evaluateStart = performance.now();
     const evaluatedTree = this.evaluateTree(
-      withFunctions,
+      unEvalTree,
       this.sortedDependencies,
     );
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    const validated = getValidatedTree(this.widgetConfigMap, evaluatedTree);
+    this.evalTree = getValidatedTree(this.widgetConfigMap, evaluatedTree);
     const validateEnd = performance.now();
-    // Remove functions
-    this.evalTree = removeFunctionsFromDataTree(validated);
+
     this.oldUnEvalTree = unEvalTree;
     const totalEnd = performance.now();
     const timeTakenForFirstTree = {
@@ -138,8 +125,6 @@ export default class DataTreeEvaluator {
 
   updateDataTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
-    // Add appsmith internal functions to the tree ex. navigateTo / showModal
-    const unEvalTreeWithFunctions = addFunctions(unEvalTree);
     // Calculate diff
     const diffCheckTimeStart = performance.now();
     const differences = diff(this.oldUnEvalTree, unEvalTree) || [];
@@ -157,7 +142,7 @@ export default class DataTreeEvaluator {
     const {
       dependenciesOfRemovedPaths,
       removedPaths,
-    } = this.updateDependencyMap(differences, unEvalTreeWithFunctions);
+    } = this.updateDependencyMap(differences, unEvalTree);
     const updateDependenciesStop = performance.now();
 
     const calculateSortOrderStart = performance.now();
@@ -195,11 +180,9 @@ export default class DataTreeEvaluator {
     removedPaths.forEach((removedPath) => {
       _.unset(this.evalTree, removedPath);
     });
-    const evaluatedTree = this.evaluateTree(this.evalTree, subTreeSortOrder);
+    this.evalTree = this.evaluateTree(this.evalTree, subTreeSortOrder);
     const evalStop = performance.now();
 
-    // Remove functions
-    this.evalTree = removeFunctionsFromDataTree(evaluatedTree);
     const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
@@ -563,105 +546,11 @@ export default class DataTreeEvaluator {
   // Also returns any action triggers found after evaluating value
   evaluateDynamicBoundValue(
     data: DataTree,
-    path: string,
+    js: string,
     callbackData?: Array<any>,
   ): EvalResult {
     try {
-      const unescapedJS = unescapeJS(path).replace(/(\r\n|\n|\r)/gm, "");
-      return this.evaluate(unescapedJS, data, callbackData);
-    } catch (e) {
-      this.errors.push({
-        type: EvalErrorTypes.UNESCAPE_STRING_ERROR,
-        message: e.message,
-        context: {
-          path,
-        },
-      });
-      return { result: undefined, triggers: [] };
-    }
-  }
-
-  evaluate(js: string, data: DataTree, callbackData?: Array<any>): EvalResult {
-    const scriptToEvaluate = `
-        function closedFunction () {
-          const result = ${js};
-          return { result, triggers: self.triggers }
-        }
-        closedFunction()
-      `;
-    const scriptWithCallback = `
-         function callback (script) {
-            const userFunction = script;
-            const result = userFunction.apply(self, CALLBACK_DATA);
-            return { result, triggers: self.triggers };
-         }
-         callback(${js});
-      `;
-    const script = callbackData ? scriptWithCallback : scriptToEvaluate;
-    try {
-      const { result, triggers } = (function() {
-        /**** Setting the eval context ****/
-        const GLOBAL_DATA: Record<string, any> = {};
-        ///// Adding callback data
-        GLOBAL_DATA.CALLBACK_DATA = callbackData;
-        ///// Adding Data tree
-        Object.keys(data).forEach((datum) => {
-          GLOBAL_DATA[datum] = data[datum];
-        });
-        ///// Fixing action paths and capturing their execution response
-        if (data.actionPaths) {
-          GLOBAL_DATA.triggers = [];
-          const pusher = function(
-            this: DataTree,
-            action: any,
-            ...payload: any[]
-          ) {
-            const actionPayload = action(...payload);
-            GLOBAL_DATA.triggers.push(actionPayload);
-          };
-          GLOBAL_DATA.actionPaths.forEach((path: string) => {
-            const action = _.get(GLOBAL_DATA, path);
-            const entity = _.get(GLOBAL_DATA, path.split(".")[0]);
-            if (action) {
-              _.set(GLOBAL_DATA, path, pusher.bind(data, action.bind(entity)));
-            }
-          });
-        }
-
-        // Set it to self
-        Object.keys(GLOBAL_DATA).forEach((key) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore: No types available
-          self[key] = GLOBAL_DATA[key];
-        });
-
-        ///// Adding extra libraries separately
-        extraLibraries.forEach((library) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore: No types available
-          self[library.accessor] = library.lib;
-        });
-
-        ///// Remove all unsafe functions
-        unsafeFunctionForEval.forEach((func) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore: No types available
-          self[func] = undefined;
-        });
-
-        const evalResult = eval(script);
-
-        // Remove it from self
-        // This is needed so that next eval can have a clean sheet
-        Object.keys(GLOBAL_DATA).forEach((key) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore: No types available
-          delete self[key];
-        });
-
-        return evalResult;
-      })();
-      return { result, triggers };
+      return evaluate(js, data, callbackData);
     } catch (e) {
       this.errors.push({
         type: EvalErrorTypes.EVAL_ERROR,

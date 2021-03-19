@@ -76,7 +76,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
       filters: [],
-      compactMode: CompactModeTypes.DEFAULT,
     };
   }
 
@@ -291,10 +290,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             switch (type) {
               case ColumnTypes.DATE:
                 let isValidDate = true;
-                let outputFormat = column.metaProperties.format;
+                let outputFormat = Array.isArray(column.metaProperties.format)
+                  ? column.metaProperties.format[row]
+                  : column.metaProperties.format;
                 let inputFormat;
                 try {
-                  const type = column.metaProperties.inputFormat;
+                  const type = Array.isArray(column.metaProperties.inputFormat)
+                    ? column.metaProperties.inputFormat[row]
+                    : column.metaProperties.inputFormat;
                   if (type !== "Epoch" && type !== "Milliseconds") {
                     inputFormat = type;
                     moment(value, inputFormat);
@@ -709,6 +712,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "filteredTableData",
           filteredTableData,
         );
+        //Update selectedRow indices since tableData is changed
+        this.updateSelectedRowIndex();
       }
     }
 
@@ -733,23 +738,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // If the user changed the defaultSelectedRow(s)
     if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
       //Runs only when defaultSelectedRow is changed from property pane
-      if (!this.props.multiRowSelection) {
-        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : -1;
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndex",
-          selectedRowIndex,
-        );
-      } else {
-        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : [];
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndices",
-          selectedRowIndices,
-        );
-      }
+      this.updateSelectedRowIndex();
     }
 
     if (this.props.pageSize !== prevProps.pageSize) {
@@ -763,6 +752,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
   }
+
+  updateSelectedRowIndex = () => {
+    if (!this.props.multiRowSelection) {
+      const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : -1;
+      this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
+    } else {
+      const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : [];
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+    }
+  };
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
     return selectedRowIndices
@@ -796,7 +802,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -843,14 +848,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.props.updateWidgetMetaProperty("filters", filters);
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
-          updateCompactMode={(compactMode: CompactMode) => {
-            this.props.updateWidgetMetaProperty("compactMode", compactMode);
-          }}
+          updateCompactMode={this.handleCompactModeChange}
           sortTableColumn={this.handleColumnSorting}
         />
       </Suspense>
     );
   }
+
+  handleCompactModeChange = (compactMode: CompactMode) => {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("compactMode", compactMode);
+    } else {
+      this.props.updateWidgetMetaProperty("compactMode", compactMode);
+    }
+  };
 
   handleReorderColumn = (columnOrder: string[]) => {
     if (this.props.renderMode === RenderModes.CANVAS) {

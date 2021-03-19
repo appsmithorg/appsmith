@@ -22,6 +22,7 @@ import {
   FORM_VALIDATION_INVALID_PASSWORD,
   SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
   ALREADY_HAVE_AN_ACCOUNT,
+  createMessage,
 } from "constants/messages";
 import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
@@ -56,14 +57,14 @@ import { Theme } from "constants/DefaultTheme";
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
   if (!values.password || isEmptyString(values.password)) {
-    errors.password = FORM_VALIDATION_EMPTY_PASSWORD;
+    errors.password = createMessage(FORM_VALIDATION_EMPTY_PASSWORD);
   } else if (!isStrongPassword(values.password)) {
-    errors.password = FORM_VALIDATION_INVALID_PASSWORD;
+    errors.password = createMessage(FORM_VALIDATION_INVALID_PASSWORD);
   }
 
   const email = values.email || "";
   if (!isEmptyString(email) && !isEmail(email)) {
-    errors.email = FORM_VALIDATION_INVALID_EMAIL;
+    errors.email = createMessage(FORM_VALIDATION_INVALID_EMAIL);
   }
   return errors;
 };
@@ -100,15 +101,15 @@ export const SignUp = (props: SignUpFormProps) => {
     <>
       {showError && <FormMessage intent="danger" message={errorMessage} />}
       <AuthCardHeader>
-        <h1>{SIGNUP_PAGE_TITLE}</h1>
+        <h1>{createMessage(SIGNUP_PAGE_TITLE)}</h1>
       </AuthCardHeader>
       <SignUpLinkSection>
-        {ALREADY_HAVE_AN_ACCOUNT}
+        {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
         <AuthCardNavLink
           to={AUTH_LOGIN_URL}
           style={{ marginLeft: props.theme.spaces[3] }}
         >
-          {SIGNUP_PAGE_LOGIN_LINK_TEXT}
+          {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
         </AuthCardNavLink>
       </SignUpLinkSection>
       {SocialLoginList.length > 0 && (
@@ -117,24 +118,23 @@ export const SignUp = (props: SignUpFormProps) => {
       <SpacedSubmitForm method="POST" action={signupURL}>
         <FormGroup
           intent={error ? "danger" : "none"}
-          label={SIGNUP_PAGE_EMAIL_INPUT_LABEL}
+          label={createMessage(SIGNUP_PAGE_EMAIL_INPUT_LABEL)}
         >
           <FormTextField
             name="email"
             type="email"
-            placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
+            placeholder={createMessage(SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER)}
             autoFocus
           />
         </FormGroup>
         <FormGroup
           intent={error ? "danger" : "none"}
-          label={SIGNUP_PAGE_PASSWORD_INPUT_LABEL}
-          // helperText={FORM_VALIDATION_PASSWORD_RULE}
+          label={createMessage(SIGNUP_PAGE_PASSWORD_INPUT_LABEL)}
         >
           <FormTextField
             type="password"
             name="password"
-            placeholder={SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER}
+            placeholder={createMessage(SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER)}
           />
         </FormGroup>
         <FormActions>
@@ -143,7 +143,7 @@ export const SignUp = (props: SignUpFormProps) => {
             type="submit"
             disabled={pristine || !isFormValid}
             isLoading={submitting}
-            text={SIGNUP_PAGE_SUBMIT_BUTTON_TEXT}
+            text={createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
             fill
             size={Size.large}
             onClick={() => {

@@ -2,9 +2,9 @@ import { Classes, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import React, { memo, ReactNode, useState } from "react";
 import { Collapse } from "@blueprintjs/core";
-import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import styled from "constants/DefaultTheme";
 
 const SectionWrapper = styled.div`
   position: relative;
@@ -18,15 +18,14 @@ const SectionTitle = styled.div`
   grid-template-columns: 1fr 30px;
   cursor: pointer;
   & span {
-    color: ${(props) => props.theme.colors.paneSectionLabel};
+    color: ${(props) => props.theme.colors.propertyPane.title};
     padding: ${(props) => props.theme.spaces[2]}px 0;
-    font-size: ${(props) => props.theme.fontSizes[3]}px;
+    font-size: ${(props) => props.theme.fontSizes[4]}px;
     display: flex;
     font-weight: normal;
     justify-content: flex-start;
     align-items: center;
     margin: 0;
-    text-transform: uppercase;
   }
   & span.${Classes.ICON} {
     cursor: pointer;

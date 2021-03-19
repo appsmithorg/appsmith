@@ -4,7 +4,7 @@ import {
   deleteDatasource,
   refreshDatasourceStructure,
 } from "actions/datasourceActions";
-import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
+import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { noop } from "lodash";
 import { ContextMenuPopoverModifiers } from "../helpers";

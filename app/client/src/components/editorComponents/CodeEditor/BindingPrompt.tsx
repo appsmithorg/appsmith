@@ -11,7 +11,7 @@ const Wrapper = styled.span<{
   padding: ${(props) => (props.customMessage ? 6 : 8)}px;
   font-size: 12px;
   color: #ffffff;
-  box-shadow: 0px 12px 34px -6px rgba(0, 0, 0, 0.75);
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 0px;
   background-color: ${(props) =>
     props.theme.colors.codeMirror.background.hoverState};

@@ -4,7 +4,7 @@ import Button, { Size } from "components/ads/Button";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Divider from "components/editorComponents/Divider";
-import { FORK_APP } from "constants/messages";
+import { createMessage, FORK_APP } from "constants/messages";
 import { useDispatch } from "react-redux";
 import { getAllApplications } from "actions/applicationActions";
 import { useSelector } from "store";
@@ -124,7 +124,7 @@ const ForkApplicationModal = (props: any) => {
       isOpen={showForkModal}
       trigger={
         <TriggerButton
-          text={FORK_APP}
+          text={createMessage(FORK_APP)}
           icon="fork"
           size={Size.small}
           className="t--fork-app"

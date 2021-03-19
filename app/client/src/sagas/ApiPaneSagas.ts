@@ -53,6 +53,7 @@ import PerformanceTracker, {
 import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 
@@ -509,15 +510,18 @@ function* handleApiNameChangeSuccessSaga(
   if (!actionObj) {
     // Error case, log to sentry
     Toaster.show({
-      text: "Error occurred while renaming API",
+      text: createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name),
       variant: Variant.danger,
     });
 
-    Sentry.captureException(new Error("Error occurred while renaming API"), {
-      extra: {
-        actionId: actionId,
+    Sentry.captureException(
+      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name)),
+      {
+        extra: {
+          actionId: actionId,
+        },
       },
-    });
+    );
     return;
   }
 }
