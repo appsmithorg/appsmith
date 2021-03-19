@@ -1996,6 +1996,7 @@ export const theme: Theme = {
     scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
     scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
     dropdownIconBg: Colors.ALTO2,
+    queryPaneIconBg: lightShades[2],
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],

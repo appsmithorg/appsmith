@@ -53,11 +53,9 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 
 const DrawerWrapper = styled.div<{
   isVisible: boolean;
-  isAPIPath: any;
 }>`
   background-color: white;
-  width: ${(props) =>
-    !props.isVisible ? "0px" : props.isAPIPath ? "100%" : "75%"};
+  width: ${(props) => (!props.isVisible ? "0px" : "100%")};
   height: 100%;
 `;
 
