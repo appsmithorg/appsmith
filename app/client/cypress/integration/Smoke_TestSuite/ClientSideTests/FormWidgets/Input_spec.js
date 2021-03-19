@@ -37,9 +37,8 @@ describe("Input Widget Functionality", function() {
      */
     cy.widgetText("day", widgetsPage.inputWidget, widgetsPage.inputval);
     cy.get(widgetsPage.datatype)
-      .find(commonlocators.dropdownbuttonclick)
+      .last()
       .click({ force: true })
-      .get(commonlocators.dropdownmenu)
       .children()
       .contains("Text")
       .click();
@@ -117,11 +116,13 @@ describe("Input Widget Functionality", function() {
 
   it("Input Functionality To check number input type with custom regex", function() {
     cy.openPropertyPane("inputwidget");
-    cy.get(commonlocators.dataType).click();
+    cy.get(commonlocators.dataType)
+      .last()
+      .click();
     /*cy.get(
       `${commonlocators.dataType} .single-select:contains("Number")`,
     ).click();*/
-    cy.get("ul.bp3-menu")
+    cy.get(".t--dropdown-option")
       .children()
       .contains("Number")
       .click();

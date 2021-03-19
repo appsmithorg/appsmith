@@ -18,6 +18,7 @@ import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import {
   createMessage,
   INVITE_USERS_SUBMIT_SUCCESS,
+  INVITE_USER_SUBMIT_SUCCESS,
   INVITE_USERS_VALIDATION_EMAILS_EMPTY,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
@@ -35,9 +36,9 @@ import Text, { TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import { scrollbarDark } from "constants/DefaultTheme";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -90,7 +91,6 @@ const UserList = styled.div`
   &&::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.theme.colors.modal.scrollbar};
   }
-  ${scrollbarDark};
 `;
 
 const User = styled.div`
@@ -204,7 +204,7 @@ const { mailEnabled } = getAppsmithConfigs();
 
 const OrgInviteUsersForm = (props: any) => {
   const [emailError, setEmailError] = useState("");
-
+  const userRef = React.createRef<HTMLDivElement>();
   const {
     handleSubmit,
     allUsers,
@@ -221,6 +221,8 @@ const OrgInviteUsersForm = (props: any) => {
     isLoading,
   } = props;
 
+  // set state for checking number of users invited
+  const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
   const currentOrg = useSelector(getCurrentAppOrg);
 
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
@@ -276,6 +278,9 @@ const OrgInviteUsersForm = (props: any) => {
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           validateFormValues(values);
           AnalyticsUtil.logEvent("INVITE_USER", values);
+          const usersAsStringsArray = values.users.split(",");
+          // update state to show success message correctly
+          updateNumberOfUsersInvited(usersAsStringsArray.length);
           return inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
         })}
       >
@@ -326,7 +331,7 @@ const OrgInviteUsersForm = (props: any) => {
                 </a>
               </MailConfigContainer>
             )}
-            <UserList style={{ justifyContent: "space-between" }}>
+            <UserList style={{ justifyContent: "space-between" }} ref={userRef}>
               {allUsersProfiles.map(
                 (user: {
                   username: string;
@@ -354,6 +359,7 @@ const OrgInviteUsersForm = (props: any) => {
                   );
                 },
               )}
+              <ScrollIndicator containerRef={userRef} mode="DARK" />
             </UserList>
           </React.Fragment>
         )}
@@ -362,7 +368,11 @@ const OrgInviteUsersForm = (props: any) => {
             <Callout
               variant={Variant.success}
               fill
-              text={createMessage(INVITE_USERS_SUBMIT_SUCCESS)}
+              text={
+                numberOfUsersInvited > 1
+                  ? INVITE_USERS_SUBMIT_SUCCESS()
+                  : INVITE_USER_SUBMIT_SUCCESS()
+              }
             />
           )}
           {((submitFailed && error) || emailError) && (
