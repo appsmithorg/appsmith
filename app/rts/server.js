@@ -30,6 +30,7 @@ function main() {
 	const app = express()
 	const server = http.Server(app)
 	const io = socketIO(server, {
+		// TODO: Remove this CORS configuration.
 		cors: {
 			origin: "*",
 		},
@@ -105,22 +106,25 @@ async function tryAuth(socket, cookie) {
 }
 
 async function watchMongoDB(io) {
-	const client = new MongoClient(MONGODB_URI, { useUnifiedTopology: true });
-	const db = await client.connect()
+	const client = await MongoClient.connect(MONGODB_URI, { useUnifiedTopology: true });
+	const db = client.db()
+
+	const threadCollection = db.collection("commentThread")
 
 	const commentChangeStream = db.collection("comment").watch();
 	commentChangeStream.on("change", async (event) => {
 		console.log("change comment", event)
 		const comment = event.fullDocument
-		const { applicationId } = await db.collection("commentThread").findOne({ _id: ObjectId(comment.threadId) }, { applicationId: 1 })
+		const { applicationId } = await threadCollection.findOne({ _id: ObjectId(comment.threadId) }, { applicationId: 1 })
 		const roomName = "application:" + applicationId
 		const eventName = event.operationType + ":" + event.ns.coll
 		console.log("Emitting to room '" + roomName + "', event '" + eventName + "'.", comment)
 		io.to(roomName).emit(eventName, { comment })
 	})
 
-	const threadChangeStream = db.collection("commentThread").watch();
+	const threadChangeStream = threadCollection.watch();
 	threadChangeStream.on("change", (event) => {
+		console.log("change thread", event)
 		const comment = event.fullDocument
 		const roomName = "application:" + comment.applicationId
 		const eventName = event.operationType + ":" + event.ns.coll
