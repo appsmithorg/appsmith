@@ -105,5 +105,6 @@
   "globalSearchInput": ".t--global-search-input",
   "globalSearchTrigger": ".t--global-search-modal-trigger",
   "globalSearchClearInput": ".t--global-clear-input",
-  "containerWidget": ".t--widget-containerwidget"
+  "containerWidget": ".t--widget-containerwidget",
+  "paginationButton": ".rc-pagination-item"
 }

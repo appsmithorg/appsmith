@@ -29,7 +29,6 @@ const ScrollableCanvasWrapper = styled.div<
 >`
   width: 100%;
   height: 100%;
-  overflow: hidden;
 `;
 
 const ListComponent = (props: GridComponentProps) => {
