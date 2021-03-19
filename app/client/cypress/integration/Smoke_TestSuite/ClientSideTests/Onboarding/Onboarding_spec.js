@@ -8,15 +8,6 @@ describe("Onboarding", function() {
 
     cy.get(".t--welcome-tour").click();
 
-    cy.window()
-      .its("store")
-      .invoke("getState")
-      .then((state) => {
-        const { onBoarding } = state.ui;
-
-        cy.log(`Button: ${onBoarding.creatingDatabase}`);
-      });
-
     cy.get(".t--onboarding-action").click();
 
     cy.wait("@createNewApplication").should(
@@ -26,8 +17,14 @@ describe("Onboarding", function() {
     );
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(5000);
-    cy.get(".bp3-spinner-head").should("not.exist");
+    cy.window()
+      .its("store")
+      .invoke("getState")
+      .then((state) => {
+        const { onBoarding } = state.ui;
+
+        cy.log(`Button: ${onBoarding.creatingDatabase}`);
+      });
     cy.get(".t--start-building")
       .should("be.visible")
       .click({ force: true });
