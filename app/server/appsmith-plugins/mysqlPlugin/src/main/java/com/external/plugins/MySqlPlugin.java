@@ -17,12 +17,14 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.Option;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -55,6 +57,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -426,10 +429,56 @@ public class MySqlPlugin extends BasePlugin {
                 }
             }
 
+
             ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
-            ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-            ob = ob.option(ConnectionFactoryOptions.USER, authentication.getUsername());
-            ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
+            ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions)
+                    .option(ConnectionFactoryOptions.USER, authentication.getUsername())
+                    .option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
+
+            /*
+             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+             */
+            if(datasourceConfiguration.getConnection() == null
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                return Mono.error(
+                        new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+                                    "Please reach out to Appsmith customer support to resolve this."
+                        )
+                );
+            }
+
+            /*
+             * - By default, the driver configures SSL in the preferred mode.
+             */
+            SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+            switch (sslAuthType) {
+                case PREFERRED:
+                case REQUIRED:
+                    ob = ob
+                            .option(SSL, true)
+                            .option(Option.valueOf("sslMode"), sslAuthType.toString().toLowerCase());
+
+                    break;
+                case DISABLED:
+                    ob = ob.option(SSL, false);
+
+                    break;
+                case DEFAULT:
+                    /* do nothing - accept default driver setting*/
+
+                    break;
+                default:
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
+                                            "customer support to resolve this."
+                            )
+                    );
+            }
 
             return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
                     .onErrorResume(exception -> Mono.error(new AppsmithPluginException(
@@ -491,6 +540,16 @@ public class MySqlPlugin extends BasePlugin {
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add("Missing database name.");
                 }
+            }
+
+            /*
+             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+             */
+            if(datasourceConfiguration.getConnection() == null
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+                        "Please reach out to Appsmith customer support to resolve this.");
             }
 
             return invalids;

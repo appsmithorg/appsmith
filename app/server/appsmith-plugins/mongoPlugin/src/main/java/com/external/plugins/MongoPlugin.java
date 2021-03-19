@@ -232,7 +232,13 @@ public class MongoPlugin extends BasePlugin {
              */
 
             return Mono.just(datasourceConfiguration)
-                    .map(MongoPluginExecutor::buildClientURI)
+                    .flatMap(dsConfig -> {
+                        try {
+                            return Mono.just(buildClientURI(dsConfig));
+                        } catch (AppsmithPluginException e) {
+                            return Mono.error(e);
+                        }
+                    })
                     .map(MongoClients::create)
                     .onErrorMap(
                             IllegalArgumentException.class,
@@ -252,7 +258,7 @@ public class MongoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        public static String buildClientURI(DatasourceConfiguration datasourceConfiguration) {
+        public static String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
             StringBuilder builder = new StringBuilder();
 
             final Connection connection = datasourceConfiguration.getConnection();
@@ -303,9 +309,42 @@ public class MongoPlugin extends BasePlugin {
 
             List<String> queryParams = new ArrayList<>();
 
-            final SSLDetails sslDetails = connection.getSsl();
-            if (sslDetails != null && !SSLDetails.AuthType.NO_SSL.equals(sslDetails.getAuthType())) {
-                queryParams.add("ssl=true");
+            /*
+             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+             */
+            if(datasourceConfiguration.getConnection() == null
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+                                "Please reach out to Appsmith customer support to resolve this."
+                );
+            }
+
+            /*
+             * - By default, the driver configures SSL in the preferred mode.
+             */
+            SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+            switch (sslAuthType) {
+                case ENABLED:
+                    queryParams.add("ssl=true");
+
+                    break;
+                case DISABLED:
+                    queryParams.add("ssl=false");
+
+                    break;
+                case DEFAULT:
+                    /* do nothing - accept default driver setting */
+
+                    break;
+                default:
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
+                                    "customer support to resolve this."
+                    );
             }
 
             if (authentication != null && authentication.getAuthType() != null) {
@@ -370,6 +409,16 @@ public class MongoPlugin extends BasePlugin {
                     invalids.add("Missing database name.");
                 }
 
+            }
+
+            /*
+             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+             */
+            if(datasourceConfiguration.getConnection() == null
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration " +
+                        "form. Please reach out to Appsmith customer support to resolve this.");
             }
 
             return invalids;

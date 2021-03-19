@@ -712,6 +712,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "filteredTableData",
           filteredTableData,
         );
+        //Update selectedRow indices since tableData is changed
+        this.updateSelectedRowIndex();
       }
     }
 
@@ -736,23 +738,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // If the user changed the defaultSelectedRow(s)
     if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
       //Runs only when defaultSelectedRow is changed from property pane
-      if (!this.props.multiRowSelection) {
-        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : -1;
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndex",
-          selectedRowIndex,
-        );
-      } else {
-        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : [];
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndices",
-          selectedRowIndices,
-        );
-      }
+      this.updateSelectedRowIndex();
     }
 
     if (this.props.pageSize !== prevProps.pageSize) {
@@ -766,6 +752,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
   }
+
+  updateSelectedRowIndex = () => {
+    if (!this.props.multiRowSelection) {
+      const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : -1;
+      this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
+    } else {
+      const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : [];
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+    }
+  };
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
     return selectedRowIndices
