@@ -53,6 +53,7 @@ export function InputText(props: {
         size={EditorSize.EXTENDED}
         placeholder={placeholder}
         additionalDynamicData={props.additionalAutocomplete}
+        folding={false}
       />
     </StyledDynamicInput>
   );

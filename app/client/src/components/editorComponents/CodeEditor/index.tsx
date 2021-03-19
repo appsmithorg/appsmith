@@ -143,7 +143,30 @@ class CodeEditor extends Component<Props, State> {
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
         options.extraKeys["Tab"] = false;
       }
-      this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
+      if (this.props.folding) {
+        this.editor = CodeMirror.fromTextArea(this.textArea.current, {
+          ...options,
+          foldGutter: true,
+          gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+          foldOptions: {
+            widget: (from: any, to: any) => {
+              let startToken = "{",
+                endToken = "}";
+              const prevLine = this.editor.getLine(from.line);
+              if (prevLine.lastIndexOf("[") > prevLine.lastIndexOf("{")) {
+                (startToken = "["), (endToken = "]");
+              }
+              const toParse = startToken + endToken;
+              try {
+                const parsed = JSON.parse(toParse);
+              } catch (e) {}
+              return "\u002E\u002E\u002E";
+            },
+          },
+        });
+      } else {
+        this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
+      }
 
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("change", this.handleAutocompleteVisibility);

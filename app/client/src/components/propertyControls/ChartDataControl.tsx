@@ -138,6 +138,7 @@ function DataControlComponent(props: RenderComponentProps) {
           mode={EditorModes.TEXT_WITH_BINDING}
           tabBehaviour={TabBehaviour.INPUT}
           placeholder="Series Name"
+          folding={false}
         />
       </StyledOptionControlWrapper>
       <StyledLabel>Series Data</StyledLabel>
@@ -168,6 +169,7 @@ function DataControlComponent(props: RenderComponentProps) {
           mode={EditorModes.JSON_WITH_BINDING}
           tabBehaviour={TabBehaviour.INPUT}
           placeholder=""
+          folding={false}
         />
       </StyledDynamicInput>
       <Box></Box>

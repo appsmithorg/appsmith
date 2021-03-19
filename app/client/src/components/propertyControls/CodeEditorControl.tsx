@@ -34,6 +34,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         size={EditorSize.EXTENDED}
         mode={EditorModes.TEXT_WITH_BINDING}
         tabBehaviour={TabBehaviour.INDENT}
+        folding={false}
         {...props}
       />
     );

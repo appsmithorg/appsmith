@@ -8,6 +8,9 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import "codemirror/addon/fold/brace-fold";
+import "codemirror/addon/fold/foldgutter";
+import "codemirror/addon/fold/foldgutter.css";
 
 interface Props {
   input: {
@@ -15,6 +18,7 @@ interface Props {
     onChange?: (event: ChangeEvent<HTMLTextAreaElement>) => void;
   };
   height: string;
+  folding: boolean;
 }
 
 const ReadOnlyEditor = (props: Props) => {
@@ -30,6 +34,7 @@ const ReadOnlyEditor = (props: Props) => {
     showLightningMenu: false,
     showLineNumbers: true,
     borderLess: true,
+    folding: props.folding,
   };
   return <CodeEditor {...editorProps} />;
 };
