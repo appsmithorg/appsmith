@@ -3,6 +3,7 @@ import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
 import { Popover, Position } from "@blueprintjs/core";
+import { ControlIcons, ControlIconName } from "icons/ControlIcons";
 import styled from "constants/DefaultTheme";
 
 export type DropdownOption = {
@@ -138,6 +139,10 @@ const LabelWrapper = styled.div<{ label?: string }>`
   }
 `;
 
+const ControlIconWrapper = styled.div`
+  margin-right: 12px;
+`;
+
 const DefaultDropDownValueNode = ({
   selected,
   showLabelOnly,
@@ -172,7 +177,6 @@ export default function Dropdown(props: DropdownProps) {
     },
     [onSelect],
   );
-  console.log({ height: props.height });
   return (
     <DropdownContainer
       tabIndex={0}
@@ -203,6 +207,11 @@ export default function Dropdown(props: DropdownProps) {
         </Selected>
         <DropdownWrapper width={props.optionWidth || "260px"}>
           {props.options.map((option: DropdownOption, index: number) => {
+            const controlIconName: ControlIconName = option.icon
+              ? option.icon
+              : -1;
+            const ControlIcon =
+              controlIconName !== -1 ? ControlIcons[controlIconName] : null;
             return (
               <OptionWrapper
                 key={index}
@@ -210,7 +219,12 @@ export default function Dropdown(props: DropdownProps) {
                 onClick={() => optionClickHandler(option)}
                 className="t--dropdown-option"
               >
-                {option.icon ? (
+                {option.icon && ControlIcon ? (
+                  <ControlIconWrapper>
+                    <ControlIcon width={24} height={24} />
+                  </ControlIconWrapper>
+                ) : null}
+                {option.icon && !ControlIcon ? (
                   <Icon name={option.icon} size={IconSize.LARGE} />
                 ) : null}
                 {props.showLabelOnly ? (
