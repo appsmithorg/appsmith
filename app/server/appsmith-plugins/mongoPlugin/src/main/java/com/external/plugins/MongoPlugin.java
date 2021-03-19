@@ -232,14 +232,14 @@ public class MongoPlugin extends BasePlugin {
              */
 
             return Mono.just(datasourceConfiguration)
-                    .map(dsConfig -> {
+                    .flatMap(dsConfig -> {
                         try {
-                            return buildClientURI(dsConfig);
+                            return Mono.just(buildClientURI(dsConfig));
                         } catch (AppsmithPluginException e) {
-                            return e;
+                            return Mono.error(e);
                         }
                     })
-                    .map(uri -> MongoClients.create((String)uri))
+                    .map(MongoClients::create)
                     .onErrorMap(
                             IllegalArgumentException.class,
                             error ->
