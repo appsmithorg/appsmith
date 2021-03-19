@@ -1,6 +1,7 @@
 import React, { forwardRef, Ref } from "react";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
+import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
@@ -95,6 +96,7 @@ export const sizeHandler = (size?: IconSize) => {
 
 export const IconCollection = [
   "book",
+  "bug",
   "delete",
   "user",
   "general",
@@ -190,6 +192,9 @@ const Icon = forwardRef(
     switch (props.name) {
       case "book":
         returnIcon = <BookIcon />;
+        break;
+      case "bug":
+        returnIcon = <BugIcon />;
         break;
       case "delete":
         returnIcon = <DeleteIcon />;

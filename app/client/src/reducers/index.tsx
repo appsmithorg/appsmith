@@ -80,6 +80,7 @@ export interface AppState {
     onBoarding: OnboardingState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
+    debugger: any;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

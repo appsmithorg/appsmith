@@ -108,6 +108,10 @@ import {
   WIDGET_CUT,
   WIDGET_DELETE,
 } from "constants/messages";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import moment from "moment";
+import { Severity } from "entities/AppsmithConsole";
+import { debuggerLog } from "actions/debuggerActions";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -250,6 +254,7 @@ function* generateChildWidgets(
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
+    console.log(addChildAction, "addChildAction");
     const start = performance.now();
     Toaster.clear();
     const { widgetId } = addChildAction.payload;
@@ -260,11 +265,13 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const stateWidgets = yield select(getWidgets);
     const widgets = Object.assign({}, stateWidgets);
     // Generate the full WidgetProps of the widget to be added.
+    console.log(stateWidgets, "stateWidgets");
     const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
       stateParent,
       addChildAction.payload,
       widgets,
     );
+    console.log(childWidgetPayload, "childWidgetPayload");
 
     // Update widgets to put back in the canvasWidgetsReducer
     // TODO(abhinav): This won't work if dont already have an empty children: []
@@ -274,6 +281,19 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     };
 
     widgets[parent.widgetId] = parent;
+    yield put(
+      debuggerLog({
+        severity: Severity.INFO,
+        timestamp: moment().format("hh:mm:ss"),
+        text: "Widget was created",
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: childWidgetPayload.widgetId,
+          name:
+            childWidgetPayload.widgets[childWidgetPayload.widgetId].widgetName,
+        },
+      }),
+    );
     log.debug("add child computations took", performance.now() - start, "ms");
     yield put({
       type: ReduxActionTypes.WIDGET_CHILD_ADDED,
@@ -948,6 +968,20 @@ function* batchUpdateWidgetPropertySaga(
     performance.now() - start,
     "ms",
   );
+  yield put(
+    debuggerLog({
+      severity: Severity.INFO,
+      timestamp: moment().format("hh:mm:ss"),
+      text: "Widget properties were updated",
+      source: {
+        type: ENTITY_TYPE.WIDGET,
+        name: widget.widgetName,
+        id: widgetId,
+      },
+      state: updates,
+    }),
+  );
+
   // Save the layout
   yield put(updateAndSaveLayout(widgets));
 }

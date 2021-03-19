@@ -923,6 +923,9 @@ type ColorType = {
   };
   scrollbar: string;
   scrollbarBG: string;
+  debugger: {
+    background: string;
+  };
 };
 
 const auth: any = {
@@ -1386,6 +1389,9 @@ export const dark: ColorType = {
   },
   scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
   scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
+  debugger: {
+    background: darkShades[11],
+  },
 };
 
 export const light: ColorType = {
@@ -1797,6 +1803,9 @@ export const light: ColorType = {
   },
   scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
   scrollbarBG: "transparent",
+  debugger: {
+    background: "#FFFFFF",
+  },
 };
 
 export const theme: Theme = {

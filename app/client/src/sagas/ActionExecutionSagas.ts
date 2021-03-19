@@ -25,6 +25,7 @@ import {
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   ActionDescription,
+  ENTITY_TYPE,
   RunActionPayload,
 } from "entities/DataTree/dataTreeFactory";
 import { executeAction, executeActionError } from "actions/widgetActions";
@@ -102,6 +103,9 @@ import {
   resetChildrenMetaProperty,
   resetWidgetMetaProperty,
 } from "actions/metaActions";
+import { Severity } from "entities/AppsmithConsole";
+import moment from "moment";
+import { debuggerLog } from "actions/debuggerActions";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -155,6 +159,17 @@ function* navigateActionSaga(
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
     }
+
+    yield put(
+      debuggerLog({
+        severity: Severity.INFO,
+        timestamp: moment().format("hh:mm:ss"),
+        text: `Navigated to ${page.pageName}`,
+        state: {
+          params,
+        },
+      }),
+    );
     if (event.callback) event.callback({ success: true });
   } else {
     AnalyticsUtil.logEvent("NAVIGATE", {
@@ -187,6 +202,13 @@ function* storeValueLocally(
     const storeString = JSON.stringify(storeObj);
     yield localStorage.setItem(appStoreName, storeString);
     yield put(updateAppStore(storeObj));
+    yield put(
+      debuggerLog({
+        severity: Severity.INFO,
+        timestamp: moment().format("hh:mm:ss"),
+        text: `Store value was called with key: ${action.key}, value: ${action.value}`,
+      }),
+    );
     if (event.callback) event.callback({ success: true });
   } catch (err) {
     if (event.callback) event.callback({ success: false });
@@ -302,6 +324,13 @@ function* showAlertSaga(
     text: payload.message,
     variant: variant,
   });
+  yield put(
+    debuggerLog({
+      severity: Severity.INFO,
+      timestamp: moment().format("hh:mm:ss"),
+      text: `Show Message was called with message: ${payload.message}, type: ${payload.style}`,
+    }),
+  );
   if (event.callback) event.callback({ success: true });
 }
 
@@ -455,6 +484,19 @@ export function* executeActionSaga(
       paginationField: pagination,
       viewMode: appMode === APP_MODE.PUBLISHED,
     };
+    yield put(
+      debuggerLog({
+        severity: Severity.INFO,
+        timestamp: moment().format("hh:mm:ss"),
+        text: "Action started execution from widget request",
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: api.name,
+          id: actionId,
+        },
+        state: { request: executeActionRequest },
+      }),
+    );
     const timeout = yield select(getActionTimeout, actionId);
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       executeActionRequest,
@@ -468,6 +510,20 @@ export function* executeActionSaga(
       }),
     );
     if (isErrorResponse(response)) {
+      yield put(
+        debuggerLog({
+          severity: Severity.ERROR,
+          timestamp: moment().format("hh:mm:ss"),
+          text: "Action failed to execute from widget request",
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: api.name,
+            id: actionId,
+          },
+          state: { request: executeActionRequest },
+          message: payload.body as string,
+        }),
+      );
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
         { failed: true },
@@ -498,6 +554,20 @@ export function* executeActionSaga(
         PerformanceTransactionName.EXECUTE_ACTION,
         undefined,
         actionId,
+      );
+      yield put(
+        debuggerLog({
+          severity: Severity.INFO,
+          timestamp: moment().format("hh:mm:ss"),
+          text: "Action successfully executed from widget request",
+          timeTaken: response.clientMeta.duration,
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: api.name,
+            id: actionId,
+          },
+          state: { response: payload },
+        }),
       );
       if (onSuccess) {
         yield put(
@@ -573,6 +643,13 @@ function* executeActionTriggers(
         break;
       case "CLOSE_MODAL":
         yield put(trigger);
+        yield put(
+          debuggerLog({
+            severity: Severity.INFO,
+            timestamp: moment().format("hh:mm:ss"),
+            text: `${trigger.payload.modalName} modal was requested to be closed`,
+          }),
+        );
         if (event.callback) event.callback({ success: true });
         break;
       case "STORE_VALUE":
@@ -667,6 +744,28 @@ function* runActionSaga(
     const timeout = yield select(getActionTimeout, actionId);
     const appMode = yield select(getAppMode);
     const viewMode = appMode === APP_MODE.PUBLISHED;
+    const executeActionRequest = {
+      actionId,
+      params,
+      paginationField,
+      viewMode,
+    };
+
+    yield put(
+      debuggerLog({
+        severity: Severity.INFO,
+        timestamp: moment().format("hh:mm:ss"),
+        text: "Action started execution from user request",
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: actionObject.name,
+          id: actionId,
+        },
+        state: {
+          request: executeActionRequest,
+        },
+      }),
+    );
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       {
         actionId,
@@ -698,11 +797,39 @@ function* runActionSaga(
         payload: { [actionId]: payload },
       });
       if (payload.isExecutionSuccess) {
+        yield put(
+          debuggerLog({
+            severity: Severity.INFO,
+            timestamp: moment().format("hh:mm:ss"),
+            text: "Action successfull executed from user request",
+            timeTaken: response.clientMeta.duration,
+            source: {
+              type: ENTITY_TYPE.ACTION,
+              name: actionObject.name,
+              id: actionId,
+            },
+            state: { response: payload },
+          }),
+        );
         Toaster.show({
           text: createMessage(ACTION_RUN_SUCCESS),
           variant: Variant.success,
         });
       } else {
+        yield put(
+          debuggerLog({
+            severity: Severity.WARNING,
+            timestamp: moment().format("hh:mm:ss"),
+            text: "Action failed to execute from user request",
+            source: {
+              type: ENTITY_TYPE.ACTION,
+              name: actionObject.name,
+              id: actionId,
+            },
+            message: payload.body as string,
+            state: { request: executeActionRequest },
+          }),
+        );
         Toaster.show({
           text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
           variant: Variant.warning,
@@ -713,6 +840,20 @@ function* runActionSaga(
       if (response.data.body) {
         error = response.data.body.toString();
       }
+
+      yield put(
+        debuggerLog({
+          severity: Severity.ERROR,
+          timestamp: moment().format("hh:mm:ss"),
+          text: "Action failed to execute from user request",
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: actionObject.name,
+            id: actionId,
+          },
+          state: { request: executeActionRequest },
+        }),
+      );
       yield put({
         type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
         payload: { error, id: reduxAction.payload.id },

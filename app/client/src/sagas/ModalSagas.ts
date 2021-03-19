@@ -35,6 +35,9 @@ import {
 import { focusWidget } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
+import { debuggerLog } from "actions/debuggerActions";
+import { Severity } from "entities/AppsmithConsole";
+import moment from "moment";
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
@@ -81,6 +84,14 @@ export function* showModalByNameSaga(
       widget.widgetName === action.payload.modalName,
   );
   if (modal) {
+    yield put(
+      debuggerLog({
+        severity: Severity.INFO,
+        timestamp: moment().format("hh:mm:ss"),
+        text: `${action.payload.modalName} modal was requested to be opened`,
+      }),
+    );
+
     yield put({
       type: ReduxActionTypes.SHOW_MODAL,
       payload: {

@@ -37,19 +37,23 @@ export interface SourceEntity {
   // Id of the widget or action
   id: string;
   // property path of the child
-  propertyPath: string;
+  propertyPath?: string;
 }
 
 export interface Message {
   severity: Severity;
   // "when" did this event happen
-  timestamp: Date;
+  timestamp: string;
   // "what": Human readable description of what happened.
   text: string;
+  // More contextual message
+  message?: string;
+  // Time taken for the event to complete
+  timeTaken?: string;
   // "where" source entity and propertyPsath.
-  source: SourceEntity;
+  source?: SourceEntity;
   // Snapshot KV pair of scope variables or state associated with this event.
-  state: Record<string, any>;
+  state?: Record<string, any>;
 }
 
 /**

@@ -2,7 +2,7 @@ import { Message, ActionableError, Severity } from "entities/AppsmithConsole";
 
 // Eventually, if/when we need to dispatch events, we can import store and use store.dispatch
 export function log(ev: Message) {
-  ev.timestamp = ev.timestamp || new Date();
+  ev.timestamp = ev.timestamp;
   switch (ev.severity) {
     case Severity.DEBUG:
       console.debug(ev);
