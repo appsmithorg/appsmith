@@ -2029,9 +2029,8 @@ public class DatabaseChangelog {
                         }
 
                         datasource.getDatasourceConfiguration().getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+                        mongoTemplate.save(datasource);
                     }
-
-                    mongoTemplate.save(datasource);
                 });
 
         Plugin postgresPlugin = mongoTemplate
