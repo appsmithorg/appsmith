@@ -17,7 +17,7 @@ describe("Onboarding", function() {
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
-
+    cy.get(".bp3-spinner-head").should("not.exist");
     cy.get(".t--start-building")
       .should("be.visible")
       .click({ force: true });
