@@ -8,22 +8,28 @@ import {
 
 class CommentsApi extends Api {
   static baseURL = "v1/comments";
-  static getCreateThreadAPI = () => `${CommentsApi.baseURL}/threads`;
-  static getCreateNewThreadCommentAPI = () => CommentsApi.baseURL;
+  static getThreadsAPI = () => `${CommentsApi.baseURL}/threads`;
+  static getCommentsAPI = () => CommentsApi.baseURL;
 
   static createNewThread(
     request: CreateCommentThreadRequest,
   ): AxiosPromise<ApiResponse> {
-    return Api.post(CommentsApi.getCreateThreadAPI(), request);
+    return Api.post(CommentsApi.getThreadsAPI(), request);
   }
 
   static createNewThreadComment(
     request: CreateCommentRequest,
     threadId: string,
   ): AxiosPromise<ApiResponse> {
-    return Api.post(CommentsApi.getCreateNewThreadCommentAPI(), request, {
+    return Api.post(CommentsApi.getCommentsAPI(), request, {
       threadId,
     });
+  }
+
+  static fetchAppCommentThreads(
+    applicationId: string,
+  ): AxiosPromise<ApiResponse> {
+    return Api.get(CommentsApi.getThreadsAPI(), { applicationId });
   }
 }
 

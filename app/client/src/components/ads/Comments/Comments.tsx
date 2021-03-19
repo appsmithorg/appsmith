@@ -8,6 +8,7 @@ import {
   refCommentThreadsSelector,
   unpublishedCommentThreadSelector,
 } from "./selectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const CommentThreadPopoverStyles = createGlobalStyle`
   .comment-thread .${Classes.POPOVER_CONTENT} {
@@ -16,14 +17,18 @@ const CommentThreadPopoverStyles = createGlobalStyle`
 `;
 
 const Comments = ({ refId }: { refId: string }) => {
-  const commentsThreadIds = useSelector(refCommentThreadsSelector(refId));
+  const applicationId = useSelector(getCurrentApplicationId);
+  const commentsThreadIds = useSelector(
+    refCommentThreadsSelector(refId, applicationId),
+  );
   const unpublishedCommentThread = useSelector(
     unpublishedCommentThreadSelector(refId),
   );
+
   return (
     <>
       <CommentThreadPopoverStyles />
-      {commentsThreadIds &&
+      {Array.isArray(commentsThreadIds) &&
         commentsThreadIds.map((commentsThreadId: any) => (
           <InlineCommentPin
             commentThreadId={commentsThreadId}

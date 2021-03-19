@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as ToggleCommmentMode } from "assets/icons/comments/toggle-comment-mode.svg";
-import { setCommentMode as setCommentModeAction } from "actions/commentActions";
+import {
+  setCommentMode as setCommentModeAction,
+  fetchApplicationCommentsRequest,
+} from "actions/commentActions";
 import { AppState } from "reducers";
 
 import { getAppsmithConfigs } from "configs";
@@ -37,6 +40,12 @@ const ToggleCommentModeButton = () => {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
   const setCommentMode = () => dispatch(setCommentModeAction(!isCommentMode));
+
+  useEffect(() => {
+    if (isCommentMode) {
+      dispatch(fetchApplicationCommentsRequest());
+    }
+  }, [isCommentMode]);
 
   return commentsEnabled ? (
     <StyledToggleCommentMode

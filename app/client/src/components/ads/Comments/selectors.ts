@@ -1,7 +1,15 @@
 import { AppState } from "reducers";
+import { get } from "lodash";
 
-export const refCommentThreadsSelector = (refId: string) => (state: AppState) =>
-  state.ui.comments.refCommentThreads[refId];
+export const refCommentThreadsSelector = (
+  refId: string,
+  applicationId?: string,
+) => (state: AppState) =>
+  get(
+    state.ui.comments.applicationCommentThreadsByRef,
+    `${applicationId}.${refId}`,
+    [],
+  );
 
 export const commentThreadsSelector = (commentThreadId: string) => (
   state: AppState,

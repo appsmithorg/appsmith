@@ -44,7 +44,7 @@ const CommentCard = ({ comment, theme }: { comment: any; theme: Theme }) => {
     <StyledContainer>
       <CommentHeader>
         <div style={{ display: "flex" }}>
-          <ProfileImage userName={authorName} side={24} />
+          <ProfileImage userName={authorName || ""} side={24} />
           <UserName>{authorName}</UserName>
         </div>
         <CommentContextMenu />

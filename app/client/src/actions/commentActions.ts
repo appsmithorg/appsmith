@@ -81,3 +81,22 @@ export const unresolveCommentThread = (payload: {
   type: ReduxActionTypes.UNRESOLVE_COMMENT_THREAD,
   payload,
 });
+
+export const fetchApplicationCommentsRequest = () => ({
+  type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
+});
+
+export const fetchApplicationCommentsSuccess = (payload: any) => ({
+  type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_SUCCESS,
+  payload,
+});
+
+export const newCommentEvent = (payload: any) => ({
+  type: ReduxActionTypes.NEW_COMMENT_EVENT,
+  payload,
+});
+
+export const newCommentThreadEvent = (payload: any) => ({
+  type: ReduxActionTypes.NEW_COMMENT_THREAD_EVENT,
+  payload,
+});

@@ -22,6 +22,7 @@ import {
   removeUnpublishedCommentThreads,
   createCommentThreadSuccess,
   addCommentToThreadSuccess,
+  fetchApplicationCommentsSuccess,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -121,9 +122,35 @@ function* addCommentToThread(action: ReduxAction<any>) {
   }
 }
 
+function* fetchApplicationComments() {
+  try {
+    yield race([
+      take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS),
+      take(ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS),
+    ]);
+
+    const applicationId = yield select(getCurrentApplicationId);
+    const response = yield CommentsApi.fetchAppCommentThreads(applicationId);
+    const isValidResponse = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put(fetchApplicationCommentsSuccess(response.data));
+    } else {
+      // todo invalid response
+    }
+  } catch (e) {
+    // todo handle error here
+    console.log(e, "error");
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
+    takeLatest(
+      ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
+      fetchApplicationComments,
+    ),
     takeLatest(
       ReduxActionTypes.CREATE_UNPUBLISHED_COMMENT_THREAD_REQUEST,
       createUnpublishedCommentThread,
