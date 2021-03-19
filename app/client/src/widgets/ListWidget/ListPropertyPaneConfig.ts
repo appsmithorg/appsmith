@@ -7,8 +7,7 @@ const PropertyPaneConfig = [
     sectionName: "General",
     children: [
       {
-        helpText:
-          "Takes in an array of objects to display items in the grid. Bind data from an API using {{}}",
+        helpText: "Takes in an array of objects to display items in the list.",
         propertyName: "items",
         label: "Items",
         controlType: "INPUT_TEXT",
@@ -35,7 +34,7 @@ const PropertyPaneConfig = [
       },
 
       {
-        helpText: "Gap between rows and columns",
+        helpText: "Gap between items in Pixels",
         placeholderText: "0",
         propertyName: "gridGap",
         label: "Grid Gap",
