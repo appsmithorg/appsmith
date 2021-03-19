@@ -7,6 +7,16 @@ describe("Onboarding", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
 
     cy.get(".t--welcome-tour").click();
+
+    cy.window()
+      .its("store")
+      .invoke("getState")
+      .then((state) => {
+        const { onBoarding } = state.ui;
+
+        cy.log(`Button: ${onBoarding.creatingDatabase}`);
+      });
+
     cy.get(".t--onboarding-action").click();
 
     cy.wait("@createNewApplication").should(
