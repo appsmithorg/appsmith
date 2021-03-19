@@ -20,6 +20,8 @@ if (MONGODB_URI == null || MONGODB_URI === "" || !MONGODB_URI.startsWith("mongod
 	process.exit(1)
 }
 
+console.log("Connecting to MongoDB at", MONGODB_URI)
+
 const API_BASE_URL = "http://localhost:8080/api/v1"
 
 main()
@@ -104,26 +106,26 @@ async function tryAuth(socket, cookie) {
 
 async function watchMongoDB(io) {
 	const client = new MongoClient(MONGODB_URI, { useUnifiedTopology: true });
-	await client.connect()
-
-	const db = client.db("mobtools");
-
-	const threadCollection = db.collection("commentThread")
+	const db = await client.connect()
 
 	const commentChangeStream = db.collection("comment").watch();
 	commentChangeStream.on("change", async (event) => {
-	    console.log("change comment", event)
+		console.log("change comment", event)
 		const comment = event.fullDocument
-        const { applicationId } = await threadCollection.findOne({ _id: ObjectId(comment.threadId) }, { applicationId: 1 })
+		const { applicationId } = await db.collection("commentThread").findOne({ _id: ObjectId(comment.threadId) }, { applicationId: 1 })
 		const roomName = "application:" + applicationId
-		io.to(roomName).emit(event.operationType + ":" + event.ns.coll, { comment })
+		const eventName = event.operationType + ":" + event.ns.coll
+		console.log("Emitting to room '" + roomName + "', event '" + eventName + "'.", comment)
+		io.to(roomName).emit(eventName, { comment })
 	})
 
-	const threadChangeStream = threadCollection.watch();
+	const threadChangeStream = db.collection("commentThread").watch();
 	threadChangeStream.on("change", (event) => {
-		const roomName = "application:" + event.fullDocument.applicationId
-        console.log("Sending change:thread to", roomName)
-		io.to(roomName).emit(event.operationType + ":" + event.ns.coll, { comment: event.fullDocument })
+		const comment = event.fullDocument
+		const roomName = "application:" + comment.applicationId
+		const eventName = event.operationType + ":" + event.ns.coll
+		console.log("Emitting to room '" + roomName + "', event '" + eventName + "'.", comment)
+		io.to(roomName).emit(eventName, { comment })
 	})
 
 	process.on("exit", () => {
