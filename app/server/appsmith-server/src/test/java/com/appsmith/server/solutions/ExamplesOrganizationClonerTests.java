@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -60,7 +59,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -764,8 +762,6 @@ public class ExamplesOrganizationClonerTests {
                             new Property("custom auth param 1", "custom auth param value 1"),
                             new Property("custom auth param 2", "custom auth param value 2")
                     ));
-                    auth.setIsAuthorized(true);
-                    auth.setAuthenticationResponse(new AuthenticationResponse("token", "refreshToken", Instant.now(), Instant.now(), null));
                     dc.setAuthentication(auth);
 
                     final Datasource ds2 = new Datasource();
@@ -901,14 +897,6 @@ public class ExamplesOrganizationClonerTests {
                             "datasource 1",
                             "datasource 2"
                     );
-
-                    final Datasource ds1 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 1")).findFirst().get();
-                    assertThat(ds1.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
-                    assertThat(ds1.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse()).isNull();
-
-                    final Datasource ds2 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 2")).findFirst().get();
-                    assertThat(ds2.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
-                    assertThat(ds2.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse()).isNull();
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "action1",

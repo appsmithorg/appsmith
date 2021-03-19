@@ -11,7 +11,6 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
 import { Card, Classes as BlueprintClasses, Dialog } from "@blueprintjs/core";
-import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
 import {
   getApplicationList,
   getApplicationSearchKeyword,
@@ -470,7 +469,10 @@ const CreateNewLabel = styled(Text)`
 
 const OrgNameElement = styled(Text)`
   max-width: 500px;
-  ${truncateTextUsingEllipsis}
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
 `;
 
 const OrgNameHolder = styled(Text)`

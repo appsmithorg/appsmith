@@ -306,6 +306,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       pageId: savePageRequest.pageId,
     },
   );
+  AnalyticsUtil.logEvent("PAGE_SAVE", JSON.stringify(savePageRequest));
   try {
     // Store the updated DSL in the pageDSLs reducer
     yield put({
@@ -365,7 +366,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     if (error instanceof IncorrectBindingError) {
       const { isRetry } = action.payload;
       const incorrectBindingError = JSON.parse(error.message);
-      const { message } = incorrectBindingError;
+      const { widgetId, message } = incorrectBindingError;
       if (isRetry) {
         Sentry.captureException(new Error("Failed to correct binding paths"));
         yield put({
@@ -379,23 +380,18 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
           },
         });
       } else {
-        // Create a denormalized structure because the migration needs the children in the dsl form
-        const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
-          canvasWidgets: widgets,
-        });
-        const correctedWidgets = migrateIncorrectDynamicBindingPathLists(
-          denormalizedWidgets,
-        );
-        // Normalize the widgets because the save page needs it in the flat structure
-        const normalizedWidgets = CanvasWidgetsNormalizer.normalize(
-          correctedWidgets,
+        const correctedWidget = migrateIncorrectDynamicBindingPathLists(
+          widgets[widgetId],
         );
         AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
           error: error.message,
-          correctWidget: JSON.stringify(normalizedWidgets),
+          correctWidget: JSON.stringify(correctedWidget),
         });
         yield put(
-          updateAndSaveLayout(normalizedWidgets.entities.canvasWidgets, true),
+          updateAndSaveLayout(
+            { ...widgets, [widgetId]: correctedWidget },
+            true,
+          ),
         );
       }
     }

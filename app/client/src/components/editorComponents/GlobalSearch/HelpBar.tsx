@@ -36,7 +36,7 @@ const HelpBar = ({ toggleShowModal }: Props) => {
       onClick={toggleShowModal}
       className="t--global-search-modal-trigger"
     >
-      <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
+      <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER}</Text>
       <Text type={TextType.P3} italic>
         {comboText}
       </Text>

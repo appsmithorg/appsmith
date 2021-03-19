@@ -8,7 +8,6 @@ public enum AnalyticsEvents {
     DELETE,
     FIRST_LOGIN,
     EXECUTE_ACTION("execute_ACTION_TRIGGERED"),
-    UPDATE_LAYOUT,
     ;
 
     private final String eventName;
