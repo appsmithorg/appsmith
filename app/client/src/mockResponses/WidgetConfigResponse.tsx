@@ -7,7 +7,6 @@ import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagas";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import ComputeListPropertyControl from "components/propertyControls/ComputeListPropertyControl";
 
 /**
  * this config sets the default values of properties being used in the widget
@@ -511,10 +510,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       gridType: "vertical",
       enhancements: {
         child: {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          customJSControl: (parentProps: any) => {
-            return ComputeListPropertyControl.getControlType();
-          },
           autocomplete: (parentProps: any) => {
             return parentProps.childAutoComplete;
           },
@@ -523,6 +518,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             widgetName: string,
             propertyPath: string, // onClick
             propertyValue: string,
+            isTriggerProperty: boolean,
           ) => {
             let value = propertyValue;
 
@@ -545,6 +541,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 widgetId: parentProps.widgetId,
                 propertyPath: path,
                 propertyValue: value,
+                isDynamicTrigger: isTriggerProperty,
               },
             ];
           },
