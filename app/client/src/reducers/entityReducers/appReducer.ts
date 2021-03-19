@@ -24,11 +24,16 @@ export type UrlDataState = {
   fullPath: string;
 };
 
+export type AppStoreState = {
+  transient: Record<string, unknown>;
+  persistent: Record<string, unknown>;
+};
+
 export type AppDataState = {
   mode?: APP_MODE;
   user: AuthUserState;
   URL: UrlDataState;
-  store: Record<string, unknown>;
+  store: AppStoreState;
 };
 
 const initialState: AppDataState = {
@@ -47,7 +52,10 @@ const initialState: AppDataState = {
     hash: "",
     fullPath: "",
   },
-  store: {},
+  store: {
+    transient: {},
+    persistent: {},
+  },
 };
 
 const appReducer = createReducer(initialState, {
@@ -78,13 +86,28 @@ const appReducer = createReducer(initialState, {
       URL: action.payload,
     };
   },
-  [ReduxActionTypes.UPDATE_APP_STORE]: (
+  [ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE]: (
     state: AppDataState,
     action: ReduxAction<Record<string, unknown>>,
   ) => {
     return {
       ...state,
-      store: action.payload,
+      store: {
+        ...state.store,
+        transient: action.payload,
+      },
+    };
+  },
+  [ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE]: (
+    state: AppDataState,
+    action: ReduxAction<Record<string, unknown>>,
+  ) => {
+    return {
+      ...state,
+      store: {
+        ...state.store,
+        persistent: action.payload,
+      },
     };
   },
 });

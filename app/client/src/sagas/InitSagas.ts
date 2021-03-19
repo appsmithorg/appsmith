@@ -22,7 +22,7 @@ import {
   fetchPageList,
   fetchPublishedPage,
   setAppMode,
-  updateAppStore,
+  updateAppPersistentStore,
 } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPlugins } from "actions/pluginActions";
@@ -48,6 +48,7 @@ function* initializeEditorSaga(
   const { applicationId, pageId } = initializeEditorAction.payload;
   try {
     yield put(setAppMode(APP_MODE.EDIT));
+    yield put(updateAppPersistentStore(getPersistentAppStore(applicationId)));
     yield put({ type: ReduxActionTypes.START_EVALUATION });
     yield all([
       put(fetchPageList(applicationId, APP_MODE.EDIT)),
@@ -115,8 +116,6 @@ function* initializeEditorSaga(
       return;
     }
 
-    yield put(updateAppStore(getPersistentAppStore(applicationId)));
-
     const currentApplication = yield select(getCurrentApplication);
 
     const appName = currentApplication ? currentApplication.name : "";
@@ -150,6 +149,7 @@ export function* initializeAppViewerSaga(
 ) {
   const { applicationId, pageId } = action.payload;
   yield put(setAppMode(APP_MODE.PUBLISHED));
+  yield put(updateAppPersistentStore(getPersistentAppStore(applicationId)));
   yield put({ type: ReduxActionTypes.START_EVALUATION });
   yield all([
     // TODO (hetu) Remove spl view call for fetch actions
@@ -185,7 +185,6 @@ export function* initializeAppViewerSaga(
     return;
   }
 
-  yield put(updateAppStore(getPersistentAppStore(applicationId)));
   const defaultPageId = yield select(getDefaultPageId);
   const toLoadPageId = pageId || defaultPageId;
 
@@ -212,7 +211,6 @@ export function* initializeAppViewerSaga(
     }
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
-    yield put(updateAppStore(getPersistentAppStore(applicationId)));
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
