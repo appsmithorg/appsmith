@@ -1,6 +1,6 @@
 import React from "react";
 import log from "loglevel";
-import { compact, floor, get, set, xor } from "lodash";
+import { compact, floor, get, set, xor, isPlainObject } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -183,7 +183,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   updateTemplateWidgetProperties = (widget: WidgetProps, itemIndex: number) => {
-    const { template, dynamicBindingPathList } = this.props;
+    const {
+      template,
+      dynamicBindingPathList,
+      dynamicTriggerPathList,
+    } = this.props;
     const { widgetName = "" } = widget;
     // Update properties if they're dynamic
     // `template` property should have an array of values
@@ -208,11 +212,50 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           Array.isArray(evaluatedProperty) &&
           evaluatedProperty.length > itemIndex
         ) {
-          set(widget, path, evaluatedProperty[itemIndex]);
+          const evaluatedValue = evaluatedProperty[itemIndex];
+          if (isPlainObject(evaluatedValue))
+            set(widget, path, JSON.stringify(evaluatedValue));
+          else set(widget, path, evaluatedValue);
         }
       });
     }
 
+    if (
+      Array.isArray(dynamicTriggerPathList) &&
+      dynamicTriggerPathList.length > 0
+    ) {
+      // Get all paths in the dynamicBindingPathList sans the List Widget name prefix
+      const triggerPaths: string[] = compact(
+        dynamicTriggerPathList.map((path: Record<"key", string>) =>
+          path.key.indexOf(`template.${widgetName}`) === 0
+            ? path.key.split(".").pop()
+            : undefined,
+        ),
+      );
+
+      triggerPaths.forEach((path: string) => {
+        const propertyValue = get(widget, path);
+        if (propertyValue.indexOf("currentItem") > -1) {
+          const { jsSnippets } = getDynamicBindings(propertyValue);
+          const listItem = this.props.items[itemIndex];
+          const newPropertyValue = jsSnippets.reduce(
+            (prev: string, next: string) => {
+              if (next.indexOf("currentItem") > -1) {
+                return (
+                  prev +
+                  `{{((currentItem) => { ${next}})(JSON.parse('${JSON.stringify(
+                    listItem,
+                  )}'))}}`
+                );
+              }
+              return prev + `{{${next}}}`;
+            },
+            "",
+          );
+          set(widget, path, newPropertyValue);
+        }
+      });
+    }
     return this.updateNonTemplateWidgetProperties(widget, itemIndex);
   };
 

@@ -892,6 +892,7 @@ function* setWidgetDynamicPropertySaga(
 function getPropertiesToUpdate(
   widget: WidgetProps,
   updates: Record<string, unknown>,
+  triggerPaths?: string[],
 ): {
   propertyUpdates: Record<string, unknown>;
   dynamicTriggerPathList: DynamicPath[];
@@ -926,10 +927,20 @@ function getPropertiesToUpdate(
     }
 
     // Check if the path is a of a dynamic trigger property
-    const isTriggerProperty = isPropertyATriggerPath(
+    let isTriggerProperty = isPropertyATriggerPath(
       widgetWithUpdates,
       propertyPath,
     );
+
+    if (!isTriggerProperty) {
+      if (
+        triggerPaths &&
+        triggerPaths.length &&
+        triggerPaths.includes(propertyPath)
+      ) {
+        isTriggerProperty = true;
+      }
+    }
 
     // If it is a trigger property, it will go in a different list than the general
     // dynamicBindingPathList.
@@ -969,7 +980,7 @@ function* batchUpdateWidgetPropertySaga(
     // Handling the case where sometimes widget id is not passed through here
     return;
   }
-  const { modify = {}, remove = [] } = updates;
+  const { modify = {}, remove = [], triggerPaths } = updates;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
 
@@ -983,7 +994,7 @@ function* batchUpdateWidgetPropertySaga(
         propertyUpdates,
         dynamicTriggerPathList,
         dynamicBindingPathList,
-      } = getPropertiesToUpdate(widget, modify);
+      } = getPropertiesToUpdate(widget, modify, triggerPaths);
 
       console.log({ propertyUpdates });
       // We loop over all updates

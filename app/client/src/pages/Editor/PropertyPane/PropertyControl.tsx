@@ -102,10 +102,15 @@ const PropertyControl = memo((props: Props) => {
   );
   // this function updates the properties of widget passed
   const onBatchUpdatePropertiesOfWidget = useCallback(
-    (allUpdates: Record<string, unknown>, widgetId: string) => {
+    (
+      allUpdates: Record<string, unknown>,
+      widgetId: string,
+      triggerPaths: string[],
+    ) => {
       dispatch(
         batchUpdateWidgetProperty(widgetId, {
           modify: allUpdates,
+          triggerPaths,
         }),
       );
     },
@@ -148,6 +153,7 @@ const PropertyControl = memo((props: Props) => {
           widgetProperties.widgetName,
           propertyName,
           propertyValue,
+          props.isTriggerProperty,
         );
 
         if (
@@ -155,13 +161,18 @@ const PropertyControl = memo((props: Props) => {
           hookPropertiesUpdates.length > 0
         ) {
           const allUpdates: Record<string, unknown> = {};
-          hookPropertiesUpdates.forEach(({ propertyPath, propertyValue }) => {
-            allUpdates[propertyPath] = propertyValue;
-          });
+          const triggerPaths: string[] = [];
+          hookPropertiesUpdates.forEach(
+            ({ propertyPath, propertyValue, isDynamicTrigger }) => {
+              allUpdates[propertyPath] = propertyValue;
+              if (isDynamicTrigger) triggerPaths.push(propertyPath);
+            },
+          );
 
           onBatchUpdatePropertiesOfWidget(
             allUpdates,
             get(parentWithEnhancement, "widgetId", ""),
+            triggerPaths,
           );
         }
       }

@@ -150,7 +150,7 @@ export function useChildWidgetEnhancementFn(
       enhancementType,
     );
 
-    if (parentDataFromDataTree) {
+    if (parentDataFromDataTree && enhancementFn) {
       // Update the enhancement function by passing the widget data as the first parameter
       return (...args: unknown[]) =>
         enhancementFn(parentDataFromDataTree, ...args);
