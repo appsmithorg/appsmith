@@ -27,7 +27,11 @@ main()
 function main() {
 	const app = express()
 	const server = http.Server(app)
-	const io = socketIO(server)
+	const io = socketIO(server, {
+		cors: {
+			origin: "*",
+		},
+	})
 
 	const port = 8091
 
@@ -60,34 +64,42 @@ async function onSocketConnected(socket) {
 	let isAuthenticated = true
 
 	if (connectionCookie != null && connectionCookie !== "") {
-		let response;
-		try {
-			response = await axios.request({
-				method: "GET",
-				url: API_BASE_URL + "/applications/new",
-				headers: {
-					Cookie: connectionCookie.match(/\bSESSION=\S+/)[0],
-				},
-			})
-		} catch (error) {
-			console.error("Error authenticating", error)
-			isAuthenticated = false
-			return
-		}
-
-		console.log("Response from backend", response.data)
-        const email = response.data.data.user.email
-		socket.join("email:" + email)
-		for (const org of response.data.data.organizationApplications) {
-			for (const app of org.applications) {
-				console.log("Joining", app.id)
-				socket.join("application:" + app.id)
-			}
-		}
-
+		isAuthenticated = await tryAuth(socket, connectionCookie)
+		socket.emit("authStatus", { isAuthenticated })
 	}
 
-	socket.emit("authStatus", { isAuthenticated })
+	socket.on("auth", async ({ cookie }) => {
+		isAuthenticated = await tryAuth(socket, cookie)
+		socket.emit("authStatus", { isAuthenticated })
+	});
+}
+
+async function tryAuth(socket, cookie) {
+	let response;
+	try {
+		response = await axios.request({
+			method: "GET",
+			url: API_BASE_URL + "/applications/new",
+			headers: {
+				Cookie: cookie.match(/\bSESSION=\S+/)[0],
+			},
+		})
+	} catch (error) {
+		console.error("Error authenticating", error)
+		return false
+	}
+
+	console.log("Response from backend", response.data)
+	const email = response.data.data.user.email
+	socket.join("email:" + email)
+	for (const org of response.data.data.organizationApplications) {
+		for (const app of org.applications) {
+			console.log("Joining", app.id)
+			socket.join("application:" + app.id)
+		}
+	}
+
+	return true
 }
 
 async function watchMongoDB(io) {
