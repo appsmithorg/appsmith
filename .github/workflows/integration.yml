@@ -67,7 +67,7 @@ jobs:
       # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
       # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
       - name: Get the version to tag the Docker image
-        id: vars
+        id: vars_server
         run: |
           # Since this is an unreleased build, we set the version to incremented version number with a
           # `-SNAPSHOT` suffix.
@@ -89,7 +89,7 @@ jobs:
           APPSMITH_IS_SELF_HOSTED: false
         run: |
           mvn --batch-mode versions:set \
-            -DnewVersion=${{ steps.vars.outputs.version }} \
+            -DnewVersion=${{ steps.vars_server.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
           mvn --batch-mode package
@@ -179,7 +179,7 @@ jobs:
         run: yarn install
 
       - name: Set the build environment based on the branch
-        id: vars
+        id: vars_client
         run: |
           echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
           if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
@@ -197,17 +197,17 @@ jobs:
           echo ::set-output name=version::$next_version-SNAPSHOT
 
       - name: Run the jest tests
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+        run: REACT_APP_ENVIRONMENT=${{steps.vars_client.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
         run: |
-          REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+          REACT_APP_ENVIRONMENT=${{steps.vars_client.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
-            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+            REACT_APP_VERSION_ID=${{ steps.vars_client.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             yarn build
 
