@@ -93,6 +93,11 @@ export class DroppableComponent extends React.Component<
           {({ innerRef, droppableProps, placeholder }) => (
             <DroppableWrapper
               ref={innerRef as React.Ref<HTMLDivElement>}
+              onMouseDown={() => {
+                // set events to null to stop other parent draggable elements execution(ex: Property pane)
+                document.onmouseup = null;
+                document.onmousemove = null;
+              }}
               {...droppableProps}
             >
               {this.state.items.map(
