@@ -53,11 +53,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
                 value: "YYYY-MM-DDTHH:mm:ss.sssZ",
               },
               {
-                label: moment().format("YYYY-MM-DDTHH:mm:ss.sssZ"),
-                subText: "YYYY-MM-DDTHH:mm:ss.sssZ",
-                value: "YYYY-MM-DDTHH:mm:ss.sssZ",
-              },
-              {
                 label: moment().format("YYYY-MM-DDTHH:mm:ss"),
                 subText: "YYYY-MM-DDTHH:mm:ss",
                 value: "YYYY-MM-DDTHH:mm:ss",

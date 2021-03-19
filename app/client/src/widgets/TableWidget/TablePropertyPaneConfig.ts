@@ -234,7 +234,7 @@ export default [
                       value: "YYYY-MM-DD HH:mm",
                     },
                     {
-                      label: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                      label: "ISO 8601",
                       value: "YYYY-MM-DDTHH:mm:ss.sssZ",
                     },
                     {
@@ -337,7 +337,7 @@ export default [
                       value: "YYYY-MM-DD HH:mm",
                     },
                     {
-                      label: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                      label: "ISO 8601",
                       value: "YYYY-MM-DDTHH:mm:ss.sssZ",
                     },
                     {
