@@ -2035,7 +2035,7 @@ public class DatabaseChangelog {
                 });
 
         Plugin postgresPlugin = mongoTemplate
-                .find(query(where("name").is("PostgreSQL")), Plugin.class).get(0);
+                .findOne(query(where("packageName").is("postgres-plugin")), Plugin.class);
 
         List<Datasource> postgresDatasources = mongoTemplate
                 .find(query(where("pluginId").is(postgresPlugin.getId())), Datasource.class);
