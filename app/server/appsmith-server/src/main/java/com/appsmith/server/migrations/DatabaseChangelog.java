@@ -1995,7 +1995,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "060", id = "update-mysql-postgres-mongo-ssl-mode", author = "")
+    @ChangeSet(order = "061", id = "update-mysql-postgres-mongo-ssl-mode", author = "")
     public void updateMysqlPostgresMongoSslMode(MongoTemplate mongoTemplate) {
         Plugin mysqlPlugin = mongoTemplate
                 .findOne(query(where("packageName").is("mysql-plugin")), Plugin.class);
