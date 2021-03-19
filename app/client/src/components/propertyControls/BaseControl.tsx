@@ -4,6 +4,7 @@
  */
 import { Component } from "react";
 import _ from "lodash";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -44,6 +45,7 @@ export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
   openNextPanel: (props: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
+  theme: EditorTheme;
 }
 
 export default BaseControl;

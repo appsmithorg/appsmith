@@ -12,6 +12,7 @@ import {
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { generateReactKey } from "utils/generators";
+import { Category, Size } from "components/ads/Button";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -48,12 +49,15 @@ function updateOptionValue<T>(
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0px 5px;
   position: absolute;
-  right: 22px;
+  right: 4px;
   cursor: pointer;
+  && svg path {
+    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
+  }
 `;
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 2px;
+  margin-right: 5px;
 `;
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
@@ -61,6 +65,10 @@ const StyledOptionControlWrapper = styled(ControlWrapper)`
   justify-content: flex-start;
   padding-right: 16px;
   width: calc(100% - 10px);
+`;
+
+const StyledBox = styled.div`
+  width: 10px;
 `;
 
 type UpdatePairFunction = (pair: DropdownOption[]) => any;
@@ -145,18 +153,19 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
         return (
           <StyledOptionControlWrapper orientation={"HORIZONTAL"} key={pair.key}>
             <StyledOptionControlInputGroup
-              type={"text"}
+              dataType={"text"}
               placeholder={"Name"}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                updateKey(index, event.target.value);
+              onChange={(value: string) => {
+                updateKey(index, value);
               }}
               defaultValue={pair.label}
             />
-            <StyledOptionControlInputGroup
-              type={"text"}
+            <StyledBox />
+            <StyledInputGroup
+              dataType={"text"}
               placeholder={"Value"}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                updateValue(index, event.target.value);
+              onChange={(value: string) => {
+                updateValue(index, value);
               }}
               defaultValue={pair.value}
             />
@@ -170,12 +179,15 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
           </StyledOptionControlWrapper>
         );
       })}
+
       <StyledPropertyPaneButton
+        icon="plus"
+        tag="button"
+        type="button"
         text={props.addLabel || "Option"}
-        icon={"plus"}
-        color={"#FFFFFF"}
-        minimal={true}
         onClick={addPair}
+        size={Size.medium}
+        category={Category.tertiary}
       />
     </React.Fragment>
   );

@@ -1,17 +1,17 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledDatePicker } from "./StyledControls";
 import moment from "moment-timezone";
 import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import DatePickerComponent from "components/ads/DatePickerComponent";
 
 const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
   display: flex;
   flex-direction: column;
   margin: 8px 0 0 0;
-  &&& {
+  /* &&& {
     input {
       background: ${(props) => props.theme.colors.paneTextBG};
       color: ${(props) => props.theme.colors.textOnDarkBG};
@@ -22,7 +22,7 @@ const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
           ? `1px solid ${props.theme.colors.error}`
           : `1px solid transparent`};
     }
-  }
+  } */
   .vertical-center {
     display: flex;
     justify-content: space-between;
@@ -77,17 +77,17 @@ class DatePickerControl extends BaseControl<
         : null;
     return (
       <DatePickerControlWrapper isValid={true}>
-        <StyledDatePicker
+        <DatePickerComponent
           formatDate={this.formatDate}
           parseDate={this.parseDate}
           maxDate={this.maxDate}
           minDate={this.minDate}
           placeholder="DD/MM/YYYY HH:mm"
-          showActionsBar
           timePrecision={TimePrecision.MINUTE}
-          closeOnSelection
+          closeOnSelection={true}
           onChange={this.onDateSelected}
           value={value}
+          showActionsBar={true}
         />
       </DatePickerControlWrapper>
     );
