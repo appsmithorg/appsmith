@@ -4,18 +4,11 @@ on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
-  push:
-    branches: [release, master]
-    # Only trigger if files have changed in this specific path
-    paths:
-      - 'app/client/**'
-      - '!app/client/cypress/manual_TestSuite/**'
-
   pull_request:
     branches: [release, master]
     paths:
-      - 'app/client/**'
-      - '!app/client/cypress/manual_TestSuite/**'
+      - "app/client/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -106,10 +99,3 @@ jobs:
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             yarn build
-
-      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
-      - name: Upload react build bundle
-        uses: actions/upload-artifact@v2
-        with:
-          name: build
-          path: app/client/build/
