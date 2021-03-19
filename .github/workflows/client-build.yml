@@ -1,4 +1,4 @@
-name: Appsmith Client Workflow
+name: Appsmith Client Build Workflow
 
 on:
   # This line enables manual triggering of this workflow.
