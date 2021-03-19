@@ -8,7 +8,7 @@ on:
     branches: [release, master]
 
   pull_request:
-    branches: [release]
+    branches: [release, master]
     paths:
       - "app/client/cypress/**"
       - "!app/client/cypress/manual_TestSuite/**"
@@ -20,7 +20,7 @@ on:
 jobs:
   # We first build, test and push the server images to docker
   build-server:
-    if: github.event.review.state == 'approved'
+    if: github.event.review.state == 'approved' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     defaults:
       run:
