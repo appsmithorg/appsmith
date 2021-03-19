@@ -1,6 +1,6 @@
 import React from "react";
 import log from "loglevel";
-import { compact, floor, ceil, get, set, xor } from "lodash";
+import { compact, floor, get, set, xor } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -23,11 +23,7 @@ import propertyPaneConfig from "./ListPropertyPaneConfig";
 import { EventType } from "constants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination from "./ListPagination";
-import {
-  GridDefaults,
-  WIDGET_PADDING,
-  CONTAINER_GRID_PADDING,
-} from "constants/WidgetConstants";
+import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
