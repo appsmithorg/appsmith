@@ -7,6 +7,12 @@ on:
   push:
     branches: [release, master]
 
+  pull_request:
+    branches: [release]
+    paths:
+      - "app/client/cypress/**"
+      - "!app/client/cypress/manual_TestSuite/**"
+
   pull_request_review:
     types: [submitted]
     branches: [release, master]
@@ -33,7 +39,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review'
+        if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request'
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -114,13 +120,13 @@ jobs:
 
       # Build PR Docker image and upload artifact
       - name: Upload PR image as artifact
-        if: success() && github.event_name == 'pull_request_review'
+        if: success() && (github.event_name == 'pull_request_review' || github.event_name == 'pull_request')
         run: |
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith-server:${{ github.event.pull_request.number }} .
 
       # Upload the build artifact so that it can be used by the client side jobs in the workflow
       - name: Upload image
-        if: success() && github.event_name == 'pull_request_review'
+        if: success() && (github.event_name == 'pull_request_review' || github.event_name == 'pull_request')
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
           image: appsmith-server:${{ github.event.pull_request.number }}
@@ -137,7 +143,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review'
+        if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request'
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -248,7 +254,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review'
+        if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request'
         uses: actions/checkout@v2
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
@@ -324,7 +330,7 @@ jobs:
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
 
       - name: Pull PR server docker container and start it locally
-        if: github.event_name == 'pull_request_review'
+        if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request'
         shell: bash
         run: |
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
@@ -408,7 +414,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review'
+        if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request'
         uses: actions/checkout@v2
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
