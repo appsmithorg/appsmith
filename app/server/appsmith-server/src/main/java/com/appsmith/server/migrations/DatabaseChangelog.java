@@ -2064,9 +2064,8 @@ public class DatabaseChangelog {
                                 && !SSLDetails.AuthType.DISABLE.equals(authType))) {
                             datasource.getDatasourceConfiguration().getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
                         }
+                        mongoTemplate.save(datasource);
                     }
-
-                    mongoTemplate.save(datasource);
                 });
     }
 }
