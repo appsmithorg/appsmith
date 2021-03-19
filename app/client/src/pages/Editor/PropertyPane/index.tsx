@@ -197,9 +197,15 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   renderPropertyPane() {
     const { widgetProperties } = this.props;
     if (!widgetProperties)
-      return <PropertyPaneWrapper themeMode={this.getTheme()} />;
+      return (
+        <PropertyPaneWrapper
+          className={"t--propertypane"}
+          themeMode={this.getTheme()}
+        />
+      );
     return (
       <PropertyPaneWrapper
+        className={"t--propertypane"}
         themeMode={this.getTheme()}
         ref={this.panelWrapperRef}
         onClick={(e: any) => {
