@@ -199,6 +199,11 @@ function* storeValueLocally(
       };
       yield put(updateAppTransientStore(newTransientStore));
     }
+    // Wait for an evaluation before completing this trigger effect
+    // This makes this trigger work in sync and not trigger
+    // another effect till the values are reflected in
+    // the dataTree
+    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     if (event.callback) event.callback({ success: true });
   } catch (err) {
     if (event.callback) event.callback({ success: false });
