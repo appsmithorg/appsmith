@@ -23,7 +23,11 @@ on:
 jobs:
   # We first build, test and push the server images to docker
   build-server:
-    if: github.event.review.state == 'approved' || contains(['push','workflow_dispatch','pull_request'],github.event_name)
+    if: >
+      github.event.review.state == 'approved' || 
+      github.event_name == 'push' || 
+      github.event_name == 'workflow_dispatch' || 
+      github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -134,7 +138,11 @@ jobs:
 
   # Next, the client build and tests are run
   build-client:
-    if: github.event.review.state == 'approved' || contains(['push','workflow_dispatch','pull_request'],github.event_name)
+    if: >
+      github.event.review.state == 'approved' || 
+      github.event_name == 'push' || 
+      github.event_name == 'workflow_dispatch' || 
+      github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     defaults:
       run:
