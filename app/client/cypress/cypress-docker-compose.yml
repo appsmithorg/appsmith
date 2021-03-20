@@ -20,6 +20,7 @@ services:
     image: mongo
     environment:
       - MONGO_INITDB_DATABASE=appsmith
+      - TEST=test
     networks:
       - appsmith
 
