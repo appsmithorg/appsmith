@@ -96,7 +96,7 @@ jobs:
         uses: anuraag016/Jest-Coverage-Diff@V1.1
         with:
           fullCoverageDiff: false
-          runCommand: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+          runCommand: cd app/client && REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
           delta: 0.5
 
       # We burn React environment & the Segment analytics key into the build itself.
