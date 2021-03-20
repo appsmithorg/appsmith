@@ -97,7 +97,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           test_script: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
-          working-directory: app/client
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
