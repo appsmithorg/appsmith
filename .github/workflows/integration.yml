@@ -132,7 +132,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: build-server
-          path: app/server/build
+          path: app/client/build
 
       # # Upload the build artifact so that it can be used by the client side jobs in the workflow
       # - name: Upload PR image as artifact
@@ -372,7 +372,6 @@ jobs:
         if: github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         shell: bash
         run: |
-          pwd
           docker load < build/appsmith-server.tar
           docker images
           export DOCKER_FULLTAG=$(cat build/docker-tag)
