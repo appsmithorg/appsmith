@@ -19,5 +19,5 @@ jobs:
         with:
           age: "1 day"
           # Optional inputs
-          skip-tags: true
+          # skip-tags: true
           # skip-recent: 5
