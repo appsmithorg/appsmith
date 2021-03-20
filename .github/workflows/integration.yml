@@ -10,8 +10,8 @@ on:
   pull_request:
     branches: [release, master]
     paths:
-      - "app/client/cypress/**"
-      - "!app/client/cypress/manual_TestSuite/**"
+      - 'app/client/cypress/**'
+      - '!app/client/cypress/manual_TestSuite/**'
 
   pull_request_review:
     types: [submitted]
