@@ -93,7 +93,11 @@ jobs:
           echo ::set-output name=version::$next_version-SNAPSHOT
 
       - name: Run the jest tests
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+        uses: anuraag016/Jest-Coverage-Diff@V1.1
+        with:
+          fullCoverageDiff: false
+          runCommand: cd app/client && REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+          delta: 0.5
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
