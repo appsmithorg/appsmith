@@ -93,15 +93,10 @@ jobs:
           echo ::set-output name=version::$next_version-SNAPSHOT
 
       - name: Run the jest tests
-      runs-on: ubuntu-latest
-        env:
-          CI_JOB_NUMBER: 1
-        steps:
-          - uses: actions/checkout@v1
-          - uses: artiomtr/jest-coverage-report-action@v1.0
-            with:
-              github_token: ${{ secrets.GITHUB_TOKEN }}
-              test_script: cd app/client && REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+        uses: artiomtr/jest-coverage-report-action@v1.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          test_script: cd app/client && REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
