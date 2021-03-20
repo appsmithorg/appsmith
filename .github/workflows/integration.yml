@@ -132,7 +132,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: build-server
-          path: app/client/build
+          path: app/server/build
 
       # # Upload the build artifact so that it can be used by the client side jobs in the workflow
       # - name: Upload PR image as artifact
@@ -326,7 +326,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-server
-          path: app/client/build
+          path: app/server/build
 
       # - name: Download image
       #   if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
@@ -372,6 +372,7 @@ jobs:
         if: github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         shell: bash
         run: |
+          pwd
           docker load < build/appsmith-server.tar
           docker images
           export DOCKER_FULLTAG=$(cat build/docker-tag)
@@ -385,6 +386,7 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             "$DOCKER_FULLTAG"
+        working-directory: app/server
 
       - name: Installing Yarn serve
         run: |
