@@ -123,6 +123,7 @@ jobs:
         if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         run: |
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith-server:${{ github.event.pull_request.number }} .
+          mkdir build
           docker save appsmith-server:${{ github.event.pull_request.number }} > build/appsmith-server.tar
           echo appsmith-server:${{ github.event.pull_request.number }} > build/docker-tag
 
