@@ -120,20 +120,45 @@ jobs:
 
       # Build PR Docker image
       - name: Build PR image
-        if: success() && (github.event_name == 'pull_request_review' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
+        if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         run: |
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith-server:${{ github.event.pull_request.number }} .
+          docker save appsmith-server:${{ github.event.pull_request.number }} > build/appsmith-server.tar
+          echo appsmith-server:${{ github.event.pull_request.number }} > build/docker-tag
 
-      # Upload the build artifact so that it can be used by the client side jobs in the workflow
-      - name: Upload PR image as artifact
-        if: success() && (github.event_name == 'pull_request_review' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
-        uses: ishworkh/docker-image-artifact-upload@v1
+      - name: Upload PR image
+        if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
+        uses: actions/upload-artifact@v2
         with:
-          image: "appsmith-server:${{ github.event.pull_request.number }}"
+          name: build-server
+          path: app/server/build
+
+      # # Upload the build artifact so that it can be used by the client side jobs in the workflow
+      # - name: Upload PR image as artifact
+      #   if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
+      #   uses: ishworkh/docker-image-artifact-upload@v1
+      #   with:
+      #     image: "appsmith-server:${{ github.event.pull_request.number }}"
+
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v1
+
+      # - name: Build and push
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: .
+      #     file: ./Dockerfile
+      #     tags: appsmith-server:${{ github.event.pull_request.number }}
+      #     outputs: type=docker,dest=/tmp/appsmith-server.tar
+
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: appsmith-server
+      #     path: /tmp/appsmith-server.tar
 
   # Next, the client build and tests are run
   build-client:
-    needs: build-server
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -225,7 +250,7 @@ jobs:
           path: app/client/build/
 
   ui-test:
-    needs: build-client
+    needs: [build-server, build-client]
     # Only run if the build step is successful
     if: success()
     runs-on: ubuntu-latest
@@ -295,16 +320,18 @@ jobs:
           name: build-client
           path: app/client/build
 
-      - name: List Docker images
-        shell: bash
-        run: |
-          docker images
-
-      - name: Download image
-        if: success() && (github.event_name == 'pull_request_review' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
-        uses: ishworkh/docker-image-artifact-download@v1
+      - name: Download Docker Image (Artifact)
+        if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
+        uses: actions/download-artifact@v2
         with:
-          image: "appsmith_server:${{ github.event.pull_request.number }}"
+          name: build-server
+          path: app/server/build
+
+      # - name: Download image
+      #   if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
+      #   uses: ishworkh/docker-image-artifact-download@v1
+      #   with:
+      #     image: "appsmith_server:${{ github.event.pull_request.number }}"
 
       - name: Pull release server docker container and start it locally
         if: github.ref == 'refs/heads/release'
@@ -344,6 +371,10 @@ jobs:
         if: github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         shell: bash
         run: |
+          pwd
+          docker load < build/appsmith-server.tar
+          docker images
+          export DOCKER_FULLTAG=$(cat build/docker-tag)
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
             --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
             --env APPSMITH_REDIS_URL=redis://localhost:6379 \
@@ -353,7 +384,7 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
-            appsmith_server:${{ github.event.pull_request.number }}
+            "$DOCKER_FULLTAG"
 
       - name: Installing Yarn serve
         run: |
