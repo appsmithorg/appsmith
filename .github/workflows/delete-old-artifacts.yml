@@ -4,6 +4,10 @@ on:
   # Run on manual trigger
   workflow_dispatch:
 
+  schedule:
+    # Every day at 1am
+    - cron: "0 1 * * *"
+
 jobs:
   remove-old-artifacts:
     runs-on: ubuntu-latest
@@ -13,7 +17,7 @@ jobs:
       - name: Remove old artifacts
         uses: c-hive/gha-remove-artifacts@v1
         with:
-          age: "2 weeks"
+          age: "1 day"
           # Optional inputs
           # skip-tags: true
           # skip-recent: 5
