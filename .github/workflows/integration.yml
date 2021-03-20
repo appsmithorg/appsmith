@@ -1,18 +1,21 @@
 name: Appsmith Integration Workflow
 
 on:
-  # This line enables manual triggering of this workflow.
+  # Run on manual trigger
   workflow_dispatch:
 
+  # Run on new commit in release or master
   push:
     branches: [release, master]
 
+  # Run on new pull request that create/edits a cypress test
   pull_request:
     branches: [release, master]
     paths:
       - "app/client/cypress/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
+  # Run on approval of a PR (the approval part is handled while triggering the starting jobs)
   pull_request_review:
     types: [submitted]
     branches: [release, master]
@@ -20,7 +23,7 @@ on:
 jobs:
   # We first build, test and push the server images to docker
   build-server:
-    if: github.event.review.state == 'approved' || github.event_name == 'pull_request'
+    if: github.event.review.state == 'approved' || contains(['push','workflow_dispatch','pull_request'],github.event_name)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,16 +40,17 @@ jobs:
           - 6379:6379
 
     steps:
-      # Checkout the code
+      # Checkout the merged code if this is from a PR
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request'
+        if: github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
+      # Checkout the current HEAD if this is from a commit
       - name: Checkout the head commit of the branch
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master'
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -68,22 +72,15 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-      # first 11 characters. This can be used to build images for several branches
-      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
-      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      # Pick the version to update package info and docker image
       - name: Get the version to tag the Docker image
         id: vars_server
         run: |
-          # Since this is an unreleased build, we set the version to incremented version number with a
-          # `-SNAPSHOT` suffix.
           latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
           echo ::set-output name=version::$next_version-SNAPSHOT
-          # This bit is not used right now because we only push the release branch by name in this workflow
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
       # Build and test the code
       - name: Build and test
@@ -127,6 +124,7 @@ jobs:
           docker save appsmith-server:${{ github.event.pull_request.number }} > build/appsmith-server.tar
           echo appsmith-server:${{ github.event.pull_request.number }} > build/docker-tag
 
+      # Upload PR Docker image
       - name: Upload PR image
         if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         uses: actions/upload-artifact@v2
@@ -134,32 +132,9 @@ jobs:
           name: build-server
           path: app/server/build
 
-      # # Upload the build artifact so that it can be used by the client side jobs in the workflow
-      # - name: Upload PR image as artifact
-      #   if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
-      #   uses: ishworkh/docker-image-artifact-upload@v1
-      #   with:
-      #     image: "appsmith-server:${{ github.event.pull_request.number }}"
-
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v1
-
-      # - name: Build and push
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     context: .
-      #     file: ./Dockerfile
-      #     tags: appsmith-server:${{ github.event.pull_request.number }}
-      #     outputs: type=docker,dest=/tmp/appsmith-server.tar
-
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: appsmith-server
-      #     path: /tmp/appsmith-server.tar
-
   # Next, the client build and tests are run
   build-client:
+    if: github.event.review.state == 'approved' || contains(['push','workflow_dispatch','pull_request'],github.event_name)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -167,22 +142,20 @@ jobs:
         shell: bash
 
     steps:
-      # Checkout the code
+      # Checkout the merged code if this is from a PR
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request'
+        if: github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
+      # Checkout the current HEAD if this is from a commit
       - name: Checkout the head commit of the branch
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master'
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      - name: Figure out the PR number
-        run: echo ${{ github.event.pull_request.number }}
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
@@ -228,6 +201,7 @@ jobs:
           echo "next_version = $next_version"
           echo ::set-output name=version::$next_version-SNAPSHOT
 
+      # Run tests
       - name: Run the jest tests
         run: REACT_APP_ENVIRONMENT=${{steps.vars_client.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
@@ -278,16 +252,20 @@ jobs:
           - 27017:27017
 
     steps:
-      # Checkout the code
+      # Checkout the merged code if this is from a PR
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review' || github.event_name == 'pull_request'
+        if: github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
+      # Checkout the current HEAD if this is from a commit
       - name: Checkout the head commit of the branch
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master'
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
@@ -321,19 +299,15 @@ jobs:
           name: build-client
           path: app/client/build
 
-      - name: Download Docker Image (Artifact)
+      # Download PR Docker image
+      - name: Download PR image
         if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         uses: actions/download-artifact@v2
         with:
           name: build-server
           path: app/server/build
 
-      # - name: Download image
-      #   if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
-      #   uses: ishworkh/docker-image-artifact-download@v1
-      #   with:
-      #     image: "appsmith_server:${{ github.event.pull_request.number }}"
-
+      # Pull release Docker image
       - name: Pull release server docker container and start it locally
         if: github.ref == 'refs/heads/release'
         shell: bash
@@ -351,6 +325,7 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
 
+      # Pull master Docker image
       - name: Pull master server docker container and start it locally
         if: github.ref == 'refs/heads/master'
         shell: bash
@@ -368,7 +343,8 @@ jobs:
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
 
-      - name: Pull PR server docker container and start it locally
+      # Load PR Docker image
+      - name: Load PR server docker container and start it locally
         if: github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
         shell: bash
         run: |
@@ -435,7 +411,7 @@ jobs:
           group: "Electrons on Github Action"
           spec: "cypress/integration/Smoke_TestSuite/**/*.js"
           working-directory: app/client
-          # tag will be either "push" or "pull_request"
+          # tag will be either "push", "workflow_dispatch", "pull_request_review" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
@@ -452,7 +428,7 @@ jobs:
     defaults:
       run:
         working-directory: app/client
-    # Run this job only if all the previous steps are a success and the reference if the release or master branch
+    # Run this job only if all the previous steps are a success and the reference is the release or master branch
     if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
 
     steps:
