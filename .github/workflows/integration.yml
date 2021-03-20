@@ -326,7 +326,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build-server
-          path: app/server/build
+          path: app/client/build
 
       # - name: Download image
       #   if: success() && github.ref == 'refs/pull/${{ github.event.pull_request.number }}/merge'
