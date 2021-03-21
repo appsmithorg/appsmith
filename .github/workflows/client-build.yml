@@ -93,6 +93,7 @@ jobs:
           echo ::set-output name=version::$next_version-SNAPSHOT
 
       - name: Run the jest tests
+        if: github.event_name == 'pull_request'
         uses: anuraag016/Jest-Coverage-Diff@V1.1
         with:
           fullCoverageDiff: false
