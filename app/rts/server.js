@@ -20,9 +20,13 @@ if (MONGODB_URI == null || MONGODB_URI === "" || !MONGODB_URI.startsWith("mongod
 	process.exit(1)
 }
 
-console.log("Connecting to MongoDB at", MONGODB_URI)
+const API_BASE_URL = process.env.APPSMITH_API_BASE_URL
+if (API_BASE_URL == null || API_BASE_URL === "") {
+	console.error("Please provide a valid value for `APPSMITH_API_BASE_URL`.")
+	process.exit(1)
+}
 
-const API_BASE_URL = "http://localhost:8080/api/v1"
+console.log("Connecting to MongoDB at", MONGODB_URI)
 
 main()
 
@@ -92,7 +96,6 @@ async function tryAuth(socket, cookie) {
 		return false
 	}
 
-	console.log("Response from backend", response.data)
 	const email = response.data.data.user.email
 	socket.join("email:" + email)
 	for (const org of response.data.data.organizationApplications) {
