@@ -4,7 +4,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 export const ThreadContainer = styled.div`
   border: 1px solid
     ${(props) => props.theme.colors.comments.threadContainerBorder};
-  width: 300px;
+  width: 400px;
 `;
 
 export const ThreadHeader = styled.div`

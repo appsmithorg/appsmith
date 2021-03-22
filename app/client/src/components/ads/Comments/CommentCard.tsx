@@ -12,7 +12,6 @@ const StyledContainer = styled.div`
     border: 1px solid
       ${(props) => props.theme.colors.comments.profileImageBorder};
   }
-  max-width: 300px;
   border-radius: 0;
 `;
 
@@ -47,7 +46,7 @@ const CommentCard = ({ comment, theme }: { comment: any; theme: Theme }) => {
           <ProfileImage userName={authorName || ""} side={24} />
           <UserName>{authorName}</UserName>
         </div>
-        <CommentContextMenu />
+        {/* <CommentContextMenu /> */}
       </CommentHeader>
       <CommentBody>{body}</CommentBody>
     </StyledContainer>

@@ -892,6 +892,7 @@ type ColorType = {
     pin: string;
     commentModeButtonIcon: string;
     commentModeButtonBackground: string;
+    emojiPicker: string;
   };
   treeDropdown: {
     targetBg: string;
@@ -945,6 +946,7 @@ const comments = {
   pin: "#EF4141",
   commentModeButtonIcon: "#6A86CE",
   commentModeButtonBackground: "#262626",
+  emojiPicker: "#A9A7A7",
 };
 
 const auth: any = {

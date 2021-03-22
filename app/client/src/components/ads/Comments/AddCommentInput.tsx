@@ -22,6 +22,8 @@ const StyledSendButton = styled.button`
   background: transparent;
   border: none;
   align-items: center;
+  position: relative;
+  top: -1px;
 `;
 
 const StyledEmojiTrigger = styled.div`
@@ -78,6 +80,7 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
           onChange={(e) => setValue(e.target.value)}
           value={value}
           onKeyDown={handleKeyDown}
+          autoFocus
         />
         <StyledEmojiTrigger>
           <EmojiPicker onSelectEmoji={handleEmojiClick} />
