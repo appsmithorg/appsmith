@@ -1,7 +1,5 @@
 package com.appsmith.external.helpers;
 
-import ch.qos.logback.core.util.COWArrayList;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
