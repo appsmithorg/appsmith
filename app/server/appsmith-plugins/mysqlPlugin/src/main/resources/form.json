@@ -81,39 +81,29 @@
           "label": "SSL Mode",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
+          "initialValue": "DEFAULT",
           "options": [
             {
-              "label": "No SSL",
-              "value": "NO_SSL"
+              "label": "Default",
+              "value": "DEFAULT"
             },
             {
-              "label": "Allow",
-              "value": "ALLOW"
+              "label": "Preferred",
+              "value": "PREFERRED"
             },
             {
-              "label": "Prefer",
-              "value": "PREFER"
+              "label": "Required",
+              "value": "REQUIRED"
             },
             {
-              "label": "Require",
-              "value": "REQUIRE"
-            },
-            {
-              "label": "Disable",
-              "value": "DISABLE"
-            },
-            {
-              "label": "Verify-CA",
-              "value": "VERIFY_CA"
-            },
-            {
-              "label": "Verify-Full",
-              "value": "VERIFY_FULL"
+              "label": "Disabled",
+              "value": "DISABLED"
             }
           ]
         },
         {
           "sectionName": null,
+          "hidden": true,
           "children": [
             {
               "label": "Key File",
@@ -129,6 +119,7 @@
         },
         {
           "sectionName": null,
+          "hidden": true,
           "children": [
             {
               "label": "CA Certificate",
