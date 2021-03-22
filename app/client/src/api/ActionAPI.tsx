@@ -1,4 +1,4 @@
-import API, { HttpMethod } from "./Api";
+import API, { HttpMethod } from "api/Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
 import {
   APIRequest,
@@ -62,7 +62,7 @@ export interface ActionApiResponseReq {
   url: string;
 }
 
-export interface ActionApiResponse {
+export interface ActionExecutionResponse {
   responseMeta: ResponseMeta;
   data: {
     body: Record<string, unknown>;
@@ -181,7 +181,7 @@ class ActionAPI extends API {
   static executeAction(
     executeAction: ExecuteActionRequest,
     timeout?: number,
-  ): AxiosPromise<ActionApiResponse> {
+  ): AxiosPromise<ActionExecutionResponse> {
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
     });
@@ -193,7 +193,9 @@ class ActionAPI extends API {
     });
   }
 
-  static executeQuery(executeAction: any): AxiosPromise<ActionApiResponse> {
+  static executeQuery(
+    executeAction: any,
+  ): AxiosPromise<ActionExecutionResponse> {
     return API.post(ActionAPI.url + "/execute", executeAction);
   }
 
