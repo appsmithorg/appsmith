@@ -147,17 +147,7 @@ class CodeEditor extends Component<Props, State> {
         options.foldGutter = true;
         options.gutters = ["CodeMirror-linenumbers", "CodeMirror-foldgutter"];
         options.foldOptions = {
-          widget: (from: any, to: any) => {
-            let startToken = "{",
-              endToken = "}";
-            const prevLine = this.editor.getLine(from.line);
-            if (prevLine.lastIndexOf("[") > prevLine.lastIndexOf("{")) {
-              (startToken = "["), (endToken = "]");
-            }
-            const toParse = startToken + endToken;
-            try {
-              const parsed = JSON.parse(toParse);
-            } catch (e) {}
+          widget: () => {
             return "\u002E\u002E\u002E";
           },
         };

@@ -32,7 +32,7 @@ export type EditorConfig = {
   size: EditorSize;
   hinting: Array<HintHelper>;
   marking: Array<MarkHelper>;
-  folding?: boolean | false;
+  folding?: boolean;
 };
 
 export const EditorThemes: Record<EditorTheme, string> = {
