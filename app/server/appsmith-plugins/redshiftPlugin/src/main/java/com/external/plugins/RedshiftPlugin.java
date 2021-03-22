@@ -47,6 +47,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
 
@@ -251,21 +253,7 @@ public class RedshiftPlugin extends BasePlugin {
                     if (isResultSet) {
                         resultSet = statement.getResultSet();
                         ResultSetMetaData metaData = resultSet.getMetaData();
-                        columnsList.addAll(
-                                IntStream
-                                        .range(1, metaData.getColumnCount()+1) // JDBC column indexes start from 1
-                                        .mapToObj(i -> {
-                                            try {
-                                                return metaData.getColumnName(i);
-                                            } catch (SQLException exception) {
-                                                /*
-                                                 * - Need suggestions on alternative way of handling this exception.
-                                                 */
-                                                throw new RuntimeException(exception);
-                                            }
-                                        })
-                                        .collect(Collectors.toList())
-                        );
+                        columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
                         while (resultSet.next()) {
                             Map<String, Object> row = getRow(resultSet);
@@ -344,21 +332,7 @@ public class RedshiftPlugin extends BasePlugin {
 
             Set<String> messages = new HashSet<>();
 
-            /*
-             * - Get frequency of each column name
-             */
-            Map<String, Long> columnFrequencies = columnNames
-                    .stream()
-                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-
-            /*
-             * - Filter only the inputs which have frequency great than 1
-             */
-            List<String> identicalColumns = columnFrequencies.entrySet().stream()
-                    .filter(entry -> entry.getValue() > 1)
-                    .map(entry -> entry.getKey())
-                    .collect(Collectors.toList());
-
+            List<String> identicalColumns = getIdenticalColumns(columnNames);
             if(identicalColumns.size() > 0) {
                 messages.add("Your Redshift query result may not have all the columns because duplicate column names " +
                         "were found for the columns: " + String.join(", ", identicalColumns));

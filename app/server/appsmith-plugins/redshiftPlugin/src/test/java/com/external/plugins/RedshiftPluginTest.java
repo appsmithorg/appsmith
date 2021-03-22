@@ -519,6 +519,9 @@ public class RedshiftPluginTest {
                                     .anyMatch(message -> message.contains(expectedMessage))
                     );
 
+                    /*
+                     * - Check if all of the duplicate column names are reported.
+                     */
                     Set<String> expectedColumnNames = Stream.of("id", "username")
                             .collect(Collectors.toCollection(HashSet::new));
                     Set<String> foundColumnNames = new HashSet<>();

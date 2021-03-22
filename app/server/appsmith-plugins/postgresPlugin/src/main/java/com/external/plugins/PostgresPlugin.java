@@ -62,6 +62,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -188,20 +190,6 @@ public class PostgresPlugin extends BasePlugin {
             return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
         }
 
-        /*private List<String> populateColumnNames(ResultSetMetaData metaData) throws SQLException {
-            int numColumns = metaData.getColumnCount();
-            List<String> columnNames = new ArrayList<>();
-
-                columnNames =  IntStream
-                        .range(0, numColumns)
-                        .map(i -> {
-                            return metaData.getColumnName(i);
-                        })
-                        .collect(Collectors.toList());
-
-            return columnNames;
-        }*/
-
         private Mono<ActionExecutionResult> executeCommon(HikariDataSource connection,
                                                           DatasourceConfiguration datasourceConfiguration,
                                                           ActionConfiguration actionConfiguration,
@@ -289,21 +277,7 @@ public class PostgresPlugin extends BasePlugin {
                     } else {
 
                         ResultSetMetaData metaData = resultSet.getMetaData();
-                        columnsList.addAll(
-                                IntStream
-                                        .range(1, metaData.getColumnCount()+1) // JDBC column indexes start from 1
-                                        .mapToObj(i -> {
-                                            try {
-                                                return metaData.getColumnName(i);
-                                            } catch (SQLException exception) {
-                                                /*
-                                                 * - Need suggestions on alternative way of handling this exception.
-                                                 */
-                                                throw new RuntimeException(exception);
-                                            }
-                                        })
-                                        .collect(Collectors.toList())
-                        );
+                        columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
                         while (resultSet.next()) {
 
@@ -444,21 +418,7 @@ public class PostgresPlugin extends BasePlugin {
 
             Set<String> messages = new HashSet<>();
 
-            /*
-             * - Get frequency of each column name
-             */
-            Map<String, Long> columnFrequencies = columnNames
-                    .stream()
-                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-
-            /*
-             * - Filter only the inputs which have frequency great than 1
-             */
-            List<String> identicalColumns = columnFrequencies.entrySet().stream()
-                    .filter(entry -> entry.getValue() > 1)
-                    .map(entry -> entry.getKey())
-                    .collect(Collectors.toList());
-
+            List<String> identicalColumns = getIdenticalColumns(columnNames);
             if(identicalColumns.size() > 0) {
                 messages.add("Your PostgreSQL query result may not have all the columns because duplicate column " +
                         "names were found for the columns: " + String.join(", ", identicalColumns));
