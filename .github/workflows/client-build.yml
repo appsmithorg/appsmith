@@ -1,0 +1,120 @@
+name: Appsmith Client Build Workflow
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+  push:
+    branches: [release, master]
+    # Only trigger if files have changed in this specific path
+    paths:
+      - 'app/client/**'
+      - '!app/client/cypress/manual_TestSuite/**'
+
+  pull_request:
+    branches: [release, master]
+    paths:
+      - 'app/client/**'
+      - '!app/client/cypress/manual_TestSuite/**'
+
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/client
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+
+    steps:
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Figure out the PR number
+        run: echo ${{ github.event.pull_request.number }}
+
+      - name: Use Node.js 14.15.4
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.15.4"
+
+      - name: Get yarn cache directory path
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        id: yarn-dep-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-yarn-dependencies
+        with:
+          path: |
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-dep-
+
+      # Install all the dependencies
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Set the build environment based on the branch
+        id: vars
+        run: |
+          echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
+          if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
+              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+          fi
+          if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
+              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+          fi
+          # Since this is an unreleased build, we set the version to incremented version number with
+          # a `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+
+      - name: Run the jest tests
+        if: github.event_name == 'pull_request'
+        uses: anuraag016/Jest-Coverage-Diff@V1.1
+        with:
+          fullCoverageDiff: false
+          runCommand: cd app/client && REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+          delta: 0.5
+
+      # We burn React environment & the Segment analytics key into the build itself.
+      # This is to ensure that we don't need to configure it in each installation
+      - name: Create the bundle
+        run: |
+          REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+            REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            yarn build
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload react build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: app/client/build/
