@@ -361,7 +361,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid,
         parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Custom Fusion Charts Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}`,
       };
     }
     if (parsed.renderAt) {
@@ -372,7 +372,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         isValid: false,
         parsed: parsed,
         transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Required properties not specified`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}`,
       };
     }
     return { isValid, parsed, transformed: parsed };
