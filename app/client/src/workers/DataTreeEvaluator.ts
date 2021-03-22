@@ -171,7 +171,6 @@ export default class DataTreeEvaluator {
     subTreeSortOrder.forEach((propertyPath) => {
       if (this.isDynamicLeaf(unEvalTree, propertyPath)) {
         const unEvalPropValue = _.get(unEvalTree, propertyPath);
-        console.log("Setting", propertyPath);
         _.set(this.evalTree, propertyPath, unEvalPropValue);
       }
     });
