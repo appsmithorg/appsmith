@@ -17,13 +17,18 @@ describe("Onboarding", function() {
     );
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(5000);
     cy.window()
       .its("store")
       .invoke("getState")
       .then((state) => {
         const { onBoarding } = state.ui;
 
-        cy.log(`Button: ${onBoarding.creatingDatabase}`);
+        cy.log(`Button: ${onBoarding.createdDBQuery}`);
+
+        if (!onBoarding.createdDBQuery) {
+          cy.wait("@createDatasource");
+        }
       });
     cy.get(".t--start-building")
       .should("be.visible")
