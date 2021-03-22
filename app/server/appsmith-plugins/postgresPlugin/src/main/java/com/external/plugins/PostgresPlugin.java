@@ -29,7 +29,6 @@ import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -57,9 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
@@ -277,11 +274,11 @@ public class PostgresPlugin extends BasePlugin {
                     } else {
 
                         ResultSetMetaData metaData = resultSet.getMetaData();
+                        int colCount = metaData.getColumnCount();
                         columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
                         while (resultSet.next()) {
 
-                            int colCount = metaData.getColumnCount();
                             // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
                             Map<String, Object> row = new LinkedHashMap<>(colCount);
 

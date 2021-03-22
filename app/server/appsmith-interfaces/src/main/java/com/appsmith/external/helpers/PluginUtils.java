@@ -1,7 +1,5 @@
 package com.appsmith.external.helpers;
 
-import ch.qos.logback.core.util.COWArrayList;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,7 +41,7 @@ public class PluginUtils {
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
         /*
-         * - Filter only the inputs which have frequency great than 1
+         * - Filter only the inputs which have frequency greater than 1
          */
         List<String> identicalColumns = columnFrequencies.entrySet().stream()
                 .filter(entry -> entry.getValue() > 1)
