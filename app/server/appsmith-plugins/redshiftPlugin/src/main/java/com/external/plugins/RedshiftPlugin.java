@@ -43,7 +43,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
@@ -238,6 +240,7 @@ public class RedshiftPlugin extends BasePlugin {
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
+                final List<String> columnsList = new ArrayList<>();
                 Statement statement = null;
                 ResultSet resultSet = null;
 
@@ -247,6 +250,22 @@ public class RedshiftPlugin extends BasePlugin {
 
                     if (isResultSet) {
                         resultSet = statement.getResultSet();
+                        ResultSetMetaData metaData = resultSet.getMetaData();
+                        columnsList.addAll(
+                                IntStream
+                                        .range(1, metaData.getColumnCount()+1) // JDBC column indexes start from 1
+                                        .mapToObj(i -> {
+                                            try {
+                                                return metaData.getColumnName(i);
+                                            } catch (SQLException exception) {
+                                                /*
+                                                 * - Need suggestions on alternative way of handling this exception.
+                                                 */
+                                                throw new RuntimeException(exception);
+                                            }
+                                        })
+                                        .collect(Collectors.toList())
+                        );
 
                         while (resultSet.next()) {
                             Map<String, Object> row = getRow(resultSet);
@@ -281,6 +300,7 @@ public class RedshiftPlugin extends BasePlugin {
 
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setBody(objectMapper.valueToTree(rowsList));
+                result.setMessages(populateHintMessages(columnsList));
                 result.setIsExecutionSuccess(true);
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
@@ -318,6 +338,33 @@ public class RedshiftPlugin extends BasePlugin {
                         return result;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private  Set<String> populateHintMessages(List<String> columnNames) {
+
+            Set<String> messages = new HashSet<>();
+
+            /*
+             * - Get frequency of each column name
+             */
+            Map<String, Long> columnFrequencies = columnNames
+                    .stream()
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+            /*
+             * - Filter only the inputs which have frequency great than 1
+             */
+            List<String> identicalColumns = columnFrequencies.entrySet().stream()
+                    .filter(entry -> entry.getValue() > 1)
+                    .map(entry -> entry.getKey())
+                    .collect(Collectors.toList());
+
+            if(identicalColumns.size() > 0) {
+                messages.add("Your Redshift query result may not have all the columns because duplicate column names " +
+                        "were found for the columns: " + String.join(", ", identicalColumns));
+            }
+
+            return messages;
         }
 
         @Override

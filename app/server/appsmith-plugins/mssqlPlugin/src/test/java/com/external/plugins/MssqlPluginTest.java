@@ -27,11 +27,17 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -505,4 +511,39 @@ public class MssqlPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testDuplicateColumnNames() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id, username as id, password, email as password FROM users WHERE id = 1");
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotEquals(0, result.getMessages().size());
+
+                    String expectedMessage = "Your MsSQL query result may not have all the columns because duplicate " +
+                            "column names were found for the columns";
+                    assertTrue(
+                            result.getMessages().stream()
+                                    .anyMatch(message -> message.contains(expectedMessage))
+                    );
+
+                    Set<String> expectedColumnNames = Stream.of("id", "password")
+                            .collect(Collectors.toCollection(HashSet::new));
+                    Set<String> foundColumnNames = new HashSet<>();
+                    result.getMessages().stream()
+                            .filter(message -> message.contains(expectedMessage))
+                            .forEach(message -> {
+                                Arrays.stream(message.split(":")[1].split(","))
+                                        .forEach(columnName -> foundColumnNames.add(columnName.trim()));
+                            });
+                    assertTrue(expectedColumnNames.equals(foundColumnNames));
+                })
+                .verifyComplete();
+    }
 }

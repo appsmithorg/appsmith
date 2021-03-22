@@ -53,6 +53,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 import static java.lang.Boolean.FALSE;
@@ -167,6 +170,7 @@ public class MssqlPlugin extends BasePlugin {
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
+                final List<String> columnsList = new ArrayList<>();
 
                 Statement statement = null;
                 PreparedStatement preparedQuery = null;
@@ -208,6 +212,21 @@ public class MssqlPlugin extends BasePlugin {
                     } else {
                         ResultSetMetaData metaData = resultSet.getMetaData();
                         int colCount = metaData.getColumnCount();
+                        columnsList.addAll(
+                                IntStream
+                                        .range(1, colCount+1) // JDBC column indexes start from 1
+                                        .mapToObj(i -> {
+                                            try {
+                                                return metaData.getColumnName(i);
+                                            } catch (SQLException exception) {
+                                                /*
+                                                 * - Need suggestions on alternative way of handling this exception.
+                                                 */
+                                                throw new RuntimeException(exception);
+                                            }
+                                        })
+                                        .collect(Collectors.toList())
+                        );
 
                         while (resultSet.next()) {
                             // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
@@ -287,6 +306,7 @@ public class MssqlPlugin extends BasePlugin {
 
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setBody(objectMapper.valueToTree(rowsList));
+                result.setMessages(populateHintMessages(columnsList));
                 result.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the MssqlPlugin, got action execution result");
                 return Mono.just(result);
@@ -314,6 +334,33 @@ public class MssqlPlugin extends BasePlugin {
                         return result;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private  Set<String> populateHintMessages(List<String> columnNames) {
+
+            Set<String> messages = new HashSet<>();
+
+            /*
+             * - Get frequency of each column name
+             */
+            Map<String, Long> columnFrequencies = columnNames
+                    .stream()
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+            /*
+             * - Filter only the inputs which have frequency great than 1
+             */
+            List<String> identicalColumns = columnFrequencies.entrySet().stream()
+                    .filter(entry -> entry.getValue() > 1)
+                    .map(entry -> entry.getKey())
+                    .collect(Collectors.toList());
+
+            if(identicalColumns.size() > 0) {
+                messages.add("Your MsSQL query result may not have all the columns because duplicate column names " +
+                        "were found for the columns: " + String.join(", ", identicalColumns));
+            }
+
+            return messages;
         }
 
         @Override

@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.FALSE;
@@ -209,6 +210,7 @@ public class MySqlPlugin extends BasePlugin {
             boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
+            final List<String> columnsList = new ArrayList<>();
 
             Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
                     .flatMapMany(isValid -> {
@@ -230,6 +232,11 @@ public class MySqlPlugin extends BasePlugin {
                         .flatMap(result ->
                                 result.map((row, meta) -> {
                                             rowsList.add(getRow(row, meta));
+
+                                            if(columnsList.isEmpty()) {
+                                                columnsList.addAll(meta.getColumnNames());
+                                            }
+
                                             return result;
                                         }
                                 )
@@ -256,6 +263,7 @@ public class MySqlPlugin extends BasePlugin {
                     .map(res -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setBody(objectMapper.valueToTree(rowsList));
+                        result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
                         System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
                                 "execution result");
@@ -328,6 +336,33 @@ public class MySqlPlugin extends BasePlugin {
 
             return Flux.from(connectionStatement.execute());
 
+        }
+
+        private  Set<String> populateHintMessages(List<String> columnNames) {
+
+            Set<String> messages = new HashSet<>();
+
+            /*
+             * - Get frequency of each column name
+             */
+            Map<String, Long> columnFrequencies = columnNames
+                    .stream()
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+            /*
+             * - Filter only the inputs which have frequency great than 1
+             */
+            List<String> identicalColumns = columnFrequencies.entrySet().stream()
+                    .filter(entry -> entry.getValue() > 1)
+                    .map(entry -> entry.getKey())
+                    .collect(Collectors.toList());
+
+            if(identicalColumns.size() > 0) {
+                messages.add("Your MySQL query result may not have all the columns because duplicate column names " +
+                        "were found for the columns: " + String.join(", ", identicalColumns));
+            }
+
+            return messages;
         }
 
         /**
