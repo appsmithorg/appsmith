@@ -42,7 +42,6 @@ import {
 } from "constants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluate, { EvalResult } from "workers/evaluate";
-import AppsmithConsole from "utils/AppsmithConsole";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -607,7 +606,10 @@ export default class DataTreeEvaluator {
     if (!isValid) {
       this.errors.push({
         type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
-        message: `${widget.widgetName}.${entityPropertyName}: ${message} || "Unknown error`,
+        message:
+          `${widget.widgetName}.${entityPropertyName}: ` + !!message
+            ? `${message}`
+            : "Unknown error",
         context: {
           source: {
             id: widget.widgetId,

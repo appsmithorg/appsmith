@@ -16,6 +16,8 @@ import { getSelectedWidget } from "selectors/ui";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import FilterHeader from "./FilterHeader";
+import { useFilteredLogs } from "./utils";
 
 const Log = styled.div<{ backgroundColor: string; collapsed: boolean }>`
   padding: 9px 30px;
@@ -118,29 +120,50 @@ const Entity: any = {
 };
 
 const DebbuggerLogTab = (props: any) => {
-  const logs = useSelector((state) => state.ui.debugger.logs);
+  const [filter, setFilter] = useState("");
+  const logs = useFilteredLogs(filter);
+  const filterOptions = [
+    {
+      label: "All",
+      value: "",
+    },
+    { label: "Success", value: Severity.INFO },
+    { label: "Warnings", value: Severity.WARNING },
+    { label: "Errors", value: Severity.ERROR },
+  ];
+  const selectedFilter = filterOptions.find(
+    (option) => option.value === filter,
+  );
+  console.log(selectedFilter, "selectedFilter");
 
   return (
-    <div style={{ overflow: "auto", height: "100%" }}>
-      {logs.map((e: any, index: any) => {
-        const logItemProps = {
-          icon: SeverityIcon[e.severity],
-          iconColor: SeverityIconColor[e.severity],
-          timestamp: e.timestamp,
-          entityType: e.source ? Entity[e.source.type] : null,
-          label: e.text,
-          timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
-          sourceName: e.source ? e.source.name : null,
-          backgroundColor: SeverityColor[e.severity],
-          text: e.text,
-          message: e.message && isString(e.message) ? e.message : "",
-          state: e.state,
-          id: e.source ? e.source.id : null,
-          onClose: props.onClose,
-        };
+    <div>
+      <FilterHeader
+        options={filterOptions}
+        selected={selectedFilter}
+        onSelect={(value: string) => setFilter(value)}
+      />
+      <div style={{ overflow: "auto", height: "100%" }}>
+        {logs.map((e: any, index: any) => {
+          const logItemProps = {
+            icon: SeverityIcon[e.severity],
+            iconColor: SeverityIconColor[e.severity],
+            timestamp: e.timestamp,
+            entityType: e.source ? Entity[e.source.type] : null,
+            label: e.text,
+            timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
+            sourceName: e.source ? e.source.name : null,
+            backgroundColor: SeverityColor[e.severity],
+            text: e.text,
+            message: e.message && isString(e.message) ? e.message : "",
+            state: e.state,
+            id: e.source ? e.source.id : null,
+            onClose: props.onClose,
+          };
 
-        return <LogItem key={`debugger-${index}`} {...logItemProps} />;
-      })}
+          return <LogItem key={`debugger-${index}`} {...logItemProps} />;
+        })}
+      </div>
     </div>
   );
 };
