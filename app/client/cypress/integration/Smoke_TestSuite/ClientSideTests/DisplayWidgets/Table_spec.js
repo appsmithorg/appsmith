@@ -268,37 +268,6 @@ describe("Table Widget Functionality", function() {
     });
   });
 
-  it("Check null values are displayed as empty cell", function() {
-    cy.openPropertyPane("tablewidget");
-    cy.testJsontext("tabledata", "[]");
-    cy.wait("@updateLayout");
-    const newTableData = [...this.data.TableInput];
-    newTableData[0].orderAmount = null;
-    cy.testJsontext("tabledata", JSON.stringify(newTableData));
-    cy.wait("@updateLayout");
-    cy.readTabledataPublish("0", "5").then((tabData) => {
-      const tabValue = tabData;
-      expect(tabValue).to.be.equal("");
-    });
-    cy.get(commonlocators.editPropCrossButton).click();
-  });
-
-  it("Check Selected Row(s) Resets When Table Data Changes", function() {
-    cy.isSelectRow(1);
-    cy.openPropertyPane("tablewidget");
-    cy.testJsontext("tabledata", "[]");
-    cy.wait("@updateLayout");
-    const newTableData = [...this.data.TableInput];
-    newTableData[0].userName = "";
-    cy.testJsontext("tabledata", JSON.stringify(newTableData));
-    cy.wait("@updateLayout");
-    const selectedRowsSelector = `.t--widget-tablewidget .tbody .tr.selected-row`;
-    cy.get(selectedRowsSelector).should(($p) => {
-      // should found 0 rows
-      expect($p).to.have.length(0);
-    });
-  });
-
   /*
   To enabled later
   
