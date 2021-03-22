@@ -5,7 +5,6 @@ import { isString, isArray } from "lodash";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Button, { Size } from "components/ads/Button";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "entities/Datasource";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Colors } from "constants/Colors";
@@ -32,6 +31,7 @@ import { useParams } from "react-router-dom";
 import ActionHeader from "pages/common/Actions/ActionHeader";
 import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
+import Icon from "components/ads/Icon";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -116,20 +116,30 @@ const SettingsWrapper = styled.div`
   padding: 5px 23px;
 `;
 
-const AddWidgetButton = styled(BaseButton)`
-  &&&& {
-    height: 36px;
-    max-width: 125px;
-    border: 1px solid ${Colors.GEYSER_LIGHT};
+const AddWidgetButton = styled.a`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 0px;
+  top: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  letter-spacing: 0.6px;
+  color: #716e6e;
+
+  && {
+    margin: 0;
+  }
+
+  &:hover {
+    text-decoration: none;
+    color: #716e6e;
   }
 `;
 
-const OutputHeader = styled.div`
-  flex-direction: row;
-  justify-content: space-between;
-  display: flex;
-  margin: 10px 0px;
-  align-items: center;
+const OutputTableWrapper = styled.div`
+  margin-top: 20px;
 `;
 
 const FieldWrapper = styled.div`
@@ -157,6 +167,15 @@ const DocumentationLink = styled.a`
 `;
 
 const OutputWrapper = styled.div``;
+
+const OutputTabWrapper = styled.div`
+  position: relative;
+
+  &&&& ul.react-tabs__tab-list {
+    padding-left: 0;
+    border: none;
+  }
+`;
 
 const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[8]}px
@@ -278,9 +297,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     displayMessage = "No data records to display";
   } else if (isArray(output)) {
     // The returned output is an array
-    displayMessage = output.length
-      ? "Query response"
-      : "No data records to display";
+    displayMessage = output.length ? "Response" : "No data records to display";
   } else {
     // Output is a JSON object. We can display a single object
     displayMessage = "Query response";
@@ -404,26 +421,36 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                   )}
 
                   {!error && output && dataSources.length && (
-                    <OutputWrapper>
-                      <OutputHeader>
-                        <p className="statementTextArea">{displayMessage}</p>
-                        {!!output.length && (
-                          <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-                            <AddWidgetButton
-                              className="t--add-widget"
-                              icon={"plus"}
-                              text="Add Widget"
-                              onClick={onAddWidget}
-                            />
-                          </Boxed>
-                        )}
-                      </OutputHeader>
-                      {isTableResponse ? (
-                        <Table data={output} />
-                      ) : (
-                        <JSONViewer src={output} />
+                    <OutputTabWrapper>
+                      {!!output.length && (
+                        <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+                          <AddWidgetButton
+                            className="t--add-widget"
+                            onClick={onAddWidget}
+                          >
+                            <Icon name="plus" /> Generate Widget
+                          </AddWidgetButton>
+                        </Boxed>
                       )}
-                    </OutputWrapper>
+
+                      <TabComponent
+                        tabs={[
+                          {
+                            key: `${displayMessage}`,
+                            title: `${displayMessage}`,
+                            panelComponent: (
+                              <OutputTableWrapper>
+                                {isTableResponse ? (
+                                  <Table data={output} />
+                                ) : (
+                                  <JSONViewer src={output} />
+                                )}
+                              </OutputTableWrapper>
+                            ),
+                          },
+                        ]}
+                      />
+                    </OutputTabWrapper>
                   )}
                 </SettingsWrapper>
               ),
