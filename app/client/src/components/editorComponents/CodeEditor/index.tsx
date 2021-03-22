@@ -144,30 +144,25 @@ class CodeEditor extends Component<Props, State> {
         options.extraKeys["Tab"] = false;
       }
       if (this.props.folding) {
-        this.editor = CodeMirror.fromTextArea(this.textArea.current, {
-          ...options,
-          foldGutter: true,
-          gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-          foldOptions: {
-            widget: (from: any, to: any) => {
-              let startToken = "{",
-                endToken = "}";
-              const prevLine = this.editor.getLine(from.line);
-              if (prevLine.lastIndexOf("[") > prevLine.lastIndexOf("{")) {
-                (startToken = "["), (endToken = "]");
-              }
-              const toParse = startToken + endToken;
-              try {
-                const parsed = JSON.parse(toParse);
-              } catch (e) {}
-              return "\u002E\u002E\u002E";
-            },
+        options.foldGutter = true;
+        options.gutters = ["CodeMirror-linenumbers", "CodeMirror-foldgutter"];
+        options.foldOptions = {
+          widget: (from: any, to: any) => {
+            let startToken = "{",
+              endToken = "}";
+            const prevLine = this.editor.getLine(from.line);
+            if (prevLine.lastIndexOf("[") > prevLine.lastIndexOf("{")) {
+              (startToken = "["), (endToken = "]");
+            }
+            const toParse = startToken + endToken;
+            try {
+              const parsed = JSON.parse(toParse);
+            } catch (e) {}
+            return "\u002E\u002E\u002E";
           },
-        });
-      } else {
-        this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
+        };
       }
-
+      this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("change", this.handleAutocompleteVisibility);
       this.editor.on("change", this.onChangeTigger);

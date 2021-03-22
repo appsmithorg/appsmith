@@ -73,7 +73,6 @@ export function InputText(props: {
         size={EditorSize.EXTENDED}
         placeholder={placeholder}
         additionalDynamicData={additionalDynamicData}
-        folding={false}
         promptMessage={
           <PromptMessage>
             Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
