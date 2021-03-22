@@ -103,33 +103,42 @@ const defaultDocsConfig = [
 const githubDocsAssetsPath =
   "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/.gitbook";
 
-export const useDefaultDocumentationResults = () => {
+export const useDefaultDocumentationResults = (modalOpen: boolean) => {
   const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
-
+  const [isFetching, updateIsFetching] = useState(false);
   useEffect(() => {
-    (async () => {
-      const data = await Promise.all(
-        defaultDocsConfig.map(async (doc: any) => {
-          const response = await fetch(doc.link);
-          let document = await response.text();
-          const assetRegex = new RegExp("[../]*?/.gitbook", "g");
-          document = document.replace(assetRegex, githubDocsAssetsPath);
-          return {
-            _highlightResult: {
-              document: {
-                value: document,
-              },
-              title: {
-                value: doc.title,
-              },
-            },
-            ...doc,
-          } as DocSearchItem;
-        }),
-      );
-      setDefaultDocs(data);
-    })();
-  }, []);
+    if (!isFetching && !defaultDocs.length) {
+      try {
+        // fetching the API
+        // done update the isFetching to true
+        (async () => {
+          const data = await Promise.all(
+            defaultDocsConfig.map(async (doc: any) => {
+              const response = await fetch(doc.link);
+              let document = await response.text();
+              const assetRegex = new RegExp("[../]*?/.gitbook", "g");
+              document = document.replace(assetRegex, githubDocsAssetsPath);
+              updateIsFetching(true);
+              return {
+                _highlightResult: {
+                  document: {
+                    value: document,
+                  },
+                  title: {
+                    value: doc.title,
+                  },
+                },
+                ...doc,
+              } as DocSearchItem;
+            }),
+          );
+          setDefaultDocs(data);
+        })();
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [modalOpen]);
 
   return defaultDocs;
 };
