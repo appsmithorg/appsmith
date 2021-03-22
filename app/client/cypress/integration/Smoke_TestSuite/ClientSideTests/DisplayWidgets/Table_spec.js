@@ -268,6 +268,21 @@ describe("Table Widget Functionality", function() {
     });
   });
 
+  it("Check Selected Row(s) Resets When Table Data Changes", function() {
+    cy.isSelectRow(1);
+    cy.openPropertyPane("tablewidget");
+
+    const newTableData = [...this.data.TableInput];
+    newTableData[0].userName = "";
+    cy.testJsontext("tabledata", JSON.stringify(newTableData));
+    cy.wait("@updateLayout");
+    const selectedRowsSelector = `.t--widget-tablewidget .tbody .tr.selected-row`;
+    cy.get(selectedRowsSelector).should(($p) => {
+      // should found 0 rows
+      expect($p).to.have.length(0);
+    });
+  });
+
   /*
   To enabled later
   

@@ -40,17 +40,13 @@ import { ReactComponent as DesktopIcon } from "assets/icons/ads/desktop.svg";
 import { ReactComponent as MobileIcon } from "assets/icons/ads/mobile.svg";
 import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
-import { ReactComponent as HeadingOneIcon } from "assets/icons/control/heading_1.svg";
-import { ReactComponent as HeadingTwoIcon } from "assets/icons/control/heading_2.svg";
-import { ReactComponent as HeadingThreeIcon } from "assets/icons/control/heading_3.svg";
-import { ReactComponent as ParagraphIcon } from "assets/icons/control/paragraph.svg";
-import { ReactComponent as ParagraphTwoIcon } from "assets/icons/control/paragraph_2.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
 import Spinner from "./Spinner";
+import { ControlIcons } from "icons/ControlIcons";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -140,11 +136,11 @@ export const IconCollection = [
   "mobile",
   "tablet",
   "fluid",
-  "heading-one",
-  "heading-two",
-  "heading-three",
-  "paragraph",
-  "paragraph-two",
+  "HEADING_ONE",
+  "HEADING_TWO",
+  "HEADING_THREE",
+  "PARAGRAPH",
+  "PARAGRAPH_TWO",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -318,27 +314,16 @@ const Icon = forwardRef(
       case "fluid":
         returnIcon = <FluidIcon />;
         break;
-      case "fluid":
-        returnIcon = <FluidIcon />;
+
+      case "HEADING_ONE":
+      case "HEADING_TWO":
+      case "HEADING_THREE":
+      case "PARAGRAPH":
+      case "PARAGRAPH_TWO":
+        const ControlIcon = ControlIcons[props.name];
+        returnIcon = <ControlIcon width={24} height={24} />;
         break;
-      case "heading-one":
-        returnIcon = <HeadingOneIcon />;
-        break;
-      case "heading-two":
-        returnIcon = <HeadingTwoIcon />;
-        break;
-      case "heading-three":
-        returnIcon = <HeadingThreeIcon />;
-        break;
-      case "heading-three":
-        returnIcon = <HeadingThreeIcon />;
-        break;
-      case "paragraph":
-        returnIcon = <ParagraphIcon />;
-        break;
-      case "paragraph-two":
-        returnIcon = <ParagraphTwoIcon />;
-        break;
+
       default:
         returnIcon = null;
         break;

@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
+import { StyledDropDownContainer } from "./StyledControls";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {

@@ -18,6 +18,7 @@ import IconComponent from "components/designSystems/appsmith/IconComponent";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
 import { getAllApplications } from "actions/applicationActions";
+import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const LinkToApplications = styled(Link)`
@@ -31,6 +32,7 @@ const LinkToApplications = styled(Link)`
   svg {
     cursor: pointer;
   }
+  ${truncateTextUsingEllipsis}
 `;
 const SettingsWrapper = styled.div`
   width: ${(props) => props.theme.pageContentWidth}px;
