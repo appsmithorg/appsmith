@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import styled, { withTheme } from "styled-components";
 import InlineCommentThreadContainer from "./InlineCommentThreadContainer";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Popover, Position } from "@blueprintjs/core";
+import { Popover } from "@blueprintjs/core";
 import { get } from "lodash";
 import { commentThreadsSelector } from "./selectors";
 import { Theme } from "constants/DefaultTheme";
@@ -47,8 +47,6 @@ const InlineCommentPin = withTheme(
           autoFocus
           canEscapeKeyClose
           minimal
-          position={Position.BOTTOM_RIGHT}
-          boundary="viewport"
           popoverClassName="comment-thread"
           isOpen={!!commentThread.isVisible}
           onInteraction={(nextOpenState) => {
