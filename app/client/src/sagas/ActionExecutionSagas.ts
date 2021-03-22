@@ -48,7 +48,7 @@ import {
 } from "actions/actionActions";
 import { Action } from "entities/Action";
 import ActionAPI, {
-  ActionApiResponse,
+  ActionExecutionResponse,
   ActionResponse,
   ExecuteActionRequest,
   PaginationField,
@@ -345,12 +345,12 @@ export const getActionTimeout = (
   return undefined;
 };
 const createActionExecutionResponse = (
-  response: ActionApiResponse,
+  response: ActionExecutionResponse,
 ): ActionResponse => ({
   ...response.data,
   ...response.clientMeta,
 });
-const isErrorResponse = (response: ActionApiResponse) => {
+const isErrorResponse = (response: ActionExecutionResponse) => {
   return !response.data.isExecutionSuccess;
 };
 
@@ -461,7 +461,7 @@ export function* executeActionSaga(
       viewMode: appMode === APP_MODE.PUBLISHED,
     };
     const timeout = yield select(getActionTimeout, actionId);
-    const response: ActionApiResponse = yield ActionAPI.executeAction(
+    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
       executeActionRequest,
       timeout,
     );
@@ -672,7 +672,7 @@ function* runActionSaga(
     const timeout = yield select(getActionTimeout, actionId);
     const appMode = yield select(getAppMode);
     const viewMode = appMode === APP_MODE.PUBLISHED;
-    const response: ActionApiResponse = yield ActionAPI.executeAction(
+    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
       {
         actionId,
         params,
@@ -778,7 +778,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       appName: currentApp.name,
       isExampleApp: currentApp.appIsExample,
     });
-    const response: ActionApiResponse = yield ActionAPI.executeAction(
+    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
       executeActionRequest,
       pageAction.timeoutInMillisecond,
     );
