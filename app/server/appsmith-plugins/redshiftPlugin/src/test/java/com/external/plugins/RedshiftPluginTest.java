@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -227,7 +228,7 @@ public class RedshiftPluginTest {
          */
         ResultSetMetaData mockResultSetMetaData = mock(ResultSetMetaData.class);
         when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
-        when(mockResultSetMetaData.getColumnCount()).thenReturn(10);
+        when(mockResultSetMetaData.getColumnCount()).thenReturn(0).thenReturn(10);
         when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4", "varchar", "varchar",
         "varchar", "date", "date", "time", "timetz", "timestamp", "timestamptz");
         when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("id", "username", "password", "email",
