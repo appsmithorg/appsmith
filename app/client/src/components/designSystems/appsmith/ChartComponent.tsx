@@ -324,7 +324,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         try {
           this.chartInstance.render();
         } catch (e) {
-          log.debug(e);
+          log.error(e);
         }
       }
     });
