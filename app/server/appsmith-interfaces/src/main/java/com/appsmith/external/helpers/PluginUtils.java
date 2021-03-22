@@ -12,22 +12,19 @@ import java.util.stream.IntStream;
 public class PluginUtils {
 
     public static List<String> getColumnsListForJdbcPlugin(ResultSetMetaData metaData) throws SQLException {
-        List<String> columnsList = new ArrayList<>();
-        columnsList.addAll(
-                IntStream
-                        .range(1, metaData.getColumnCount()+1) // JDBC column indexes start from 1
-                        .mapToObj(i -> {
-                            try {
-                                return metaData.getColumnName(i);
-                            } catch (SQLException exception) {
-                                /*
-                                 * - Need suggestions on alternative ways of handling this exception.
-                                 */
-                                throw new RuntimeException(exception);
-                            }
-                        })
-                        .collect(Collectors.toList())
-        );
+        List<String> columnsList = IntStream
+                .range(1, metaData.getColumnCount()+1) // JDBC column indexes start from 1
+                .mapToObj(i -> {
+                    try {
+                        return metaData.getColumnName(i);
+                    } catch (SQLException exception) {
+                        /*
+                         * - Need suggestions on alternative ways of handling this exception.
+                         */
+                        throw new RuntimeException(exception);
+                    }
+                })
+                .collect(Collectors.toList());
 
         return columnsList;
     }
