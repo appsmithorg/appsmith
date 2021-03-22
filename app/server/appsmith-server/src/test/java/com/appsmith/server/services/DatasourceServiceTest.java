@@ -779,10 +779,11 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testHintMessageOnLocalhostUrlOnTestDatasourceEvent() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
-        datasource.setName("testName");
+        datasource.setName("testName 1");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Endpoint endpoint = new Endpoint("http://localhost", 0L);
         datasourceConfiguration.setEndpoints(new ArrayList<>());
@@ -825,7 +826,7 @@ public class DatasourceServiceTest {
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
-        datasource.setName("testName");
+        datasource.setName("testName 2");
         datasource.setOrganizationId(orgId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://localhost");
@@ -857,7 +858,7 @@ public class DatasourceServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Datasource datasource = new Datasource();
-        datasource.setName("testName");
+        datasource.setName("testName 3");
         datasource.setOrganizationId(orgId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
@@ -909,7 +910,7 @@ public class DatasourceServiceTest {
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
-        datasource.setName("testName");
+        datasource.setName("testName 4");
         datasource.setOrganizationId(orgId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Endpoint endpoint = new Endpoint("http://localhost", 0L);
@@ -944,7 +945,7 @@ public class DatasourceServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Datasource datasource = new Datasource();
-        datasource.setName("testName");
+        datasource.setName("testName 5");
         datasource.setOrganizationId(orgId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
