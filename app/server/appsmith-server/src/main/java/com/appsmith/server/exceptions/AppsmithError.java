@@ -37,7 +37,8 @@ public enum AppsmithError {
                     "  \"widgetName\" : \"{1}\"," +
                     "  \"widgetId\" : \"{2}\"," +
                     "  \"pageId\" : \"{4}\"," +
-                    "  \"layoutId\" : \"{5}\"",
+                    "  \"layoutId\" : \"{5}\"," +
+                    "  \"dynamicBinding\" : \"{6}\"",
             AppsmithErrorAction.LOG_EXTERNALLY),
     USER_ALREADY_EXISTS_IN_ORGANIZATION(400, 4021, "The user {0} has already been added to the organization with role {1}. To change the role, please navigate to `Manage Users` page.", AppsmithErrorAction.DEFAULT),
     UNAUTHORIZED_DOMAIN(401, 4019, "Invalid email domain {0} used for sign in/sign up. Please contact the administrator to configure this domain if this is unexpected.", AppsmithErrorAction.DEFAULT),
