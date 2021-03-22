@@ -1,13 +1,12 @@
 import React from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
-import { Icon, Spinner, Tag } from "@blueprintjs/core";
+import { Spinner, Tag } from "@blueprintjs/core";
 import { isString, isArray } from "lodash";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Button, { Size } from "components/ads/Button";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "entities/Datasource";
-import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
@@ -32,6 +31,7 @@ import Text, { TextType } from "components/ads/Text";
 import { useParams } from "react-router-dom";
 import ActionHeader from "pages/common/Actions/ActionHeader";
 import styled from "constants/DefaultTheme";
+import { TabComponent } from "components/ads/Tabs";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -91,13 +91,6 @@ const ErrorMessage = styled.p`
   margin-right: 10px;
 `;
 
-const StyledOpenDocsIcon = styled(Icon)`
-  svg {
-    width: 12px;
-    height: 18px;
-  }
-`;
-
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
@@ -115,8 +108,8 @@ const TabContainerView = styled.div`
     }
   }
   position: relative;
-  margin-top: 31px;
   height: calc(100vh - 150px);
+  border-top: 2px solid #e8e8e8;
 `;
 
 const SettingsWrapper = styled.div`
@@ -146,7 +139,21 @@ const FieldWrapper = styled.div`
 const DocumentationLink = styled.a`
   position: absolute;
   right: 23px;
-  top: -6px;
+  top: 10px;
+  color: #a9a7a7;
+
+  && {
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 14px;
+    letter-spacing: -0.24px;
+    margin-top: 0;
+  }
+
+  &:hover {
+    color: #484848;
+    text-decoration: none;
+  }
 `;
 
 const OutputWrapper = styled.div``;
@@ -342,11 +349,11 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {"Documentation "}
-            <StyledOpenDocsIcon icon="document-open" />
+            Documentation
           </DocumentationLink>
         )}
-        <BaseTabbedView
+
+        <TabComponent
           tabs={[
             {
               key: "query",
