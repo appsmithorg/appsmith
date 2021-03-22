@@ -67,6 +67,10 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
 });
 
 Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
+  cy.server();
+  cy.route("POST", "/api/v1/users/invite", {
+    fixture: "postInviteStub.json",
+  }).as("postInvite");
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
@@ -80,11 +84,7 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@postInvite");
   cy.contains(email);
   cy.get(homePage.manageUsers).click({ force: true });
   cy.xpath(homePage.appHome)
@@ -103,33 +103,33 @@ Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
 });
 
 Cypress.Commands.add("shareApp", (email, role) => {
+  cy.server();
+  cy.route("POST", "/api/v1/users/invite", {
+    fixture: "postInviteStub.json",
+  }).as("postInvite");
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@postInvite");
   cy.contains(email);
   cy.get(homePage.closeBtn).click();
 });
 
 Cypress.Commands.add("shareAndPublic", (email, role) => {
+  cy.server();
+  cy.route("POST", "/api/v1/users/invite", {
+    fixture: "postInviteStub.json",
+  }).as("postInvite");
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@postInvite");
   cy.contains(email);
   cy.enablePublicAccess();
 });
@@ -192,11 +192,10 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.intercept("PUT", "/api/v1/users/invite", {
+    fixture: "postInviteStub.json",
+  }).as("postInvite");
+  cy.wait("@postInvite");
   cy.contains(email);
   cy.get(".bp3-icon-small-cross").click({ force: true });
   cy.xpath(homePage.appHome)
@@ -2165,7 +2164,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
-  cy.route("POST", "/api/v1/users/invite").as("postInvite");
+  //cy.route("POST", "/api/v1/users/invite").as("postInvite");
   cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
     "getRoles",
   );
