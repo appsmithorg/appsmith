@@ -81,10 +81,8 @@ import {
 import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { Severity } from "entities/AppsmithConsole";
-import moment from "moment";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { debuggerLog } from "actions/debuggerActions";
+import AppsmithConsole from "utils/AppsmithConsole";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -159,18 +157,14 @@ export function* createActionSaga(
         ...actionPayload.payload.eventData,
       });
 
-      yield put(
-        debuggerLog({
-          severity: Severity.INFO,
-          timestamp: moment().format("hh:mm:ss"),
-          text: `Action ${response.data.name} was created`,
-          source: {
-            type: ENTITY_TYPE.ACTION,
-            id: response.data.id,
-            name: response.data.name,
-          },
-        }),
-      );
+      AppsmithConsole.info({
+        text: `Action ${response.data.name} was created`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          id: response.data.id,
+          name: response.data.name,
+        },
+      });
 
       const newAction = response.data;
       yield put(createActionSuccess(newAction));
@@ -619,22 +613,17 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
   if (propertyName === "name") return;
 
   const actionObj = yield select(getAction, actionId);
-
-  yield put(
-    debuggerLog({
-      severity: Severity.INFO,
-      timestamp: moment().format("hh:mm:ss"),
-      text: "Action property updated",
-      source: {
-        type: ENTITY_TYPE.ACTION,
-        name: actionObj.name,
-        id: actionId,
-      },
-      state: {
-        [propertyName]: value,
-      },
-    }),
-  );
+  AppsmithConsole.info({
+    text: "Action property updated",
+    source: {
+      type: ENTITY_TYPE.ACTION,
+      name: actionObj.name,
+      id: actionId,
+    },
+    state: {
+      [propertyName]: value,
+    },
+  });
 
   const effects: Record<string, any> = {};
   // Value change effect

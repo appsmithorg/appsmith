@@ -38,6 +38,7 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
+import AppsmithConsole from "utils/AppsmithConsole";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -89,6 +90,13 @@ const evalErrorHandler = (errors: EvalError[]) => {
       }
       case EvalErrorTypes.EVAL_ERROR: {
         log.debug(error);
+        break;
+      }
+      case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
+        AppsmithConsole.error({
+          text: error.message,
+          source: error.context?.source,
+        });
         break;
       }
       default: {

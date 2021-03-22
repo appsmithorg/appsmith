@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { Message } from "entities/AppsmithConsole";
+import { LogActionPayload } from "entities/AppsmithConsole";
 
-export const debuggerLog = (payload: Message) => {
+export const debuggerLog = (payload: LogActionPayload) => {
   return {
     type: ReduxActionTypes.DEBUGGER_LOG,
     payload,

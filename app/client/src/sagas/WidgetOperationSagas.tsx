@@ -109,9 +109,7 @@ import {
   WIDGET_DELETE,
 } from "constants/messages";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import moment from "moment";
-import { Severity } from "entities/AppsmithConsole";
-import { debuggerLog } from "actions/debuggerActions";
+import AppsmithConsole from "utils/AppsmithConsole";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -281,19 +279,15 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     };
 
     widgets[parent.widgetId] = parent;
-    yield put(
-      debuggerLog({
-        severity: Severity.INFO,
-        timestamp: moment().format("hh:mm:ss"),
-        text: "Widget was created",
-        source: {
-          type: ENTITY_TYPE.WIDGET,
-          id: childWidgetPayload.widgetId,
-          name:
-            childWidgetPayload.widgets[childWidgetPayload.widgetId].widgetName,
-        },
-      }),
-    );
+    AppsmithConsole.info({
+      text: "Widget was created",
+      source: {
+        type: ENTITY_TYPE.WIDGET,
+        id: childWidgetPayload.widgetId,
+        name:
+          childWidgetPayload.widgets[childWidgetPayload.widgetId].widgetName,
+      },
+    });
     log.debug("add child computations took", performance.now() - start, "ms");
     yield put({
       type: ReduxActionTypes.WIDGET_CHILD_ADDED,
@@ -968,19 +962,15 @@ function* batchUpdateWidgetPropertySaga(
     performance.now() - start,
     "ms",
   );
-  yield put(
-    debuggerLog({
-      severity: Severity.INFO,
-      timestamp: moment().format("hh:mm:ss"),
-      text: "Widget properties were updated",
-      source: {
-        type: ENTITY_TYPE.WIDGET,
-        name: widget.widgetName,
-        id: widgetId,
-      },
-      state: updates,
-    }),
-  );
+  AppsmithConsole.info({
+    text: "Widget properties were updated",
+    source: {
+      type: ENTITY_TYPE.WIDGET,
+      name: widget.widgetName,
+      id: widgetId,
+    },
+    state: updates,
+  });
 
   // Save the layout
   yield put(updateAndSaveLayout(widgets));

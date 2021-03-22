@@ -42,6 +42,7 @@ import {
 } from "constants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluate, { EvalResult } from "workers/evaluate";
+import AppsmithConsole from "utils/AppsmithConsole";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -604,6 +605,17 @@ export default class DataTreeEvaluator {
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
     _.set(widget, `evaluatedValues.${entityPropertyName}`, safeEvaluatedValue);
     if (!isValid) {
+      this.errors.push({
+        type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
+        message: `${widget.widgetName}.${entityPropertyName}: ${message} || "Unknown error`,
+        context: {
+          source: {
+            id: widget.widgetId,
+            name: widget.widgetName,
+            type: ENTITY_TYPE.WIDGET,
+          },
+        },
+      });
       _.set(widget, `invalidProps.${entityPropertyName}`, true);
       _.set(widget, `validationMessages.${entityPropertyName}`, message);
     } else {

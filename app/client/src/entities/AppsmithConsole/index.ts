@@ -40,11 +40,7 @@ export interface SourceEntity {
   propertyPath?: string;
 }
 
-export interface Message {
-  severity: Severity;
-  // "when" did this event happen
-  timestamp: string;
-  // "what": Human readable description of what happened.
+export interface LogActionPayload {
   text: string;
   // More contextual message
   message?: string;
@@ -54,6 +50,12 @@ export interface Message {
   source?: SourceEntity;
   // Snapshot KV pair of scope variables or state associated with this event.
   state?: Record<string, any>;
+}
+
+export interface Message extends LogActionPayload {
+  severity: Severity;
+  // "when" did this event happen
+  timestamp: string;
 }
 
 /**
