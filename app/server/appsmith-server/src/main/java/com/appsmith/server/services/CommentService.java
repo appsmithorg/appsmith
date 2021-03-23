@@ -12,5 +12,7 @@ public interface CommentService extends CrudService<Comment, String> {
 
     Mono<CommentThread> createThread(CommentThread commentThread);
 
+    Mono<CommentThread> updateThread(String threadId, CommentThread commentThread);
+
     Mono<List<CommentThread>> getThreadsByApplicationId(String applicationId);
 }

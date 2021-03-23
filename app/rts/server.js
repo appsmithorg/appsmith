@@ -28,6 +28,8 @@ if (API_BASE_URL == null || API_BASE_URL === "") {
 
 console.log("Connecting to MongoDB at", MONGODB_URI)
 
+const ROOMS = {}
+
 main()
 
 function main() {
@@ -46,7 +48,12 @@ function main() {
 		res.redirect("/index.html")
 	})
 
+	app.get("/info", (req, res) => {
+		return res.json({ rooms: ROOMS })
+	});
+
 	io.on("connection", (socket) => {
+		socket.join("default_room")
 		onSocketConnected(socket)
 			.catch((error) => console.error("Error in socket connected handler", error))
 	})
@@ -97,13 +104,19 @@ async function tryAuth(socket, cookie) {
 	}
 
 	const email = response.data.data.user.email
+	ROOMS[email] = []
 	socket.join("email:" + email)
 	for (const org of response.data.data.organizationApplications) {
 		for (const app of org.applications) {
+			ROOMS[email].push(app.id)
 			console.log("Joining", app.id)
 			socket.join("application:" + app.id)
 		}
 	}
+
+	socket.on("disconnect", (reason) => {
+		delete ROOMS[email]
+	});
 
 	return true
 }

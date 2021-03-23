@@ -248,8 +248,8 @@ public class PolicyUtils {
     }
 
     public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,
-                                                                           Class sourceEntity,
-                                                                           Class destinationEntity) {
+                                                                           Class<? extends BaseDomain> sourceEntity,
+                                                                           Class<? extends BaseDomain> destinationEntity) {
         Set<Policy> extractedInterestingPolicySet = new HashSet<>(sourcePolicyMap.values());
 
         return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity)

@@ -1,7 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.User;
@@ -37,6 +39,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private final SessionUserService sessionUserService;
     private final ApplicationService applicationService;
 
+    private final PolicyGenerator policyGenerator;
+
     public CommentServiceImpl(
             Scheduler scheduler,
             Validator validator,
@@ -46,12 +50,14 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             AnalyticsService analyticsService,
             CommentThreadRepository threadRepository,
             SessionUserService sessionUserService,
-            ApplicationService applicationService
+            ApplicationService applicationService,
+            PolicyGenerator policyGenerator
     ) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
         this.sessionUserService = sessionUserService;
         this.applicationService = applicationService;
+        this.policyGenerator = policyGenerator;
     }
 
     @Override
@@ -80,9 +86,17 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
         final String applicationId = commentThread.getApplicationId();
 
+        // TODO: This should be AclPermission.COMMENT_ON_APPLICATIONS
         return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                .flatMap(ignored -> sessionUserService.getCurrentUser())
+                .flatMap(application -> {
+                    commentThread.setPolicies(policyGenerator.getAllChildPolicies(
+                            application.getPolicies(),
+                            Application.class,
+                            CommentThread.class
+                    ));
+                    return sessionUserService.getCurrentUser();
+                })
                 .zipWhen(user -> threadRepository.save(commentThread))
                 .flatMapMany(tuple -> {
                     final User user = tuple.getT1();
@@ -99,14 +113,25 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         }
                     }
 
-                    return Flux.merge(saverMonos);
+                    // Using `concat` here so that the comments are saved one after the other, so that their `createdAt`
+                    // value is meaningful.
+                    return Flux.concat(saverMonos);
                 })
                 .collectList()
                 .map(comments -> {
                     commentThread.setComments(comments);
                     return commentThread;
                 });
+    }
 
+    @Override
+    public Mono<CommentThread> updateThread(String threadId, CommentThread commentThread) {
+        final CommentThread updates = new CommentThread();
+
+        // Copy over only those fields that are allowed to be updated by a PUT request.
+        updates.setResolved(commentThread.getResolved());
+
+        return threadRepository.updateById(threadId, commentThread, null);
     }
 
     @Override
