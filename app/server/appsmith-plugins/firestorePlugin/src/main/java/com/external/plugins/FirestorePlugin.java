@@ -19,6 +19,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QuerySnapshot;
@@ -69,6 +70,8 @@ public class FirestorePlugin extends BasePlugin {
     private static final int QUERY_VALUE_PROPERTY_INDEX = 5;
     private static final int START_AFTER_PROPERTY_INDEX = 6;
     private static final int END_BEFORE_PROPERTY_INDEX = 7;
+    private static final int FIELDVALUE_TIMESTAMP_PROPERTY_INDEX = 8;
+    private static final int FIELDVALUE_DELETE_PROPERTY_INDEX = 9;
 
     public FirestorePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -118,25 +121,10 @@ public class FirestorePlugin extends BasePlugin {
                     .defaultIfEmpty("")
                     .flatMap(strBody -> {
 
-                        if (StringUtils.isBlank(path)) {
-                            return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Document/Collection path cannot be empty"
-                            ));
-                        }
-
-                        if (path.startsWith("/") || path.endsWith("/")) {
-                            return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Firestore paths should not begin or end with `/` character."
-                            ));
-                        }
-
-                        if (method == null) {
-                            return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Missing Firestore method."
-                            ));
+                        try {
+                            validateQueryForm(actionConfiguration);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
 
                         if (StringUtils.isBlank(strBody)) {
@@ -186,6 +174,35 @@ public class FirestorePlugin extends BasePlugin {
                         return result;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void validateQueryForm(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+            final String path = actionConfiguration.getPath();
+
+            if (StringUtils.isBlank(path)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Document/Collection path cannot be empty"
+                );
+            }
+
+            if (path.startsWith("/") || path.endsWith("/")) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Firestore paths should not begin or end with `/` character."
+                );
+            }
+
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            final com.external.plugins.Method method = CollectionUtils.isEmpty(properties)
+                    ? null
+                    : com.external.plugins.Method.valueOf(properties.get(0).getValue());
+            if (method == null) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Missing Firestore method."
+                );
+            }
         }
 
         public Mono<ActionExecutionResult> handleDocumentLevelMethod(

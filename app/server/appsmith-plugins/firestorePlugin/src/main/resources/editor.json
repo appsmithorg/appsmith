@@ -56,6 +56,44 @@
           "initialValue": ""
         },
         {
+          "label": "Timestamp Value Path Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "timestampValuePath",
+          "hidden": true
+        },
+        {
+          "label": "Timestamp Value Path",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "[\"userInfo\", \"lastUpdateTs\"]",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value":  ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT"]
+          }
+        },
+        {
+          "label": "Delete Key Value Pair Path Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "deleteKeyValuePairPath",
+          "hidden": true
+        },
+        {
+          "label": "Delete Key Path",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "[\"user\", \"name\"]",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value":  ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT", "CREATE_DOCUMENT", "ADD_TO_COLLECTION", "SET_DOCUMENT"]
+          }
+        },
+        {
           "label": "Order By Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
           "controlType": "INPUT_TEXT",
