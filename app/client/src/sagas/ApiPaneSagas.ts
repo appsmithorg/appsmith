@@ -56,6 +56,7 @@ import { Toaster } from "components/ads/Toast";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { getIndextoUpdate } from "utils/ApiPaneUtils";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -167,19 +168,7 @@ function* handleUpdateBodyContentType(
       element.key &&
       element.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
   );
-
-  const firstEmptyHeaderRowIndex: number = headers.findIndex(
-    (element: { key: string; value: string }) =>
-      element && element.key === "" && element.value === "",
-  );
-
-  const newHeaderIndex =
-    firstEmptyHeaderRowIndex > -1 ? firstEmptyHeaderRowIndex : headers.length;
-
-  // If there is an existing header with content type, use that or
-  // create a new header
-  const indexToUpdate =
-    contentTypeHeaderIndex > -1 ? contentTypeHeaderIndex : newHeaderIndex;
+  const indexToUpdate = getIndextoUpdate(headers, contentTypeHeaderIndex);
 
   headers[indexToUpdate] = {
     key: CONTENT_TYPE_HEADER_KEY,
@@ -288,25 +277,14 @@ function* updateFormFields(
           header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
       );
       if (value !== "GET") {
-        if (contentTypeHeaderIndex < 0) {
-          const firstEmptyHeaderRowIndex: number = actionConfigurationHeaders.findIndex(
-            (header: { key: string; value: string }) =>
-              header && header.key === "" && header.value === "",
-          );
-          const newHeaderIndex =
-            firstEmptyHeaderRowIndex > -1
-              ? firstEmptyHeaderRowIndex
-              : actionConfigurationHeaders.length;
-          const indexToUpdate =
-            contentTypeHeaderIndex > -1
-              ? contentTypeHeaderIndex
-              : newHeaderIndex;
-
-          actionConfigurationHeaders[indexToUpdate] = {
-            key: CONTENT_TYPE_HEADER_KEY,
-            value: POST_BODY_FORMAT_OPTIONS[0].value,
-          };
-        }
+        const indexToUpdate = getIndextoUpdate(
+          actionConfigurationHeaders,
+          contentTypeHeaderIndex,
+        );
+        actionConfigurationHeaders[indexToUpdate] = {
+          key: CONTENT_TYPE_HEADER_KEY,
+          value: POST_BODY_FORMAT_OPTIONS[0].value,
+        };
       } else {
         if (contentTypeHeaderIndex > -1) {
           actionConfigurationHeaders[contentTypeHeaderIndex] = {
