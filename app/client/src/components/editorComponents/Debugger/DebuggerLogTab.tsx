@@ -133,7 +133,8 @@ const Entity: any = {
 
 const DebbuggerLogTab = (props: any) => {
   const [filter, setFilter] = useState("");
-  const logs = useFilteredLogs(filter);
+  const [query, setQuery] = useState("");
+  const logs = useFilteredLogs(query, filter);
   const filterOptions = [
     {
       label: "All",
@@ -152,6 +153,7 @@ const DebbuggerLogTab = (props: any) => {
       <FilterHeader
         options={filterOptions}
         selected={selectedFilter}
+        onChange={setQuery}
         onSelect={(value: string) => setFilter(value)}
       />
       <ListWrapper>

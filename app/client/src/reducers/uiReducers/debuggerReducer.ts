@@ -1,13 +1,14 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { Severity } from "entities/AppsmithConsole";
+import { Message, Severity } from "entities/AppsmithConsole";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
-const initialState: any = {
+const initialState: DebuggerReduxState = {
   logs: [],
   errorCount: 0,
 };
 
 const debuggerReducer = createReducer(initialState, {
-  DEBUGGER_LOG: (state: any, action: any) => {
+  [ReduxActionTypes.DEBUGGER_LOG]: (state: any, action: any) => {
     const isError = action.payload.severity === Severity.ERROR;
 
     return {
@@ -23,5 +24,10 @@ const debuggerReducer = createReducer(initialState, {
     };
   },
 });
+
+interface DebuggerReduxState {
+  logs: Message[];
+  errorCount: number;
+}
 
 export default debuggerReducer;

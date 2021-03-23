@@ -2,12 +2,24 @@ import { Message } from "entities/AppsmithConsole";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 
-export const useFilteredLogs = (filter?: any) => {
+export const useFilteredLogs = (query: string, filter?: any) => {
   const logs = useSelector((state: AppState) => state.ui.debugger.logs);
+  let filteredLogs = [...logs];
 
   if (filter) {
-    return logs.filter((log: Message) => log.severity === filter);
+    filteredLogs = filteredLogs.filter(
+      (log: Message) => log.severity === filter,
+    );
   }
 
-  return logs;
+  if (query) {
+    filteredLogs = filteredLogs.filter((log: Message) => {
+      if (log.source?.name)
+        return log.source?.name.toUpperCase().indexOf(query.toUpperCase()) < 0
+          ? false
+          : true;
+    });
+  }
+
+  return filteredLogs;
 };
