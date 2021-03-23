@@ -65,7 +65,26 @@
                         "bottomRow": 1,
                         "parentId": "dinv2tsatk",
                         "widgetId": "k6ct7dxg4w"
-                      }
+                      },
+                      {
+                        "isVisible":true,
+                        "text":"Submit",
+                        "buttonStyle":"PRIMARY_BUTTON",
+                        "widgetName":"Button1",
+                        "isDisabled":false,
+                        "isDefaultClickDisabled":true,
+                        "version":1,
+                        "type":"BUTTON_WIDGET",
+                        "isLoading":false,
+                        "parentColumnSpace":29.25,
+                        "parentRowSpace":40,
+                        "leftColumn":6,
+                        "rightColumn":8,
+                        "topRow":1,
+                        "bottomRow":2,
+                        "parentId":"dinv2tsatk",
+                        "widgetId":"fuw9p7cuek"
+                     }
                     ],
                     "minHeight": null,
                     "type": "CANVAS_WIDGET",
