@@ -17,7 +17,7 @@ describe("Onboarding", function() {
     );
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(5000);
+    cy.wait(4000);
     cy.window()
       .its("store")
       .invoke("getState")
