@@ -5,6 +5,7 @@ import {
   FontStyleTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors, Color } from "constants/Colors";
+import { DisableNativeScrollbar } from "constants/DefaultTheme";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -28,13 +29,7 @@ export const TableWrapper = styled.div<{
     position: relative;
     width: ${(props) => props.width - 8}px;
     overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar {
-      width: 0;
-      height: 0;
-      -webkit-appearance: none;
-    }
+    ${DisableNativeScrollbar};
   }
   .table {
     border-spacing: 0;
@@ -54,12 +49,7 @@ export const TableWrapper = styled.div<{
       height: ${(props) => props.height - 80}px;
       width: 100%;
       overflow-y: auto;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-      &::-webkit-scrollbar {
-        width: 0px;
-        -webkit-appearance: none;
-      }
+      ${DisableNativeScrollbar};
       .tr {
         width: 100%;
       }
@@ -393,13 +383,7 @@ export const TableHeaderWrapper = styled.div<{
   }
   overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-    -webkit-appearance: none;
-  }
+  ${DisableNativeScrollbar};
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
 `;

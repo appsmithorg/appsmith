@@ -41,7 +41,7 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -430,7 +430,7 @@ class CodeEditor extends Component<Props, State> {
               promptMessage={this.props.promptMessage}
               editorTheme={this.props.theme}
             />
-            <ScrollIndicator containerRef={this.editorWrapperRef} />
+            <VerticalScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>

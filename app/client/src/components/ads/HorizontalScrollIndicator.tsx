@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import _ from "lodash";
-import { useSpring, animated, interpolate } from "react-spring";
+import { useSpring, interpolate } from "react-spring";
+import { ScrollThumb, ScrollTrackCSS } from "constants/DefaultTheme";
 
 const ScrollTrack = styled.div<{
   isVisible: boolean;
@@ -9,11 +10,12 @@ const ScrollTrack = styled.div<{
   left?: string;
   mode?: "DARK" | "LIGHT";
 }>`
-  position: absolute;
-  z-index: 100;
+  ${ScrollTrackCSS};
+  height: 4px;
+  opacity: ${(props) => (props.isVisible ? 1 : 0)};
   bottom: ${(props) => (props.bottom ? props.bottom : "0px")};
   left: ${(props) => (props.left ? props.left : "0")};
-  height: 4px;
+  opacity: ${(props) => (props.isVisible ? 1 : 0)};
   box-shadow: inset 0 0 6px
     ${(props) =>
       props.mode
@@ -21,22 +23,6 @@ const ScrollTrack = styled.div<{
           ? props.theme.colors.scrollbarLightBG
           : props.theme.colors.scrollbarDarkBG
         : props.theme.colors.scrollbarBG};
-  overflow: hidden;
-  opacity: ${(props) => (props.isVisible ? 1 : 0)};
-  transition: opacity 0.15s ease-in;
-`;
-
-const ScrollThumb = styled(animated.div)<{ mode?: "DARK" | "LIGHT" }>`
-  height: 4px;
-  background-color: ${(props) =>
-    props.mode
-      ? props.mode === "LIGHT"
-        ? props.theme.colors.scrollbarLight
-        : props.theme.colors.scrollbarDark
-      : props.theme.colors.scrollbar};
-  border-radius: ${(props) => props.theme.radii[3]}px;
-  transform: translate3d(0, 0, 0);
-  position: fixed;
 `;
 
 interface Props {
@@ -107,11 +93,10 @@ const HorizontalScrollIndicator = ({
   const hideScrollbar = _.debounce(() => {
     setIsScrollVisible(alwaysShowScrollbar || false);
   }, 1500);
-
+  console.log({ isScrollVisible });
   return (
     <ScrollTrack isVisible={isScrollVisible} bottom={bottom} left={left}>
       <ScrollThumb
-        className="scrollbar-thumb"
         ref={thumbRef}
         style={{
           marginLeft: interpolate(

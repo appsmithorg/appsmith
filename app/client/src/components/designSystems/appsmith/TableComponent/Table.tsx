@@ -21,7 +21,7 @@ import HorizontalScrollIndicator from "components/ads/HorizontalScrollIndicator"
 import { Colors } from "constants/Colors";
 
 import { EventType } from "constants/ActionConstants";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
 
 interface TableProps {
   width: number;
@@ -67,7 +67,6 @@ const defaultColumn = {
 
 export const Table = (props: TableProps) => {
   const isResizingColumn = React.useRef(false);
-  // const tableWrapperRef = React.useRef<HTMLDivElement>(null);
 
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnSizeMap = {
@@ -281,14 +280,12 @@ export const Table = (props: TableProps) => {
             alwaysShowScrollbar
           />
         </div>
-        <ScrollIndicator
+        <VerticalScrollIndicator
           containerRef={tableBodyRef}
-          horizontalScrollContainerRef={tableWrapperRef}
           mode="LIGHT"
           top="32px"
         />
       </div>
-      {/* <ScrollIndicator containerRef={tableWrapperRef} mode="LIGHT" /> */}
     </TableWrapper>
   );
 };

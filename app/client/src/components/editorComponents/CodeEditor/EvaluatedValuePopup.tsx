@@ -6,7 +6,7 @@ import ReactJson from "react-json-view";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
 
 const Wrapper = styled.div`
   position: relative;
@@ -126,7 +126,7 @@ export const CurrentValueViewer = (props: {
   let content = (
     <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
       {"undefined"}
-      <ScrollIndicator containerRef={codeWrapperRef} />
+      <VerticalScrollIndicator containerRef={codeWrapperRef} />
     </CodeWrapper>
   );
   if (props.evaluatedValue !== undefined) {
@@ -153,7 +153,7 @@ export const CurrentValueViewer = (props: {
           {props.evaluatedValue === null
             ? "null"
             : props.evaluatedValue.toString()}
-          <ScrollIndicator containerRef={codeWrapperRef} />
+          <VerticalScrollIndicator containerRef={codeWrapperRef} />
         </CodeWrapper>
       );
     }
@@ -164,7 +164,7 @@ export const CurrentValueViewer = (props: {
       <CurrentValueWrapper colorTheme={props.theme}>
         <>
           {content}
-          <ScrollIndicator containerRef={currentValueWrapperRef} />
+          <VerticalScrollIndicator containerRef={currentValueWrapperRef} />
         </>
       </CurrentValueWrapper>
     </React.Fragment>
@@ -189,7 +189,7 @@ const PopoverContent = (props: PopoverContentProps) => {
           <StyledTitle>Expected Data Type</StyledTitle>
           <TypeText colorTheme={props.theme} ref={typeTextRef}>
             {props.expected}
-            <ScrollIndicator containerRef={typeTextRef} />
+            <VerticalScrollIndicator containerRef={typeTextRef} />
           </TypeText>
         </React.Fragment>
       )}
