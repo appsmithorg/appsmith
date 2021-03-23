@@ -138,7 +138,23 @@ async function watchMongoDB(io) {
 		io.to(roomName).emit(eventName, { comment })
 	})
 
-	const threadChangeStream = threadCollection.watch();
+	const threadChangeStream = threadCollection.watch(
+		[
+			// Prevent server-internal fields from being sent to the client.
+			{
+				$unset: [
+					"createdAt",
+					"updatedAt",
+					"deletedAt",
+					"deleted",
+					"policies",
+					"_class",
+				].map(f => "fullDocument." + f)
+			},
+		],
+		{ fullDocument: "updateLookup" }
+	);
+
 	threadChangeStream.on("change", (event) => {
 		console.log("change thread", event)
 		const comment = event.fullDocument
