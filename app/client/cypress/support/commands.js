@@ -699,8 +699,6 @@ Cypress.Commands.add("selectDateFormat", (value) => {
     .children()
     .contains(value)
     .click();
-  //.children()
-  // .contains(value)
 });
 
 Cypress.Commands.add("assertDateFormat", () => {
