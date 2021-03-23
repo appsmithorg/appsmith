@@ -86,8 +86,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
         final String applicationId = commentThread.getApplicationId();
 
-        // TODO: This should be AclPermission.COMMENT_ON_APPLICATIONS
-        return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
+        return applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application -> {
                     commentThread.setPolicies(policyGenerator.getAllChildPolicies(
@@ -131,7 +130,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         // Copy over only those fields that are allowed to be updated by a PUT request.
         updates.setResolved(commentThread.getResolved());
 
-        return threadRepository.updateById(threadId, commentThread, null);
+        return threadRepository.updateById(threadId, commentThread, AclPermission.MANAGE_THREAD);
     }
 
     @Override
