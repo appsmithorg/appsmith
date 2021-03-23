@@ -42,7 +42,6 @@ import {
   getCurrentWidgetId,
   getIsPropertyPaneVisible,
 } from "selectors/propertyPaneSelectors";
-import { getSelectedWidget } from "selectors/ui";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
