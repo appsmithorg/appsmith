@@ -715,7 +715,7 @@ public class MySqlPluginTest {
                     assertNotEquals(0, result.getMessages().size());
 
                     String expectedMessage = "Your MySQL query result may not have all the columns because duplicate column names " +
-                            "were found for the columns";
+                            "were found for the column(s)";
                     assertTrue(
                             result.getMessages().stream()
                                     .anyMatch(message -> message.contains(expectedMessage))
@@ -730,7 +730,7 @@ public class MySqlPluginTest {
                     result.getMessages().stream()
                             .filter(message -> message.contains(expectedMessage))
                             .forEach(message -> {
-                                Arrays.stream(message.split(":")[1].split(","))
+                                Arrays.stream(message.split(":")[1].split("\\.")[0].split(","))
                                         .forEach(columnName -> foundColumnNames.add(columnName.trim()));
                             });
                     assertTrue(expectedColumnNames.equals(foundColumnNames));
