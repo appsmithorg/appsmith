@@ -494,6 +494,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             current={this.state.page}
             perPage={perPage}
             onChange={(page: number) => this.setState({ page })}
+            disabled={this.props.renderMode === RenderModes.CANVAS}
           />
         )}
       </ListComponent>

@@ -2,7 +2,9 @@ import React from "react";
 import Pagination from "rc-pagination";
 import styled from "styled-components";
 
-const StyledPagination = styled(Pagination)`
+const StyledPagination = styled(Pagination)<{
+  disabled?: boolean;
+}>`
   margin: 0 auto;
   padding: 0;
   font-size: 14px;
@@ -12,6 +14,8 @@ const StyledPagination = styled(Pagination)`
   bottom: 4px;
   left: 0;
   right: 0;
+  pointer-events: ${(props) => (props.disabled ? "none" : "all")};
+  opacity: ${(props) => (props.disabled ? "0.4" : "1")};
 
   .rc-pagination::after {
     display: block;
@@ -287,6 +291,7 @@ interface ListPaginationProps {
   current: number;
   total: number;
   perPage: number;
+  disabled?: boolean;
   onChange: (page: number) => void;
 }
 
@@ -297,6 +302,7 @@ const ListPagination = (props: ListPaginationProps) => {
       current={props.current}
       pageSize={props.perPage}
       onChange={props.onChange}
+      disabled={props.disabled}
     />
   );
 };
