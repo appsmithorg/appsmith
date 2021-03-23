@@ -68,6 +68,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { createActionRequest, runActionInit } from "actions/actionActions";
 import {
@@ -340,7 +341,9 @@ function* createOnboardingDatasource() {
   AnalyticsUtil.logEvent("ONBOARDING_INTRODUCTION");
 
   try {
-    yield take([ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]);
+    const isEditorInitialized = yield select(getIsEditorInitialized);
+    if (!isEditorInitialized)
+      yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
 
     const organizationId = yield select(getCurrentOrgId);
     const plugins = yield select(getPlugins);
