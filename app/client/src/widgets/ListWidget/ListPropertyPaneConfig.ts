@@ -43,6 +43,20 @@ const PropertyPaneConfig = [
         isTriggerProperty: false,
       },
       {
+        propertyName: "isVisible",
+        label: "Visible",
+        helpText: "Controls the visibility of the widget",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+      },
+    ],
+  },
+  {
+    sectionName: "Actions",
+    children: [
+      {
         helpText: "Triggers an action when a grid list item is clicked",
         propertyName: "onListItemClick",
         label: "onListItemClick",
