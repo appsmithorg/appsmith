@@ -100,7 +100,7 @@ export const HelpMap = {
     searchKey: "Taking Inputs from Widgets",
   },
   DATASOURCE_FORM: {
-    path: "/v/v1.2.1/core-concepts/connecting-to-data-sources",
+    path: "/core-concepts/connecting-to-data-sources/connecting-to-databases",
     searchKey: "Connecting to databases",
   },
   SWITCH_WIDGET: {
