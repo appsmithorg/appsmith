@@ -19,6 +19,8 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import FilterHeader from "./FilterHeader";
 import { useFilteredLogs } from "./utils";
 
+const LIST_HEADER_HEIGHT = "38px";
+
 const Log = styled.div<{ backgroundColor: string; collapsed: boolean }>`
   padding: 9px 30px;
   display: flex;
@@ -96,6 +98,16 @@ const StyledCollapse = styled(Collapse)`
   }
 `;
 
+const ContainerWrapper = styled.div`
+  overflow: hidden;
+  height: 100%;
+`;
+
+const ListWrapper = styled.div`
+  overflow: auto;
+  height: calc(100% - ${LIST_HEADER_HEIGHT});
+`;
+
 const SeverityColor: any = {
   [Severity.INFO]: "rgba(3, 179, 101, 0.09)",
   [Severity.ERROR]: "rgba(242, 43, 43, 0.08)",
@@ -134,16 +146,15 @@ const DebbuggerLogTab = (props: any) => {
   const selectedFilter = filterOptions.find(
     (option) => option.value === filter,
   );
-  console.log(selectedFilter, "selectedFilter");
 
   return (
-    <div>
+    <ContainerWrapper>
       <FilterHeader
         options={filterOptions}
         selected={selectedFilter}
         onSelect={(value: string) => setFilter(value)}
       />
-      <div style={{ overflow: "auto", height: "100%" }}>
+      <ListWrapper>
         {logs.map((e: any, index: any) => {
           const logItemProps = {
             icon: SeverityIcon[e.severity],
@@ -163,8 +174,8 @@ const DebbuggerLogTab = (props: any) => {
 
           return <LogItem key={`debugger-${index}`} {...logItemProps} />;
         })}
-      </div>
-    </div>
+      </ListWrapper>
+    </ContainerWrapper>
   );
 };
 
