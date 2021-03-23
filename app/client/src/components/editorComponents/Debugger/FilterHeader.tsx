@@ -2,6 +2,10 @@ import React from "react";
 import Dropdown from "components/ads/Dropdown";
 import TextInput from "components/ads/TextInput";
 import styled from "styled-components";
+import Icon, { IconSize } from "components/ads/Icon";
+import { useDispatch } from "react-redux";
+
+import { clearLogs } from "actions/debuggerActions";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -11,7 +15,7 @@ const Wrapper = styled.div`
   padding: 5px 0;
   & > div {
     width: 160px;
-    margin-right: 16px;
+    margin: 0 16px;
   }
 
   .debugger-search {
@@ -28,8 +32,15 @@ const Wrapper = styled.div`
 `;
 
 const FilterHeader = (props: any) => {
+  const dispatch = useDispatch();
+
   return (
     <Wrapper>
+      <Icon
+        name="delete"
+        size={IconSize.XL}
+        onClick={() => dispatch(clearLogs())}
+      />
       <TextInput
         className="debugger-search"
         placeholder="Filter"

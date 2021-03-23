@@ -7,3 +7,9 @@ export const debuggerLog = (payload: LogActionPayload) => {
     payload,
   };
 };
+
+export const clearLogs = () => {
+  return {
+    type: ReduxActionTypes.CLEAR_DEBUGGER_LOGS,
+  };
+};

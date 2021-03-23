@@ -17,6 +17,13 @@ const debuggerReducer = createReducer(initialState, {
       errorCount: isError ? state.errorCount + 1 : state.errorCount,
     };
   },
+  [ReduxActionTypes.CLEAR_DEBUGGER_LOGS]: (state: DebuggerReduxState) => {
+    return {
+      ...state,
+      logs: [],
+      errorCount: 0,
+    };
+  },
   DEBUGGER_RESET_ERROR_COUNT: (state: any) => {
     return {
       ...state,
