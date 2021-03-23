@@ -57,7 +57,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
       pageSize: VALIDATION_TYPES.NUMBER,
       selectedRowIndices: VALIDATION_TYPES.ARRAY,
-      selectedRowIndex: VALIDATION_TYPES.NUMBER,
       pageNo: VALIDATION_TYPES.TABLE_PAGE_NO,
     };
   }
