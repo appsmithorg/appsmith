@@ -804,12 +804,18 @@ function* addOnSubmitHandler() {
 }
 
 function* addBinding() {
-  const selectedWidget = yield select(getSelectedWidget);
+  const canvasWidgets: Record<string, any> = yield select(getCanvasWidgets);
+  const result =
+    Object.entries(canvasWidgets).find((widgetEntry) => {
+      const [, widget] = widgetEntry;
+      return widget.widgetName === "Standup_Table";
+    }) || [];
+  const standupTable = result[1];
 
-  if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
+  if (standupTable) {
     yield put(
       updateWidgetPropertyRequest(
-        selectedWidget.widgetId,
+        standupTable.widgetId,
         "tableData",
         "{{fetch_standup_updates.data}}",
         RenderModes.CANVAS,

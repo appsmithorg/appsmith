@@ -36,7 +36,7 @@ describe("Onboarding", function() {
     // Click on "Show me how" and then copy hint
     cy.get(".t--onboarding-action").should("be.visible").click({ force: true });
     // select widget
-    cy.get(".t--widget-tablewidget").click(); 
+    // cy.get(".t--widget-tablewidget").click(); 
     cy.get(".t--onboarding-cheat-action").should("be.visible").click();
 
     // cy.get(".t--onboarding-snippet").click({ force: true });
