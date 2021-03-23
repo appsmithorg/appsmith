@@ -689,7 +689,15 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 });
     }
 
-    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(NewAction action, ActionDTO actionDTO, Datasource datasource, Boolean viewMode, ActionExecutionResult actionExecutionResult, Long timeElapsed) {
+    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
+            NewAction action,
+            ActionDTO actionDTO,
+            Datasource datasource,
+            Boolean viewMode,
+            ActionExecutionResult actionExecutionResult,
+            Long timeElapsed
+    ) {
+
         // Since we're loading the application from DB *only* for analytics, we check if analytics is
         // active before making the call to DB.
         if (!analyticsService.isActive()) {
