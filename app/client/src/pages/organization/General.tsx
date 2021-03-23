@@ -160,7 +160,7 @@ export function GeneralSettings() {
       </SettingWrapper>
 
       <SettingWrapper>
-        <Row>
+        <Row className="t--organization-settings-filepicker">
           <Col>
             <InputLabelWrapper>
               <Text type={TextType.H4}>Upload Logo</Text>
