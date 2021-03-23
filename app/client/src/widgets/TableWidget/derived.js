@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  getSelectedRow: (props) => {
+  getSelectedRow: (props, moment, _) => {
     const selectedRowIndex =
       props.selectedRowIndex === undefined ||
       Number.isNaN(parseInt(props.selectedRowIndex))
@@ -18,7 +19,7 @@ export default {
     return selectedRow;
   },
   //
-  getSelectedRows: (props) => {
+  getSelectedRows: (props, moment, _) => {
     const selectedRowIndices = props.selectedRowIndices || [];
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
@@ -29,7 +30,7 @@ export default {
     return selectedRows;
   },
   //
-  getPageSize: (props) => {
+  getPageSize: (props, moment, _) => {
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 38,
@@ -72,7 +73,7 @@ export default {
     return pageSize;
   },
   //
-  getSanitizedTableData: (props) => {
+  getSanitizedTableData: (props, moment, _) => {
     const separatorRegex = /\W+/;
 
     if (props.tableData && Array.isArray(props.tableData)) {
@@ -92,7 +93,7 @@ export default {
     return [];
   },
   //
-  getTableColumns: (props) => {
+  getTableColumns: (props, moment, _) => {
     let columns = [];
     let allColumns = props.primaryColumns || {};
     const data = props.sanitizedTableData || [];
@@ -177,7 +178,7 @@ export default {
     return columns;
   },
   //
-  getFilteredTableData: (props) => {
+  getFilteredTableData: (props, moment, _) => {
     if (!props.sanitizedTableData || !props.sanitizedTableData.length) {
       return [];
     }

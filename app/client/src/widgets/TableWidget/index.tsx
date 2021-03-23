@@ -37,6 +37,7 @@ import {
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { pageNoValidator } from "./validators";
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
     import("components/designSystems/appsmith/TableComponent"),
@@ -55,6 +56,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       defaultSearchText: VALIDATION_TYPES.TEXT,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
       pageSize: VALIDATION_TYPES.NUMBER,
+      selectedRowIndices: VALIDATION_TYPES.ARRAY,
+      selectedRowIndex: VALIDATION_TYPES.NUMBER,
+      pageNo: pageNoValidator,
     };
   }
 
@@ -638,14 +642,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               : this.props.selectedRowIndex
           }
           multiRowSelection={this.props.multiRowSelection}
-          selectedRowIndices={
-            Array.isArray(this.props.selectedRowIndices)
-              ? this.props.selectedRowIndices
-              : []
-          }
+          selectedRowIndices={this.props.selectedRowIndices}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           onRowClick={this.handleRowClick}
-          pageNo={this.props.pageNo || 1}
+          pageNo={this.props.pageNo}
           nextPageClick={this.handleNextPageClick}
           prevPageClick={this.handlePrevPageClick}
           handleResizeColumn={this.handleResizeColumn}
