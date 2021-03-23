@@ -1,4 +1,4 @@
-const explorer = require("../../../../locators/explorerlocators.json");
+// const explorer = require("../../../../locators/explorerlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
@@ -15,8 +15,6 @@ describe("Onboarding", function() {
       201,
     );
 
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    // cy.wait(5000);
     cy.get(".bp3-spinner-head").should("not.exist");
     cy.get(".t--start-building")
       .should("be.visible")
@@ -26,38 +24,24 @@ describe("Onboarding", function() {
     // Using the cheat option to create the action with 30 sec timeout
     cy.get(".t--onboarding-cheat-action").should("be.visible").click();
 
+    // Add logs to debug
+    cy.wait("@postExecute").then((httpRequest) => {
+      if (!httpRequest.response.body.data.isExecutionSuccess) {
+        cy.log("Action execution failure", httpRequest.response.body.data);
+      } else {
+        cy.log("Action execution success", httpRequest.response.body.data);
+      }
+    });
+
     // Add widget
     cy.get(".t--add-widget").click();
     cy.dragAndDropToCanvas("tablewidget", { x: 30, y: -30 });
 
     // wait for animation duration
     cy.wait(1000);
-    // Click on "Show me how" and then copy hint
+    // Click on "Show me how" and then click on cheat button
     cy.get(".t--onboarding-action").should("be.visible").click({ force: true });
-    // select widget
-    // cy.get(".t--widget-tablewidget").click(); 
     cy.get(".t--onboarding-cheat-action").should("be.visible").click();
-
-    // cy.get(".t--onboarding-snippet").click({ force: true });
-
-    // cy.get(".t--property-control-tabledata" + " .CodeMirror textarea")
-    //   .first()
-    //   .focus({ force: true })
-    //   .type("{uparrow}", { force: true })
-    //   .type("{ctrl}{shift}{downarrow}", { force: true });
-    // cy.focused().then(() => {
-    //   cy.get(".t--property-control-tabledata" + " .CodeMirror")
-    //     .first()
-    //     .then((editor) => {
-    //       editor[0].CodeMirror.setValue("{{fetch_standup_updates.data}}");
-    //     });
-    // });
-    // cy.closePropertyPane();
-    // cy.get(explorer.closeWidgets).click();
-
-    // cy.openPropertyPane("tablewidget");
-    // cy.closePropertyPane();
-    // cy.get(".t--application-feedback-btn").should("not.exist");
 
     // wait for animation duration
     cy.wait(1000);
