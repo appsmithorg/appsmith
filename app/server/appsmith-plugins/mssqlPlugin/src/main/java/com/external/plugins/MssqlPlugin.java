@@ -328,7 +328,7 @@ public class MssqlPlugin extends BasePlugin {
             List<String> identicalColumns = getIdenticalColumns(columnNames);
             if(!CollectionUtils.isEmpty(identicalColumns)) {
                 messages.add("Your MsSQL query result may not have all the columns because duplicate column names " +
-                        "were found for the columns: " + String.join(", ", identicalColumns));
+                        "were found for the column(s): " + String.join(", ", identicalColumns));
             }
 
             return messages;
