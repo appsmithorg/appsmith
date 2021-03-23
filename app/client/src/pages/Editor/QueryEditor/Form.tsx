@@ -116,7 +116,7 @@ const SettingsWrapper = styled.div`
   padding: 5px 23px;
 `;
 
-const AddWidgetButton = styled.a`
+const GenerateWidgetButton = styled.a`
   display: flex;
   align-items: center;
   position: absolute;
@@ -138,7 +138,7 @@ const AddWidgetButton = styled.a`
   }
 `;
 
-const OutputTableWrapper = styled.div`
+const ResponseTabWrapper = styled.div`
   margin-top: 20px;
 `;
 
@@ -424,12 +424,12 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                     <OutputTabWrapper>
                       {!!output.length && (
                         <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-                          <AddWidgetButton
+                          <GenerateWidgetButton
                             className="t--add-widget"
                             onClick={onAddWidget}
                           >
                             <Icon name="plus" /> Generate Widget
-                          </AddWidgetButton>
+                          </GenerateWidgetButton>
                         </Boxed>
                       )}
 
@@ -439,13 +439,13 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                             key: `${displayMessage}`,
                             title: `${displayMessage}`,
                             panelComponent: (
-                              <OutputTableWrapper>
+                              <ResponseTabWrapper>
                                 {isTableResponse ? (
                                   <Table data={output} />
                                 ) : (
                                   <JSONViewer src={output} />
                                 )}
-                              </OutputTableWrapper>
+                              </ResponseTabWrapper>
                             ),
                           },
                         ]}
