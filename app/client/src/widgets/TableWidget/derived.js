@@ -226,8 +226,9 @@ export default {
     if (props.sortedColumn) {
       const sortedColumn = props.sortedColumn.column;
       const sortOrder = props.sortedColumn.asc;
-      const column = columns.find((column) => column.id === props.sortedColumn);
-      const columnType = column && column.type ? column.type : "text";
+      const column = columns.find((column) => column.id === sortedColumn);
+      const columnType =
+        column && column.columnType ? column.columnType : "text";
 
       sortedTableData = derivedTableData.sort((a, b) => {
         if (
