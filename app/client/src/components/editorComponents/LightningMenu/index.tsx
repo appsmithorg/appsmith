@@ -10,7 +10,7 @@ import { getLightningMenuOptions } from "./helpers";
 import { LightningMenuTrigger } from "./LightningMenuTrigger";
 import { useActions, useWidgets, usePageId } from "./hooks";
 import { Theme, Skin } from "constants/DefaultTheme";
-import { createGlobalStyle, withTheme } from "styled-components";
+import { withTheme } from "styled-components";
 import { useDispatch } from "react-redux";
 
 const lightningMenuOptions = (
@@ -68,13 +68,6 @@ type LightningMenuProps = {
   theme: Theme;
 };
 
-const CustomDropdownStyles = createGlobalStyle`
-  .bp3-popover {
-    box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.6);
-    border-radius: 0px;
-  }
-`;
-
 export const LightningMenu = (props: LightningMenuProps) => {
   const widgets = useWidgets();
   const { apis, queries } = useActions();
@@ -82,28 +75,25 @@ export const LightningMenu = (props: LightningMenuProps) => {
   const dispatch = useDispatch();
 
   return (
-    <>
-      <CustomizedDropdown
-        {...lightningMenuOptions(
-          props.skin,
-          apis,
-          queries,
-          widgets,
-          pageId,
-          dispatch,
-          props.updateDynamicInputValue,
-          <LightningMenuTrigger
-            skin={props.skin}
-            theme={props.theme}
-            isFocused={props.isFocused}
-            isOpened={props.isOpened}
-            onOpenLightningMenu={props.onOpenLightningMenu}
-          />,
-          props.onCloseLightningMenu,
-        )}
-      />
-      <CustomDropdownStyles />
-    </>
+    <CustomizedDropdown
+      {...lightningMenuOptions(
+        props.skin,
+        apis,
+        queries,
+        widgets,
+        pageId,
+        dispatch,
+        props.updateDynamicInputValue,
+        <LightningMenuTrigger
+          skin={props.skin}
+          theme={props.theme}
+          isFocused={props.isFocused}
+          isOpened={props.isOpened}
+          onOpenLightningMenu={props.onOpenLightningMenu}
+        />,
+        props.onCloseLightningMenu,
+      )}
+    />
   );
 };
 
