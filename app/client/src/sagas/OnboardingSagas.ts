@@ -149,6 +149,7 @@ function* listenForWidgetAdditions() {
         yield put(
           batchUpdateWidgetProperty(selectedWidget.widgetId, {
             modify: {
+              widgetName: "Standup_Table",
               tableData: [],
               columnSizeMap: {
                 avatar: 20,
@@ -811,7 +812,6 @@ function* addBinding() {
       return widget.widgetName === "Standup_Table";
     }) || [];
   const standupTable = result[1];
-
   if (standupTable) {
     yield put(
       updateWidgetPropertyRequest(
