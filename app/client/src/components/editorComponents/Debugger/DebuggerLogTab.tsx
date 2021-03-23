@@ -73,6 +73,11 @@ const Log = styled.div<{ backgroundColor: string; collapsed: boolean }>`
       text-decoration-color: #4b4848;
     }
   }
+
+  .debugger-copy-text {
+    line-height: 20px;
+    margin-left: 10px;
+  }
 `;
 
 const JsonWrapper = styled.div`
@@ -197,7 +202,7 @@ const LogItem = (props: any) => {
   const entityNavigation = useEntityNavigation(props.entityType, props.id);
   const onNavigation = () => {
     entityNavigation && entityNavigation();
-    props?.onClose();
+    props.onClose && props.onClose();
   };
 
   return (
@@ -239,6 +244,12 @@ const LogItem = (props: any) => {
       {props.timeTaken && (
         <span className="debugger-timetaken">{props.timeTaken}</span>
       )}
+      <Icon
+        className={`${Classes.ICON} debugger-copy-text`}
+        name={"duplicate"}
+        size={IconSize.SMALL}
+        onClick={() => copy(props.text)}
+      />
       <span className="debugger-link" onClick={onNavigation}>
         {props.sourceName}
       </span>
