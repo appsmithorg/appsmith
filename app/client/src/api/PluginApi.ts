@@ -1,4 +1,4 @@
-import Api from "./Api";
+import Api from "api/Api";
 import { AxiosPromise } from "axios";
 import { GenericApiResponse } from "api/ApiResponses";
 
