@@ -53,6 +53,16 @@ const Log = styled.div<{ backgroundColor: string; collapsed: boolean }>`
       color: rgba(75, 72, 72, 0.7);
       font-weight: 500;
       font-size: 13px;
+
+      & > span {
+        cursor: pointer;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+          text-decoration-color: rgba(75, 72, 72, 0.7);
+        }
+      }
     }
   }
   .debugger-timetaken {
@@ -60,18 +70,6 @@ const Log = styled.div<{ backgroundColor: string; collapsed: boolean }>`
     margin-left: 5px;
     font-size: 13px;
     line-height: 19px;
-  }
-  .debugger-link {
-    font-weight: 500;
-    color: #4b4848;
-    margin-left: auto;
-    font-size: 13px;
-
-    &:hover {
-      cursor: pointer;
-      text-decoration: underline;
-      text-decoration-color: #4b4848;
-    }
   }
 
   .debugger-copy-text {
@@ -218,7 +216,13 @@ const LogItem = (props: any) => {
           />
         )}
         {props.entityType && (
-          <span className="debugger-entity">[{props.entityType}]</span>
+          <span className="debugger-entity">
+            [
+            <span className="debugger-entity-name" onClick={onNavigation}>
+              {props.sourceName}
+            </span>
+            ]
+          </span>
         )}
         <span className="debugger-label">{props.text}</span>
         {showToggleIcon && (
@@ -250,9 +254,6 @@ const LogItem = (props: any) => {
         size={IconSize.SMALL}
         onClick={() => copy(props.text)}
       />
-      <span className="debugger-link" onClick={onNavigation}>
-        {props.sourceName}
-      </span>
     </Log>
   );
 };
