@@ -40,7 +40,7 @@ const Log = styled.div<{ backgroundColor: string; collapsed: boolean }>`
     display: inline-block;
     margin-left: 7px;
 
-    .${Classes.ICON} {
+    .debugger-toggle {
       ${(props) => props.collapsed && `transform: rotate(-90deg);`}
     }
 
@@ -73,8 +73,8 @@ const Log = styled.div<{ backgroundColor: string; collapsed: boolean }>`
   }
 
   .debugger-copy-text {
-    line-height: 20px;
     margin-left: 10px;
+    vertical-align: middle;
   }
 `;
 
@@ -210,6 +210,7 @@ const LogItem = (props: any) => {
       <div className="debugger-description">
         {showToggleIcon && (
           <Icon
+            className={`${Classes.ICON} debugger-toggle`}
             name={"downArrow"}
             onClick={() => setIsOpen(!isOpen)}
             size={IconSize.XXS}
@@ -225,6 +226,15 @@ const LogItem = (props: any) => {
           </span>
         )}
         <span className="debugger-label">{props.text}</span>
+        {props.timeTaken && (
+          <span className="debugger-timetaken">{props.timeTaken}</span>
+        )}
+        <Icon
+          className={`${Classes.ICON} debugger-copy-text`}
+          name={"duplicate"}
+          size={IconSize.SMALL}
+          onClick={() => copy(props.text)}
+        />
         {showToggleIcon && (
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
             {props.message && (
@@ -245,15 +255,6 @@ const LogItem = (props: any) => {
           </StyledCollapse>
         )}
       </div>
-      {props.timeTaken && (
-        <span className="debugger-timetaken">{props.timeTaken}</span>
-      )}
-      <Icon
-        className={`${Classes.ICON} debugger-copy-text`}
-        name={"duplicate"}
-        size={IconSize.SMALL}
-        onClick={() => copy(props.text)}
-      />
     </Log>
   );
 };

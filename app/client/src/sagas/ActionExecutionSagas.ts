@@ -159,7 +159,7 @@ function* navigateActionSaga(
     }
 
     AppsmithConsole.info({
-      text: `Navigated to ${page.pageName}`,
+      text: `navigateTo(${page.pageName}) was triggered`,
       state: {
         params,
       },
@@ -197,7 +197,7 @@ function* storeValueLocally(
     yield localStorage.setItem(appStoreName, storeString);
     yield put(updateAppStore(storeObj));
     AppsmithConsole.info({
-      text: `Store value was called with key: ${action.key}, value: ${action.value}`,
+      text: `storeValue(${action.key}, ${action.value}) was triggered`,
     });
     if (event.callback) event.callback({ success: true });
   } catch (err) {
@@ -315,7 +315,9 @@ function* showAlertSaga(
     variant: variant,
   });
   AppsmithConsole.info({
-    text: `Show Message was called with message: ${payload.message}, type: ${payload.style}`,
+    text: payload.style
+      ? `showAlert(${payload.message}, ${payload.style}) was triggered)`
+      : `showAlert(${payload.message}) was triggered)`,
   });
   if (event.callback) event.callback({ success: true });
 }
@@ -471,13 +473,13 @@ export function* executeActionSaga(
       viewMode: appMode === APP_MODE.PUBLISHED,
     };
     AppsmithConsole.info({
-      text: "Action started execution from widget request",
+      text: "Execution started from widget request",
       source: {
         type: ENTITY_TYPE.ACTION,
         name: api.name,
         id: actionId,
       },
-      state: { request: executeActionRequest },
+      state: api.actionConfiguration,
     });
     const timeout = yield select(getActionTimeout, actionId);
     const response: ActionExecutionResponse = yield ActionAPI.executeAction(
@@ -493,13 +495,13 @@ export function* executeActionSaga(
     );
     if (isErrorResponse(response)) {
       AppsmithConsole.error({
-        text: "Action failed to execute from widget request",
+        text: `Execution failed with status ${response.data.statusCode}`,
         source: {
           type: ENTITY_TYPE.ACTION,
           name: api.name,
           id: actionId,
         },
-        state: { request: executeActionRequest },
+        state: response.data?.request ?? null,
         message: payload.body as string,
       });
       PerformanceTracker.stopAsyncTracking(
@@ -534,14 +536,14 @@ export function* executeActionSaga(
         actionId,
       );
       AppsmithConsole.info({
-        text: "Action successfully executed from widget request",
+        text: "Executed successfully from widget request",
         timeTaken: response.clientMeta.duration,
         source: {
           type: ENTITY_TYPE.ACTION,
           name: api.name,
           id: actionId,
         },
-        state: { response: payload },
+        state: payload.body as Record<string, any>,
       });
       if (onSuccess) {
         yield put(
@@ -618,7 +620,7 @@ function* executeActionTriggers(
       case "CLOSE_MODAL":
         yield put(trigger);
         AppsmithConsole.info({
-          text: `${trigger.payload.modalName} modal was requested to be closed`,
+          text: `closeModal(${trigger.payload.modalName}) was triggered`,
         });
         if (event.callback) event.callback({ success: true });
         break;
@@ -722,15 +724,13 @@ function* runActionSaga(
     };
 
     AppsmithConsole.info({
-      text: "Action started execution from user request",
+      text: "Execution started from user request",
       source: {
         type: ENTITY_TYPE.ACTION,
         name: actionObject.name,
         id: actionId,
       },
-      state: {
-        request: executeActionRequest,
-      },
+      state: actionObject.actionConfiguration,
     });
 
     const response: ActionExecutionResponse = yield ActionAPI.executeAction(
@@ -765,14 +765,14 @@ function* runActionSaga(
       });
       if (payload.isExecutionSuccess) {
         AppsmithConsole.info({
-          text: "Action successfull executed from user request",
+          text: "Executed successfully from user request",
           timeTaken: response.clientMeta.duration,
           source: {
             type: ENTITY_TYPE.ACTION,
             name: actionObject.name,
             id: actionId,
           },
-          state: { response: payload },
+          state: payload.body as Record<string, any>,
         });
         Toaster.show({
           text: createMessage(ACTION_RUN_SUCCESS),
@@ -780,14 +780,14 @@ function* runActionSaga(
         });
       } else {
         AppsmithConsole.warning({
-          text: "Action failed to execute from user request",
+          text: `Execution failed with status ${response.data.statusCode}`,
           source: {
             type: ENTITY_TYPE.ACTION,
             name: actionObject.name,
             id: actionId,
           },
           message: payload.body as string,
-          state: { request: executeActionRequest },
+          state: response.data?.request ?? null,
         });
 
         Toaster.show({
@@ -802,13 +802,13 @@ function* runActionSaga(
       }
 
       AppsmithConsole.error({
-        text: "Action failed to execute from user request",
+        text: `Execution failed with status ${response.data.statusCode} `,
         source: {
           type: ENTITY_TYPE.ACTION,
           name: actionObject.name,
           id: actionId,
         },
-        state: { request: executeActionRequest },
+        state: response.data?.request ?? null,
       });
 
       yield put({
