@@ -11,14 +11,14 @@ const fn: any = (order: any, { down, originalIndex, curIndex, y }: any) => (
 ) => {
   return down && index === originalIndex
     ? {
-        y: curIndex * 40 + y,
+        y: curIndex * 45 + y,
         scale: 1,
         zIndex: "1",
         shadow: 15,
         immediate: true,
       }
     : {
-        y: order.indexOf(index) * 40,
+        y: order.indexOf(index) * 45,
         scale: 1,
         zIndex: "0",
         shadow: 1,
@@ -28,7 +28,7 @@ const fn: any = (order: any, { down, originalIndex, curIndex, y }: any) => (
 
 const staticfn: any = (order: any) => (index: any) => {
   return {
-    y: order.indexOf(index) * 40,
+    y: order.indexOf(index) * 45,
     scale: 1,
     zIndex: "0",
     shadow: 1,
@@ -68,7 +68,7 @@ const DraggableList = ({ items, ItemRenderer, onUpdate }: any) => {
     const originalIndex = props.args[0];
     const curIndex = order.current.indexOf(originalIndex);
     const curRow = clamp(
-      Math.round((curIndex * 40 + props.movement[1]) / 40),
+      Math.round((curIndex * 45 + props.movement[1]) / 45),
       0,
       items.length - 1,
     );
@@ -104,7 +104,7 @@ const DraggableList = ({ items, ItemRenderer, onUpdate }: any) => {
         document.onmousemove = null;
       }}
       className="content"
-      style={{ height: items.length * 40 }}
+      style={{ height: items.length * 45 }}
     >
       {springs.map(({ zIndex, y, scale }, i) => (
         <animated.div

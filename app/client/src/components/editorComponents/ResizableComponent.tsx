@@ -38,6 +38,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
+import {
+  getCurrentWidgetId,
+  getIsPropertyPaneVisible,
+} from "selectors/propertyPaneSelectors";
+import { getSelectedWidget } from "selectors/ui";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -53,6 +58,8 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const { updateDropTargetRows, persistDropTargetRows } = useContext(
     DropTargetContext,
   );
+  const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
+  const selectedWidgetId = useSelector(getCurrentWidgetId);
 
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
@@ -224,7 +231,9 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.
-    showPropertyPane && showPropertyPane(props.widgetId, true);
+    isPropPaneVisible && selectedWidgetId === props.widgetId
+      ? showPropertyPane(props.widgetId)
+      : showPropertyPane();
 
     AnalyticsUtil.logEvent("WIDGET_RESIZE_END", {
       widgetName: props.widgetName,
@@ -238,8 +247,9 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
 
   const handleResizeStart = () => {
     setIsResizing && !isResizing && setIsResizing(true);
-    showPropertyPane &&
-      showPropertyPane(props.widgetId, selectedWidget === props.widgetId);
+    isPropPaneVisible && selectedWidgetId === props.widgetId
+      ? showPropertyPane(props.widgetId)
+      : showPropertyPane();
     selectWidget &&
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
