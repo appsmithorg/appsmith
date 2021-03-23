@@ -606,10 +606,7 @@ export default class DataTreeEvaluator {
     if (!isValid) {
       this.errors.push({
         type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
-        message:
-          `${widget.widgetName}.${entityPropertyName}: ` + !!message
-            ? `${message}`
-            : "Unknown error",
+        message: `${entityPropertyName}: ${message}`,
         context: {
           source: {
             id: widget.widgetId,
