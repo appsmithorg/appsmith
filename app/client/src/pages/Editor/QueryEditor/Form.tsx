@@ -2,9 +2,6 @@ import React from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import { Spinner, Tag } from "@blueprintjs/core";
 import { isString, isArray } from "lodash";
-import history from "utils/history";
-import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
-import Button, { Size } from "components/ads/Button";
 import { Datasource } from "entities/Datasource";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Colors } from "constants/Colors";
@@ -32,6 +29,7 @@ import ActionHeader from "pages/common/Actions/ActionHeader";
 import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
 import Icon from "components/ads/Icon";
+import { Classes } from "components/ads/common";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -69,21 +67,6 @@ const QueryFormContainer = styled.form`
   }
 `;
 
-const NoDataSourceContainer = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  margin-top: 62px;
-  flex: 1;
-  .font18 {
-    width: 50%;
-    text-align: center;
-    margin-bottom: 23px;
-    font-size: 18px;
-    color: #2e3d49;
-  }
-`;
-
 const ErrorMessage = styled.p`
   font-size: 14px;
   color: ${Colors.RED};
@@ -95,7 +78,7 @@ const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
 
-const TabContainerView = styled.div`
+const TabbedViewContainer = styled.div`
   .react-tabs__tab-panel {
     overflow: hidden;
   }
@@ -104,23 +87,30 @@ const TabContainerView = styled.div`
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding-left: 23px;
+      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      background-color: ${(props) =>
+        props.theme.colors.apiPane.responseBody.bg};
+    }
+    .react-tabs__tab-panel {
+      height: calc(100% - 36px);
+      background-color: ${(props) => props.theme.colors.apiPane.bg};
     }
   }
   position: relative;
-  height: calc(100vh - 150px);
+  height: 40%;
   border-top: 2px solid #e8e8e8;
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 5px 23px;
+  padding: 5px 30px;
+  overflow-y: auto;
 `;
 
 const GenerateWidgetButton = styled.a`
   display: flex;
   align-items: center;
   position: absolute;
-  right: 0px;
+  right: 30px;
   top: 10px;
   font-weight: 500;
   font-size: 14px;
@@ -138,8 +128,22 @@ const GenerateWidgetButton = styled.a`
   }
 `;
 
-const ResponseTabWrapper = styled.div`
-  margin-top: 20px;
+const ResponseWrapper = styled.div`
+  height: 60%;
+  border-top: 2px solid #e8e8e8;
+  position: relative;
+
+  &&& {
+    ul.react-tabs__tab-list {
+      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      background-color: ${(props) =>
+        props.theme.colors.apiPane.responseBody.bg};
+    }
+    .react-tabs__tab-panel {
+      height: calc(100% - 36px);
+      background-color: ${(props) => props.theme.colors.apiPane.bg};
+    }
+  }
 `;
 
 const FieldWrapper = styled.div`
@@ -148,7 +152,7 @@ const FieldWrapper = styled.div`
 
 const DocumentationLink = styled.a`
   position: absolute;
-  right: 23px;
+  right: 30px;
   top: 10px;
   color: #a9a7a7;
 
@@ -163,17 +167,6 @@ const DocumentationLink = styled.a`
   &:hover {
     color: #484848;
     text-decoration: none;
-  }
-`;
-
-const OutputWrapper = styled.div``;
-
-const OutputTabWrapper = styled.div`
-  position: relative;
-
-  &&&& ul.react-tabs__tab-list {
-    padding-left: 0;
-    border: none;
   }
 `;
 
@@ -214,6 +207,46 @@ const HeaderIconHolder = styled.div`
 
 const HeaderLabel = styled(Text)`
   margin-left: 12px;
+`;
+
+const SecondaryWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 93px);
+`;
+
+const ResponseContentWrapper = styled.div`
+  padding: 10px 15px;
+  max-height: 455px;
+  overflow-y: auto;
+`;
+
+const NoResponseContainer = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  .${Classes.ICON} {
+    margin-right: 0px;
+    svg {
+      width: 150px;
+      height: 150px;
+    }
+  }
+
+  .${Classes.TEXT} {
+    margin-top: ${(props) => props.theme.spaces[9]}px;
+  }
+`;
+
+const ErorDescriptionText = styled(Text)`
+  width: 500px;
+  text-align: center;
+  line-height: 25px;
+  letter-spacing: -0.195px;
 `;
 
 type QueryFormProps = {
@@ -266,8 +299,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     isRunning,
     onRunClick,
     DATASOURCES_OPTIONS,
-    pageId,
-    applicationId,
     dataSources,
     executedQueryData,
     runErrorMessage,
@@ -358,118 +389,120 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           runButtonClassName="t--run-query"
         />
       </MainConfiguration>
+      <SecondaryWrapper>
+        <TabbedViewContainer>
+          {documentationLink && (
+            <DocumentationLink
+              href={documentationLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Documentation
+            </DocumentationLink>
+          )}
 
-      <TabContainerView>
-        {documentationLink && (
-          <DocumentationLink
-            href={documentationLink}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </DocumentationLink>
-        )}
+          <TabComponent
+            tabs={[
+              {
+                key: "query",
+                title: "Query",
+                panelComponent: (
+                  <SettingsWrapper>
+                    {editorConfig && editorConfig.length > 0 ? (
+                      editorConfig.map(renderEachConfig)
+                    ) : (
+                      <>
+                        <ErrorMessage>
+                          An unexpected error occurred
+                        </ErrorMessage>
+                        <Tag
+                          round
+                          intent="warning"
+                          interactive
+                          minimal
+                          onClick={() => window.location.reload()}
+                        >
+                          Refresh
+                        </Tag>
+                      </>
+                    )}
+                  </SettingsWrapper>
+                ),
+              },
+              {
+                key: "settings",
+                title: "Settings",
+                panelComponent: (
+                  <SettingsWrapper>
+                    <ActionSettings
+                      actionSettingsConfig={props.settingConfig}
+                      formName={QUERY_EDITOR_FORM_NAME}
+                    />
+                  </SettingsWrapper>
+                ),
+              },
+            ]}
+          />
+        </TabbedViewContainer>
 
-        <TabComponent
-          tabs={[
-            {
-              key: "query",
-              title: "Query",
-              panelComponent: (
-                <SettingsWrapper>
-                  {editorConfig && editorConfig.length > 0 ? (
-                    editorConfig.map(renderEachConfig)
-                  ) : (
-                    <>
-                      <ErrorMessage>An unexpected error occurred</ErrorMessage>
-                      <Tag
-                        round
-                        intent="warning"
-                        interactive
-                        minimal
-                        onClick={() => window.location.reload()}
-                      >
-                        Refresh
-                      </Tag>
-                    </>
-                  )}
-                  {dataSources.length === 0 && (
-                    <NoDataSourceContainer>
-                      <p className="font18">
-                        Seems like you don’t have any Datasources to create a
-                        query
-                      </p>
-                      <Button
-                        onClick={() =>
-                          history.push(
-                            DATA_SOURCES_EDITOR_URL(applicationId, pageId),
-                          )
-                        }
-                        text="Add a Datasource"
-                        tag="button"
-                        size={Size.small}
-                        icon="plus"
-                      />
-                    </NoDataSourceContainer>
-                  )}
+        <ResponseWrapper>
+          {output && !!output.length && (
+            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+              <GenerateWidgetButton
+                className="t--add-widget"
+                onClick={onAddWidget}
+              >
+                <Icon name="plus" />
+                &nbsp;&nbsp;Generate Widget
+              </GenerateWidgetButton>
+            </Boxed>
+          )}
 
-                  {error && (
-                    <OutputWrapper>
-                      <p className="statementTextArea">Query error</p>
-                      <ErrorMessage>{error}</ErrorMessage>
-                    </OutputWrapper>
-                  )}
-
-                  {!error && output && dataSources.length && (
-                    <OutputTabWrapper>
-                      {!!output.length && (
-                        <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-                          <GenerateWidgetButton
-                            className="t--add-widget"
-                            onClick={onAddWidget}
-                          >
-                            <Icon name="plus" /> Generate Widget
-                          </GenerateWidgetButton>
-                        </Boxed>
-                      )}
-
-                      <TabComponent
-                        tabs={[
-                          {
-                            key: `${displayMessage}`,
-                            title: `${displayMessage}`,
-                            panelComponent: (
-                              <ResponseTabWrapper>
-                                {isTableResponse ? (
-                                  <Table data={output} />
-                                ) : (
-                                  <JSONViewer src={output} />
-                                )}
-                              </ResponseTabWrapper>
-                            ),
-                          },
-                        ]}
-                      />
-                    </OutputTabWrapper>
-                  )}
-                </SettingsWrapper>
-              ),
-            },
-            {
-              key: "settings",
-              title: "Settings",
-              panelComponent: (
-                <SettingsWrapper>
-                  <ActionSettings
-                    actionSettingsConfig={props.settingConfig}
-                    formName={QUERY_EDITOR_FORM_NAME}
-                  />
-                </SettingsWrapper>
-              ),
-            },
-          ]}
-        />
-      </TabContainerView>
+          <TabComponent
+            tabs={[
+              {
+                key: `${displayMessage}`,
+                title: `${displayMessage}`,
+                panelComponent: (
+                  <>
+                    {output && (
+                      <ResponseContentWrapper>
+                        {error ? (
+                          <NoResponseContainer>
+                            <Icon name="invalid-datasource" />
+                            <Text
+                              type={TextType.H3}
+                              style={{ color: "#F22B2B" }}
+                            >
+                              Datasource is invalid
+                            </Text>
+                            <ErorDescriptionText type={TextType.P1}>
+                              Please edit to make it valid. Details: Missing
+                              endpoint, Missing username for authentication,
+                              Missing password for authentication.
+                            </ErorDescriptionText>
+                          </NoResponseContainer>
+                        ) : dataSources.length === 0 ? (
+                          <NoResponseContainer>
+                            <Icon name="no-response" />
+                            <Text type={TextType.P1}>
+                              Hit Run to get a Response
+                            </Text>
+                          </NoResponseContainer>
+                        ) : isTableResponse ? (
+                          <Table data={output} />
+                        ) : (
+                          <JSONViewer src={output} />
+                        )}
+                      </ResponseContentWrapper>
+                    )}
+                  </>
+                ),
+              },
+            ]}
+          />
+        </ResponseWrapper>
+      </SecondaryWrapper>
     </QueryFormContainer>
   );
 };

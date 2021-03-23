@@ -40,6 +40,7 @@ import { ReactComponent as DesktopIcon } from "assets/icons/ads/desktop.svg";
 import { ReactComponent as MobileIcon } from "assets/icons/ads/mobile.svg";
 import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
+import { ReactComponent as InvalidDatasourceIcon } from "assets/icons/ads/invalid-datasource.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -136,6 +137,7 @@ export const IconCollection = [
   "mobile",
   "tablet",
   "fluid",
+  "invalid-datasource",
   "HEADING_ONE",
   "HEADING_TWO",
   "HEADING_THREE",
@@ -313,6 +315,9 @@ const Icon = forwardRef(
         break;
       case "fluid":
         returnIcon = <FluidIcon />;
+        break;
+      case "invalid-datasource":
+        returnIcon = <InvalidDatasourceIcon />;
         break;
 
       case "HEADING_ONE":
