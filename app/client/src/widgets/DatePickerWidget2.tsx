@@ -36,41 +36,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "Date Format",
             controlType: "DROP_DOWN",
             isJSConvertible: true,
+            optionWidth: "320px",
             options: [
-              {
-                label: moment().format("YYYY-MM-DD"),
-                subText: "YYYY-MM-DD",
-                value: "YYYY-MM-DD",
-              },
-              {
-                label: moment().format("YYYY-MM-DD HH:mm"),
-                subText: "YYYY-MM-DD HH:mm",
-                value: "YYYY-MM-DD HH:mm",
-              },
               {
                 label: moment().format("YYYY-MM-DDTHH:mm:ss.sssZ"),
                 subText: "ISO 8601",
                 value: "YYYY-MM-DDTHH:mm:ss.sssZ",
-              },
-              {
-                label: moment().format("YYYY-MM-DDTHH:mm:ss"),
-                subText: "YYYY-MM-DDTHH:mm:ss",
-                value: "YYYY-MM-DDTHH:mm:ss",
-              },
-              {
-                label: moment().format("YYYY-MM-DD hh:mm:ss"),
-                subText: "YYYY-MM-DD hh:mm:ss",
-                value: "YYYY-MM-DD hh:mm:ss",
-              },
-              {
-                label: moment().format("DD/MM/YYYY"),
-                subText: "DD/MM/YYYY",
-                value: "DD/MM/YYYY",
-              },
-              {
-                label: moment().format("DD/MM/YYYY HH:mm"),
-                subText: "DD/MM/YYYY HH:mm",
-                value: "DD/MM/YYYY HH:mm",
               },
               {
                 label: moment().format("LLL"),
@@ -83,6 +54,26 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
                 value: "LL",
               },
               {
+                label: moment().format("YYYY-MM-DD HH:mm"),
+                subText: "YYYY-MM-DD HH:mm",
+                value: "YYYY-MM-DD HH:mm",
+              },
+              {
+                label: moment().format("YYYY-MM-DDTHH:mm:ss"),
+                subText: "YYYY-MM-DDTHH:mm:ss",
+                value: "YYYY-MM-DDTHH:mm:ss",
+              },
+              {
+                label: moment().format("YYYY-MM-DD hh:mm:ss"),
+                subText: "YYYY-MM-DD hh:mm:ss",
+                value: "YYYY-MM-DD hh:mm:ss",
+              },
+              {
+                label: moment().format("DD/MM/YYYY HH:mm"),
+                subText: "DD/MM/YYYY HH:mm",
+                value: "DD/MM/YYYY HH:mm",
+              },
+              {
                 label: moment().format("D MMMM, YYYY"),
                 subText: "D MMMM, YYYY",
                 value: "D MMMM, YYYY",
@@ -91,6 +82,11 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
                 label: moment().format("H:mm A D MMMM, YYYY"),
                 subText: "H:mm A D MMMM, YYYY",
                 value: "H:mm A D MMMM, YYYY",
+              },
+              {
+                label: moment().format("YYYY-MM-DD"),
+                subText: "YYYY-MM-DD",
+                value: "YYYY-MM-DD",
               },
               {
                 label: moment().format("MM-DD-YYYY"),
