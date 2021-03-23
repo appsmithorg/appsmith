@@ -115,13 +115,23 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         }}
         maxZoomLevel={maxZoomLevel}
         widgetId={this.props.widgetId}
-        imageUrl={this.props.image || ""}
+        imageUrl={this.getImageProps()}
         onClick={this.props.onClick ? this.onImageClick : undefined}
         showHoverPointer={this.props.renderMode === RenderModes.PAGE}
         defaultImageUrl={this.props.defaultImage}
         isLoading={this.props.isLoading}
       />
     );
+  }
+
+  getImageProps() {
+    const base64ImageRegex = /^data:image\/.*;base64/;
+    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+    const image = this.props.image || "";
+    if (!imageUrlRegex.test(image) && !base64ImageRegex.test(image)) {
+      return "data:image/png;base64," + image;
+    }
+    return image;
   }
 
   onImageClick() {
