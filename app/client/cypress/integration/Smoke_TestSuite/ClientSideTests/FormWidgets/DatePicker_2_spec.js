@@ -47,18 +47,15 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.openPropertyPane("datepickerwidget2");
     cy.selectDateFormat("YYYY-MM-DD");
     cy.assertDateFormat();
-    cy.selectDateFormat("DD-MM-YYYY");
+    cy.selectDateFormat("YYYY-MM-DD HH:mm");
     cy.assertDateFormat();
-    // cy.selectDateFormat("YYYY-MM-DD HH:mm");
-    // cy.assertDateFormat();
-    // cy.selectDateFormat("YYYY-MM-DDTHH:mm:ss");
-    // cy.assertDateFormat();
-    // cy.selectDateFormat("DD/MM/YYYY");
-    // cy.assertDateFormat();
-    // cy.selectDateFormat("DD/MM/YYYY HH:mm");
-    // cy.closePropertyPane();
+    cy.selectDateFormat("ISO 8601");
     cy.assertDateFormat();
+    cy.selectDateFormat("DD/MM/YYYY");
+    cy.assertDateFormat();
+    cy.selectDateFormat("DD/MM/YYYY HH:mm");
     cy.closePropertyPane();
+    cy.assertDateFormat();
   });
 
   it("Datepicker default date validation with strings", function() {

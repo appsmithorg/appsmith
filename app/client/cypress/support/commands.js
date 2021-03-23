@@ -695,9 +695,10 @@ Cypress.Commands.add("selectDateFormat", (value) => {
   cy.get(".t--property-control-dateformat .bp3-popover-target")
     .last()
     .click({ force: true });
-  cy.get(`.t--dropdown-${value}-value`)
-    .first()
-    .click({ force: true });
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(value)
+    .click();
   //.children()
   // .contains(value)
 });
