@@ -13,6 +13,7 @@ describe("local storage", () => {
     myLocalStorage.setItem("myTestKey", "testValue");
     expect(localStorage.setItem).toBeCalledWith("myTestKey", "testValue");
   });
+
   it("calls removeItem", () => {
     jest.spyOn(window.localStorage.__proto__, "removeItem");
     window.localStorage.__proto__.removeItem = jest.fn();
