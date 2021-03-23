@@ -472,7 +472,17 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           },
         });
         setTimeout(() => {
-          if (widgetId) flushDeletedWidgets(widgetId);
+          if (widgetId) {
+            flushDeletedWidgets(widgetId);
+            AppsmithConsole.info({
+              text: "Widget was deleted",
+              source: {
+                name: widgetName,
+                type: ENTITY_TYPE.WIDGET,
+                id: widgetId,
+              },
+            });
+          }
         }, WIDGET_DELETE_UNDO_TIMEOUT);
       }
 

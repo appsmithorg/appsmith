@@ -267,6 +267,7 @@ const useEntityNavigation = (type: ENTITY_TYPE, entityId: string) => {
 
   if (type === Entity[ENTITY_TYPE.WIDGET]) {
     const widget = widgetMap[entityId];
+    if (!widget) return;
 
     return () =>
       navigateToWidget(
