@@ -24,13 +24,8 @@ describe("Onboarding", function() {
     // Using the cheat option to create the action with 30 sec timeout
     cy.get(".t--onboarding-cheat-action").should("be.visible").click();
 
-    // Add logs to debug
     cy.wait("@postExecute").then((httpRequest) => {
-      if (!httpRequest.response.body.data.isExecutionSuccess) {
-        cy.log("Action execution failure", httpRequest.response.body.data);
-      } else {
-        cy.log("Action execution success", httpRequest.response.body.data);
-      }
+      expect(httpRequest.response.body.data.isExecutionSuccess).to.be.true;
     });
 
     // Add widget
