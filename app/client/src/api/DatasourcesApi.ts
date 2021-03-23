@@ -1,5 +1,5 @@
 import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "constants/ApiConstants";
-import API from "./Api";
+import API from "api/Api";
 import { GenericApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 
