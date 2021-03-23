@@ -37,7 +37,7 @@ import {
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { pageNoValidator } from "./validators";
+
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
     import("components/designSystems/appsmith/TableComponent"),
@@ -58,7 +58,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize: VALIDATION_TYPES.NUMBER,
       selectedRowIndices: VALIDATION_TYPES.ARRAY,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
-      pageNo: pageNoValidator,
+      pageNo: VALIDATION_TYPES.TABLE_PAGE_NO,
     };
   }
 

@@ -855,4 +855,15 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       parsed: value,
     };
   },
+  // If we keep adding these here there will be a huge unmaintainable list
+  // TODO(abhinav: WIDGET DEV API):
+  // - Compile validators from the widgets during widget registration
+  // - Use the compiled list in the web worker startup
+  // - Remove widget specific validations from this file
+  // - Design consideration: If widgets can be dynamically imported, how will this work?
+  [VALIDATION_TYPES.TABLE_PAGE_NO]: (value: any): ValidationResponse => {
+    if (!value || !Number.isInteger(value) || value < 0)
+      return { isValid: false, parsed: 1, message: "" };
+    return { isValid: true, parsed: value };
+  },
 };
