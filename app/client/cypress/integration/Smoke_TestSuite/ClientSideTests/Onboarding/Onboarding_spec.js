@@ -23,9 +23,8 @@ describe("Onboarding", function() {
       .click({ force: true });
 
     // Create and run query
-    cy.get(".t--onboarding-indicator").should("be.visible");
-    cy.get(".t--create-query").click();
-    cy.runQuery();
+    // Using the cheat option to create the action with 30 sec timeout
+    cy.get(".t--onboarding-cheat-action").should("be.visible").click();
 
     // Add widget
     cy.get(".t--add-widget").click();

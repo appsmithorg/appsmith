@@ -282,7 +282,7 @@ function* listenForSuccessfulBinding() {
     yield take();
 
     let bindSuccessful = true;
-    const selectedWidget = yield select(getSelectedWidget);
+    const selectedWidget = yield call(getStandupTableWidget);
     if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
       const dataTree = yield select(getDataTree);
 
@@ -601,6 +601,7 @@ function* createQuery() {
       actionConfiguration: {
         body:
           "Select avatar, name, notes from standup_updates order by id desc",
+        timeoutInMillisecond: 30000,
       },
     } as Partial<QueryAction>;
 
@@ -804,7 +805,7 @@ function* addOnSubmitHandler() {
   }
 }
 
-function* addBinding() {
+function* getStandupTableWidget() {
   const canvasWidgets: Record<string, any> = yield select(getCanvasWidgets);
   const result =
     Object.entries(canvasWidgets).find((widgetEntry) => {
@@ -812,6 +813,11 @@ function* addBinding() {
       return widget.widgetName === "Standup_Table";
     }) || [];
   const standupTable = result[1];
+  return standupTable;
+}
+
+function* addBinding() {
+  const standupTable = yield call(getStandupTableWidget);
   if (standupTable) {
     yield put(
       updateWidgetPropertyRequest(
