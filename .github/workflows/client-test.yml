@@ -18,6 +18,7 @@ defaults:
 
 jobs:
   build:
+    if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     defaults:
       run:
