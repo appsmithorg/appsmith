@@ -67,10 +67,7 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
 });
 
 Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
-  cy.server();
-  cy.route("POST", "/api/v1/users/invite", {
-    fixture: "postInviteStub.json",
-  }).as("postInvite");
+  cy.stubPostHeaderReq();
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
@@ -97,11 +94,19 @@ Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
   ).should("have.length", count);
 });
 
-Cypress.Commands.add("shareApp", (email, role) => {
-  cy.server();
-  cy.route("POST", "/api/v1/users/invite", {
-    fixture: "postInviteStub.json",
+Cypress.Commands.add("stubPostHeaderReq", () => {
+  cy.intercept("POST", "/api/v1/users/invite", (req) => {
+    headers: {
+      accept: "application/json";
+    }
+    {
+      statusCode: 200;
+    }
   }).as("postInvite");
+});
+
+Cypress.Commands.add("shareApp", (email, role) => {
+  cy.stubPostHeaderReq();
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
@@ -114,10 +119,7 @@ Cypress.Commands.add("shareApp", (email, role) => {
 });
 
 Cypress.Commands.add("shareAndPublic", (email, role) => {
-  cy.server();
-  cy.route("POST", "/api/v1/users/invite", {
-    fixture: "postInviteStub.json",
-  }).as("postInvite");
+  cy.stubPostHeaderReq();
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
@@ -167,6 +169,7 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
 });
 
 Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
+  cy.stubPostHeaderReq();
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
@@ -187,9 +190,6 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.intercept("PUT", "/api/v1/users/invite", {
-    fixture: "postInviteStub.json",
-  }).as("postInvite");
   cy.wait("@postInvite");
   cy.contains(email);
   cy.get(".bp3-icon-small-cross").click({ force: true });
@@ -2161,7 +2161,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
-  //cy.route("POST", "/api/v1/users/invite").as("postInvite");
   cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
     "getRoles",
   );
