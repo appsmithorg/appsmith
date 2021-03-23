@@ -40,7 +40,7 @@ import { ReactComponent as DesktopIcon } from "assets/icons/ads/desktop.svg";
 import { ReactComponent as MobileIcon } from "assets/icons/ads/mobile.svg";
 import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
-import { ReactComponent as InvalidDatasourceIcon } from "assets/icons/ads/invalid-datasource.svg";
+import { ReactComponent as ExecutionErrorIcon } from "assets/icons/ads/execution-error.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -137,7 +137,7 @@ export const IconCollection = [
   "mobile",
   "tablet",
   "fluid",
-  "invalid-datasource",
+  "execution-error",
   "HEADING_ONE",
   "HEADING_TWO",
   "HEADING_THREE",
@@ -153,28 +153,33 @@ export const IconWrapper = styled.span<IconProps>`
   }
   display: flex;
   align-items: center;
+  ${(props) => (props.invisible ? `visibility: hidden;` : null)};
   svg {
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
+    ${(props) =>
+      props.fill &&
+      `
     path {
-      fill: ${(props) => props.fillColor || props.theme.colors.icon.normal};
-    }
+      fill: ${props.fillColor || props.theme.colors.icon.normal};
+    }`}
   }
-  ${(props) => (props.invisible ? `visibility: hidden;` : null)};
-
-  &:hover {
+  ${(props) =>
+    props.fill &&
+    `
+    &:hover {
     cursor: pointer;
     path {
-      fill: ${(props) => props.theme.colors.icon.hover};
+      fill: ${props.theme.colors.icon.hover};
     }
   }
 
   &:active {
     cursor: pointer;
     path {
-      fill: ${(props) => props.theme.colors.icon.active};
+      fill: ${props.theme.colors.icon.active};
     }
-  }
+  }`}
 `;
 
 export type IconProps = {
@@ -184,6 +189,7 @@ export type IconProps = {
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
   fillColor?: string;
+  fill?: boolean;
 };
 
 const Icon = forwardRef(
@@ -316,8 +322,8 @@ const Icon = forwardRef(
       case "fluid":
         returnIcon = <FluidIcon />;
         break;
-      case "invalid-datasource":
-        returnIcon = <InvalidDatasourceIcon />;
+      case "execution-error":
+        returnIcon = <ExecutionErrorIcon />;
         break;
 
       case "HEADING_ONE":
@@ -350,5 +356,9 @@ const Icon = forwardRef(
 );
 
 Icon.displayName = "Icon";
+
+Icon.defaultProps = {
+  fill: true,
+};
 
 export default Icon;

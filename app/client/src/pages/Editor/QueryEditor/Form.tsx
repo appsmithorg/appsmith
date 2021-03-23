@@ -1,7 +1,7 @@
 import React from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import { Spinner, Tag } from "@blueprintjs/core";
-import { isString, isArray } from "lodash";
+import { isString } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Colors } from "constants/Colors";
@@ -97,13 +97,14 @@ const TabbedViewContainer = styled.div`
     }
   }
   position: relative;
-  height: 40%;
+  height: 50%;
   border-top: 2px solid #e8e8e8;
 `;
 
 const SettingsWrapper = styled.div`
   padding: 5px 30px;
   overflow-y: auto;
+  height: 100%;
 `;
 
 const GenerateWidgetButton = styled.a`
@@ -111,7 +112,7 @@ const GenerateWidgetButton = styled.a`
   align-items: center;
   position: absolute;
   right: 30px;
-  top: 10px;
+  top: 8px;
   font-weight: 500;
   font-size: 14px;
   line-height: 17px;
@@ -125,24 +126,6 @@ const GenerateWidgetButton = styled.a`
   &:hover {
     text-decoration: none;
     color: #716e6e;
-  }
-`;
-
-const ResponseWrapper = styled.div`
-  height: 60%;
-  border-top: 2px solid #e8e8e8;
-  position: relative;
-
-  &&& {
-    ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
-      background-color: ${(props) =>
-        props.theme.colors.apiPane.responseBody.bg};
-    }
-    .react-tabs__tab-panel {
-      height: calc(100% - 36px);
-      background-color: ${(props) => props.theme.colors.apiPane.bg};
-    }
   }
 `;
 
@@ -217,8 +200,8 @@ const SecondaryWrapper = styled.div`
 
 const ResponseContentWrapper = styled.div`
   padding: 10px 15px;
-  max-height: 455px;
   overflow-y: auto;
+  height: 100%;
 `;
 
 const NoResponseContainer = styled.div`
@@ -242,7 +225,7 @@ const NoResponseContainer = styled.div`
   }
 `;
 
-const ErorDescriptionText = styled(Text)`
+const ErrorDescriptionText = styled(Text)`
   width: 500px;
   text-align: center;
   line-height: 25px;
@@ -299,7 +282,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     isRunning,
     onRunClick,
     DATASOURCES_OPTIONS,
-    dataSources,
     executedQueryData,
     runErrorMessage,
     responseType,
@@ -311,7 +293,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
-  let displayMessage = "";
 
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
@@ -322,17 +303,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       output = executedQueryData.body;
     }
   }
-
-  // Constructing the header of the response based on the response
-  if (!output) {
-    displayMessage = "No data records to display";
-  } else if (isArray(output)) {
-    // The returned output is an array
-    displayMessage = output.length ? "Response" : "No data records to display";
-  } else {
-    // Output is a JSON object. We can display a single object
-    displayMessage = "Query response";
-  }
+  console.log(error, output);
 
   const isTableResponse = responseType === "TABLE";
 
@@ -445,7 +416,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           />
         </TabbedViewContainer>
 
-        <ResponseWrapper>
+        <TabbedViewContainer>
           {output && !!output.length && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
               <GenerateWidgetButton
@@ -461,47 +432,45 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           <TabComponent
             tabs={[
               {
-                key: `${displayMessage}`,
-                title: `${displayMessage}`,
+                key: "Response",
+                title: "Response",
                 panelComponent: (
-                  <>
+                  <ResponseContentWrapper>
+                    {error && (
+                      <NoResponseContainer>
+                        <Icon name="execution-error" fill={false} />
+                        <Text type={TextType.H3} style={{ color: "#F22B2B" }}>
+                          An error occurred
+                        </Text>
+
+                        <ErrorDescriptionText type={TextType.P1}>
+                          {error}
+                        </ErrorDescriptionText>
+                      </NoResponseContainer>
+                    )}
                     {output && (
-                      <ResponseContentWrapper>
-                        {error ? (
-                          <NoResponseContainer>
-                            <Icon name="invalid-datasource" />
-                            <Text
-                              type={TextType.H3}
-                              style={{ color: "#F22B2B" }}
-                            >
-                              Datasource is invalid
-                            </Text>
-                            <ErorDescriptionText type={TextType.P1}>
-                              Please edit to make it valid. Details: Missing
-                              endpoint, Missing username for authentication,
-                              Missing password for authentication.
-                            </ErorDescriptionText>
-                          </NoResponseContainer>
-                        ) : dataSources.length === 0 ? (
-                          <NoResponseContainer>
-                            <Icon name="no-response" />
-                            <Text type={TextType.P1}>
-                              Hit Run to get a Response
-                            </Text>
-                          </NoResponseContainer>
-                        ) : isTableResponse ? (
+                      <>
+                        {isTableResponse ? (
                           <Table data={output} />
                         ) : (
                           <JSONViewer src={output} />
                         )}
-                      </ResponseContentWrapper>
+                      </>
                     )}
-                  </>
+                    {!output && !error && (
+                      <NoResponseContainer>
+                        <Icon name="no-response" fill={false} />
+                        <Text type={TextType.P1}>
+                          Hit Run to get a Response
+                        </Text>
+                      </NoResponseContainer>
+                    )}
+                  </ResponseContentWrapper>
                 ),
               },
             ]}
           />
-        </ResponseWrapper>
+        </TabbedViewContainer>
       </SecondaryWrapper>
     </QueryFormContainer>
   );
