@@ -104,13 +104,13 @@ public class DataTypeStringUtils {
             return DataType.NULL;
         }
 
-        DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
-        if (dateValidator.isValid(input)) {
-            return DataType.DATE;
+        DateValidator timestampValidator = new DateValidatorUsingDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (timestampValidator.isValid(input)) {
+            return DataType.TIMESTAMP;
         }
 
-        DateValidator dateTimeValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd hh:mm:ss");
-        if (dateTimeValidator.isValid(input)) {
+        DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
+        if (dateValidator.isValid(input)) {
             return DataType.DATE;
         }
 
