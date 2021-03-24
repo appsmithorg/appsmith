@@ -94,7 +94,7 @@ jobs:
 
       - name: Run the jest tests
         if: github.event_name == 'pull_request'
-        uses: hetunandu/Jest-Coverage-Diff@feature/improve-comment-ui
+        uses: hetunandu/Jest-Coverage-Diff@fix/new-delete-file
         with:
           fullCoverageDiff: false
           runCommand: cd app/client && REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
