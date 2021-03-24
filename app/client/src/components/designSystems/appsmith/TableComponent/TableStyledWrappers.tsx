@@ -314,6 +314,7 @@ export const CellWrapper = styled.div<{
   isHidden?: boolean;
   cellProperties?: CellLayoutProperties;
   isHyperLink?: boolean;
+  useLinkToolTip?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -357,6 +358,12 @@ export const CellWrapper = styled.div<{
       border: none;
       border-radius: 4px;
     }
+  }
+  .link-text {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .hidden-icon {
     display: none;
