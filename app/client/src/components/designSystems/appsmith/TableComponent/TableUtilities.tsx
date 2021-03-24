@@ -116,6 +116,7 @@ export const renderCell = (
           isHidden={isHidden}
           cellProperties={cellProperties}
           tableWidth={tableWidth}
+          columnType={columnType}
         >
           {value.toString()}
         </AutoToolTipComponent>

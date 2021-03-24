@@ -17,7 +17,7 @@ import {
 } from "utils/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined, isEqual, xor, without } from "lodash";
+import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
@@ -319,7 +319,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 const data =
                   isString(value) || isNumber(value)
                     ? value
-                    : isUndefined(value)
+                    : isNil(value)
                     ? ""
                     : JSON.stringify(value);
                 tableRow[accessor] = data;

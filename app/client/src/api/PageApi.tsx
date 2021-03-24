@@ -1,4 +1,4 @@
-import Api from "./Api";
+import Api from "api/Api";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetProps } from "widgets/BaseWidget";

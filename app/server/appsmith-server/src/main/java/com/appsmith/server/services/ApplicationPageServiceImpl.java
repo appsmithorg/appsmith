@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -34,6 +35,7 @@ import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,6 +45,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Service
 @Slf4j
@@ -541,7 +544,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<Boolean> publish(String applicationId) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                .cache();
 
         Flux<NewPage> publishApplicationAndPages = applicationMono
                 //Return all the pages in the Application
@@ -617,8 +621,31 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .collectList()
                 .flatMapMany(actions -> newActionService.saveAll(actions));
 
-        return Mono.zip(publishApplicationAndPages.collectList(), publishedActionsFlux.collectList())
-                .map(tuple -> true);
+        return Mono.when(
+                publishApplicationAndPages.collectList(),
+                publishedActionsFlux.collectList(),
+                applicationMono.flatMap(this::sendApplicationPublishedEvent)
+        )
+                .thenReturn(true);
+    }
+
+    private Mono<Void> sendApplicationPublishedEvent(Application application) {
+        if (!analyticsService.isActive()) {
+            return Mono.empty();
+        }
+
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> {
+                    analyticsService.sendEvent(
+                            AnalyticsEvents.PUBLISH_APPLICATION.getEventName(),
+                            user.getUsername(),
+                            Map.of(
+                                    "appId", defaultIfNull(application.getId(), ""),
+                                    "appName", defaultIfNull(application.getName(), "")
+                            )
+                    );
+                    return Mono.empty();
+                });
     }
 
 }

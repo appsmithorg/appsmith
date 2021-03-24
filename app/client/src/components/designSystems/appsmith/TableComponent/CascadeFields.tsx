@@ -110,6 +110,15 @@ const typeOperatorsMap: Record<ColumnTypes, DropdownOption[]> = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
+  [ColumnTypes.URL]: [
+    { label: "contains", value: "contains", type: "input" },
+    { label: "does not contain", value: "doesNotContain", type: "input" },
+    { label: "starts with", value: "startsWith", type: "input" },
+    { label: "ends with", value: "endsWith", type: "input" },
+    { label: "is exactly", value: "isExactly", type: "input" },
+    { label: "empty", value: "empty", type: "" },
+    { label: "not empty", value: "notEmpty", type: "" },
+  ],
   [ColumnTypes.DATE]: [
     { label: "is", value: "is", type: "date" },
     { label: "is before", value: "isBefore", type: "date" },
@@ -157,6 +166,7 @@ const columnTypeNameMap: Record<ColumnTypes, string> = {
   [ColumnTypes.IMAGE]: "Image",
   [ColumnTypes.NUMBER]: "Num",
   [ColumnTypes.DATE]: "Date",
+  [ColumnTypes.URL]: "Url",
 };
 
 const RenderOption = (props: {

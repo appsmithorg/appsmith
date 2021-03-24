@@ -11,6 +11,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import moment from "moment";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {
@@ -25,6 +26,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
               "Sets the default date of the widget. The date is updated if the default date changes",
             controlType: "DATE_PICKER",
             placeholderText: "Enter Default Date",
+            useValidationMessage: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -35,26 +37,87 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "Date Format",
             controlType: "DROP_DOWN",
             isJSConvertible: true,
+            optionWidth: "320px",
             options: [
               {
-                label: "YYYY-MM-DD",
-                value: "YYYY-MM-DD",
-              },
-              {
-                label: "YYYY-MM-DD HH:mm",
-                value: "YYYY-MM-DD HH:mm",
-              },
-              {
-                label: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                label: moment().format("YYYY-MM-DDTHH:mm:ss.sssZ"),
+                subText: "ISO 8601",
                 value: "YYYY-MM-DDTHH:mm:ss.sssZ",
               },
               {
-                label: "DD/MM/YYYY",
+                label: moment().format("LLL"),
+                subText: "LLL",
+                value: "LLL",
+              },
+              {
+                label: moment().format("LL"),
+                subText: "LL",
+                value: "LL",
+              },
+              {
+                label: moment().format("YYYY-MM-DD HH:mm"),
+                subText: "YYYY-MM-DD HH:mm",
+                value: "YYYY-MM-DD HH:mm",
+              },
+              {
+                label: moment().format("YYYY-MM-DDTHH:mm:ss"),
+                subText: "YYYY-MM-DDTHH:mm:ss",
+                value: "YYYY-MM-DDTHH:mm:ss",
+              },
+              {
+                label: moment().format("YYYY-MM-DD hh:mm:ss"),
+                subText: "YYYY-MM-DD hh:mm:ss",
+                value: "YYYY-MM-DD hh:mm:ss",
+              },
+              {
+                label: moment().format("DD/MM/YYYY HH:mm"),
+                subText: "DD/MM/YYYY HH:mm",
+                value: "DD/MM/YYYY HH:mm",
+              },
+              {
+                label: moment().format("D MMMM, YYYY"),
+                subText: "D MMMM, YYYY",
+                value: "D MMMM, YYYY",
+              },
+              {
+                label: moment().format("H:mm A D MMMM, YYYY"),
+                subText: "H:mm A D MMMM, YYYY",
+                value: "H:mm A D MMMM, YYYY",
+              },
+              {
+                label: moment().format("YYYY-MM-DD"),
+                subText: "YYYY-MM-DD",
+                value: "YYYY-MM-DD",
+              },
+              {
+                label: moment().format("MM-DD-YYYY"),
+                subText: "MM-DD-YYYY",
+                value: "MM-DD-YYYY",
+              },
+              {
+                label: moment().format("DD-MM-YYYY"),
+                subText: "DD-MM-YYYY",
+                value: "DD-MM-YYYY",
+              },
+              {
+                label: moment().format("MM/DD/YYYY"),
+                subText: "MM/DD/YYYY",
+                value: "MM/DD/YYYY",
+              },
+              {
+                label: moment().format("DD/MM/YYYY"),
+                subText: "DD/MM/YYYY",
                 value: "DD/MM/YYYY",
               },
               {
-                label: "DD/MM/YYYY HH:mm",
-                value: "DD/MM/YYYY HH:mm",
+                label: moment().format("DD/MM/YY"),
+                subText: "DD/MM/YY",
+                value: "DD/MM/YY",
+              },
+              {
+                label: moment().format("MM/DD/YY"),
+                subText: "MM/DD/YY",
+                value: "MM/DD/YY",
               },
             ],
             isBindProperty: true,
@@ -92,6 +155,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "Min Date",
             helpText: "Defines the min date for this widget",
             controlType: "DATE_PICKER",
+            useValidationMessage: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -101,6 +165,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "Max Date",
             helpText: "Defines the max date for this widget",
             controlType: "DATE_PICKER",
+            useValidationMessage: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -132,8 +197,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
       dateFormat: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       datePickerType: VALIDATION_TYPES.TEXT,
-      maxDate: VALIDATION_TYPES.DATE,
-      minDate: VALIDATION_TYPES.DATE,
+      maxDate: VALIDATION_TYPES.DATE_ISO_STRING,
+      minDate: VALIDATION_TYPES.DATE_ISO_STRING,
       isRequired: VALIDATION_TYPES.BOOLEAN,
       // onDateSelected: VALIDATION_TYPES.ACTION_SELECTOR,
       // onDateRangeSelected: VALIDATION_TYPES.ACTION_SELECTOR,

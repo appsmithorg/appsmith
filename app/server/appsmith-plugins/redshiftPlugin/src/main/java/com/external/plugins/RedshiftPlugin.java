@@ -45,6 +45,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
 
@@ -238,6 +240,7 @@ public class RedshiftPlugin extends BasePlugin {
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
+                final List<String> columnsList = new ArrayList<>();
                 Statement statement = null;
                 ResultSet resultSet = null;
 
@@ -247,6 +250,8 @@ public class RedshiftPlugin extends BasePlugin {
 
                     if (isResultSet) {
                         resultSet = statement.getResultSet();
+                        ResultSetMetaData metaData = resultSet.getMetaData();
+                        columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
                         while (resultSet.next()) {
                             Map<String, Object> row = getRow(resultSet);
@@ -281,6 +286,7 @@ public class RedshiftPlugin extends BasePlugin {
 
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setBody(objectMapper.valueToTree(rowsList));
+                result.setMessages(populateHintMessages(columnsList));
                 result.setIsExecutionSuccess(true);
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
@@ -318,6 +324,20 @@ public class RedshiftPlugin extends BasePlugin {
                         return result;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private  Set<String> populateHintMessages(List<String> columnNames) {
+
+            Set<String> messages = new HashSet<>();
+
+            List<String> identicalColumns = getIdenticalColumns(columnNames);
+            if(!CollectionUtils.isEmpty(identicalColumns)) {
+                messages.add("Your Redshift query result may not have all the columns because duplicate column names " +
+                        "were found for the column(s): " + String.join(", ", identicalColumns) + ". You may use the " +
+                        "SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
+            }
+
+            return messages;
         }
 
         @Override
