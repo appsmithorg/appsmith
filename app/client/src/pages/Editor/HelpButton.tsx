@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle, withTheme } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
@@ -7,6 +7,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Theme } from "constants/DefaultTheme";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
@@ -27,11 +28,15 @@ const StyledTrigger = styled.div`
     props.theme.colors.globalSearch.helpButtonBackground};
 `;
 
-const Trigger = () => (
+const Trigger = withTheme(({ theme }: { theme: Theme }) => (
   <StyledTrigger>
-    <Icon name="help" size={IconSize.XS} />
+    <Icon
+      name="help"
+      size={IconSize.XS}
+      fillColor={theme.colors.globalSearch.helpIcon}
+    />
   </StyledTrigger>
-);
+));
 
 const onOpened = () => {
   AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });

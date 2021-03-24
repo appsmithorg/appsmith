@@ -59,6 +59,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -212,6 +214,7 @@ public class PostgresPlugin extends BasePlugin {
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
+                final List<String> columnsList = new ArrayList<>();
 
                 Statement statement = null;
                 ResultSet resultSet = null;
@@ -262,8 +265,10 @@ public class PostgresPlugin extends BasePlugin {
 
                         ResultSetMetaData metaData = resultSet.getMetaData();
                         int colCount = metaData.getColumnCount();
+                        columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
                         while (resultSet.next()) {
+
                             // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
                             Map<String, Object> row = new LinkedHashMap<>(colCount);
 
@@ -364,13 +369,14 @@ public class PostgresPlugin extends BasePlugin {
 
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setBody(objectMapper.valueToTree(rowsList));
+                result.setMessages(populateHintMessages(columnsList));
                 result.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution result");
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
-                    .onErrorResume(error  -> {
+                    .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }
@@ -393,6 +399,20 @@ public class PostgresPlugin extends BasePlugin {
                     })
                     .subscribeOn(scheduler);
 
+        }
+
+        private Set<String> populateHintMessages(List<String> columnNames) {
+
+            Set<String> messages = new HashSet<>();
+
+            List<String> identicalColumns = getIdenticalColumns(columnNames);
+            if (!CollectionUtils.isEmpty(identicalColumns)) {
+                messages.add("Your PostgreSQL query result may not have all the columns because duplicate column " +
+                        "names were found for the column(s): " + String.join(", ", identicalColumns) + ". You may use" +
+                        " the SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
+            }
+
+            return messages;
         }
 
         @Override
@@ -462,6 +482,16 @@ public class PostgresPlugin extends BasePlugin {
                     invalids.add("Missing database name.");
                 }
 
+            }
+
+            /*
+             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+             */
+            if (datasourceConfiguration.getConnection() == null
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+                        "Please reach out to Appsmith customer support to resolve this.");
             }
 
             return invalids;
@@ -790,7 +820,7 @@ public class PostgresPlugin extends BasePlugin {
      * @param datasourceConfiguration
      * @return connection pool
      */
-    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) {
+    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
         config.setDriverClassName(JDBC_DRIVER);
@@ -799,12 +829,6 @@ public class PostgresPlugin extends BasePlugin {
         com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
         config.setMinimumIdle(MINIMUM_POOL_SIZE);
         config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
-
-        final boolean isSslEnabled = configurationConnection != null
-                && configurationConnection.getSsl() != null
-                && !SSLDetails.AuthType.NO_SSL.equals(configurationConnection.getSsl().getAuthType());
-
-        config.addDataSourceProperty(SSL, isSslEnabled);
 
         // Set authentication properties
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -816,25 +840,62 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         // Set up the connection URL
-        String url;
-        if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-            url = datasourceConfiguration.getUrl();
+        StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
 
-        } else {
-            StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
-            for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                urlBuilder
-                        .append(endpoint.getHost())
-                        .append(':')
-                        .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
-                        .append('/');
+        List<String> hosts = datasourceConfiguration
+                .getEndpoints()
+                .stream()
+                .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                .collect(Collectors.toList());
 
-                if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
-                    urlBuilder.append(authentication.getDatabaseName());
-                }
-            }
-            url = urlBuilder.toString();
+        urlBuilder.append(String.join(",", hosts)).append("/");
+
+        if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+            urlBuilder.append(authentication.getDatabaseName());
         }
+
+        /*
+         * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+         */
+        if (datasourceConfiguration.getConnection() == null
+                || datasourceConfiguration.getConnection().getSsl() == null
+                || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+                            "Please reach out to Appsmith customer support to resolve this."
+            );
+        }
+
+        /*
+         * - By default, the driver configures SSL in the preferred mode.
+         */
+        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+        switch (sslAuthType) {
+            case ALLOW:
+            case REQUIRE:
+                config.addDataSourceProperty("ssl", "true");
+                config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
+
+                break;
+            case DISABLE:
+                config.addDataSourceProperty("ssl", "false");
+                config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
+
+                break;
+            case DEFAULT:
+                /* do nothing - accept default driver setting */
+
+                break;
+            default:
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
+                                "customer support to resolve this."
+                );
+        }
+
+        String url = urlBuilder.toString();
         config.setJdbcUrl(url);
 
         // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
@@ -868,7 +929,6 @@ public class PostgresPlugin extends BasePlugin {
         if (configurationConnection == null) {
             return connection;
         }
-
         switch (configurationConnection.getMode()) {
             case READ_WRITE: {
                 connection.setReadOnly(false);
@@ -882,5 +942,4 @@ public class PostgresPlugin extends BasePlugin {
 
         return connection;
     }
-
 }

@@ -22,7 +22,10 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import _ from "lodash";
-import { INPUT_WIDGET_DEFAULT_VALIDATION_ERROR } from "constants/messages";
+import {
+  createMessage,
+  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
+} from "constants/messages";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
@@ -259,7 +262,8 @@ class InputComponent extends React.Component<
         <ErrorTooltip
           isOpen={this.props.isInvalid && this.props.showError}
           message={
-            this.props.errorMessage || INPUT_WIDGET_DEFAULT_VALIDATION_ERROR
+            this.props.errorMessage ||
+            createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
           }
         >
           {this.renderInputComponent(

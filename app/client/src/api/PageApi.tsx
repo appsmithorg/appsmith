@@ -1,4 +1,4 @@
-import Api from "./Api";
+import Api from "api/Api";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -61,6 +61,7 @@ export interface SavePageResponse extends ApiResponse {
 export interface CreatePageRequest {
   applicationId: string;
   name: string;
+  layouts: Partial<PageLayout>[];
 }
 
 export interface UpdatePageRequest {

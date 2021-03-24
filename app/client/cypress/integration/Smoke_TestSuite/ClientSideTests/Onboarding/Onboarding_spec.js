@@ -14,8 +14,13 @@ describe("Onboarding", function() {
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@getDataSources");
-    cy.get(".t--start-building").click();
+
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(5000);
+    cy.get(".bp3-spinner-head").should("not.exist");
+    cy.get(".t--start-building")
+      .should("be.visible")
+      .click({ force: true });
 
     // Create and run query
     cy.get(".t--onboarding-indicator").should("be.visible");
