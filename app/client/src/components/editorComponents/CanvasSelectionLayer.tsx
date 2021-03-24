@@ -29,7 +29,7 @@ export const CanvasSelectionLayer = ({
     }
   };
   return (
-    <div onDoubleClickCapture={openPropertyPane} className="canvas-triggers">
+    <div onClickCapture={openPropertyPane} className="canvas-triggers">
       {children}
     </div>
   );
