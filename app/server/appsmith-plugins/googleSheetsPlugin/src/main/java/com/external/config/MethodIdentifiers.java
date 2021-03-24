@@ -11,4 +11,5 @@ public class MethodIdentifiers {
     public static final String DELETE = "DELETE";
     public static final String LIST = "LIST";
     public static final String INFO = "INFO";
+    public static final String DELETE_ROW = "DELETE_ROW";
 }

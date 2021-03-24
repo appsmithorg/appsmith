@@ -2,7 +2,6 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -11,11 +10,25 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * API reference: https://developers.google.com/sheets/api/guides/migration#list_spreadsheets_for_the_authenticated_user
  */
 public class ListSheetsMethod implements Method {
+
+    ObjectMapper objectMapper;
+
+    public ListSheetsMethod(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+    
+    @Override
+    public boolean validateMethodRequest(MethodConfig methodConfig, String body) {
+        return true;
+    }
 
     @Override
     public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
@@ -28,15 +41,24 @@ public class ListSheetsMethod implements Method {
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, ObjectMapper objectMapper) {
+    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
                     "Missing a valid response object.");
         }
         if (response.get("files") == null) {
-            return objectMapper.createArrayNode();
+            return this.objectMapper.createArrayNode();
         }
-        return response.get("files");
+        List<Map<String, String>> filesList = StreamSupport
+                .stream(response.get("files").spliterator(), false)
+                .map(file -> {
+
+                    return Map.of("id", file.get("id").asText(),
+                            "name", file.get("name").asText());
+                })
+                .collect(Collectors.toList());
+
+        return this.objectMapper.valueToTree(filesList);
     }
 }

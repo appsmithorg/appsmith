@@ -23,40 +23,32 @@
               "value": "APPEND"
             },
             {
-              "label": "Clear a range of values from a spreadsheet",
-              "value": "CLEAR"
-            },
-            {
-              "label": "Create a new spreadsheet",
+              "label": "Create new spreadsheet",
               "value": "CREATE"
             },
             {
-              "label": "Copy a single sheet from a spreadsheet to another spreadsheet",
-              "value": "COPY"
-            },
-            {
-              "label": "Delete a single sheet from a spreadsheet",
+              "label": "Delete sheet",
               "value": "DELETE"
             },
             {
-              "label": "Get a range of values from a spreadsheet",
+              "label": "Fetch sheet rows",
               "value": "GET"
             },
             {
-              "label": "Get spreadsheet information",
+              "label": "Fetch sheet",
               "value": "INFO"
             },
             {
-              "label": "List available spreadsheets",
+              "label": "List sheets",
               "value": "LIST"
             },
             {
-              "label": "Update a range of values in a spreadsheet",
+              "label": "Update row",
               "value": "UPDATE"
             },
             {
-              "label": "Update multiple ranges of values in a spreadsheet",
-              "value": "BULK_UPDATE"
+              "label": "Delete row",
+              "value": "DELETE_ROW"
             }
           ]
         },
@@ -81,31 +73,6 @@
           }
         },
         {
-          "label": "Range Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "range"
-        },
-        {
-          "label": "Range",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-          "controlType": "INPUT_TEXT",
-          "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "IN",
-            "value": [
-              "CREATE",
-              "COPY",
-              "DELETE",
-              "LIST",
-              "INFO"
-            ]
-          },
-          "initialValue": "",
-          "placeholderText": "E.g: Sheet1!A1:D5"
-        },
-        {
           "label": "Sheet Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
@@ -125,6 +92,141 @@
             ]
           },
           "initialValue": ""
+        },
+        {
+          "label": "Spreadsheet Name Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "spreadsheetName"
+        },
+        {
+          "label": "Spreadsheet Name",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": [
+              "CREATE"
+            ]
+          },
+          "initialValue": ""
+        },
+        {
+          "label": "Sheet Name Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "sheetName"
+        },
+        {
+          "label": "Sheet name",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": [
+              "GET",
+              "UPDATE",
+              "DELETE_ROW",
+              "APPEND"
+            ]
+          },
+          "initialValue": ""
+        },
+        {
+          "label": "Table Header Index Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "tableHeaderIndex"
+        },
+        {
+          "label": "Query Format Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "queryFormat"
+        },
+        {
+          "label": "Query format",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+          "controlType": "DROP_DOWN",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": [
+              "GET"
+            ]
+          },
+          "initialValue": "ROWS",
+          "options": [
+            {
+              "label": "Query rows",
+              "value": "ROWS"
+            },
+            {
+              "label": "Query range",
+              "value": "RANGE"
+            }
+          ]
+        },
+        {
+          "label": "Range Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "range"
+        },
+        {
+          "label": "Range (or Row Offset)",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": [
+              "GET",
+              "DELETE_ROW"
+            ]
+          },
+          "initialValue": "",
+          "placeholderText": "E.g: 3:5"
+        },
+        {
+          "label": "Row Limit Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].key",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "rowLimit"
+        },
+        {
+          "label": "Row limit",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+            "comparison": "NOT_EQUALS",
+            "value": "ROWS"
+          },
+          "initialValue": ""
+        },
+        {
+          "label": "Table Header Index",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": [
+              "GET",
+              "UPDATE",
+              "DELETE_ROW"
+            ]
+          },
+          "initialValue": "1"
         },
         {
           "label": "Body",

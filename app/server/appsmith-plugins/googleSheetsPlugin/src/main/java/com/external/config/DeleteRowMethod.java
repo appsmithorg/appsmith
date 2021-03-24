@@ -3,8 +3,6 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
-import com.external.domains.RowObject;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -14,20 +12,17 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
+ * API reference: https://developers.google.com/sheets/api/samples/rowcolumn#delete_rows_or_columns
  */
-public class UpdateMethod implements Method {
+public class DeleteRowMethod implements Method {
 
     ObjectMapper objectMapper;
 
-
-    public UpdateMethod(ObjectMapper objectMapper) {
+    public DeleteRowMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -36,8 +31,8 @@ public class UpdateMethod implements Method {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
-        if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet name");
+        if (methodConfig.getSheetId() == null || methodConfig.getSheetId().isBlank()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet Id");
         }
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
@@ -55,31 +50,12 @@ public class UpdateMethod implements Method {
         WebClient client = WebClient.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
-        final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
-
-        RowObject rowObjectFromBody = null;
-        try {
-            rowObjectFromBody = this.getRowObjectFromBody(this.objectMapper.readTree(body));
-        } catch (JsonProcessingException e) {
-            // Should never enter here
-        }
-
-        assert rowObjectFromBody != null;
-        final String row = String.valueOf(
-                Integer.parseInt(methodConfig.getTableHeaderIndex()) + rowObjectFromBody.getCurrentRowIndex());
-        final MethodConfig newMethodConfig = methodConfig
-                .toBuilder()
-                .queryFormat("ROWS")
-                .spreadsheetRange(row)
-                .rowLimit("1")
-                .build();
-
-        getValuesMethod.validateMethodRequest(newMethodConfig, body);
-
-        final RowObject finalRowObjectFromBody = rowObjectFromBody;
-
-        return getValuesMethod
-                .getClient(client, newMethodConfig, body)
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
+                methodConfig.getSpreadsheetId());
+        uriBuilder.queryParam("fields", "sheets/properties");
+        return client.method(HttpMethod.GET)
+                .uri(uriBuilder.build(false).toUri())
+                .body(BodyInserters.empty())
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
@@ -96,7 +72,7 @@ public class UpdateMethod implements Method {
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody = null;
                     try {
-                        jsonNodeBody = objectMapper.readTree(jsonBody);
+                        jsonNodeBody = objectMapper.readTree(jsonBody).get("sheets");
                     } catch (IOException e) {
                         Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
@@ -105,20 +81,15 @@ public class UpdateMethod implements Method {
                         ));
                     }
 
-                    // This is the object with the original values in the referred row
-                    final JsonNode jsonNode = getValuesMethod
-                            .transformResponse(jsonNodeBody, methodConfig)
-                            .get(0);
+                    assert jsonNodeBody != null;
+                    for (JsonNode node : jsonNodeBody) {
+                        final JsonNode jsonNode = node.get("properties");
+                        if (jsonNode.get("title").asText().equalsIgnoreCase(methodConfig.getSheetName())) {
+                            methodConfig.setSheetId(jsonNode.get("sheetId").asText());
+                            break;
+                        }
+                    }
 
-                    // This is the robObject for original values
-                    final RowObject returnedRowObject = this.getRowObjectFromBody(jsonNode);
-
-
-                    // We replace these original values with new ones
-                    returnedRowObject.getValueMap().putAll(finalRowObjectFromBody.getValueMap());
-
-                    methodConfig.setBody(returnedRowObject);
-                    methodConfig.setSpreadsheetRange(jsonNodeBody.get("valueRanges").get(1).get("range").asText());
                     return methodConfig;
                 })
                 .thenReturn(true);
@@ -127,28 +98,26 @@ public class UpdateMethod implements Method {
     @Override
     public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
 
-        RowObject rowObject = (RowObject) methodConfig.getBody();
-
-        System.out.println(methodConfig);
-
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
-                        + "/values/"
-                        + methodConfig.getSpreadsheetRange() /* spreadsheet Range */
-        );
+                        + ":batchUpdate");
 
-        uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
-        uriBuilder.queryParam("includeValuesInResponse", Boolean.TRUE);
-
-        final List<String> objects = new ArrayList<>(rowObject.getValueMap().values());
-        System.out.println(objects);
-        return webClient.method(HttpMethod.PUT)
+        final int rowIndex = Integer.parseInt(methodConfig.getTableHeaderIndex()) +
+                Integer.parseInt(methodConfig.getSpreadsheetRange()) - 1;
+        return webClient.method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
-                .body(BodyInserters.fromValue(Map.of(
-                        "range", methodConfig.getSpreadsheetRange(),
-                        "majorDimension", "ROWS",
-                        "values", List.of(objects)
-                )));
+                .body(BodyInserters.fromValue(
+                        Map.of(
+                                "requests", List.of(
+                                        Map.of(
+                                                "deleteDimension", Map.of(
+                                                        "range", Map.of(
+                                                                "sheetId", methodConfig.getSheetId(),
+                                                                "dimension", "ROWS",
+                                                                "startIndex", rowIndex,
+                                                                "endIndex", rowIndex + 1
+                                                        )
+                                                ))))));
     }
 
     @Override
@@ -159,13 +128,7 @@ public class UpdateMethod implements Method {
                     "Missing a valid response object.");
         }
 
-        return this.objectMapper.valueToTree(Map.of("message", "Updated sheet successfully!"));
-    }
-
-    private RowObject getRowObjectFromBody(JsonNode body) {
-        return new RowObject(
-                this.objectMapper.convertValue(body, LinkedHashMap.class))
-                .initialize();
+        return this.objectMapper.valueToTree(Map.of("message", "Deleted sheet successfully!"));
     }
 
 }
