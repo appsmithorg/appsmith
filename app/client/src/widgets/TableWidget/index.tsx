@@ -9,9 +9,9 @@ import {
   renderCell,
   renderDropdown,
   renderActions,
-  sortTableFunction,
   reorderColumns,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
+import { sortTableFunction } from "components/designSystems/appsmith/TableComponent/CommonUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
@@ -424,9 +424,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (sortedColumn) {
       const sortColumn = sortedColumn.column;
       const sortOrder = sortedColumn.asc;
+      const columnType =
+        columns.find(
+          (column: ReactTableColumnProps) => column.accessor === sortColumn,
+        )?.metaProperties?.type || ColumnTypes.TEXT;
       sortedTableData = sortTableFunction(
         derivedTableData,
-        columns,
+        columnType,
         sortColumn,
         sortOrder,
       );
