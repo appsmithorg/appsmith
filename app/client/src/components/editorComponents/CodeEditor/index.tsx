@@ -78,6 +78,7 @@ export type EditorStyleProps = {
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
   fill?: boolean;
+  useValidationMessage?: boolean;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -333,6 +334,7 @@ class CodeEditor extends Component<Props, State> {
       border,
       hoverInteraction,
       fill,
+      useValidationMessage,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
@@ -376,6 +378,8 @@ class CodeEditor extends Component<Props, State> {
           evaluatedValue={evaluated}
           expected={expected}
           hasError={hasError}
+          error={meta?.error}
+          useValidationMessage={useValidationMessage}
         >
           <EditorWrapper
             editorTheme={this.props.theme}
