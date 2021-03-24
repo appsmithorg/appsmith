@@ -20,7 +20,7 @@ import {
 } from "utils/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined, isEqual, xor, without } from "lodash";
+import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
@@ -42,6 +42,7 @@ import {
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
     import("components/designSystems/appsmith/TableComponent"),
@@ -334,7 +335,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 const data =
                   isString(value) || isNumber(value)
                     ? value
-                    : isUndefined(value)
+                    : isNil(value)
                     ? ""
                     : JSON.stringify(value);
                 tableRow[accessor] = data;
@@ -712,6 +713,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "filteredTableData",
           filteredTableData,
         );
+        //Update selectedRow indices since tableData is changed
+        this.updateSelectedRowIndex();
       }
     }
 
@@ -736,23 +739,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // If the user changed the defaultSelectedRow(s)
     if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
       //Runs only when defaultSelectedRow is changed from property pane
-      if (!this.props.multiRowSelection) {
-        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : -1;
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndex",
-          selectedRowIndex,
-        );
-      } else {
-        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : [];
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndices",
-          selectedRowIndices,
-        );
-      }
+      this.updateSelectedRowIndex();
     }
 
     if (this.props.pageSize !== prevProps.pageSize) {
@@ -766,6 +753,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
   }
+
+  updateSelectedRowIndex = () => {
+    if (!this.props.multiRowSelection) {
+      const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : -1;
+      this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
+    } else {
+      const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : [];
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+    }
+  };
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
     return selectedRowIndices

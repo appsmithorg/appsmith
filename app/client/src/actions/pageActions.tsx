@@ -1,4 +1,4 @@
-import { FetchPageRequest, SavePageResponse } from "api/PageApi";
+import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
 import { WidgetOperation } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
@@ -113,7 +113,11 @@ export const saveLayout = () => {
   };
 };
 
-export const createPage = (applicationId: string, pageName: string) => {
+export const createPage = (
+  applicationId: string,
+  pageName: string,
+  layouts: Partial<PageLayout>[],
+) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
   });
@@ -122,6 +126,7 @@ export const createPage = (applicationId: string, pageName: string) => {
     payload: {
       applicationId,
       name: pageName,
+      layouts,
     },
   };
 };
@@ -254,11 +259,18 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
   };
 };
 
-export const updateAppStore = (
+export const updateAppTransientStore = (
+  payload: Record<string, unknown>,
+): ReduxAction<Record<string, unknown>> => ({
+  type: ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
+  payload,
+});
+
+export const updateAppPersistentStore = (
   payload: Record<string, unknown>,
 ): ReduxAction<Record<string, unknown>> => {
   return {
-    type: ReduxActionTypes.UPDATE_APP_STORE,
+    type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
   };
 };

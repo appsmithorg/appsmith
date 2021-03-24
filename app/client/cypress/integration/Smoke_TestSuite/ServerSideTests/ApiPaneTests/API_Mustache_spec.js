@@ -1,3 +1,4 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/commondsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -18,7 +19,7 @@ describe("Moustache test Functionality", function() {
     cy.log("Creation of API Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.moustacheMethod);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(300);
+    cy.wait(1000);
     cy.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");
