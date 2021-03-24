@@ -118,6 +118,7 @@
     "reselect": "^4.0.0",
     "scroll-into-view-if-needed": "^2.2.26",
     "shallowequal": "^1.1.0",
+    "showdown": "^1.9.1",
     "smartlook-client": "^4.5.1",
     "styled-components": "^5.2.0",
     "styled-system": "^5.1.5",
@@ -143,7 +144,7 @@
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
-    "test:unit": "$(npm bin)/jest -b --colors --no-cache",
+    "test:unit": "$(npm bin)/jest -b --colors --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public"
   },

@@ -5,6 +5,11 @@ import { APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import PageUnavailableImage from "assets/images/404-image.png";
+import {
+  BACK_TO_HOMEPAGE,
+  createMessage,
+  PAGE_NOT_FOUND,
+} from "constants/messages";
 
 const Wrapper = styled.div`
   text-align: center;
@@ -36,7 +41,7 @@ const PageNotFound: React.FC<Props> = (props: Props) => {
         className="page-unavailable-img"
       />
       <div>
-        <p className="bold-text">Page not found</p>
+        <p className="bold-text">{createMessage(PAGE_NOT_FOUND)}</p>
         <p>
           Either this page doesn&apos;t exist, or you don&apos;t have access to{" "}
           <br />
@@ -44,7 +49,7 @@ const PageNotFound: React.FC<Props> = (props: Props) => {
         </p>
         <Button
           filled
-          text="Go back to homepage"
+          text={createMessage(BACK_TO_HOMEPAGE)}
           intent="primary"
           icon="arrow-right"
           iconAlignment="right"

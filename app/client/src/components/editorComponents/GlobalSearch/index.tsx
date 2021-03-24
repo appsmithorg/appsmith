@@ -211,7 +211,14 @@ const GlobalSearch = () => {
     if (!query) {
       return [
         recentsSectionTitle,
-        ...recentEntities,
+        ...(recentEntities.length > 0
+          ? recentEntities
+          : [
+              {
+                title: "Recents list is empty",
+                kind: SEARCH_ITEM_TYPES.placeholder,
+              },
+            ]),
         docsSectionTitle,
         ...defaultDocs,
       ];
@@ -259,7 +266,11 @@ const GlobalSearch = () => {
   const handleUpKey = () => {
     let nextIndex = getNextActiveItem(activeItemIndex - 1);
     const activeItem = searchResults[nextIndex];
-    if (activeItem && activeItem?.kind === SEARCH_ITEM_TYPES.sectionTitle) {
+    if (
+      activeItem &&
+      (activeItem?.kind === SEARCH_ITEM_TYPES.sectionTitle ||
+        activeItem?.kind === SEARCH_ITEM_TYPES.placeholder)
+    ) {
       nextIndex = getNextActiveItem(nextIndex - 1);
     }
     setActiveItemIndex(nextIndex);
@@ -268,7 +279,11 @@ const GlobalSearch = () => {
   const handleDownKey = () => {
     let nextIndex = getNextActiveItem(activeItemIndex + 1);
     const activeItem = searchResults[nextIndex];
-    if (activeItem && activeItem?.kind === SEARCH_ITEM_TYPES.sectionTitle) {
+    if (
+      activeItem &&
+      (activeItem?.kind === SEARCH_ITEM_TYPES.sectionTitle ||
+        activeItem?.kind === SEARCH_ITEM_TYPES.placeholder)
+    ) {
       nextIndex = getNextActiveItem(nextIndex + 1);
     }
     setActiveItemIndex(nextIndex);
@@ -319,6 +334,7 @@ const GlobalSearch = () => {
     [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
     [SEARCH_ITEM_TYPES.page]: handlePageClick,
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
+    [SEARCH_ITEM_TYPES.placeholder]: noop,
   };
 
   const handleItemLinkClick = (itemArg?: SearchItem, source?: string) => {

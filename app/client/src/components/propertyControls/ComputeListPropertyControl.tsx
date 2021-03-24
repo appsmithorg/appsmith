@@ -13,7 +13,7 @@ import styled from "styled-components";
 import {
   JSToString,
   stringToJS,
-} from "components/editorComponents/actioncreator/ActionCreator";
+} from "components/editorComponents/ActionCreator";
 
 const CurlyBraces = styled.span`
   color: white;

@@ -137,7 +137,7 @@
           "label": "Base64 Encode File - Yes/No",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
           "controlType": "DROP_DOWN",
-          "initialValue": "NO",
+          "initialValue": "YES",
           "options": [
             {
               "label": "Yes",

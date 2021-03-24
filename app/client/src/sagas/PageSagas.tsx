@@ -76,6 +76,7 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import log from "loglevel";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -211,7 +212,7 @@ export function* fetchPageSaga(
       );
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -295,7 +296,7 @@ export function* fetchAllPublishedPagesSaga() {
       }),
     );
   } catch (error) {
-    console.log({ error });
+    log.error({ error });
   }
 }
 
@@ -309,7 +310,6 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       pageId: savePageRequest.pageId,
     },
   );
-  AnalyticsUtil.logEvent("PAGE_SAVE", savePageRequest);
   try {
     // Store the updated DSL in the pageDSLs reducer
     yield put({
@@ -369,7 +369,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     if (error instanceof IncorrectBindingError) {
       const { isRetry } = action.payload;
       const incorrectBindingError = JSON.parse(error.message);
-      const { widgetId, message } = incorrectBindingError;
+      const { message } = incorrectBindingError;
       if (isRetry) {
         Sentry.captureException(new Error("Failed to correct binding paths"));
         yield put({
@@ -383,18 +383,23 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
           },
         });
       } else {
-        const correctedWidget = migrateIncorrectDynamicBindingPathLists(
-          widgets[widgetId],
+        // Create a denormalized structure because the migration needs the children in the dsl form
+        const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
+          canvasWidgets: widgets,
+        });
+        const correctedWidgets = migrateIncorrectDynamicBindingPathLists(
+          denormalizedWidgets,
+        );
+        // Normalize the widgets because the save page needs it in the flat structure
+        const normalizedWidgets = CanvasWidgetsNormalizer.normalize(
+          correctedWidgets,
         );
         AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
-          error: incorrectBindingError,
-          correctWidget: correctedWidget,
+          error: error.message,
+          correctWidget: JSON.stringify(normalizedWidgets),
         });
         yield put(
-          updateAndSaveLayout(
-            { ...widgets, [widgetId]: correctedWidget },
-            true,
-          ),
+          updateAndSaveLayout(normalizedWidgets.entities.canvasWidgets, true),
         );
       }
     }

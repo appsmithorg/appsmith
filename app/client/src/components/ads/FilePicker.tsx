@@ -8,6 +8,7 @@ import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import Text, { TextType } from "./Text";
 import { Classes, Variant } from "./common";
 import { Toaster } from "./Toast";
+import { createMessage, ERROR_FILE_TOO_LARGE } from "constants/messages";
 
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
@@ -243,7 +244,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
       props.fileUploader && props.fileUploader(file, setProgress, onUpload);
     } else {
       Toaster.show({
-        text: "File size should be less than 250kb!",
+        text: createMessage(ERROR_FILE_TOO_LARGE, "250 KB"),
         variant: Variant.warning,
       });
     }

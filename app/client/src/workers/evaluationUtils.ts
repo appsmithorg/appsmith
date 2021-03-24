@@ -189,14 +189,6 @@ export const removeFunctions = (value: any) => {
   }
 };
 
-export const removeFunctionsFromDataTree = (dataTree: DataTree) => {
-  dataTree.actionPaths?.forEach((functionPath) => {
-    _.set(dataTree, functionPath, {});
-  });
-  delete dataTree.actionPaths;
-  return dataTree;
-};
-
 export const makeParentsDependOnChildren = (
   depMap: DependencyMap,
 ): DependencyMap => {
@@ -432,10 +424,14 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   };
   withFunction.actionPaths.push("closeModal");
 
-  withFunction.storeValue = function(key: string, value: string) {
+  withFunction.storeValue = function(
+    key: string,
+    value: string,
+    persist = true,
+  ) {
     return {
       type: "STORE_VALUE",
-      payload: { key, value },
+      payload: { key, value, persist },
     };
   };
   withFunction.actionPaths.push("storeValue");

@@ -7,6 +7,7 @@ import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagas";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { FileDataTypes } from "widgets/FilepickerWidget";
 
 /**
  * this config sets the default values of properties being used in the widget
@@ -41,6 +42,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisible: true,
       widgetName: "RichTextEditor",
       isDefaultClickDisabled: true,
+      inputType: "html",
       version: 1,
     },
     IMAGE_WIDGET: {
@@ -219,6 +221,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 4,
       maxNumFiles: 1,
       maxFileSize: 5,
+      fileDataType: FileDataTypes.Base64,
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
       version: 1,

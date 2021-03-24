@@ -3,3 +3,6 @@
 *.iml
 .env
 .vscode/*
+
+# test coverage
+coverage-summary.json

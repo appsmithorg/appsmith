@@ -28,6 +28,15 @@ You can find the archives of the calls below with a brief summary of each sessio
 
 ## Archives
 
+<strong>18th Mar 2021: Generic S3 plugin, Forkable apps, Google sheets integration</strong>
+
+<a href = "https://youtu.be/sRpleBfEOxQ">Video Link</a>
+
+#### Summary
+
+Nikhil talks about new Appsmith features. Chris Webb from the community shows off what he built using Appsmith. Nidhi from Appsmith demos how to use the new google sheets integration
+
+------------------
 
 <strong>26th Feb 2021: Community feedback, Oauth 2 Integration, Google Sheets Integration, Switch Widget and Prepared Statements</strong>
 

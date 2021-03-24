@@ -29,6 +29,7 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 import {
   useChildWidgetEnhancementFn,
@@ -38,6 +39,7 @@ import {
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
+  theme: EditorTheme;
 };
 
 const PropertyControl = memo((props: Props) => {
@@ -210,6 +212,7 @@ const PropertyControl = memo((props: Props) => {
             onPropertiesChange: onBatchUpdateProperties,
             panelParentPropertyPath: props.propertyName,
             panel: props.panel,
+            theme: props.theme,
           },
         });
       }
@@ -320,7 +323,11 @@ const PropertyControl = memo((props: Props) => {
             }
           >
             <ControlPropertyLabelContainer>
-              <PropertyHelpLabel tooltip={props.helpText} label={label} />
+              <PropertyHelpLabel
+                tooltip={props.helpText}
+                label={label}
+                theme={props.theme}
+              />
               {isConvertible && (
                 <JSToggleButton
                   active={isDynamic}
@@ -341,6 +348,7 @@ const PropertyControl = memo((props: Props) => {
                   onPropertyChange: onPropertyChange,
                   openNextPanel: openPanel,
                   deleteProperties: onDeleteProperties,
+                  theme: props.theme,
                 },
                 isDynamic,
                 getCustomJSControl(),
