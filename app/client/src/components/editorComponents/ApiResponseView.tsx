@@ -212,7 +212,7 @@ const ApiResponseView = (props: Props) => {
           )}
           {_.isEmpty(response.statusCode) ? (
             <NoResponseContainer>
-              <Icon name="no-response" />
+              <Icon name="no-response" fill={false} />
               <Text type={TextType.P1}>Hit Run to get a Response</Text>
             </NoResponseContainer>
           ) : (
