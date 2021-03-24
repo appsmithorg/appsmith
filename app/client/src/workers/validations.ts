@@ -9,6 +9,7 @@ import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import _, {
   every,
   isBoolean,
+  isNil,
   isNumber,
   isObject,
   isPlainObject,
@@ -622,33 +623,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         transformed: "Function Call",
       };
     }
-    /*
-    if (_.isString(value)) {
-      if (value.indexOf("navigateTo") !== -1) {
-        const pageNameOrUrl = modalGetter(value);
-        if (dataTree) {
-          if (isDynamicValue(pageNameOrUrl)) {
-            return {
-              isValid: true,
-              parsed: value,
-            };
-          }
-          const isPage =
-            (dataTree.pageList as PageListPayload).findIndex(
-              page => page.pageName === pageNameOrUrl,
-            ) !== -1;
-          const isValidUrl = URL_REGEX.test(pageNameOrUrl);
-          if (!(isValidUrl || isPage)) {
-            return {
-              isValid: false,
-              parsed: value,
-              message: `${NAVIGATE_TO_VALIDATION_ERROR}`,
-            };
-          }
-        }
-      }
-    }
-    */
     return {
       isValid: false,
       parsed: undefined,
@@ -749,42 +723,21 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     value: string | string[],
     props: WidgetProps,
   ) => {
-    let values = value;
-
     if (props) {
       if (props.multiRowSelection) {
-        if (typeof value === "string") {
-          try {
-            values = JSON.parse(value);
-            if (!Array.isArray(values)) {
-              throw new Error();
-            }
-          } catch {
-            values = value.length ? value.split(",") : [];
-            if (values.length > 0) {
-              let numericValues = values.map((value) => {
-                return isNumber(value.trim()) ? -1 : Number(value.trim());
-              });
-              numericValues = _.uniq(numericValues);
-              return {
-                isValid: true,
-                parsed: numericValues,
-              };
-            }
-          }
-        }
+        return VALIDATORS[VALIDATION_TYPES.ROW_INDICES](value, props);
       } else {
         try {
-          if (value === "") {
-            return {
-              isValid: true,
-              parsed: -1,
-            };
-          }
-          const parsed = toNumber(value);
+          const _value: string = value as string;
+          if (
+            Number.isInteger(parseInt(_value, 10)) &&
+            parseInt(_value, 10) > -1
+          )
+            return { isValid: true, parsed: parseInt(_value, 10) };
+
           return {
             isValid: true,
-            parsed: parsed,
+            parsed: -1,
           };
         } catch (e) {
           return {
@@ -796,7 +749,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return {
       isValid: true,
-      parsed: values,
+      parsed: value,
     };
   },
   [VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY]: (
@@ -885,6 +838,70 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     return {
       isValid: true,
       parsed: value,
+    };
+  },
+  // If we keep adding these here there will be a huge unmaintainable list
+  // TODO(abhinav: WIDGET DEV API):
+  // - Compile validators from the widgets during widget registration
+  // - Use the compiled list in the web worker startup
+  // - Remove widget specific validations from this file
+  // - Design consideration: If widgets can be dynamically imported, how will this work?
+  [VALIDATION_TYPES.TABLE_PAGE_NO]: (value: any): ValidationResponse => {
+    if (!value || !Number.isInteger(value) || value < 0)
+      return { isValid: false, parsed: 1, message: "" };
+    return { isValid: true, parsed: value };
+  },
+  [VALIDATION_TYPES.ROW_INDICES]: (
+    value: any,
+    props: any,
+  ): ValidationResponse => {
+    if (props && !props.multiRowSelection)
+      return { isValid: true, parsed: undefined };
+
+    if (isString(value)) {
+      const trimmed = value.trim();
+      try {
+        const parsedArray = JSON.parse(trimmed);
+        if (Array.isArray(parsedArray)) {
+          const sanitized = parsedArray.filter((entry) => {
+            return (
+              Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
+            );
+          });
+          return { isValid: true, parsed: sanitized };
+        } else {
+          throw Error("Not a stringified array");
+        }
+      } catch (e) {
+        // If cannot be parsed as an array
+        const arrayEntries = trimmed.split(",");
+        const result: number[] = [];
+        arrayEntries.forEach((entry) => {
+          if (
+            Number.isInteger(parseInt(entry, 10)) &&
+            parseInt(entry, 10) > -1
+          ) {
+            if (!isNil(entry)) result.push(parseInt(entry, 10));
+          }
+        });
+        return { isValid: true, parsed: result };
+      }
+    }
+    if (Array.isArray(value)) {
+      const sanitized = value.filter((entry) => {
+        return (
+          Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
+        );
+      });
+      return { isValid: true, parsed: sanitized };
+    }
+    if (Number.isInteger(value) && value > -1) {
+      return { isValid: true, parsed: [value] };
+    }
+    return {
+      isValid: false,
+      parsed: [],
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: number[]`,
     };
   },
 };
