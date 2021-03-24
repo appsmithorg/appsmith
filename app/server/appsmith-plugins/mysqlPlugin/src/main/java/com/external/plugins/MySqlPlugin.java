@@ -57,6 +57,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -212,6 +213,7 @@ public class MySqlPlugin extends BasePlugin {
             boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
+            final List<String> columnsList = new ArrayList<>();
 
             Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
                     .flatMapMany(isValid -> {
@@ -233,6 +235,11 @@ public class MySqlPlugin extends BasePlugin {
                         .flatMap(result ->
                                 result.map((row, meta) -> {
                                             rowsList.add(getRow(row, meta));
+
+                                            if(columnsList.isEmpty()) {
+                                                columnsList.addAll(meta.getColumnNames());
+                                            }
+
                                             return result;
                                         }
                                 )
@@ -259,6 +266,7 @@ public class MySqlPlugin extends BasePlugin {
                     .map(res -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setBody(objectMapper.valueToTree(rowsList));
+                        result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
                         System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
                                 "execution result");
@@ -331,6 +339,20 @@ public class MySqlPlugin extends BasePlugin {
 
             return Flux.from(connectionStatement.execute());
 
+        }
+
+        private  Set<String> populateHintMessages(List<String> columnNames) {
+
+            Set<String> messages = new HashSet<>();
+
+            List<String> identicalColumns = getIdenticalColumns(columnNames);
+            if(!CollectionUtils.isEmpty(identicalColumns)) {
+                messages.add("Your MySQL query result may not have all the columns because duplicate column names " +
+                        "were found for the column(s): " + String.join(", ", identicalColumns) + ". You may use the " +
+                        "SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
+            }
+
+            return messages;
         }
 
         /**
