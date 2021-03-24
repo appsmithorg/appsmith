@@ -25,7 +25,7 @@ const FIELD_VALUES: Record<
     // onDateSelected: "Function Call",
   },
   DATE_PICKER_WIDGET2: {
-    defaultDate: "string", //TODO:Vicky validate this property
+    defaultDate: "string | null", //TODO:Vicky validate this property
     isRequired: "boolean",
     isVisible: "boolean",
     isDisabled: "boolean",
