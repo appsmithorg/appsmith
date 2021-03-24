@@ -100,7 +100,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Authentication will already be valid at this point
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
             assert (!oauth2.getIsEncrypted() && oauth2.getAuthenticationResponse() != null);
-            System.out.println(oauth2.getAuthenticationResponse().getToken());
+
             // Triggering the actual REST API call
             return method.executePrerequisites(methodConfig, requestBodyAsString, oauth2)
                     // This method call will populate the request with all the configurations it needs for a particular method

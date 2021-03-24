@@ -125,7 +125,6 @@ public class AppendMethod implements Method {
 
                     // This is the rowObject for original values
                     final RowObject returnedRowObject = this.getRowObjectListFromBody(jsonNode).get(0);
-                    System.out.println(returnedRowObject);
 
                     // We replace these original values with new ones
                     finalRowObjectListFromBody.forEach(rowObject -> {

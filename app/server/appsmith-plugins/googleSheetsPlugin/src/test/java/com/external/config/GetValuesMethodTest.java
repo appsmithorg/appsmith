@@ -104,7 +104,7 @@ public class GetValuesMethodTest {
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray() && result.size() == 8);
-        System.out.println(result);
+
         Assert.assertNull(result.get(0).get("Some"));
         Assert.assertTrue("Some".equalsIgnoreCase(result.get(3).get("Some").asText()));
     }

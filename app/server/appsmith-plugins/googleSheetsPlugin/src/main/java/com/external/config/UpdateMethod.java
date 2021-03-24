@@ -129,8 +129,6 @@ public class UpdateMethod implements Method {
 
         RowObject rowObject = (RowObject) methodConfig.getBody();
 
-        System.out.println(methodConfig);
-
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
@@ -141,7 +139,7 @@ public class UpdateMethod implements Method {
         uriBuilder.queryParam("includeValuesInResponse", Boolean.TRUE);
 
         final List<String> objects = new ArrayList<>(rowObject.getValueMap().values());
-        System.out.println(objects);
+
         return webClient.method(HttpMethod.PUT)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromValue(Map.of(
