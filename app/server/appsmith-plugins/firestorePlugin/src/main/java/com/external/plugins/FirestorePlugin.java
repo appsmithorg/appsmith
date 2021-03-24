@@ -198,7 +198,7 @@ public class FirestorePlugin extends BasePlugin {
                     })
                     .subscribeOn(scheduler);
         }
-
+        
         private void insertFieldValues(Map<String, Object> mapBody,
                                        List<Property> properties,
                                        Method method) throws AppsmithPluginException {
@@ -235,14 +235,16 @@ public class FirestorePlugin extends BasePlugin {
                     );
                 }
 
-                deletePathsList.stream()
+                insertFieldValueByName(mapBody, deletePathsList, "delete");
+
+                /*deletePathsList.stream()
                         .forEach(pathList -> {
                             Map<String, Object> targetKeyValuePair = mapBody;
                             for(int i=0; i<pathList.size()-1; i++) {
                                 targetKeyValuePair = (Map<String, Object>)targetKeyValuePair.get(pathList.get(i));
                             }
                             targetKeyValuePair.put(pathList.get(pathList.size()-1), FieldValue.delete());
-                        });
+                        });*/
             }
 
             if(!StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
@@ -259,15 +261,34 @@ public class FirestorePlugin extends BasePlugin {
                     );
                 }
 
-                timestampPathsList.stream()
+                insertFieldValueByName(mapBody, timestampPathsList, "serverTimestamp");
+                /*timestampPathsList.stream()
                         .forEach(pathList -> {
                             Map<String, Object> targetKeyValuePair = mapBody;
                             for(int i=0; i<pathList.size()-1; i++) {
                                 targetKeyValuePair = (Map<String, Object>)targetKeyValuePair.get(pathList.get(i));
                             }
                             targetKeyValuePair.put(pathList.get(pathList.size()-1), FieldValue.serverTimestamp());
-                        });
+                        });*/
             }
+        }
+        
+        private void insertFieldValueByName(Map<String, Object> mapBody,
+                                            List<List<String>> pathsList,
+                                            String fieldValueName) throws AppsmithPluginException {
+            pathsList.stream()
+                    .forEach(singlePathList -> {
+                        Map<String, Object> targetKeyValuePair = mapBody;
+                        for(int i=0; i<singlePathList.size()-1; i++) {
+                            targetKeyValuePair = (Map<String, Object>)targetKeyValuePair.get(singlePathList.get(i));
+                        }
+                        try {
+                            targetKeyValuePair.put(singlePathList.get(singlePathList.size()-1),
+                                    FieldValue.class.getMethod(fieldValueName).invoke(null));
+                        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
         }
 
         public Mono<ActionExecutionResult> handleDocumentLevelMethod(
