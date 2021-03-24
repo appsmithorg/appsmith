@@ -259,11 +259,18 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
   };
 };
 
-export const updateAppStore = (
+export const updateAppTransientStore = (
+  payload: Record<string, unknown>,
+): ReduxAction<Record<string, unknown>> => ({
+  type: ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
+  payload,
+});
+
+export const updateAppPersistentStore = (
   payload: Record<string, unknown>,
 ): ReduxAction<Record<string, unknown>> => {
   return {
-    type: ReduxActionTypes.UPDATE_APP_STORE,
+    type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
   };
 };
