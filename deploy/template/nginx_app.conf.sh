@@ -14,7 +14,7 @@ cat <<EOF
 server {
     listen 80;
 $NGINX_SSL_CMNT    server_name $custom_domain ;
-    client_max_body_size 10m;
+    client_max_body_size 100m;
 
     gzip on;
 
@@ -62,7 +62,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
     location /oauth2 {
         proxy_pass http://appsmith-internal-server:8080;
     }
-    
+
     location /login {
         proxy_pass http://appsmith-internal-server:8080;
     }
@@ -71,7 +71,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
 $NGINX_SSL_CMNT server {
 $NGINX_SSL_CMNT    listen 443 ssl;
 $NGINX_SSL_CMNT    server_name $custom_domain;
-$NGINX_SSL_CMNT    client_max_body_size 10m;
+$NGINX_SSL_CMNT    client_max_body_size 100m;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    ssl_certificate /etc/letsencrypt/live/$custom_domain/fullchain.pem;
 $NGINX_SSL_CMNT    ssl_certificate_key /etc/letsencrypt/live/$custom_domain/privkey.pem;

@@ -1,4 +1,4 @@
-import Api from "./Api";
+import Api from "api/Api";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import { AxiosPromise } from "axios";
 

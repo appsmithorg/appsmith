@@ -6,7 +6,7 @@ data:
   nginx.conf.template: "
   server {
     listen 80;
-    client_max_body_size 10m;
+    client_max_body_size 100m;
 
     gzip on;
 
@@ -37,7 +37,7 @@ data:
         sub_filter __APPSMITH_MAIL_ENABLED__ '${APPSMITH_MAIL_ENABLED}';
         sub_filter __APPSMITH_DISABLE_TELEMETRY__ '${APPSMITH_DISABLE_TELEMETRY}';
     }
-    
+
     location /f {
        proxy_pass https://cdn.optimizely.com/;
     }
