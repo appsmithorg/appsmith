@@ -33,6 +33,15 @@ describe("Image Widget Functionality", function() {
       .invoke("attr", "src")
       .should("contain", this.data.validateImage);
 
+    cy.get(viewWidgetsPage.sourceImage)
+      .click({ force: true })
+      .type(this.data.command)
+      .type(this.data.base64image.withoutPrefix);
+
+    cy.get(viewWidgetsPage.imageinner)
+      .invoke("attr", "src")
+      .should("contain", this.data.base64image.withPrefix);
+
     //Zoom validation
     cy.changeZoomLevel("2x");
     cy.get(commonlocators.editPropCrossButton).click();
@@ -58,7 +67,7 @@ describe("Image Widget Functionality", function() {
   it("Image Widget Functionality To Validate Image", function() {
     cy.get(publish.imageWidget + " " + "img")
       .invoke("attr", "src")
-      .should("contain", this.data.validateImage);
+      .should("contain", this.data.base64image.withPrefix);
   });
   it("Image Widget Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
