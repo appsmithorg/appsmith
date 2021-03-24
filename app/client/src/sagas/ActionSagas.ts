@@ -381,6 +381,15 @@ export function* deleteActionSaga(
       if (isQuery) {
         history.push(QUERIES_EDITOR_URL(applicationId, pageId));
       }
+
+      AppsmithConsole.info({
+        text: "Action was deleted",
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: response.data.name,
+          id: response.data.id,
+        },
+      });
     }
   } catch (error) {
     yield put({
