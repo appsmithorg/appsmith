@@ -28,7 +28,11 @@ import PropertyControlsGenerator from "./Generator";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
-import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import {
+  deleteSelectedWidget,
+  copyWidget,
+  selectWidget,
+} from "actions/widgetActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
@@ -179,7 +183,12 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           themeMode={this.getPopperTheme()}
           position={this.props?.propPanePreference?.position}
           disablePopperEvents={this.props?.propPanePreference?.isMoved}
-          onPositionChange={this.props.setPropPanePoistion}
+          onPositionChange={(position: any) =>
+            this.props.setPropPanePoistion(
+              position,
+              this.props.widgetProperties?.widgetId,
+            )
+          }
           isDraggable={true}
           isOpen={true}
           targetNode={el}
@@ -287,7 +296,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
   return {
-    setPropPanePoistion: (position: any) => {
+    setPropPanePoistion: (position: any, widgetId: any) => {
       dispatch({
         type: ReduxActionTypes.PROP_PANE_MOVED,
         payload: {
@@ -297,6 +306,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
           },
         },
       });
+      dispatch(selectWidget(widgetId));
     },
     hidePropertyPane: () =>
       dispatch({
@@ -314,7 +324,7 @@ export interface PropertyPaneProps extends PropertyPaneFunctions {
 
 export interface PropertyPaneFunctions {
   hidePropertyPane: () => void;
-  setPropPanePoistion: (position: any) => void;
+  setPropPanePoistion: (position: any, widgetId: any) => void;
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PropertyPane);

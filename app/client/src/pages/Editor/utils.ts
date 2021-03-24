@@ -75,7 +75,7 @@ export const draggableElement = (
       left: calculatedLeft,
       top: calculatedTop,
     } = calculateBoundaryConfinedPosition(left, top);
-    const positionUpdated = top !== calculatedLeft && left !== calculatedTop;
+    const positionUpdated = top !== calculatedLeft || left !== calculatedTop;
 
     return {
       updatePosition: isDragged && isElementOpen && positionUpdated,
