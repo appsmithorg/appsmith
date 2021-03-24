@@ -82,7 +82,7 @@
           "hidden": true
         },
         {
-          "label": "Delete Key Path",
+          "label": "Delete Key Value Pair Path",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "",

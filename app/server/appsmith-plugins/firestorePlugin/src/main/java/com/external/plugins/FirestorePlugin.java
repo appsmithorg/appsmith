@@ -14,6 +14,7 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.CollectionReference;
@@ -121,10 +122,25 @@ public class FirestorePlugin extends BasePlugin {
                     .defaultIfEmpty("")
                     .flatMap(strBody -> {
 
-                        try {
-                            validateQueryForm(actionConfiguration);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        if (StringUtils.isBlank(path)) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Document/Collection path cannot be empty"
+                            ));
+                        }
+
+                        if (path.startsWith("/") || path.endsWith("/")) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Firestore paths should not begin or end with `/` character."
+                            ));
+                        }
+
+                        if (method == null) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Missing Firestore method."
+                            ));
                         }
 
                         if (StringUtils.isBlank(strBody)) {
@@ -147,6 +163,13 @@ public class FirestorePlugin extends BasePlugin {
                                     "The method " + method.toString() + " needs a non-empty body to work."
                             ));
                         }
+
+                        try {
+                            insertFieldValues(mapBody, properties, method);
+                        } catch (AppsmithPluginException e) {
+                            return Mono.error(e);
+                        }
+
                         return Mono.just((Map<String, Object>) mapBody);
                     })
                     .flatMap(mapBody -> {
@@ -176,32 +199,58 @@ public class FirestorePlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private void validateQueryForm(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
-            final String path = actionConfiguration.getPath();
-
-            if (StringUtils.isBlank(path)) {
+        private void insertFieldValues(Map<String, Object> mapBody,
+                                       List<Property> properties,
+                                       Method method) throws AppsmithPluginException {
+            if(!Method.UPDATE_DOCUMENT.equals(method)
+                    && !StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Document/Collection path cannot be empty"
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith has found an unexpected query form property - Delete Key Value Pair Path. Please " +
+                                "reach out to Appsmith customer support to resolve this."
                 );
             }
 
-            if (path.startsWith("/") || path.endsWith("/")) {
+            if(Method.GET_DOCUMENT.equals(method)
+                    && Method.GET_COLLECTION.equals(method)
+                    && Method.DELETE_DOCUMENT.equals(method)
+                    && !StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Firestore paths should not begin or end with `/` character."
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith has found an unexpected query form property - Timestamp Value Path. Please reach " +
+                                "out to Appsmith customer support to resolve this."
                 );
             }
 
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            final com.external.plugins.Method method = CollectionUtils.isEmpty(properties)
-                    ? null
-                    : com.external.plugins.Method.valueOf(properties.get(0).getValue());
-            if (method == null) {
-                throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Missing Firestore method."
-                );
+            if(!StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
+                String deletePaths = properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue();
+                List<List<String>> deletePathsList;
+                try {
+                    deletePathsList = objectMapper.readValue(deletePaths, new TypeReference<List<List<String>>>(){});
+                } catch (IOException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Appsmith failed to parse the query editor form field 'Delete Key Value Pair Path'. " +
+                                    "Please check out Appsmith's documentation to find the correct syntax."
+                    );
+                }
+
+                //TODO: remove it.
+                System.out.println("devtest: " + deletePathsList);
+
+                deletePathsList.stream()
+                        .forEach(pathList -> {
+                            Map<String, Object> targetKeyValuePair = mapBody;
+                            for(int i=0; i<pathList.size()-1; i++) {
+                                //TODO: remove it.
+                                System.out.println("devtest: " + pathList.get(i));
+                                targetKeyValuePair = (Map<String, Object>)targetKeyValuePair.get(pathList.get(i));
+                            }
+                            targetKeyValuePair.put(pathList.get(pathList.size()-1), FieldValue.delete());
+                        });
+
+                //TODO: remove it.
+                System.out.println("devtest: " + deletePathsList);
             }
         }
 
@@ -214,8 +263,9 @@ public class FirestorePlugin extends BasePlugin {
             return Mono.just(method)
                     // Get the actual Java method to be called.
                     .flatMap(method1 -> {
-                        final String methodName = method1.toString().split("_")[0].toLowerCase();
 
+
+                        final String methodName = method1.toString().split("_")[0].toLowerCase();
                         try {
                             switch (method1) {
                                 case GET_DOCUMENT:
