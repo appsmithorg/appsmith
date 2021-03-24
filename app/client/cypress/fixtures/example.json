@@ -195,5 +195,21 @@
       "productName": "Tuna Salad",
       "orderAmount": 9.99
     }
+  ],
+  "TableInputWithNull": [
+    {
+      "id": 2381224,
+      "email": "michael.lawson@reqres.in",
+      "userName": "Michael Lawson",
+      "productName": "Chicken Sandwich",
+      "orderAmount": null
+    },
+    {
+      "id": 2736212,
+      "email": "lindsay.ferguson@reqres.in",
+      "userName": "Lindsay Ferguson",
+      "productName": "Tuna Salad",
+      "orderAmount": 9.99
+    }
   ]
 }

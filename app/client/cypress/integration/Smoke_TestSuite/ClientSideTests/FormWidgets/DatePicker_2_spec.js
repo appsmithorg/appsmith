@@ -49,7 +49,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.assertDateFormat();
     cy.selectDateFormat("YYYY-MM-DD HH:mm");
     cy.assertDateFormat();
-    cy.selectDateFormat("YYYY-MM-DDTHH:mm:ss.sssZ");
+    cy.selectDateFormat("ISO 8601");
     cy.assertDateFormat();
     cy.selectDateFormat("DD/MM/YYYY");
     cy.assertDateFormat();

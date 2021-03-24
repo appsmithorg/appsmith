@@ -12,6 +12,7 @@ import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { AppStoreState } from "reducers/entityReducers/appReducer";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -281,6 +282,9 @@ export const isActionDirty = (id: string) =>
   });
 
 export const getAppData = (state: AppState) => state.entities.app;
+
+export const getAppStoreData = (state: AppState): AppStoreState =>
+  state.entities.app.store;
 
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;

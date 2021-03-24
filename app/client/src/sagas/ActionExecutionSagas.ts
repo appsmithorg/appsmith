@@ -22,7 +22,6 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   ActionDescription,
   RunActionPayload,
@@ -57,6 +56,7 @@ import ActionAPI, {
 } from "api/ActionAPI";
 import {
   getAction,
+  getAppStoreData,
   getCurrentPageNameByActionId,
   isActionDirty,
   isActionSaving,
@@ -67,7 +67,10 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { TypeOptions } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
-import { updateAppStore } from "actions/pageActions";
+import {
+  updateAppPersistentStore,
+  updateAppTransientStore,
+} from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
@@ -94,7 +97,7 @@ import {
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
   ERROR_WIDGET_DOWNLOAD,
 } from "constants/messages";
-import { EMPTY_RESPONSE } from "../components/editorComponents/ApiResponseView";
+import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
 
 import localStorage from "utils/localStorage";
 import { getWidgetByName } from "./selectors";
@@ -175,18 +178,32 @@ function* navigateActionSaga(
 }
 
 function* storeValueLocally(
-  action: { key: string; value: string },
+  action: { key: string; value: string; persist: boolean },
   event: ExecuteActionPayloadEvent,
 ) {
   try {
-    const appId = yield select(getCurrentApplicationId);
-    const appStoreName = getAppStoreName(appId);
-    const existingStore = yield localStorage.getItem(appStoreName) || "{}";
-    const storeObj = JSON.parse(existingStore);
-    storeObj[action.key] = action.value;
-    const storeString = JSON.stringify(storeObj);
-    yield localStorage.setItem(appStoreName, storeString);
-    yield put(updateAppStore(storeObj));
+    if (action.persist) {
+      const appId = yield select(getCurrentApplicationId);
+      const appStoreName = getAppStoreName(appId);
+      const existingStore = localStorage.getItem(appStoreName) || "{}";
+      const parsedStore = JSON.parse(existingStore);
+      parsedStore[action.key] = action.value;
+      const storeString = JSON.stringify(parsedStore);
+      yield localStorage.setItem(appStoreName, storeString);
+      yield put(updateAppPersistentStore(parsedStore));
+    } else {
+      const existingStore = yield select(getAppStoreData);
+      const newTransientStore = {
+        ...existingStore.transient,
+        [action.key]: action.value,
+      };
+      yield put(updateAppTransientStore(newTransientStore));
+    }
+    // Wait for an evaluation before completing this trigger effect
+    // This makes this trigger work in sync and not trigger
+    // another effect till the values are reflected in
+    // the dataTree
+    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     if (event.callback) event.callback({ success: true });
   } catch (err) {
     if (event.callback) event.callback({ success: false });
@@ -387,18 +404,6 @@ export function* evaluateActionParams(
     actionParams[key] = value;
   });
   return mapToPropList(actionParams);
-}
-
-export function extractBindingsFromAction(action: Action) {
-  const bindings: string[] = [];
-  action.dynamicBindingPathList.forEach((a) => {
-    const value = _.get(action, a.key);
-    if (isDynamicValue(value)) {
-      const { jsSnippets } = getDynamicBindings(value);
-      bindings.push(...jsSnippets.filter((jsSnippet) => !!jsSnippet));
-    }
-  });
-  return bindings;
 }
 
 export function* executeActionSaga(
