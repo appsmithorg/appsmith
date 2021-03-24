@@ -1,6 +1,7 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const dsl = require("../../../fixtures/listdsl.json");
+const publishPage = require("../../../locators/publishWidgetspage.json");
 
 describe("Container Widget Functionality", function() {
   const items = JSON.parse(dsl.dsl.children[0].items);
@@ -36,16 +37,6 @@ describe("Container Widget Functionality", function() {
     });
   });
 
-  it("it checks pagination", function() {
-    // clicking on second pagination button
-    cy.get(`${commonlocators.paginationButton}-2`).click();
-
-    // now we are on the second page which shows first the 3rd item in the list
-    cy.get(commonlocators.TextInside).then(function($lis) {
-      expect($lis.eq(0)).to.contain(items[2].first_name);
-    });
-  });
-
   it("checks button action", function() {
     cy.SearchEntityandOpen("Button1");
     cy.getCodeMirror().then(($cm) => {
@@ -58,9 +49,7 @@ describe("Container Widget Functionality", function() {
     });
     cy.addAction("{{currentItem.first_name}}");
 
-    cy.wait(1000);
-
-    cy.closePropertyPane();
+    cy.PublishtheApp();
 
     cy.get(`${widgetsPage.widgetBtn}`)
       .first()
@@ -70,6 +59,8 @@ describe("Container Widget Functionality", function() {
   });
 
   it("it checks onListItem click action", function() {
+    cy.get(publishPage.backToEditor).click({ force: true });
+
     cy.SearchEntityandOpen("List1");
     cy.addAction("{{currentItem.first_name}}");
 
@@ -80,6 +71,16 @@ describe("Container Widget Functionality", function() {
     ).click();
 
     cy.get(commonlocators.toastmsg).contains(items[0].first_name);
+  });
+
+  it("it checks pagination", function() {
+    // clicking on second pagination button
+    cy.get(`${commonlocators.paginationButton}-2`).click();
+
+    // now we are on the second page which shows first the 3rd item in the list
+    cy.get(commonlocators.TextInside).then(function($lis) {
+      expect($lis.eq(0)).to.contain(items[2].first_name);
+    });
   });
 
   afterEach(() => {
