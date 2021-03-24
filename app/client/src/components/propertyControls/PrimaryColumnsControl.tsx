@@ -195,6 +195,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       <TabsWrapper>
         <DroppableComponent
           items={draggableComponentColumns}
+          itemHeight={45}
           renderComponent={ColumnControlComponent}
           updateOption={this.updateOption}
           updateItems={this.updateItems}

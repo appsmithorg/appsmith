@@ -15,6 +15,7 @@ type RenderComponentProps = {
 
 interface DroppableComponentProps {
   items: Array<Record<string, unknown>>;
+  itemHeight: number;
   renderComponent: (props: RenderComponentProps) => JSX.Element;
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
@@ -74,6 +75,7 @@ export class DroppableComponent extends React.Component<
               index,
             })
           }
+          itemHeight={45}
           items={this.props.items}
           onUpdate={this.onUpdate}
         />

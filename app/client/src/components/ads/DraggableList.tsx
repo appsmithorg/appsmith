@@ -5,35 +5,47 @@ import { useDrag } from "react-use-gesture";
 import { useSprings, animated, interpolate } from "react-spring";
 import styled from "styled-components";
 import { debounce } from "lodash";
-// Returns fitting styles for dragged/idle items
-const fn: any = (order: any, { down, originalIndex, curIndex, y }: any) => (
-  index: any,
-) => {
-  return down && index === originalIndex
-    ? {
-        y: curIndex * 45 + y,
-        scale: 1,
-        zIndex: "1",
-        shadow: 15,
-        immediate: true,
-      }
-    : {
-        y: order.indexOf(index) * 45,
-        scale: 1,
-        zIndex: "0",
-        shadow: 1,
-        immediate: false,
-      };
-};
 
-const staticfn: any = (order: any) => (index: any) => {
+interface SpringStyleProps {
+  down: boolean;
+  originalIndex: number;
+  curIndex: number;
+  y: number;
+  itemHeight: number;
+}
+
+// Styles when new items are added/removed/updated coz of parent component update.
+const updateSpringStyles = (
+  order: Array<number>,
+  itemHeight: number,
+  immediate = true,
+) => (index: number) => {
   return {
-    y: order.indexOf(index) * 45,
+    y: order.indexOf(index) * itemHeight,
     scale: 1,
     zIndex: "0",
     shadow: 1,
-    immediate: true,
+    immediate,
   };
+};
+
+// Styles when items are dragged/idle
+const dragIdleSpringStyles = (
+  order: Array<number>,
+  { down, originalIndex, curIndex, y, itemHeight }: SpringStyleProps,
+) => (index: number) => {
+  // picked/dragged item style
+  if (down && index === originalIndex) {
+    return {
+      y: curIndex * itemHeight + y,
+      scale: 1,
+      zIndex: "1",
+      shadow: 15,
+      immediate: true,
+    };
+  } else {
+    return updateSpringStyles(order, itemHeight, false)(index);
+  }
 };
 
 const DraggableListWrapper = styled.div`
@@ -47,52 +59,52 @@ const DraggableListWrapper = styled.div`
   }
 `;
 
-const DraggableList = ({ items, ItemRenderer, onUpdate }: any) => {
-  const order = useRef<any>(items.map((_: any, index: any) => index)); // Store indicies as a local ref, this represents the item order
-  const onRest = () => {
+const DraggableList = ({ items, ItemRenderer, onUpdate, itemHeight }: any) => {
+  // order of items in the list
+  const order = useRef<any>(items.map((_: any, index: any) => index));
+
+  const onDrop = () => {
     const newOrderedItems = order.current.map((each: any) => items[each]);
     order.current = items.map((_: any, index: any) => index);
     onUpdate(newOrderedItems);
-    setSprings(staticfn(order.current, { down: false }));
+    setSprings(updateSpringStyles(order.current, itemHeight));
   };
+
   useEffect(() => {
+    // when items are updated(added/removed/updated) reassign order and animate springs.
     order.current = items.map((_: any, index: any) => index);
-    setSprings(staticfn(order.current, { down: false }));
+    setSprings(updateSpringStyles(order.current, itemHeight));
   }, [items]);
+
   const [springs, setSprings] = useSprings<any>(
     items.length,
-    fn(order.current, { down: false }),
-  ); // Create springs, each corresponds to an item, controlling its transform, scale, etc.
+    updateSpringStyles(order.current, itemHeight),
+  );
 
   const bind: any = useDrag<any>((props: any) => {
     const originalIndex = props.args[0];
     const curIndex = order.current.indexOf(originalIndex);
     const curRow = clamp(
-      Math.round((curIndex * 45 + props.movement[1]) / 45),
+      Math.round((curIndex * itemHeight + props.movement[1]) / itemHeight),
       0,
       items.length - 1,
     );
     const newOrder = swap(order.current, curIndex, curRow);
     setSprings(
-      fn(newOrder, {
+      dragIdleSpringStyles(newOrder, {
         down: props.down,
         originalIndex,
         curIndex,
         y: props.movement[1],
-        curRow,
+        itemHeight,
       }),
     );
     if (curRow !== curIndex) {
       // Feed springs new style data, they'll animate the view without causing a single render
       if (!props.down) {
         order.current = newOrder;
-        setSprings(
-          fn(order.current, {
-            down: false,
-            curRow,
-          }),
-        );
-        debounce(onRest, 400)();
+        setSprings(updateSpringStyles(order.current, itemHeight));
+        debounce(onDrop, 400)();
       }
     }
   });
@@ -104,7 +116,7 @@ const DraggableList = ({ items, ItemRenderer, onUpdate }: any) => {
         document.onmousemove = null;
       }}
       className="content"
-      style={{ height: items.length * 45 }}
+      style={{ height: items.length * itemHeight }}
     >
       {springs.map(({ zIndex, y, scale }, i) => (
         <animated.div
