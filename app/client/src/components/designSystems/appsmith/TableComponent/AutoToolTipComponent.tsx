@@ -45,6 +45,9 @@ const LinkWrapper = (props: Props) => {
       cellProperties={props.cellProperties}
       isHyperLink
       useLinkToolTip={useToolTip}
+      onClick={() => {
+        window.open(props.title, "_blank");
+      }}
     >
       <div ref={ref} className="link-text">
         {useToolTip && props.children ? (
@@ -64,9 +67,6 @@ const LinkWrapper = (props: Props) => {
           props.children
         )}
       </div>
-      {/* <div ref={ref} className="link-text">
-        {props.children}
-      </div> */}
       <OpenNewTabIconWrapper className="hidden-icon">
         <OpenNewTabIcon />
       </OpenNewTabIconWrapper>
