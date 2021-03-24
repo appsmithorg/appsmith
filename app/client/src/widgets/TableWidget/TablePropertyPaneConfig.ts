@@ -230,12 +230,72 @@ export default [
                       value: "YYYY-MM-DD",
                     },
                     {
+                      label: "YYYY-MM-DD HH:mm",
+                      value: "YYYY-MM-DD HH:mm",
+                    },
+                    {
+                      label: "ISO 8601",
+                      value: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                    },
+                    {
                       label: "YYYY-MM-DDTHH:mm:ss",
                       value: "YYYY-MM-DDTHH:mm:ss",
                     },
                     {
                       label: "YYYY-MM-DD hh:mm:ss",
                       value: "YYYY-MM-DD hh:mm:ss",
+                    },
+                    {
+                      label: "Do MMM YYYY",
+                      value: "Do MMM YYYY",
+                    },
+                    {
+                      label: "DD/MM/YYYY",
+                      value: "DD/MM/YYYY",
+                    },
+                    {
+                      label: "DD/MM/YYYY HH:mm",
+                      value: "DD/MM/YYYY HH:mm",
+                    },
+                    {
+                      label: "LLL",
+                      value: "LLL",
+                    },
+                    {
+                      label: "LL",
+                      value: "LL",
+                    },
+                    {
+                      label: "D MMMM, YYYY",
+                      value: "D MMMM, YYYY",
+                    },
+                    {
+                      label: "H:mm A D MMMM, YYYY",
+                      value: "H:mm A D MMMM, YYYY",
+                    },
+                    {
+                      label: "MM-DD-YYYY",
+                      value: "MM-DD-YYYY",
+                    },
+                    {
+                      label: "DD-MM-YYYY",
+                      value: "DD-MM-YYYY",
+                    },
+                    {
+                      label: "MM/DD/YYYY",
+                      value: "MM/DD/YYYY",
+                    },
+                    {
+                      label: "DD/MM/YYYY",
+                      value: "DD/MM/YYYY",
+                    },
+                    {
+                      label: "DD/MM/YY",
+                      value: "DD/MM/YY",
+                    },
+                    {
+                      label: "MM/DD/YY",
+                      value: "MM/DD/YY",
                     },
                   ],
                   customJSControl: "COMPUTE_VALUE",
@@ -273,6 +333,14 @@ export default [
                       value: "YYYY-MM-DD",
                     },
                     {
+                      label: "YYYY-MM-DD HH:mm",
+                      value: "YYYY-MM-DD HH:mm",
+                    },
+                    {
+                      label: "ISO 8601",
+                      value: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                    },
+                    {
                       label: "YYYY-MM-DDTHH:mm:ss",
                       value: "YYYY-MM-DDTHH:mm:ss",
                     },
@@ -281,16 +349,56 @@ export default [
                       value: "YYYY-MM-DD hh:mm:ss",
                     },
                     {
-                      label: "DD-MM-YYYY HH:mm",
-                      value: "DD-MM-YYYY HH:mm",
+                      label: "Do MMM YYYY",
+                      value: "Do MMM YYYY",
+                    },
+                    {
+                      label: "DD/MM/YYYY",
+                      value: "DD/MM/YYYY",
+                    },
+                    {
+                      label: "DD/MM/YYYY HH:mm",
+                      value: "DD/MM/YYYY HH:mm",
+                    },
+                    {
+                      label: "LLL",
+                      value: "LLL",
+                    },
+                    {
+                      label: "LL",
+                      value: "LL",
+                    },
+                    {
+                      label: "D MMMM, YYYY",
+                      value: "D MMMM, YYYY",
+                    },
+                    {
+                      label: "H:mm A D MMMM, YYYY",
+                      value: "H:mm A D MMMM, YYYY",
+                    },
+                    {
+                      label: "MM-DD-YYYY",
+                      value: "MM-DD-YYYY",
                     },
                     {
                       label: "DD-MM-YYYY",
                       value: "DD-MM-YYYY",
                     },
                     {
-                      label: "Do MMM YYYY",
-                      value: "Do MMM YYYY",
+                      label: "MM/DD/YYYY",
+                      value: "MM/DD/YYYY",
+                    },
+                    {
+                      label: "DD/MM/YYYY",
+                      value: "DD/MM/YYYY",
+                    },
+                    {
+                      label: "DD/MM/YY",
+                      value: "DD/MM/YY",
+                    },
+                    {
+                      label: "MM/DD/YY",
+                      value: "MM/DD/YY",
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,
