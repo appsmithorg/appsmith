@@ -31,8 +31,8 @@ public class DeleteRowMethod implements Method {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
-        if (methodConfig.getSheetId() == null || methodConfig.getSheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet Id");
+        if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet name");
         }
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {

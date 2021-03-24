@@ -19,7 +19,7 @@
           "initialValue": "GET",
           "options": [
             {
-              "label": "Append a range of values to a spreadsheet",
+              "label": "Insert row",
               "value": "APPEND"
             },
             {
@@ -240,7 +240,8 @@
               "CLEAR",
               "DELETE",
               "LIST",
-              "INFO"
+              "INFO",
+              "DELETE_ROW"
             ]
           }
         }
