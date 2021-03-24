@@ -235,22 +235,38 @@ public class FirestorePlugin extends BasePlugin {
                     );
                 }
 
-                //TODO: remove it.
-                System.out.println("devtest: " + deletePathsList);
-
                 deletePathsList.stream()
                         .forEach(pathList -> {
                             Map<String, Object> targetKeyValuePair = mapBody;
                             for(int i=0; i<pathList.size()-1; i++) {
-                                //TODO: remove it.
-                                System.out.println("devtest: " + pathList.get(i));
                                 targetKeyValuePair = (Map<String, Object>)targetKeyValuePair.get(pathList.get(i));
                             }
                             targetKeyValuePair.put(pathList.get(pathList.size()-1), FieldValue.delete());
                         });
+            }
 
-                //TODO: remove it.
-                System.out.println("devtest: " + deletePathsList);
+            if(!StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
+                String timestampValuePaths = properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue();
+                List<List<String>> timestampPathsList;
+                try {
+                    timestampPathsList = objectMapper.readValue(timestampValuePaths,
+                            new TypeReference<List<List<String>>>(){});
+                } catch (IOException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Appsmith failed to parse the query editor form field 'Timestamp Value Path'. " +
+                                    "Please check out Appsmith's documentation to find the correct syntax."
+                    );
+                }
+
+                timestampPathsList.stream()
+                        .forEach(pathList -> {
+                            Map<String, Object> targetKeyValuePair = mapBody;
+                            for(int i=0; i<pathList.size()-1; i++) {
+                                targetKeyValuePair = (Map<String, Object>)targetKeyValuePair.get(pathList.get(i));
+                            }
+                            targetKeyValuePair.put(pathList.get(pathList.size()-1), FieldValue.serverTimestamp());
+                        });
             }
         }
 
@@ -303,6 +319,10 @@ public class FirestorePlugin extends BasePlugin {
                             }
 
                         } catch (IllegalAccessException | InvocationTargetException e) {
+                            /*
+                             * - Printing the stack because e.getMessage() returns null for FieldValue errors.
+                             */
+                            e.printStackTrace();
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
 
                         }
