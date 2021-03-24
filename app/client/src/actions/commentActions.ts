@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { COMMENT_EVENTS_CHANNEL } from "constants/CommentConstants";
+import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
 
 export const setCommentThreadsRequest = () => ({
   type: ReduxActionTypes.SET_COMMENT_THREADS_REQUEST,
@@ -70,18 +71,6 @@ export const setIsCommentThreadVisible = (payload: {
   payload,
 });
 
-export const resolveCommentThread = (payload: { commentThreadId: string }) => ({
-  type: ReduxActionTypes.RESOLVE_COMMENT_THREAD,
-  payload,
-});
-
-export const unresolveCommentThread = (payload: {
-  commentThreadId: string;
-}) => ({
-  type: ReduxActionTypes.UNRESOLVE_COMMENT_THREAD,
-  payload,
-});
-
 export const fetchApplicationCommentsRequest = () => ({
   type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
 });
@@ -98,5 +87,25 @@ export const newCommentEvent = (payload: any) => ({
 
 export const newCommentThreadEvent = (payload: any) => ({
   type: ReduxActionTypes.NEW_COMMENT_THREAD_EVENT,
+  payload,
+});
+
+export const setCommentResolutionRequest = (payload: {
+  threadId: string;
+  resolved: boolean;
+}) => ({
+  type: ReduxActionTypes.SET_COMMENT_THREAD_RESOLUTION_REQUEST,
+  payload,
+});
+
+export const updateCommentThreadSuccess = (
+  payload: Partial<CommentThread>,
+) => ({
+  type: ReduxActionTypes.UPDATE_COMMENT_THREAD_SUCCESS,
+  payload,
+});
+
+export const updateCommentThreadEvent = (payload: Partial<CommentThread>) => ({
+  type: ReduxActionTypes.UPDATE_COMMENT_THREAD_EVENT,
   payload,
 });

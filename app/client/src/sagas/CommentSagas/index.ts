@@ -23,6 +23,7 @@ import {
   createCommentThreadSuccess,
   addCommentToThreadSuccess,
   fetchApplicationCommentsSuccess,
+  updateCommentThreadSuccess,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -145,6 +146,26 @@ function* fetchApplicationComments() {
   }
 }
 
+function* setCommentResolution(
+  action: ReduxAction<{ threadId: string; resolved: boolean }>,
+) {
+  try {
+    const { threadId, resolved } = action.payload;
+    const response = yield CommentsApi.updateCommentThread(
+      { resolved },
+      threadId,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(updateCommentThreadSuccess(response.data));
+    } else {
+      console.log(isValidResponse, "handle error");
+    }
+  } catch (e) {
+    console.log(e, "handle error");
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
@@ -163,6 +184,10 @@ export default function* commentSagas() {
     takeLatest(
       ReduxActionTypes.ADD_COMMENT_TO_THREAD_REQUEST,
       addCommentToThread,
+    ),
+    takeLatest(
+      ReduxActionTypes.SET_COMMENT_THREAD_RESOLUTION_REQUEST,
+      setCommentResolution,
     ),
     call(watchCommentEvents),
   ]);

@@ -5,6 +5,8 @@ import handleCreateNewCommentThreadSuccess from "./handleCreateNewCommentThreadS
 import handleAddCommentToThreadSuccess from "./handleAddCommentToThreadSuccess";
 import handleFetchApplicationCommentsSuccess from "./handleFetchApplicationCommentsSuccess";
 import handleNewCommentThreadEvent from "./handleNewCommentThreadEvent";
+import handleUpdateCommentThreadSuccess from "./handleUpdateCommentThreadSuccess";
+import handleUpdateCommentThreadEvent from "./handleUpdateCommentThreadEvent";
 
 import { CommentsReduxState } from "./interfaces";
 
@@ -116,6 +118,18 @@ const commentsReducer = createReducer(initialState, {
         },
       },
     };
+  },
+  [ReduxActionTypes.UPDATE_COMMENT_THREAD_SUCCESS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<any>,
+  ) => {
+    return handleUpdateCommentThreadSuccess(state, action);
+  },
+  [ReduxActionTypes.UPDATE_COMMENT_THREAD_EVENT]: (
+    state: CommentsReduxState,
+    action: ReduxAction<any>,
+  ) => {
+    return handleUpdateCommentThreadEvent(state, action);
   },
 });
 

@@ -31,6 +31,16 @@ class CommentsApi extends Api {
   ): AxiosPromise<ApiResponse> {
     return Api.get(CommentsApi.getThreadsAPI(), { applicationId });
   }
+
+  static updateCommentThread(
+    updateCommentRequest: Partial<CreateCommentThreadRequest>,
+    threadId: string,
+  ): AxiosPromise<ApiResponse> {
+    return Api.put(
+      `${CommentsApi.getThreadsAPI()}/${threadId}`,
+      updateCommentRequest,
+    );
+  }
 }
 
 export default CommentsApi;

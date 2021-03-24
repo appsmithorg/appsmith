@@ -20,6 +20,7 @@ export type CreateCommentThreadRequest = {
   tabId: string;
   position: { top: number; left: number }; // used as a percentage value
   comments: Array<CreateCommentRequest>;
+  resolved?: boolean;
 };
 
 export type Comment = CreateCommentRequest & {

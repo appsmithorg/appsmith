@@ -14,7 +14,7 @@ import ScrollToLatest from "./ScrollToLatest";
 
 import {
   addCommentToThreadRequest,
-  resolveCommentThread as resolveCommentThreadAction,
+  setCommentResolutionRequest,
 } from "actions/commentActions";
 
 import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
@@ -77,14 +77,22 @@ const InlineCommentThreadContainer = ({
   };
 
   const resolveCommentThread = () => {
-    dispatch(resolveCommentThreadAction({ commentThreadId: commentThread.id }));
+    dispatch(
+      setCommentResolutionRequest({
+        threadId: commentThread.id,
+        resolved: !commentThread.resolved,
+      }),
+    );
   };
 
   return (
     <ThreadContainer tabIndex={0}>
       <ThreadHeader>
         <ThreadHeaderTitle>Comments</ThreadHeaderTitle>
-        <ResolveCommentButton handleClick={resolveCommentThread} />
+        <ResolveCommentButton
+          resolved={!!commentThread.resolved}
+          handleClick={resolveCommentThread}
+        />
       </ThreadHeader>
       <div style={{ position: "relative" }}>
         <CommentsContainer ref={commentsContainerRef}>
