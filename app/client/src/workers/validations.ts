@@ -20,6 +20,26 @@ import _, {
 import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
 
+export function validateDateString(
+  dateString: string,
+  dateFormat: string,
+  version: number,
+) {
+  let isValid = true;
+  if (version === 2) {
+    try {
+      const d = new Date(dateString);
+      isValid = d.toISOString() === dateString;
+    } catch (e) {
+      isValid = false;
+    }
+  } else {
+    const parsedDate = moment(dateString, dateFormat);
+    isValid = parsedDate.isValid();
+  }
+  return isValid;
+}
+
 const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type"; // TODO: Lot's of changes in validations.ts file
 
 export const VALIDATORS: Record<ValidationType, Validator> = {
@@ -418,7 +438,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
   },
-  [VALIDATION_TYPES.DATE]: (
+  [VALIDATION_TYPES.DATE_ISO_STRING]: (
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
@@ -426,7 +446,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
-
+    if (dateString === null) {
+      return {
+        isValid: true,
+        parsed: "",
+        message: "",
+      };
+    }
     if (dateString === undefined) {
       return {
         isValid: false,
@@ -437,12 +463,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             : "",
       };
     }
-    const isValid = moment(dateString, dateFormat).isValid();
+    const isValid = validateDateString(dateString, dateFormat, props.version);
     if (!isValid) {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+        message: `Value does not match ISO 8601 standard date string`,
       };
     }
     return {
@@ -459,6 +485,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
+    if (dateString === null) {
+      return {
+        isValid: true,
+        parsed: "",
+        message: "",
+      };
+    }
     if (dateString === undefined) {
       return {
         isValid: false,
@@ -469,13 +502,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             : "",
       };
     }
-    const parsedCurrentDate = moment(dateString, dateFormat);
-    const isValid = parsedCurrentDate.isValid();
+    const isValid = validateDateString(dateString, dateFormat, props.version);
     if (!isValid) {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+        message: `Value does not match ISO 8601 standard date string`,
       };
     }
     return {
@@ -503,7 +535,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const parsedMinDate = moment(dateString, dateFormat);
-    let isValid = parsedMinDate.isValid();
+    let isValid = validateDateString(dateString, dateFormat, props.version);
     if (!props.defaultDate) {
       return {
         isValid: isValid,
@@ -552,7 +584,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const parsedMaxDate = moment(dateString, dateFormat);
-    let isValid = parsedMaxDate.isValid();
+    let isValid = validateDateString(dateString, dateFormat, props.version);
     if (!props.defaultDate) {
       return {
         isValid: isValid,

@@ -104,11 +104,15 @@ interface Props {
   expected?: string;
   evaluatedValue?: any;
   children: JSX.Element;
+  error?: string;
+  useValidationMessage?: boolean;
 }
 
 interface PopoverContentProps {
   hasError: boolean;
   expected?: string;
+  error?: string;
+  useValidationMessage?: boolean;
   evaluatedValue: any;
   theme: EditorTheme;
   onMouseEnter: () => void;
@@ -173,7 +177,7 @@ export const CurrentValueViewer = (props: {
 
 const PopoverContent = (props: PopoverContentProps) => {
   const typeTextRef = React.createRef<HTMLPreElement>();
-
+  console.log(props);
   return (
     <ContentWrapper
       onMouseEnter={props.onMouseEnter}
@@ -182,7 +186,11 @@ const PopoverContent = (props: PopoverContentProps) => {
       className="t--CodeEditor-evaluatedValue"
     >
       {props.hasError && (
-        <ErrorText>{`This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}</ErrorText>
+        <ErrorText>
+          {props.useValidationMessage && props.error
+            ? props.error
+            : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+        </ErrorText>
       )}
       {!props.hasError && props.expected && (
         <React.Fragment>
@@ -231,6 +239,8 @@ const EvaluatedValuePopup = (props: Props) => {
           <PopoverContent
             expected={props.expected}
             evaluatedValue={props.evaluatedValue}
+            error={props.error}
+            useValidationMessage={props.useValidationMessage}
             hasError={props.hasError}
             theme={props.theme}
             onMouseLeave={() => {
