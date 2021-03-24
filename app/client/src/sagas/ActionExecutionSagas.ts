@@ -543,7 +543,9 @@ export function* executeActionSaga(
           name: api.name,
           id: actionId,
         },
-        state: payload.body as Record<string, any>,
+        state: {
+          response: payload.body,
+        },
       });
       if (onSuccess) {
         yield put(
@@ -716,12 +718,6 @@ function* runActionSaga(
     const timeout = yield select(getActionTimeout, actionId);
     const appMode = yield select(getAppMode);
     const viewMode = appMode === APP_MODE.PUBLISHED;
-    const executeActionRequest = {
-      actionId,
-      params,
-      paginationField,
-      viewMode,
-    };
 
     AppsmithConsole.info({
       text: "Execution started from user request",
@@ -772,7 +768,9 @@ function* runActionSaga(
             name: actionObject.name,
             id: actionId,
           },
-          state: payload.body as Record<string, any>,
+          state: {
+            response: payload.body,
+          },
         });
         Toaster.show({
           text: createMessage(ACTION_RUN_SUCCESS),
