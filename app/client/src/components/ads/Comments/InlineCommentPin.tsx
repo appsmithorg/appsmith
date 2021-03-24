@@ -58,7 +58,10 @@ const InlineCommentPin = withTheme(
             fillColor={theme.colors.comments.pin}
             size={IconSize.XXL}
           />
-          <InlineCommentThreadContainer commentThread={commentThread} />
+          <InlineCommentThreadContainer
+            isOpen={!!commentThread.isVisible}
+            commentThread={commentThread}
+          />
         </Popover>
       </CommentTriggerContainer>
     );

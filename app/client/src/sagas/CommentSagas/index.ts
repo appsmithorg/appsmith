@@ -100,7 +100,7 @@ function* createCommentThread(action: ReduxAction<any>) {
 
 function* addCommentToThread(action: ReduxAction<any>) {
   const { payload } = action;
-  const { commentBody, commentThread } = payload;
+  const { commentBody, commentThread, callback } = payload;
 
   const response = yield CommentsApi.createNewThreadComment(
     { body: commentBody },
@@ -116,6 +116,7 @@ function* addCommentToThread(action: ReduxAction<any>) {
         comment: response.data,
       }),
     );
+    callback();
   } else {
     // todo handle error here
     console.log(response, "invalid response");
