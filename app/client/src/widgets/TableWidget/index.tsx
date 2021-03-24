@@ -56,7 +56,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       defaultSearchText: VALIDATION_TYPES.TEXT,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
       pageSize: VALIDATION_TYPES.NUMBER,
-      selectedRowIndices: VALIDATION_TYPES.ARRAY,
+      selectedRowIndices: VALIDATION_TYPES.ROW_INDICES,
       pageNo: VALIDATION_TYPES.TABLE_PAGE_NO,
     };
   }
@@ -606,10 +606,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  getSelectedRowIndexes = (selectedRowIndices: string) => {
-    return selectedRowIndices
-      ? selectedRowIndices.split(",").map((i) => Number(i))
-      : [];
+  getSelectedRowIndices = () => {
+    let selectedRowIndices: number[] | undefined = this.props
+      .selectedRowIndices;
+    if (!this.props.multiRowSelection) selectedRowIndices = undefined;
+    else {
+      if (!Array.isArray(selectedRowIndices)) {
+        if (Number.isInteger(selectedRowIndices))
+          selectedRowIndices = [selectedRowIndices];
+        else selectedRowIndices = [];
+      }
+    }
+    return selectedRowIndices;
   };
 
   getPageView() {
@@ -617,6 +625,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const { componentWidth, componentHeight } = this.getComponentDimensions();
+
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -641,7 +650,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               : this.props.selectedRowIndex
           }
           multiRowSelection={this.props.multiRowSelection}
-          selectedRowIndices={this.props.selectedRowIndices}
+          selectedRowIndices={this.getSelectedRowIndices()}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
