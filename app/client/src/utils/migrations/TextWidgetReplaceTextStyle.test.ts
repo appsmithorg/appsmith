@@ -1,6 +1,7 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { migrateTextStyleFromTextWidget } from "utils/migrations/TextWidgetReplaceTextStyle";
+import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 
 const inputDsl: ContainerWidgetProps<WidgetProps> = {
   widgetName: "MainContainer",
@@ -90,8 +91,8 @@ const outputDsl: ContainerWidgetProps<WidgetProps> = {
       parentId: "0",
       widgetId: "yf8bhokz7d",
       dynamicBindingPathList: [],
-      fontSize: "PARAGRAPH",
-      fontStyle: "BOLD",
+      fontSize: TextSizes.PARAGRAPH,
+      fontStyle: FontStyleTypes.BOLD,
       renderMode: "CANVAS",
     },
   ],
