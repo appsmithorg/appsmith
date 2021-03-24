@@ -158,7 +158,7 @@ export function* createActionSaga(
       });
 
       AppsmithConsole.info({
-        text: `Action ${response.data.name} was created`,
+        text: `Action created`,
         source: {
           type: ENTITY_TYPE.ACTION,
           id: response.data.id,
@@ -614,7 +614,7 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
 
   const actionObj = yield select(getAction, actionId);
   AppsmithConsole.info({
-    text: "Action property updated",
+    text: "Configuration updated",
     source: {
       type: ENTITY_TYPE.ACTION,
       name: actionObj.name,

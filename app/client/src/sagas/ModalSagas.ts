@@ -83,7 +83,9 @@ export function* showModalByNameSaga(
   );
   if (modal) {
     AppsmithConsole.info({
-      text: `${action.payload.modalName} modal was requested to be opened`,
+      text: action.payload.modalName
+        ? `showModal('${action.payload.modalName}') was triggered`
+        : `showModal() was triggered`,
     });
 
     yield put({

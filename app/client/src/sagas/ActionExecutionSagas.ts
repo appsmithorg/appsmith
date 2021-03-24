@@ -159,7 +159,7 @@ function* navigateActionSaga(
     }
 
     AppsmithConsole.info({
-      text: `navigateTo(${page.pageName}) was triggered`,
+      text: `navigateTo('${page.pageName}') was triggered`,
       state: {
         params,
       },
@@ -197,7 +197,7 @@ function* storeValueLocally(
     yield localStorage.setItem(appStoreName, storeString);
     yield put(updateAppStore(storeObj));
     AppsmithConsole.info({
-      text: `storeValue(${action.key}, ${action.value}) was triggered`,
+      text: `storeValue('${action.key}', '${action.value}') was triggered`,
     });
     if (event.callback) event.callback({ success: true });
   } catch (err) {
@@ -227,8 +227,14 @@ async function downloadSaga(
     if (dataType === Types.ARRAY || dataType === Types.OBJECT) {
       const jsonString = JSON.stringify(data, null, 2);
       downloadjs(jsonString, name, type);
+      AppsmithConsole.info({
+        text: `download('${jsonString}', '${name}', '${type}') was triggered`,
+      });
     } else {
       downloadjs(data, name, type);
+      AppsmithConsole.info({
+        text: `download('${data}', '${name}', '${type}') was triggered`,
+      });
     }
     if (event.callback) event.callback({ success: true });
   } catch (err) {
@@ -250,6 +256,10 @@ function* copySaga(
   const result = copy(payload.data, payload.options);
   if (event.callback) {
     if (result) {
+      AppsmithConsole.info({
+        text: `copyToClipboard('${payload.data}') was triggered`,
+      });
+
       event.callback({ success: result });
     }
   }
@@ -276,6 +286,11 @@ function* resetWidgetMetaByNameRecursiveSaga(
   if (payload.resetChildren) {
     yield put(resetChildrenMetaProperty(widget.widgetId));
   }
+
+  AppsmithConsole.info({
+    text: `resetWidget('${payload.widgetName}', ${payload.resetChildren}) was triggered`,
+  });
+
   if (event.callback) event.callback({ success: true });
 }
 
