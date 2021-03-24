@@ -12,11 +12,13 @@ describe("Table functionality ", function() {
     // Navigate to add background colour and Text colour
     // Ensure the row colour gets overlapped on table colour
   });
+
   it("Collapse the tabs of Property pane", function() {
     // Add a table
     // Click on the property pane
     // Collapse the General ,Action and Tab option
   });
+
   it("Bind the column with same name", function() {
     // Add a table
     // Click on the property pane
@@ -39,5 +41,19 @@ describe("Table functionality ", function() {
     // and observe on edit mode the table column is dispalyed
     // Click on deploy
     // Ensure the hidden column is not displayed and custom column is disaplyed to user
+  });
+
+  it("Binding a widget to additional column ", function() {
+    // Add an date widget
+    // Add a table
+    // Click on the property pane
+    // Add an custom column
+    // Rename the column
+    // Click on "Control pane" of the added column
+    // Navigate to computed value
+    // Bind the date widget to the comlumn computed value field
+    // Select the Column Type as "Date"
+    // Select a Date formate (Original and Display)
+    // Ensure the format is dispalyed according to the selection
   });
 });

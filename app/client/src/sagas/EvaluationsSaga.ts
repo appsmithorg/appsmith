@@ -246,7 +246,8 @@ const EVALUATE_REDUX_ACTIONS = [
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.UPDATE_APP_STORE,
+  ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
+  ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,

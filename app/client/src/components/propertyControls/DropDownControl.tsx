@@ -25,7 +25,9 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           selected={defaultSelected}
           onSelect={this.onItemSelect}
           width="100%"
-          optionWidth="187px"
+          optionWidth={
+            this.props.optionWidth ? this.props.optionWidth : "187px"
+          }
         />
       </StyledDropDownContainer>
     );
@@ -50,6 +52,7 @@ export interface DropDownControlProps extends ControlProps {
   options: any[];
   placeholderText: string;
   propertyValue: string;
+  optionWidth?: string;
 }
 
 export default DropDownControl;

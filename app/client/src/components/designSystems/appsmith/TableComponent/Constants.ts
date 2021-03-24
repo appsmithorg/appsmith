@@ -54,6 +54,7 @@ export enum ColumnTypes {
   IMAGE = "image",
   TEXT = "text",
   NUMBER = "number",
+  URL = "url",
 }
 
 export enum OperatorTypes {
