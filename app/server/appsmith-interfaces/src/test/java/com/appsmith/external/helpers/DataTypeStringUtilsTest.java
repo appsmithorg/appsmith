@@ -38,4 +38,65 @@ public class DataTypeStringUtilsTest {
 
         assertThat(dataType).isEqualByComparingTo(DataType.STRING);
     }
+
+    @Test
+    public void checkIntegerDataType() {
+        String intData = "1234";
+        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(intData);
+
+        assertThat(dataType).isEqualByComparingTo(DataType.INTEGER);
+    }
+
+    @Test
+    public void checkFloatDataType() {
+        String floatData = "12.34";
+        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(floatData);
+
+        assertThat(dataType).isEqualByComparingTo(DataType.FLOAT);
+    }
+
+    @Test
+    public void checkSimpleArrayDataType() {
+        String arrayData = "[1,2,3,4]";
+        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(arrayData);
+
+        assertThat(dataType).isEqualByComparingTo(DataType.ARRAY);
+    }
+
+    @Test
+    public void checkArrayOfObjectsDataType() {
+        String arrayData = "[\n" +
+                "  {\n" +
+                "    \"key1\": \"value\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"key2\": \"value\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"key3\": \"value\"\n" +
+                "  }\n" +
+                "]";
+        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(arrayData);
+
+        assertThat(dataType).isEqualByComparingTo(DataType.ARRAY);
+    }
+
+    @Test
+    public void checkJsonDataType() {
+        String jsonData = "{\n" +
+                "  \"key1\": \"value\"\n" +
+                "}";
+        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(jsonData);
+
+        assertThat(dataType).isEqualByComparingTo(DataType.JSON_OBJECT);
+    }
+
+    @Test
+    public void checkNullDataType() {
+        String nullData = "null";
+        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(nullData);
+
+        assertThat(dataType).isEqualByComparingTo(DataType.NULL);
+    }
+
 }
