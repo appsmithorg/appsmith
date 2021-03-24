@@ -73,6 +73,8 @@ public class FirestorePlugin extends BasePlugin {
     private static final int END_BEFORE_PROPERTY_INDEX = 7;
     private static final int FIELDVALUE_TIMESTAMP_PROPERTY_INDEX = 8;
     private static final int FIELDVALUE_DELETE_PROPERTY_INDEX = 9;
+    private static final String FIELDVALUE_DELETE_METHOD_NAME = "delete";
+    private static final String FIELDVALUE_TIMESTAMP_METHOD_NAME = "serverTimestamp";
 
     public FirestorePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -202,27 +204,35 @@ public class FirestorePlugin extends BasePlugin {
         private void insertFieldValues(Map<String, Object> mapBody,
                                        List<Property> properties,
                                        Method method) throws AppsmithPluginException {
+
             if(!Method.UPDATE_DOCUMENT.equals(method)
+                    && !Method.SET_DOCUMENT.equals(method)
+                    && properties.size() > FIELDVALUE_DELETE_PROPERTY_INDEX
+                    && properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX) != null
                     && !StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith has found an unexpected query form property - Delete Key Value Pair Path. Please " +
+                        "Appsmith has found an unexpected query form property - 'Delete Key Value Pair Path'. Please " +
                                 "reach out to Appsmith customer support to resolve this."
                 );
             }
 
-            if(Method.GET_DOCUMENT.equals(method)
-                    && Method.GET_COLLECTION.equals(method)
-                    && Method.DELETE_DOCUMENT.equals(method)
+            if((Method.GET_DOCUMENT.equals(method)
+                    || Method.GET_COLLECTION.equals(method)
+                    || Method.DELETE_DOCUMENT.equals(method))
+                    && properties.size() > FIELDVALUE_TIMESTAMP_PROPERTY_INDEX
+                    && properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) != null
                     && !StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith has found an unexpected query form property - Timestamp Value Path. Please reach " +
+                        "Appsmith has found an unexpected query form property - 'Timestamp Value Path'. Please reach " +
                                 "out to Appsmith customer support to resolve this."
                 );
             }
 
-            if(!StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
+            if( properties.size() > FIELDVALUE_DELETE_PROPERTY_INDEX
+                    && properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX) != null
+                    && !StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
                 String deletePaths = properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue();
                 List<List<String>> deletePathsList;
                 try {
@@ -235,19 +245,12 @@ public class FirestorePlugin extends BasePlugin {
                     );
                 }
 
-                insertFieldValueByName(mapBody, deletePathsList, "delete");
-
-                /*deletePathsList.stream()
-                        .forEach(pathList -> {
-                            Map<String, Object> targetKeyValuePair = mapBody;
-                            for(int i=0; i<pathList.size()-1; i++) {
-                                targetKeyValuePair = (Map<String, Object>)targetKeyValuePair.get(pathList.get(i));
-                            }
-                            targetKeyValuePair.put(pathList.get(pathList.size()-1), FieldValue.delete());
-                        });*/
+                insertFieldValueByMethodName(mapBody, deletePathsList, FIELDVALUE_DELETE_METHOD_NAME);
             }
 
-            if(!StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
+            if(properties.size() > FIELDVALUE_TIMESTAMP_PROPERTY_INDEX
+                    && properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) != null
+                    && !StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
                 String timestampValuePaths = properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue();
                 List<List<String>> timestampPathsList;
                 try {
@@ -261,31 +264,37 @@ public class FirestorePlugin extends BasePlugin {
                     );
                 }
 
-                insertFieldValueByName(mapBody, timestampPathsList, "serverTimestamp");
-                /*timestampPathsList.stream()
-                        .forEach(pathList -> {
-                            Map<String, Object> targetKeyValuePair = mapBody;
-                            for(int i=0; i<pathList.size()-1; i++) {
-                                targetKeyValuePair = (Map<String, Object>)targetKeyValuePair.get(pathList.get(i));
-                            }
-                            targetKeyValuePair.put(pathList.get(pathList.size()-1), FieldValue.serverTimestamp());
-                        });*/
+                insertFieldValueByMethodName(mapBody, timestampPathsList, FIELDVALUE_TIMESTAMP_METHOD_NAME);
             }
         }
         
-        private void insertFieldValueByName(Map<String, Object> mapBody,
+        private void insertFieldValueByMethodName(Map<String, Object> mapBody,
                                             List<List<String>> pathsList,
-                                            String fieldValueName) throws AppsmithPluginException {
+                                            String fieldValueName) {
             pathsList.stream()
                     .forEach(singlePathList -> {
+                        /*
+                         * - Unable to convert this for loop into a stream implementation. Please offer suggestions
+                         *   if possible.
+                         */
                         Map<String, Object> targetKeyValuePair = mapBody;
                         for(int i=0; i<singlePathList.size()-1; i++) {
                             targetKeyValuePair = (Map<String, Object>)targetKeyValuePair.get(singlePathList.get(i));
                         }
                         try {
-                            targetKeyValuePair.put(singlePathList.get(singlePathList.size()-1),
-                                    FieldValue.class.getMethod(fieldValueName).invoke(null));
+                            targetKeyValuePair.put(
+                                    singlePathList.get(singlePathList.size()-1),
+                                    /*
+                                     * - As per Java documentation: If the underlying method is static, then the
+                                     *   specified obj argument is ignored. It may be null.
+                                     * - Ref: https://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Method.html#invoke-java.lang.Object-java.lang.Object...-
+                                     */
+                                    FieldValue.class.getMethod(fieldValueName).invoke(null)
+                            );
                         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                            /*
+                             * - Please offer suggestions if this exception can be handled in a better way.
+                             */
                             throw new RuntimeException(e);
                         }
                     });

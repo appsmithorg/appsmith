@@ -67,7 +67,7 @@
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "",
-          "placeholderText": "[\"userInfo\", \"lastUpdateTs\"]",
+          "placeholderText": "[[\"userInfoKey\", \"nestedLastUpdateTsKey\"]]",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "IN",
