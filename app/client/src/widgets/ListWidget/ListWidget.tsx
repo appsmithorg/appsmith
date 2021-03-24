@@ -1,6 +1,6 @@
 import React from "react";
 import log from "loglevel";
-import { compact, floor, get, set, xor, isPlainObject } from "lodash";
+import { compact, floor, get, set, xor, isPlainObject, isNumber } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -448,11 +448,15 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * can data be paginated
    */
   shouldPaginate = () => {
-    const { items, children, gridGap } = this.props;
+    let { gridGap } = this.props;
+    const { items, children } = this.props;
     const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
-
     const templateHeight = templateBottomRow * 40;
+
+    if (!isNumber(gridGap)) {
+      gridGap = 0;
+    }
 
     const shouldPaginate =
       templateHeight * items.length + parseInt(gridGap) * (items.length - 1) >
@@ -461,6 +465,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       (componentHeight - WIDGET_PADDING * 2) /
       (templateHeight + parseInt(gridGap));
 
+    console.log({ perPage, gridGap });
     return { shouldPaginate, perPage: floor(perPage) };
   };
 
@@ -471,7 +476,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const children = this.renderChildren();
     const { shouldPaginate, perPage } = this.shouldPaginate();
 
-    if (isNaN(perPage) || perPage === 0) {
+    if (!isNumber(perPage) || perPage === 0) {
       return (
         <>
           Please make sure your list widget size atleast greater than the list

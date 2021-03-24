@@ -166,11 +166,9 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
   },
   LIST_WIDGET: {
-    text: "string",
-    textAlign: "LEFT | CENTER | RIGHT",
-    textStyle: "HEADING | LABEL | BODY",
-    shouldScroll: "boolean",
+    items: "Array<Object>",
     isVisible: "boolean",
+    gridGap: "number",
   },
 };
 
