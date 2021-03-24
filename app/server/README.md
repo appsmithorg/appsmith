@@ -1,6 +1,6 @@
 # Appsmith Server
 
-This is the server-side repo for the Appsmith framework.
+This is the server-side repository for the Appsmith framework.
 
 ### How to build 
 ```bash
