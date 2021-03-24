@@ -41,7 +41,7 @@ import { OnboardingState } from "./uiReducers/onBoardingReducer";
 import { GlobalSearchReduxState } from "./uiReducers/globalSearchReducer";
 import { ReleasesState } from "./uiReducers/releasesReducer";
 import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
-import { CommentsReduxState } from "./uiReducers/commentsReducer";
+import { CommentsReduxState } from "./uiReducers/commentsReducer/interfaces";
 
 const appReducer = combineReducers({
   entities: entityReducer,

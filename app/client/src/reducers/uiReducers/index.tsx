@@ -26,7 +26,7 @@ import pageWidgetsReducer from "./pageWidgetsReducer";
 import onBoardingReducer from "./onBoardingReducer";
 import globalSearchReducer from "./globalSearchReducer";
 import releasesReducer from "./releasesReducer";
-import commentsReducer from "./commentsReducer";
+import commentsReducer from "./commentsReducer/commentsReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
