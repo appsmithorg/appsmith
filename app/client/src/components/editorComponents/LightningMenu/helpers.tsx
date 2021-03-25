@@ -194,7 +194,7 @@ export const getLightningMenuOptions = (
   ];
   if (widgets.length > 0) {
     widgets = widgets.sort((a: WidgetProps, b: WidgetProps) => {
-      return a.widgetName.toUpperCase() > b.widgetName.toUpperCase() ? 1 : -1;
+      return a.widgetName?.toUpperCase() > b.widgetName?.toUpperCase() ? 1 : -1;
     });
     options.push({
       content: (
