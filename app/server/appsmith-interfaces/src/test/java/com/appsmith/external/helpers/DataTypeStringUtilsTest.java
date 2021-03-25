@@ -3,6 +3,7 @@ package com.appsmith.external.helpers;
 import com.appsmith.external.constants.DataType;
 import org.junit.Test;
 
+import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DataTypeStringUtilsTest {
@@ -10,7 +11,7 @@ public class DataTypeStringUtilsTest {
     @Test
     public void checkTimeStampDataType() {
         String timestamp = "2021-03-24 14:05:34";
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(timestamp);
+        DataType dataType = stringToKnownDataTypeConverter(timestamp);
 
         assertThat(dataType).isEqualByComparingTo(DataType.TIMESTAMP);
     }
@@ -18,7 +19,7 @@ public class DataTypeStringUtilsTest {
     @Test
     public void checkDateDataType() {
         String date = "2021-03-24";
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(date);
+        DataType dataType = stringToKnownDataTypeConverter(date);
 
         assertThat(dataType).isEqualByComparingTo(DataType.DATE);
     }
@@ -26,7 +27,7 @@ public class DataTypeStringUtilsTest {
     @Test
     public void checkBooleanDataType() {
         String boolInput = "true";
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(boolInput);
+        DataType dataType = stringToKnownDataTypeConverter(boolInput);
 
         assertThat(dataType).isEqualByComparingTo(DataType.BOOLEAN);
     }
@@ -34,7 +35,7 @@ public class DataTypeStringUtilsTest {
     @Test
     public void checkStringDataType() {
         String stringData = "In order to understand recursion, one must first understand recursion. -Anonymous";
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(stringData);
+        DataType dataType = stringToKnownDataTypeConverter(stringData);
 
         assertThat(dataType).isEqualByComparingTo(DataType.STRING);
     }
@@ -42,7 +43,7 @@ public class DataTypeStringUtilsTest {
     @Test
     public void checkIntegerDataType() {
         String intData = "1234";
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(intData);
+        DataType dataType = stringToKnownDataTypeConverter(intData);
 
         assertThat(dataType).isEqualByComparingTo(DataType.INTEGER);
     }
@@ -50,7 +51,7 @@ public class DataTypeStringUtilsTest {
     @Test
     public void checkFloatDataType() {
         String floatData = "12.34";
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(floatData);
+        DataType dataType = stringToKnownDataTypeConverter(floatData);
 
         assertThat(dataType).isEqualByComparingTo(DataType.FLOAT);
     }
@@ -58,7 +59,7 @@ public class DataTypeStringUtilsTest {
     @Test
     public void checkSimpleArrayDataType() {
         String arrayData = "[1,2,3,4]";
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(arrayData);
+        DataType dataType = stringToKnownDataTypeConverter(arrayData);
 
         assertThat(dataType).isEqualByComparingTo(DataType.ARRAY);
     }
@@ -76,7 +77,7 @@ public class DataTypeStringUtilsTest {
                 "    \"key3\": \"value\"\n" +
                 "  }\n" +
                 "]";
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(arrayData);
+        DataType dataType = stringToKnownDataTypeConverter(arrayData);
 
         assertThat(dataType).isEqualByComparingTo(DataType.ARRAY);
     }
@@ -86,7 +87,7 @@ public class DataTypeStringUtilsTest {
         String jsonData = "{\n" +
                 "  \"key1\": \"value\"\n" +
                 "}";
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(jsonData);
+        DataType dataType = stringToKnownDataTypeConverter(jsonData);
 
         assertThat(dataType).isEqualByComparingTo(DataType.JSON_OBJECT);
     }
@@ -94,7 +95,7 @@ public class DataTypeStringUtilsTest {
     @Test
     public void checkNullDataType() {
         String nullData = "null";
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(nullData);
+        DataType dataType = stringToKnownDataTypeConverter(nullData);
 
         assertThat(dataType).isEqualByComparingTo(DataType.NULL);
     }
