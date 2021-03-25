@@ -1,4 +1,7 @@
-import { getBorderCSSShorthand } from "constants/DefaultTheme";
+import {
+  getBorderCSSShorthand,
+  getColorWithOpacity,
+} from "constants/DefaultTheme";
 
 describe("test getBorderCSSShorthand", () => {
   it("test for expected value", () => {
@@ -30,5 +33,18 @@ describe("test getBorderCSSShorthand", () => {
   });
   it("test for empty value", () => {
     expect(getBorderCSSShorthand(undefined)).toEqual("");
+  });
+});
+
+describe("getColorWithOpacity", () => {
+  it("test for expected value", () => {
+    expect(getColorWithOpacity("#828282", 0.3)).toEqual(
+      "rgba(130,130,130,0.3)",
+    );
+  });
+  it("test for expected value", () => {
+    expect(getColorWithOpacity("#828282", 0.7)).toEqual(
+      "rgba(130,130,130,0.7)",
+    );
   });
 });
