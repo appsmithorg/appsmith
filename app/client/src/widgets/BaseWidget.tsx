@@ -34,7 +34,6 @@ import {
   WidgetEvaluatedProps,
 } from "../utils/DynamicBindingUtils";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { CanvasSelectionLayer } from "components/editorComponents/CanvasSelectionLayer";
 
 /***
  * BaseWidget
@@ -196,10 +195,6 @@ abstract class BaseWidget<
     );
   }
 
-  addSelectionLayer(content: ReactNode) {
-    return <CanvasSelectionLayer>{content}</CanvasSelectionLayer>;
-  }
-
   makeDraggable(content: ReactNode) {
     return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
   }
@@ -231,7 +226,6 @@ abstract class BaseWidget<
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
           content = this.makePositioned(content);
-          content = this.addSelectionLayer(content);
         }
         return content;
 

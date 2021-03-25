@@ -1,4 +1,3 @@
-import React from "react";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { selectWidget } from "actions/widgetActions";
 import {
@@ -8,11 +7,7 @@ import {
 import { useSelector } from "store";
 import { AppState } from "reducers";
 
-export const CanvasSelectionLayer = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const useClickOpenPropPane = () => {
   const showPropertyPane = useShowPropertyPane();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const selectedWidgetId = useSelector(getCurrentWidgetId);
@@ -39,9 +34,5 @@ export const CanvasSelectionLayer = ({
       showPropertyPane(focusedWidget, undefined, true);
     }
   };
-  return (
-    <div onClickCapture={openPropertyPane} className="canvas-triggers">
-      {children}
-    </div>
-  );
+  return openPropertyPane;
 };
