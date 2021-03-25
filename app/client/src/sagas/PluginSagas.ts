@@ -7,7 +7,12 @@ import {
 import PluginsApi from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { getDBPlugins, getPluginForm } from "selectors/entitiesSelector";
+import {
+  getDatasources,
+  getDBPlugins,
+  getPluginForm,
+} from "selectors/entitiesSelector";
+import { Datasource } from "entities/Datasource";
 
 function* fetchPluginsSaga() {
   try {
@@ -26,6 +31,32 @@ function* fetchPluginsSaga() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+function* fetchPluginFormConfigsSaga() {
+  try {
+    const datasources: Datasource[] = yield select(getDatasources);
+    const pluginIds = new Set(
+      datasources.map((datasource) => datasource.pluginId),
+    );
+    const pluginFormRequests = [];
+    for (const id of pluginIds) {
+      pluginFormRequests.push(yield call(PluginsApi.fetchFormConfig, id));
+    }
+    const pluginFormResponses = yield all(pluginFormRequests);
+    for (const response of pluginFormResponses) {
+      yield validateResponse(response);
+      yield put({
+        type: ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR,
       payload: { error },
     });
   }
@@ -89,6 +120,10 @@ function* fetchDBPluginFormsSaga() {
 function* root() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_PLUGINS_REQUEST, fetchPluginsSaga),
+    takeEvery(
+      ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_REQUEST,
+      fetchPluginFormConfigsSaga,
+    ),
     takeEvery(ReduxActionTypes.FETCH_PLUGIN_FORM_INIT, fetchPluginFormSaga),
     takeEvery(
       ReduxActionTypes.FETCH_DB_PLUGIN_FORMS_INIT,
