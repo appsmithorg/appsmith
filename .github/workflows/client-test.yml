@@ -14,6 +14,9 @@ on:
   # trigger for pushes to release and master
   push:
     branches: [ release, master ]
+    paths:
+      - "app/client/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
