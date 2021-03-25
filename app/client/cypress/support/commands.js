@@ -85,11 +85,6 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
     200,
   );
   cy.contains(email);
-  cy.get(homePage.manageUsers).click({ force: true });
-  cy.xpath(homePage.appHome)
-    .first()
-    .should("be.visible")
-    .click();
 });
 
 Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
@@ -1296,6 +1291,7 @@ Cypress.Commands.add("tableDataVisiblity", (endp, value) => {
 
 Cypress.Commands.add("tableColumnDataValidation", (columnName) => {
   cy.get("[data-rbd-draggable-id='" + columnName + "']")
+    .scrollIntoView()
     .first()
     .focus({ force: true })
     .should("be.visible");
@@ -1303,6 +1299,7 @@ Cypress.Commands.add("tableColumnDataValidation", (columnName) => {
 
 Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] input")
+    .scrollIntoView()
     .should("be.visible")
     .click({
       force: true,
@@ -1656,8 +1653,7 @@ Cypress.Commands.add(
       .click({ force: true });
     cy.get(widgetsPage.menubar)
       .contains("Show Message")
-      .click({ force: true })
-      .should("have.text", "Show Message");
+      .click({ force: true });
 
     cy.get(alertcss)
       .click({ force: true })
@@ -1960,7 +1956,7 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
   const selector = `.t--draggable-${widgetType}`;
   cy.get(selector)
     .first()
-    .trigger("mouseover")
+    .trigger("mouseover", { force: true })
     .wait(500);
   cy.get(`${selector}:first-of-type .t--widget-propertypane-toggle`)
     .first()

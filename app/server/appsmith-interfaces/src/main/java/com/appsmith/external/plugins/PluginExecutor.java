@@ -1,6 +1,7 @@
 package com.appsmith.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;

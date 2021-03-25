@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -30,12 +31,17 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doNothing;
@@ -222,7 +228,7 @@ public class RedshiftPluginTest {
          */
         ResultSetMetaData mockResultSetMetaData = mock(ResultSetMetaData.class);
         when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
-        when(mockResultSetMetaData.getColumnCount()).thenReturn(10);
+        when(mockResultSetMetaData.getColumnCount()).thenReturn(0).thenReturn(10);
         when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4", "varchar", "varchar",
         "varchar", "date", "date", "time", "timetz", "timestamp", "timestamptz");
         when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("id", "username", "password", "email",
@@ -447,6 +453,86 @@ public class RedshiftPluginTest {
                             },
                             usersTable.getTemplates().toArray()
                     );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDuplicateColumnNames() throws SQLException {
+        /* Mock java.sql.Connection:
+         *      a. isClosed()
+         *      b. isValid()
+         */
+        Connection mockConnection = mock(Connection.class);
+        when(mockConnection.isClosed()).thenReturn(false);
+        when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
+
+        /* Mock java.sql.Statement:
+         *      a. execute(...)
+         *      b. close()
+         */
+        Statement mockStatement = mock(Statement.class);
+        when(mockConnection.createStatement()).thenReturn(mockStatement);
+        when(mockStatement.execute(Mockito.any())).thenReturn(true);
+        doNothing().when(mockStatement).close();
+
+        /* Mock java.sql.ResultSet:
+         *      a. getObject(...)
+         *      d. next()
+         *      e. close()
+         */
+        ResultSet mockResultSet = mock(ResultSet.class);
+        when(mockStatement.getResultSet()).thenReturn(mockResultSet);
+        when(mockResultSet.getObject(Mockito.anyInt())).thenReturn("", 1, "", 1, "", "jill", "", "jill");
+        when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+        doNothing().when(mockResultSet).close();
+
+        /* Mock java.sql.ResultSetMetaData:
+         *      a. getColumnCount()
+         *      b. getColumnTypeName(...)
+         *      c. getColumnName(...)
+         */
+        ResultSetMetaData mockResultSetMetaData = mock(ResultSetMetaData.class);
+        when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
+        when(mockResultSetMetaData.getColumnCount()).thenReturn(4);
+        when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4", "int4", "varchar",
+                "varchar");
+        when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("id", "id", "username", "username");
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id, id, username, username FROM users WHERE id = 1");
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = Mono.just(mockConnection);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotEquals(0, result.getMessages().size());
+
+                    String expectedMessage = "Your Redshift query result may not have all the columns because " +
+                            "duplicate column names were found for the column(s)";
+                    assertTrue(
+                            result.getMessages().stream()
+                                    .anyMatch(message -> message.contains(expectedMessage))
+                    );
+
+                    /*
+                     * - Check if all of the duplicate column names are reported.
+                     */
+                    Set<String> expectedColumnNames = Stream.of("id", "username")
+                            .collect(Collectors.toCollection(HashSet::new));
+                    Set<String> foundColumnNames = new HashSet<>();
+                    result.getMessages().stream()
+                            .filter(message -> message.contains(expectedMessage))
+                            .forEach(message -> {
+                                Arrays.stream(message.split(":")[1].split("\\.")[0].split(","))
+                                        .forEach(columnName -> foundColumnNames.add(columnName.trim()));
+                            });
+                    assertTrue(expectedColumnNames.equals(foundColumnNames));
                 })
                 .verifyComplete();
     }

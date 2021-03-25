@@ -32,5 +32,4 @@ public class Connection {
     SSLDetails ssl;
 
     String defaultDatabaseName;
-
 }
