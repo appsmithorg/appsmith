@@ -366,6 +366,7 @@ function* createOnboardingDatasource() {
         datasourceConfiguration: {
           connection: {
             mode: "READ_WRITE",
+            ssl: { authType: "DEFAULT" },
           },
           endpoints: [
             {
@@ -378,6 +379,7 @@ function* createOnboardingDatasource() {
             username: "fakeapi",
             password: "LimitedAccess123#",
           },
+          sshProxyEnabled: false,
         },
       };
 
