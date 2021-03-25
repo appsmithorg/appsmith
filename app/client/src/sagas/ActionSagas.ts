@@ -81,8 +81,8 @@ import {
 import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<

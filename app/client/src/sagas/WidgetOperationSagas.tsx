@@ -108,8 +108,8 @@ import {
   WIDGET_CUT,
   WIDGET_DELETE,
 } from "constants/messages";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,

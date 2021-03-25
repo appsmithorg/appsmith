@@ -24,7 +24,6 @@ import {
 } from "redux-saga/effects";
 import {
   ActionDescription,
-  ENTITY_TYPE,
   RunActionPayload,
 } from "entities/DataTree/dataTreeFactory";
 import { executeAction, executeActionError } from "actions/widgetActions";
@@ -107,6 +106,7 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",

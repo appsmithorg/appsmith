@@ -2,22 +2,14 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Severity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { Classes } from "components/ads/common";
 import { Collapse } from "@blueprintjs/core";
 import ReactJson from "react-json-view";
-import history from "utils/history";
 import { isString } from "lodash";
 import copy from "copy-to-clipboard";
-import { useSelector } from "store";
-import { AppState } from "reducers";
-import { getAction, getAllWidgetsMap } from "selectors/entitiesSelector";
-import { getSelectedWidget } from "selectors/ui";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import FilterHeader from "./FilterHeader";
 import { useFilteredLogs } from "./utils";
+import EntityLink from "./EntityLink";
 
 const LIST_HEADER_HEIGHT = "38px";
 
@@ -129,11 +121,6 @@ const SeverityIconColor: any = {
   [Severity.WARNING]: "rgb(224, 179, 14)",
 };
 
-const Entity: any = {
-  [ENTITY_TYPE.WIDGET]: "Widget",
-  [ENTITY_TYPE.ACTION]: "Action",
-};
-
 const DebbuggerLogTab = (props: any) => {
   const [filter, setFilter] = useState("");
   const [query, setQuery] = useState("");
@@ -165,7 +152,7 @@ const DebbuggerLogTab = (props: any) => {
             icon: SeverityIcon[e.severity],
             iconColor: SeverityIconColor[e.severity],
             timestamp: e.timestamp,
-            entityType: e.source ? Entity[e.source.type] : null,
+            entityType: e.source ? e.source.type : null,
             label: e.text,
             timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
             sourceName: e.source ? e.source.name : null,
@@ -197,11 +184,7 @@ const LogItem = (props: any) => {
     collapsed: 1,
   };
   const showToggleIcon = props.state || props.message;
-  const entityNavigation = useEntityNavigation(props.entityType, props.id);
-  const onNavigation = () => {
-    entityNavigation && entityNavigation();
-    props.onClose && props.onClose();
-  };
+  console.log(props.entityType, "props.entityType");
 
   return (
     <Log backgroundColor={props.backgroundColor} collapsed={!isOpen}>
@@ -217,13 +200,11 @@ const LogItem = (props: any) => {
           />
         )}
         {props.entityType && (
-          <span className="debugger-entity">
-            [
-            <span className="debugger-entity-name" onClick={onNavigation}>
-              {props.sourceName}
-            </span>
-            ]
-          </span>
+          <EntityLink
+            type={props.entityType}
+            name={props.sourceName}
+            id={props.id}
+          />
         )}
         <span className="debugger-label">{props.text}</span>
         {props.timeTaken && (
@@ -257,39 +238,6 @@ const LogItem = (props: any) => {
       </div>
     </Log>
   );
-};
-
-const useEntityNavigation = (type: ENTITY_TYPE, entityId: string) => {
-  const widgetMap = useSelector(getAllWidgetsMap);
-  const selectedWidgetId = useSelector(getSelectedWidget);
-  const { navigateToWidget } = useNavigateToWidget();
-  const applicationId = useSelector(getCurrentApplicationId);
-  const action = useSelector((state: AppState) => getAction(state, entityId));
-
-  if (type === Entity[ENTITY_TYPE.WIDGET]) {
-    const widget = widgetMap[entityId];
-    if (!widget) return;
-
-    return () =>
-      navigateToWidget(
-        entityId,
-        widget.type,
-        widget.pageId,
-        entityId === selectedWidgetId,
-        widget.parentModalId,
-      );
-  } else if (type === Entity[ENTITY_TYPE.ACTION]) {
-    if (action) {
-      const { pageId, pluginType, id } = action;
-      const actionConfig = getActionConfig(pluginType);
-      const url =
-        applicationId && actionConfig?.getURL(applicationId, pageId, id);
-
-      if (url) {
-        return () => history.push(url);
-      }
-    }
-  }
 };
 
 export default DebbuggerLogTab;

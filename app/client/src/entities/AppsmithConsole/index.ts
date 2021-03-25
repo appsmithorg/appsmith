@@ -3,7 +3,12 @@ import { BindingError } from "entities/AppsmithConsole/binding";
 import { ActionError } from "entities/AppsmithConsole/action";
 import { WidgetError } from "entities/AppsmithConsole/widget";
 import { EvalError } from "entities/AppsmithConsole/eval";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+
+export enum ENTITY_TYPE {
+  ACTION = "ACTION",
+  DATASOURCE = "DATASOURCE",
+  WIDGET = "WIDGET",
+}
 
 export type ErrorType = BindingError | ActionError | WidgetError | EvalError;
 
