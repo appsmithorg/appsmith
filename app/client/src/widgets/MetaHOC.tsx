@@ -4,6 +4,8 @@ import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
 import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
 import { ExecuteActionPayload } from "../constants/ActionConstants";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 type DebouncedExecuteActionPayload = Omit<
   ExecuteActionPayload,
@@ -82,6 +84,18 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       if (actionExecution) {
         this.propertyTriggers.set(propertyName, actionExecution);
       }
+
+      AppsmithConsole.info({
+        text: "Widget property was updated",
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: this.props.widgetId,
+          name: this.props.widgetName,
+        },
+        state: {
+          [propertyName]: propertyValue,
+        },
+      });
       this.setState(
         {
           [propertyName]: propertyValue,
