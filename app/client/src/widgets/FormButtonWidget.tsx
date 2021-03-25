@@ -144,6 +144,7 @@ class FormButtonWidget extends BaseWidget<
       });
     }
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
+      triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
       event: {
         type: EventType.ON_CLICK,
@@ -158,6 +159,7 @@ class FormButtonWidget extends BaseWidget<
         isLoading: true,
       });
       super.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,

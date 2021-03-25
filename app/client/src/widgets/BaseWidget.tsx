@@ -17,7 +17,7 @@ import {
 } from "constants/WidgetConstants";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
-import { ExecuteActionPayload } from "constants/ActionConstants";
+import { WidgetExecuteActionPayload } from "constants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
@@ -35,6 +35,8 @@ import {
 } from "../utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 /***
  * BaseWidget
@@ -89,9 +91,19 @@ abstract class BaseWidget<
    *  Widgets can execute actions using this `executeAction` method.
    *  Triggers may be specific to the widget
    */
-  executeAction(actionPayload: ExecuteActionPayload): void {
+  executeAction(actionPayload: WidgetExecuteActionPayload): void {
     const { executeAction } = this.context;
     executeAction && executeAction(actionPayload);
+
+    actionPayload.triggerPropertyName &&
+      AppsmithConsole.info({
+        text: `${actionPayload.triggerPropertyName} triggered`,
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: this.props.widgetId,
+          name: this.props.widgetName,
+        },
+      });
   }
 
   disableDrag(disable: boolean) {

@@ -46,6 +46,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       "selectedDataPoint",
       selectedDataPoint,
       {
+        triggerPropertyName: "onDataPointClick",
         dynamicString: this.props.onDataPointClick,
         event: {
           type: EventType.ON_DATA_POINT_CLICK,

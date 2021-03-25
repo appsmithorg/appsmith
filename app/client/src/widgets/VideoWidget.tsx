@@ -131,6 +131,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
               "playState",
               PlayState.PLAYING,
               {
+                triggerPropertyName: "onPlay",
                 dynamicString: onPlay,
                 event: {
                   type: EventType.ON_VIDEO_PLAY,
@@ -141,6 +142,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
             this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
+              triggerPropertyName: "onPause",
               dynamicString: onPause,
               event: {
                 type: EventType.ON_VIDEO_PAUSE,
@@ -149,6 +151,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           }}
           onEnded={() => {
             this.props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
+              triggerPropertyName: "onEnd",
               dynamicString: onEnd,
               event: {
                 type: EventType.ON_VIDEO_END,

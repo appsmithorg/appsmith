@@ -3,12 +3,12 @@ import BaseWidget, { WidgetProps } from "./BaseWidget";
 import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
 import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
-import { ExecuteActionPayload } from "../constants/ActionConstants";
+import { WidgetExecuteActionPayload } from "../constants/ActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 type DebouncedExecuteActionPayload = Omit<
-  ExecuteActionPayload,
+  WidgetExecuteActionPayload,
   "dynamicString"
 > & {
   dynamicString?: string;
@@ -146,6 +146,15 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
         ) {
           executeAction(debouncedPayload);
           this.propertyTriggers.delete(propertyName);
+          debouncedPayload.triggerPropertyName &&
+            AppsmithConsole.info({
+              text: `${debouncedPayload.triggerPropertyName} triggered`,
+              source: {
+                type: ENTITY_TYPE.WIDGET,
+                id: this.props.widgetId,
+                name: this.props.widgetName,
+              },
+            });
         }
       });
     }

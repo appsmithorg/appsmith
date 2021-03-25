@@ -16,6 +16,11 @@ export type ExecuteActionPayload = {
   responseData?: Array<any>;
 };
 
+// triggerPropertyName was added as a requirement for logging purposes
+export type WidgetExecuteActionPayload = ExecuteActionPayload & {
+  triggerPropertyName?: string;
+};
+
 export enum EventType {
   ON_RESET = "ON_RESET",
   ON_PAGE_LOAD = "ON_PAGE_LOAD",

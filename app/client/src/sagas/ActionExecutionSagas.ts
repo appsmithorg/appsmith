@@ -200,6 +200,9 @@ function* storeValueLocally(
       const storeString = JSON.stringify(parsedStore);
       yield localStorage.setItem(appStoreName, storeString);
       yield put(updateAppPersistentStore(parsedStore));
+      AppsmithConsole.info({
+        text: `store('${action.key}', '${action.value}', true)`,
+      });
     } else {
       const existingStore = yield select(getAppStoreData);
       const newTransientStore = {
@@ -207,6 +210,9 @@ function* storeValueLocally(
         [action.key]: action.value,
       };
       yield put(updateAppTransientStore(newTransientStore));
+      AppsmithConsole.info({
+        text: `store('${action.key}', '${action.value}', false)`,
+      });
     }
     // Wait for an evaluation before completing this trigger effect
     // This makes this trigger work in sync and not trigger
