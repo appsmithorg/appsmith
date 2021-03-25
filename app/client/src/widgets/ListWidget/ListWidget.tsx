@@ -35,8 +35,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   state = {
     page: 1,
-    perPage: this.props.paginationPerPage,
   };
+
+  /** this variable stores template widget object */
+  template = undefined;
 
   /**
    * returns the property pane config of the widget
@@ -89,10 +91,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       super.updateWidgetProperty("childAutoComplete", {
         currentItem: newRowStructure,
       });
-    }
-
-    if (prevProps.paginationPerPage !== this.props.paginationPerPage) {
-      this.setState({ perPage: this.props.paginationPerPage });
     }
   }
 
@@ -235,9 +233,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       triggerPaths.forEach((path: string) => {
         const propertyValue = get(widget, path);
-        if (propertyValue.indexOf("currentItem") > -1) {
+
+        if (
+          propertyValue.indexOf("currentItem") > -1 &&
+          propertyValue.indexOf("{{((currentItem) => {") === -1
+        ) {
           const { jsSnippets } = getDynamicBindings(propertyValue);
           const listItem = this.props.items[itemIndex];
+
           const newPropertyValue = jsSnippets.reduce(
             (prev: string, next: string) => {
               if (next.indexOf("currentItem") > -1) {
@@ -256,6 +259,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         }
       });
     }
+
     return this.updateNonTemplateWidgetProperties(widget, itemIndex);
   };
 
@@ -274,6 +278,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       set(widget, `dragDisabled`, true);
       set(widget, `dropDisabled`, true);
     }
+
     return widget;
   };
 
@@ -426,7 +431,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       try {
         // here we are duplicating the template for each items in the data array
         // first item of the canvasChildren acts as a template
-        const template = canvasChildren.slice(0, 1).shift();
+        const template = this.template;
+
+        if (!template) {
+          const template = canvasChildren.slice(0, 1).shift();
+          this.template = template;
+        }
 
         for (let i = 0; i < numberOfItemsInGrid; i++) {
           canvasChildren[i] = JSON.parse(JSON.stringify(template));
@@ -468,7 +478,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       (componentHeight - WIDGET_PADDING * 2) /
       (templateHeight + parseInt(gridGap));
 
-    console.log({ perPage, gridGap });
     return { shouldPaginate, perPage: floor(perPage) };
   };
 
