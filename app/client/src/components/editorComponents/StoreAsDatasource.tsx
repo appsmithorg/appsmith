@@ -1,12 +1,12 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { storeAsDatasource } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 
-export const DatasourceIcon = styled.div`
+export const DatasourceIcon = styled.div<{ enable?: boolean }>`
   position: absolute;
   right: -155px;
   top: 7px;
@@ -22,11 +22,13 @@ export const DatasourceIcon = styled.div`
       fill: ${(props) => props.theme.colors.icon.hover};
     }
   }
-  &.disabled {
-    pointer-events: none;
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
+  ${(props) => (props.enable ? "" : disabled)}
+`;
+
+const disabled = css`
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.7;
 `;
 
 type storeDataSourceProps = {
@@ -38,7 +40,8 @@ const StoreAsDatasource = (props: storeDataSourceProps) => {
 
   return (
     <DatasourceIcon
-      className={`t--store-as-datasource ${props.enable ? "" : "disabled"}`}
+      className="t--store-as-datasource"
+      enable={props.enable}
       onClick={() => dispatch(storeAsDatasource())}
     >
       <Icon name="datasource" size={IconSize.LARGE} />
