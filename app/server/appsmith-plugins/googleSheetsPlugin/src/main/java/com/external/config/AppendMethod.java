@@ -112,7 +112,7 @@ public class AppendMethod implements Method {
                     try {
                         jsonNodeBody = objectMapper.readTree(jsonBody);
                     } catch (IOException e) {
-                        Mono.error(new AppsmithPluginException(
+                        return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
                                 new String(responseBody),
                                 e.getMessage()
@@ -128,7 +128,7 @@ public class AppendMethod implements Method {
 
                     // We replace these original values with new ones
                     finalRowObjectListFromBody.forEach(rowObject -> {
-                        final LinkedHashMap<String, String> valueMap = new LinkedHashMap<>(returnedRowObject.getValueMap());
+                        final Map<String, String> valueMap = new LinkedHashMap<>(returnedRowObject.getValueMap());
                         valueMap.replaceAll((k, v) -> rowObject.getValueMap().getOrDefault(k, null));
                         rowObject.setValueMap(valueMap);
                     });

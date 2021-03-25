@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
@@ -60,8 +61,8 @@ public class CreateMethod implements Method {
         var ref = new Object() {
             Integer startingRow = null;
             Integer endingRow = null;
-            final HashSet<String> headers = new LinkedHashSet<>();
-            final HashSet<String> unknownHeaders = new HashSet<>();
+            final Set<String> headers = new LinkedHashSet<>();
+            final Set<String> unknownHeaders = new HashSet<>();
         };
         if (body != null && !body.isBlank()) {
 
