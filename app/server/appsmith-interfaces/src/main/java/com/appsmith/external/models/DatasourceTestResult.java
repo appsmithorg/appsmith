@@ -4,7 +4,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.Transient;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
