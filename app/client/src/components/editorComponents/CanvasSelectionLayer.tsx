@@ -19,7 +19,18 @@ export const CanvasSelectionLayer = ({
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
+  // This state tells us whether a `ResizableComponent` is resizing
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+
+  // This state tells us whether a `DraggableComponent` is dragging
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
   const openPropertyPane = () => {
+    // ignore click captures if the component was resizing or dragging coz it is handled internally in draggable component
+    if (isResizing || isDragging) return;
     if (
       (!isPropPaneVisible && selectedWidgetId === focusedWidget) ||
       selectedWidgetId !== focusedWidget
