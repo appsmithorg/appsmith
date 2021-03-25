@@ -55,18 +55,17 @@ export const ScrollThumb = styled(animated.div)<{
   mode?: "DARK" | "LIGHT";
   isVertical?: boolean;
 }>`
+  position: relative;
   ${(props) => props.isVertical && `width: 4px;`}
   ${(props) =>
-    !props.isVertical &&
-    `position: fixed; height: 4px;`}
+    !props.isVertical && `height: 100%;`}
   transform: translate3d(0, 0, 0);
-  position: fixed;
   background-color: ${(props) =>
     props.mode
       ? props.mode === "LIGHT"
         ? props.theme.colors.scrollbarLight
         : props.theme.colors.scrollbarDark
-      : props.theme.colors.scrollbar};
+      : props.theme.colors.scrollbarLight};
   border-radius: ${(props) => props.theme.radii[3]}px;
 `;
 

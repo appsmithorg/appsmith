@@ -3,17 +3,23 @@ import styled from "styled-components";
 import _ from "lodash";
 import { useSpring, interpolate } from "react-spring";
 import { ScrollThumb, ScrollTrackCSS } from "constants/DefaultTheme";
+import { useSelector } from "react-redux";
+import { AppState } from "reducers";
 
 const ScrollTrack = styled.div<{
   isVisible: boolean;
   bottom?: string;
+  top?: string;
   left?: string;
   mode?: "DARK" | "LIGHT";
 }>`
   ${ScrollTrackCSS};
   height: 4px;
-  opacity: ${(props) => (props.isVisible ? 1 : 0)};
-  bottom: ${(props) => (props.bottom ? props.bottom : "0px")};
+  /*&:hover {
+    height: 8px;
+  }*/
+  ${(props) => (props.bottom ? "bottom:" + props.bottom : "")};
+  ${(props) => (props.top ? "top:" + props.top : "")};
   left: ${(props) => (props.left ? props.left : "0")};
   opacity: ${(props) => (props.isVisible ? 1 : 0)};
   box-shadow: inset 0 0 6px
@@ -22,12 +28,13 @@ const ScrollTrack = styled.div<{
         ? props.mode === "LIGHT"
           ? props.theme.colors.scrollbarLightBG
           : props.theme.colors.scrollbarDarkBG
-        : props.theme.colors.scrollbarBG};
+        : props.theme.colors.scrollbarLightBG};
 `;
 
 interface Props {
   containerRef: React.RefObject<HTMLDivElement>;
   bottom?: string;
+  top?: string;
   left?: string;
   alwaysShowScrollbar?: boolean;
   mode?: "DARK" | "LIGHT";
@@ -35,6 +42,7 @@ interface Props {
 const HorizontalScrollIndicator = ({
   containerRef,
   bottom,
+  top,
   left,
   alwaysShowScrollbar,
 }: Props) => {
@@ -76,6 +84,13 @@ const HorizontalScrollIndicator = ({
 
   useEffect(() => {
     containerRef.current?.addEventListener("scroll", handleContainerScroll);
+    if (thumbRef.current) {
+      // thumbRef.current.setAttribute("draggable", "true");
+      thumbRef.current.addEventListener("ondrag", (e: any) => {
+        console.log("on drag");
+        e.stopPropagation();
+      });
+    }
     return () => {
       containerRef.current?.removeEventListener(
         "scroll",
@@ -93,9 +108,31 @@ const HorizontalScrollIndicator = ({
   const hideScrollbar = _.debounce(() => {
     setIsScrollVisible(alwaysShowScrollbar || false);
   }, 1500);
-  console.log({ isScrollVisible });
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+  useEffect(() => {
+    if (isResizing && containerRef.current) {
+      setIsScrollVisible(true);
+      const { offsetWidth, scrollWidth, scrollLeft } = containerRef.current;
+      const thumbWidth = offsetWidth * (offsetWidth / scrollWidth);
+      const thumbPosition =
+        (scrollLeft / (scrollWidth - offsetWidth)) * (offsetWidth - thumbWidth);
+      if (thumbRef.current) {
+        thumbRef.current.style.width = thumbWidth + "px";
+      }
+      setThumbPosition({
+        thumbPosition,
+      });
+    }
+  }, [isResizing]);
   return (
-    <ScrollTrack isVisible={isScrollVisible} bottom={bottom} left={left}>
+    <ScrollTrack
+      isVisible={isScrollVisible && !isResizing}
+      bottom={bottom}
+      top={top}
+      left={left}
+    >
       <ScrollThumb
         ref={thumbRef}
         style={{

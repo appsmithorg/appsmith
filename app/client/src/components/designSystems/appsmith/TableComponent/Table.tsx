@@ -6,7 +6,7 @@ import {
   useResizeColumns,
   useRowSelect,
 } from "react-table";
-import { TableWrapper } from "./TableStyledWrappers";
+import { TableWrapper, TableHeaderWrapper } from "./TableStyledWrappers";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/TableFilters";
 import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
@@ -143,6 +143,8 @@ export const Table = (props: TableProps) => {
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
+  const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
+  console.log({ tableHeaderWrapperRef: tableHeaderWrapperRef?.current });
   /* Subtracting 9px to handling widget padding */
   return (
     <TableWrapper
@@ -153,33 +155,40 @@ export const Table = (props: TableProps) => {
       triggerRowSelection={props.triggerRowSelection}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
     >
-      <TableHeader
-        width={props.width}
-        tableData={props.data}
-        tableColumns={props.columns}
-        searchTableData={props.searchTableData}
-        searchKey={props.searchKey}
-        updatePageNo={props.updatePageNo}
-        nextPageClick={props.nextPageClick}
-        prevPageClick={props.prevPageClick}
-        pageNo={props.pageNo}
-        pageCount={pageCount}
-        currentPageIndex={currentPageIndex}
-        pageOptions={pageOptions}
-        widgetName={props.widgetName}
+      <TableHeaderWrapper
         serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-        columns={props.columns.filter((column: ReactTableColumnProps) => {
-          return column.accessor !== "actions";
-        })}
-        hiddenColumns={props.hiddenColumns}
-        updateHiddenColumns={props.updateHiddenColumns}
-        filters={props.filters}
-        applyFilter={props.applyFilter}
-        editMode={props.editMode}
-        compactMode={props.compactMode}
-        updateCompactMode={props.updateCompactMode}
+        width={props.width}
         tableSizes={tableSizes}
-      />
+        backgroundColor={Colors.WHITE}
+        ref={tableHeaderWrapperRef}
+      >
+        <TableHeader
+          tableData={props.data}
+          tableColumns={props.columns}
+          searchTableData={props.searchTableData}
+          searchKey={props.searchKey}
+          updatePageNo={props.updatePageNo}
+          nextPageClick={props.nextPageClick}
+          prevPageClick={props.prevPageClick}
+          pageNo={props.pageNo}
+          pageCount={pageCount}
+          currentPageIndex={currentPageIndex}
+          pageOptions={pageOptions}
+          widgetName={props.widgetName}
+          serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+          columns={props.columns.filter((column: ReactTableColumnProps) => {
+            return column.accessor !== "actions";
+          })}
+          hiddenColumns={props.hiddenColumns}
+          updateHiddenColumns={props.updateHiddenColumns}
+          filters={props.filters}
+          applyFilter={props.applyFilter}
+          editMode={props.editMode}
+          compactMode={props.compactMode}
+          updateCompactMode={props.updateCompactMode}
+          tableSizes={tableSizes}
+        />
+      </TableHeaderWrapper>
       <div
         className={props.isLoading ? Classes.SKELETON : "tableWrap"}
         ref={tableWrapperRef}
@@ -274,18 +283,26 @@ export const Table = (props: TableProps) => {
                 prepareRow,
               )}
           </div>
-          <HorizontalScrollIndicator
-            containerRef={tableWrapperRef}
-            mode="LIGHT"
-            alwaysShowScrollbar
-          />
         </div>
-        <VerticalScrollIndicator
-          containerRef={tableBodyRef}
-          mode="LIGHT"
-          top="32px"
-        />
       </div>
+      <HorizontalScrollIndicator
+        containerRef={tableHeaderWrapperRef}
+        mode="LIGHT"
+        top={props.editMode ? "37px" : "40px"}
+        left={props.editMode ? "0px" : "3px"}
+      />
+      <HorizontalScrollIndicator
+        containerRef={tableWrapperRef}
+        mode="LIGHT"
+        alwaysShowScrollbar
+        bottom={props.editMode ? "0px" : "3px"}
+        left={props.editMode ? "0px" : "3px"}
+      />
+      <VerticalScrollIndicator
+        containerRef={tableBodyRef}
+        mode="LIGHT"
+        top={props.editMode ? "70px" : "73px"}
+      />
     </TableWrapper>
   );
 };

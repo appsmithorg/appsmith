@@ -4,7 +4,6 @@ import { Icon, NumericInput } from "@blueprintjs/core";
 import {
   RowWrapper,
   PaginationWrapper,
-  TableHeaderWrapper,
   PaginationItemWrapper,
   CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
@@ -22,7 +21,6 @@ import TableDataDownload from "components/designSystems/appsmith/TableComponent/
 import TableCompactMode from "components/designSystems/appsmith/TableComponent/TableCompactMode";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/ActionConstants";
-import HorizontalScrollIndicator from "components/ads/HorizontalScrollIndicator";
 
 const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {
@@ -105,21 +103,12 @@ interface TableHeaderProps {
   editMode: boolean;
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
-  width: number;
   tableSizes: TableSizes;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
-  const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
-
   return (
-    <TableHeaderWrapper
-      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-      width={props.width}
-      tableSizes={props.tableSizes}
-      backgroundColor={Colors.WHITE}
-      ref={tableHeaderWrapperRef}
-    >
+    <React.Fragment>
       <SearchComponent
         value={props.searchKey}
         placeholder="Search..."
@@ -214,11 +203,7 @@ const TableHeader = (props: TableHeaderProps) => {
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
-      <HorizontalScrollIndicator
-        containerRef={tableHeaderWrapperRef}
-        mode="LIGHT"
-      />
-    </TableHeaderWrapper>
+    </React.Fragment>
   );
 };
 

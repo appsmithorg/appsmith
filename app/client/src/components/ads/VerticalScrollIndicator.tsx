@@ -22,7 +22,7 @@ const ScrollTrack = styled.div<{
         ? props.mode === "LIGHT"
           ? props.theme.colors.scrollbarLightBG
           : props.theme.colors.scrollbarDarkBG
-        : props.theme.colors.scrollbarBG};
+        : props.theme.colors.scrollbarLightBG};
   width: 4px;
 `;
 
@@ -62,7 +62,6 @@ const VerticalScrollIndicator = ({
     alwaysShowScrollbar || false,
   );
   const thumbRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleContainerScroll = (e: any): void => {
@@ -79,33 +78,13 @@ const VerticalScrollIndicator = ({
       });
     };
 
-    // const handlehorizontalScroll = (e: any): void => {
-    //   const trackPosition = e.target.scrollLeft;
-    //   if (trackRef.current) {
-    //     trackRef.current.style.right = `${-trackPosition + 2}px`;
-    //   }
-    // };
-
     containerRef.current?.addEventListener("scroll", handleContainerScroll);
-
-    // if (horizontalScrollContainerRef) {
-    //   horizontalScrollContainerRef.current?.addEventListener(
-    //     "scroll",
-    //     handlehorizontalScroll,
-    //   );
-    // }
 
     return () => {
       containerRef.current?.removeEventListener(
         "scroll",
         handleContainerScroll,
       );
-      // if (horizontalScrollContainerRef) {
-      //   horizontalScrollContainerRef.current?.removeEventListener(
-      //     "scroll",
-      //     handlehorizontalScroll,
-      //   );
-      // }
     };
   }, []);
 
@@ -116,16 +95,14 @@ const VerticalScrollIndicator = ({
   }, [isScrollVisible]);
 
   const hideScrollbar = _.debounce(() => {
-    setIsScrollVisible(true);
+    setIsScrollVisible(alwaysShowScrollbar || false);
   }, 1500);
-
   return (
     <ScrollTrack
       isVisible={isScrollVisible}
       top={top}
       bottom={bottom}
       right={right}
-      ref={trackRef}
     >
       <ScrollThumb
         isVertical
