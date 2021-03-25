@@ -1278,7 +1278,6 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
 Cypress.Commands.add("tableDataHide", (endp, value) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
-    .focus({ force: true })
     .should("not.be.visible");
 });
 
