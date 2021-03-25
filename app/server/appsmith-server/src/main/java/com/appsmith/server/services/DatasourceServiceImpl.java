@@ -144,16 +144,17 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(this::populateHintMessages); // For REST API datasource create flow.
     }
 
-    private Mono<Datasource> populateHintMessages(Datasource datasource) {
+    public Mono<Datasource> populateHintMessages(Datasource datasource) {
 
         if(datasource == null) {
-            return Mono.error(
-                    new AppsmithException(
-                            AppsmithError.BAD_DATASOURCE_OBJECT,
-                            "Appsmith has encountered a null Datasource object. Please reach out to Appsmith customer" +
-                                    " support to resolve this."
-                    )
-            );
+            /*
+             * - Not throwing an exception here because we do not throw an error in case of missing datasource. We
+             *   add the invalid DATASOURCE_NOT_GIVEN. We try not to fail as much as possible during create and update
+             *   actions.
+             * - Since adding to datasource.invalids set is not possible because datasource is null, returning from
+             *   here seems to be the best course of action.
+             */
+            return Mono.just(datasource);
         }
 
         Set<String> messages = new HashSet<>();

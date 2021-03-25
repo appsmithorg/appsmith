@@ -913,20 +913,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             );
         }
 
-        Set<String> messages = new HashSet<>();
-
-        if(action.getDatasource() != null
-                && action.getDatasource().getDatasourceConfiguration() != null
-                && !StringUtils.isEmpty(action.getDatasource().getDatasourceConfiguration().getUrl())) {
-            boolean usingLocalhostUrl = action.getDatasource().getDatasourceConfiguration().getUrl().contains(
-                    "localhost");
-            if(usingLocalhostUrl) {
-                messages.add("You may not able to access your localhost if Appsmith is running inside a docker " +
-                        "container or on the cloud. Please check out Appsmith's documentation to understand more.");
-            }
-        }
-
-        action.getDatasource().setMessages(messages);
+        datasourceService.populateHintMessages(action.getDatasource());
 
         return Mono.just(action);
     }
