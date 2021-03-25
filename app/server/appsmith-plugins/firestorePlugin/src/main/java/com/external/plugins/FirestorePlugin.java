@@ -73,7 +73,6 @@ public class FirestorePlugin extends BasePlugin {
     private static final int END_BEFORE_PROPERTY_INDEX = 7;
     private static final int FIELDVALUE_TIMESTAMP_PROPERTY_INDEX = 8;
     private static final int FIELDVALUE_DELETE_PROPERTY_INDEX = 9;
-    private static final String FIELDVALUE_DELETE_METHOD_NAME = "delete";
     private static final String FIELDVALUE_TIMESTAMP_METHOD_NAME = "serverTimestamp";
 
     public FirestorePlugin(PluginWrapper wrapper) {
@@ -205,8 +204,10 @@ public class FirestorePlugin extends BasePlugin {
                                        List<Property> properties,
                                        Method method) throws AppsmithPluginException {
 
+            /*
+             * - Check that FieldValue.delete() option is only available for UPDATE operation.
+             */
             if(!Method.UPDATE_DOCUMENT.equals(method)
-                    && !Method.SET_DOCUMENT.equals(method)
                     && properties.size() > FIELDVALUE_DELETE_PROPERTY_INDEX
                     && properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX) != null
                     && !StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
@@ -217,19 +218,9 @@ public class FirestorePlugin extends BasePlugin {
                 );
             }
 
-            if((Method.GET_DOCUMENT.equals(method)
-                    || Method.GET_COLLECTION.equals(method)
-                    || Method.DELETE_DOCUMENT.equals(method))
-                    && properties.size() > FIELDVALUE_TIMESTAMP_PROPERTY_INDEX
-                    && properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) != null
-                    && !StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
-                throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith has found an unexpected query form property - 'Timestamp Value Path'. Please reach " +
-                                "out to Appsmith customer support to resolve this."
-                );
-            }
-
+            /*
+             * - Update all of the map body keys that need to be deleted.
+             */
             if( properties.size() > FIELDVALUE_DELETE_PROPERTY_INDEX
                     && properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX) != null
                     && !StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
@@ -245,9 +236,37 @@ public class FirestorePlugin extends BasePlugin {
                     );
                 }
 
-                insertFieldValueByMethodName(mapBody, deletePathsList, FIELDVALUE_DELETE_METHOD_NAME);
+                /*
+                 * - This way to denoting a filed via a "." (dot) notation can only be used for a update operation.
+                 *    e.g. if pathsList is [["key1", "key2"]] then if will add to map :
+                 *    {"key1.key2": FieldValue.delete()}
+                 * - dot notation is used with FieldValue.delete() because otherwise it is not possible to delete
+                 *   nested fields. Ref: https://stackoverflow.com/questions/46677132/fieldvalue-delete-can-only-appear-at-the-top-level-of-your-update-data-fires/46677677
+                 * - dot notation is safe to use with delete FieldValue because only works with update operation.
+                 */
+                deletePathsList.stream()
+                        .forEach(pathList -> mapBody.put(String.join(".", pathList), FieldValue.delete()));
             }
 
+            /*
+             * - Check that FieldValue.serverTimestamp() option is not available for any GET or DELETE operations.
+             */
+            if((Method.GET_DOCUMENT.equals(method)
+                    || Method.GET_COLLECTION.equals(method)
+                    || Method.DELETE_DOCUMENT.equals(method))
+                    && properties.size() > FIELDVALUE_TIMESTAMP_PROPERTY_INDEX
+                    && properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) != null
+                    && !StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith has found an unexpected query form property - 'Timestamp Value Path'. Please reach " +
+                                "out to Appsmith customer support to resolve this."
+                );
+            }
+
+            /*
+             * - Update all of the map body keys that need to store timestamp.
+             */
             if(properties.size() > FIELDVALUE_TIMESTAMP_PROPERTY_INDEX
                     && properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) != null
                     && !StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
@@ -267,7 +286,12 @@ public class FirestorePlugin extends BasePlugin {
                 insertFieldValueByMethodName(mapBody, timestampPathsList, FIELDVALUE_TIMESTAMP_METHOD_NAME);
             }
         }
-        
+
+        /*
+         * - A common method that can be used for any FieldValue option.
+         * - It iterates over the map body and replaces the value of keys defined by pathsList with a FieldValue
+         *   entity defined by fieldValueName.
+         */
         private void insertFieldValueByMethodName(Map<String, Object> mapBody,
                                             List<List<String>> pathsList,
                                             String fieldValueName) {
