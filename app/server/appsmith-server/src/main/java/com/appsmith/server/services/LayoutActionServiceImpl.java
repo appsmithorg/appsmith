@@ -356,8 +356,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
                     // We found the path. But if the path does not have any mustache bindings, throw the error
                     if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
-                        throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                widgetName, widgetId, fieldPath, pageId, layoutId, parent);
+                        try {
+                            String bindingAsString = objectMapper.writeValueAsString(parent);
+                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                    widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
+                        } catch (JsonProcessingException e) {
+                            throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
+                        }
                     }
 
                     // Stricter extraction of dynamic bindings
