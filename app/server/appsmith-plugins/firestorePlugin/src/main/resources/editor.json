@@ -86,7 +86,7 @@
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "",
-          "placeholderText": "[\"user\", \"name\"]",
+          "placeholderText": "[[\"user\", \"name\"]]",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "IN",
