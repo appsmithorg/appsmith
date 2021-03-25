@@ -384,6 +384,8 @@ const OrgMenuItem = ({ org, isFetchingApplications, selected }: any) => {
 };
 
 function LeftPane() {
+  const dispatch = useDispatch();
+  const theme = useContext(ThemeContext);
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const NewWorkspaceTrigger = (
@@ -407,6 +409,19 @@ function LeftPane() {
   const urlHash = location.hash.slice(1);
 
   const initiateOnboarding = useIntiateOnboarding();
+
+  const createNewOrganization = (organizationName: string, orgId: string) => {
+    const color = getRandomPaletteColor(theme.colors.appCardColors);
+    const icon =
+      AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
+
+    return dispatch({
+      type: ReduxActionTypes.CREATE_ORGANIZATION_INIT,
+      payload: {
+        name: organizationName,
+      },
+    });
+  };
 
   return (
     <LeftPaneWrapper>
