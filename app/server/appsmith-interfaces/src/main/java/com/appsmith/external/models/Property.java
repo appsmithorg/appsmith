@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -21,9 +23,16 @@ public class Property {
         this.value = value;
     }
 
+    public Property(String key, List<Object> valueList) {
+        this.key = key;
+        this.valueList = valueList;
+    }
+
     String key;
 
     String value;
+
+    List<Object> valueList; // [["path", "operator"], [], [] ]
 
     Boolean editable;
 
