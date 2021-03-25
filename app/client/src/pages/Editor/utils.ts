@@ -75,10 +75,9 @@ export const draggableElement = (
       left: calculatedLeft,
       top: calculatedTop,
     } = calculateBoundaryConfinedPosition(left, top);
-    const positionUpdated = top !== calculatedLeft || left !== calculatedTop;
 
     return {
-      updatePosition: isDragged && isElementOpen && positionUpdated,
+      updatePosition: isDragged && isElementOpen,
       left: calculatedLeft,
       top: calculatedTop,
     };
@@ -120,6 +119,8 @@ export const draggableElement = (
       setElementPosition();
     }
     dragHandler.addEventListener("mousedown", dragMouseDown);
+    // stop clicks from propogating to widget editor.
+    dragHandler.addEventListener("click", (e: any) => e.stopPropagation());
   };
 
   OnInit();
@@ -140,5 +141,5 @@ const createDragHandler = (
     ? el.replaceChild(dragElement, oldDragHandler)
     : el.appendChild(dragElement);
   ReactDOM.render(dragHandle(), dragElement);
-  return el;
+  return dragElement;
 };
