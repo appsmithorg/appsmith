@@ -1,7 +1,9 @@
 import {
+  ReduxAction,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
+import { PluginFormPayload } from "api/PluginApi";
 
 export const fetchPlugins = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
@@ -11,15 +13,26 @@ export const fetchPluginFormConfigs = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_REQUEST,
 });
 
-export const fetchPluginForm = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.FETCH_PLUGIN_FORM_INIT,
-    payload,
-  };
+export type PluginFormsPayload = {
+  formConfigs: Record<string, any[]>;
+  editorConfigs: Record<string, any[]>;
+  settingConfigs: Record<string, any[]>;
 };
 
-export const fetchDBPluginForms = () => {
-  return {
-    type: ReduxActionTypes.FETCH_DB_PLUGIN_FORMS_INIT,
-  };
-};
+export const fetchPluginFormConfigsSuccess = (
+  payload: PluginFormsPayload,
+): ReduxAction<PluginFormsPayload> => ({
+  type: ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS,
+  payload,
+});
+
+export interface PluginFormPayloadWithId extends PluginFormPayload {
+  id: string;
+}
+
+export const fetchPluginFormConfigSuccess = (
+  payload: PluginFormPayloadWithId,
+): ReduxAction<PluginFormPayloadWithId> => ({
+  type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
+  payload,
+});
