@@ -1,9 +1,11 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableTextPaginationDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const apiPage = require("../../../../locators/ApiEditor.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
+const pages = require("../../../../locators/Pages.json");
 
 describe("Test Create Api and Bind to Table widget", function() {
   before(() => {
@@ -30,9 +32,41 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.addColumn("CustomColumn");
   });
 
-  it("Update table json data and check the column names updated and validate empty value", function() {
+  it("Table widget toggle test for background color", function() {
+    cy.editColumn("id");
+    cy.wait(1000);
+    cy.get(widgetsPage.toggleJsBcgColor)
+      .first()
+      .click({ force: true });
+    cy.wait(1000);
+    cy.toggleJsAndUpdate("tabledata", "Green");
+    cy.get(commonlocators.editPropCrossButton).click();
+    cy.wait("@updateLayout");
+    cy.readTabledataValidateCSS(
+      "1",
+      "0",
+      "background-color",
+      "rgb(0, 128, 0)",
+    );
+  });
+
+  it("Edit column name and validate test for computed value based on column type selected", function() {
     cy.SearchEntityandOpen("Table1");
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputWithNull));
+    cy.editColumn("customColumn1");
+    cy.readTabledataPublish("1", "9").then((tabData) => {
+      const tabValue = tabData;
+      cy.updateComputedValue("{{Api1.data.users[0].email}}");
+      cy.readTabledataPublish("1", "9").then((tabData) => {
+        expect(tabData).not.to.be.equal(tabValue);
+        cy.log("computed value of plain text " + tabData);
+      });
+    });
+    cy.closePropertyPane();
+  });
+
+  it("Update table json data and check the column names updated", function() {
+    cy.SearchEntityandOpen("Table1");
+    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputUpdate));
     cy.wait("@updateLayout");
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("email");
@@ -40,31 +74,11 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.tableColumnDataValidation("productName");
     cy.tableColumnDataValidation("orderAmount");
     cy.tableColumnDataValidation("customColumn1");
-    cy.hideColumn("id");
     cy.hideColumn("email");
     cy.hideColumn("userName");
     cy.hideColumn("productName");
+    cy.hideColumn("orderAmount");
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
     cy.closePropertyPane();
-    cy.readTabledataPublish("0", "0").then((tabData) => {
-      const tabValue = tabData;
-      expect(tabValue).to.be.equal("");
-    });
-  });
-
-  it("Check Selected Row(s) Resets When Table Data Changes", function() {
-    cy.isSelectRow(1);
-    cy.openPropertyPane("tablewidget");
-    cy.testJsontext("tabledata", "[]");
-    cy.wait("@updateLayout");
-    const newTableData = [...this.data.TableInput];
-    newTableData[0].userName = "";
-    cy.testJsontext("tabledata", JSON.stringify(newTableData));
-    cy.wait("@updateLayout");
-    const selectedRowsSelector = `.t--widget-tablewidget .tbody .tr.selected-row`;
-    cy.get(selectedRowsSelector).should(($p) => {
-      // should found 0 rows
-      expect($p).to.have.length(0);
-    });
   });
 });

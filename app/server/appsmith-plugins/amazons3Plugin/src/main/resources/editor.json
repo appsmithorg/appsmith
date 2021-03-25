@@ -48,17 +48,17 @@
           }
         },
         {
-          "label": "File Data Type: Base64/Text",
+          "label": "File Data Type",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
           "controlType": "DROP_DOWN",
-          "initialValue": "NO",
+          "initialValue": "YES",
           "options": [
             {
-              "label": "Yes",
+              "label": "Base64",
               "value": "YES"
             },
             {
-              "label": "No",
+              "label": "Text / Binary",
               "value": "NO"
             }
           ],

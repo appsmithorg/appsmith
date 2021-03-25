@@ -49,13 +49,22 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.assertDateFormat();
     cy.selectDateFormat("YYYY-MM-DD HH:mm");
     cy.assertDateFormat();
-    cy.selectDateFormat("YYYY-MM-DDTHH:mm:ss.sssZ");
+    cy.selectDateFormat("ISO 8601");
     cy.assertDateFormat();
     cy.selectDateFormat("DD/MM/YYYY");
     cy.assertDateFormat();
     cy.selectDateFormat("DD/MM/YYYY HH:mm");
     cy.closePropertyPane();
     cy.assertDateFormat();
+  });
+
+  it("Datepicker default date validation message", function() {
+    cy.openPropertyPane("datepickerwidget2");
+    cy.testJsontext("defaultdate", "2020-02-01");
+    cy.evaluateErrorMessage(
+      "Value does not match ISO 8601 standard date string",
+    );
+    cy.closePropertyPane();
   });
 
   it("Datepicker default date validation with strings", function() {
