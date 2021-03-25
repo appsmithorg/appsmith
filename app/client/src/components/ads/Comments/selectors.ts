@@ -21,3 +21,10 @@ export const isCommentMode = (state: AppState) =>
 export const unpublishedCommentThreadSelector = (refId: string) => (
   state: AppState,
 ) => state.ui.comments.unpublishedCommentThreads[refId];
+
+export const commentModeSelector = (state: AppState) =>
+  state.ui.comments.isCommentMode;
+
+export const applicationCommentsSelector = (applicationId: string) => (
+  state: AppState,
+) => state.ui.comments.applicationCommentThreadsByRef[applicationId];

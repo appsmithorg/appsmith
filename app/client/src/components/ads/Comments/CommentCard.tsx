@@ -36,10 +36,8 @@ const UserName = styled.span`
   align-items: center;
 `;
 
-// eslint-disable-next-line
-const CommentCard = ({ comment, theme }: { comment: any; theme: Theme }) => {
+const CommentCard = ({ comment }: { comment: any }) => {
   const { authorName, body } = comment;
-
   return (
     <StyledContainer>
       <CommentHeader>
@@ -54,4 +52,4 @@ const CommentCard = ({ comment, theme }: { comment: any; theme: Theme }) => {
   );
 };
 
-export default withTheme(CommentCard);
+export default CommentCard;

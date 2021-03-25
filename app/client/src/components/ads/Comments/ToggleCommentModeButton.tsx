@@ -6,14 +6,11 @@ import {
   setCommentMode as setCommentModeAction,
   fetchApplicationCommentsRequest,
 } from "actions/commentActions";
-import { AppState } from "reducers";
+import { commentModeSelector } from "./selectors";
 
 import { getAppsmithConfigs } from "configs";
 
 const { commentsEnabled } = getAppsmithConfigs();
-
-const commentModeSelector = (state: AppState) =>
-  state.ui.comments.isCommentMode;
 
 const StyledToggleCommentMode = styled.div<{ isCommentMode: boolean }>`
   display: flex;

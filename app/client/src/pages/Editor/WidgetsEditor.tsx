@@ -24,6 +24,7 @@ import PerformanceTracker, {
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
+import { AppState } from "reducers";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -49,6 +50,26 @@ const CanvasContainer = styled.section`
     pointer-events: none;
   }
 `;
+
+const OnboardingContainer = styled.div`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%);
+`;
+
+const Onboarding = ({ dsl }: any) => {
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+  const shouldShow = dsl?.children?.length === 0 && !isDragging;
+
+  return shouldShow ? (
+    <OnboardingContainer>
+      <h2 style={{ color: "#ccc" }}>Drag and drop a widget here</h2>
+    </OnboardingContainer>
+  ) : null;
+};
 
 /* eslint-disable react/display-name */
 const WidgetsEditor = () => {
@@ -124,6 +145,7 @@ const WidgetsEditor = () => {
         <MainContainerLayoutControl />
         <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
           {node}
+          <Onboarding dsl={widgets} />
         </CanvasContainer>
       </EditorWrapper>
     </EditorContextProvider>

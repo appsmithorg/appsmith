@@ -279,9 +279,6 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
         className={"t--drop-target"}
       >
         {props.children}
-        {!(childWidgets && childWidgets.length) &&
-          !isDragging &&
-          !props.parentId && <Onboarding />}
         <DragLayerComponent
           parentWidgetId={props.widgetId}
           canDropTargetExtend={canDropTargetExtend}
