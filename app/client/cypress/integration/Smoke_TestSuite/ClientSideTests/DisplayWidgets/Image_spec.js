@@ -33,6 +33,9 @@ describe("Image Widget Functionality", function() {
       .invoke("attr", "src")
       .should("contain", this.data.validateImage);
 
+    /**
+     * Test for Base64 encoded image
+     */
     cy.get(viewWidgetsPage.sourceImage)
       .click({ force: true })
       .type(this.data.command)

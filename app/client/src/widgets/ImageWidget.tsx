@@ -100,7 +100,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
-      image: VALIDATION_TYPES.TEXT,
+      image: VALIDATION_TYPES.IMAGE,
       imageShape: VALIDATION_TYPES.TEXT,
       defaultImage: VALIDATION_TYPES.TEXT,
       maxZoomLevel: VALIDATION_TYPES.NUMBER,
@@ -115,7 +115,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         }}
         maxZoomLevel={maxZoomLevel}
         widgetId={this.props.widgetId}
-        imageUrl={this.getImageProps()}
+        imageUrl={this.props.image}
         onClick={this.props.onClick ? this.onImageClick : undefined}
         showHoverPointer={this.props.renderMode === RenderModes.PAGE}
         defaultImageUrl={this.props.defaultImage}

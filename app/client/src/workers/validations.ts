@@ -855,4 +855,49 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       parsed: value,
     };
   },
+  [VALIDATION_TYPES.IMAGE]: (value: any): ValidationResponse => {
+    let parsed = value;
+    const base64ImageRegex = /^data:image\/.*;base64/;
+    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+    if (isUndefined(value) || value === null) {
+      return {
+        isValid: true,
+        parsed: value,
+        message: "",
+      };
+    }
+    if (isObject(value)) {
+      return {
+        isValid: false,
+        parsed: JSON.stringify(value, null, 2),
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+      };
+    }
+    if (imageUrlRegex.test(value)) {
+      return {
+        isValid: true,
+        parsed: value,
+        message: "",
+      };
+    }
+    let isValid = base64ImageRegex.test(value);
+    if (!isValid) {
+      try {
+        parsed =
+          btoa(atob(value)) === value
+            ? "data:image/png;base64," + value
+            : value;
+        isValid = true;
+      } catch (err) {
+        console.error(`Error when parsing ${value} to string`);
+        console.error(err);
+        return {
+          isValid: false,
+          parsed: "",
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+        };
+      }
+    }
+    return { isValid, parsed };
+  },
 };
