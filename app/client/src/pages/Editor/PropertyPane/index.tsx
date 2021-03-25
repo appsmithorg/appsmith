@@ -45,9 +45,10 @@ const PropertyPaneWrapper = styled(PaneWrapper)<{
   width: 100%;
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
-  margin: ${(props) => props.theme.spaces[2]}px;
+  margin-bottom: ${(props) => props.theme.spaces[2]}px;
   margin-left: ${(props) => props.theme.spaces[10]}px;
   padding: ${(props) => props.theme.spaces[5]}px;
+  padding-top: 0px;
   padding-right: ${(props) => props.theme.spaces[5]}px;
   border-right: 0;
   overflow-y: auto;
@@ -77,6 +78,10 @@ const DeleteIcon = FormIcons.DELETE_ICON;
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
+
+export const PropertyControlsWrapper = styled.div`
+  margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
+`;
 
 const PropertyPaneView = (
   props: {
@@ -149,12 +154,14 @@ const PropertyPaneView = (
           },
         ]}
       />
-      <PropertyControlsGenerator
-        id={widgetProperties.widgetId}
-        type={widgetProperties.type}
-        panel={panel}
-        theme={theme}
-      />
+      <PropertyControlsWrapper>
+        <PropertyControlsGenerator
+          id={widgetProperties.widgetId}
+          type={widgetProperties.type}
+          panel={panel}
+          theme={theme}
+        />
+      </PropertyControlsWrapper>
     </>
   );
 };

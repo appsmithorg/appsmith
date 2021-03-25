@@ -34,7 +34,6 @@ const PopperWrapper = styled.div<{ zIndex: number }>`
 
 const DragHandleBlock = styled.div`
   padding: 6px;
-  margin-top: 6px;
   height: 28px;
   background-color: ${(props) =>
     props.theme.colors?.propertyPane?.bg || Colors.BLACK};

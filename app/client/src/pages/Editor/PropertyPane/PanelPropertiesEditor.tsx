@@ -17,6 +17,7 @@ import { Icon, IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
 import { BindingText } from "../APIEditor/Form";
+import { PropertyControlsWrapper } from ".";
 
 const PanelHeader = (props: PanelHeaderProps) => {
   return (
@@ -189,13 +190,15 @@ export const PanelPropertiesEditor = (
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      {panelConfigs &&
-        generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
-          id: widgetProperties.widgetId,
-          type: widgetProperties.type,
-          panel,
-          theme,
-        })}
+      <PropertyControlsWrapper>
+        {panelConfigs &&
+          generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
+            id: widgetProperties.widgetId,
+            type: widgetProperties.type,
+            panel,
+            theme,
+          })}
+      </PropertyControlsWrapper>
     </>
   );
 };
