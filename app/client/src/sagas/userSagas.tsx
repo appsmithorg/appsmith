@@ -338,7 +338,7 @@ export function* logoutSaga() {
     if (isValidResponse) {
       AnalyticsUtil.reset();
       yield put(logoutUserSuccess());
-      localStorage.removeItem("THEME");
+      localStorage.clear();
       yield put(flushErrorsAndRedirect(AUTH_LOGIN_URL));
     }
   } catch (error) {
