@@ -183,7 +183,7 @@
         {
           "label": "Range (or Row Offset)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_IN",
