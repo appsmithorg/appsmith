@@ -4,9 +4,15 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call } from "redux-saga/effects";
 import { get } from "lodash";
+import WidgetFactory from "utils/WidgetFactory";
 
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  WidgetType,
+} from "constants/WidgetConstants";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -52,21 +58,24 @@ export type BlueprintOperationModifyPropsFn = (
   parent?: WidgetProps,
 ) => UpdatePropertyArgs[] | undefined;
 
+export interface ChildOperationFnResponse {
+  widgets: Record<string, FlattenedWidgetProps>;
+  message?: string;
+}
+
 export type BlueprintOperationChildOperationsFn = (
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   widgetId: string,
   parentId: string,
-) => { [widgetId: string]: FlattenedWidgetProps } | undefined;
-
-export type BlueprintChildOperationsFn = (
-  widget: WidgetProps & { children?: WidgetProps[] },
-  widgets: { [widgetId: string]: FlattenedWidgetProps },
-) => UpdatePropertyArgs[] | undefined;
+  widgetPropertyMaps: {
+    defaultPropertyMap: Record<string, string>;
+  },
+) => ChildOperationFnResponse;
 
 export type BlueprintOperationFunction =
   | BlueprintOperationModifyPropsFn
   | BlueprintOperationAddActionFn
-  | BlueprintChildOperationsFn;
+  | BlueprintOperationChildOperationsFn;
 
 export enum BlueprintOperationTypes {
   MODIFY_PROPS = "MODIFY_PROPS",
@@ -127,15 +136,41 @@ export function* executeWidgetBlueprintOperations(
  */
 export function* executeWidgetBlueprintChildOperations(
   operation: BlueprintOperation,
-  widgets: { [widgetId: string]: FlattenedWidgetProps },
+  canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
   widgetId: string,
   parentId: string,
 ) {
-  return (operation.fn as BlueprintOperationChildOperationsFn)(
+  // TODO(abhinav): Special handling for child operaionts
+  // This needs to be deprecated soon
+
+  // Get the default properties map of the current widget
+  // The operation can handle things based on this map
+  // Little abstraction leak, but will be deprecated soon
+  const widgetPropertyMaps = {
+    defaultPropertyMap: WidgetFactory.getWidgetDefaultPropertiesMap(
+      canvasWidgets[widgetId].type as WidgetType,
+    ),
+  };
+  const {
     widgets,
+    message,
+  } = (operation.fn as BlueprintOperationChildOperationsFn)(
+    canvasWidgets,
     widgetId,
     parentId,
+    widgetPropertyMaps,
   );
+
+  // If something odd happens show the message related to the odd scenario
+  if (message) {
+    Toaster.show({
+      text: message,
+      hideProgressBar: false,
+      variant: Variant.info,
+    });
+  }
+  // Flow returns to the usual from here.
+  return widgets;
 }
 
 /**

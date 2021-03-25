@@ -623,11 +623,36 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
               widgetId: string,
               parentId: string,
+              widgetPropertyMaps: {
+                defaultPropertyMap: Record<string, string>;
+              },
             ) => {
-              if (!parentId) return widgets;
-
-              const parent = { ...widgets[parentId] };
+              if (!parentId) return { widgets };
               const widget = { ...widgets[widgetId] };
+              const parent = { ...widgets[parentId] };
+              if (
+                Object.keys(widgetPropertyMaps.defaultPropertyMap).length > 0
+              ) {
+                const widget = widgets[widgetId];
+                if (widget.children && widget.children.length > 0) {
+                  widget.children.forEach((childId: string) => {
+                    delete widgets[childId];
+                  });
+                }
+                if (widget.parentId) {
+                  const _parent = { ...widgets[widget.parentId] };
+                  _parent.children = _parent.children?.filter(
+                    (id) => id !== widgetId,
+                  );
+                  widgets[widget.parentId] = _parent;
+                }
+                delete widgets[widgetId];
+
+                return {
+                  widgets,
+                  message: "Form Widgets in List Widget are not supported",
+                };
+              }
 
               const template = {
                 ...get(parent, "template", {}),
@@ -638,7 +663,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
               widgets[parentId] = parent;
 
-              return widgets;
+              return { widgets };
             },
           },
         ],

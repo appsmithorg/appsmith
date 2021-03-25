@@ -61,6 +61,7 @@ export default (props: PopperProps) => {
       };
     }
   }, [props.targetNode, props.isOpen, props.modifiers, props.placement]);
+  if (!props.targetNode) return null;
   return createPortal(
     <PopperWrapper ref={contentRef} zIndex={props.zIndex}>
       {props.children}

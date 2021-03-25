@@ -418,7 +418,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   renderChildren = () => {
     const numberOfItemsInGrid = this.props.items.length;
-
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
       const childCanvas = children[0];
@@ -433,6 +432,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           canvasChildren[i] = JSON.parse(JSON.stringify(template));
         }
 
+        // TODO(pawan): This is recalculated everytime for not much reason
+        // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
+        // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
+        // In particular useNewValues can be memoized, if others can't.
         canvasChildren = this.updateGridChildrenProps(canvasChildren);
 
         childCanvas.children = canvasChildren;
@@ -478,10 +481,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     if (!isNumber(perPage) || perPage === 0) {
       return (
-        <>
-          Please make sure your list widget size atleast greater than the list
-          template
-        </>
+        <>Please make sure the list widget size is greater than the template</>
       );
     }
 
