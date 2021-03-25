@@ -4,16 +4,38 @@ import styled from "styled-components";
 
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "configs";
-import { ChartType, ChartData, ChartDataPoint } from "widgets/ChartWidget";
+import { ChartData, ChartDataPoint, ChartType } from "widgets/ChartWidget";
+import log from "loglevel";
+
+export interface CustomFusionChartConfig {
+  type: string;
+  dataSource?: any;
+}
 
 const FusionCharts = require("fusioncharts");
-const Charts = require("fusioncharts/fusioncharts.charts");
-const FusionTheme = require("fusioncharts/themes/fusioncharts.theme.fusion");
+const plugins: Record<string, any> = {
+  Charts: require("fusioncharts/fusioncharts.charts"),
+  FusionTheme: require("fusioncharts/themes/fusioncharts.theme.fusion"),
+  Widgets: require("fusioncharts/fusioncharts.widgets"),
+  ZoomScatter: require("fusioncharts/fusioncharts.zoomscatter"),
+  ZoomLine: require("fusioncharts/fusioncharts.zoomline"),
+  PowerCharts: require("fusioncharts/fusioncharts.powercharts"),
+  TimeSeries: require("fusioncharts/fusioncharts.timeseries"),
+  OverlappedColumn: require("fusioncharts/fusioncharts.overlappedcolumn2d"),
+  OverlappedBar: require("fusioncharts/fusioncharts.overlappedbar2d"),
+  TreeMap: require("fusioncharts/fusioncharts.treemap"),
+  Maps: require("fusioncharts/fusioncharts.maps"),
+  Gantt: require("fusioncharts/fusioncharts.gantt"),
+  VML: require("fusioncharts/fusioncharts.vml"),
+};
+
+// Enable all plugins.
+// This is needed to support custom chart configs
+Object.keys(plugins).forEach((key: string) =>
+  (plugins[key] as any)(FusionCharts),
+);
 
 const { fusioncharts } = getAppsmithConfigs();
-Charts(FusionCharts);
-FusionTheme(FusionCharts);
-
 FusionCharts.options.license({
   key: fusioncharts.licenseKey,
   creditLabel: false,
@@ -22,6 +44,7 @@ FusionCharts.options.license({
 export interface ChartComponentProps {
   chartType: ChartType;
   chartData: ChartData[];
+  customFusionChartConfig: CustomFusionChartConfig;
   xAxisName: string;
   yAxisName: string;
   chartName: string;
@@ -47,6 +70,7 @@ const CanvasContainer = styled.div<
 
 class ChartComponent extends React.Component<ChartComponentProps> {
   chartInstance = new FusionCharts();
+
   getChartType = () => {
     const { chartType, allowHorizontalScroll, chartData } = this.props;
     const isMSChart = chartData.length > 1;
@@ -216,6 +240,23 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     }
   };
 
+  getCustomFusionChartDataSource = () => {
+    let config = this.props.customFusionChartConfig as CustomFusionChartConfig;
+    if (config && config.dataSource) {
+      config = {
+        ...config,
+        dataSource: {
+          ...config.dataSource,
+          chart: {
+            ...config.dataSource.chart,
+            caption: this.props.chartName || config.dataSource.chart.caption,
+          },
+        },
+      };
+    }
+    return config;
+  };
+
   getScrollChartDataSource = () => {
     const chartConfig = this.getChartConfig();
 
@@ -238,6 +279,16 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   createGraph = () => {
+    if (this.props.chartType === "CUSTOM_FUSION_CHART") {
+      const chartConfig = {
+        renderAt: this.props.widgetId + "chart-container",
+        width: "100%",
+        height: "100%",
+        ...this.getCustomFusionChartDataSource(),
+      };
+      this.chartInstance = new FusionCharts(chartConfig);
+      return;
+    }
     const dataSource =
       this.props.allowHorizontalScroll && this.props.chartType !== "PIE_CHART"
         ? this.getScrollChartDataSource()
@@ -270,7 +321,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       /* Component could be unmounted before FusionCharts is ready,
       this check ensure we don't render on unmounted component */
       if (this.chartInstance) {
-        this.chartInstance.render();
+        try {
+          this.chartInstance.render();
+        } catch (e) {
+          log.error(e);
+        }
       }
     });
   }
@@ -283,6 +338,17 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   componentDidUpdate(prevProps: ChartComponentProps) {
     if (!_.isEqual(prevProps, this.props)) {
+      if (this.props.chartType === "CUSTOM_FUSION_CHART") {
+        const chartConfig = {
+          renderAt: this.props.widgetId + "chart-container",
+          width: "100%",
+          height: "100%",
+          ...this.getCustomFusionChartDataSource(),
+        };
+        this.chartInstance = new FusionCharts(chartConfig);
+        this.chartInstance.render();
+        return;
+      }
       const chartType = this.getChartType();
       this.chartInstance.chartType(chartType);
       if (
