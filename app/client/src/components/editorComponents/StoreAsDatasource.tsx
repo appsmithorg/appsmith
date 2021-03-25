@@ -22,14 +22,23 @@ export const DatasourceIcon = styled.div`
       fill: ${(props) => props.theme.colors.icon.hover};
     }
   }
+  &.disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
 `;
 
-const StoreAsDatasource = () => {
+type storeDataSourceProps = {
+  value: any;
+};
+
+const StoreAsDatasource = (props: storeDataSourceProps) => {
   const dispatch = useDispatch();
 
   return (
     <DatasourceIcon
-      className="t--store-as-datasource"
+      className={`t--store-as-datasource ${props.value ? "" : "disabled"}`}
       onClick={() => dispatch(storeAsDatasource())}
     >
       <Icon name="datasource" size={IconSize.LARGE} />
