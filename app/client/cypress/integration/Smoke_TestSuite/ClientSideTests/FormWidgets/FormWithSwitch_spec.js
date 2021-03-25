@@ -45,20 +45,8 @@ describe("Switch Widget within Form widget Functionality", function() {
         cy.log(toasttext);
         expect(text.trim()).to.equal(toasttext.trim());
       });
-    cy.wait(7000);
+    cy.get(widgetsPage.switchWidgetInactive).should("be.visible");
     cy.get("Button:contains('Reset')").click({ force: true });
-    /*
-    cy.get(".t--toast-action span")
-      .last()
-      .invoke("text")
-      .then((text) => {
-        const toasttext = text;
-        cy.log(toasttext);
-        expect(text.trim()).to.equal(toasttext.trim());
-      });
-      */
+    cy.get(widgetsPage.switchWidgetActive).should("be.visible");
   });
-});
-afterEach(() => {
-  // put your clean up code if any
 });

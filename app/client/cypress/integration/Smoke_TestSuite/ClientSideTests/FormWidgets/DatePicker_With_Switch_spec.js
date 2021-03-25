@@ -23,7 +23,7 @@ describe("Switch Widget within Form widget Functionality", function() {
     cy.closePropertyPane();
   });
 
-  it("Form reset button valdiation with switch widget", function() {
+  it("Date Widget with Reset widget being switch widget", function() {
     cy.SearchEntityandOpen("DatePicker1");
     cy.get(formWidgetsPage.defaultDate).click();
     cy.setDate(1, "ddd MMM DD YYYY");
@@ -36,7 +36,6 @@ describe("Switch Widget within Form widget Functionality", function() {
       .children()
       .contains("Reset Widget")
       .click();
-    cy.wait(3000);
     cy.get(widgetsPage.selectWidget).click({ force: true });
     cy.get(commonlocators.chooseAction)
       .children()
@@ -52,13 +51,13 @@ describe("Switch Widget within Form widget Functionality", function() {
         cy.log(toasttext);
         expect(text.trim()).to.equal(toasttext.trim());
       });
-    cy.wait(5000);
+    cy.get(widgetsPage.switchWidgetInactive).should("be.visible");
   });
 
-  it("DatePicker-Date change and check how switch widget works", function() {
+  it("DatePicker-Date change and validate switch widget status", function() {
     cy.get(widgetsPage.datepickerInput).click({ force: true });
     cy.get(widgetsPage.selectToday).click({ force: true });
-    /*
+    cy.get(widgetsPage.switchWidgetActive).should("be.visible");
     cy.get(".t--toast-action span")
       .last()
       .invoke("text")
@@ -67,8 +66,6 @@ describe("Switch Widget within Form widget Functionality", function() {
         cy.log(toasttext);
         expect(text.trim()).to.equal(toasttext.trim());
       });
-    cy.wait(5000);
-    */
   });
 });
 
