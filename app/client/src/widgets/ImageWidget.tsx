@@ -124,16 +124,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     );
   }
 
-  getImageProps() {
-    const base64ImageRegex = /^data:image\/.*;base64/;
-    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
-    const image = this.props.image || "";
-    if (!imageUrlRegex.test(image) && !base64ImageRegex.test(image)) {
-      return "data:image/png;base64," + image;
-    }
-    return image;
-  }
-
   onImageClick() {
     if (this.props.onClick) {
       super.executeAction({
