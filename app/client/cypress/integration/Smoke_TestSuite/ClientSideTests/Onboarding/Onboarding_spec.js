@@ -14,15 +14,14 @@ describe("Onboarding", function() {
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@getDataSources");
-    cy.wait("@getPluginForm").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(5000);
+    cy.get(".bp3-spinner-head").should("not.exist");
     cy.get(".t--start-building")
       .should("be.visible")
       .click({ force: true });
+
     // Create and run query
     cy.get(".t--onboarding-indicator").should("be.visible");
     cy.get(".t--create-query").click();

@@ -106,7 +106,7 @@ function DataControlComponent(props: RenderComponentProps) {
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <ActionHolder>
-        <StyledLabel>Series Tittle</StyledLabel>
+        <StyledLabel>Series Title</StyledLabel>
         {length > 1 && (
           <StyledDeleteIcon
             height={20}

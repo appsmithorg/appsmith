@@ -52,6 +52,14 @@ const getLocalStorage = () => {
     }
   };
 
+  const clear = () => {
+    try {
+      storage.clear();
+    } catch (e) {
+      handleError(e);
+    }
+  };
+
   const isSupported = () => !!window.localStorage;
 
   return {
@@ -59,6 +67,7 @@ const getLocalStorage = () => {
     setItem,
     removeItem,
     isSupported,
+    clear,
   };
 };
 
