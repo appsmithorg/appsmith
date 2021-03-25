@@ -42,6 +42,9 @@ import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
 import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
+import "codemirror/addon/fold/brace-fold";
+import "codemirror/addon/fold/foldgutter";
+import "codemirror/addon/fold/foldgutter.css";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -78,6 +81,7 @@ export type EditorStyleProps = {
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
   fill?: boolean;
+  useValidationMessage?: boolean;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -143,11 +147,21 @@ class CodeEditor extends Component<Props, State> {
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
         options.extraKeys["Tab"] = false;
       }
+      if (this.props.folding) {
+        options.foldGutter = true;
+        options.gutters = ["CodeMirror-linenumbers", "CodeMirror-foldgutter"];
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        options.foldOptions = {
+          widget: () => {
+            return "\u002E\u002E\u002E";
+          },
+        };
+      }
       this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
-
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("change", this.handleAutocompleteVisibility);
-      this.editor.on("change", this.onChangeTigger);
+      this.editor.on("change", this.onChangeTrigger);
       this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
       this.editor.on("cursorActivity", this.handleCursorMovement);
@@ -225,7 +239,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  onChangeTigger = (cm: CodeMirror.Editor) => {
+  onChangeTrigger = (cm: CodeMirror.Editor) => {
     if (this.state.isFocused) {
       this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
     }
@@ -333,6 +347,7 @@ class CodeEditor extends Component<Props, State> {
       border,
       hoverInteraction,
       fill,
+      useValidationMessage,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
@@ -376,6 +391,8 @@ class CodeEditor extends Component<Props, State> {
           evaluatedValue={evaluated}
           expected={expected}
           hasError={hasError}
+          error={meta?.error}
+          useValidationMessage={useValidationMessage}
         >
           <EditorWrapper
             editorTheme={this.props.theme}

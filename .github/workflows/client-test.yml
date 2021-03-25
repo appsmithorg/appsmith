@@ -1,21 +1,22 @@
-name: Appsmith Client Workflow
+name: Appsmith Client Test Workflow
 
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
-  push:
+  pull_request_review:
+    types: [submitted]
     branches: [release, master]
-    # Only trigger if files have changed in this specific path
     paths:
-      - 'app/client/**'
-      - '!app/client/cypress/manual_TestSuite/**'
+      - "app/client/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
-  pull_request:
-    branches: [release, master]
+  # trigger for pushes to release and master
+  push:
+    branches: [ release, master ]
     paths:
-      - 'app/client/**'
-      - '!app/client/cypress/manual_TestSuite/**'
+      - "app/client/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -24,6 +25,12 @@ defaults:
 
 jobs:
   build:
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches 
+    # then we don't check for the PR approved state
+    if: |
+      github.event_name == 'workflow_dispatch' || 
+      github.event_name == 'push' || 
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,7 +40,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_review'
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -144,7 +151,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_review'
         uses: actions/checkout@v2
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
@@ -289,7 +296,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_review'
         uses: actions/checkout@v2
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge

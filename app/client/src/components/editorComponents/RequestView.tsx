@@ -184,6 +184,7 @@ export function RequestView(props: {
                       value: props.requestBody,
                     }}
                     height={"100%"}
+                    folding={true}
                   />
                 ),
               },

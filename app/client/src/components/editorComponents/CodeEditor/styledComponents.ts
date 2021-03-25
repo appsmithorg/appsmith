@@ -382,6 +382,11 @@ export const EditorWrapper = styled.div<{
     margin: 5px;
     margin-right: 11px;
   }
+  .CodeMirror-foldmarker {
+    color: inherit;
+    text-shadow: none;
+    font: inherit;
+  }
 `;
 
 export const IconContainer = styled.div`

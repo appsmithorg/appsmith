@@ -1,5 +1,5 @@
 import { AxiosPromise } from "axios";
-import Api from "./Api";
+import Api from "api/Api";
 import { ImportedCollections } from "constants/collectionsConstants";
 
 class ImportedCollectionsApi extends Api {

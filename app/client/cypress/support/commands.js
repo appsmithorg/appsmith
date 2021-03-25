@@ -1278,7 +1278,6 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
 Cypress.Commands.add("tableDataHide", (endp, value) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
-    .focus({ force: true })
     .should("not.be.visible");
 });
 
@@ -1291,6 +1290,7 @@ Cypress.Commands.add("tableDataVisiblity", (endp, value) => {
 
 Cypress.Commands.add("tableColumnDataValidation", (columnName) => {
   cy.get("[data-rbd-draggable-id='" + columnName + "']")
+    .scrollIntoView()
     .first()
     .focus({ force: true })
     .should("be.visible");
@@ -1298,6 +1298,7 @@ Cypress.Commands.add("tableColumnDataValidation", (columnName) => {
 
 Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] input")
+    .scrollIntoView()
     .should("be.visible")
     .click({
       force: true,
