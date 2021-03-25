@@ -149,6 +149,8 @@ class CodeEditor extends Component<Props, State> {
       if (this.props.folding) {
         options.foldGutter = true;
         options.gutters = ["CodeMirror-linenumbers", "CodeMirror-foldgutter"];
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         options.foldOptions = {
           widget: () => {
             return "\u002E\u002E\u002E";
