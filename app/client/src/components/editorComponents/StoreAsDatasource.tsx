@@ -30,7 +30,7 @@ export const DatasourceIcon = styled.div`
 `;
 
 type storeDataSourceProps = {
-  value: any;
+  enable: boolean;
 };
 
 const StoreAsDatasource = (props: storeDataSourceProps) => {
@@ -38,7 +38,7 @@ const StoreAsDatasource = (props: storeDataSourceProps) => {
 
   return (
     <DatasourceIcon
-      className={`t--store-as-datasource ${props.value ? "" : "disabled"}`}
+      className={`t--store-as-datasource ${props.enable ? "" : "disabled"}`}
       onClick={() => dispatch(storeAsDatasource())}
     >
       <Icon name="datasource" size={IconSize.LARGE} />
