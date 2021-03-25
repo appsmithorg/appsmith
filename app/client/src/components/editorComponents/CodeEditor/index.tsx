@@ -160,7 +160,7 @@ class CodeEditor extends Component<Props, State> {
       this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("change", this.handleAutocompleteVisibility);
-      this.editor.on("change", this.onChangeTigger);
+      this.editor.on("change", this.onChangeTrigger);
       this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
       this.editor.on("cursorActivity", this.handleCursorMovement);
@@ -238,7 +238,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  onChangeTigger = (cm: CodeMirror.Editor) => {
+  onChangeTrigger = (cm: CodeMirror.Editor) => {
     if (this.state.isFocused) {
       this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
     }
