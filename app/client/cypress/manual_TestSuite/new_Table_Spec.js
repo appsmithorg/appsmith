@@ -52,9 +52,8 @@ describe("Table functionality ", function() {
     // Click on "Control pane" of the added column
     // Navigate to computed value
     // Bind the date widget to the comlumn computed value field
-    // Select the Column Type as "Date" 
+    // Select the Column Type as "Date"
     // Select a Date formate (Original and Display)
     // Ensure the format is dispalyed according to the selection
   });
-
 });
