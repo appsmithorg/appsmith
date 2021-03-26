@@ -4,7 +4,6 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Component
-@Slf4j
 public class PluginExecutorHelper {
 
     private final PluginManager pluginManager;
