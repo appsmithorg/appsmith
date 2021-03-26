@@ -147,7 +147,7 @@ export const PanelPropertiesEditor = (
   );
 
   useEffect(() => {
-    if (!panelConfigs) {
+    if (panelProps.widgetId !== widgetProperties.widgetId) {
       props.closePanel();
     }
   }, [widgetProperties.widgetId]);
