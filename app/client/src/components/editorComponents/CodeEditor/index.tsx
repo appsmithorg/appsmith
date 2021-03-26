@@ -159,7 +159,7 @@ class CodeEditor extends Component<Props, State> {
         };
       }
       this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
-      this.editor.on("change", _.debounce(this.handleChange, 300));
+      this.editor.on("change", _.debounce(this.handleChange, 600));
       this.editor.on("change", this.handleAutocompleteVisibility);
       this.editor.on("change", this.onChangeTrigger);
       this.editor.on("keyup", this.handleAutocompleteHide);
@@ -174,7 +174,8 @@ class CodeEditor extends Component<Props, State> {
       }
 
       // Set value of the editor
-      let inputValue = this.props.input.value || "";
+      let inputValue =
+        this.props.input.closeeditortext || this.props.input.value || "";
       if (typeof inputValue === "object") {
         inputValue = JSON.stringify(inputValue, null, 2);
       } else if (
@@ -190,21 +191,28 @@ class CodeEditor extends Component<Props, State> {
     }
   }
 
+  getInputValueUpdated = (inputValue: any) => {
+    if (typeof inputValue === "object") {
+      inputValue = JSON.stringify(inputValue, null, 2);
+    } else if (
+      typeof inputValue === "number" ||
+      typeof inputValue === "string"
+    ) {
+      inputValue += "";
+    }
+    return inputValue;
+  };
+
   componentDidUpdate(prevProps: Props): void {
     this.editor.refresh();
+    const editorValue = this.editor.getValue();
+    let textEditorValue;
     if (!this.state.isFocused) {
       // const currentMode = this.editor.getOption("mode");
-      const editorValue = this.editor.getValue();
-      let inputValue = this.props.input.value;
+      textEditorValue =
+        this.props.input.closeeditortext || this.props.input.value;
       // Safe update of value of the editor when value updated outside the editor
-      if (typeof inputValue === "object") {
-        inputValue = JSON.stringify(inputValue, null, 2);
-      } else if (
-        typeof inputValue === "number" ||
-        typeof inputValue === "string"
-      ) {
-        inputValue += "";
-      }
+      const inputValue = this.getInputValueUpdated(textEditorValue);
       if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
         this.editor.setValue(inputValue);
       }
@@ -214,6 +222,12 @@ class CodeEditor extends Component<Props, State> {
       //   this.editor.setOption("mode", this.props?.mode);
       // }
     } else {
+      textEditorValue =
+        this.props.input.openeditortext || this.props.input.value;
+      const inputVal = this.getInputValueUpdated(textEditorValue);
+      if (inputVal !== editorValue && this.props.input.openeditortext) {
+        this.editor.setValue(this.props.input.openeditortext);
+      }
       // Update the dynamic bindings for autocomplete
       if (prevProps.dynamicData !== this.props.dynamicData) {
         this.hinters.forEach(
@@ -286,8 +300,12 @@ class CodeEditor extends Component<Props, State> {
         searchString: changeObj.text[0],
       });
     }
-    const inputValue = this.props.input.value;
-    if (this.props.input.onChange && value !== inputValue) {
+    const inputValue = this.props.input.openeditortext;
+    if (
+      this.props.input.onChange &&
+      value !== inputValue &&
+      this.state.isFocused
+    ) {
       this.props.input.onChange(value);
     }
     this.updateMarkings();
