@@ -148,11 +148,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         if(datasource == null) {
             /*
-             * - Not throwing an exception here because we do not throw an error in case of missing datasource. We
-             *   add the invalid DATASOURCE_NOT_GIVEN. We try not to fail as much as possible during create and update
-             *   actions.
-             * - Since adding to datasource.invalids set is not possible because datasource is null, returning from
-             *   here seems to be the best course of action.
+             * - Not throwing an exception here because we do not throw an error in case of missing datasource.
+             *   We try not to fail as much as possible during create and update actions.
              */
             return Mono.just(new Datasource());
         }
