@@ -54,4 +54,9 @@ APPSMITH_MONGODB_URI=mongodb://$encoded_mongo_root_user:$encoded_mongo_root_pass
 # ******** ANALYTICS *************
 APPSMITH_DISABLE_TELEMETRY=$disable_telemetry
 # *******************************
+
+# ****** MAX PAYLOAD SIZE *******
+# APPSMITH_CODEC_SIZE=
+# *******************************
+
 EOF
