@@ -7,7 +7,7 @@ import {
   ExecuteActionPayload,
   ExecuteErrorPayload,
   PageAction,
-} from "constants/ActionConstants";
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,

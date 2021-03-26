@@ -25,6 +25,7 @@ import {
   getPluginForm,
   getDatasource,
   getDatasourceDraft,
+  getPlugin,
 } from "selectors/entitiesSelector";
 import {
   selectPlugin,
@@ -37,7 +38,7 @@ import {
 import { GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
-import PluginApi, { PluginFormPayload } from "api/PluginApi";
+import PluginApi, { PluginFormPayload, Plugin } from "api/PluginApi";
 
 import {
   API_EDITOR_ID_URL,
@@ -63,6 +64,7 @@ import {
   DATASOURCE_VALID,
 } from "constants/messages";
 import { fetchPluginFormConfigSuccess } from "actions/pluginActions";
+import { defaultActionSettings } from "constants/AppsmithActionConstants/ActionConstants";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -298,12 +300,18 @@ function* createDatasourceFromFormSaga(
     let formConfig;
     const organizationId = yield select(getCurrentOrgId);
     formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
-
     if (!formConfig) {
       const formConfigResponse: GenericApiResponse<PluginFormPayload> = yield PluginApi.fetchFormConfig(
         actionPayload.payload.pluginId,
       );
       yield validateResponse(formConfigResponse);
+      if (!formConfigResponse.data.setting) {
+        const plugin: Plugin = yield select(
+          getPlugin,
+          actionPayload.payload.pluginId,
+        );
+        formConfigResponse.data.setting = defaultActionSettings[plugin.type];
+      }
       yield put(
         fetchPluginFormConfigSuccess({
           id: actionPayload.payload.pluginId,

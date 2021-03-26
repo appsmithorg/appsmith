@@ -39,7 +39,7 @@ import equal from "fast-deep-equal/es6";
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
-} from "constants/ActionConstants";
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluate, { EvalResult } from "workers/evaluate";
 

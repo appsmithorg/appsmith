@@ -1,4 +1,5 @@
 import { Action } from "entities/Action/index";
+import _ from "lodash";
 
 export const getBindingPathsOfAction = (
   action: Action,
@@ -8,7 +9,6 @@ export const getBindingPathsOfAction = (
     data: true,
     isLoading: true,
   };
-  debugger;
   if (!formConfig) {
     return {
       ...bindingPaths,
@@ -29,6 +29,18 @@ export const getBindingPathsOfAction = (
         )
       ) {
         bindingPaths[configPath] = true;
+      }
+      if (formConfig.controlType === "ARRAY_FIELD") {
+        debugger;
+        const actionValue = _.get(action, formConfig.configProperty);
+        if (Array.isArray(actionValue)) {
+          for (let i = 0; i < actionValue.length; i++) {
+            formConfig.schema.forEach((schemaField: any) => {
+              const arrayConfigPath = `${configPath}[${i}].${schemaField.key}`;
+              bindingPaths[arrayConfigPath] = true;
+            });
+          }
+        }
       }
     }
   };

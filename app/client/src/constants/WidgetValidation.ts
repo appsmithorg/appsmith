@@ -1,6 +1,6 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EXECUTION_PARAM_KEY } from "./ActionConstants";
+import { EXECUTION_PARAM_KEY } from "constants/AppsmithActionConstants/ActionConstants";
 
 // Always add a validator function in ./Validators for these types
 export const VALIDATION_TYPES = {

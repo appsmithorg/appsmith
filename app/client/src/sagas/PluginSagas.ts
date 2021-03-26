@@ -6,9 +6,15 @@ import {
 import PluginsApi, { PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { getDatasources } from "selectors/entitiesSelector";
+import { getDatasources, getPlugins } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
+import { Plugin } from "api/PluginApi";
 import { fetchPluginFormConfigsSuccess } from "actions/pluginActions";
+import { PluginType } from "entities/Action";
+import {
+  defaultActionEditorConfigs,
+  defaultActionSettings,
+} from "constants/AppsmithActionConstants/ActionConstants";
 
 function* fetchPluginsSaga() {
   try {
@@ -35,6 +41,7 @@ function* fetchPluginsSaga() {
 function* fetchPluginFormConfigsSaga() {
   try {
     const datasources: Datasource[] = yield select(getDatasources);
+    const plugins: Plugin[] = yield select(getPlugins);
     const pluginIds = new Set(
       datasources.map((datasource) => datasource.pluginId),
     );
@@ -54,9 +61,18 @@ function* fetchPluginFormConfigsSaga() {
     const settingConfigs: Record<string, any[]> = {};
 
     Array.from(pluginIds).forEach((pluginId, index) => {
+      const plugin = plugins.find((plugin) => plugin.id === pluginId);
       formConfigs[pluginId] = pluginFormData[index].form;
-      editorConfigs[pluginId] = pluginFormData[index].editor;
-      settingConfigs[pluginId] = pluginFormData[index].setting;
+      if (plugin && plugin.type === PluginType.API) {
+        editorConfigs[pluginId] = defaultActionEditorConfigs[PluginType.API];
+      } else {
+        editorConfigs[pluginId] = pluginFormData[index].editor;
+      }
+      if (plugin && !pluginFormData[index].setting) {
+        settingConfigs[pluginId] = defaultActionSettings[plugin.type];
+      } else {
+        settingConfigs[pluginId] = pluginFormData[index].setting;
+      }
     });
 
     yield put(

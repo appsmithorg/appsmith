@@ -33,6 +33,8 @@ export const generateDataTreeWidget = (
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
   dynamicBindingPathList.forEach((dynamicPath) => {
     const propertyPath = dynamicPath.key;
+    // Add any dynamically generated dynamic bindings in the binding paths
+    bindingPaths[propertyPath] = true;
     const propertyValue = _.get(widget, propertyPath);
     if (_.isObject(propertyValue)) {
       // Stringify this because composite controls may have bindings in the sub controls

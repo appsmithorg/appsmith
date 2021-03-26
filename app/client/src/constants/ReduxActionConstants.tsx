@@ -1,5 +1,5 @@
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
-import { PageAction } from "constants/ActionConstants";
+import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 import { Org } from "./orgConstants";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";

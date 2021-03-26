@@ -29,7 +29,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -199,9 +198,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   if (settingConfigs && pluginId) {
     settingConfig = settingConfigs[pluginId];
-  }
-  if (!settingConfig) {
-    settingConfig = queryActionSettingsConfig;
   }
 
   return {
