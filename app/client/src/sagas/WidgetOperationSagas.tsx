@@ -972,16 +972,6 @@ function* batchUpdateWidgetPropertySaga(
     performance.now() - start,
     "ms",
   );
-  AppsmithConsole.info({
-    logType: "WIDGET_UPDATE",
-    text: "Widget properties were updated",
-    source: {
-      type: ENTITY_TYPE.WIDGET,
-      name: widget.widgetName,
-      id: widgetId,
-    },
-    state: updates,
-  });
 
   // Save the layout
   yield put(updateAndSaveLayout(widgets));

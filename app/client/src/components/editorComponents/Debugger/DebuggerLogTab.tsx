@@ -17,6 +17,7 @@ const Log = styled.div<{ backgroundColor: string; collapsed: boolean }>`
   padding: 9px 30px;
   display: flex;
   background-color: ${(props) => props.backgroundColor};
+  margin-bottom: 1px;
 
   .${Classes.ICON} {
     display: inline-block;
@@ -184,7 +185,6 @@ const LogItem = (props: any) => {
     collapsed: 1,
   };
   const showToggleIcon = props.state || props.message;
-  console.log(props.entityType, "props.entityType");
 
   return (
     <Log backgroundColor={props.backgroundColor} collapsed={!isOpen}>
