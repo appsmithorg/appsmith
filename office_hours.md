@@ -28,6 +28,16 @@ You can find the archives of the calls below with a brief summary of each sessio
 
 ## Archives
 
+<strong>25th Mar 2021: Intelligent JSON substitution, Generic S3 integration, Url table column type and new datepicker formats</strong>
+
+<a href = "https://youtu.be/4De0f5-DEVs">Video Link</a>
+
+#### Summary
+
+Vihar from Appsmith talks about the new Appsmith features including the intelligent JSON substitution, responsive canvas and faster local setup. Sumit demos the new S3 integration and shows how to build an app with it and Abhinav shares some improvements on the table and date picker widget.
+
+------------------
+
 <strong>18th Mar 2021: Generic S3 plugin, Forkable apps, Google sheets integration</strong>
 
 <a href = "https://youtu.be/sRpleBfEOxQ">Video Link</a>
