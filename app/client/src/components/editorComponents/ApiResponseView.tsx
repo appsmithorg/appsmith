@@ -224,6 +224,7 @@ const ApiResponseView = (props: Props) => {
                   : "",
               }}
               height={"100%"}
+              folding={true}
             />
           )}
         </ResponseTabWrapper>

@@ -34,7 +34,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -354,14 +353,20 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 }
                 // Only extract mustache keys from leaf nodes
                 if (isLeafNode) {
-                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
 
                     // We found the path. But if the path does not have any mustache bindings, throw the error
-                    if (mustacheKeysFromFields.isEmpty()) {
-                        throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                widgetName, widgetId, fieldPath, pageId, layoutId, parent);
+                    if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
+                        try {
+                            String bindingAsString = objectMapper.writeValueAsString(parent);
+                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                    widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
+                        } catch (JsonProcessingException e) {
+                            throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
+                        }
                     }
 
+                    // Stricter extraction of dynamic bindings
+                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
                     dynamicBindings.addAll(mustacheKeysFromFields);
                 }
             }
