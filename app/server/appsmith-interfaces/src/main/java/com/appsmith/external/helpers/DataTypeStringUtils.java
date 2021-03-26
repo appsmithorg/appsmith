@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -157,7 +158,7 @@ public class DataTypeStringUtils {
 
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
 
-        Map.Entry<String, String> parameter = new java.util.AbstractMap.SimpleEntry<>(replacement, dataType.toString());
+        Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
         insertedParams.add(parameter);
 
         switch (dataType) {

@@ -46,6 +46,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -341,7 +343,7 @@ public class MySqlPlugin extends BasePlugin {
             Statement connectionStatement = (Statement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
-            Map.Entry<String, String> parameter = new java.util.AbstractMap.SimpleEntry<>(value, valueType.toString());
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
             insertedParams.add(parameter);
 
             if (DataType.NULL.equals(valueType)) {

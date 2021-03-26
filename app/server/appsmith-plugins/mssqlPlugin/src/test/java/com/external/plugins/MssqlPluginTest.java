@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -31,6 +32,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -290,6 +292,14 @@ public class MssqlPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    // Assert the debug request parameters are getting set.
+                    ActionExecutionRequest request = result.getRequest();
+                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("ps-parameters");
+                    assertEquals(parameters.size(), 1);
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "1");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
 
                 })
                 .verifyComplete();

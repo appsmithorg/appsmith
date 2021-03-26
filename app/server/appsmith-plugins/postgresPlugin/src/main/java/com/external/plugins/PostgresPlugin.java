@@ -49,6 +49,7 @@ import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -719,7 +720,7 @@ public class PostgresPlugin extends BasePlugin {
             HikariProxyConnection connection = (HikariProxyConnection) args[0];
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
-            Map.Entry<String, String> parameter = new java.util.AbstractMap.SimpleEntry<>(value, valueType.toString());
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
             insertedParams.add(parameter);
 
             try {

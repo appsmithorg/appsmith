@@ -46,6 +46,7 @@ import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -480,7 +481,7 @@ public class MssqlPlugin extends BasePlugin {
             PreparedStatement preparedStatement = (PreparedStatement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
-            Map.Entry<String, String> parameter = new java.util.AbstractMap.SimpleEntry<>(value, valueType.toString());
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
             insertedParams.add(parameter);
 
             try {
