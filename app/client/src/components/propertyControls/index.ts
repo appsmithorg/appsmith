@@ -42,9 +42,7 @@ import ButtonTabControl, {
 import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
-import ComputeListPropertyControl, {
-  ComputeListPropertyControlProps,
-} from "components/propertyControls/ComputeListPropertyControl";
+import CustomFusionChartControl from "./CustomFusionChartControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -58,6 +56,7 @@ export const PropertyControls = {
   ColumnActionSelectorControl,
   MultiSwitchControl,
   ChartDataControl,
+  CustomFusionChartControl,
   LocationSearchControl,
   StepControl,
   TabControl,
@@ -66,7 +65,6 @@ export const PropertyControls = {
   IconTabControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
-  ComputeListPropertyControl,
 };
 
 export type PropertyControlPropsType =
@@ -81,8 +79,7 @@ export type PropertyControlPropsType =
   | ButtonTabControlProps
   | StepControlProps
   | ColorPickerControlProps
-  | ComputeTablePropertyControlProps
-  | ComputeListPropertyControlProps;
+  | ComputeTablePropertyControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

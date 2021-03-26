@@ -232,7 +232,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       );
 
       triggerPaths.forEach((path: string) => {
-        const propertyValue = get(widget, path);
+        const propertyValue = get(this.props.template[widget.widgetName], path);
 
         if (
           propertyValue.indexOf("currentItem") > -1 &&
@@ -342,7 +342,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       },
     );
 
-    console.log("List Widget", { updatedChildren });
     return updatedChildren;
   };
 
@@ -431,12 +430,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       try {
         // here we are duplicating the template for each items in the data array
         // first item of the canvasChildren acts as a template
-        const template = this.template;
-
-        if (!template) {
-          const template = canvasChildren.slice(0, 1).shift();
-          this.template = template;
-        }
+        const template = canvasChildren.slice(0, 1).shift();
 
         for (let i = 0; i < numberOfItemsInGrid; i++) {
           canvasChildren[i] = JSON.parse(JSON.stringify(template));
@@ -449,7 +443,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         canvasChildren = this.updateGridChildrenProps(canvasChildren);
 
         childCanvas.children = canvasChildren;
-      } catch {}
+      } catch (e) {
+        console.log({ error: e });
+      }
 
       return this.renderChild(childCanvas);
     }

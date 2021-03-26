@@ -8,6 +8,40 @@ import * as Sentry from "@sentry/react";
 import withMeta from "./MetaHOC";
 
 class FormWidget extends ContainerWidget {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            label: "Background Color",
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+    ];
+  }
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
     return _.some(children, (child) => {
       if ("children" in child) {

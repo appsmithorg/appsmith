@@ -543,7 +543,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               {
                 widgetId: parentProps.widgetId,
                 propertyPath: path,
-                propertyValue: value,
+                propertyValue: isTriggerProperty ? propertyValue : value,
                 isDynamicTrigger: isTriggerProperty,
               },
             ];
