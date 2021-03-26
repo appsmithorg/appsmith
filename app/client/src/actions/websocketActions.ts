@@ -19,3 +19,7 @@ export const websocketWriteEvent = (payload: {
 
 export const reconnectWebsocket = () =>
   websocketWriteEvent(reconnectWebsocketEvent());
+
+export const retrySocketConnection = () => ({
+  type: ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION,
+});

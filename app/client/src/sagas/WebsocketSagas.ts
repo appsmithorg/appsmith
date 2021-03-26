@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import { eventChannel } from "redux-saga";
-import { fork, take, call, cancel, put } from "redux-saga/effects";
+import { fork, take, call, cancel, put, delay } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
@@ -13,7 +13,10 @@ import {
 } from "constants/WebsocketConstants";
 
 import { commentEvent } from "actions/commentActions";
-import { setIsWebsocketConnected } from "actions/websocketActions";
+import {
+  setIsWebsocketConnected,
+  retrySocketConnection,
+} from "actions/websocketActions";
 
 function connect() {
   const socket = io();
@@ -49,7 +52,6 @@ function* read(socket: any) {
   const channel = yield call(subscribe, socket);
   while (true) {
     const action = yield take(channel);
-
     switch (action.type) {
       case WEBSOCKET_EVENTS.DISCONNECTED:
         yield put(setIsWebsocketConnected(false));
@@ -82,15 +84,24 @@ function* handleIO(socket: any) {
 
 function* flow() {
   while (true) {
-    const { payload } = yield take(ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS);
-    if (payload.name !== ANONYMOUS_USERNAME) {
-      // todo add a way to retry connection if the initial connection fails
-      const socket = yield call(connect);
-      const task = yield fork(handleIO, socket);
-      yield put(setIsWebsocketConnected(true));
-      yield take(ReduxActionTypes.LOGOUT_USER_INIT);
-      yield cancel(task);
-      socket.disconnect();
+    const { payload } = yield take([
+      ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+      ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION,
+    ]);
+    try {
+      if (payload.name !== ANONYMOUS_USERNAME) {
+        const socket = yield call(connect);
+        const task = yield fork(handleIO, socket);
+        yield put(setIsWebsocketConnected(true));
+        yield take(ReduxActionTypes.LOGOUT_USER_INIT);
+        yield cancel(task);
+        socket.disconnect();
+      }
+    } catch (e) {
+      yield fork(function*() {
+        yield delay(3000);
+        yield put(retrySocketConnection());
+      });
     }
   }
 }
