@@ -796,6 +796,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         data.put("error", errorJson);
                     }
 
+                    if (actionExecutionResult.getStatusCode() != null) {
+                        data.putAll(Map.of(
+                                "statusCode", actionExecutionResult.getStatusCode()
+                        ));
+                    }
+
                     analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
                     return request;
                 })
