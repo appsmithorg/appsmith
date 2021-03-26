@@ -216,12 +216,13 @@ class CodeEditor extends Component<Props, State> {
     if (!this.state.isFocused) {
       // const currentMode = this.editor.getOption("mode");
       const textEditorValue = this.props.input.value;
+      const editorValue = this.editor.getValue();
       // Safe update of value of the editor when value updated outside the editor
       const inputValue = this.getInputValueUpdated(textEditorValue);
       if (!!inputValue || inputValue === "") {
         if (this.props.size === "COMPACT") {
           this.editor.setValue(this.removedNewLinesFromUrl(inputValue));
-        } else {
+        } else if (inputValue !== editorValue) {
           this.editor.setValue(inputValue);
         }
       }
