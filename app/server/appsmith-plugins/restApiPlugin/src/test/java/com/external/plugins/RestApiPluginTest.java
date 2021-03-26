@@ -58,7 +58,7 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -106,7 +106,7 @@ public class RestApiPluginTest {
         actionConfig.setHeaders(List.of(new Property("content-type", "application/x-www-form-urlencoded")));
         actionConfig.setHttpMethod(HttpMethod.POST);
         actionConfig.setBodyFormData(List.of(new Property("key", "value"), new Property("key1", "value1")));
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -129,7 +129,7 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -153,7 +153,7 @@ public class RestApiPluginTest {
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -185,7 +185,7 @@ public class RestApiPluginTest {
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -217,7 +217,7 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(queryParams);
         actionConfig.setEncodeParamsToggle(true);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -247,7 +247,7 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(queryParams);
         actionConfig.setEncodeParamsToggle(null);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -278,7 +278,8 @@ public class RestApiPluginTest {
         actionConfig.setEncodeParamsToggle(false);
 
         Mono<RestApiPlugin.RestApiPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
-        Mono<ActionExecutionResult> resultMono = pluginExecutorMono.flatMap(executor -> executor.execute(null,
+        Mono<ActionExecutionResult> resultMono = pluginExecutorMono.flatMap(executor -> executor.executeParameterized(null,
+                new ExecuteActionDTO(),
                 dsConfig,
                 actionConfig));
         StepVerifier.create(resultMono)
