@@ -242,14 +242,14 @@ public class PostgresPlugin extends BasePlugin {
                     } else {
                         preparedQuery = connectionFromPool.prepareStatement(query);
 
-                        List<String> parameters = new ArrayList<>();
+                        List<Map.Entry<String, String>> parameters = new ArrayList<>();
                         preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
                                 mustacheValuesInOrder,
                                 executeActionDTO.getParams(),
                                 parameters,
                                 connectionFromPool);
 
-                        requestData.put("parameters", parameters);
+                        requestData.put("ps-parameters", parameters);
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
                     }
@@ -708,11 +708,19 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Object substituteValueInInput(int index, String binding, String value, Object input, Object... args) throws AppsmithPluginException {
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) throws AppsmithPluginException {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
             HikariProxyConnection connection = (HikariProxyConnection) args[0];
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+
+            Map.Entry<String, String> parameter = new java.util.AbstractMap.SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
 
             try {
                 switch (valueType) {

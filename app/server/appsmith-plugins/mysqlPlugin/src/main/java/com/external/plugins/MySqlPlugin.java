@@ -312,18 +312,19 @@ public class MySqlPlugin extends BasePlugin {
             System.out.println("Query : " + query);
 
             List<Param> params = executeActionDTO.getParams();
-            List<String> parameters = new ArrayList<>();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             try {
                 connectionStatement = (Statement) this.smartSubstitutionOfBindings(connectionStatement,
                         mustacheValuesInOrder,
                         executeActionDTO.getParams(),
                         parameters);
+
+                requestData.put("ps-parameters", parameters);
             } catch (AppsmithPluginException e) {
                 return Flux.error(e);
             }
 
-            requestData.put("parameters", parameters);
 
             return Flux.from(connectionStatement.execute());
 
@@ -334,10 +335,14 @@ public class MySqlPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
 
             Statement connectionStatement = (Statement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+
+            Map.Entry<String, String> parameter = new java.util.AbstractMap.SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
 
             if (DataType.NULL.equals(valueType)) {
                 try {
