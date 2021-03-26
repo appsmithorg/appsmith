@@ -941,15 +941,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
      * - Any hint message specific to action configuration can be handled here.
      */
     public Mono<ActionDTO> populateHintMessages(ActionDTO action) {
-        if(action == null) {
-            return Mono.error(
-                    new AppsmithException(
-                            AppsmithError.BAD_ACTION_OBJECT,
-                            "Appsmith has encountered a null ActionDTO object. Please reach out to Appsmith customer " +
-                                    "support to resolve this."
-                    )
-            );
-        }
+        /*
+         * - No need for this null check: action == null. By the time the code flow reaches here, action is
+         *   guaranteed to be non null.
+         */
 
         datasourceService.populateHintMessages(action.getDatasource());
 

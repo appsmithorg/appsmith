@@ -154,7 +154,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
              * - Since adding to datasource.invalids set is not possible because datasource is null, returning from
              *   here seems to be the best course of action.
              */
-            return Mono.just(datasource);
+            return Mono.just(new Datasource());
         }
 
         Set<String> messages = new HashSet<>();
