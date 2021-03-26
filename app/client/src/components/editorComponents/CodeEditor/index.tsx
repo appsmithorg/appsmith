@@ -159,7 +159,7 @@ class CodeEditor extends Component<Props, State> {
         };
       }
       this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
-      this.editor.on("change", _.debounce(this.handleChange, 600));
+      this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("change", this.handleAutocompleteVisibility);
       this.editor.on("change", this.onChangeTrigger);
       this.editor.on("keyup", this.handleAutocompleteHide);
@@ -174,8 +174,7 @@ class CodeEditor extends Component<Props, State> {
       }
 
       // Set value of the editor
-      let inputValue =
-        this.props.input.closeeditortext || this.props.input.value || "";
+      let inputValue = this.props.input.value || "";
       if (typeof inputValue === "object") {
         inputValue = JSON.stringify(inputValue, null, 2);
       } else if (
@@ -184,12 +183,21 @@ class CodeEditor extends Component<Props, State> {
       ) {
         inputValue += "";
       }
-      this.editor.setValue(inputValue);
+      if (this.props.size === "COMPACT") {
+        this.editor.setValue(this.removedNewLinesFromUrl(inputValue));
+      } else {
+        this.editor.setValue(inputValue);
+      }
+
       this.updateMarkings();
 
       this.startAutocomplete();
     }
   }
+
+  removedNewLinesFromUrl = (inputValue: any) => {
+    return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
+  };
 
   getInputValueUpdated = (inputValue: any) => {
     if (typeof inputValue === "object") {
@@ -205,16 +213,17 @@ class CodeEditor extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props): void {
     this.editor.refresh();
-    const editorValue = this.editor.getValue();
-    let textEditorValue;
     if (!this.state.isFocused) {
       // const currentMode = this.editor.getOption("mode");
-      textEditorValue =
-        this.props.input.closeeditortext || this.props.input.value;
+      const textEditorValue = this.props.input.value;
       // Safe update of value of the editor when value updated outside the editor
       const inputValue = this.getInputValueUpdated(textEditorValue);
-      if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
-        this.editor.setValue(inputValue);
+      if (!!inputValue || inputValue === "") {
+        if (this.props.size === "COMPACT") {
+          this.editor.setValue(this.removedNewLinesFromUrl(inputValue));
+        } else {
+          this.editor.setValue(inputValue);
+        }
       }
       this.updateMarkings();
 
@@ -222,13 +231,6 @@ class CodeEditor extends Component<Props, State> {
       //   this.editor.setOption("mode", this.props?.mode);
       // }
     } else {
-      textEditorValue =
-        this.props.input.openeditortext || this.props.input.value;
-      const inputVal = this.getInputValueUpdated(textEditorValue);
-      if (inputVal !== editorValue && this.props.input.openeditortext) {
-        this.editor.setValue(this.props.input.openeditortext);
-      }
-      // Update the dynamic bindings for autocomplete
       if (prevProps.dynamicData !== this.props.dynamicData) {
         this.hinters.forEach(
           (hinter) => hinter.update && hinter.update(this.props.dynamicData),
@@ -280,6 +282,7 @@ class CodeEditor extends Component<Props, State> {
     this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", true);
+      this.editor.setValue(this.props.input.value);
     }
   };
 
@@ -300,7 +303,7 @@ class CodeEditor extends Component<Props, State> {
         searchString: changeObj.text[0],
       });
     }
-    const inputValue = this.props.input.openeditortext;
+    const inputValue = this.props.input.value;
     if (
       this.props.input.onChange &&
       value !== inputValue &&

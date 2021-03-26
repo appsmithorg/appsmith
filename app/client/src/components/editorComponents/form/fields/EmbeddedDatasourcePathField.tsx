@@ -206,10 +206,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     };
   };
 
-  removedNewLinesFromUrl = (inputValue: any) => {
-    return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
-  };
-
   render() {
     const {
       datasource,
@@ -220,8 +216,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const input = {
       ...this.props.input,
       value: displayValue,
-      openeditortext: displayValue,
-      closeeditortext: this.removedNewLinesFromUrl(displayValue),
       onChange: this.handleOnChange,
     };
 
