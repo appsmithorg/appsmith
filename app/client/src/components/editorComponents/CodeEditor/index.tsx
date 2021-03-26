@@ -183,8 +183,8 @@ class CodeEditor extends Component<Props, State> {
       ) {
         inputValue += "";
       }
-      if (this.props.size === "COMPACT") {
-        this.editor.setValue(this.removedNewLinesFromUrl(inputValue));
+      if (this.props.size === EditorSize.COMPACT) {
+        this.editor.setValue(this.removeNewLineChars(inputValue));
       } else {
         this.editor.setValue(inputValue);
       }
@@ -195,11 +195,11 @@ class CodeEditor extends Component<Props, State> {
     }
   }
 
-  removedNewLinesFromUrl = (inputValue: any) => {
+  removeNewLineChars = (inputValue: any) => {
     return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
   };
 
-  getInputValueUpdated = (inputValue: any) => {
+  getInputValue = (inputValue: any) => {
     if (typeof inputValue === "object") {
       inputValue = JSON.stringify(inputValue, null, 2);
     } else if (
@@ -215,13 +215,12 @@ class CodeEditor extends Component<Props, State> {
     this.editor.refresh();
     if (!this.state.isFocused) {
       // const currentMode = this.editor.getOption("mode");
-      const textEditorValue = this.props.input.value;
       const editorValue = this.editor.getValue();
       // Safe update of value of the editor when value updated outside the editor
-      const inputValue = this.getInputValueUpdated(textEditorValue);
+      const inputValue = this.getInputValue(this.props.input.value);
       if (!!inputValue || inputValue === "") {
-        if (this.props.size === "COMPACT") {
-          this.editor.setValue(this.removedNewLinesFromUrl(inputValue));
+        if (this.props.size === EditorSize.COMPACT) {
+          this.editor.setValue(this.removeNewLineChars(inputValue));
         } else if (inputValue !== editorValue) {
           this.editor.setValue(inputValue);
         }
@@ -232,6 +231,7 @@ class CodeEditor extends Component<Props, State> {
       //   this.editor.setOption("mode", this.props?.mode);
       // }
     } else {
+      // Update the dynamic bindings for autocomplete
       if (prevProps.dynamicData !== this.props.dynamicData) {
         this.hinters.forEach(
           (hinter) => hinter.update && hinter.update(this.props.dynamicData),
