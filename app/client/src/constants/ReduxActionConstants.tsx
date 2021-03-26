@@ -4,7 +4,12 @@ import { Org } from "./orgConstants";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
+export const ReduxSagaChannels: { [key: string]: string } = {
+  WEBSOCKET_WRITE_CHANNEL: "WEBSOCKET_WRITE_CHANNEL",
+};
+
 export const ReduxActionTypes: { [key: string]: string } = {
+  SET_IS_WEBSOCKET_CONNECTED: "SET_IS_WEBSOCKET_CONNECTED",
   UPDATE_COMMENT_THREAD_EVENT: "UPDATE_COMMENT_THREAD_EVENT",
   UPDATE_COMMENT_THREAD_SUCCESS: "UPDATE_COMMENT_THREAD_SUCCESS",
   SET_COMMENT_THREAD_RESOLUTION_REQUEST:

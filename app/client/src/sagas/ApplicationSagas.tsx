@@ -56,6 +56,7 @@ import {
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
 import { deleteRecentAppEntities } from "utils/storage";
+import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -438,6 +439,8 @@ export function* createApplicationSaga(
           application.defaultPageId,
         );
         history.push(pageURL);
+
+        yield put(reconnectWebsocketAction());
       }
     }
   } catch (error) {
