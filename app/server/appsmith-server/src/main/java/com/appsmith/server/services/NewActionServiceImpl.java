@@ -440,7 +440,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
-                .flatMap(action1 -> generateActionByViewMode(action1, false));
+                .flatMap(action1 -> generateActionByViewMode(action1, false))
+                .flatMap(this::populateHintMessages);
     }
 
     @Override
@@ -939,12 +940,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             // function call is made which takes care of returning only the essential fields of an action
             return repository
                     .findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false, READ_ACTIONS)
-                    .flatMap(this::setTransientFieldsInUnpublishedAction)
-                    .flatMap(this::populateHintMessages);
+                    .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
-                .flatMap(this::setTransientFieldsInUnpublishedAction)
-                .flatMap(this::populateHintMessages);
+                .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
     @Override
