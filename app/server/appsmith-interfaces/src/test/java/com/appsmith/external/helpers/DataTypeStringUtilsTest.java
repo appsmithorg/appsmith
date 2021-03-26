@@ -34,6 +34,7 @@ public class DataTypeStringUtilsTest {
 
     @Test
     public void checkStringDataType() {
+        // Starting the string with number because earlier this was incorrectly being identified as JSON.
         String stringData = "2.1 In order to understand recursion, one must first understand recursion. -Anonymous";
         DataType dataType = stringToKnownDataTypeConverter(stringData);
 
