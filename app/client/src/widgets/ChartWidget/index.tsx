@@ -9,6 +9,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/ActionConstants";
 import withMeta, { WithMeta } from "widgets/MetaHOC";
 import propertyConfig from "widgets/ChartWidget/propertyConfig";
+import { CustomFusionChartConfig } from "components/designSystems/appsmith/ChartComponent";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -26,6 +27,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       chartName: VALIDATION_TYPES.TEXT,
       isVisible: VALIDATION_TYPES.BOOLEAN,
       chartData: VALIDATION_TYPES.CHART_DATA,
+      customFusionChartConfig: VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA,
     };
   }
 
@@ -63,6 +65,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           yAxisName={this.props.yAxisName}
           chartName={this.props.chartName}
           chartData={this.props.chartData}
+          customFusionChartConfig={this.props.customFusionChartConfig}
           widgetId={this.props.widgetId}
           onDataPointClick={this.onDataPointClick}
           allowHorizontalScroll={this.props.allowHorizontalScroll}
@@ -82,7 +85,8 @@ export type ChartType =
   | "PIE_CHART"
   | "COLUMN_CHART"
   | "AREA_CHART"
-  | "SCATTER_CHART";
+  | "SCATTER_CHART"
+  | "CUSTOM_FUSION_CHART";
 
 export interface ChartDataPoint {
   x: any;
@@ -97,6 +101,7 @@ export interface ChartData {
 export interface ChartWidgetProps extends WidgetProps, WithMeta {
   chartType: ChartType;
   chartData: ChartData[];
+  customFusionChartConfig: { config: CustomFusionChartConfig };
   xAxisName: string;
   yAxisName: string;
   chartName: string;
