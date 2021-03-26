@@ -5,8 +5,8 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -14,11 +14,11 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -51,7 +51,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
@@ -78,7 +77,7 @@ public class MssqlPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class MssqlPluginExecutor implements PluginExecutor<Connection> {
+    public static class MssqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
@@ -183,21 +182,14 @@ public class MssqlPlugin extends BasePlugin {
                         resultSet = statement.getResultSet();
                     } else {
                         preparedQuery = connection.prepareStatement(query);
-                        if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
-                            List<Param> params = executeActionDTO.getParams();
-                            List<String> parameters = new ArrayList<>();
-                            for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
-                                String key = mustacheValuesInOrder.get(i);
-                                Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
-                                if (matchingParam.isPresent()) {
-                                    String value = matchingParam.get().getValue();
-                                    parameters.add(value);
-                                    preparedQuery = setValueInPreparedStatement(i + 1, key,
-                                            value, preparedQuery);
-                                }
-                            }
-                            requestData.put("parameters", parameters);
-                        }
+
+                        List<String> parameters = new ArrayList<>();
+                        preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
+                                mustacheValuesInOrder,
+                                executeActionDTO.getParams(),
+                                parameters);
+
+                        requestData.put("parameters", parameters);
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
                     }
@@ -298,7 +290,7 @@ public class MssqlPlugin extends BasePlugin {
             })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
-                    .onErrorResume(error  -> {
+                    .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }
@@ -476,10 +468,14 @@ public class MssqlPlugin extends BasePlugin {
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
 
-        private static PreparedStatement setValueInPreparedStatement(int index,
-                                                                     String binding,
-                                                                     String value,
-                                                                     PreparedStatement preparedStatement) throws AppsmithPluginException {
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             Object... args) throws AppsmithPluginException {
+
+            PreparedStatement preparedStatement = (PreparedStatement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
             try {
