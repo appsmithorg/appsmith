@@ -81,6 +81,19 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
   });
 
+  it("Test to validate open new tab icon shows when URL type data is hovered", function() {
+    cy.openPropertyPane("tablewidget");
+    cy.editColumn("email");
+    cy.changeColumnType("URL");
+    cy.get(
+      `.t--widget-tablewidget .tbody .td[data-rowindex=1][data-colindex=1] .hidden-icon`,
+    ).invoke("show");
+    cy.get(
+      `.t--widget-tablewidget .tbody .td[data-rowindex=1][data-colindex=1] .hidden-icon`,
+    ).should("be.visible");
+    cy.get(commonlocators.editPropCrossButton).click();
+  });
+
   it("Test to validate text color and text background", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.textColor)

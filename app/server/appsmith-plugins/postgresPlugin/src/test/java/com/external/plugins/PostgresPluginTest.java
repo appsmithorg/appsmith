@@ -28,14 +28,19 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -854,5 +859,47 @@ public class PostgresPluginTest {
                      */
                     assertTrue(error.getMessage().contains("The server does not support SSL"));
                 });
+    }
+
+    public void testDuplicateColumnNames() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id, username as id, password, email as password FROM users WHERE id = 1");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotEquals(0, result.getMessages().size());
+
+                    String expectedMessage = "Your PostgreSQL query result may not have all the columns because " +
+                            "duplicate column names were found for the column(s)";
+                    assertTrue(
+                            result.getMessages().stream()
+                                    .anyMatch(message -> message.contains(expectedMessage))
+                    );
+
+                    /*
+                     * - Check if all of the duplicate column names are reported.
+                     */
+                    Set<String> expectedColumnNames = Stream.of("id", "password")
+                            .collect(Collectors.toCollection(HashSet::new));
+                    Set<String> foundColumnNames = new HashSet<>();
+                    result.getMessages().stream()
+                            .filter(message -> message.contains(expectedMessage))
+                            .forEach(message -> {
+                                Arrays.stream(message.split(":")[1].split("\\.")[0].split(","))
+                                        .forEach(columnName -> foundColumnNames.add(columnName.trim()));
+                            });
+                    assertTrue(expectedColumnNames.equals(foundColumnNames));
+                })
+                .verifyComplete();
     }
 }
