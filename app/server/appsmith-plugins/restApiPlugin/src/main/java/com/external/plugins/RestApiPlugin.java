@@ -16,6 +16,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
 import com.external.helpers.DatasourceValidator;
@@ -93,6 +94,12 @@ public class RestApiPlugin extends BasePlugin {
         private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
+
+        private SharedConfig sharedConfig;
+
+        public RestApiPluginExecutor(SharedConfig sharedConfig) {
+            this.sharedConfig = sharedConfig;
+        }
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -288,7 +295,12 @@ public class RestApiPlugin extends BasePlugin {
                 webClientBuilder.filter(apiConnection);
             }
 
-            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).filter(logRequest()).build();
+            WebClient client = webClientBuilder
+                    .exchangeStrategies(ExchangeStrategies
+                            .builder()
+                            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(this.sharedConfig.getCodecSize()))
+                            .build())
+                    .filter(logRequest()).build();
 
             // Triggering the actual REST API call
             return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
