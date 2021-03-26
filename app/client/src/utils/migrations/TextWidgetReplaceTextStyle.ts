@@ -1,15 +1,12 @@
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
-import { cloneDeep } from "lodash";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 
 export const migrateTextStyleFromTextWidget = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ): ContainerWidgetProps<WidgetProps> => {
-  currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
-    let child = cloneDeep(_child);
-    // If the current child is a TABLE_WIDGET
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === WidgetTypes.TEXT_WIDGET) {
       const textStyle = child.textStyle;
       switch (textStyle) {
