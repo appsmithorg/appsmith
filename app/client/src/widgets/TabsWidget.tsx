@@ -198,7 +198,10 @@ class TabsWidget extends BaseWidget<
   };
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    if (JSON.stringify(this.props.tabs) !== JSON.stringify(prevProps.tabs)) {
+    if (
+      Array.isArray(this.props.tabs) &&
+      JSON.stringify(this.props.tabs) !== JSON.stringify(prevProps.tabs)
+    ) {
       const tabWidgetIds = this.props.tabs.map((tab) => tab.widgetId);
       const childWidgetIds = this.props.children
         .filter(Boolean)
@@ -280,8 +283,8 @@ class TabsWidget extends BaseWidget<
     const childWidgetIds = this.props.children
       ?.filter(Boolean)
       .map((child) => child.widgetId);
-    let tabsToCreate = tabs;
-    if (childWidgetIds && childWidgetIds.length > 0) {
+    let tabsToCreate = tabs || [];
+    if (childWidgetIds && childWidgetIds.length > 0 && Array.isArray(tabs)) {
       tabsToCreate = tabs.filter(
         (tab) => childWidgetIds.indexOf(tab.widgetId) === -1,
       );
@@ -312,15 +315,18 @@ class TabsWidget extends BaseWidget<
   };
 
   getVisibleTabs = () => {
-    return this.props.tabs.filter(
-      (tab) => tab.isVisible === undefined || tab.isVisible === true,
-    );
+    if (Array.isArray(this.props.tabs)) {
+      return this.props.tabs.filter(
+        (tab) => tab.isVisible === undefined || tab.isVisible === true,
+      );
+    }
+    return [];
   };
 
   componentDidMount() {
     const visibleTabs = this.getVisibleTabs();
     // If we have a defaultTab
-    if (this.props.defaultTab && this.props.tabs.length) {
+    if (this.props.defaultTab && this.props.tabs?.length) {
       // Find the default Tab object
       const selectedTab = _.find(visibleTabs, {
         label: this.props.defaultTab,
@@ -342,7 +348,7 @@ class TabsWidget extends BaseWidget<
           selectedTabWidgetId,
         );
       }
-    } else if (!this.props.selectedTabWidgetId && this.props.tabs.length) {
+    } else if (!this.props.selectedTabWidgetId && this.props.tabs?.length) {
       // If no tab is selected
       // Select the first tab in the tabs list.
       this.props.updateWidgetMetaProperty(
