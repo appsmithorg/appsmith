@@ -16,6 +16,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
 import com.external.helpers.DatasourceValidator;
@@ -75,13 +76,6 @@ public class RestApiPlugin extends BasePlugin {
 
     private static final int SMART_JSON_SUBSTITUTION_INDEX = 0;
 
-    // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
-    // `WebClient` instance was loaded as an auto-wired bean.
-    public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
-            .builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
-            .build();
-
     public RestApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -93,6 +87,20 @@ public class RestApiPlugin extends BasePlugin {
         private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
+
+        private final SharedConfig sharedConfig;
+
+        // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
+        // `WebClient` instance was loaded as an auto-wired bean.
+        public ExchangeStrategies EXCHANGE_STRATEGIES;
+
+        public RestApiPluginExecutor(SharedConfig sharedConfig) {
+            this.sharedConfig = sharedConfig;
+            this.EXCHANGE_STRATEGIES = ExchangeStrategies
+                    .builder()
+                    .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize()))
+                    .build();
+        }
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -288,7 +296,9 @@ public class RestApiPlugin extends BasePlugin {
                 webClientBuilder.filter(apiConnection);
             }
 
-            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).filter(logRequest()).build();
+            WebClient client = webClientBuilder
+                    .exchangeStrategies(EXCHANGE_STRATEGIES)
+                    .filter(logRequest()).build();
 
             // Triggering the actual REST API call
             return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
