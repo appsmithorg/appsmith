@@ -937,6 +937,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));
     }
 
+    /*
+     * - Any hint message specific to action configuration can be handled here.
+     */
     public Mono<ActionDTO> populateHintMessages(ActionDTO action) {
         if(action == null) {
             return Mono.error(
