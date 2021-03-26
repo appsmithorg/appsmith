@@ -1289,7 +1289,7 @@ Cypress.Commands.add("tableDataVisiblity", (endp, value) => {
 });
 
 Cypress.Commands.add("tableColumnDataValidation", (columnName) => {
-  cy.get("[data-rbd-draggable-id='" + columnName + "']")
+  cy.get("[data-rbd-draggable-id='" + columnName + "'] input")
     .scrollIntoView()
     .first()
     .focus({ force: true })

@@ -121,6 +121,7 @@ const DraggableList = ({ items, ItemRenderer, onUpdate, itemHeight }: any) => {
       {springs.map(({ zIndex, y, scale }, i) => (
         <animated.div
           {...bind(i)}
+          data-rbd-draggable-id={items[i].id}
           key={i}
           style={{
             zIndex,

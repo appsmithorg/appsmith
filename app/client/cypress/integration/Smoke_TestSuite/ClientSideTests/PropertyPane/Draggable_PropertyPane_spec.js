@@ -8,14 +8,14 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Property pane initial position same untill it is dragged", function() {
     cy.openPropertyPane("tablewidget");
-    cy.get(".t--propertypane").then((oldPorpPane) => {
+    cy.get("#popper-draghandler").then((oldPorpPane) => {
       const oldPropPanePosition = oldPorpPane[0].getBoundingClientRect();
       cy.get(commonlocators.collapsesection)
         .first()
         .click();
       cy.get(commonlocators.editPropCrossButton).click({ force: true });
       cy.openPropertyPane("tablewidget");
-      cy.get(".t--propertypane").then((newPropPane) => {
+      cy.get("#popper-draghandler").then((newPropPane) => {
         const newPropPanePosition = newPropPane[0].getBoundingClientRect();
         cy.get(commonlocators.editPropCrossButton).click({ force: true });
         expect(oldPropPanePosition.top).to.be.equal(newPropPanePosition.top);
@@ -26,15 +26,15 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Property pane position should stay same after dragging down", () => {
     cy.openPropertyPane("tablewidget");
-    cy.get(".t--propertypane")
+    cy.get("#popper-draghandler")
       .trigger("mousedown", { which: 1 })
       .trigger("mousemove", { clientX: 400, clientY: 500 })
       .trigger("mouseup", { force: true });
-    cy.get(".t--propertypane").then((oldPorpPane) => {
+    cy.get("#popper-draghandler").then((oldPorpPane) => {
       const oldPropPanePosition = oldPorpPane[0].getBoundingClientRect();
       cy.get(commonlocators.editPropCrossButton).click({ force: true });
       cy.openPropertyPane("containerwidget");
-      cy.get(".t--propertypane").then((newPropPane) => {
+      cy.get("#popper-draghandler").then((newPropPane) => {
         const newPropPanePosition = newPropPane[0].getBoundingClientRect();
         cy.get(commonlocators.editPropCrossButton).click({ force: true });
         expect(oldPropPanePosition.top).to.be.equal(newPropPanePosition.top);
@@ -45,20 +45,20 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Property pane should come back into view if forced to drop out of view", () => {
     cy.openPropertyPane("tablewidget");
-    cy.get(".t--propertypane")
+    cy.get("#popper-draghandler")
       .trigger("mousedown", { which: 1 })
       .trigger("mousemove", { clientX: -10, clientY: -20 })
       .trigger("mouseup", { force: true });
-    cy.get(".t--propertypane").then((porpPane) => {
+    cy.get("#popper-draghandler").then((porpPane) => {
       const propPanePosition = porpPane[0].getBoundingClientRect();
       expect(propPanePosition.top).to.be.greaterThan(0);
-      expect(propPanePosition.left).to.be.greaterThan(0);
+      expect(propPanePosition.left).to.be.gte(0);
     });
-    cy.get(".t--propertypane")
+    cy.get("#popper-draghandler")
       .trigger("mousedown", { which: 1 })
       .trigger("mousemove", { clientX: 1600, clientY: 800 })
       .trigger("mouseup", { force: true });
-    cy.get(".t--propertypane").then((porpPane) => {
+    cy.get("#popper-draghandler").then((porpPane) => {
       const propPanePosition = porpPane[0].getBoundingClientRect();
       cy.get(commonlocators.editPropCrossButton).click({ force: true });
       expect(propPanePosition.top).to.be.lessThan(
