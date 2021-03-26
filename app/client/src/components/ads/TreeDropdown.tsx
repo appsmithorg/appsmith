@@ -8,9 +8,11 @@ import {
   MenuItem,
   Popover,
   Menu,
+  Button,
+  Classes,
 } from "@blueprintjs/core";
 import styled from "styled-components";
-import Icon, { IconSize } from "./Icon";
+import { IconNames } from "@blueprintjs/icons";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -35,99 +37,76 @@ type TreeDropdownProps = {
   toggle?: React.ReactNode;
   className?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
+  onMenuToggle?: (isOpen: boolean) => void;
 };
 
-const MoreActionableContainer = styled.div<{ isOpen: boolean }>`
-  width: 34px;
-  height: 30px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-
-  &&&& span {
-    width: auto;
-  }
-
-  &&&& svg > path {
-    fill: ${(props) =>
-      props.theme.colors.apiPane.moreActions.targetIcon.normal};
-  }
-
-  ${(props) =>
-    props.isOpen
-      ? `
-		background-color: ${props.theme.colors.apiPane.moreActions.targetBg};
-
-    &&&& svg > path {
-      fill: ${props.theme.colors.apiPane.moreActions.targetIcon.hover};
-    }
-	`
-      : null}
-
-  &:hover {
+const StyledMenu = styled(Menu)`
+  min-width: 220px;
+  padding: 0px;
+  border-radius: 0px;
+  background-color: ${(props) => props.theme.colors.treeDropdown.menuBg.normal};
+  box-shadow: ${(props) => props.theme.colors.treeDropdown.menuShadow};
+  .${Classes.MENU} {
+    min-width: 220px;
+    padding: 0px;
+    border-radius: 0px;
     background-color: ${(props) =>
-      props.theme.colors.apiPane.moreActions.targetBg};
-
-    &&&& svg > path {
-      fill: ${(props) =>
-        props.theme.colors.apiPane.moreActions.targetIcon.hover};
+      props.theme.colors.treeDropdown.menuBg.normal};
+  }
+  .${Classes.MENU_ITEM} {
+    border-radius: 0px;
+    font-size: 12px;
+    line-height: 14px;
+    display: flex;
+    align-items: center;
+    height: 30px;
+    color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
+    .${Classes.ICON} > svg:not([fill]) {
+      margin-top: 0px;
+      fill: #9f9f9f;
     }
+
+    &:hover {
+      background-color: ${(props) =>
+        props.theme.colors.treeDropdown.menuBg.hover};
+      color: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+      .${Classes.ICON} > svg:not([fill]) {
+        fill: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+      }
+    }
+
+    &.${Classes.ACTIVE} {
+      background-color: ${(props) =>
+        props.theme.colors.treeDropdown.menuBg.selected};
+      color: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
+      .${Classes.ICON} > svg:not([fill]) {
+        fill: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
+      }
+    }
+  }
+  .${Classes.MENU_SUBMENU}
+    .${Classes.POPOVER_TARGET}.${Classes.POPOVER_OPEN}
+    > .${Classes.MENU_ITEM} {
+    background-color: ${(props) =>
+      props.theme.colors.treeDropdown.menuBg.hover};
+    color: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
   }
 `;
 
-const StyledPopover = styled.div`
-  .bp3-transition-container {
-    top: 4px !important;
-  }
-
-  .bp3-popover {
+const DropdownTarget = styled.div`
+  &&&& .${Classes.BUTTON} {
+    width: 100%;
+    box-shadow: none;
     border-radius: 0px;
-    box-shadow: ${(props) => props.theme.colors.apiPane.moreActions.menuShadow};
-
-    .bp3-popover-content {
-      border-radius: 0px;
-    }
-
-    &&& ul {
-      background-color: ${(props) =>
-        props.theme.colors.apiPane.moreActions.menuBg.normal};
-    }
-
-    .bp3-menu {
-      min-width: 220px;
-      padding: 0px;
-      border-radius: 0px;
-      background-color: ${(props) =>
-        props.theme.colors.apiPane.moreActions.menuBg.normal};
-
-      .bp3-menu-item {
-        font-size: 14px;
-        line-height: 20px;
-        letter-spacing: -0.24px;
-        padding: 10px 15px;
-        color: ${(props) =>
-          props.theme.colors.apiPane.moreActions.menuText.normal};
-        .bp3-icon > svg:not([fill]) {
-          fill: #9f9f9f;
-        }
-
-        &:active,
-        &:hover {
-          background-color: ${(props) =>
-            props.theme.colors.apiPane.moreActions.menuBg.hover};
-          color: ${(props) =>
-            props.theme.colors.apiPane.moreActions.menuText.hover};
-        }
-      }
-      .bp3-submenu .bp3-popover-target.bp3-popover-open > .bp3-menu-item {
-        background-color: ${(props) =>
-          props.theme.colors.apiPane.moreActions.menuBg.hover};
-        color: ${(props) =>
-          props.theme.colors.apiPane.moreActions.menuText.hover};
-      }
-    }
+    background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
+    color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
+    background-image: none;
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 12px;
+  }
+  &&&& .${Classes.ICON} {
+    color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
   }
 `;
 
@@ -164,6 +143,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     optionTree,
     onSelect,
     getDefaults,
+    selectedLabelModifier,
+    displayValue,
+    toggle,
   } = props;
   const selectedOption = getSelectedOption(
     selectedValue,
@@ -198,6 +180,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
             : (e: any) => {
                 handleSelect(option);
                 setIsOpen(false);
+                props.onMenuToggle && props.onMenuToggle(false);
                 e.stopPropagation();
               }
         }
@@ -216,34 +199,43 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   }
 
   const list = optionTree.map(renderTreeOption);
-  const menuItems = <Menu>{list}</Menu>;
+  const menuItems = <StyledMenu>{list}</StyledMenu>;
   const defaultToggle = (
-    <MoreActionableContainer isOpen={isOpen} className={props.className}>
-      <Icon name="context-menu" size={IconSize.XXXL} />
-    </MoreActionableContainer>
+    <DropdownTarget>
+      <Button
+        rightIcon={IconNames.CHEVRON_DOWN}
+        text={
+          selectedLabelModifier
+            ? selectedLabelModifier(selectedOption, displayValue)
+            : selectedOption.label
+        }
+        className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
+          selectedLabelModifier ? "code-highlight" : ""
+        }`}
+      />
+    </DropdownTarget>
   );
   return (
-    <StyledPopover>
-      <Popover
-        usePortal={false}
-        isOpen={isOpen}
-        minimal
-        content={menuItems}
-        position={PopoverPosition.LEFT}
-        className="wrapper-popover"
-        modifiers={props.modifiers}
-        onClose={() => {
-          setIsOpen(false);
-        }}
-        targetProps={{
-          onClick: (e: any) => {
-            setIsOpen(true);
-            e.stopPropagation();
-          },
-        }}
-      >
-        {defaultToggle}
-      </Popover>
-    </StyledPopover>
+    <Popover
+      isOpen={isOpen}
+      minimal
+      content={menuItems}
+      position={PopoverPosition.LEFT}
+      className="wrapper-popover"
+      modifiers={props.modifiers}
+      onClose={() => {
+        setIsOpen(false);
+        props.onMenuToggle && props.onMenuToggle(false);
+      }}
+      targetProps={{
+        onClick: (e: any) => {
+          setIsOpen(true);
+          props.onMenuToggle && props.onMenuToggle(true);
+          e.stopPropagation();
+        },
+      }}
+    >
+      {toggle ? toggle : defaultToggle}
+    </Popover>
   );
 }

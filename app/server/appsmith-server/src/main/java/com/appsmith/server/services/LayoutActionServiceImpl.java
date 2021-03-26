@@ -2,9 +2,12 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -53,6 +56,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final NewPageService newPageService;
     private final NewActionService newActionService;
     private final PageLoadActionsUtil pageLoadActionsUtil;
+    private final SessionUserService sessionUserService;
+
 
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
@@ -65,12 +70,15 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public LayoutActionServiceImpl(ObjectMapper objectMapper,
                                    AnalyticsService analyticsService,
                                    NewPageService newPageService,
-                                   NewActionService newActionService, PageLoadActionsUtil pageLoadActionsUtil) {
+                                   NewActionService newActionService,
+                                   PageLoadActionsUtil pageLoadActionsUtil,
+                                   SessionUserService sessionUserService) {
         this.objectMapper = objectMapper;
         this.analyticsService = analyticsService;
         this.newPageService = newPageService;
         this.newActionService = newActionService;
         this.pageLoadActionsUtil = pageLoadActionsUtil;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -310,7 +318,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // For nested fields, the parent dsl to search in would shift by one level every iteration
                 Object parent = dsl;
                 Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
-                Boolean isLeafNode = false;
+                boolean isLeafNode = false;
                 // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
@@ -327,32 +335,38 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             } catch (IndexOutOfBoundsException e) {
                                 // The index being referred does not exist. Hence the path would not exist.
                                 throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                        widgetName, widgetId, fieldPath, pageId, layoutId);
+                                        widgetName, widgetId, fieldPath, pageId, layoutId, null);
                             }
                         } else {
                             throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                    widgetName, widgetId, fieldPath, pageId, layoutId);
+                                    widgetName, widgetId, fieldPath, pageId, layoutId, null);
                         }
                     }
                     // After updating the parent, check for the types
                     if (parent == null) {
                         throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                widgetName, widgetId, fieldPath, pageId, layoutId);
+                                widgetName, widgetId, fieldPath, pageId, layoutId, null);
                     } else if (parent instanceof String) {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;
                     }
                 }
                 // Only extract mustache keys from leaf nodes
-                if (parent != null && isLeafNode) {
-                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                if (isLeafNode) {
 
                     // We found the path. But if the path does not have any mustache bindings, throw the error
-                    if (mustacheKeysFromFields.isEmpty()) {
-                        throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                widgetName, widgetId, fieldPath, pageId, layoutId);
+                    if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
+                        try {
+                            String bindingAsString = objectMapper.writeValueAsString(parent);
+                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                    widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
+                        } catch (JsonProcessingException e) {
+                            throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
+                        }
                     }
 
+                    // Stricter extraction of dynamic bindings
+                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
                     dynamicBindings.addAll(mustacheKeysFromFields);
                 }
             }
@@ -499,9 +513,38 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .then(Mono.just(pageId));
     }
 
+    private Mono<Boolean> sendUpdateLayoutAnalyticsEvent(String pageId, String layoutId, JSONObject dsl, boolean isSuccess, Throwable error) {
+        return Mono.zip(
+                sessionUserService.getCurrentUser(),
+                newPageService.getById(pageId)
+        )
+                .flatMap(tuple -> {
+                    User t1 = tuple.getT1();
+                    NewPage t2 = tuple.getT2();
+
+                    final Map<String, Object> data = Map.of(
+                            "username", t1.getUsername(),
+                            "appId", t2.getApplicationId(),
+                            "pageId", pageId,
+                            "layoutId", layoutId,
+                            "dsl", dsl.toJSONString(),
+                            "isSuccessfulExecution", isSuccess,
+                            "error", error == null ? "" : error.getMessage()
+                    );
+
+                    analyticsService.sendEvent(AnalyticsEvents.UPDATE_LAYOUT.getEventName(), t1.getUsername(), data);
+                    return Mono.just(isSuccess);
+                })
+                .onErrorResume(e -> {
+                    log.warn("Error sending action execution data point", e);
+                    return Mono.just(isSuccess);
+                });
+
+    }
+
     @Override
     public Mono<LayoutDTO> updateLayout(String pageId, String layoutId, Layout layout) {
-        JSONObject dsl = layout.getDsl();
+        final JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
             return Mono.just(generateResponseDTO(layout));
@@ -512,7 +555,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         try {
             extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, jsSnippetsInDynamicBindings, pageId, layoutId);
         } catch (Throwable t) {
-            return Mono.error(t);
+            return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, dsl, false, t)
+                    .then(Mono.error(t));
         }
         layout.setWidgetNames(widgetNames);
 
@@ -581,11 +625,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     }
                     return Mono.empty();
                 })
-                .map(savedLayout -> {
+                .flatMap(savedLayout -> {
                     LayoutDTO layoutDTO = generateResponseDTO(savedLayout);
                     layoutDTO.setActionUpdates(actionUpdates);
                     layoutDTO.setMessages(messages);
-                    return layoutDTO;
+
+                    return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, dsl, true, null)
+                            .thenReturn(layoutDTO);
                 });
     }
 

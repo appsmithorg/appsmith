@@ -220,6 +220,11 @@
       "color": "e8b851",
       "description": "Needs attention from maintainers to triage"
     },
+    "New Integration": {
+      "name": "New Integration",
+      "color": "BD53D8",
+      "description": "Requests for new integrations"
+    },
     "New Widget": {
       "name": "New Widget",
       "color": "693BA1",
@@ -497,6 +502,11 @@
               {
                 "type": "hasLabel",
                 "label": "Actions",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "New Integration",
                 "value": true
               }
             ]

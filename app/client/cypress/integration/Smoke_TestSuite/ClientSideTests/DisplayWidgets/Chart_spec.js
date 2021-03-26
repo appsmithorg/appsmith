@@ -33,16 +33,17 @@ describe("Chart Widget Functionality", function() {
       .should("have.text", "App Sign Up");
 
     cy.get(viewWidgetsPage.chartType)
-      .find(commonlocators.dropdownbuttonclick)
-      .click({ force: true })
-      .get(commonlocators.dropdownmenu)
+      .last()
+      .click({ force: true });
+
+    cy.get(commonlocators.dropdownmenu)
       .children()
       .contains("Column Chart")
       .click();
     cy.get(viewWidgetsPage.chartType)
-      .find(commonlocators.menuSelection)
+      .last()
       .should("have.text", "Column Chart");
-    cy.testJsontext("chartdata", JSON.stringify(this.data.chartInput));
+    cy.testJsontext("chartseries", JSON.stringify(this.data.chartInput));
     cy.get(viewWidgetsPage.chartWidget)
       .should("be.visible")
       .and((chart) => {
@@ -66,9 +67,11 @@ describe("Chart Widget Functionality", function() {
       .click({ force: true })
       .type(this.data.command)
       .type(this.data.ylabel);
+
     //Close edit prop
     cy.get(commonlocators.editPropCrossButton).click();
   });
+
   it("Chart Widget Functionality To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -94,6 +97,34 @@ describe("Chart Widget Functionality", function() {
       .eq(1)
       .should("exist");
     cy.get(publish.backToEditor).click();
+  });
+
+  it("Chart Widget Custom Config Feature", function() {
+    // Note: This only checks for crashes in custom config
+    cy.get(viewWidgetsPage.chartType)
+      .last()
+      .click({ force: true });
+
+    cy.get(commonlocators.dropdownmenu)
+      .children()
+      .contains("Custom Chart")
+      .click();
+    cy.get(viewWidgetsPage.chartType)
+      .last()
+      .should("have.text", "Custom Chart");
+
+    cy.testJsontext(
+      "customfusionchartconfiguration",
+      `{{${JSON.stringify(this.data.ChartCustomConfig)}}}`,
+    );
+    cy.get(viewWidgetsPage.chartWidget)
+      .should("be.visible")
+      .and((chart) => {
+        expect(chart.height()).to.be.greaterThan(200);
+      });
+    cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
+    //Close edit prop
+    cy.get(commonlocators.editPropCrossButton).click();
   });
 });
 afterEach(() => {

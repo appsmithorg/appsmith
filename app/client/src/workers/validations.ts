@@ -9,6 +9,7 @@ import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import _, {
   every,
   isBoolean,
+  isNil,
   isNumber,
   isObject,
   isPlainObject,
@@ -19,6 +20,26 @@ import _, {
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
+
+export function validateDateString(
+  dateString: string,
+  dateFormat: string,
+  version: number,
+) {
+  let isValid = true;
+  if (version === 2) {
+    try {
+      const d = new Date(dateString);
+      isValid = d.toISOString() === dateString;
+    } catch (e) {
+      isValid = false;
+    }
+  } else {
+    const parsedDate = moment(dateString, dateFormat);
+    isValid = parsedDate.isValid();
+  }
+  return isValid;
+}
 
 const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type"; // TODO: Lot's of changes in validations.ts file
 
@@ -344,6 +365,39 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed: parsedChartData, transformed: parsedChartData };
   },
+  [VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.OBJECT](
+      value,
+      props,
+      dataTree,
+    );
+    if (props.chartName && parsed.dataSource && parsed.dataSource.chart) {
+      parsed.dataSource.chart.caption = props.chartName;
+    }
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}`,
+      };
+    }
+    if (parsed.renderAt) {
+      delete parsed.renderAt;
+    }
+    if (!parsed.dataSource || !parsed.type) {
+      return {
+        isValid: false,
+        parsed: parsed,
+        transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}`,
+      };
+    }
+    return { isValid, parsed, transformed: parsed };
+  },
   [VALIDATION_TYPES.MARKERS]: (
     value: any,
     props: WidgetProps,
@@ -395,9 +449,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       const isValidOption = (option: { label: any; value: any }) =>
         _.isObject(option) &&
         _.isString(option.label) &&
-        _.isString(option.value) &&
-        !_.isEmpty(option.label) &&
-        !_.isEmpty(option.value);
+        !_.isEmpty(option.label);
 
       const hasOptions = every(parsed, isValidOption);
       const validOptions = parsed.filter(isValidOption);
@@ -420,7 +472,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
   },
-  [VALIDATION_TYPES.DATE]: (
+  [VALIDATION_TYPES.DATE_ISO_STRING]: (
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
@@ -428,7 +480,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
-
+    if (dateString === null) {
+      return {
+        isValid: true,
+        parsed: "",
+        message: "",
+      };
+    }
     if (dateString === undefined) {
       return {
         isValid: false,
@@ -439,12 +497,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             : "",
       };
     }
-    const isValid = moment(dateString, dateFormat).isValid();
+    const isValid = validateDateString(dateString, dateFormat, props.version);
     if (!isValid) {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+        message: `Value does not match ISO 8601 standard date string`,
       };
     }
     return {
@@ -461,6 +519,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
+    if (dateString === null) {
+      return {
+        isValid: true,
+        parsed: "",
+        message: "",
+      };
+    }
     if (dateString === undefined) {
       return {
         isValid: false,
@@ -471,13 +536,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             : "",
       };
     }
-    const parsedCurrentDate = moment(dateString, dateFormat);
-    const isValid = parsedCurrentDate.isValid();
+    const isValid = validateDateString(dateString, dateFormat, props.version);
     if (!isValid) {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+        message: `Value does not match ISO 8601 standard date string`,
       };
     }
     return {
@@ -505,7 +569,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const parsedMinDate = moment(dateString, dateFormat);
-    let isValid = parsedMinDate.isValid();
+    let isValid = validateDateString(dateString, dateFormat, props.version);
     if (!props.defaultDate) {
       return {
         isValid: isValid,
@@ -554,7 +618,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const parsedMaxDate = moment(dateString, dateFormat);
-    let isValid = parsedMaxDate.isValid();
+    let isValid = validateDateString(dateString, dateFormat, props.version);
     if (!props.defaultDate) {
       return {
         isValid: isValid,
@@ -592,33 +656,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         transformed: "Function Call",
       };
     }
-    /*
-    if (_.isString(value)) {
-      if (value.indexOf("navigateTo") !== -1) {
-        const pageNameOrUrl = modalGetter(value);
-        if (dataTree) {
-          if (isDynamicValue(pageNameOrUrl)) {
-            return {
-              isValid: true,
-              parsed: value,
-            };
-          }
-          const isPage =
-            (dataTree.pageList as PageListPayload).findIndex(
-              page => page.pageName === pageNameOrUrl,
-            ) !== -1;
-          const isValidUrl = URL_REGEX.test(pageNameOrUrl);
-          if (!(isValidUrl || isPage)) {
-            return {
-              isValid: false,
-              parsed: value,
-              message: `${NAVIGATE_TO_VALIDATION_ERROR}`,
-            };
-          }
-        }
-      }
-    }
-    */
     return {
       isValid: false,
       parsed: undefined,
@@ -719,42 +756,21 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     value: string | string[],
     props: WidgetProps,
   ) => {
-    let values = value;
-
     if (props) {
       if (props.multiRowSelection) {
-        if (typeof value === "string") {
-          try {
-            values = JSON.parse(value);
-            if (!Array.isArray(values)) {
-              throw new Error();
-            }
-          } catch {
-            values = value.length ? value.split(",") : [];
-            if (values.length > 0) {
-              let numericValues = values.map((value) => {
-                return isNumber(value.trim()) ? -1 : Number(value.trim());
-              });
-              numericValues = _.uniq(numericValues);
-              return {
-                isValid: true,
-                parsed: numericValues,
-              };
-            }
-          }
-        }
+        return VALIDATORS[VALIDATION_TYPES.ROW_INDICES](value, props);
       } else {
         try {
-          if (value === "") {
-            return {
-              isValid: true,
-              parsed: -1,
-            };
-          }
-          const parsed = toNumber(value);
+          const _value: string = value as string;
+          if (
+            Number.isInteger(parseInt(_value, 10)) &&
+            parseInt(_value, 10) > -1
+          )
+            return { isValid: true, parsed: parseInt(_value, 10) };
+
           return {
             isValid: true,
-            parsed: parsed,
+            parsed: -1,
           };
         } catch (e) {
           return {
@@ -766,7 +782,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return {
       isValid: true,
-      parsed: values,
+      parsed: value,
     };
   },
   [VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY]: (
@@ -855,6 +871,70 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     return {
       isValid: true,
       parsed: value,
+    };
+  },
+  // If we keep adding these here there will be a huge unmaintainable list
+  // TODO(abhinav: WIDGET DEV API):
+  // - Compile validators from the widgets during widget registration
+  // - Use the compiled list in the web worker startup
+  // - Remove widget specific validations from this file
+  // - Design consideration: If widgets can be dynamically imported, how will this work?
+  [VALIDATION_TYPES.TABLE_PAGE_NO]: (value: any): ValidationResponse => {
+    if (!value || !Number.isInteger(value) || value < 0)
+      return { isValid: false, parsed: 1, message: "" };
+    return { isValid: true, parsed: value };
+  },
+  [VALIDATION_TYPES.ROW_INDICES]: (
+    value: any,
+    props: any,
+  ): ValidationResponse => {
+    if (props && !props.multiRowSelection)
+      return { isValid: true, parsed: undefined };
+
+    if (isString(value)) {
+      const trimmed = value.trim();
+      try {
+        const parsedArray = JSON.parse(trimmed);
+        if (Array.isArray(parsedArray)) {
+          const sanitized = parsedArray.filter((entry) => {
+            return (
+              Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
+            );
+          });
+          return { isValid: true, parsed: sanitized };
+        } else {
+          throw Error("Not a stringified array");
+        }
+      } catch (e) {
+        // If cannot be parsed as an array
+        const arrayEntries = trimmed.split(",");
+        const result: number[] = [];
+        arrayEntries.forEach((entry) => {
+          if (
+            Number.isInteger(parseInt(entry, 10)) &&
+            parseInt(entry, 10) > -1
+          ) {
+            if (!isNil(entry)) result.push(parseInt(entry, 10));
+          }
+        });
+        return { isValid: true, parsed: result };
+      }
+    }
+    if (Array.isArray(value)) {
+      const sanitized = value.filter((entry) => {
+        return (
+          Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
+        );
+      });
+      return { isValid: true, parsed: sanitized };
+    }
+    if (Number.isInteger(value) && value > -1) {
+      return { isValid: true, parsed: [value] };
+    }
+    return {
+      isValid: false,
+      parsed: [],
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: number[]`,
     };
   },
 };

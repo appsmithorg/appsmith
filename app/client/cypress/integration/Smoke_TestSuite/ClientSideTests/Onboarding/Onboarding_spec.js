@@ -1,4 +1,4 @@
-const explorer = require("../../../../locators/explorerlocators.json");
+// const explorer = require("../../../../locators/explorerlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
@@ -14,44 +14,63 @@ describe("Onboarding", function() {
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@getDataSources");
-    cy.get(".t--start-building").click();
 
-    // Create and run query
-    cy.get(".t--onboarding-indicator").should("be.visible");
-    cy.get(".t--create-query").click();
-    cy.runQuery();
-
-    // Add widget
-    cy.get(".t--add-widget").click();
-    cy.dragAndDropToCanvas("tablewidget", { x: 30, y: -30 });
-
-    // Click on "Show me how" and then copy hint
-    cy.get(".t--onboarding-action").click();
-    cy.get(".t--onboarding-snippet").click({ force: true });
-
-    cy.get(".t--property-control-tabledata" + " .CodeMirror textarea")
-      .first()
-      .focus({ force: true })
-      .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}", { force: true });
-    cy.focused().then(() => {
-      cy.get(".t--property-control-tabledata" + " .CodeMirror")
-        .first()
-        .then((editor) => {
-          editor[0].CodeMirror.setValue("{{fetch_standup_updates.data}}");
+    cy.window()
+      .its("store")
+      .invoke("getState")
+      .then((state) => {
+        const datasources = state.entities.datasources.list;
+        const onboardingDatasource = datasources.find((datasource) => {
+          const name = datasource.name;
+          return name === "Super Updates DB";
         });
-    });
-    cy.closePropertyPane();
-    cy.get(explorer.closeWidgets).click();
 
-    cy.openPropertyPane("tablewidget");
-    cy.closePropertyPane();
-    cy.get(".t--application-feedback-btn").should("not.exist");
+        if (!onboardingDatasource) {
+          cy.wait("@createDatasource").then((httpRequest) => {
+            const createdDbName = httpRequest.request.body.name;
+            expect(createdDbName).to.be.equal("Super Updates DB");
+          });
+        }
 
-    cy.contains(".t--onboarding-helper-title", "Capture Hero Updates");
-    cy.get(".t--onboarding-cheat-action").click();
-    cy.contains(".t--onboarding-helper-title", "Deploy the Standup Dashboard");
+        cy.get(".bp3-spinner-head").should("not.exist");
+        cy.get(".t--start-building")
+          .should("be.visible")
+          .click({ force: true });
+
+        // Create and run query
+        // Using the cheat option to create the action with 30 sec timeout
+        cy.get(".t--onboarding-cheat-action")
+          .should("be.visible")
+          .click();
+
+        cy.wait("@postExecute").then((httpRequest) => {
+          expect(httpRequest.response.body.data.isExecutionSuccess).to.be.true;
+        });
+
+        // Add widget
+        cy.get(".t--add-widget").click();
+        cy.dragAndDropToCanvas("tablewidget", { x: 30, y: -30 });
+
+        // wait for animation duration
+        cy.wait(1000);
+        // Click on "Show me how" and then click on cheat button
+        cy.get(".t--onboarding-action")
+          .should("be.visible")
+          .click({ force: true });
+        cy.get(".t--onboarding-cheat-action")
+          .should("be.visible")
+          .click();
+
+        // wait for animation duration
+        cy.wait(1000);
+        cy.contains(".t--onboarding-helper-title", "Capture Hero Updates");
+        cy.get(".t--onboarding-cheat-action").click();
+
+        cy.contains(
+          ".t--onboarding-helper-title",
+          "Deploy the Standup Dashboard",
+        );
+      });
   });
 
   // Similar to PublishtheApp command with little changes

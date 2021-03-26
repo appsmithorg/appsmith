@@ -1,3 +1,5 @@
+import { ChartWidgetProps } from "widgets/ChartWidget";
+
 export default [
   {
     sectionName: "General",
@@ -37,17 +39,49 @@ export default [
             label: "Area Chart",
             value: "AREA_CHART",
           },
+          {
+            label: "Custom Chart",
+            value: "CUSTOM_FUSION_CHART",
+          },
         ],
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
       },
       {
+        propertyName: "isVisible",
+        label: "Visible",
+        helpText: "Controls the visibility of the widget",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+      },
+    ],
+  },
+  {
+    helpText:
+      "Manually configure a FusionChart, see https://www.fusioncharts.com",
+    propertyName: "customFusionChartConfig",
+    placeholderText: `Enter {type: "bar2d","dataSource": {}}`,
+    label: "Custom Fusion Chart Configuration",
+    controlType: "CUSTOM_FUSION_CHARTS_DATA",
+    isBindProperty: true,
+    isTriggerProperty: false,
+    hidden: (x: any) => x.chartType !== "CUSTOM_FUSION_CHART",
+  },
+  {
+    sectionName: "Chart Data",
+    hidden: (props: ChartWidgetProps) =>
+      props.chartType === "CUSTOM_FUSION_CHART",
+    children: [
+      {
         helpText: "Populates the chart with the data",
         propertyName: "chartData",
         placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
-        label: "Chart Data",
+        label: "Chart Series",
         controlType: "CHART_DATA",
+
         isBindProperty: false,
         isTriggerProperty: false,
         children: [
@@ -69,6 +103,13 @@ export default [
           },
         ],
       },
+    ],
+  },
+  {
+    sectionName: "Axis",
+    hidden: (props: ChartWidgetProps) =>
+      props.chartType === "CUSTOM_FUSION_CHART",
+    children: [
       {
         helpText: "Specifies the label of the x-axis",
         propertyName: "xAxisName",
@@ -94,15 +135,7 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-      },
-      {
-        propertyName: "isVisible",
-        label: "Visible",
-        helpText: "Controls the visibility of the widget",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
+        hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
       },
     ],
   },

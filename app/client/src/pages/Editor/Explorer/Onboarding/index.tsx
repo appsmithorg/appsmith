@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { scrollbarDark } from "constants/DefaultTheme";
 import Loading from "./Loading";
 import DBQueryGroup from "./DBQueryGroup";
 import { useSelector } from "react-redux";
@@ -11,14 +10,16 @@ import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import history from "utils/history";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const Wrapper = styled.div`
   height: 100%;
-  overflow-y: scroll;
-  ${scrollbarDark};
+  overflow-y: auto;
 `;
 
 const OnboardingExplorer = (props: IPanelProps) => {
+  const wrapperRef = React.createRef<HTMLDivElement>();
+
   let node = <Loading />;
   const { applicationId, pageId } = useParams<ExplorerURLParams>();
   const { openPanel } = props;
@@ -34,7 +35,12 @@ const OnboardingExplorer = (props: IPanelProps) => {
     node = <DBQueryGroup showWidgetsSidebar={showWidgetsSidebar} />;
   }
 
-  return <Wrapper>{node}</Wrapper>;
+  return (
+    <Wrapper ref={wrapperRef}>
+      {node}
+      <ScrollIndicator containerRef={wrapperRef} mode="DARK" />
+    </Wrapper>
+  );
 };
 
 export default OnboardingExplorer;
