@@ -34,6 +34,18 @@
   <div id="header-root"></div>
   <div id="root"></div>
   <script type="text/javascript">
+    // Memory based localstorage fallback for cases where we need a basic store
+    // similar to a shared object
+    if (!window.localStorage) {
+      window.localStorage = {
+        _data       : {},
+        setItem     : function(id, val) { return this._data[id] = typeof val === "string" ? val : JSON.stringify(val); },
+        getItem     : function(id) { return this._data.hasOwnProperty(id) ? this._data[id] : undefined; },
+        removeItem  : function(id) { return delete this._data[id]; },
+        clear       : function() { return this._data = {}; }
+      };
+    }
+
     // Note: The following handler is necessary for when we have a new deployment.
 
     // What happens?
