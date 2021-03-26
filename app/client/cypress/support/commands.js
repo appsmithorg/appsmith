@@ -98,6 +98,7 @@ Cypress.Commands.add("stubPostHeaderReq", () => {
   cy.intercept("POST", "/api/v1/users/invite", (req) => {
     headers: {
       accept: "application/json";
+      origin: "dev.appsmith.com";
     }
     {
       statusCode: 200;
