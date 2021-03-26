@@ -6,7 +6,6 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
-import com.appsmith.external.services.SharedConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpHeaders;
@@ -41,7 +40,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
     private boolean isHeader;
     private Instant expiresAt;
     private Object tokenResponse;
-    private int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
+    private static final int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
 
     private OAuth2AuthorizationCode() {
     }

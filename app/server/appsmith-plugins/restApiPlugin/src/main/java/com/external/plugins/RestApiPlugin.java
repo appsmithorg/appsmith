@@ -76,13 +76,6 @@ public class RestApiPlugin extends BasePlugin {
 
     private static final int SMART_JSON_SUBSTITUTION_INDEX = 0;
 
-    // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
-    // `WebClient` instance was loaded as an auto-wired bean.
-    public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
-            .builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
-            .build();
-
     public RestApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -95,10 +88,18 @@ public class RestApiPlugin extends BasePlugin {
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
 
-        private SharedConfig sharedConfig;
+        private final SharedConfig sharedConfig;
+
+        // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
+        // `WebClient` instance was loaded as an auto-wired bean.
+        public ExchangeStrategies EXCHANGE_STRATEGIES;
 
         public RestApiPluginExecutor(SharedConfig sharedConfig) {
             this.sharedConfig = sharedConfig;
+            this.EXCHANGE_STRATEGIES = ExchangeStrategies
+                    .builder()
+                    .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize()))
+                    .build();
         }
 
         /**
@@ -296,10 +297,7 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             WebClient client = webClientBuilder
-                    .exchangeStrategies(ExchangeStrategies
-                            .builder()
-                            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(this.sharedConfig.getCodecSize()))
-                            .build())
+                    .exchangeStrategies(EXCHANGE_STRATEGIES)
                     .filter(logRequest()).build();
 
             // Triggering the actual REST API call

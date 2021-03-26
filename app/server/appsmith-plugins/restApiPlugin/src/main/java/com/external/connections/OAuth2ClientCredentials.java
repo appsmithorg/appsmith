@@ -6,7 +6,6 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
-import com.appsmith.external.services.SharedConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpHeaders;
