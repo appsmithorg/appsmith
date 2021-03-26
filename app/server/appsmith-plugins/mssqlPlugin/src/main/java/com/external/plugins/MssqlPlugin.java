@@ -41,6 +41,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -518,6 +519,10 @@ public class MssqlPlugin extends BasePlugin {
                     }
                     case TIME: {
                         preparedStatement.setTime(index, Time.valueOf(value));
+                        break;
+                    }
+                    case TIMESTAMP: {
+                        preparedStatement.setTimestamp(index, Timestamp.valueOf(value));
                         break;
                     }
                     case ARRAY: {
