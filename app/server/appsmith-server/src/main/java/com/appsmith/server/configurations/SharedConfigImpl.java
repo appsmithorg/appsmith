@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SharedConfigImpl implements SharedConfig {
 
-    @Value("${appsmith.codec.max-in-memory-size}")
+    @Value("${appsmith.codec.max-in-memory-size:10}")
     private int CODEC_SIZE;
 
     @Override
