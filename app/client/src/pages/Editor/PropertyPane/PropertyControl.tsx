@@ -30,6 +30,8 @@ import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -109,6 +111,16 @@ const PropertyControl = memo((props: Props) => {
         });
         allUpdates[propertyName] = propertyValue;
         onBatchUpdateProperties(allUpdates);
+        AppsmithConsole.info({
+          logType: "WIDGET_UPDATE",
+          text: "Widget properties were updated",
+          source: {
+            type: ENTITY_TYPE.WIDGET,
+            name: widgetProperties.widgetName,
+            id: widgetProperties.widgetId,
+          },
+          state: allUpdates,
+        });
       }
       if (!propertiesToUpdate) {
         dispatch(
@@ -119,6 +131,18 @@ const PropertyControl = memo((props: Props) => {
             RenderModes.CANVAS, // This seems to be not needed anymore.
           ),
         );
+        AppsmithConsole.info({
+          logType: "WIDGET_UPDATE",
+          text: "Widget properties were updated",
+          source: {
+            type: ENTITY_TYPE.WIDGET,
+            name: widgetProperties.widgetName,
+            id: widgetProperties.widgetId,
+          },
+          state: {
+            [propertyName]: propertyValue,
+          },
+        });
       }
     },
     [dispatch, widgetProperties],
