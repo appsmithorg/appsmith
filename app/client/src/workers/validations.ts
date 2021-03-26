@@ -244,6 +244,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props,
       dataTree,
     );
+
     if (!isValid) {
       return {
         isValid,
@@ -260,6 +261,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
           .length === 0
       );
     });
+
     if (!isValidListData) {
       return {
         isValid: false,
