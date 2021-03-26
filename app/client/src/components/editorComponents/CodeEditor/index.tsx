@@ -174,15 +174,7 @@ class CodeEditor extends Component<Props, State> {
       }
 
       // Set value of the editor
-      let inputValue = this.props.input.value || "";
-      if (typeof inputValue === "object") {
-        inputValue = JSON.stringify(inputValue, null, 2);
-      } else if (
-        typeof inputValue === "number" ||
-        typeof inputValue === "string"
-      ) {
-        inputValue += "";
-      }
+      const inputValue = this.getInputValue(this.props.input.value || "");
       if (this.props.size === EditorSize.COMPACT) {
         this.editor.setValue(this.removeNewLineChars(inputValue));
       } else {
