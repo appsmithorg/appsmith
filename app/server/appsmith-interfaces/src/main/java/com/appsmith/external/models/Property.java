@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -23,16 +24,11 @@ public class Property {
         this.value = value;
     }
 
-    public Property(String key, List<Object> valueList) {
-        this.key = key;
-        this.valueList = valueList;
-    }
-
     String key;
 
     String value;
 
-    List<Object> valueList; // [["path", "operator"], [], [] ]
+    List<String> valueList;
 
     Boolean editable;
 
