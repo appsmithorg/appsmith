@@ -622,6 +622,8 @@ export default class DataTreeEvaluator {
       return unEvalPropertyValue;
     } else {
       const parsedCache = this.getParsedValueCache(propertyPath);
+      // In case this is a default property, always set the cache even in the value remains the same so that the version 
+      // in cache gets updated and the property dependent on default property updates accordingly.
       if (!equal(parsedCache.value, parsed) || isDefaultProperty) {
         this.parsedValueCache.set(propertyPath, {
           value: parsed,
