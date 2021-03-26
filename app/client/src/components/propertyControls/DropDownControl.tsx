@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledDropDownContainer } from "./StyledControls";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
+import { DropdownOption } from "components/ads/Dropdown";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
@@ -20,11 +20,12 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
     return (
       <StyledDropDownContainer>
-        <Dropdown
+        <StyledDropDown
           options={this.props.options}
           selected={defaultSelected}
           onSelect={this.onItemSelect}
           width="100%"
+          showLabelOnly={true}
           optionWidth={
             this.props.optionWidth ? this.props.optionWidth : "187px"
           }
