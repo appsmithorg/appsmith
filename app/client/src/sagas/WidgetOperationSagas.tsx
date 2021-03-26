@@ -973,6 +973,7 @@ function* batchUpdateWidgetPropertySaga(
     "ms",
   );
   AppsmithConsole.info({
+    logType: "WIDGET_UPDATE",
     text: "Widget properties were updated",
     source: {
       type: ENTITY_TYPE.WIDGET,

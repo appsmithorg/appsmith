@@ -46,6 +46,8 @@ export interface SourceEntity {
 }
 
 export interface LogActionPayload {
+  // What is the log about. Is it a datasource update, widget update, eval error etc.
+  logType?: string;
   text: string;
   // More contextual message
   message?: string;

@@ -1,11 +1,11 @@
-import { debuggerLog } from "actions/debuggerActions";
+import { debuggerLogInit } from "actions/debuggerActions";
 import { Message, Severity, LogActionPayload } from "entities/AppsmithConsole";
 import moment from "moment";
 import store from "store";
 
 // Eventually, if/when we need to dispatch events, we can import store and use store.dispatch
 function log(ev: Message) {
-  store.dispatch(debuggerLog(ev));
+  store.dispatch(debuggerLogInit(ev));
 }
 
 /**
