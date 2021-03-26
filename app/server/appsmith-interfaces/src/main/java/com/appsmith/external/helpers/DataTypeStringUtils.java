@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -149,8 +152,15 @@ public class DataTypeStringUtils {
         return DataType.STRING;
     }
 
-    public static String jsonSmartReplacementQuestionWithValue(String input, String replacement) {
+    public static String jsonSmartReplacementQuestionWithValue(String input,
+                                                               String replacement,
+                                                               List<Map.Entry<String, String>> insertedParams) {
+
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+
+        Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
+        insertedParams.add(parameter);
+
         switch (dataType) {
             case INTEGER:
             case LONG:
