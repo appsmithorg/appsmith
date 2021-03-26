@@ -308,6 +308,7 @@ public class MssqlPlugin extends BasePlugin {
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
+                        request.setProperties(requestData);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
