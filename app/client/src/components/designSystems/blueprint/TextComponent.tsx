@@ -93,7 +93,7 @@ class TextComponent extends React.Component<TextComponentProps> {
           fontStyle={fontStyle}
           textColor={textColor}
           backgroundColor={backgroundColor}
-          className={this.props.isLoading ? "bp3-skeleton" : ""}
+          className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
         >
           <Interweave
             content={text}
