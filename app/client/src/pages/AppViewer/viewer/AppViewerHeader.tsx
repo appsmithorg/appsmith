@@ -175,17 +175,24 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
     );
   } else if (
     currentApplicationDetails?.forkingEnabled &&
-    currentApplicationDetails?.isPublic &&
-    currentUser?.username === ANONYMOUS_USERNAME
+    currentApplicationDetails?.isPublic
   ) {
-    CTA = (
-      <ForkButton
-        className="t--fork-app"
-        href={forkUrl}
-        text={createMessage(FORK_APP)}
-        icon="fork"
-      />
-    );
+    if (currentUser?.username === ANONYMOUS_USERNAME) {
+      CTA = (
+        <ForkButton
+          className="t--fork-app"
+          href={forkUrl}
+          text={createMessage(FORK_APP)}
+          icon="fork"
+        />
+      );
+    } else {
+      CTA = (
+        <div className="header__application-fork-btn-wrapper">
+          <ForkApplicationModal applicationId={currentApplicationDetails.id} />
+        </div>
+      );
+    }
   } else if (
     currentApplicationDetails?.isPublic &&
     currentUser?.username === ANONYMOUS_USERNAME
@@ -232,15 +239,6 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                   title={currentApplicationDetails.name}
                   canOutsideClickClose={true}
                 />
-                {currentUser &&
-                  currentUser.username !== ANONYMOUS_USERNAME &&
-                  currentApplicationDetails?.forkingEnabled && (
-                    <div className="header__application-fork-btn-wrapper">
-                      <ForkApplicationModal
-                        applicationId={currentApplicationDetails.id}
-                      />
-                    </div>
-                  )}
                 {CTA && (
                   <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
                 )}
