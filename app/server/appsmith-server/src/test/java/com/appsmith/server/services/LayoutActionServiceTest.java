@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
@@ -389,4 +390,57 @@ public class LayoutActionServiceTest {
 
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testHintMessageOnLocalhostUrlOnUpdateActionEvent() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("query1");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        ActionDTO unreferencedAction = new ActionDTO();
+        unreferencedAction.setName("query2");
+        unreferencedAction.setPageId(testPage.getId());
+        unreferencedAction.setUserSetOnLoad(true);
+        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+        actionConfiguration2.setHttpMethod(HttpMethod.GET);
+        unreferencedAction.setActionConfiguration(actionConfiguration2);
+        unreferencedAction.setDatasource(datasource);
+
+        Mono<ActionDTO> resultMono = newActionService
+                .createAction(action)
+                .flatMap(savedAction -> {
+                    ActionDTO updates = new ActionDTO();
+                    updates.setExecuteOnLoad(true);
+                    updates.setPolicies(null);
+                    updates.setUserPermissions(null);
+                    Datasource ds = new Datasource();
+                    ds.setName("testName");
+                    ds.setOrganizationId(datasource.getOrganizationId());
+                    ds.setDatasourceConfiguration(new DatasourceConfiguration());
+                    ds.getDatasourceConfiguration().setUrl("http://localhost");
+                    ds.setPluginId(datasource.getPluginId());
+                    updates.setDatasource(ds);
+                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                });
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(resultAction -> {
+                    assertThat(resultAction.getDatasource().getMessages().size()).isNotZero();
+
+                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
+                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
+                            "understand more.";
+                    assertThat(resultAction.getDatasource().getMessages().stream()
+                            .anyMatch(message -> expectedMessage.equals(message))
+                    ).isTrue();
+                })
+                .verifyComplete();
+    }
 }
