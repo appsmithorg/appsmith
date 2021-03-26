@@ -13,6 +13,7 @@ const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   position: absolute;
   top: ${(props) => props.top}%;
   left: ${(props) => props.left}%;
+  z-index: 1;
 `;
 
 const InlineCommentPin = withTheme(

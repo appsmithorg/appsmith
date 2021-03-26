@@ -34,6 +34,7 @@ import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
+import ToggleCommentModeButton from "components/ads/Comments/ToggleCommentModeButton";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -215,6 +216,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
             )}
           </HeaderSection>
           <HeaderSection justify={"flex-end"}>
+            <ToggleCommentModeButton />
             {currentApplicationDetails && (
               <>
                 <FormDialogComponent

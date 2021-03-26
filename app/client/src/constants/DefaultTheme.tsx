@@ -1418,7 +1418,10 @@ export const dark: ColorType = {
 
 export const light: ColorType = {
   globalSearch,
-  comments,
+  comments: {
+    ...comments,
+    commentModeButtonBackground: "#FAFAFA",
+  },
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
