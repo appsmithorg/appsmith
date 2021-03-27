@@ -37,6 +37,9 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
         if (column.metaProperties && !column.metaProperties.isHidden) {
           if (isString(value) && value.includes(",")) {
             csvDataRow.push(`"${value}"`);
+          } else if (isString(value) && value.includes("\n")) {
+            const escapedValue = value.replace("\n", " ");
+            csvDataRow.push(`"${escapedValue}"`);
           } else {
             csvDataRow.push(value);
           }
