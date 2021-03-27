@@ -3,7 +3,7 @@ import styled from "styled-components";
 import _ from "lodash";
 import { useSpring, interpolate } from "react-spring";
 import { ScrollThumb, ScrollTrackCSS } from "constants/DefaultTheme";
-import { useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { AppState } from "reducers";
 
 const ScrollTrack = styled.div<{
@@ -38,6 +38,7 @@ interface Props {
   left?: string;
   alwaysShowScrollbar?: boolean;
   mode?: "DARK" | "LIGHT";
+  isResizing: boolean;
 }
 const HorizontalScrollIndicator = ({
   containerRef,
@@ -45,6 +46,7 @@ const HorizontalScrollIndicator = ({
   top,
   left,
   alwaysShowScrollbar,
+  isResizing,
 }: Props) => {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
@@ -108,22 +110,26 @@ const HorizontalScrollIndicator = ({
   const hideScrollbar = _.debounce(() => {
     setIsScrollVisible(alwaysShowScrollbar || false);
   }, 1500);
-  const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
-  );
   useEffect(() => {
-    if (isResizing && containerRef.current) {
-      setIsScrollVisible(true);
-      const { offsetWidth, scrollWidth, scrollLeft } = containerRef.current;
-      const thumbWidth = offsetWidth * (offsetWidth / scrollWidth);
-      const thumbPosition =
-        (scrollLeft / (scrollWidth - offsetWidth)) * (offsetWidth - thumbWidth);
-      if (thumbRef.current) {
-        thumbRef.current.style.width = thumbWidth + "px";
-      }
-      setThumbPosition({
-        thumbPosition,
-      });
+    if (isResizing) {
+      console.log({ isResizing });
+      setIsScrollVisible(false);
+      setTimeout(() => {
+        if (containerRef.current) {
+          const { offsetWidth, scrollWidth, scrollLeft } = containerRef.current;
+          const thumbWidth = offsetWidth * (offsetWidth / scrollWidth);
+          const thumbPosition =
+            (scrollLeft / (scrollWidth - offsetWidth)) *
+            (offsetWidth - thumbWidth);
+          if (thumbRef.current) {
+            console.log({ thumbWidth });
+            thumbRef.current.style.width = thumbWidth + "px";
+          }
+          setThumbPosition({
+            thumbPosition,
+          });
+        }
+      }, 1000);
     }
   }, [isResizing]);
   return (
@@ -146,4 +152,8 @@ const HorizontalScrollIndicator = ({
   );
 };
 
-export default HorizontalScrollIndicator;
+const mapStateToProps = (state: AppState): { isResizing: boolean } => ({
+  isResizing: state.ui.widgetDragResize.isResizing,
+});
+
+export default connect(mapStateToProps)(HorizontalScrollIndicator);

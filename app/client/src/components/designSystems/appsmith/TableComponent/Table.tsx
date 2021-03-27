@@ -288,6 +288,7 @@ export const Table = (props: TableProps) => {
       <HorizontalScrollIndicator
         containerRef={tableHeaderWrapperRef}
         mode="LIGHT"
+        alwaysShowScrollbar
         top={props.editMode ? "37px" : "40px"}
         left={props.editMode ? "0px" : "3px"}
       />
