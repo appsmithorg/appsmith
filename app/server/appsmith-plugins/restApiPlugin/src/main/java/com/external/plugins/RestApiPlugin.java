@@ -495,7 +495,9 @@ public class RestApiPlugin extends BasePlugin {
                             "Malformed JSON: " + e.getMessage()
                     ));
                 }
-            } else {
+            }
+
+            if (requestBody == "") {
                 // Setting the requestBody to an empty byte array here
                 // since the an empty string causes issues with a signed request.
                 // If the content of the SignableRequest is null, the query string parameters 
