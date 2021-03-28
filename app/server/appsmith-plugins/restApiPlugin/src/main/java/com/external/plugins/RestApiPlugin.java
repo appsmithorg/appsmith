@@ -495,6 +495,8 @@ public class RestApiPlugin extends BasePlugin {
                             "Malformed JSON: " + e.getMessage()
                     ));
                 }
+            } else {
+                requestBody = new byte[0];
             }
 
             Object finalRequestBody = requestBody;
