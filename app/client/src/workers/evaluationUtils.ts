@@ -424,10 +424,14 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   };
   withFunction.actionPaths.push("closeModal");
 
-  withFunction.storeValue = function(key: string, value: string) {
+  withFunction.storeValue = function(
+    key: string,
+    value: string,
+    persist = true,
+  ) {
     return {
       type: "STORE_VALUE",
-      payload: { key, value },
+      payload: { key, value, persist },
     };
   };
   withFunction.actionPaths.push("storeValue");

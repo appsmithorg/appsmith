@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -26,9 +28,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -61,7 +68,6 @@ public class MySqlPluginTest {
     private static String username;
     private static String password;
     private static String database;
-
     private static DatasourceConfiguration dsConfig;
 
     @BeforeClass
@@ -71,7 +77,7 @@ public class MySqlPluginTest {
         username = mySQLContainer.getUsername();
         password = mySQLContainer.getPassword();
         database = mySQLContainer.getDatabaseName();
-        createDatasourceConfiguration();
+        dsConfig = createDatasourceConfiguration();
 
         ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
         ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
@@ -143,10 +149,18 @@ public class MySqlPluginTest {
         endpoint.setHost(address);
         endpoint.setPort(port.longValue());
 
-        dsConfig = new DatasourceConfiguration();
-        dsConfig.setAuthentication(authDTO);
-        dsConfig.setEndpoints(List.of(endpoint));
-        return dsConfig;
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+
+        /* set endpoint */
+        datasourceConfiguration.setAuthentication(authDTO);
+        datasourceConfiguration.setEndpoints(List.of(endpoint));
+
+        /* set ssl mode */
+        datasourceConfiguration.setConnection(new com.appsmith.external.models.Connection());
+        datasourceConfiguration.getConnection().setSsl(new SSLDetails());
+        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+
+        return datasourceConfiguration;
     }
 
     @Test
@@ -171,7 +185,7 @@ public class MySqlPluginTest {
         endpoint.setHost(mySQLContainerWithInvalidTimezone.getContainerIpAddress());
         endpoint.setPort(mySQLContainerWithInvalidTimezone.getFirstMappedPort().longValue());
 
-        final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        final DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
         dsConfig.setEndpoints(List.of(endpoint));
         dsConfig.setProperties(List.of(
@@ -187,6 +201,8 @@ public class MySqlPluginTest {
 
     @Test
     public void testTestDatasource() {
+        dsConfig = createDatasourceConfiguration();
+
         /* Expect no error */
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
@@ -203,7 +219,7 @@ public class MySqlPluginTest {
                 .verifyComplete();
 
         /* Reset dsConfig */
-        createDatasourceConfiguration();
+        dsConfig = createDatasourceConfiguration();
     }
 
     @Test
@@ -254,24 +270,31 @@ public class MySqlPluginTest {
     public void testValidateDatasourceMissingDBName() {
         ((DBAuth) dsConfig.getAuthentication()).setDatabaseName("");
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertEquals(output.size(), 1);
-        assertTrue(output.contains("Missing database name."));
+        assertTrue(output
+                .stream()
+                .anyMatch(error -> error.contains("Missing database name."))
+        );
     }
 
     @Test
     public void testValidateDatasourceNullEndpoint() {
         dsConfig.setEndpoints(null);
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertEquals(output.size(), 1);
-        assertTrue(output.contains("Missing endpoint and url"));
+        assertTrue(output
+                .stream()
+                .anyMatch(error -> error.contains("Missing endpoint and url"))
+        );
     }
 
     @Test
     public void testValidateDatasource_NullHost() {
         dsConfig.setEndpoints(List.of(new Endpoint()));
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertEquals(output.size(), 1);
-        assertTrue(output.contains("Host value cannot be empty"));
+        assertTrue(output
+                .stream()
+                .anyMatch(error -> error.contains("Host value cannot be empty"))
+        );
+
         Endpoint endpoint = new Endpoint();
         endpoint.setHost(address);
         endpoint.setPort(port.longValue());
@@ -369,7 +392,7 @@ public class MySqlPluginTest {
      * TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT, ENUM, SET, JSON, GEOMETRY, POINT
      */
     @Test
-    public void testExecuteDataTypesExtensive() {
+    public void testExecuteDataTypesExtensive() throws AppsmithPluginException {
         String query_create_table_numeric_types = "create table test_numeric_types (c_integer INTEGER, c_smallint " +
                 "SMALLINT, c_tinyint TINYINT, c_mediumint MEDIUMINT, c_bigint BIGINT, c_decimal DECIMAL, c_float " +
                 "FLOAT, c_double DOUBLE, c_bit BIT(10));";
@@ -558,4 +581,160 @@ public class MySqlPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testSslToggleMissingError() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getConnection().getSsl().setAuthType(null);
+
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor)
+                .map(executor -> executor.validateDatasource(datasourceConfiguration));
+
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource " +
+                            "configuration form. Please reach out to Appsmith customer support to resolve this.";
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> expectedError.equals(error))
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslDisabled() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show session status like 'Ssl_cipher'");
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLED);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<Object> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    Object body = result.getBody();
+                    assertNotNull(body);
+                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"\"}]", body.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslRequired() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show session status like 'Ssl_cipher'");
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.REQUIRED);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<Object> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    Object body = result.getBody();
+                    assertNotNull(body);
+                    System.out.println("devtest: body: " + result.getBody());
+                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
+                            body.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslPreferred() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show session status like 'Ssl_cipher'");
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.PREFERRED);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<Object> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    Object body = result.getBody();
+                    assertNotNull(body);
+                    System.out.println("devtest: body: " + result.getBody());
+                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
+                            body.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslDefault() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show session status like 'Ssl_cipher'");
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<Object> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    Object body = result.getBody();
+                    assertNotNull(body);
+                    System.out.println("devtest: body: " + result.getBody());
+                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
+                            body.toString());
+                })
+                .verifyComplete();
+    }
+
+    public void testDuplicateColumnNames() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id, username as id, password, email as password FROM users WHERE id = 1");
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotEquals(0, result.getMessages().size());
+
+                    String expectedMessage = "Your MySQL query result may not have all the columns because duplicate column names " +
+                            "were found for the column(s)";
+                    assertTrue(
+                            result.getMessages().stream()
+                                    .anyMatch(message -> message.contains(expectedMessage))
+                    );
+
+                    /*
+                     * - Check if all of the duplicate column names are reported.
+                     */
+                    Set<String> expectedColumnNames = Stream.of("id", "password")
+                            .collect(Collectors.toCollection(HashSet::new));
+                    Set<String> foundColumnNames = new HashSet<>();
+                    result.getMessages().stream()
+                            .filter(message -> message.contains(expectedMessage))
+                            .forEach(message -> {
+                                Arrays.stream(message.split(":")[1].split("\\.")[0].split(","))
+                                        .forEach(columnName -> foundColumnNames.add(columnName.trim()));
+                            });
+                    assertTrue(expectedColumnNames.equals(foundColumnNames));
+                })
+                .verifyComplete();
+    }
 }

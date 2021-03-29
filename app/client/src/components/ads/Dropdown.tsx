@@ -223,7 +223,6 @@ export default function Dropdown(props: DropdownProps) {
     },
     [onSelect],
   );
-  console.log({ height: props.height });
   return (
     <DropdownContainer
       tabIndex={0}

@@ -14,6 +14,7 @@
     "@blueprintjs/select": "^3.10.0",
     "@blueprintjs/timezone": "^3.6.0",
     "@craco/craco": "^5.7.0",
+    "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
     "@manaflair/redux-batch": "^1.0.0",
     "@optimizely/optimizely-sdk": "^4.0.0",
@@ -142,7 +143,7 @@
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
-    "test:unit": "$(npm bin)/jest -b --colors --no-cache",
+    "test:unit": "$(npm bin)/jest -b --colors --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public"
   },
