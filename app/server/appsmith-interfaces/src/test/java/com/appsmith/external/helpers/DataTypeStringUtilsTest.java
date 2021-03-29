@@ -34,7 +34,8 @@ public class DataTypeStringUtilsTest {
 
     @Test
     public void checkStringDataType() {
-        String stringData = "In order to understand recursion, one must first understand recursion. -Anonymous";
+        // Starting the string with number because earlier this was incorrectly being identified as JSON.
+        String stringData = "2.1 In order to understand recursion, one must first understand recursion. -Anonymous";
         DataType dataType = stringToKnownDataTypeConverter(stringData);
 
         assertThat(dataType).isEqualByComparingTo(DataType.STRING);
@@ -100,4 +101,55 @@ public class DataTypeStringUtilsTest {
         assertThat(dataType).isEqualByComparingTo(DataType.NULL);
     }
 
+    @Test
+    public void testJsonStrictParsing() {
+        // https://static.javadoc.io/com.google.code.gson/gson/2.8.5/com/google/gson/stream/JsonReader.html#setLenient-boolean-
+        // Streams that start with the non-execute prefix, ")]}'\n".
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("){}"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("]{}"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("}{}"));
+        // Streams that include multiple top-level values. With strict parsing, each stream must contain exactly one top-level value.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{}{}"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{}[]null"));
+        // Top-level values of any type. With strict parsing, the top-level value must be an object or an array.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter(""));
+        assertThat(DataType.NULL).isEqualByComparingTo(stringToKnownDataTypeConverter("null"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("Abracadabra"));
+        assertThat(DataType.INTEGER).isEqualByComparingTo(stringToKnownDataTypeConverter("13"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("\"literal\""));
+        assertThat(DataType.NULL).isEqualByComparingTo(stringToKnownDataTypeConverter("[]"));
+        // Numbers may be NaNs or infinities.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"number\": NaN}"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"number\": Infinity}"));
+        // End of line comments starting with // or # and ending with a newline character.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{//comment\n}"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{#comment\n}"));
+        // C-style comments starting with /* and ending with */. Such comments may not be nested.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{/*comment*/}"));
+        // Names that are unquoted or 'single quoted'.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{a: 1}"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{'a': 1}"));
+        // Strings that are unquoted or 'single quoted'.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": str}"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": ''}"));
+        // Array elements separated by ; instead of ,.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": [1;2]}"));
+        // Unnecessary array separators. These are interpreted as if null was the omitted value.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": [1,]}"));
+        // Names and values separated by = or => instead of :.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\" = 13}"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\" => 13}"));
+        // Name/value pairs separated by ; instead of ,.
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": 1; \"b\": 2}"));
+
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": }"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": ,}"));
+        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": 0,}"));
+
+        assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{} "));
+        assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": null} \n \n"));
+        assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": 0}"));
+        assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": \"\"}"));
+        assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": []}"));
+    }
 }
