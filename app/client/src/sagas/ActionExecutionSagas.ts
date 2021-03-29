@@ -809,7 +809,7 @@ function* runActionSaga(
           variant: Variant.success,
         });
       } else {
-        AppsmithConsole.warning({
+        AppsmithConsole.error({
           text: `Execution failed with status ${response.data.statusCode}`,
           source: {
             type: ENTITY_TYPE.ACTION,
