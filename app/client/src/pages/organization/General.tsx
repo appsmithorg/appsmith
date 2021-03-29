@@ -24,7 +24,7 @@ import FilePicker, {
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 
 const InputLabelWrapper = styled.div`
-  width: 200px;
+  width: 160px;
   display: flex;
   align-items: center;
 `;
@@ -56,11 +56,14 @@ const FilePickerLoader = styled.div`
 
 // testing
 export const Row = styled.div`
+  margin: 0;
+  padding: 0;
   display: flex;
 `;
 
 export const Col = styled.div`
-  margin-right: -3em;
+  margin: 0;
+  padding: 0;
 `;
 
 export function GeneralSettings() {
