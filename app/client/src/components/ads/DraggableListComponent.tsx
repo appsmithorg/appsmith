@@ -51,23 +51,21 @@ export class DroppableComponent extends React.Component<
       onEdit,
     } = this.props;
     return (
-      <>
-        <DraggableList
-          ItemRenderer={({ item, index }: any) =>
-            renderComponent({
-              deleteOption,
-              updateOption,
-              toggleVisibility,
-              onEdit,
-              item,
-              index,
-            })
-          }
-          itemHeight={45}
-          items={this.props.items}
-          onUpdate={this.onUpdate}
-        />
-      </>
+      <DraggableList
+        ItemRenderer={({ item, index }: any) =>
+          renderComponent({
+            deleteOption,
+            updateOption,
+            toggleVisibility,
+            onEdit,
+            item,
+            index,
+          })
+        }
+        itemHeight={45}
+        items={this.props.items}
+        onUpdate={this.onUpdate}
+      />
     );
   }
 }
