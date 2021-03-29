@@ -102,6 +102,15 @@ export const forceOpenPropertyPane = (id: string) => {
   };
 };
 
+export const closePropertyPane = () => {
+  return {
+    type: ReduxActionTypes.HIDE_PROPERTY_PANE,
+    payload: {
+      force: false,
+    },
+  };
+};
+
 export const copyWidget = (isShortcut: boolean) => {
   return {
     type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,

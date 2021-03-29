@@ -12,7 +12,7 @@ describe("Binding the Table and input Widget", function() {
   it("Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -25,7 +25,7 @@ describe("Binding the Table and input Widget", function() {
     cy.get(commonlocators.defaultSearchText)
       .last()
       .type("2736212", { force: true });
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").isSelectRow(0);
     cy.readTabledataPublish("0", "0").then((tabData) => {
       const tabValue = tabData;

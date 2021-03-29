@@ -157,6 +157,7 @@ class TabControl extends BaseControl<ControlProps> {
       <TabsWrapper>
         <DroppableComponent
           items={tabs}
+          itemHeight={45}
           renderComponent={TabControlComponent}
           deleteOption={this.deleteOption}
           updateOption={this.updateOption}

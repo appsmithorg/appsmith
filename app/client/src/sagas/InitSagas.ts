@@ -16,7 +16,6 @@ import {
 } from "constants/ReduxActionConstants";
 import { ERROR_CODES } from "constants/ApiConstants";
 
-import { fetchEditorConfigs } from "actions/configsActions";
 import {
   fetchPage,
   fetchPageList,
@@ -52,7 +51,6 @@ function* initializeEditorSaga(
     yield put({ type: ReduxActionTypes.START_EVALUATION });
     yield all([
       put(fetchPageList(applicationId, APP_MODE.EDIT)),
-      put(fetchEditorConfigs()),
       put(fetchActions(applicationId)),
       put(fetchPage(pageId)),
       put(fetchApplication(applicationId, APP_MODE.EDIT)),
