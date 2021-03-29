@@ -77,8 +77,6 @@ export const MainContainerLayoutControl: React.FC<any> = () => {
   const layoutOptions = AppsmithLayouts.map((each) => {
     return {
       ...each,
-      iconSize: IconSize.SMALL,
-      iconColor: Colors.BLACK,
       value: each.name,
       onSelect: () =>
         updateAppLayout({

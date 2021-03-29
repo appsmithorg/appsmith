@@ -97,5 +97,5 @@ export const useDynamicAppLayout = () => {
 
   useEffect(() => {
     resizeToLayout(screenWidth, appLayout);
-  }, [appLayout, currentPageId, mainContainer.rightColumn]);
+  }, [appLayout, currentPageId]);
 };

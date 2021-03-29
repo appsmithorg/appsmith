@@ -33,15 +33,14 @@ describe("Tab widget test", function() {
       .should("be.visible");
     cy.get(Layoutpage.tabButton).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.tabVerify(1, "Day");
+    cy.wait(200);
+    cy.tabVerify(2, "Day");
     cy.get(Layoutpage.tabDelete)
-      .eq(1)
+      .eq(2)
       .click({ force: true });
     cy.get(Layoutpage.tabWidget)
       .contains("Day")
       .should("not.exist");
-    cy.wait(300);
-    cy.openPropertyPane("tabswidget");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
