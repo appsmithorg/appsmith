@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -17,6 +17,7 @@ import { Icon, IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
 import { BindingText } from "../APIEditor/Form";
+import { PropertyControlsWrapper } from ".";
 
 const PanelHeader = (props: PanelHeaderProps) => {
   return (
@@ -145,6 +146,12 @@ export const PanelPropertiesEditor = (
     [props.openPanel, props.closePanel],
   );
 
+  useEffect(() => {
+    if (panelProps.widgetId !== widgetProperties.widgetId) {
+      props.closePanel();
+    }
+  }, [widgetProperties.widgetId]);
+
   if (!widgetProperties) return null;
   const updatePropertyTitle = (title: string) => {
     if (panelConfig.titlePropertyName) {
@@ -183,12 +190,15 @@ export const PanelPropertiesEditor = (
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      {panelConfigs &&
-        generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
-          type: widgetProperties.type,
-          panel,
-          theme,
-        })}
+      <PropertyControlsWrapper>
+        {panelConfigs &&
+          generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
+            id: widgetProperties.widgetId,
+            type: widgetProperties.type,
+            panel,
+            theme,
+          })}
+      </PropertyControlsWrapper>
     </>
   );
 };

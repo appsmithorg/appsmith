@@ -36,7 +36,7 @@ describe("Table Widget Functionality", function() {
     //   .first()
     //   .find("> .bp3-button-text")
     //   .should("have.text", "{{navigateTo()}}");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.PublishtheApp();
   });
 
