@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -468,6 +469,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public Mono<ActionDTO> updateAction(String id, ActionDTO action) {
         Mono<ActionDTO> updateUnpublishedAction = newActionService
                 .updateUnpublishedAction(id, action)
+                .flatMap(newActionService::populateHintMessages)
                 .cache();
 
         // First update the action
