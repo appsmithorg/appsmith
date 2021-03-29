@@ -518,8 +518,8 @@ describe("validateDateString test", () => {
   it("Checks whether a valid value is returned even if a valid date is not an ISO string", () => {
     const validator = VALIDATORS.DEFAULT_DATE;
     const inputs = [
-      "12/12/2014",
-      "12-12-2014",
+      "2014/12/01",
+      "2014-12-01",
       "01/13/2014",
       "01-13-2014",
       moment().toISOString(),
