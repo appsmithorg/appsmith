@@ -1,22 +1,9 @@
-name: Appsmith Client Test Workflow
+name: Appsmith External Integration Test Workflow
 
 on:
-  # This line enables manual triggering of this workflow.
-  workflow_dispatch:
-
-  pull_request_review:
-    types: [submitted]
-    branches: [release, master]
-    paths:
-      - "app/client/**"
-      - "!app/client/cypress/manual_TestSuite/**"
-
-  # trigger for pushes to release and master
-  push:
-    branches: [release, master]
-    paths:
-      - "app/client/**"
-      - "!app/client/cypress/manual_TestSuite/**"
+  # This workflow is only triggered by the ok to test command dispatch
+  repository_dispatch:
+    types: [ok-to-test-command]
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -25,15 +12,6 @@ defaults:
 
 jobs:
   build:
-    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
-    # then we don't check for the PR approved state
-    # Only PR approvals of internally created PRs should trigger this workflow
-    if: |
-      github.event_name == 'workflow_dispatch' || 
-      github.event_name == 'push' || 
-      (github.event_name == 'pull_request_review' && 
-      github.event.review.state == 'approved' && 
-      github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -124,6 +102,40 @@ jobs:
           name: build
           path: app/client/build/
 
+        # Update check run called "build"
+      - uses: actions/github-script@v1
+        id: update-check-run
+        if: ${{ success() }}
+        env:
+          number: ${{ github.event.client_payload.pull_request.number }}
+          job: ${{ github.job }}
+          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
+          conclusion: ${{ job.status }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pull } = await github.pulls.get({
+              ...context.repo,
+              pull_number: process.env.number
+            });
+            const ref = pull.head.sha;
+
+            const { data: checks } = await github.checks.listForRef({
+              ...context.repo,
+              ref
+            });
+
+            const check = checks.check_runs.filter(c => c.name === process.env.job);
+
+            const { data: result } = await github.checks.update({
+              ...context.repo,
+              check_run_id: check[0].id,
+              status: 'completed',
+              conclusion: process.env.conclusion
+            });
+
+            return result;
+
   ui-test:
     needs: build
     # Only run if the build step is successful
@@ -199,6 +211,8 @@ jobs:
         if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release'
         shell: bash
         run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
             --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
             --env APPSMITH_REDIS_URL=redis://localhost:6379 \
@@ -214,6 +228,8 @@ jobs:
         if: github.ref == 'refs/heads/master' || github.event.pull_request.base.ref == 'master'
         shell: bash
         run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
             --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
             --env APPSMITH_REDIS_URL=redis://localhost:6379 \
