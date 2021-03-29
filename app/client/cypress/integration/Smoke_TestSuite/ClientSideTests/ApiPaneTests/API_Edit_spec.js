@@ -29,17 +29,14 @@ describe("API Panel Test Functionality", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("CrashTestAPI");
     cy.SelectAction(testdata.postAction);
-    cy.xpath(apiwidget.postDefaultContentTypeHeaderKey)
+    cy.xpath(apiwidget.headerKey)
       .first()
       .focus({ force: true })
       .type("{uparrow}", { force: true })
       .type("{ctrl}{shift}{downarrow}", { force: true })
       .type("{backspace}", { force: true });
     // assert so that this fails
-    cy.xpath(apiwidget.postDefaultContentTypeHeaderKey).should("be.visible");
-    cy.xpath(apiwidget.postDefaultContentTypeHeaderKey).should(
-      "have.value",
-      "",
-    );
+    cy.xpath(apiwidget.headerKey).should("be.visible");
+    cy.xpath(apiwidget.headerKey).should("have.value", "");
   });
 });

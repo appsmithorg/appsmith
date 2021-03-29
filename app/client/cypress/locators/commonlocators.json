@@ -104,5 +104,8 @@
   "globalSearchModal": ".t--global-search-modal",
   "globalSearchInput": ".t--global-search-input",
   "globalSearchTrigger": ".t--global-search-modal-trigger",
-  "globalSearchClearInput": ".t--global-clear-input"
+  "globalSearchClearInput": ".t--global-clear-input",
+  "switchWidgetActive": ".t--switch-widget-active",
+  "switchWidgetInActive": ".t--switch-widget-inactive",
+  "switchWidgetLoading": ".t--switch-widget-loading"
 }

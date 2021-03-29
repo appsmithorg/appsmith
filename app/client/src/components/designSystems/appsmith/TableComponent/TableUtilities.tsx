@@ -9,14 +9,12 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 
 import {
   ColumnTypes,
-  Condition,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
   FontStyleTypes,
   ColumnProperties,
   CellLayoutProperties,
   TextSizes,
-  ConditionFunctions,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { isString, isEmpty, findIndex, without } from "lodash";
@@ -343,19 +341,6 @@ export const TableHeaderCell = (props: {
     </div>
   );
 };
-
-export function compare(a: any, b: any, condition: Condition) {
-  let result = true;
-  try {
-    const conditionFunction = ConditionFunctions[condition];
-    if (conditionFunction) {
-      result = conditionFunction(a, b);
-    }
-  } catch (e) {
-    console.error(e);
-  }
-  return result;
-}
 
 export const reorderColumns = (
   columns: Record<string, ColumnProperties>,
