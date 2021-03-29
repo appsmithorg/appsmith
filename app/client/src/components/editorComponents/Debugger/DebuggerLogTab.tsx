@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Severity } from "entities/AppsmithConsole";
@@ -139,6 +139,11 @@ const DebbuggerLogTab = (props: any) => {
     (option) => option.value === filter,
   );
 
+  useEffect(() => {
+    const div = document.getElementsByClassName("debugger-list")[0];
+    if (div) div.scrollTop = div.scrollHeight - div.clientHeight;
+  }, [logs.length]);
+
   return (
     <ContainerWrapper>
       <FilterHeader
@@ -147,7 +152,7 @@ const DebbuggerLogTab = (props: any) => {
         onChange={setQuery}
         onSelect={(value: string) => setFilter(value)}
       />
-      <ListWrapper>
+      <ListWrapper className="debugger-list">
         {logs.map((e: any, index: any) => {
           const logItemProps = {
             icon: SeverityIcon[e.severity],
