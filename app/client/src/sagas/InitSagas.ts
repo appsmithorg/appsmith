@@ -107,7 +107,7 @@ function* initializeEditorSaga(
         type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
-            resultOfPrimaryCalls,
+            resultOfSecondaryCalls,
             "failure.payload.error.code",
             ERROR_CODES.SERVER_ERROR,
           ),
@@ -128,7 +128,7 @@ function* initializeEditorSaga(
         type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
-            resultOfPrimaryCalls,
+            resultOfPluginFormsCall,
             "failure.payload.error.code",
             ERROR_CODES.SERVER_ERROR,
           ),
