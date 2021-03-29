@@ -617,7 +617,7 @@ public class FirestorePluginTest {
         properties.add(null); // index 5
         properties.add(null); // index 6
         properties.add(null); // index 7
-        properties.add(new Property("key path", "[[\"value\"]]")); // index 8 - path for timestampServer fieldValue.
+        properties.add(new Property("key path", "[\"value\"]")); // index 8 - path for timestampServer fieldValue.
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPluginSpecifiedTemplates(properties);
@@ -669,7 +669,7 @@ public class FirestorePluginTest {
         properties.add(null); // index 6
         properties.add(null); // index 7
         properties.add(null); // index 8
-        properties.add(new Property("key path", "[[\"value\"]]")); // index 9 - path for delete fieldValue.
+        properties.add(new Property("key path", "[\"value\"]")); // index 9 - path for delete fieldValue.
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPluginSpecifiedTemplates(properties);
@@ -721,7 +721,7 @@ public class FirestorePluginTest {
         properties.add(null); // index 6
         properties.add(null); // index 7
         properties.add(null); // index 8
-        properties.add(new Property("key path", "[[\"value\"]]")); // index 9 - path for delete fieldValue.
+        properties.add(new Property("key path", "[\"value\"]")); // index 9 - path for delete fieldValue.
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPluginSpecifiedTemplates(properties);
@@ -755,7 +755,7 @@ public class FirestorePluginTest {
         properties.add(null); // index 5
         properties.add(null); // index 6
         properties.add(null); // index 7
-        properties.add(new Property("key path", "[[\"value\"]]")); // index 8 - path for serverTimestamp fieldValue.
+        properties.add(new Property("key path", "[\"value\"]")); // index 8 - path for serverTimestamp fieldValue.
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPluginSpecifiedTemplates(properties);
@@ -789,7 +789,7 @@ public class FirestorePluginTest {
         properties.add(null); // index 6
         properties.add(null); // index 7
         properties.add(null); // index 8
-        properties.add(new Property("key path", "[\"value\"]")); // index 9 - path for delete fieldValue.
+        properties.add(new Property("key path", "value")); // index 9 - path for delete fieldValue.
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPluginSpecifiedTemplates(properties);
@@ -823,7 +823,7 @@ public class FirestorePluginTest {
         properties.add(null); // index 5
         properties.add(null); // index 6
         properties.add(null); // index 7
-        properties.add(new Property("key path", "[\"value\"]")); // index 8 - path for serverTimestamp fieldValue.
+        properties.add(new Property("key path", "value")); // index 8 - path for serverTimestamp fieldValue.
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPluginSpecifiedTemplates(properties);
@@ -836,6 +836,7 @@ public class FirestorePluginTest {
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
+
                     assertFalse(result.getIsExecutionSuccess());
 
                     String expectedErrorMessage = "Appsmith failed to parse the query editor form field 'Timestamp " +

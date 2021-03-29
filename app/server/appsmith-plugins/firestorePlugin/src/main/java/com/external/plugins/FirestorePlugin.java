@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -145,7 +146,20 @@ public class FirestorePlugin extends BasePlugin {
                         }
 
                         if (StringUtils.isBlank(strBody)) {
-                            return Mono.just(Collections.emptyMap());
+                            switch(method) {
+                                case UPDATE_DOCUMENT:
+                                case CREATE_DOCUMENT:
+                                case ADD_TO_COLLECTION:
+                                case SET_DOCUMENT:
+                                    /*
+                                     * - Need mutable empty hash map to add FieldValue.xyz() values if required.
+                                     * - Collections.emptyMap() is immutable.
+                                     */
+                                    strBody = "{}";
+                                    break;
+                                default:
+                                    return Mono.just(Collections.emptyMap());
+                            }
                         }
 
                         try {
@@ -158,14 +172,40 @@ public class FirestorePlugin extends BasePlugin {
                         }
                     })
                     .flatMap(mapBody -> {
-                        if (mapBody.isEmpty() && method.isBodyNeeded()) {
-                            return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "The method " + method.toString() + " needs a non-empty body to work."
-                            ));
+
+                        if (mapBody.isEmpty()) {
+                            if(method.isBodyNeeded()) {
+                                return Mono.error(new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                        "The method " + method.toString() + " needs a non-empty body to work."
+                                ));
+                            }
+
+                            /*
+                             * - If body and all of the FieldValue paths are empty, then return error.
+                             * - Not applicable to GET and DELETE methods.
+                             */
+                            if ((Method.SET_DOCUMENT.equals(method) || Method.UPDATE_DOCUMENT.equals(method)
+                                    || Method.CREATE_DOCUMENT.equals(method) || Method.ADD_TO_COLLECTION.equals(method))
+                                    && (properties == null || ((properties.size() < FIELDVALUE_TIMESTAMP_PROPERTY_INDEX + 1
+                                    || properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) == null
+                                    || StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue()))
+                                    && (properties.size() < FIELDVALUE_DELETE_PROPERTY_INDEX
+                                    || properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX) == null
+                                    || StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue()))))) {
+                                return Mono.error(new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                        "The method " + method.toString() + " needs at least one of the following " +
+                                                "fields to be non-empty: 'Timestamp Value Path', 'Delete Key Value " +
+                                                "Pair Path', 'Body'"
+                                ));
+                            }
                         }
 
                         try {
+                            /*
+                             * - Update mapBody with FieldValue.xyz() values if the FieldValue paths are provided.
+                             */
                             insertFieldValues(mapBody, properties, method);
                         } catch (AppsmithPluginException e) {
                             return Mono.error(e);
@@ -199,7 +239,10 @@ public class FirestorePlugin extends BasePlugin {
                     })
                     .subscribeOn(scheduler);
         }
-        
+
+        /*
+         * - Update mapBody with FieldValue.xyz() values if the FieldValue paths are provided.
+         */
         private void insertFieldValues(Map<String, Object> mapBody,
                                        List<Property> properties,
                                        Method method) throws AppsmithPluginException {
@@ -219,15 +262,15 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             /*
-             * - Update all of the map body keys that need to be deleted.
+             * - Parse delete path.
              */
             if( properties.size() > FIELDVALUE_DELETE_PROPERTY_INDEX
                     && properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX) != null
                     && !StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
                 String deletePaths = properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue();
-                List<List<String>> deletePathsList;
+                List<String> deletePathsList;
                 try {
-                    deletePathsList = objectMapper.readValue(deletePaths, new TypeReference<List<List<String>>>(){});
+                    deletePathsList = objectMapper.readValue(deletePaths, new TypeReference<List<String>>(){});
                 } catch (IOException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -237,15 +280,16 @@ public class FirestorePlugin extends BasePlugin {
                 }
 
                 /*
-                 * - This way to denoting a filed via a "." (dot) notation can only be used for a update operation.
-                 *    e.g. if pathsList is [["key1", "key2"]] then if will add to map :
-                 *    {"key1.key2": FieldValue.delete()}
+                 * - Update all of the map body keys that need to be deleted.
+                 * - This way of denoting a nested path via a "." (dot) notation can only be directly used for a update
+                 *   operation. e.g. {"key1.key2": FieldValue.delete()}
                  * - dot notation is used with FieldValue.delete() because otherwise it is not possible to delete
                  *   nested fields. Ref: https://stackoverflow.com/questions/46677132/fieldvalue-delete-can-only-appear-at-the-top-level-of-your-update-data-fires/46677677
-                 * - dot notation is safe to use with delete FieldValue because only works with update operation.
+                 * - dot notation is safe to use with delete FieldValue because this FieldValue only works with update
+                 *   operation.
                  */
                 deletePathsList.stream()
-                        .forEach(pathList -> mapBody.put(String.join(".", pathList), FieldValue.delete()));
+                        .forEach(path -> mapBody.put(path, FieldValue.delete()));
             }
 
             /*
@@ -265,16 +309,16 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             /*
-             * - Update all of the map body keys that need to store timestamp.
+             * - Parse severTimestamp FieldValue path.
              */
             if(properties.size() > FIELDVALUE_TIMESTAMP_PROPERTY_INDEX
                     && properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) != null
                     && !StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
                 String timestampValuePaths = properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue();
-                List<List<String>> timestampPathsList;
+                List<String> timestampPathsStringList; // ["key1.key2", "key3.key4"]
                 try {
-                    timestampPathsList = objectMapper.readValue(timestampValuePaths,
-                            new TypeReference<List<List<String>>>(){});
+                    timestampPathsStringList = objectMapper.readValue(timestampValuePaths,
+                            new TypeReference<List<String>>(){});
                 } catch (IOException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -283,7 +327,18 @@ public class FirestorePlugin extends BasePlugin {
                     );
                 }
 
-                insertFieldValueByMethodName(mapBody, timestampPathsList, FIELDVALUE_TIMESTAMP_METHOD_NAME);
+                /*
+                 * - Update all of the map body keys that need to store timestamp.
+                 * - Since serverTimestamp FieldValue can be used with non update operations like create and set, "."
+                 *   (dot) notation cannot be directly used to refer to nested paths.
+                 * - We cannot use the dotted notation directly with timestamp FieldValue because during set/create
+                 *   actions, the dotted string is considered as a single key instead of nested path.
+                 * - Convert ["key1.key2", "key3.key4"] to [["key1", "key2"], ["key3", "key4"]]
+                 */
+                List<List<String>> timestampPathsArrayList = new ArrayList<>();
+                timestampPathsStringList.stream()
+                        .forEach(dottedPath -> timestampPathsArrayList.add(List.of(dottedPath.split("\\."))));
+                insertFieldValueByMethodName(mapBody, timestampPathsArrayList, FIELDVALUE_TIMESTAMP_METHOD_NAME);
             }
         }
 
@@ -295,16 +350,33 @@ public class FirestorePlugin extends BasePlugin {
         private void insertFieldValueByMethodName(Map<String, Object> mapBody,
                                             List<List<String>> pathsList,
                                             String fieldValueName) {
+
             pathsList.stream()
+                    .filter(singlePathList -> !CollectionUtils.isEmpty(singlePathList))
                     .forEach(singlePathList -> {
                         /*
                          * - Unable to convert this for loop into a stream implementation. Please offer suggestions
                          *   if possible.
                          */
-                        Map<String, Object> targetKeyValuePair = mapBody;
+                        HashMap<String, Object> targetKeyValuePair = (HashMap<String, Object>) mapBody;
                         for(int i=0; i<singlePathList.size()-1; i++) {
-                            targetKeyValuePair = (Map<String, Object>)targetKeyValuePair.get(singlePathList.get(i));
+
+                            String key = singlePathList.get(i);
+
+                            /*
+                             * - Construct json object, if not present, based on the path provided.
+                             */
+                            if(targetKeyValuePair.get(key) == null) {
+                                String nextKey = singlePathList.get(i + 1);
+                                targetKeyValuePair.put(key, new HashMap<>() {{put(nextKey, null);}});
+                            }
+
+                            /*
+                             * - Traverse nested json object.
+                             */
+                            targetKeyValuePair = (HashMap<String, Object>)targetKeyValuePair.get(key);
                         }
+
                         try {
                             targetKeyValuePair.put(
                                     singlePathList.get(singlePathList.size()-1),
