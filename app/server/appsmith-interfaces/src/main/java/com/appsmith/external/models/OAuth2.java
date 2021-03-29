@@ -1,7 +1,6 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.documenttype.DocumentType;
-import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.constants.FieldName;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -43,7 +42,6 @@ public class OAuth2 extends AuthenticationDTO {
 
     String clientId;
 
-    @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String clientSecret;
 
