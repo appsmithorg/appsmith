@@ -60,7 +60,7 @@ export const Row = styled.div`
 `;
 
 export const Col = styled.div`
-  padding: 0.5rem;
+  margin-right: -3em;
 `;
 
 export function GeneralSettings() {
