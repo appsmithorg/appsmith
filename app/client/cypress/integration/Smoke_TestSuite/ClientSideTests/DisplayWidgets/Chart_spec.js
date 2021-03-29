@@ -69,7 +69,7 @@ describe("Chart Widget Functionality", function() {
       .type(this.data.ylabel);
 
     //Close edit prop
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Chart Widget Functionality To Unchecked Visible Widget", function() {
