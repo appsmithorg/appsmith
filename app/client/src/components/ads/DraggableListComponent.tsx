@@ -1,3 +1,4 @@
+import { isEqual } from "lodash";
 import React from "react";
 import DraggableList from "./DraggableList";
 
@@ -24,33 +25,20 @@ interface DroppableComponentProps {
   onEdit?: (index: number) => void;
 }
 
-interface DroppableComponentState {
-  items: Array<Record<string, unknown>>;
-}
-
 export class DroppableComponent extends React.Component<
-  DroppableComponentProps,
-  DroppableComponentState
+  DroppableComponentProps
 > {
   constructor(props: DroppableComponentProps) {
     super(props);
-    this.state = {
-      items: props.items,
-    };
   }
 
-  componentDidUpdate(prevProps: DroppableComponentProps) {
-    if (this.props.items.length !== prevProps.items.length) {
-      this.setState({ items: this.props.items });
-    } else if (
-      JSON.stringify(this.props.items) !== JSON.stringify(prevProps.items)
-    ) {
-      this.setState({ items: this.props.items });
-    }
+  shouldComponentUpdate(prevProps: DroppableComponentProps) {
+    const presentOrder = this.props.items.map((each) => each.id);
+    const previousOrder = prevProps.items.map((each) => each.id);
+    return !isEqual(presentOrder, previousOrder);
   }
 
   onUpdate = (items: any) => {
-    this.setState({ items: items });
     this.props.updateItems(items);
   };
 
