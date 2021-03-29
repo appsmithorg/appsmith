@@ -341,8 +341,6 @@ export function* deleteActionSaga(
           queryName: action.name,
         });
       }
-
-      yield put(deleteActionSuccess({ id }));
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
       if (isApi) {
@@ -351,6 +349,8 @@ export function* deleteActionSaga(
       if (isQuery) {
         history.push(QUERIES_EDITOR_URL(applicationId, pageId));
       }
+
+      yield put(deleteActionSuccess({ id }));
     }
   } catch (error) {
     yield put({
