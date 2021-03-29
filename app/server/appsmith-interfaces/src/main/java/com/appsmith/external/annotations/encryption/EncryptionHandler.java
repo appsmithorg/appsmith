@@ -48,7 +48,7 @@ public class EncryptionHandler {
             if (field.getAnnotation(Encrypted.class) != null) {
                 CandidateField candidateField = new CandidateField(field, CandidateField.Type.ANNOTATED_FIELD);
                 finalCandidateFields.add(candidateField);
-            } else if (AppsmithDomain.class.isAssignableFrom(field.getType())) {
+            } else {
                 CandidateField candidateField = null;
 
                 log.debug("Field name : {}", field.getName());
