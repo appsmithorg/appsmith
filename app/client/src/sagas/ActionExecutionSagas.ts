@@ -32,7 +32,7 @@ import {
   getCurrentPageId,
   getPageList,
 } from "selectors/editorSelectors";
-import _ from "lodash";
+import _, { get } from "lodash";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
@@ -742,6 +742,10 @@ function* runActionSaga(
     const appMode = yield select(getAppMode);
     const viewMode = appMode === APP_MODE.PUBLISHED;
 
+    const datasourceUrl = get(
+      actionObject,
+      "datasource.datasourceConfiguration.url",
+    );
     AppsmithConsole.info({
       text: "Execution started from user request",
       source: {
@@ -749,7 +753,12 @@ function* runActionSaga(
         name: actionObject.name,
         id: actionId,
       },
-      state: actionObject.actionConfiguration,
+      state: {
+        ...actionObject.actionConfiguration,
+        ...(datasourceUrl && {
+          url: datasourceUrl,
+        }),
+      },
     });
 
     const response: ActionExecutionResponse = yield ActionAPI.executeAction(
