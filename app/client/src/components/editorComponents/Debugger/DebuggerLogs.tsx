@@ -122,10 +122,15 @@ const SeverityIconColor: any = {
   [Severity.WARNING]: "rgb(224, 179, 14)",
 };
 
-const DebbuggerLogTab = (props: any) => {
+type Props = {
+  onClose?: () => void;
+  searchQuery: string;
+};
+
+const DebbuggerLogs = (props: Props) => {
   const [filter, setFilter] = useState("");
-  const [query, setQuery] = useState("");
-  const logs = useFilteredLogs(query, filter);
+  const [searchQuery, setSearchQuery] = useState(props.searchQuery);
+  const logs = useFilteredLogs(searchQuery, filter);
   const filterOptions = [
     {
       label: "All",
@@ -149,8 +154,9 @@ const DebbuggerLogTab = (props: any) => {
       <FilterHeader
         options={filterOptions}
         selected={selectedFilter}
-        onChange={setQuery}
+        onChange={setSearchQuery}
         onSelect={(value: string) => setFilter(value)}
+        defaultValue={props.searchQuery}
       />
       <ListWrapper className="debugger-list">
         {logs.map((e: any, index: any) => {
@@ -245,4 +251,9 @@ const LogItem = (props: any) => {
   );
 };
 
-export default DebbuggerLogTab;
+// Set default props
+DebbuggerLogs.defaultProps = {
+  searchQuery: "",
+};
+
+export default DebbuggerLogs;

@@ -25,7 +25,7 @@ import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
-import DebuggerLogTab from "./Debugger/DebuggerLogTab";
+import DebuggerLogs from "./Debugger/DebuggerLogs";
 
 const ResponseContainer = styled.div`
   position: relative;
@@ -138,7 +138,10 @@ interface ReduxStateProps {
 }
 
 type Props = ReduxStateProps &
-  RouteComponentProps<APIEditorRouteParams> & { theme?: EditorTheme };
+  RouteComponentProps<APIEditorRouteParams> & {
+    theme?: EditorTheme;
+    apiName: string;
+  };
 
 export const EMPTY_RESPONSE: ActionResponse = {
   statusCode: "",
@@ -249,7 +252,7 @@ const ApiResponseView = (props: Props) => {
     {
       key: "logs",
       title: "Logs",
-      panelComponent: <DebuggerLogTab />,
+      panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
     },
   ];
 

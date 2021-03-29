@@ -432,7 +432,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           />
         </TabbedViewContainer>
 
-        <ApiResponseView theme={theme} />
+        <ApiResponseView theme={theme} apiName={actionName} />
       </SecondaryWrapper>
     </Form>
   );

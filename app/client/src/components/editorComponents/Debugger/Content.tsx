@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { TabComponent } from "components/ads/Tabs";
-import ConsoleLogTab from "./DebuggerLogTab";
+import DebuggerLogs from "./DebuggerLogs";
 import Icon, { IconSize } from "components/ads/Icon";
 
 const Container = styled.div`
@@ -34,7 +34,7 @@ const Content = (props: any) => {
           {
             key: "logs",
             title: "Logs",
-            panelComponent: <ConsoleLogTab onClose={props.onClose} />,
+            panelComponent: <DebuggerLogs onClose={props.onClose} />,
           },
         ]}
       />

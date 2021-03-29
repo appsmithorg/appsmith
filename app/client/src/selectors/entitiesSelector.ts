@@ -231,7 +231,6 @@ export const getActionResponses = createSelector(getActions, (actions) => {
   actions.forEach((a) => {
     responses[a.config.id] = a.data;
   });
-
   return responses;
 });
 

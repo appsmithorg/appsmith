@@ -45,6 +45,7 @@ const FilterHeader = (props: any) => {
         className="debugger-search"
         placeholder="Filter"
         onChange={props.onChange}
+        defaultValue={props.defaultValue}
       />
       <Dropdown
         className="debugger-filter"
