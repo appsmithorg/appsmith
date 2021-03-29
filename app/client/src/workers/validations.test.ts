@@ -523,6 +523,7 @@ describe("validateDateString test", () => {
       "01/13/2014",
       "01-13-2014",
       moment().toISOString(),
+      moment().toISOString(true),
     ];
     inputs.forEach((item) => {
       const dateString = moment(item).toISOString(true);
