@@ -1621,18 +1621,6 @@ Cypress.Commands.add("getAlert", (alertcss) => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("tabVerify", (index, text) => {
-  cy.get(".t--property-control-tabs input")
-    .eq(index)
-    .click({ force: true })
-    .clear()
-    .type(text);
-  cy.get(LayoutPage.tabWidget)
-    .contains(text)
-    .click({ force: true })
-    .should("be.visible");
-});
-
 Cypress.Commands.add("togglebar", (value) => {
   cy.get(value)
     .check({ force: true })

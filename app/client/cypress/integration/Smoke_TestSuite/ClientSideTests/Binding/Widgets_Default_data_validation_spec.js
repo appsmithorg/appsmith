@@ -52,6 +52,7 @@ describe("Binding the multiple widgets and validating default data", function() 
       expect(tabValue).to.be.equal("lindsay.ferguson@reqres.in");
       cy.log("the value is" + tabValue);
       cy.get(widgetsPage.defaultSingleSelectValue)
+        .first()
         .invoke("text")
         .then((text) => {
           const someText = text;
