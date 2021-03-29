@@ -28,7 +28,7 @@ public class Property {
 
     String value;
 
-    List<String> valueList;
+    List<Object> valueList;
 
     Boolean editable;
 

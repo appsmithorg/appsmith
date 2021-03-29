@@ -133,92 +133,75 @@
           "id": 2,
           "children": [
             {
-              "label": "Field Path Key",
+              "label": "Where Conditions Key",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
               "controlType": "INPUT_TEXT",
               "hidden": true,
-              "initialValue": "fieldPath"
+              "initialValue": "whereConditionTuples"
             },
             {
-              "label": "Where Condition: Field Path (leave empty to not apply any conditions)",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
-              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "label": "Where Conditions",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].valueList",
+              "controlType": "ARRAY_FIELD",
               "hidden": {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_EQUALS",
                 "value": "GET_COLLECTION"
               },
-              "initialValue": ""
-            },
-            {
-              "label": "Operator Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "operator"
-            },
-            {
-              "label": "Where Condition: Operator",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
-              "controlType": "DROP_DOWN",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
-              "initialValue": "EQ",
-              "options": [
+              "schema": [
                 {
-                  "label": "<",
-                  "value": "LT"
+                  "label": "Path",
+                  "key": "path",
+                  "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                  "placeholderText": "key1/nestedKey2"
                 },
                 {
-                  "label": "<=",
-                  "value": "LTE"
+                  "label": "Operand",
+                  "key": "operand",
+                  "controlType": "DROP_DOWN",
+                  "initialValue": "EQ",
+                  "options": [
+                    {
+                      "label": "<",
+                      "value": "LT"
+                    },
+                    {
+                      "label": "<=",
+                      "value": "LTE"
+                    },
+                    {
+                      "label": "==",
+                      "value": "EQ"
+                    },
+                    {
+                      "label": ">=",
+                      "value": "GTE"
+                    },
+                    {
+                      "label": ">",
+                      "value": "GT"
+                    },
+                    {
+                      "label": "array-contains",
+                      "value": "ARRAY_CONTAINS"
+                    },
+                    {
+                      "label": "in",
+                      "value": "IN"
+                    },
+                    {
+                      "label": "array-contains-any",
+                      "value": "ARRAY_CONTAINS_ANY"
+                    }
+                  ]
                 },
                 {
-                  "label": "==",
-                  "value": "EQ"
-                },
-                {
-                  "label": ">=",
-                  "value": "GTE"
-                },
-                {
-                  "label": ">",
-                  "value": "GT"
-                },
-                {
-                  "label": "array-contains",
-                  "value": "ARRAY_CONTAINS"
-                },
-                {
-                  "label": "in",
-                  "value": "IN"
-                },
-                {
-                  "label": "array-contains-any",
-                  "value": "ARRAY_CONTAINS_ANY"
+                  "label": "Value",
+                  "key": "value",
+                  "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                  "placeholderText": "value"
                 }
               ]
-            },
-            {
-              "label": "Value Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "fieldValue"
-            },
-            {
-              "label": "Where Condition: Value",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
-              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
-              "initialValue": ""
             }
           ]
         },

@@ -379,35 +379,16 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.just(query1);
                         }
 
-                        //TODO: fix it.
-                        List<String> conditionList = new ArrayList<>(); //= properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX)
-                        // .getValueList();
-                        conditionList.add("[{\"path\": \"address.street.landmark\", \"operator\": \"==\", " +
-                                "\"value\": \"imax\"}]");
+                        List<Object> conditionList = properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValueList();
+                        
+                        for(Object condition : conditionList) {
+                            String path = ((Map<String, String>)condition).get("path");
+                            String operatorString = ((Map<String, String>)condition).get("operator");
+                            String value = ((Map<String, String>)condition).get("value");
 
-                        for(String condition : conditionList) {
                             try {
-                                Map<String, String> parsedConditionMap = (Map<String, String>) objectMapper.readValue(condition,
-                                        new TypeReference<HashMap<String, String>>() {
-                                        });
-                                //TODO: remove magic string
-                                String path = parsedConditionMap.get("path");
-                                String operatorString = parsedConditionMap.get("operator");
-                                String value = parsedConditionMap.get("value");
                                 query1 = applyWhereConditional(query1, path, operatorString, value);
-                            } catch (AppsmithPluginException | IOException e) {
-                                //TODO: check if required
-                                e.printStackTrace();
-
-                                if(!(e instanceof AppsmithPluginException)) {
-                                    return Mono.error(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
-                                            "Appsmith has failed to fetch where conditional information from " +
-                                                    "Firestore plugin's query form. Please reach out to Appsmith's " +
-                                                    "customer support to resolve this."
-                                    ));
-                                }
-
+                            } catch (AppsmithPluginException e) {
                                 return Mono.error(e);
                             }
                         }
@@ -444,9 +425,25 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         private Query applyWhereConditional(Query query, String path, String operatorString, String value) throws AppsmithPluginException {
-            //TODO: add checks
-            Op operator = StringUtils.isEmpty(operatorString) ? null :
-                    Op.valueOf(operatorString);
+
+            if (query == null) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith server has found null query object when applying where conditional on Firestore " +
+                                "query. Please contact Appsmith's customer support to resolve this."
+                );
+            }
+
+            Op operator;
+            try {
+                operator = StringUtils.isEmpty(operatorString) ? null : Op.valueOf(operatorString);
+            } catch (IllegalArgumentException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith server has encountered an invalid operator for Firestore query's where conditional." +
+                                " Please contact Appsmith's customer support to resolve this."
+                );
+            }
 
             switch (operator) {
                 case LT:
@@ -477,7 +474,7 @@ public class FirestorePlugin extends BasePlugin {
                     try {
                         return query.whereIn(path, parseList(value));
                     } catch (IOException e) {
-                        new AppsmithPluginException(
+                        throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "Unable to parse condition value as a JSON list."
                         );
