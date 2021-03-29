@@ -56,6 +56,7 @@ import { Toaster } from "components/ads/Toast";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -402,9 +403,9 @@ function* handleCreateNewApiActionSaga(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
   );
+  yield call(checkAndGetPluginFormConfigsSaga, pluginId);
   const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
-  log.debug({ pageId, pluginId });
   if (pageId && pluginId) {
     const actions = yield select(getActions);
     const pageActions = actions.filter(

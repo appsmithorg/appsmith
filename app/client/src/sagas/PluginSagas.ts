@@ -6,15 +6,25 @@ import {
 import PluginsApi, { PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { getDatasources, getPlugins } from "selectors/entitiesSelector";
+import {
+  getDatasources,
+  getPlugin,
+  getPluginForm,
+  getPlugins,
+} from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
-import { fetchPluginFormConfigsSuccess } from "actions/pluginActions";
-import { PluginType } from "entities/Action";
+import {
+  fetchPluginFormConfigsSuccess,
+  fetchPluginFormConfigSuccess,
+} from "actions/pluginActions";
 import {
   defaultActionEditorConfigs,
   defaultActionSettings,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import { GenericApiResponse } from "api/ApiResponses";
+import PluginApi from "api/PluginApi";
+import log from "loglevel";
 
 function* fetchPluginsSaga() {
   try {
@@ -63,8 +73,8 @@ function* fetchPluginFormConfigsSaga() {
     Array.from(pluginIds).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
       formConfigs[pluginId] = pluginFormData[index].form;
-      if (plugin && plugin.type === PluginType.API) {
-        editorConfigs[pluginId] = defaultActionEditorConfigs[PluginType.API];
+      if (plugin && !pluginFormData[index].editor) {
+        editorConfigs[pluginId] = defaultActionEditorConfigs[plugin.type];
       } else {
         editorConfigs[pluginId] = pluginFormData[index].editor;
       }
@@ -87,6 +97,34 @@ function* fetchPluginFormConfigsSaga() {
       type: ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR,
       payload: { error },
     });
+  }
+}
+
+export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
+  try {
+    const plugin: Plugin = yield select(getPlugin, pluginId);
+    const formConfig = yield select(getPluginForm, pluginId);
+    if (!formConfig) {
+      const formConfigResponse: GenericApiResponse<PluginFormPayload> = yield PluginApi.fetchFormConfig(
+        pluginId,
+      );
+      yield validateResponse(formConfigResponse);
+      if (!formConfigResponse.data.setting) {
+        formConfigResponse.data.setting = defaultActionSettings[plugin.type];
+      }
+      if (!formConfigResponse.data.editor) {
+        formConfigResponse.data.editor =
+          defaultActionEditorConfigs[plugin.type];
+      }
+      yield put(
+        fetchPluginFormConfigSuccess({
+          id: pluginId,
+          ...formConfigResponse.data,
+        }),
+      );
+    }
+  } catch (e) {
+    log.error("Failed to get plugin form");
   }
 }
 

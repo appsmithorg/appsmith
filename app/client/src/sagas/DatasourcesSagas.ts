@@ -25,7 +25,6 @@ import {
   getPluginForm,
   getDatasource,
   getDatasourceDraft,
-  getPlugin,
 } from "selectors/entitiesSelector";
 import {
   selectPlugin,
@@ -38,7 +37,6 @@ import {
 import { GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
-import PluginApi, { PluginFormPayload, Plugin } from "api/PluginApi";
 
 import {
   API_EDITOR_ID_URL,
@@ -63,8 +61,7 @@ import {
   DATASOURCE_UPDATE,
   DATASOURCE_VALID,
 } from "constants/messages";
-import { fetchPluginFormConfigSuccess } from "actions/pluginActions";
-import { defaultActionSettings } from "constants/AppsmithActionConstants/ActionConstants";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -297,30 +294,15 @@ function* createDatasourceFromFormSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
 ) {
   try {
-    let formConfig;
     const organizationId = yield select(getCurrentOrgId);
-    formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
-    if (!formConfig) {
-      const formConfigResponse: GenericApiResponse<PluginFormPayload> = yield PluginApi.fetchFormConfig(
-        actionPayload.payload.pluginId,
-      );
-      yield validateResponse(formConfigResponse);
-      if (!formConfigResponse.data.setting) {
-        const plugin: Plugin = yield select(
-          getPlugin,
-          actionPayload.payload.pluginId,
-        );
-        formConfigResponse.data.setting = defaultActionSettings[plugin.type];
-      }
-      yield put(
-        fetchPluginFormConfigSuccess({
-          id: actionPayload.payload.pluginId,
-          ...formConfigResponse.data,
-        }),
-      );
-
-      formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
-    }
+    yield call(
+      checkAndGetPluginFormConfigsSaga,
+      actionPayload.payload.pluginId,
+    );
+    const formConfig = yield select(
+      getPluginForm,
+      actionPayload.payload.pluginId,
+    );
 
     const initialValues = yield call(getConfigInitialValues, formConfig);
 
