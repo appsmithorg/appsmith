@@ -86,6 +86,12 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     begin: () => {
       // When this draggable starts dragging
 
+      // Remove property pane by passing undefined for the widgetId
+      // The second parameter is true to make sure the next call (at drop)
+      // takes the current state of the property pane toggle state (open/close)
+      // into account.
+      showPropertyPane && showPropertyPane(undefined, true);
+
       // Make sure that this widget is selected
       selectWidget &&
         selectedWidget !== props.widgetId &&
@@ -106,7 +112,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       // See utils/hooks/dragResizeHooks.tsx
       const didDrop = monitor.didDrop();
       if (didDrop) {
-        showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
+        showPropertyPane && showPropertyPane(props.widgetId, true);
       }
       // Take this to the bottom of the stack. So that it runs last.
       // We do this because, we don't want erroraneous mouse clicks to propagate.
@@ -132,6 +138,9 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       selectWidget &&
         selectedWidget !== props.widgetId &&
         selectWidget(props.widgetId);
+      selectedWidget !== props.widgetId &&
+        showPropertyPane &&
+        showPropertyPane();
     }
     e.stopPropagation();
   };

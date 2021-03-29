@@ -195,7 +195,6 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       <TabsWrapper>
         <DroppableComponent
           items={draggableComponentColumns}
-          itemHeight={45}
           renderComponent={ColumnControlComponent}
           updateOption={this.updateOption}
           updateItems={this.updateItems}
@@ -251,10 +250,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       this.props.widgetProperties.columnOrder,
     );
 
-    this.props.openNextPanel({
-      ...originalColumn,
-      widgetId: this.props.widgetProperties.widgetId,
-    });
+    this.props.openNextPanel(originalColumn);
   };
   //Used to reorder columns
   updateItems = (items: Array<Record<string, unknown>>) => {

@@ -28,18 +28,6 @@ const usersReducer = createReducer(initialState, {
       fetchingUser: true,
     },
   }),
-  [ReduxActionTypes.PROP_PANE_MOVED]: (
-    state: UsersReduxState,
-    action: ReduxAction<PropertyPanePositionConfig>,
-  ) => ({
-    ...state,
-    propPanePreferences: {
-      isMoved: true,
-      position: {
-        ...action.payload.position,
-      },
-    },
-  }),
   [ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS]: (
     state: UsersReduxState,
     action: ReduxAction<User>,
@@ -128,13 +116,6 @@ const usersReducer = createReducer(initialState, {
   }),
 });
 
-export interface PropertyPanePositionConfig {
-  isMoved: boolean;
-  position: {
-    left: number;
-    top: number;
-  };
-}
 export interface UsersReduxState {
   current?: User;
   list: User[];
@@ -145,7 +126,6 @@ export interface UsersReduxState {
   users: User[];
   currentUser?: User;
   error: string;
-  propPanePreferences?: PropertyPanePositionConfig;
 }
 
 export default usersReducer;

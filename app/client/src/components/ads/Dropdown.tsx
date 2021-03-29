@@ -11,8 +11,6 @@ export type DropdownOption = {
   id?: string;
   icon?: IconName;
   subText?: string;
-  iconSize?: IconSize;
-  iconColor?: string;
   onSelect?: (value?: string) => void;
 };
 
@@ -263,11 +261,7 @@ export default function Dropdown(props: DropdownProps) {
                 className="t--dropdown-option"
               >
                 {option.icon ? (
-                  <SelectedIcon
-                    name={option.icon}
-                    fillColor={option?.iconColor}
-                    size={option.iconSize || IconSize.XXS}
-                  />
+                  <SelectedIcon name={option.icon} size={IconSize.XXS} />
                 ) : null}
 
                 {props.showLabelOnly ? (
