@@ -2,3 +2,6 @@
 .idea
 *.iml
 .env
+
+# test coverage
+coverage-summary.json

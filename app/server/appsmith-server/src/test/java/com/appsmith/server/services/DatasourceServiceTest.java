@@ -775,4 +775,219 @@ public class DatasourceServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testHintMessageOnLocalhostUrlOnTestDatasourceEvent() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("testName 1");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint("http://localhost", 0L);
+        datasourceConfiguration.setEndpoints(new ArrayList<>());
+        datasourceConfiguration.getEndpoints().add(endpoint);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1));
+
+        StepVerifier
+                .create(testResultMono)
+                .assertNext(testResult -> {
+                    assertThat(testResult).isNotNull();
+                    assertThat(testResult.getInvalids()).isEmpty();
+                    assertThat(testResult.getMessages()).isNotEmpty();
+
+                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
+                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
+                            "understand more.";
+                    assertThat(
+                            testResult.getMessages().stream()
+                                    .anyMatch(message -> expectedMessage.equals(message))
+                    ).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testHintMessageOnLocalhostUrlOnCreateEventOnApiDatasource() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("testName 2");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://localhost");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getMessages()).isNotEmpty();
+
+                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
+                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
+                            "understand more.";
+                    assertThat(
+                            createdDatasource.getMessages().stream()
+                                    .anyMatch(message -> expectedMessage.equals(message))
+                    ).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testHintMessageOnLocalhostUrlOnUpdateEventOnApiDatasource() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource datasource = new Datasource();
+        datasource.setName("testName 3");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Connection connection = new Connection();
+        connection.setMode(Connection.Mode.READ_ONLY);
+        connection.setType(Connection.Type.REPLICA_SET);
+        datasourceConfiguration.setConnection(connection);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        datasource.setOrganizationId(orgId);
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+
+        Mono<Datasource> datasourceMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .flatMap(datasource1 -> {
+                    Datasource updates = new Datasource();
+                    DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+                    Connection connection1 = new Connection();
+                    datasourceConfiguration1.setConnection(connection1);
+                    datasourceConfiguration1.setUrl("http://localhost");
+                    updates.setDatasourceConfiguration(datasourceConfiguration1);
+                    return datasourceService.update(datasource1.getId(), updates);
+                });
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(updatedDatasource -> {
+                    assertThat(updatedDatasource.getMessages().size()).isNotZero();
+                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
+                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
+                            "understand more.";
+                    assertThat(
+                            updatedDatasource.getMessages().stream()
+                                    .anyMatch(message -> expectedMessage.equals(message))
+                    ).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testHintMessageOnLocalhostUrlOnCreateEventOnNonApiDatasource() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("testName 4");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint("http://localhost", 0L);
+        datasourceConfiguration.setEndpoints(new ArrayList<>());
+        datasourceConfiguration.getEndpoints().add(endpoint);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getMessages()).isNotEmpty();
+
+                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
+                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
+                            "understand more.";
+                    assertThat(
+                            createdDatasource.getMessages().stream()
+                                    .anyMatch(message -> expectedMessage.equals(message))
+                    ).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testHintMessageOnLocalhostUrlOnUpdateEventOnNonApiDatasource() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource datasource = new Datasource();
+        datasource.setName("testName 5");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Connection connection = new Connection();
+        connection.setMode(Connection.Mode.READ_ONLY);
+        connection.setType(Connection.Type.REPLICA_SET);
+        datasourceConfiguration.setConnection(connection);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        datasource.setOrganizationId(orgId);
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+
+        Mono<Datasource> datasourceMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .flatMap(datasource1 -> {
+                    Datasource updates = new Datasource();
+                    DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+                    Connection connection1 = new Connection();
+                    datasourceConfiguration1.setConnection(connection1);
+                    Endpoint endpoint = new Endpoint("http://localhost", 0L);
+                    datasourceConfiguration1.setEndpoints(new ArrayList<>());
+                    datasourceConfiguration1.getEndpoints().add(endpoint);
+                    updates.setDatasourceConfiguration(datasourceConfiguration1);
+                    return datasourceService.update(datasource1.getId(), updates);
+                });
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(updatedDatasource -> {
+                    assertThat(updatedDatasource.getMessages().size()).isNotZero();
+                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
+                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
+                            "understand more.";
+                    assertThat(
+                            updatedDatasource.getMessages().stream()
+                                    .anyMatch(message -> expectedMessage.equals(message))
+                    ).isTrue();
+                })
+                .verifyComplete();
+    }
 }
