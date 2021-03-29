@@ -27,7 +27,7 @@ describe("Onboarding", function() {
 
         if (!onboardingDatasource) {
           cy.wait("@createDatasource").then((httpRequest) => {
-            const createdDbName = httpRequest.request.body.name;
+            const createdDbName = httpRequest.response.body.data.name;
             expect(createdDbName).to.be.equal("Super Updates DB");
           });
         }
