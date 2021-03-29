@@ -1,6 +1,8 @@
 import { Action } from "entities/Action/index";
 import _ from "lodash";
 
+const dynamicFields = ["QUERY_DYNAMIC_TEXT", "QUERY_DYNAMIC_INPUT_TEXT"];
+
 export const getBindingPathsOfAction = (
   action: Action,
   formConfig?: any[],
@@ -23,21 +25,21 @@ export const getBindingPathsOfAction = (
         "actionConfiguration.",
         "config.",
       );
-      if (
-        ["QUERY_DYNAMIC_TEXT", "QUERY_DYNAMIC_INPUT_TEXT"].includes(
-          formConfig.controlType,
-        )
-      ) {
+      if (dynamicFields.includes(formConfig.controlType)) {
         bindingPaths[configPath] = true;
       }
       if (formConfig.controlType === "ARRAY_FIELD") {
-        debugger;
         const actionValue = _.get(action, formConfig.configProperty);
         if (Array.isArray(actionValue)) {
           for (let i = 0; i < actionValue.length; i++) {
             formConfig.schema.forEach((schemaField: any) => {
-              const arrayConfigPath = `${configPath}[${i}].${schemaField.key}`;
-              bindingPaths[arrayConfigPath] = true;
+              if (
+                schemaField.key in actionValue[i] &&
+                dynamicFields.includes(schemaField.controlType)
+              ) {
+                const arrayConfigPath = `${configPath}[${i}].${schemaField.key}`;
+                bindingPaths[arrayConfigPath] = true;
+              }
             });
           }
         }
