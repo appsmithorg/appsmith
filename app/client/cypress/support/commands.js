@@ -943,7 +943,7 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
 //   cy.get(modalWidgetPage.controlModalType)
 //     .find(".bp3-button > .bp3-button-text")
 //     .should("have.text", "Alert Modal");
-//   cy.get(commonlocators.editPropCrossButton).click();
+//   cy.get(commonlocators.editPropCrossButton).click({force: true});
 //   cy.reload();
 // });
 
@@ -973,7 +973,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     modalWidgetPage.modalName,
     modalWidgetPage.modalName,
   );
-  cy.get(commonlocators.editPropCrossButton).click();
+  cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
   //changing the Model label
   cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
@@ -1018,7 +1018,7 @@ Cypress.Commands.add("updateModal", (modalType, ModalName) => {
     modalWidgetPage.modalName,
     modalWidgetPage.modalName,
   );
-  cy.get(commonlocators.editPropCrossButton).click();
+  cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
   //changing the Model label
   cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
@@ -1289,7 +1289,7 @@ Cypress.Commands.add("tableDataVisiblity", (endp, value) => {
 });
 
 Cypress.Commands.add("tableColumnDataValidation", (columnName) => {
-  cy.get("[data-rbd-draggable-id='" + columnName + "']")
+  cy.get("[data-rbd-draggable-id='" + columnName + "'] input")
     .scrollIntoView()
     .first()
     .focus({ force: true })
@@ -1619,18 +1619,6 @@ Cypress.Commands.add("getAlert", (alertcss) => {
   cy.get(".bp3-popover-content .bp3-menu li")
     .contains("Success")
     .click({ force: true });
-});
-
-Cypress.Commands.add("tabVerify", (index, text) => {
-  cy.get(".t--property-control-tabs input")
-    .eq(index)
-    .click({ force: true })
-    .clear()
-    .type(text);
-  cy.get(LayoutPage.tabWidget)
-    .contains(text)
-    .click({ force: true })
-    .should("be.visible");
 });
 
 Cypress.Commands.add("togglebar", (value) => {
@@ -1964,7 +1952,7 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
 });
 
 Cypress.Commands.add("closePropertyPane", () => {
-  cy.get(commonlocators.editPropCrossButton).click();
+  cy.get(commonlocators.editPropCrossButton).click({ force: true });
 });
 
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {
