@@ -45,6 +45,7 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
+import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -174,9 +175,9 @@ class CodeEditor extends Component<Props, State> {
       }
 
       // Set value of the editor
-      const inputValue = this.getInputValue(this.props.input.value || "");
+      const inputValue = getInputValue(this.props.input.value || "");
       if (this.props.size === EditorSize.COMPACT) {
-        this.editor.setValue(this.removeNewLineChars(inputValue));
+        this.editor.setValue(removeNewLineChars(inputValue));
       } else {
         this.editor.setValue(inputValue);
       }
@@ -187,32 +188,17 @@ class CodeEditor extends Component<Props, State> {
     }
   }
 
-  removeNewLineChars = (inputValue: any) => {
-    return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
-  };
-
-  getInputValue = (inputValue: any) => {
-    if (typeof inputValue === "object") {
-      inputValue = JSON.stringify(inputValue, null, 2);
-    } else if (
-      typeof inputValue === "number" ||
-      typeof inputValue === "string"
-    ) {
-      inputValue += "";
-    }
-    return inputValue;
-  };
-
   componentDidUpdate(prevProps: Props): void {
     this.editor.refresh();
     if (!this.state.isFocused) {
       // const currentMode = this.editor.getOption("mode");
       const editorValue = this.editor.getValue();
       // Safe update of value of the editor when value updated outside the editor
-      const inputValue = this.getInputValue(this.props.input.value);
+      const inputValue = getInputValue(this.props.input.value);
       if (!!inputValue || inputValue === "") {
         if (this.props.size === EditorSize.COMPACT) {
-          this.editor.setValue(this.removeNewLineChars(inputValue));
+          console.log(inputValue);
+          this.editor.setValue(removeNewLineChars(inputValue));
         } else if (inputValue !== editorValue) {
           this.editor.setValue(inputValue);
         }
