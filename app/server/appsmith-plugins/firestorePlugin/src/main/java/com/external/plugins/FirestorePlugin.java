@@ -14,7 +14,6 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.CollectionReference;
@@ -485,7 +484,8 @@ public class FirestorePlugin extends BasePlugin {
                 default:
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                            "Unsupported operator for `where` condition " + operator.toString() + "."
+                            "Appsmith server has encountered an invalid operator for Firestore query's where conditional." +
+                                    " Please contact Appsmith's customer support to resolve this."
                     );
             }
         }

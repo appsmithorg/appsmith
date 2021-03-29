@@ -144,6 +144,7 @@ public class FirestorePluginTest {
                     assertFalse((Boolean) first.remove("isPlural"));
                     assertEquals(1L, first.remove("value"));
                     assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("_ref"));
+                    assertEquals("test", first.remove("category"));
                     assertEquals(Collections.emptyMap(), first);
                 })
                 .verifyComplete();
@@ -171,6 +172,7 @@ public class FirestorePluginTest {
                     assertEquals("abc def", ((Blob) doc.remove("bytes")).toByteString().toStringUtf8());
                     assertNull(doc.remove("null-ref"));
                     assertEquals(Map.of("id", "two", "path", "initial/two"), doc.remove("_ref"));
+                    assertEquals("test", doc.remove("category"));
                     assertEquals(Collections.emptyMap(), doc);
                 })
                 .verifyComplete();
@@ -227,6 +229,8 @@ public class FirestorePluginTest {
                     assertFalse((Boolean) first.remove("isPlural"));
                     assertEquals(1L, first.remove("value"));
                     assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("_ref"));
+                    assertEquals("test", first.remove("category"));
+                    assertEquals("test", first.remove("category"));
                     assertEquals(Collections.emptyMap(), first);
 
                     final Map<String, Object> second = results.stream().filter(d -> "two".equals(d.get("name"))).findFirst().orElse(null);
@@ -240,6 +244,8 @@ public class FirestorePluginTest {
                     assertEquals("abc def", ((Blob) second.remove("bytes")).toByteString().toStringUtf8());
                     assertNull(second.remove("null-ref"));
                     assertEquals(Map.of("id", "two", "path", "initial/two"), second.remove("_ref"));
+                    assertEquals("test", second.remove("category"));
+                    assertEquals("test", second.remove("category"));
                     assertEquals(Collections.emptyMap(), second);
 
                     final Map<String, Object> third = results.stream().filter(d -> "third".equals(d.get("name"))).findFirst().orElse(null);
