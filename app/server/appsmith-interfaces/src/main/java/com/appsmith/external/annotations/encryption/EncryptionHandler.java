@@ -51,7 +51,6 @@ public class EncryptionHandler {
             } else {
                 CandidateField candidateField = null;
 
-                log.debug("Field name : {}", field.getName());
                 field.setAccessible(true);
                 Object fieldValue = ReflectionUtils.getField(field, source);
                 if (fieldValue == null) {

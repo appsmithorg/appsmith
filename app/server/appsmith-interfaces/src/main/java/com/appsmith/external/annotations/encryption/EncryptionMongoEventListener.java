@@ -25,8 +25,8 @@ public class EncryptionMongoEventListener<E> extends AbstractMongoEventListener<
 
         encryptionHandler.convertEncryption(source, encryptionService::encryptString);
 
-        log.debug("onBeforeConvert for {}", event.getDocument());
-        log.debug("onBeforeConvert for {}", source);
+//        log.debug("onBeforeConvert for {}", event.getDocument());
+//        log.debug("onBeforeConvert for {}", source);
     }
 
     // This lifecycle event is after we retrieve a document from the DB,
@@ -41,8 +41,8 @@ public class EncryptionMongoEventListener<E> extends AbstractMongoEventListener<
         // All we need to do is iterate through this list
         // and encrypt the field if it is an annotation type
         // or go deeper if it is an appsmith type
-        log.debug("onAfterConvert for {}", event.getDocument());
-        log.debug("onAfterConvert for {}", source);
+//        log.debug("onAfterConvert for {}", event.getDocument());
+//        log.debug("onAfterConvert for {}", source);
     }
 
 }
