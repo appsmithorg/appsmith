@@ -133,9 +133,10 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
           const columnOrder = props.columnOrder
             ? [...props.columnOrder]
             : props.columns.map((item) => item.accessor);
-          const draggedColumn = props.columns[dragged].accessor;
-          columnOrder.splice(dragged, 1);
-          columnOrder.splice(i, 0, draggedColumn);
+          const movedColumnName = columnOrder.splice(dragged, 1);
+          if (movedColumnName && movedColumnName.length === 1)
+            columnOrder.splice(i, 0, movedColumnName[0]);
+          console.log("Table log:", { columnOrder });
           props.handleReorderColumn(columnOrder);
         } else {
           dragged = -1;

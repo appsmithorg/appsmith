@@ -251,6 +251,8 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       this.props.widgetProperties.columnOrder,
     );
 
+    console.log("Table log:", { originalColumn });
+
     this.props.openNextPanel({
       ...originalColumn,
       widgetId: this.props.widgetProperties.widgetId,

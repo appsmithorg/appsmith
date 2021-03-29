@@ -17,7 +17,7 @@ import {
   TextSizes,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import { isString, isEmpty, findIndex, without } from "lodash";
+import { isString, isEmpty, findIndex, without, uniq } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
@@ -348,7 +348,7 @@ export const reorderColumns = (
 ) => {
   const newColumnsInOrder: Record<string, ColumnProperties> = {};
 
-  columnOrder.forEach((id: string, index: number) => {
+  uniq(columnOrder).forEach((id: string, index: number) => {
     if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
   });
   const remaining = without(
