@@ -38,8 +38,9 @@ export class DroppableComponent extends React.Component<
     return !isEqual(presentOrder, previousOrder);
   }
 
-  onUpdate = (items: any) => {
-    this.props.updateItems(items);
+  onUpdate = (itemsOrder: number[]) => {
+    const newOrderedItems = itemsOrder.map((each) => this.props.items[each]);
+    this.props.updateItems(newOrderedItems);
   };
 
   render() {

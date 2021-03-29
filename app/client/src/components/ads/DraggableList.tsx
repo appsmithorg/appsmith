@@ -64,9 +64,8 @@ const DraggableList = ({ items, ItemRenderer, onUpdate, itemHeight }: any) => {
   const order = useRef<any>(items.map((_: any, index: any) => index));
 
   const onDrop = () => {
-    const newOrderedItems = order.current.map((each: any) => items[each]);
+    onUpdate(order.current);
     order.current = items.map((_: any, index: any) => index);
-    onUpdate(newOrderedItems);
     setSprings(updateSpringStyles(order.current, itemHeight));
   };
 
