@@ -29,8 +29,9 @@ export function validateDateString(
   let isValid = true;
   if (version === 2) {
     try {
-      const d = new Date(dateString);
-      isValid = d.toISOString() === dateString;
+      const d = moment(dateString);
+      isValid =
+        d.toISOString(true) === dateString || d.toISOString() === dateString;
       if (!isValid) {
         const parsedDate = moment(dateString);
         isValid = parsedDate.isValid();
