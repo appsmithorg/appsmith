@@ -9,6 +9,7 @@ import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import _, {
   every,
   isBoolean,
+  isNil,
   isNumber,
   isObject,
   isPlainObject,
@@ -19,6 +20,31 @@ import _, {
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
+
+export function validateDateString(
+  dateString: string,
+  dateFormat: string,
+  version: number,
+) {
+  let isValid = true;
+  if (version === 2) {
+    try {
+      const d = moment(dateString);
+      isValid =
+        d.toISOString(true) === dateString || d.toISOString() === dateString;
+      if (!isValid) {
+        const parsedDate = moment(dateString);
+        isValid = parsedDate.isValid();
+      }
+    } catch (e) {
+      isValid = false;
+    }
+  } else {
+    const parsedDate = moment(dateString, dateFormat);
+    isValid = parsedDate.isValid();
+  }
+  return isValid;
+}
 
 const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type"; // TODO: Lot's of changes in validations.ts file
 
@@ -344,6 +370,39 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed: parsedChartData, transformed: parsedChartData };
   },
+  [VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.OBJECT](
+      value,
+      props,
+      dataTree,
+    );
+    if (props.chartName && parsed.dataSource && parsed.dataSource.chart) {
+      parsed.dataSource.chart.caption = props.chartName;
+    }
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}`,
+      };
+    }
+    if (parsed.renderAt) {
+      delete parsed.renderAt;
+    }
+    if (!parsed.dataSource || !parsed.type) {
+      return {
+        isValid: false,
+        parsed: parsed,
+        transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}`,
+      };
+    }
+    return { isValid, parsed, transformed: parsed };
+  },
   [VALIDATION_TYPES.MARKERS]: (
     value: any,
     props: WidgetProps,
@@ -418,7 +477,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
   },
-  [VALIDATION_TYPES.DATE]: (
+  [VALIDATION_TYPES.DATE_ISO_STRING]: (
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
@@ -426,7 +485,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
-
+    if (dateString === null) {
+      return {
+        isValid: true,
+        parsed: "",
+        message: "",
+      };
+    }
     if (dateString === undefined) {
       return {
         isValid: false,
@@ -437,17 +502,27 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             : "",
       };
     }
-    const isValid = moment(dateString, dateFormat).isValid();
+    const isValid = validateDateString(dateString, dateFormat, props.version);
+    let parsedDate = dateString;
+
+    try {
+      if (isValid && props.version === 2) {
+        parsedDate = moment(dateString).toISOString(true);
+      }
+    } catch (e) {
+      console.error("Could not parse date", parsedDate, e);
+    }
+
     if (!isValid) {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+        message: `Value does not match ISO 8601 standard date string`,
       };
     }
     return {
       isValid,
-      parsed: dateString,
+      parsed: parsedDate,
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
     };
   },
@@ -459,6 +534,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
+    if (dateString === null) {
+      return {
+        isValid: true,
+        parsed: "",
+        message: "",
+      };
+    }
     if (dateString === undefined) {
       return {
         isValid: false,
@@ -469,18 +551,27 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             : "",
       };
     }
-    const parsedCurrentDate = moment(dateString, dateFormat);
-    const isValid = parsedCurrentDate.isValid();
+
+    const isValid = validateDateString(dateString, dateFormat, props.version);
+    let parsedDate = dateString;
+
+    try {
+      if (isValid && props.version === 2) {
+        parsedDate = moment(dateString).toISOString(true);
+      }
+    } catch (e) {
+      console.error("Could not parse date", parsedDate, e);
+    }
     if (!isValid) {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+        message: `Value does not match ISO 8601 standard date string`,
       };
     }
     return {
       isValid: isValid,
-      parsed: dateString,
+      parsed: parsedDate,
       message: "",
     };
   },
@@ -503,7 +594,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const parsedMinDate = moment(dateString, dateFormat);
-    let isValid = parsedMinDate.isValid();
+    let isValid = validateDateString(dateString, dateFormat, props.version);
     if (!props.defaultDate) {
       return {
         isValid: isValid,
@@ -552,7 +643,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const parsedMaxDate = moment(dateString, dateFormat);
-    let isValid = parsedMaxDate.isValid();
+    let isValid = validateDateString(dateString, dateFormat, props.version);
     if (!props.defaultDate) {
       return {
         isValid: isValid,
@@ -590,33 +681,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         transformed: "Function Call",
       };
     }
-    /*
-    if (_.isString(value)) {
-      if (value.indexOf("navigateTo") !== -1) {
-        const pageNameOrUrl = modalGetter(value);
-        if (dataTree) {
-          if (isDynamicValue(pageNameOrUrl)) {
-            return {
-              isValid: true,
-              parsed: value,
-            };
-          }
-          const isPage =
-            (dataTree.pageList as PageListPayload).findIndex(
-              page => page.pageName === pageNameOrUrl,
-            ) !== -1;
-          const isValidUrl = URL_REGEX.test(pageNameOrUrl);
-          if (!(isValidUrl || isPage)) {
-            return {
-              isValid: false,
-              parsed: value,
-              message: `${NAVIGATE_TO_VALIDATION_ERROR}`,
-            };
-          }
-        }
-      }
-    }
-    */
     return {
       isValid: false,
       parsed: undefined,
@@ -717,42 +781,21 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     value: string | string[],
     props: WidgetProps,
   ) => {
-    let values = value;
-
     if (props) {
       if (props.multiRowSelection) {
-        if (typeof value === "string") {
-          try {
-            values = JSON.parse(value);
-            if (!Array.isArray(values)) {
-              throw new Error();
-            }
-          } catch {
-            values = value.length ? value.split(",") : [];
-            if (values.length > 0) {
-              let numericValues = values.map((value) => {
-                return isNumber(value.trim()) ? -1 : Number(value.trim());
-              });
-              numericValues = _.uniq(numericValues);
-              return {
-                isValid: true,
-                parsed: numericValues,
-              };
-            }
-          }
-        }
+        return VALIDATORS[VALIDATION_TYPES.ROW_INDICES](value, props);
       } else {
         try {
-          if (value === "") {
-            return {
-              isValid: true,
-              parsed: -1,
-            };
-          }
-          const parsed = toNumber(value);
+          const _value: string = value as string;
+          if (
+            Number.isInteger(parseInt(_value, 10)) &&
+            parseInt(_value, 10) > -1
+          )
+            return { isValid: true, parsed: parseInt(_value, 10) };
+
           return {
             isValid: true,
-            parsed: parsed,
+            parsed: -1,
           };
         } catch (e) {
           return {
@@ -764,7 +807,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return {
       isValid: true,
-      parsed: values,
+      parsed: value,
     };
   },
   [VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY]: (
@@ -854,6 +897,51 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       isValid: true,
       parsed: value,
     };
+  },
+  [VALIDATION_TYPES.IMAGE]: (value: any): ValidationResponse => {
+    let parsed = value;
+    const base64ImageRegex = /^data:image\/.*;base64/;
+    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+    if (isUndefined(value) || value === null) {
+      return {
+        isValid: true,
+        parsed: value,
+        message: "",
+      };
+    }
+    if (isObject(value)) {
+      return {
+        isValid: false,
+        parsed: JSON.stringify(value, null, 2),
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+      };
+    }
+    if (imageUrlRegex.test(value)) {
+      return {
+        isValid: true,
+        parsed: value,
+        message: "",
+      };
+    }
+    let isValid = base64ImageRegex.test(value);
+    if (!isValid) {
+      try {
+        parsed =
+          btoa(atob(value)) === value
+            ? "data:image/png;base64," + value
+            : value;
+        isValid = true;
+      } catch (err) {
+        console.error(`Error when parsing ${value} to string`);
+        console.error(err);
+        return {
+          isValid: false,
+          parsed: "",
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+        };
+      }
+    }
+    return { isValid, parsed };
   },
   [VALIDATION_TYPES.IMAGE]: (value: any): ValidationResponse => {
     let parsed = value;
