@@ -77,7 +77,6 @@ const DropdownWrapper = styled.div<{
   width: ${(props) => props.width};
   z-index: 1;
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
-  box-shadow: ${(props) => props.theme.colors.dropdown.menuShadow};
   margin-top: ${(props) => -props.theme.spaces[3]}px;
   padding: ${(props) => props.theme.spaces[3]}px 0;
 `;
@@ -271,14 +270,14 @@ export default function Dropdown(props: DropdownProps) {
                 ) : null}
 
                 {props.showLabelOnly ? (
-                  <Text type={TextType.P3}>{option.label}</Text>
+                  <Text type={TextType.P1}>{option.label}</Text>
                 ) : option.label && option.value ? (
                   <LabelWrapper className="label-container">
                     <Text type={TextType.H5}>{option.value}</Text>
-                    <Text type={TextType.P3}>{option.label}</Text>
+                    <Text type={TextType.P1}>{option.label}</Text>
                   </LabelWrapper>
                 ) : (
-                  <Text type={TextType.P3}>{option.value}</Text>
+                  <Text type={TextType.P1}>{option.value}</Text>
                 )}
 
                 {option.subText ? (
