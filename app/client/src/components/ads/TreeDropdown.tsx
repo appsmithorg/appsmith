@@ -45,7 +45,6 @@ const StyledMenu = styled(Menu)`
   padding: 0px;
   border-radius: 0px;
   background-color: ${(props) => props.theme.colors.treeDropdown.menuBg.normal};
-  box-shadow: ${(props) => props.theme.colors.treeDropdown.menuShadow};
   .${Classes.MENU} {
     min-width: 220px;
     padding: 0px;
@@ -55,7 +54,7 @@ const StyledMenu = styled(Menu)`
   }
   .${Classes.MENU_ITEM} {
     border-radius: 0px;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 14px;
     display: flex;
     align-items: center;
