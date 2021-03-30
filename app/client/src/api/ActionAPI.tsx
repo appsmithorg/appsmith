@@ -1,11 +1,9 @@
 import API, { HttpMethod } from "api/Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
-import {
-  APIRequest,
-  DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
-} from "constants/ApiConstants";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { Action, ActionViewMode } from "entities/Action";
+import { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
