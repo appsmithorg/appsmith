@@ -50,4 +50,45 @@ export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
 }
 
+export const hidden = {
+  conditionType: "AND",
+  conditions: [
+    {
+      conditionType: "AND",
+      conditions: [
+        {
+          path: 2,
+          value: 2,
+          comparison: "EQUALS",
+        },
+        {
+          path: 2,
+          value: 2,
+          comparison: "EQUALS",
+        },
+      ],
+    },
+    {
+      conditionType: "AND",
+      conditions: [
+        {
+          conditionType: "OR",
+          conditions: [
+            {
+              path: 2,
+              value: 3,
+              comparison: "EQUALS",
+            },
+          ],
+        },
+        {
+          path: 3,
+          value: 3,
+          comparison: "EQUALS",
+        },
+      ],
+    },
+  ],
+};
+
 export default BaseControl;

@@ -1,7 +1,64 @@
 import { isBoolean, get, map, set } from "lodash";
-import { HiddenType } from "./BaseControl";
+import { HiddenType, hidden } from "./BaseControl";
+
+export const isHiddenForArray = (hiddenConfig: any) => {
+  if (!!hiddenConfig) {
+    const valueAtPath = hiddenConfig.path;
+    const value = hiddenConfig.value;
+
+    switch (hiddenConfig.comparison) {
+      case "EQUALS":
+        return valueAtPath === value;
+      case "NOT_EQUALS":
+        return valueAtPath !== value;
+      case "GREATER":
+        return valueAtPath > value;
+      case "LESSER":
+        return valueAtPath < value;
+      case "IN":
+        return Array.isArray(value) && value.includes(valueAtPath);
+      case "NOT_IN":
+        return Array.isArray(value) && !value.includes(valueAtPath);
+      default:
+        return true;
+    }
+  }
+  return !!hiddenConfig;
+};
+
+export const evaluateCondtionsWithType = (conditions: any, type: string) => {
+  let flag;
+  if (conditions.length > 1) {
+    if (type === "AND") {
+      flag = conditions.reduce((acc: any, item: boolean) => {
+        return acc && item;
+      }, conditions[0]);
+    } else if (type === "OR") {
+      flag = conditions.reduce((acc: any, item: boolean) => {
+        return acc || item;
+      }, undefined);
+    }
+  } else {
+    flag = conditions[0];
+  }
+  return flag;
+};
+
+export const isHiddenEvaluation = (hidden: any) => {
+  const conditionType = hidden.conditionType;
+  let conditions = hidden.conditions;
+  if (conditions) {
+    conditions = conditions.map((rule: any) => {
+      return isHiddenEvaluation(rule);
+    });
+  } else {
+    return isHiddenForArray(hidden);
+  }
+  return evaluateCondtionsWithType(conditions, conditionType);
+};
 
 export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
+  console.log(isHiddenEvaluation(hidden));
   if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
     const valueAtPath = get(values, hiddenConfig.path);
     const value = hiddenConfig.value;
