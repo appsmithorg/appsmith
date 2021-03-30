@@ -187,9 +187,10 @@ jobs:
             const head_sha = pull.head.sha;
 
             const { data: completed_at } = await github.checks.create({
-              ...context.repo,
-              head_sha,
-              name: process.env.job
+              owner: context.repo.owner, 
+              repo: context.repo.repo
+              head_sha: head_sha,
+              name: process.env.job,
               status: 'completed',
               conclusion: process.env.conclusion
             });
