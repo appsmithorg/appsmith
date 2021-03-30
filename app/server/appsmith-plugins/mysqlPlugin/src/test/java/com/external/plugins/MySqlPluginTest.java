@@ -242,6 +242,7 @@ public class MySqlPluginTest {
 
     @Test
     public void testExecuteWithFormattingWithShowCmd() {
+        dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -262,6 +263,7 @@ public class MySqlPluginTest {
 
     @Test
     public void testExecuteWithFormattingWithSelectCmd() {
+        dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
