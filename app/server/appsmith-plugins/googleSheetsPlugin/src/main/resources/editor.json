@@ -19,6 +19,10 @@
           "initialValue": "GET",
           "options": [
             {
+              "label": "Bulk insert rows",
+              "value": "BULK_APPEND"
+            },
+            {
               "label": "Insert row",
               "value": "APPEND"
             },
@@ -45,6 +49,10 @@
             {
               "label": "Update row",
               "value": "UPDATE"
+            },
+            {
+              "label": "Bulk update rows",
+              "value": "BULK_UPDATE"
             },
             {
               "label": "Delete row",
@@ -130,8 +138,10 @@
             "value": [
               "GET",
               "UPDATE",
+              "BULK_UPDATE",
               "DELETE_ROW",
-              "APPEND"
+              "APPEND",
+              "BULK_APPEND"
             ]
           },
           "initialValue": ""
@@ -223,7 +233,10 @@
             "value": [
               "GET",
               "UPDATE",
-              "DELETE_ROW"
+              "BULK_UPDATE",
+              "DELETE_ROW",
+              "APPEND",
+              "BULK_APPEND"
             ]
           },
           "initialValue": "1"

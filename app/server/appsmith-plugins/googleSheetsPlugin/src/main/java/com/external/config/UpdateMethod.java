@@ -65,8 +65,7 @@ public class UpdateMethod implements Method {
         }
 
         assert rowObjectFromBody != null;
-        final String row = String.valueOf(
-                Integer.parseInt(methodConfig.getTableHeaderIndex()) + rowObjectFromBody.getCurrentRowIndex());
+        final String row = String.valueOf(rowObjectFromBody.getCurrentRowIndex());
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
                 .queryFormat("ROWS")

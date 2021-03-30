@@ -24,11 +24,11 @@ import java.util.stream.StreamSupport;
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
  */
-public class AppendMethod implements Method {
+public class BulkAppendMethod implements Method {
 
     ObjectMapper objectMapper;
 
-    public AppendMethod(ObjectMapper objectMapper) {
+    public BulkAppendMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -54,12 +54,12 @@ public class AppendMethod implements Method {
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
-                    "Unable to parse request body. Expected a row object.");
+                    "Unable to parse request body. Expected a list of row objects.");
         }
 
-        if (bodyNode.isArray()) {
+        if (!bodyNode.isArray()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR, "Request body was an array. Expected a row object.");
+                    AppsmithPluginError.PLUGIN_ERROR, "Request body was not an array.");
         }
         return true;
     }
@@ -71,12 +71,15 @@ public class AppendMethod implements Method {
                 .build();
         final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
 
-        RowObject rowObjectFromBody = null;
+        List<RowObject> rowObjectListFromBody = null;
         try {
-            rowObjectFromBody = this.getRowObjectFromBody(this.objectMapper.readTree(body));
+            rowObjectListFromBody = this.getRowObjectListFromBody(this.objectMapper.readTree(body));
         } catch (JsonProcessingException e) {
             // Should never enter here
         }
+
+        assert rowObjectListFromBody != null;
+        RowObject rowObjectFromBody = rowObjectListFromBody.get(0);
         assert rowObjectFromBody != null;
         final String row = String.valueOf(rowObjectFromBody.getCurrentRowIndex());
         final MethodConfig newMethodConfig = methodConfig
@@ -88,7 +91,7 @@ public class AppendMethod implements Method {
 
         getValuesMethod.validateMethodRequest(newMethodConfig, body);
 
-        RowObject finalRowObjectFromBody = rowObjectFromBody;
+        List<RowObject> finalRowObjectListFromBody = rowObjectListFromBody;
         return getValuesMethod
                 .getClient(client, newMethodConfig, body)
                 .headers(headers -> headers.set(
@@ -105,7 +108,7 @@ public class AppendMethod implements Method {
                                 "Could not map request back to existing data"));
                     }
                     String jsonBody = new String(responseBody);
-                    JsonNode jsonNodeBody;
+                    JsonNode jsonNodeBody = null;
                     try {
                         jsonNodeBody = objectMapper.readTree(jsonBody);
                     } catch (IOException e) {
@@ -115,20 +118,23 @@ public class AppendMethod implements Method {
                                 e.getMessage()
                         ));
                     }
+
                     // This is the object with the original values in the referred row
                     final JsonNode jsonNode = getValuesMethod
                             .transformResponse(jsonNodeBody, methodConfig);
 
                     // This is the rowObject for original values
-                    final RowObject returnedRowObject = this.getRowObjectFromBody(jsonNode.get(0));
+                    final RowObject returnedRowObject = this.getRowObjectListFromBody(jsonNode).get(0);
 
                     // We replace these original values with new ones
-                    final Map<String, String> valueMap = new LinkedHashMap<>(returnedRowObject.getValueMap());
-                    valueMap.replaceAll((k, v) -> finalRowObjectFromBody.getValueMap().getOrDefault(k, null));
-                    finalRowObjectFromBody.setValueMap(valueMap);
+                    finalRowObjectListFromBody.forEach(rowObject -> {
+                        final Map<String, String> valueMap = new LinkedHashMap<>(returnedRowObject.getValueMap());
+                        valueMap.replaceAll((k, v) -> rowObject.getValueMap().getOrDefault(k, null));
+                        rowObject.setValueMap(valueMap);
+                    });
 
 
-                    methodConfig.setBody(finalRowObjectFromBody);
+                    methodConfig.setBody(finalRowObjectListFromBody);
                     assert jsonNodeBody != null;
                     methodConfig.setSpreadsheetRange(
                             jsonNodeBody
@@ -154,13 +160,15 @@ public class AppendMethod implements Method {
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
         uriBuilder.queryParam("includeValuesInResponse", Boolean.FALSE);
 
-        final RowObject body1 = (RowObject) methodConfig.getBody();
-        List<Object> collect = body1.getAsSheetValues(body1.getValueMap().keySet().toArray(new String[0]));
+        final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
+        List<List<Object>> collect = body1.stream()
+                .map(row -> row.getAsSheetValues(body1.get(0).getValueMap().keySet().toArray(new String[0])))
+                .collect(Collectors.toList());
 
         final ValueRange valueRange = new ValueRange();
         valueRange.setMajorDimension("ROWS");
         valueRange.setRange(methodConfig.getSheetName());
-        valueRange.setValues(List.of(collect));
+        valueRange.setValues(collect);
         return webClient.method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromValue(valueRange));
@@ -175,16 +183,6 @@ public class AppendMethod implements Method {
         }
 
         return this.objectMapper.valueToTree(Map.of("message", "Updated sheet successfully!"));
-    }
-
-    private RowObject getRowObjectFromBody(JsonNode body) {
-
-        if (body.isArray() || body.isEmpty()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected a row object.");
-        }
-        return new RowObject(this.objectMapper.convertValue(body, LinkedHashMap.class))
-                .initialize();
     }
 
     private List<RowObject> getRowObjectListFromBody(JsonNode body) {

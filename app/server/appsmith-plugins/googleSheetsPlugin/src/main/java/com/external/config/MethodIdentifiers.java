@@ -3,6 +3,7 @@ package com.external.config;
 public class MethodIdentifiers {
     public static final String GET = "GET";
     public static final String APPEND = "APPEND";
+    public static final String BULK_APPEND = "BULK_APPEND";
     public static final String UPDATE = "UPDATE";
     public static final String BULK_UPDATE = "BULK_UPDATE";
     public static final String CLEAR = "CLEAR";

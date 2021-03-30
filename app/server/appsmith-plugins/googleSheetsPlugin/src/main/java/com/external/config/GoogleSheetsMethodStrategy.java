@@ -13,6 +13,8 @@ public class GoogleSheetsMethodStrategy {
         switch (type) {
             case MethodIdentifiers.APPEND:
                 return new AppendMethod(objectMapper);
+            case MethodIdentifiers.BULK_APPEND:
+                return new BulkAppendMethod(objectMapper);
             case MethodIdentifiers.BULK_UPDATE:
                 return new BulkUpdateMethod(objectMapper);
             case MethodIdentifiers.CLEAR:
