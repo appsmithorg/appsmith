@@ -33,6 +33,11 @@ import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import _ from "lodash";
+import {
+  createMessage,
+  ERROR_EVAL_ERROR_GENERIC,
+  ERROR_EVAL_TRIGGER,
+} from "constants/messages";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -65,7 +70,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
       }
       case EvalErrorTypes.EVAL_TREE_ERROR: {
         Toaster.show({
-          text: "Unexpected error occurred while evaluating the app",
+          text: createMessage(ERROR_EVAL_ERROR_GENERIC),
           variant: Variant.danger,
         });
         break;
@@ -77,7 +82,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
       case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
         log.debug(error);
         Toaster.show({
-          text: `Error occurred when executing trigger: ${error.message}`,
+          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
           variant: Variant.danger,
         });
         break;
@@ -224,6 +229,7 @@ const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions
   ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+  ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS,
   ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
   ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
@@ -241,7 +247,8 @@ const EVALUATE_REDUX_ACTIONS = [
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.UPDATE_APP_STORE,
+  ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
+  ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,

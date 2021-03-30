@@ -3,6 +3,8 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -13,15 +15,20 @@ import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
 import com.external.helpers.DatasourceValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.bson.internal.Base64;
 import org.pf4j.Extension;
@@ -52,8 +59,10 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -61,15 +70,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.lang.Boolean.TRUE;
+
 public class RestApiPlugin extends BasePlugin {
     private static final int MAX_REDIRECTS = 5;
 
-    // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
-    // `WebClient` instance was loaded as an auto-wired bean.
-    public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
-            .builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
-            .build();
+    private static final int SMART_JSON_SUBSTITUTION_INDEX = 0;
 
     public RestApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -77,11 +83,25 @@ public class RestApiPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class RestApiPluginExecutor implements PluginExecutor<APIConnection> {
+    public static class RestApiPluginExecutor implements PluginExecutor<APIConnection>, SmartSubstitutionInterface {
 
         private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
+
+        private final SharedConfig sharedConfig;
+
+        // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
+        // `WebClient` instance was loaded as an auto-wired bean.
+        public ExchangeStrategies EXCHANGE_STRATEGIES;
+
+        public RestApiPluginExecutor(SharedConfig sharedConfig) {
+            this.sharedConfig = sharedConfig;
+            this.EXCHANGE_STRATEGIES = ExchangeStrategies
+                    .builder()
+                    .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize()))
+                    .build();
+        }
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -101,6 +121,49 @@ public class RestApiPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
+            Boolean smartJsonSubstitution;
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+
+            if (CollectionUtils.isEmpty(properties)) {
+                /**
+                 * TODO :
+                 * In case the smart json substitution configuration is missing, default to true once smart json
+                 * substitution is no longer in beta.
+                 */
+                smartJsonSubstitution = false;
+            } else {
+                // Since properties is not empty, we are guaranteed to find the first property.
+                smartJsonSubstitution = Boolean.parseBoolean(properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue());
+            }
+
+            // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
+            if (TRUE.equals(smartJsonSubstitution)) {
+                // Do smart replacements in JSON body
+                if (actionConfiguration.getBody() != null) {
+
+                    // First extract all the bindings in order
+                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
+                    // Replace all the bindings with a ? as expected in a prepared statement.
+                    String updatedBody = MustacheHelper.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
+
+                    try {
+                        updatedBody = (String) smartSubstitutionOfBindings(updatedBody,
+                                mustacheKeysInOrder,
+                                executeActionDTO.getParams(),
+                                parameters);
+                    } catch (AppsmithPluginException e) {
+                        ActionExecutionResult errorResult = new ActionExecutionResult();
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                        errorResult.setIsExecutionSuccess(false);
+                        errorResult.setBody(e.getMessage());
+                        return Mono.just(errorResult);
+                    }
+
+                    actionConfiguration.setBody(updatedBody);
+                }
+            }
+
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             // If the action is paginated, update the configurations to update the correct URL.
@@ -119,13 +182,12 @@ public class RestApiPlugin extends BasePlugin {
                 actionConfiguration.setHeaders(headerList);
             }
 
-            return this.execute(connection, datasourceConfiguration, actionConfiguration);
+            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters);
         }
 
-        @Override
-        public Mono<ActionExecutionResult> execute(APIConnection apiConnection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> executeCommon(APIConnection apiConnection,
+                                                         DatasourceConfiguration datasourceConfiguration,
+                                                         ActionConfiguration actionConfiguration, List<Map.Entry<String, String>> insertedParams) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -155,14 +217,14 @@ public class RestApiPlugin extends BasePlugin {
                         actionConfiguration.getQueryParameters(),
                         encodeParamsToggle);
             } catch (URISyntaxException e) {
-                ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, null);
+                ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, null, insertedParams);
                 actionExecutionRequest.setUrl(url);
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage(e));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
 
-            ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, uri);
+            ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, uri, insertedParams);
 
             if (httpMethod == null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("HTTPMethod must be set."));
@@ -233,7 +295,9 @@ public class RestApiPlugin extends BasePlugin {
                 webClientBuilder.filter(apiConnection);
             }
 
-            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).filter(logRequest()).build();
+            WebClient client = webClientBuilder
+                    .exchangeStrategies(EXCHANGE_STRATEGIES)
+                    .filter(logRequest()).build();
 
             // Triggering the actual REST API call
             return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
@@ -307,9 +371,12 @@ public class RestApiPlugin extends BasePlugin {
 
                         return result;
                     })
-                    .onErrorResume(e -> {
-                        errorResult.setBody(Exceptions.unwrap(e).getMessage());
-                        errorResult.setRequest(actionExecutionRequest);
+                    .onErrorResume(error  -> {
+                        errorResult.setIsExecutionSuccess(false);
+                        if (error instanceof AppsmithPluginException) {
+                            errorResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
+                        errorResult.setBody(error.getMessage());
                         return Mono.just(errorResult);
                     });
         }
@@ -404,7 +471,7 @@ public class RestApiPlugin extends BasePlugin {
             return null;
         }
 
-        private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBodyAsString,
+        private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody,
                                               int iteration, String contentType) {
             if (iteration == MAX_REDIRECTS) {
                 return Mono.error(new AppsmithPluginException(
@@ -415,20 +482,37 @@ public class RestApiPlugin extends BasePlugin {
 
             if (MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
                 try {
-                    objectFromJson(requestBodyAsString);
-                } catch (JsonSyntaxException e) {
+                    if (requestBody instanceof String) {
+                        Object objectFromJson = objectFromJson((String) requestBody);
+                        if (objectFromJson != null) {
+                            requestBody = objectFromJson;
+                        }
+                    }
+                } catch (JsonSyntaxException | ParseException e) {
                     return Mono.error(new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                            requestBodyAsString,
+                            requestBody,
                             "Malformed JSON: " + e.getMessage()
                     ));
                 }
             }
 
+            if (requestBody == "") {
+                // Setting the requestBody to an empty byte array here
+                // since the an empty string causes issues with a signed request.
+                // If the content of the SignableRequest is null, the query string parameters 
+                // will be encoded and used as the contentSha256 segment of the canonical request string.
+                // This causes a SignatureMatch Error for signed urls like those generated by AWS S3.
+                // More detail here - https://github.com/aws/aws-sdk-java/issues/2205
+                requestBody = new byte[0];
+            }
+
+            Object finalRequestBody = requestBody;
+
             return webClient
                     .method(httpMethod)
                     .uri(uri)
-                    .body(BodyInserters.fromObject(requestBodyAsString))
+                    .body(BodyInserters.fromObject(requestBody))
                     .exchange()
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                     .flatMap(response -> {
@@ -447,7 +531,7 @@ public class RestApiPlugin extends BasePlugin {
                             } catch (URISyntaxException e) {
                                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                             }
-                            return httpCall(webClient, httpMethod, redirectUri, requestBodyAsString, iteration + 1,
+                            return httpCall(webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1,
                                     contentType);
                         }
                         return Mono.just(response);
@@ -463,7 +547,7 @@ public class RestApiPlugin extends BasePlugin {
          * @param jsonString A string that confirms to JSON syntax. Shouldn't be null.
          * @return An object of type `Map`, `List`, if applicable, or `null`.
          */
-        private static Object objectFromJson(String jsonString) {
+        private static Object objectFromJson(String jsonString) throws ParseException {
             Class<?> type;
             String trimmed = jsonString.trim();
 
@@ -472,12 +556,20 @@ public class RestApiPlugin extends BasePlugin {
             } else if (trimmed.startsWith("[")) {
                 type = List.class;
             } else {
-                // The JSON body is likely a literal boolean or number or string. For our purposes here, we don't have
-                // to parse this JSON.
                 return null;
             }
 
-            return new GsonBuilder().create().fromJson(jsonString, type);
+            JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+            Object parsedJson = null;
+
+            if (type.equals(List.class)) {
+                parsedJson = (JSONArray) jsonParser.parse(jsonString);
+            } else {
+                parsedJson = (JSONObject) jsonParser.parse(jsonString);
+            }
+
+            return parsedJson;
+
         }
 
         @Override
@@ -599,9 +691,16 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         private ActionExecutionRequest populateRequestFields(ActionConfiguration actionConfiguration,
-                                                             URI uri) {
+                                                             URI uri,
+                                                             List<Map.Entry<String, String>> insertedParams) {
 
             ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+
+            if (!insertedParams.isEmpty()) {
+                final Map<String, Object> requestData = new HashMap<>();
+                requestData.put("smart-substitution-parameters", insertedParams);
+                actionExecutionRequest.setProperties(requestData);
+            }
 
             if (actionConfiguration.getHeaders() != null) {
                 MultiValueMap<String, String> reqMultiMap = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
@@ -650,6 +749,25 @@ public class RestApiPlugin extends BasePlugin {
                 datasourceConfiguration.setUrl(actionConfiguration.getPrev());
             }
             return datasourceConfiguration;
+        }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) {
+            String jsonBody = (String) input;
+            return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value, insertedParams);
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> execute(APIConnection apiConnection,
+                                                   DatasourceConfiguration datasourceConfiguration,
+                                                   ActionConfiguration actionConfiguration) {
+            // Unused function
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
     }
 

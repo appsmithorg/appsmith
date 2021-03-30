@@ -21,7 +21,6 @@ import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
@@ -40,6 +39,7 @@ import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
+import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
 
 const Form = styled.form`
   display: flex;
@@ -178,6 +178,7 @@ interface APIFormProps {
   apiName: string;
   headersCount: number;
   paramsCount: number;
+  settingsConfig: any;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -229,6 +230,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     actionName,
     headersCount,
     paramsCount,
+    settingsConfig,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -268,6 +270,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   Close
                 </Text>
               }
+              minWidth="auto !important"
             >
               <IconContainer onClick={handleClose}>
                 <Icon
@@ -305,7 +308,9 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"
             options={HTTP_METHOD_OPTIONS}
-            isSearchable={false}
+            width={"100px"}
+            optionWidth={"100px"}
+            height={"35px"}
           />
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField
@@ -330,7 +335,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                     {apiBindHelpSectionVisible && (
                       <HelpSection>
                         <Callout
-                          text="Having trouble taking inputs from widgets?"
+                          text={createMessage(WIDGET_BIND_HELP)}
                           label={
                             <CalloutContent>
                               <Link
@@ -415,7 +420,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 panelComponent: (
                   <SettingsWrapper>
                     <ActionSettings
-                      actionSettingsConfig={apiActionSettingsConfig}
+                      actionSettingsConfig={settingsConfig}
                       formName={API_EDITOR_FORM_NAME}
                       theme={theme}
                     />
@@ -445,10 +450,22 @@ export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const actionName = getApiName(state, apiId) || "";
   const headers = selector(state, "actionConfiguration.headers");
-  const headersCount = Array.isArray(headers) ? headers.length : 0;
+  let headersCount = 0;
+
+  if (Array.isArray(headers)) {
+    const validHeaders = headers.filter(
+      (value) => value.key && value.key !== "",
+    );
+    headersCount = validHeaders.length;
+  }
 
   const params = selector(state, "actionConfiguration.queryParameters");
-  const paramsCount = Array.isArray(params) ? params.length : 0;
+  let paramsCount = 0;
+
+  if (Array.isArray(params)) {
+    const validParams = params.filter((value) => value.key && value.key !== "");
+    paramsCount = validParams.length;
+  }
 
   return {
     actionName,

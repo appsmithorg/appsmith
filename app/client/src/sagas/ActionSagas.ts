@@ -68,7 +68,16 @@ import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import PluginsApi from "api/PluginApi";
+import {
+  ACTION_COPY_SUCCESS,
+  ACTION_CREATED_SUCCESS,
+  ACTION_DELETE_SUCCESS,
+  ACTION_MOVE_SUCCESS,
+  createMessage,
+  ERROR_ACTION_COPY_FAIL,
+  ERROR_ACTION_MOVE_FAIL,
+  ERROR_ACTION_RENAME_FAIL,
+} from "constants/messages";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 
@@ -80,30 +89,11 @@ export function* createActionSaga(
   try {
     let payload = actionPayload.payload;
     if (actionPayload.payload.pluginId) {
-      let editorConfig;
-      editorConfig = yield select(
+      const editorConfig = yield select(
         getEditorConfig,
         actionPayload.payload.pluginId,
       );
 
-      if (!editorConfig) {
-        const formConfigResponse: GenericApiResponse<any> = yield PluginsApi.fetchFormConfig(
-          actionPayload.payload.pluginId,
-        );
-        yield validateResponse(formConfigResponse);
-        yield put({
-          type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
-          payload: {
-            id: actionPayload.payload.pluginId,
-            ...formConfigResponse.data,
-          },
-        });
-
-        editorConfig = yield select(
-          getEditorConfig,
-          actionPayload.payload.pluginId,
-        );
-      }
       const settingConfig = yield select(
         getSettingConfig,
         actionPayload.payload.pluginId,
@@ -125,8 +115,11 @@ export function* createActionSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      const actionName = actionPayload.payload.name
+        ? actionPayload.payload.name
+        : "";
       Toaster.show({
-        text: `${actionPayload.payload.name} Action created`,
+        text: createMessage(ACTION_CREATED_SUCCESS, actionName),
         variant: Variant.success,
       });
 
@@ -332,7 +325,7 @@ export function* deleteActionSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       Toaster.show({
-        text: `${response.data.name} Action deleted`,
+        text: createMessage(ACTION_DELETE_SUCCESS, response.data.name),
         variant: Variant.success,
       });
       if (isApi) {
@@ -348,8 +341,6 @@ export function* deleteActionSaga(
           queryName: action.name,
         });
       }
-
-      yield put(deleteActionSuccess({ id }));
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
       if (isApi) {
@@ -358,6 +349,8 @@ export function* deleteActionSaga(
       if (isQuery) {
         history.push(QUERIES_EDITOR_URL(applicationId, pageId));
       }
+
+      yield put(deleteActionSuccess({ id }));
     }
   } catch (error) {
     yield put({
@@ -388,13 +381,14 @@ function* moveActionSaga(
     });
 
     const isValidResponse = yield validateResponse(response);
+    const pageName = yield select(getPageNameByPageId, response.data.pageId);
     if (isValidResponse) {
       Toaster.show({
-        text: `${response.data.name} Action moved`,
+        text: createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
         variant: Variant.success,
       });
     }
-    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+
     AnalyticsUtil.logEvent("MOVE_API", {
       apiName: response.data.name,
       pageName: pageName,
@@ -403,7 +397,7 @@ function* moveActionSaga(
     yield put(moveActionSuccess(response.data));
   } catch (e) {
     Toaster.show({
-      text: `Error while moving action ${actionObject.name}`,
+      text: createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name),
       variant: Variant.danger,
     });
     yield put(
@@ -434,14 +428,14 @@ function* copyActionSaga(
     const datasources = yield select(getDataSources);
 
     const isValidResponse = yield validateResponse(response);
+    const pageName = yield select(getPageNameByPageId, response.data.pageId);
     if (isValidResponse) {
       Toaster.show({
-        text: `${actionObject.name} Action copied`,
+        text: createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName),
         variant: Variant.success,
       });
     }
 
-    const pageName = yield select(getPageNameByPageId, response.data.pageId);
     AnalyticsUtil.logEvent("DUPLICATE_API", {
       apiName: response.data.name,
       pageName: pageName,
@@ -461,10 +455,9 @@ function* copyActionSaga(
 
     yield put(copyActionSuccess(payload));
   } catch (e) {
+    const actionName = actionObject ? actionObject.name : "";
     Toaster.show({
-      text: `Error while copying action ${
-        actionObject ? actionObject.name : ""
-      }`,
+      text: createMessage(ERROR_ACTION_COPY_FAIL, actionName),
       variant: Variant.danger,
     });
     yield put(copyActionError(action.payload));
@@ -546,7 +539,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       },
     });
     Toaster.show({
-      text: `Unable to update Action name`,
+      text: createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name),
       variant: Variant.danger,
     });
     console.error(e);

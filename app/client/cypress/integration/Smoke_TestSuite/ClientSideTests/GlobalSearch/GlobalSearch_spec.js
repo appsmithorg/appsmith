@@ -1,3 +1,4 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../locators/commonlocators.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
@@ -69,36 +70,29 @@ describe("GlobalSearch", function() {
   });
 
   it("navigatesToDatasourceHavingAQuery", () => {
-    cy.window()
-      .its("store")
-      .invoke("getState")
-      .then((state) => {
-        cy.createPostgresDatasource();
-        cy.NavigateToQueryEditor();
+    cy.createPostgresDatasource();
+    cy.get("@createDatasource").then((httpResponse) => {
+      const expectedDatasource = httpResponse.response.body.data;
+      cy.NavigateToQueryEditor();
+      cy.contains(".t--datasource-name", expectedDatasource.name)
+        .find(queryLocators.createQuery)
+        .click();
 
-        const { datasources } = state.entities;
-        const expectedDatasource =
-          datasources.list[datasources.list.length - 1];
+      cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+      cy.wait(1000); // modal open transition should be deterministic
+      cy.get(commonlocators.globalSearchClearInput).click({ force: true });
+      cy.get(commonlocators.globalSearchInput).type("Page1");
+      cy.get("body").type("{enter}");
 
-        cy.contains(".t--datasource-name", expectedDatasource.name)
-          .find(queryLocators.createQuery)
-          .click();
-
-        cy.get(commonlocators.globalSearchTrigger).click({ force: true });
-        cy.wait(1000);
-        cy.get(commonlocators.globalSearchClearInput).click({ force: true });
-        cy.get(commonlocators.globalSearchInput).type("Page1");
-        cy.get("body").type("{enter}");
-
-        cy.get(commonlocators.globalSearchTrigger).click({ force: true });
-        cy.wait(1000);
-        cy.get(commonlocators.globalSearchClearInput).click({ force: true });
-        cy.get(commonlocators.globalSearchInput).type(expectedDatasource.name);
-        cy.get("body").type("{enter}");
-        cy.location().should((loc) => {
-          expect(loc.pathname).includes(expectedDatasource.id);
-        });
+      cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+      cy.wait(1000); // modal open transition should be deterministic
+      cy.get(commonlocators.globalSearchClearInput).click({ force: true });
+      cy.get(commonlocators.globalSearchInput).type(expectedDatasource.name);
+      cy.get("body").type("{enter}");
+      cy.location().should((loc) => {
+        expect(loc.pathname).includes(expectedDatasource.id);
       });
+    });
   });
 
   it("navigatesToPage", () => {

@@ -1,12 +1,9 @@
-import React, { useCallback, useMemo } from "react";
-import styled, { AnyStyledComponent } from "styled-components";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import PropertyTitleEditor from "pages/Editor/PropertyPane/PropertyTitleEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ControlIcons } from "icons/ControlIcons";
 import {
   PanelConfig,
   PropertyPaneConfig,
@@ -16,49 +13,53 @@ import {
 import { generatePropertyControl } from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
-import { IPanelProps } from "@blueprintjs/core";
-
-const PaneTitleWrapper = styled.div`
-  align-items: center;
-  background-color: ${(props) => props.theme.colors.paneBG};
-  color: ${(props) => props.theme.colors.textOnDarkBG};
-  padding-bottom: 12px;
-  display: grid;
-  grid-template-columns: 20px 1fr;
-`;
-
-const StyledBackIcon = styled(ControlIcons.BACK_CONTROL as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  top: 3px;
-  margin-right: 8px;
-  & svg {
-    width: 16px;
-    height: 16px;
-    path {
-      fill: ${(props) => props.theme.colors.paneText};
-    }
-  }
-`;
+import { Icon, IPanelProps } from "@blueprintjs/core";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import PropertyPaneTitle from "../PropertyPaneTitle";
+import { BindingText } from "../APIEditor/Form";
+import { PropertyControlsWrapper } from ".";
 
 const PanelHeader = (props: PanelHeaderProps) => {
   return (
-    <PaneTitleWrapper
+    <div
       onClick={(e: any) => {
         e.stopPropagation();
       }}
     >
-      <StyledBackIcon
-        onClick={props.closePanel}
-        className="t--property-pane-back-btn"
-      />
-      <PropertyTitleEditor
+      <PropertyPaneTitle
         title={props.title}
         updatePropertyTitle={props.updatePropertyTitle}
-        onClose={props.hidePropertyPane}
+        onBackClick={props.closePanel}
+        isPanelTitle={true}
+        actions={[
+          {
+            tooltipContent: (
+              <div>
+                <span>You can connect data from your API by adding </span>
+                <BindingText>{`{{apiName.data}}`}</BindingText>
+                <span> to a widget property</span>
+              </div>
+            ),
+            icon: <Icon icon="help" iconSize={16} />,
+          },
+          {
+            tooltipContent: "Close",
+            icon: (
+              <Icon
+                onClick={(e: any) => {
+                  props.hidePropertyPane();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                iconSize={16}
+                icon="cross"
+                className={"t--property-pane-close-btn"}
+              />
+            ),
+          },
+        ]}
       />
-    </PaneTitleWrapper>
+    </div>
   );
 };
 
@@ -101,6 +102,7 @@ export const PanelPropertiesEditor = (
     panelProps,
     closePanel,
     panelParentPropertyPath,
+    theme,
   } = props;
 
   // This could be the id of the parent to access the path
@@ -144,6 +146,12 @@ export const PanelPropertiesEditor = (
     [props.openPanel, props.closePanel],
   );
 
+  useEffect(() => {
+    if (panelProps.widgetId !== widgetProperties.widgetId) {
+      props.closePanel();
+    }
+  }, [widgetProperties.widgetId]);
+
   if (!widgetProperties) return null;
   const updatePropertyTitle = (title: string) => {
     if (panelConfig.titlePropertyName) {
@@ -182,11 +190,15 @@ export const PanelPropertiesEditor = (
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      {panelConfigs &&
-        generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
-          type: widgetProperties.type,
-          panel,
-        })}
+      <PropertyControlsWrapper>
+        {panelConfigs &&
+          generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
+            id: widgetProperties.widgetId,
+            type: widgetProperties.type,
+            panel,
+            theme,
+          })}
+      </PropertyControlsWrapper>
     </>
   );
 };
@@ -195,6 +207,7 @@ interface PanelPropertiesEditorProps {
   panelProps: any;
   onPropertiesChange: (updates: Record<string, unknown>) => void;
   panelParentPropertyPath: string;
+  theme: EditorTheme;
 }
 
 interface PanelPropertiesEditorPanelProps {

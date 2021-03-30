@@ -42,6 +42,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -285,7 +286,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         // Validate actionConfiguration
         ActionConfiguration actionConfig = action.getActionConfiguration();
-        if(actionConfig != null) {
+        if (actionConfig != null) {
             validator.validate(actionConfig)
                     .stream()
                     .forEach(x -> invalids.add(x.getMessage()));
@@ -439,7 +440,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
-                .flatMap(action1 -> generateActionByViewMode(action1, false));
+                .flatMap(action1 -> generateActionByViewMode(action1, false))
+                .flatMap(this::populateHintMessages);
     }
 
     @Override
@@ -607,19 +609,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                             datasourceConfiguration,
                                             actionConfiguration
                                     )
-                            )
-                            // Now send the analytics event for this execution
-                            .flatMap(result ->
-                                    Mono.zip(actionMono, actionDTOMono, datasourceMono)
-                                    .flatMap(tuple1 -> {
-                                        ActionExecutionResult actionExecutionResult = result;
-                                        NewAction actionFromDb = tuple1.getT1();
-                                        ActionDTO actionDTO = tuple1.getT2();
-                                        Datasource datasourceFromDb = tuple1.getT3();
-
-                                        return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult.getRequest()))
-                                                .thenReturn(result);
-                                    })
                             );
 
                     return executionMono
@@ -656,7 +645,32 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                     result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                                 }
                                 return Mono.just(result);
-                            });
+                            })
+                            .elapsed()
+                            // Now send the analytics event for this execution
+                            .flatMap(tuple1 -> {
+                                Long timeElapsed = tuple1.getT1();
+                                ActionExecutionResult result = tuple1.getT2();
+
+                                log.debug("{}: Action {} with id {} execution time : {} ms",
+                                        Thread.currentThread().getName(),
+                                        actionName.get(),
+                                        actionId,
+                                        timeElapsed
+                                );
+
+                                return Mono.zip(actionMono, actionDTOMono, datasourceMono)
+                                                .flatMap(tuple2 -> {
+                                                    ActionExecutionResult actionExecutionResult = result;
+                                                    NewAction actionFromDb = tuple2.getT1();
+                                                    ActionDTO actionDTO = tuple2.getT2();
+                                                    Datasource datasourceFromDb = tuple2.getT3();
+
+                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult, timeElapsed))
+                                                            .thenReturn(result);
+                                                });
+                                    }
+                            );
                 });
 
         return actionExecutionResultMono
@@ -673,35 +687,40 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         result.setRequest(null);
                     }
                     return result;
-                })
-                .elapsed()
-                .map(tuple -> {
-                    log.debug("{}: Action {} with id {} execution time : {} ms",
-                            Thread.currentThread().getName(),
-                            actionName.get(),
-                            actionId,
-                            tuple.getT1()
-                    );
-                    return tuple.getT2();
                 });
     }
 
-    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(NewAction action, ActionDTO actionDTO, Datasource datasource, Boolean viewMode, ActionExecutionRequest actionExecutionRequest) {
+    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
+            NewAction action,
+            ActionDTO actionDTO,
+            Datasource datasource,
+            Boolean viewMode,
+            ActionExecutionResult actionExecutionResult,
+            Long timeElapsed
+    ) {
+
         // Since we're loading the application from DB *only* for analytics, we check if analytics is
         // active before making the call to DB.
         if (!analyticsService.isActive()) {
             return Mono.empty();
         }
 
-        // Do a deep copy of request to not edit
-        ActionExecutionRequest request = new ActionExecutionRequest(actionExecutionRequest.getQuery(),
-                actionExecutionRequest.getBody(),
-                actionExecutionRequest.getHeaders(),
-                actionExecutionRequest.getHttpMethod(),
-                actionExecutionRequest.getUrl(),
-                actionExecutionRequest.getProperties(),
-                actionExecutionRequest.getExecutionParameters()
-        );
+        ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
+        ActionExecutionRequest request;
+        if (actionExecutionRequest != null) {
+            // Do a deep copy of request to not edit
+            request = new ActionExecutionRequest(
+                    actionExecutionRequest.getQuery(),
+                    actionExecutionRequest.getBody(),
+                    actionExecutionRequest.getHeaders(),
+                    actionExecutionRequest.getHttpMethod(),
+                    actionExecutionRequest.getUrl(),
+                    actionExecutionRequest.getProperties(),
+                    actionExecutionRequest.getExecutionParameters()
+            );
+        } else {
+            request = new ActionExecutionRequest();
+        }
 
         if (request.getHeaders() != null) {
             JsonNode headers = (JsonNode) request.getHeaders();
@@ -711,6 +730,20 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
             }
+        }
+
+        if (!CollectionUtils.isEmpty(request.getProperties())) {
+            final Map<String, String> stringProperties = new HashMap<>();
+            for (final Map.Entry<String, ?> entry : request.getProperties().entrySet()) {
+                String jsonValue;
+                try {
+                    jsonValue = objectMapper.writeValueAsString(entry.getValue());
+                } catch (JsonProcessingException e) {
+                    jsonValue = "\"Error serializing value to JSON.\"";
+                }
+                stringProperties.put(entry.getKey(), jsonValue);
+            }
+            request.setProperties(stringProperties);
         }
 
         return Mono.justOrEmpty(action.getApplicationId())
@@ -738,16 +771,37 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             ),
                             "orgId", application.getOrganizationId(),
                             "appId", action.getApplicationId(),
-                            "appMode", Boolean.TRUE.equals(viewMode) ? "view" : "edit",
+                            "appMode", TRUE.equals(viewMode) ? "view" : "edit",
                             "appName", application.getName(),
                             "isExampleApp", application.isAppIsExample(),
                             "request", request
                     ));
 
                     data.putAll(Map.of(
-                            "pageId", actionDTO.getPageId(),
-                            "pageName", pageName
+                            "pageId", ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""),
+                            "pageName", pageName,
+                            "isSuccessfulExecution", ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),
+                            "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
+                            "timeElapsed", timeElapsed
                     ));
+
+                    // Add the error message in case of erroneous execution
+                    if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {
+                        String errorJson;
+                        try {
+                            errorJson = objectMapper.writeValueAsString(actionExecutionResult.getBody());
+                        } catch (JsonProcessingException e) {
+                            log.warn("Unable to serialize action execution error result to JSON.", e);
+                            errorJson = "\"Failed to serialize error data to JSON.\"";
+                        }
+                        data.put("error", errorJson);
+                    }
+
+                    if (actionExecutionResult.getStatusCode() != null) {
+                        data.putAll(Map.of(
+                                "statusCode", actionExecutionResult.getStatusCode()
+                        ));
+                    }
 
                     analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
                     return request;
@@ -881,6 +935,20 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 })
                 .flatMap(analyticsService::sendDeleteEvent)
                 .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));
+    }
+
+    /*
+     * - Any hint message specific to action configuration can be handled here.
+     */
+    public Mono<ActionDTO> populateHintMessages(ActionDTO action) {
+        /*
+         * - No need for this null check: action == null. By the time the code flow reaches here, action is
+         *   guaranteed to be non null.
+         */
+
+        datasourceService.populateHintMessages(action.getDatasource());
+
+        return Mono.just(action);
     }
 
     @Override

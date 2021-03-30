@@ -16,22 +16,21 @@ import {
 } from "constants/ReduxActionConstants";
 import { ERROR_CODES } from "constants/ApiConstants";
 
-import { fetchEditorConfigs } from "actions/configsActions";
 import {
   fetchPage,
   fetchPageList,
   fetchPublishedPage,
   setAppMode,
-  updateAppStore,
+  updateAppPersistentStore,
 } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourceActions";
-import { fetchPlugins } from "actions/pluginActions";
+import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
 import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
-import { getAppStore } from "constants/AppConstants";
+import { getPersistentAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
 import { populatePageDSLsSaga } from "./PageSagas";
 import log from "loglevel";
@@ -48,10 +47,10 @@ function* initializeEditorSaga(
   const { applicationId, pageId } = initializeEditorAction.payload;
   try {
     yield put(setAppMode(APP_MODE.EDIT));
+    yield put(updateAppPersistentStore(getPersistentAppStore(applicationId)));
     yield put({ type: ReduxActionTypes.START_EVALUATION });
     yield all([
       put(fetchPageList(applicationId, APP_MODE.EDIT)),
-      put(fetchEditorConfigs()),
       put(fetchActions(applicationId)),
       put(fetchPage(pageId)),
       put(fetchApplication(applicationId, APP_MODE.EDIT)),
@@ -106,7 +105,7 @@ function* initializeEditorSaga(
         type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
-            resultOfPrimaryCalls,
+            resultOfSecondaryCalls,
             "failure.payload.error.code",
             ERROR_CODES.SERVER_ERROR,
           ),
@@ -115,7 +114,26 @@ function* initializeEditorSaga(
       return;
     }
 
-    yield put(updateAppStore(getAppStore(applicationId)));
+    yield put(fetchPluginFormConfigs());
+
+    const resultOfPluginFormsCall = yield race({
+      success: take(ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS),
+      failure: take(ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR),
+    });
+
+    if (resultOfPluginFormsCall.failure) {
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfPluginFormsCall,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
+      });
+      return;
+    }
 
     const currentApplication = yield select(getCurrentApplication);
 
@@ -150,6 +168,7 @@ export function* initializeAppViewerSaga(
 ) {
   const { applicationId, pageId } = action.payload;
   yield put(setAppMode(APP_MODE.PUBLISHED));
+  yield put(updateAppPersistentStore(getPersistentAppStore(applicationId)));
   yield put({ type: ReduxActionTypes.START_EVALUATION });
   yield all([
     // TODO (hetu) Remove spl view call for fetch actions
@@ -185,7 +204,6 @@ export function* initializeAppViewerSaga(
     return;
   }
 
-  yield put(updateAppStore(getAppStore(applicationId)));
   const defaultPageId = yield select(getDefaultPageId);
   const toLoadPageId = pageId || defaultPageId;
 
@@ -212,7 +230,6 @@ export function* initializeAppViewerSaga(
     }
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
-    yield put(updateAppStore(getAppStore(applicationId)));
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,

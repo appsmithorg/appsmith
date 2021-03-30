@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -98,10 +99,13 @@ public class MongoPluginTest {
         connection.setMode(Connection.Mode.READ_WRITE);
         connection.setType(Connection.Type.DIRECT);
         connection.setDefaultDatabaseName("test");
+        connection.setSsl(new SSLDetails());
+        connection.getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setConnection(connection);
         dsConfig.setEndpoints(List.of(endpoint));
+
         return dsConfig;
     }
 
@@ -442,6 +446,112 @@ public class MongoPluginTest {
                                             "been filled correctly."
                             )));
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslToggleMissingError() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getConnection().getSsl().setAuthType(null);
+
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor)
+                .map(executor -> executor.validateDatasource(datasourceConfiguration));
+
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource " +
+                            "configuration form. Please reach out to Appsmith customer support to resolve this.";
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> expectedError.equals(error))
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslDefault() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("{\n" +
+                "      find: \"users\",\n" +
+                "      filter: { age: { $gte: 30 } },\n" +
+                "      sort: { id: 1 },\n" +
+                "      limit: 10,\n" +
+                "    }");
+
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn,
+                datasourceConfiguration,
+                actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslDisabled() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLED);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("{\n" +
+                "      find: \"users\",\n" +
+                "      filter: { age: { $gte: 30 } },\n" +
+                "      sort: { id: 1 },\n" +
+                "      limit: 10,\n" +
+                "    }");
+
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn,
+                datasourceConfiguration,
+                actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslEnabled() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.ENABLED);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("{\n" +
+                "      find: \"users\",\n" +
+                "      filter: { age: { $gte: 30 } },\n" +
+                "      sort: { id: 1 },\n" +
+                "      limit: 10,\n" +
+                "    }");
+
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn,
+                datasourceConfiguration,
+                actionConfiguration));
+
+        /*
+         * - This test case is exactly same as the one's used in DEFAULT and DISABLED tests.
+         * - Expect error here because testcontainer does not support SSL connection.
+         */
+        StepVerifier.create(executeMono)
+                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
                 .verifyComplete();
     }
 }

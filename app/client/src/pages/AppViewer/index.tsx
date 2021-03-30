@@ -15,7 +15,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
-import { ExecuteActionPayload } from "constants/ActionConstants";
+import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
 import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -100,6 +100,11 @@ class AppViewer extends Component<
                 path={getApplicationViewerPageURL()}
                 exact
                 component={AppViewerPageContainer}
+              />
+              <SentryRoute
+                path={`${getApplicationViewerPageURL()}/fork`}
+                component={AppViewerPageContainer}
+                exact
               />
             </Switch>
           )}

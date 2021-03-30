@@ -168,10 +168,12 @@ public class FirestorePlugin extends BasePlugin {
                             return handleCollectionLevelMethod(connection, path, method, properties, mapBody, paginationField);
                         }
                     })
-                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                    .onErrorResume(error  -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setStatusCode(error.getAppErrorCode().toString());
+                        if (error instanceof AppsmithPluginException) {
+                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                        }
                         result.setBody(error.getMessage());
                         return Mono.just(result);
                     })

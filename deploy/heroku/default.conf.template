@@ -2,7 +2,7 @@
 server {
 
   listen $PORT default_server;
-    client_max_body_size 10m;
+    client_max_body_size 100m;
 
     gzip on;
 

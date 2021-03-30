@@ -5,7 +5,6 @@ import { EventOrValueHandler } from "redux-form";
 import {
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 
@@ -18,6 +17,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
       isValid,
       dataTreePath,
       evaluatedValue,
+      useValidationMessage,
     } = this.props;
     const props: Partial<ControlProps> = {};
     if (dataTreePath) props.dataTreePath = dataTreePath;
@@ -26,12 +26,13 @@ class CodeEditorControl extends BaseControl<ControlProps> {
 
     return (
       <CodeEditor
-        theme={EditorTheme.DARK}
+        theme={this.props.theme}
         input={{ value: propertyValue, onChange: this.onChange }}
         meta={{
           error: isValid ? "" : validationMessage,
           touched: true,
         }}
+        useValidationMessage={useValidationMessage}
         size={EditorSize.EXTENDED}
         mode={EditorModes.TEXT_WITH_BINDING}
         tabBehaviour={TabBehaviour.INDENT}

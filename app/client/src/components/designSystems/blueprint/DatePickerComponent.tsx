@@ -16,7 +16,10 @@ import { TimePrecision } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import { DATE_WIDGET_DEFAULT_VALIDATION_ERROR } from "constants/messages";
+import {
+  createMessage,
+  DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
+} from "constants/messages";
 
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
@@ -134,7 +137,7 @@ class DatePickerComponent extends React.Component<
         {
           <ErrorTooltip
             isOpen={!isValid}
-            message={DATE_WIDGET_DEFAULT_VALIDATION_ERROR}
+            message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
           >
             <DateInput
               className={this.props.isLoading ? "bp3-skeleton" : ""}

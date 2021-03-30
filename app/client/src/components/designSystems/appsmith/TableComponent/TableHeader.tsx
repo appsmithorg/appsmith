@@ -21,7 +21,8 @@ import {
 import TableDataDownload from "components/designSystems/appsmith/TableComponent/TableDataDownload";
 import TableCompactMode from "components/designSystems/appsmith/TableComponent/TableCompactMode";
 import { Colors } from "constants/Colors";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {
@@ -109,12 +110,15 @@ interface TableHeaderProps {
 }
 
 const TableHeader = (props: TableHeaderProps) => {
+  const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
+
   return (
     <TableHeaderWrapper
       serverSidePaginationEnabled={props.serverSidePaginationEnabled}
       width={props.width}
       tableSizes={props.tableSizes}
       backgroundColor={Colors.WHITE}
+      ref={tableHeaderWrapperRef}
     >
       <SearchComponent
         value={props.searchKey}
@@ -210,6 +214,7 @@ const TableHeader = (props: TableHeaderProps) => {
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
+      <ScrollIndicator containerRef={tableHeaderWrapperRef} mode="LIGHT" />
     </TableHeaderWrapper>
   );
 };

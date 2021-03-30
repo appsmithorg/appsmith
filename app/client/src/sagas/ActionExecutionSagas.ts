@@ -10,7 +10,7 @@ import {
   ExecuteActionPayload,
   ExecuteActionPayloadEvent,
   PageAction,
-} from "constants/ActionConstants";
+} from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
 import {
   all,
@@ -22,7 +22,6 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   ActionDescription,
   RunActionPayload,
@@ -49,7 +48,7 @@ import {
 } from "actions/actionActions";
 import { Action } from "entities/Action";
 import ActionAPI, {
-  ActionApiResponse,
+  ActionExecutionResponse,
   ActionResponse,
   ExecuteActionRequest,
   PaginationField,
@@ -57,6 +56,7 @@ import ActionAPI, {
 } from "api/ActionAPI";
 import {
   getAction,
+  getAppStoreData,
   getCurrentPageNameByActionId,
   isActionDirty,
   isActionSaving,
@@ -67,7 +67,10 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { TypeOptions } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
-import { updateAppStore } from "actions/pageActions";
+import {
+  updateAppPersistentStore,
+  updateAppTransientStore,
+} from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
@@ -86,7 +89,15 @@ import {
   evaluateActionBindings,
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
-import { EMPTY_RESPONSE } from "../components/editorComponents/ApiResponseView";
+import {
+  ACTION_RUN_SUCCESS,
+  createMessage,
+  ERROR_ACTION_EXECUTE_FAIL,
+  ERROR_API_EXECUTE,
+  ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
+  ERROR_WIDGET_DOWNLOAD,
+} from "constants/messages";
+import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
 
 import localStorage from "utils/localStorage";
 import { getWidgetByName } from "./selectors";
@@ -167,18 +178,32 @@ function* navigateActionSaga(
 }
 
 function* storeValueLocally(
-  action: { key: string; value: string },
+  action: { key: string; value: string; persist: boolean },
   event: ExecuteActionPayloadEvent,
 ) {
   try {
-    const appId = yield select(getCurrentApplicationId);
-    const appStoreName = getAppStoreName(appId);
-    const existingStore = yield localStorage.getItem(appStoreName) || "{}";
-    const storeObj = JSON.parse(existingStore);
-    storeObj[action.key] = action.value;
-    const storeString = JSON.stringify(storeObj);
-    yield localStorage.setItem(appStoreName, storeString);
-    yield put(updateAppStore(storeObj));
+    if (action.persist) {
+      const appId = yield select(getCurrentApplicationId);
+      const appStoreName = getAppStoreName(appId);
+      const existingStore = localStorage.getItem(appStoreName) || "{}";
+      const parsedStore = JSON.parse(existingStore);
+      parsedStore[action.key] = action.value;
+      const storeString = JSON.stringify(parsedStore);
+      yield localStorage.setItem(appStoreName, storeString);
+      yield put(updateAppPersistentStore(parsedStore));
+    } else {
+      const existingStore = yield select(getAppStoreData);
+      const newTransientStore = {
+        ...existingStore.transient,
+        [action.key]: action.value,
+      };
+      yield put(updateAppTransientStore(newTransientStore));
+    }
+    // Wait for an evaluation before completing this trigger effect
+    // This makes this trigger work in sync and not trigger
+    // another effect till the values are reflected in
+    // the dataTree
+    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     if (event.callback) event.callback({ success: true });
   } catch (err) {
     if (event.callback) event.callback({ success: false });
@@ -193,7 +218,10 @@ async function downloadSaga(
     const { data, name, type } = action;
     if (!name) {
       Toaster.show({
-        text: "Download failed. File name was not provided",
+        text: createMessage(
+          ERROR_WIDGET_DOWNLOAD,
+          "File name was not provided",
+        ),
         variant: Variant.danger,
       });
 
@@ -210,7 +238,7 @@ async function downloadSaga(
     if (event.callback) event.callback({ success: true });
   } catch (err) {
     Toaster.show({
-      text: `Download failed. ${err}`,
+      text: createMessage(ERROR_WIDGET_DOWNLOAD, err),
       variant: Variant.danger,
     });
     if (event.callback) event.callback({ success: false });
@@ -317,12 +345,12 @@ export const getActionTimeout = (
   return undefined;
 };
 const createActionExecutionResponse = (
-  response: ActionApiResponse,
+  response: ActionExecutionResponse,
 ): ActionResponse => ({
   ...response.data,
   ...response.clientMeta,
 });
-const isErrorResponse = (response: ActionApiResponse) => {
+const isErrorResponse = (response: ActionExecutionResponse) => {
   return !response.data.isExecutionSuccess;
 };
 
@@ -376,18 +404,6 @@ export function* evaluateActionParams(
     actionParams[key] = value;
   });
   return mapToPropList(actionParams);
-}
-
-export function extractBindingsFromAction(action: Action) {
-  const bindings: string[] = [];
-  action.dynamicBindingPathList.forEach((a) => {
-    const value = _.get(action, a.key);
-    if (isDynamicValue(value)) {
-      const { jsSnippets } = getDynamicBindings(value);
-      bindings.push(...jsSnippets.filter((jsSnippet) => !!jsSnippet));
-    }
-  });
-  return bindings;
 }
 
 export function* executeActionSaga(
@@ -445,7 +461,7 @@ export function* executeActionSaga(
       viewMode: appMode === APP_MODE.PUBLISHED,
     };
     const timeout = yield select(getActionTimeout, actionId);
-    const response: ActionApiResponse = yield ActionAPI.executeAction(
+    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
       executeActionRequest,
       timeout,
     );
@@ -479,7 +495,7 @@ export function* executeActionSaga(
         }
       }
       Toaster.show({
-        text: api.name + " failed to execute. Please check it's configuration",
+        text: createMessage(ERROR_API_EXECUTE, api.name),
         variant: Variant.danger,
       });
     } else {
@@ -507,6 +523,7 @@ export function* executeActionSaga(
     }
     return response;
   } catch (error) {
+    const api: Action = yield select(getAction, actionId);
     yield put(
       executeActionError({
         actionId: actionId,
@@ -518,7 +535,7 @@ export function* executeActionSaga(
       }),
     );
     Toaster.show({
-      text: "Action execution failed",
+      text: createMessage(ERROR_API_EXECUTE, api.name),
       variant: Variant.danger,
     });
     if (onError) {
@@ -655,7 +672,7 @@ function* runActionSaga(
     const timeout = yield select(getActionTimeout, actionId);
     const appMode = yield select(getAppMode);
     const viewMode = appMode === APP_MODE.PUBLISHED;
-    const response: ActionApiResponse = yield ActionAPI.executeAction(
+    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
       {
         actionId,
         params,
@@ -687,12 +704,12 @@ function* runActionSaga(
       });
       if (payload.isExecutionSuccess) {
         Toaster.show({
-          text: "Action ran successfully",
+          text: createMessage(ACTION_RUN_SUCCESS),
           variant: Variant.success,
         });
       } else {
         Toaster.show({
-          text: "Action returned an error response",
+          text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
           variant: Variant.warning,
         });
       }
@@ -761,7 +778,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       appName: currentApp.name,
       isExampleApp: currentApp.appIsExample,
     });
-    const response: ActionApiResponse = yield ActionAPI.executeAction(
+    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
       executeActionRequest,
       pageAction.timeoutInMillisecond,
     );
@@ -846,7 +863,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     log.error(e);
 
     Toaster.show({
-      text: "Failed to load onPageLoad actions",
+      text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
       variant: Variant.danger,
     });
   }
