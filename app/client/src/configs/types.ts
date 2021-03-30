@@ -24,7 +24,6 @@ export type AppsmithUIConfigs = {
     environment: string;
     integrations: any[];
     normalizeDepth: number;
-    tracesSampleRate: number;
   };
   smartLook: {
     enabled: boolean;

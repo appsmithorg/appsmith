@@ -49,6 +49,7 @@ export const appInitializer = () => {
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init({
       ...appsmithConfigs.sentry,
+      tracesSampleRate: 0.1,
       beforeBreadcrumb(breadcrumb) {
         if (breadcrumb.category === "console" && breadcrumb.level !== "error") {
           return null;
