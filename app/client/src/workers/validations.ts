@@ -943,49 +943,68 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.IMAGE]: (value: any): ValidationResponse => {
-    let parsed = value;
-    const base64ImageRegex = /^data:image\/.*;base64/;
-    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
-    if (isUndefined(value) || value === null) {
-      return {
-        isValid: true,
-        parsed: value,
-        message: "",
-      };
-    }
-    if (isObject(value)) {
-      return {
-        isValid: false,
-        parsed: JSON.stringify(value, null, 2),
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
-      };
-    }
-    if (imageUrlRegex.test(value)) {
-      return {
-        isValid: true,
-        parsed: value,
-        message: "",
-      };
-    }
-    let isValid = base64ImageRegex.test(value);
-    if (!isValid) {
+  // If we keep adding these here there will be a huge unmaintainable list
+  // TODO(abhinav: WIDGET DEV API):
+  // - Compile validators from the widgets during widget registration
+  // - Use the compiled list in the web worker startup
+  // - Remove widget specific validations from this file
+  // - Design consideration: If widgets can be dynamically imported, how will this work?
+  [VALIDATION_TYPES.TABLE_PAGE_NO]: (value: any): ValidationResponse => {
+    if (!value || !Number.isInteger(value) || value < 0)
+      return { isValid: false, parsed: 1, message: "" };
+    return { isValid: true, parsed: value };
+  },
+  [VALIDATION_TYPES.ROW_INDICES]: (
+    value: any,
+    props: any,
+  ): ValidationResponse => {
+    if (props && !props.multiRowSelection)
+      return { isValid: true, parsed: undefined };
+
+    if (isString(value)) {
+      const trimmed = value.trim();
       try {
-        parsed =
-          btoa(atob(value)) === value
-            ? "data:image/png;base64," + value
-            : value;
-        isValid = true;
-      } catch (err) {
-        console.error(`Error when parsing ${value} to string`);
-        console.error(err);
-        return {
-          isValid: false,
-          parsed: "",
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
-        };
+        const parsedArray = JSON.parse(trimmed);
+        if (Array.isArray(parsedArray)) {
+          const sanitized = parsedArray.filter((entry) => {
+            return (
+              Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
+            );
+          });
+          return { isValid: true, parsed: sanitized };
+        } else {
+          throw Error("Not a stringified array");
+        }
+      } catch (e) {
+        // If cannot be parsed as an array
+        const arrayEntries = trimmed.split(",");
+        const result: number[] = [];
+        arrayEntries.forEach((entry) => {
+          if (
+            Number.isInteger(parseInt(entry, 10)) &&
+            parseInt(entry, 10) > -1
+          ) {
+            if (!isNil(entry)) result.push(parseInt(entry, 10));
+          }
+        });
+        return { isValid: true, parsed: result };
       }
     }
-    return { isValid, parsed };
+    if (Array.isArray(value)) {
+      const sanitized = value.filter((entry) => {
+        return (
+          Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
+        );
+      });
+      return { isValid: true, parsed: sanitized };
+    }
+    if (Number.isInteger(value) && value > -1) {
+      return { isValid: true, parsed: [value] };
+    }
+    return {
+      isValid: false,
+      parsed: [],
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: number[]`,
+    };
   },
 };
