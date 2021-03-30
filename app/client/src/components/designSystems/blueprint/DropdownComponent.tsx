@@ -259,7 +259,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             <StyledSingleDropDown
               className={this.props.isLoading ? Classes.SKELETON : ""}
               items={this.props.options}
-              filterable={true}
+              filterable={this.props.isFilterable}
               itemRenderer={this.renderSingleSelectItem}
               onItemSelect={this.onItemSelect}
               disabled={this.props.disabled}
@@ -414,6 +414,7 @@ export interface DropDownComponentProps extends ComponentProps {
   selectedIndexArr: number[];
   options: DropdownOption[];
   isLoading: boolean;
+  isFilterable: boolean;
   width: number;
   height: number;
 }

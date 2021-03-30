@@ -59,6 +59,15 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
+            propertyName: "isFilterable",
+            label: "Filterable",
+            helpText: "Makes the dropdown list filterable",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "isRequired",
             label: "Required",
             helpText: "Makes input to the widget mandatory",
@@ -111,6 +120,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       options: VALIDATION_TYPES.OPTIONS_DATA,
       selectionType: VALIDATION_TYPES.TEXT,
       isRequired: VALIDATION_TYPES.BOOLEAN,
+      isFilterable: VALIDATION_TYPES.BOOLEAN,
       // onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
       selectedOptionValues: VALIDATION_TYPES.ARRAY,
       selectedOptionLabels: VALIDATION_TYPES.ARRAY,
@@ -180,6 +190,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         selectedIndexArr={computedSelectedIndexArr}
         label={`${this.props.label}`}
         isLoading={this.props.isLoading}
+        isFilterable={this.props.isFilterable}
         disabled={this.props.isDisabled}
       />
     );
@@ -277,6 +288,7 @@ export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   onOptionChange?: string;
   defaultOptionValue?: string | string[];
   isRequired: boolean;
+  isFilterable: boolean;
   selectedOptionValue: string;
   selectedOptionValueArr: string[];
   selectedOptionLabels: string[];
