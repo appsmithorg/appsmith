@@ -44,9 +44,9 @@ import { Plugin } from "api/PluginApi";
 import { createNewApiAction, setCurrentCategory } from "actions/apiPaneActions";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
-import { CURL } from "constants/ApiConstants";
 import { getAppsmithConfigs } from "configs";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
+import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
