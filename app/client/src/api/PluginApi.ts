@@ -1,4 +1,4 @@
-import Api from "./Api";
+import Api from "api/Api";
 import { AxiosPromise } from "axios";
 import { GenericApiResponse } from "api/ApiResponses";
 
@@ -16,8 +16,10 @@ export interface Plugin {
   documentationLink?: string;
 }
 
-export interface DatasourceForm {
-  form: Array<any>;
+export interface PluginFormPayload {
+  form: any[];
+  editor: any[];
+  setting: any[];
 }
 
 class PluginsApi extends Api {
@@ -30,7 +32,7 @@ class PluginsApi extends Api {
 
   static fetchFormConfig(
     id: string,
-  ): AxiosPromise<GenericApiResponse<DatasourceForm>> {
+  ): AxiosPromise<GenericApiResponse<PluginFormPayload>> {
     return Api.get(PluginsApi.url + `/${id}/form`);
   }
 }

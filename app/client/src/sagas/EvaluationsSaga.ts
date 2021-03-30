@@ -229,6 +229,7 @@ const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions
   ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+  ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS,
   ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
   ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
@@ -246,7 +247,8 @@ const EVALUATE_REDUX_ACTIONS = [
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.UPDATE_APP_STORE,
+  ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
+  ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,

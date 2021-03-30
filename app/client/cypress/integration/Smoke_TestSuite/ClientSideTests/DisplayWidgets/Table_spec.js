@@ -36,7 +36,7 @@ describe("Table Widget Functionality", function() {
     //   .first()
     //   .find("> .bp3-button-text")
     //   .should("have.text", "{{navigateTo()}}");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.PublishtheApp();
   });
 
@@ -265,21 +265,6 @@ describe("Table Widget Functionality", function() {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Ryan Holmes");
       });
-    });
-  });
-
-  it("Check Selected Row(s) Resets When Table Data Changes", function() {
-    cy.isSelectRow(1);
-    cy.openPropertyPane("tablewidget");
-
-    const newTableData = [...this.data.TableInput];
-    newTableData[0].userName = "";
-    cy.testJsontext("tabledata", JSON.stringify(newTableData));
-    cy.wait("@updateLayout");
-    const selectedRowsSelector = `.t--widget-tablewidget .tbody .tr.selected-row`;
-    cy.get(selectedRowsSelector).should(($p) => {
-      // should found 0 rows
-      expect($p).to.have.length(0);
     });
   });
 

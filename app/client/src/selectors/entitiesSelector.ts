@@ -7,11 +7,12 @@ import { ActionResponse } from "api/ActionAPI";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { createSelector } from "reselect";
 import { Datasource } from "entities/Datasource";
-import { Action } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { AppStoreState } from "reducers/entityReducers/appReducer";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -127,8 +128,11 @@ export const getPlugins = (state: AppState) => state.entities.plugins.list;
 export const getPluginEditorConfigs = (state: AppState) =>
   state.entities.plugins.editorConfigs;
 
+export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
+  state.entities.plugins.settingConfigs[pluginId];
+
 export const getDBPlugins = createSelector(getPlugins, (plugins) =>
-  plugins.filter((plugin) => plugin.type === QUERY_CONSTANT),
+  plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
 export const getDBDatasources = createSelector(
@@ -281,6 +285,9 @@ export const isActionDirty = (id: string) =>
   });
 
 export const getAppData = (state: AppState) => state.entities.app;
+
+export const getAppStoreData = (state: AppState): AppStoreState =>
+  state.entities.app.store;
 
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;

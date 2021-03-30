@@ -22,6 +22,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Check open section and column data in property pane", function() {
     cy.get(commonlocators.collapsesection)
+      .scrollIntoView()
       .first()
       .should("be.visible")
       .click();

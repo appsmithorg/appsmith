@@ -1,9 +1,9 @@
-import Api from "./Api";
+import Api from "api/Api";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetProps } from "widgets/BaseWidget";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
-import { PageAction } from "constants/ActionConstants";
+import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 
 export interface FetchPageRequest {
   id: string;

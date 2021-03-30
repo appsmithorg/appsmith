@@ -19,6 +19,14 @@ describe("Create new org and share with a user", function() {
         Cypress.env("TESTUSERNAME1"),
         homePage.viewerRole,
       );
+      // check that the success message is correct
+      const successMessage = "The user has been invited successfully";
+      cy.contains(successMessage);
+      cy.get(homePage.manageUsers).click({ force: true });
+      cy.xpath(homePage.appHome)
+        .first()
+        .should("be.visible")
+        .click();
       cy.CheckShareIcon(orgid, 2);
       cy.CreateAppForOrg(orgid, appid);
     });
