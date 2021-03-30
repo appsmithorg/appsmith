@@ -6,7 +6,7 @@ If you don't know where to start contributing, ask us on our [Discord channel](h
 
 ## Code of conduct
 
-Read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
 ## How can I contribute?
 
