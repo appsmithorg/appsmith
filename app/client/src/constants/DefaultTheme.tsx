@@ -288,6 +288,7 @@ type PropertyPaneTheme = {
   width: number;
   height: number;
   dividerColor: Color;
+  titleHeight: number;
 };
 
 export type NestedObjectOrArray<T> =
@@ -1946,6 +1947,7 @@ export const theme: Theme = {
   },
   propertyPane: {
     width: 270,
+    titleHeight: 40,
     height: 600,
     dividerColor: Colors.MAKO,
   },
