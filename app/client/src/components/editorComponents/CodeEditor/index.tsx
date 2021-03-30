@@ -197,7 +197,6 @@ class CodeEditor extends Component<Props, State> {
       const inputValue = getInputValue(this.props.input.value);
       if (!!inputValue || inputValue === "") {
         if (this.props.size === EditorSize.COMPACT) {
-          console.log(inputValue);
           this.editor.setValue(removeNewLineChars(inputValue));
         } else if (inputValue !== editorValue) {
           this.editor.setValue(inputValue);
@@ -260,8 +259,10 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ isFocused: true });
     this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
+      const inputValue = this.props.input.value;
       this.editor.setOption("lineWrapping", true);
-      this.editor.setValue(this.props.input.value);
+      this.editor.setValue(inputValue);
+      this.editor.setCursor(inputValue.length);
     }
   };
 
