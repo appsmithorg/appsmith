@@ -1,9 +1,10 @@
+import { showDebugger } from "actions/debuggerActions";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { ENTITY_TYPE, SourceEntity } from "entities/AppsmithConsole";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import React, { useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
@@ -75,10 +76,17 @@ const DatasourceLink = (props: SourceEntity) => {
 };
 
 const Link = (props: { name: string; onClick: any }) => {
+  const dispatch = useDispatch();
+
+  const onClick = () => {
+    dispatch(showDebugger(false));
+    props.onClick();
+  };
+
   return (
     <span className="debugger-entity">
       [
-      <span className="debugger-entity-name" onClick={props.onClick}>
+      <span className="debugger-entity-name" onClick={onClick}>
         {props.name}
       </span>
       ]

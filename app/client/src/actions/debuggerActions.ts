@@ -20,3 +20,10 @@ export const clearLogs = () => {
     type: ReduxActionTypes.CLEAR_DEBUGGER_LOGS,
   };
 };
+
+export const showDebugger = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SHOW_DEBUGGER,
+    payload,
+  };
+};

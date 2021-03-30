@@ -1,11 +1,12 @@
 import { Classes } from "components/ads/common";
 import Icon, { IconSize } from "components/ads/Icon";
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import styled from "styled-components";
 import Content from "./Content";
 import { AppState } from "reducers";
+import { showDebugger as showDebuggerAction } from "actions/debuggerActions";
 
 const Container = styled.div<{ errorCount: number }>`
   background-color: #2b2b2b;
@@ -45,31 +46,26 @@ const Container = styled.div<{ errorCount: number }>`
 `;
 
 const Debugger = () => {
-  const [open, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const errorCount = useSelector(
     (state: AppState) => state.ui.debugger.errorCount,
   );
-
-  const onClose = () => {
-    setIsOpen(false);
-  };
+  const showDebugger = useSelector(
+    (state: AppState) => state.ui.debugger.isOpen,
+  );
 
   const onClick = () => {
-    setIsOpen(true);
-    dispatch({
-      type: "DEBUGGER_RESET_ERROR_COUNT",
-    });
+    dispatch(showDebuggerAction(true));
   };
 
-  if (!open)
+  if (!showDebugger)
     return (
       <Container onClick={onClick} errorCount={errorCount}>
         <Icon name="bug" size={IconSize.XXXL} />
         <div className="debugger-count">{errorCount}</div>
       </Container>
     );
-  return <Content onClose={onClose} />;
+  return <Content />;
 };
 
 export default Debugger;

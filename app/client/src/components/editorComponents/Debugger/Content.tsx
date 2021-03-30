@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { TabComponent } from "components/ads/Tabs";
 import DebuggerLogs from "./DebuggerLogs";
 import Icon, { IconSize } from "components/ads/Icon";
+import { useDispatch } from "react-redux";
+import { showDebugger } from "actions/debuggerActions";
 
 const Container = styled.div`
   position: fixed;
@@ -26,7 +28,9 @@ const Container = styled.div`
   }
 `;
 
-const Content = (props: any) => {
+const Content = () => {
+  const dispatch = useDispatch();
+
   return (
     <Container>
       <TabComponent
@@ -34,7 +38,7 @@ const Content = (props: any) => {
           {
             key: "logs",
             title: "Logs",
-            panelComponent: <DebuggerLogs onClose={props.onClose} />,
+            panelComponent: <DebuggerLogs />,
           },
         ]}
       />
@@ -42,7 +46,9 @@ const Content = (props: any) => {
         className="close-debugger"
         name="downArrow"
         size={IconSize.XXS}
-        onClick={props.onClose}
+        onClick={() => {
+          dispatch(showDebugger(false));
+        }}
       />
     </Container>
   );

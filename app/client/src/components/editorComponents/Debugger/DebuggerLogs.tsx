@@ -123,7 +123,6 @@ const SeverityIconColor: any = {
 };
 
 type Props = {
-  onClose?: () => void;
   searchQuery: string;
 };
 
@@ -173,7 +172,6 @@ const DebbuggerLogs = (props: Props) => {
             message: e.message && isString(e.message) ? e.message : "",
             state: e.state,
             id: e.source ? e.source.id : null,
-            onClose: props.onClose,
           };
 
           return <LogItem key={`debugger-${index}`} {...logItemProps} />;

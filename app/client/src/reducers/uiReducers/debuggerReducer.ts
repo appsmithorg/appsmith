@@ -1,10 +1,11 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { Message, Severity } from "entities/AppsmithConsole";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const initialState: DebuggerReduxState = {
   logs: [],
   errorCount: 0,
+  isOpen: false,
 };
 
 const debuggerReducer = createReducer(initialState, {
@@ -32,11 +33,21 @@ const debuggerReducer = createReducer(initialState, {
       errorCount: 0,
     };
   },
+  [ReduxActionTypes.SHOW_DEBUGGER]: (
+    state: DebuggerReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isOpen: action.payload,
+    };
+  },
 });
 
 interface DebuggerReduxState {
   logs: Message[];
   errorCount: number;
+  isOpen: boolean;
 }
 
 export default debuggerReducer;
