@@ -22,7 +22,6 @@ import PerformanceTracker, {
 import { useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import Sentry from "@sentry/react";
 
 const Wrapper = styled.div`
   height: 100%;

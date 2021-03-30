@@ -45,7 +45,7 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
-import Sentry from "@sentry/react";
+import * as Sentry from "@sentry/react";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
