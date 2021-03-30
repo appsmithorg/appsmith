@@ -189,6 +189,7 @@ jobs:
             const { data: completed_at } = await github.checks.create({
               ...context.repo,
               head_sha,
+              name: process.env.job
               status: 'completed',
               conclusion: process.env.conclusion
             });
