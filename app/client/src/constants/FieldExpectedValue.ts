@@ -25,7 +25,7 @@ const FIELD_VALUES: Record<
     // onDateSelected: "Function Call",
   },
   DATE_PICKER_WIDGET2: {
-    defaultDate: "string", //TODO:Vicky validate this property
+    defaultDate: "string | null", //TODO:Vicky validate this property
     isRequired: "boolean",
     isVisible: "boolean",
     isDisabled: "boolean",
@@ -68,7 +68,8 @@ const FIELD_VALUES: Record<
   },
   CHART_WIDGET: {
     chartName: "string",
-    chartType: "LINE_CHART | BAR_CHART | PIE_CHART | COLUMN_CHART | AREA_CHART",
+    chartType:
+      "LINE_CHART | BAR_CHART | PIE_CHART | COLUMN_CHART | AREA_CHART | CUSTOM_FUSION_CHART",
     xAxisName: "string",
     yAxisName: "string",
     isVisible: "boolean",
