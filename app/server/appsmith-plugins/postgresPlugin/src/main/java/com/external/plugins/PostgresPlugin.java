@@ -44,10 +44,12 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -241,14 +243,14 @@ public class PostgresPlugin extends BasePlugin {
                     } else {
                         preparedQuery = connectionFromPool.prepareStatement(query);
 
-                        List<String> parameters = new ArrayList<>();
+                        List<Map.Entry<String, String>> parameters = new ArrayList<>();
                         preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
                                 mustacheValuesInOrder,
                                 executeActionDTO.getParams(),
                                 parameters,
                                 connectionFromPool);
 
-                        requestData.put("parameters", parameters);
+                        requestData.put("ps-parameters", parameters);
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
                     }
@@ -707,11 +709,19 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Object substituteValueInInput(int index, String binding, String value, Object input, Object... args) throws AppsmithPluginException {
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) throws AppsmithPluginException {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
             HikariProxyConnection connection = (HikariProxyConnection) args[0];
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
 
             try {
                 switch (valueType) {
@@ -753,6 +763,10 @@ public class PostgresPlugin extends BasePlugin {
                     }
                     case TIME: {
                         preparedStatement.setTime(index, Time.valueOf(value));
+                        break;
+                    }
+                    case TIMESTAMP: {
+                        preparedStatement.setTimestamp(index, Timestamp.valueOf(value));
                         break;
                     }
                     case ARRAY: {

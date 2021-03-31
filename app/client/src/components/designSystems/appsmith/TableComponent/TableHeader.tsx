@@ -20,7 +20,7 @@ import {
 import TableDataDownload from "components/designSystems/appsmith/TableComponent/TableDataDownload";
 import TableCompactMode from "components/designSystems/appsmith/TableComponent/TableCompactMode";
 import { Colors } from "constants/Colors";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {

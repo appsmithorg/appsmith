@@ -182,7 +182,7 @@ export default {
     if (!props.sanitizedTableData || !props.sanitizedTableData.length) {
       return [];
     }
-    const derivedTableData = [...props.sanitizedTableData];
+    let derivedTableData = [...props.sanitizedTableData];
     if (props.primaryColumns && _.isPlainObject(props.primaryColumns)) {
       const primaryColumns = props.primaryColumns;
       const columnIds = Object.keys(props.primaryColumns);
@@ -219,6 +219,11 @@ export default {
         }
       });
     }
+
+    derivedTableData = derivedTableData.map((item, index) => ({
+      ...item,
+      __originalIndex__: index,
+    }));
 
     const columns = props.columns;
 
@@ -280,9 +285,7 @@ export default {
       isExactly: (a, b) => {
         return a.toString() === b.toString();
       },
-      empty: (a) => {
-        return a === "" || a === undefined || a === null;
-      },
+      empty: _.isEmpty,
       notEmpty: (a) => {
         return a !== "" && a !== undefined && a !== null;
       },
@@ -313,28 +316,35 @@ export default {
         return numericA >= numericB;
       },
       contains: (a, b) => {
-        if (_.isString(a) && _.isString(b)) {
-          return a.includes(b);
+        try {
+          return a.toString().includes(b.toString());
+        } catch (e) {
+          return false;
         }
-        return false;
       },
       doesNotContain: (a, b) => {
-        if (_.isString(a) && _.isString(b)) {
-          return !a.includes(b);
+        try {
+          return !this.contains(a, b);
+        } catch (e) {
+          return false;
         }
-        return false;
       },
       startsWith: (a, b) => {
-        if (_.isString(a) && _.isString(b)) {
-          return a.indexOf(b) === 0;
+        try {
+          return a.toString().indexOf(b.toString()) === 0;
+        } catch (e) {
+          return false;
         }
-        return false;
       },
       endsWith: (a, b) => {
-        if (_.isString(a) && _.isString(b)) {
-          return a.length === a.indexOf(b) + b.length;
+        try {
+          const _a = a.toString();
+          const _b = b.toString();
+
+          return _a.length === _a.indexOf(_b) + _b.length;
+        } catch (e) {
+          return false;
         }
-        return false;
       },
       is: (a, b) => {
         return moment(a).isSame(moment(b), "d");

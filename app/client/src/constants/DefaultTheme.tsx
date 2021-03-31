@@ -314,6 +314,7 @@ type PropertyPaneTheme = {
   width: number;
   height: number;
   dividerColor: Color;
+  titleHeight: number;
 };
 
 export type NestedObjectOrArray<T> =
@@ -949,6 +950,10 @@ type ColorType = {
   };
   scrollbar: string;
   scrollbarBG: string;
+  helpModal: {
+    itemHighlight: string;
+    background: string;
+  };
 };
 
 const auth: any = {
@@ -963,6 +968,11 @@ const auth: any = {
   socialBtnText: darkShades[8],
   socialBtnBorder: darkShades[8],
   socialBtnHighlight: darkShades[1],
+};
+
+const helpModal = {
+  itemHighlight: "#231f20",
+  background: "#262626",
 };
 
 const formMessage = {
@@ -1005,6 +1015,7 @@ const globalSearch = {
 };
 
 export const dark: ColorType = {
+  helpModal,
   globalSearch,
   selected: darkShades[10],
   header: {
@@ -1415,6 +1426,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  helpModal,
   globalSearch,
   selected: lightShades[12],
   header: {
@@ -1952,6 +1964,7 @@ export const theme: Theme = {
   },
   propertyPane: {
     width: 270,
+    titleHeight: 40,
     height: 600,
     dividerColor: Colors.MAKO,
   },

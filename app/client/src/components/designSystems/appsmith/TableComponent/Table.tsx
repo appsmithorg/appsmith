@@ -20,8 +20,8 @@ import {
 import HorizontalScrollIndicator from "components/ads/HorizontalScrollIndicator";
 import { Colors } from "constants/Colors";
 
-import { EventType } from "constants/ActionConstants";
 import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 interface TableProps {
   width: number;
