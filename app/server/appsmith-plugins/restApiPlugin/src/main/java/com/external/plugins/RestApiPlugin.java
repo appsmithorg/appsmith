@@ -187,7 +187,8 @@ public class RestApiPlugin extends BasePlugin {
 
         public Mono<ActionExecutionResult> executeCommon(APIConnection apiConnection,
                                                          DatasourceConfiguration datasourceConfiguration,
-                                                         ActionConfiguration actionConfiguration, List<Map.Entry<String, String>> insertedParams) {
+                                                         ActionConfiguration actionConfiguration,
+                                                         List<Map.Entry<String, String>> insertedParams) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
