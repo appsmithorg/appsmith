@@ -2,7 +2,7 @@ import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigRe
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
 import { generateReactKey } from "utils/generators";
-import { FileDataTypes } from "widgets/FilepickerWidget";
+import FileDataTypes from "widgets/FileDataTypes";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
