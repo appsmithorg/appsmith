@@ -24,7 +24,7 @@ import {
   updateAppPersistentStore,
 } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourceActions";
-import { fetchPlugins } from "actions/pluginActions";
+import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
 import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -105,7 +105,28 @@ function* initializeEditorSaga(
         type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
-            resultOfPrimaryCalls,
+            resultOfSecondaryCalls,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
+      });
+      return;
+    }
+
+    yield put(fetchPluginFormConfigs());
+
+    const resultOfPluginFormsCall = yield race({
+      success: take(ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS),
+      failure: take(ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR),
+    });
+
+    if (resultOfPluginFormsCall.failure) {
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfPluginFormsCall,
             "failure.payload.error.code",
             ERROR_CODES.SERVER_ERROR,
           ),

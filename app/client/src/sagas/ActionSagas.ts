@@ -78,7 +78,6 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "constants/messages";
-import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -92,30 +91,11 @@ export function* createActionSaga(
   try {
     let payload = actionPayload.payload;
     if (actionPayload.payload.pluginId) {
-      let editorConfig;
-      editorConfig = yield select(
+      const editorConfig = yield select(
         getEditorConfig,
         actionPayload.payload.pluginId,
       );
 
-      if (!editorConfig) {
-        const formConfigResponse: GenericApiResponse<any> = yield PluginsApi.fetchFormConfig(
-          actionPayload.payload.pluginId,
-        );
-        yield validateResponse(formConfigResponse);
-        yield put({
-          type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
-          payload: {
-            id: actionPayload.payload.pluginId,
-            ...formConfigResponse.data,
-          },
-        });
-
-        editorConfig = yield select(
-          getEditorConfig,
-          actionPayload.payload.pluginId,
-        );
-      }
       const settingConfig = yield select(
         getSettingConfig,
         actionPayload.payload.pluginId,
@@ -371,8 +351,6 @@ export function* deleteActionSaga(
           queryName: action.name,
         });
       }
-
-      yield put(deleteActionSuccess({ id }));
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
       if (isApi) {
@@ -390,6 +368,7 @@ export function* deleteActionSaga(
           id: response.data.id,
         },
       });
+      yield put(deleteActionSuccess({ id }));
     }
   } catch (error) {
     yield put({

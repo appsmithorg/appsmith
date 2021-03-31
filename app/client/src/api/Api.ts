@@ -1,14 +1,12 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import {
-  REQUEST_TIMEOUT_MS,
-  API_REQUEST_HEADERS,
-} from "constants/ApiConstants";
+import { REQUEST_TIMEOUT_MS } from "constants/ApiConstants";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 import {
   apiFailureResponseInterceptor,
   apiRequestInterceptor,
   apiSuccessResponseInterceptor,
 } from "api/ApiUtils";
+import { API_REQUEST_HEADERS } from "constants/AppsmithActionConstants/ActionConstants";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {

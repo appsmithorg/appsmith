@@ -424,8 +424,8 @@ public class MySqlPlugin extends BasePlugin {
 
             String lastQuery = queries[queries.length - 1].trim();
 
-            return (lastQuery.trim().split(" ")[0].equalsIgnoreCase("select")
-                    || lastQuery.trim().split(" ")[0].equalsIgnoreCase("show"));
+            return (lastQuery.trim().split("\\s+")[0].equalsIgnoreCase("select")
+                    || lastQuery.trim().split("\\s+")[0].equalsIgnoreCase("show"));
         }
 
         @Override

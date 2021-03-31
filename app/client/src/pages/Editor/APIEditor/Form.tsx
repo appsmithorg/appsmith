@@ -21,7 +21,6 @@ import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
@@ -179,6 +178,7 @@ interface APIFormProps {
   apiName: string;
   headersCount: number;
   paramsCount: number;
+  settingsConfig: any;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -230,6 +230,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     actionName,
     headersCount,
     paramsCount,
+    settingsConfig,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -419,7 +420,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 panelComponent: (
                   <SettingsWrapper>
                     <ActionSettings
-                      actionSettingsConfig={apiActionSettingsConfig}
+                      actionSettingsConfig={settingsConfig}
                       formName={API_EDITOR_FORM_NAME}
                       theme={theme}
                     />

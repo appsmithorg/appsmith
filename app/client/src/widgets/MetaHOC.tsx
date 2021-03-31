@@ -3,7 +3,7 @@ import BaseWidget, { WidgetProps } from "./BaseWidget";
 import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
 import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
-import { WidgetExecuteActionPayload } from "../constants/ActionConstants";
+import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 

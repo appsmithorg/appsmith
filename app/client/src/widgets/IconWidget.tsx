@@ -5,7 +5,10 @@ import styled from "styled-components";
 import IconComponent, {
   IconType,
 } from "components/designSystems/appsmith/IconComponent";
-import { EventType, ExecutionResult } from "constants/ActionConstants";
+import {
+  EventType,
+  ExecutionResult,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import * as Sentry from "@sentry/react";
 
 const IconWrapper = styled.div`

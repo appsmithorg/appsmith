@@ -4,7 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import MapComponent from "components/designSystems/appsmith/MapComponent";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getAppsmithConfigs } from "configs";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";

@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import RadioGroupComponent from "components/designSystems/blueprint/RadioGroupComponent";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
