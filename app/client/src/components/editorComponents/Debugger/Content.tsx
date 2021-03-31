@@ -5,6 +5,7 @@ import DebuggerLogs from "./DebuggerLogs";
 import Icon, { IconSize } from "components/ads/Icon";
 import { useDispatch } from "react-redux";
 import { showDebugger } from "actions/debuggerActions";
+import Errors from "./Errors";
 
 const Container = styled.div`
   position: fixed;
@@ -35,6 +36,11 @@ const Content = () => {
     <Container>
       <TabComponent
         tabs={[
+          {
+            key: "errors",
+            title: "Errors",
+            panelComponent: <Errors />,
+          },
           {
             key: "logs",
             title: "Logs",

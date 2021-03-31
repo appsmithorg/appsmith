@@ -623,6 +623,7 @@ export default class DataTreeEvaluator {
             id: widget.widgetId,
             name: widget.widgetName,
             type: ENTITY_TYPE.WIDGET,
+            propertyPath: entityPropertyName,
           },
         },
       });

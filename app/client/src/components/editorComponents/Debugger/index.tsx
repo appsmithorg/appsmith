@@ -48,7 +48,7 @@ const Container = styled.div<{ errorCount: number }>`
 const Debugger = () => {
   const dispatch = useDispatch();
   const errorCount = useSelector(
-    (state: AppState) => state.ui.debugger.errorCount,
+    (state: AppState) => Object.keys(state.ui.debugger.errors).length,
   );
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,

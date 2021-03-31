@@ -1,11 +1,13 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { Message, Severity } from "entities/AppsmithConsole";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { get, merge, isEmpty, omit } from "lodash";
 
 const initialState: DebuggerReduxState = {
   logs: [],
   errorCount: 0,
   isOpen: false,
+  errors: {},
 };
 
 const debuggerReducer = createReducer(initialState, {
@@ -25,14 +27,6 @@ const debuggerReducer = createReducer(initialState, {
       errorCount: 0,
     };
   },
-  [ReduxActionTypes.DEBUGGER_RESET_ERROR_COUNT]: (
-    state: DebuggerReduxState,
-  ) => {
-    return {
-      ...state,
-      errorCount: 0,
-    };
-  },
   [ReduxActionTypes.SHOW_DEBUGGER]: (
     state: DebuggerReduxState,
     action: ReduxAction<boolean>,
@@ -42,12 +36,53 @@ const debuggerReducer = createReducer(initialState, {
       isOpen: action.payload,
     };
   },
+  [ReduxActionTypes.DEBUGGER_ERROR_LOG]: (
+    state: DebuggerReduxState,
+    action: any,
+  ) => {
+    const entityId = action.payload.source.id;
+    const previousState = get(state.errors, entityId, {});
+
+    return {
+      ...state,
+      errors: {
+        ...state.errors,
+        [entityId]: {
+          ...merge(previousState, action.payload),
+        },
+      },
+    };
+  },
+  [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG]: (
+    state: DebuggerReduxState,
+    action: any,
+  ) => {
+    const entityId = action.payload.source.id;
+
+    if (isEmpty(action.payload.state)) {
+      return {
+        ...state,
+        errors: omit(state.errors, entityId),
+      };
+    }
+
+    return {
+      ...state,
+      errors: {
+        ...state.errors,
+        [entityId]: {
+          ...action.payload,
+        },
+      },
+    };
+  },
 });
 
-interface DebuggerReduxState {
+export interface DebuggerReduxState {
   logs: Message[];
   errorCount: number;
   isOpen: boolean;
+  errors: Record<string, Message>;
 }
 
 export default debuggerReducer;

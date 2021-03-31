@@ -94,6 +94,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
       }
       case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
         AppsmithConsole.error({
+          logType: "WIDGET_PROPERTY_VALIDATION_ERROR",
           text: error.message,
           source: error.context?.source,
         });

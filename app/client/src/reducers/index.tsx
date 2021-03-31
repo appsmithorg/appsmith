@@ -41,6 +41,7 @@ import { OnboardingState } from "./uiReducers/onBoardingReducer";
 import { GlobalSearchReduxState } from "./uiReducers/globalSearchReducer";
 import { ReleasesState } from "./uiReducers/releasesReducer";
 import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
+import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -80,7 +81,7 @@ export interface AppState {
     onBoarding: OnboardingState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
-    debugger: any;
+    debugger: DebuggerReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

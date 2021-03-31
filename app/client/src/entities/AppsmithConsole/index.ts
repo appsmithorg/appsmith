@@ -14,7 +14,7 @@ export type ErrorType = BindingError | ActionError | WidgetError | EvalError;
 
 export enum Severity {
   // Everything, irrespective of what the user should see or not
-  DEBUG = "debug",
+  // DEBUG = "debug",
   // Something the dev user should probably know about
   INFO = "info",
   // Doesn't break the app, but can cause slowdowns / ux issues/ unexpected behaviour
@@ -22,7 +22,7 @@ export enum Severity {
   // Can cause an error in some cases/ single widget, app will work in other cases
   ERROR = "error",
   // Makes the app unusable, can't progress without fixing this.
-  CRITICAL = "critical",
+  // CRITICAL = "critical",
 }
 
 export type UserAction = {
@@ -96,7 +96,7 @@ export interface ActionableError extends Message {
   // Error type of the event.
   type: ErrorType;
 
-  severity: Severity.ERROR | Severity.CRITICAL;
+  severity: Severity.ERROR;
 
   // Actions a user can take to resolve this issue
   userActions: Array<UserAction>;
