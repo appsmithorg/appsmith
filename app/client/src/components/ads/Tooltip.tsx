@@ -31,6 +31,9 @@ const TooltipComponent = (props: TooltipProps) => {
       openOnTargetFocus={props.openOnTargetFocus}
       minimal={props.minimal}
       popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
+      modifiers={{
+        preventOverflow: { enabled: false },
+      }}
     >
       {props.children}
     </Tooltip>

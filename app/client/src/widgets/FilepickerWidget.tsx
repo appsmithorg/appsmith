@@ -12,7 +12,10 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { EventType, ExecutionResult } from "constants/ActionConstants";
+import {
+  EventType,
+  ExecutionResult,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
@@ -61,7 +64,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "maxFileSize",
             helpText: "Sets the maximum size of each file that can be uploaded",
-            label: "Max file size",
+            label: "Max file size(Mb)",
             controlType: "INPUT_TEXT",
             placeholderText: "File size in mb",
             inputType: "INTEGER",
