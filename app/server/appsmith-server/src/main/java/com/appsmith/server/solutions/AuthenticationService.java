@@ -119,9 +119,10 @@ public class AuthenticationService {
             return this.getPageRedirectUrl(state, error);
         }
         // Otherwise, proceed to retrieve the access token from the authorization server
-        return Mono.just(state)
+        return Mono.justOrEmpty(state)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .flatMap(localState -> {
-                    if (localState == null || localState.split(",").length != 3) {
+                    if (localState.split(",").length != 3) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     } else
                         return Mono.just(localState.split(",")[1]);
