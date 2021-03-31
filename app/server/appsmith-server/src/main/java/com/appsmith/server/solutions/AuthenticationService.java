@@ -119,7 +119,14 @@ public class AuthenticationService {
             return this.getPageRedirectUrl(state, error);
         }
         // Otherwise, proceed to retrieve the access token from the authorization server
-        return datasourceService.getById(state.split(",")[1])
+        return Mono.just(state)
+                .flatMap(localState -> {
+                    if (localState == null || localState.split(",").length != 3) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                    } else
+                        return Mono.just(localState.split(",")[1]);
+                })
+                .flatMap(datasourceService::getById)
                 .flatMap(datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                     WebClient.Builder builder = WebClient.builder();
