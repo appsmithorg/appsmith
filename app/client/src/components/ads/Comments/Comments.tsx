@@ -16,6 +16,9 @@ const CommentThreadPopoverStyles = createGlobalStyle`
   }
 `;
 
+/**
+ * Renders comment threads associated with a refId (for example widgetId)
+ */
 const Comments = ({ refId }: { refId: string }) => {
   const applicationId = useSelector(getCurrentApplicationId);
   const commentsThreadIds = useSelector(
@@ -35,6 +38,11 @@ const Comments = ({ refId }: { refId: string }) => {
             key={commentsThreadId}
           />
         ))}
+      {/**
+       * Exists in store, not yet created in db
+       * Its kept separately in state to reset easily
+       * if the user wishes to not create a new thread
+       */}
       {unpublishedCommentThread && (
         <UnpublishedCommentThread commentThread={unpublishedCommentThread} />
       )}

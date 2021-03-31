@@ -1,5 +1,6 @@
 import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
 
+// used for dev
 export const reduceCommentsByRef = (comments: any[]) => {
   return comments.reduce((res, curr) => {
     return {

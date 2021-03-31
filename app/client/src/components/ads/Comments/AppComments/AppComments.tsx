@@ -10,6 +10,10 @@ const Container = styled.div`
   height: 100%;
 `;
 
+/**
+ * Comments are stored as a map of refs (for example widgetIds)
+ * Flatten to fetch all application comment threads
+ */
 const getCommentThreads = (threadsByRefMap: Record<string, Array<string>>) => {
   if (!threadsByRefMap) return;
   return Object.entries(threadsByRefMap).reduce(

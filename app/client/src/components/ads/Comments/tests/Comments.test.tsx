@@ -1,5 +1,4 @@
 import React from "react";
-import { screen } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
 import { unmountComponentAtNode } from "react-dom";
 import OverlayCommentsWrapper from "../OverlayCommentsWrapper";
@@ -27,7 +26,6 @@ describe("Comment threads", () => {
     store.dispatch(setCommentMode(true));
     // dispatch fetch comments and mock the axios req
     store.dispatch(fetchApplicationCommentsRequest());
-    // mockFetchCommentThreads();
     // fetch threads saga waits for init
     store.dispatch({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,

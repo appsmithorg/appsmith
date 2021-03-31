@@ -440,6 +440,9 @@ export function* createApplicationSaga(
         );
         history.push(pageURL);
 
+        // subscribe to newly created application
+        // users join rooms on connection, so reconnecting
+        // ensures user receives the updates in the app just created
         yield put(reconnectWebsocketAction());
       }
     }

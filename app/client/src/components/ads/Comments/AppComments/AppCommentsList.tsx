@@ -7,6 +7,7 @@ type Props = {
   commentThreadIds: Array<string>;
 };
 
+// WIP: Implement thread view
 const CommentThread = ({ commentThreadId }: { commentThreadId: string }) => {
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
   const { comments } = commentThread;

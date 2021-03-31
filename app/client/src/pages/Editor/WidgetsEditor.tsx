@@ -143,6 +143,10 @@ const WidgetsEditor = () => {
         <MainContainerLayoutControl />
         <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
           {node}
+          {/**
+           * Moving this here to maintain the center position
+           * With comments sidebar in visible and hidden state
+           * */}
           <Onboarding dsl={widgets} />
         </CanvasContainer>
       </EditorWrapper>

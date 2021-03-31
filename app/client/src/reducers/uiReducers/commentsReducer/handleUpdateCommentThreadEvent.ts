@@ -15,6 +15,9 @@ const handleUpdateCommentThreadEvent = (
     ...state,
     commentThreadsMap: {
       ...state.commentThreadsMap,
+      // Update comment thread event doesn't contain comments
+      // Its corollary to db notifications, comments might be received
+      // as a separate event
       [id]: {
         ...commentThreadInStore,
         ...action.payload,

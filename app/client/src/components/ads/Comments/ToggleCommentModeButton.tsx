@@ -33,6 +33,11 @@ const StyledToggleCommentMode = styled.div<{ isCommentMode: boolean }>`
   width: ${(props) => props.theme.smallHeaderHeight};
 `;
 
+/**
+ * Toggle comment mode:
+ * This component is also responsible for fetching
+ * application comments
+ */
 const ToggleCommentModeButton = () => {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);

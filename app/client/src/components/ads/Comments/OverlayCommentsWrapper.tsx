@@ -11,6 +11,12 @@ type Props = {
   widgetType: string;
 };
 
+/**
+ * Returns the offset position relative to the container
+ * using the coordinates from the click event
+ * @param clickEvent
+ * @param containerRef
+ */
 const getOffsetPos = (clickEvent: any, containerRef: any) => {
   const boundingClientRect = containerRef.getBoundingClientRect();
   const containerPosition = {
@@ -69,6 +75,7 @@ const OverlayCommentsWrapper = ({ children, refId, widgetType }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isCommentMode = useSelector(isCommentModeSelector);
   const dispatch = useDispatch();
+  // create new unpublished thread
   const clickHandler = (e: any) => {
     e.persist();
     if (containerRef.current) {
@@ -95,7 +102,10 @@ const OverlayCommentsWrapper = ({ children, refId, widgetType }: Props) => {
       data-cy="overlay-comments-wrapper"
     >
       {children}
-      {/* Prevent clicks to the component in the comment mode */}
+      {/**
+       * Prevent clicks to the component in the comment mode
+       * TODO: decouple from the overlay wrapper
+       */}
       {!shouldNotPreventComponentInteraction && <PreventClicksOverlay />}
       <Comments refId={refId} />
     </Container>

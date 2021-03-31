@@ -16,6 +16,9 @@ const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   z-index: 1;
 `;
 
+/**
+ * Comment pins that toggle comment thread popover visibility on click
+ */
 const InlineCommentPin = withTheme(
   ({ commentThreadId, theme }: { commentThreadId: string; theme: Theme }) => {
     const commentThread = useSelector(commentThreadsSelector(commentThreadId));
@@ -50,6 +53,7 @@ const InlineCommentPin = withTheme(
           canEscapeKeyClose
           minimal
           popoverClassName="comment-thread"
+          // isOpen is controlled so that newly created threads are set to be visible
           isOpen={!!commentThread.isVisible}
           onInteraction={(nextOpenState) => {
             setIsCommentThreadVisible(nextOpenState);

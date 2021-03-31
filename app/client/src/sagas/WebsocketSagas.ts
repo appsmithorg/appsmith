@@ -68,10 +68,11 @@ function* read(socket: any) {
 function* write(socket: any) {
   while (true) {
     const { payload } = yield take(ReduxSagaChannels.WEBSOCKET_WRITE_CHANNEL);
+    // reconnect to reset connection at the server
     if (payload.type === WEBSOCKET_EVENTS.RECONNECT) {
       socket.disconnect().connect();
     } else {
-      // todo handle other writes
+      // handle other writes here:
       // socket.emit(payload.type, payload.payload);
     }
   }
@@ -89,6 +90,13 @@ function* flow() {
       ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION,
     ]);
     try {
+      /**
+       * Incase the socket is disconnected due to network latencies
+       * it reuses the same instance so we don't need to bind it again
+       * this is verified using the reconnect flow
+       * We only need to retry incase the socket connection isn't made
+       * in the first attempt itself
+       */
       if (payload.name !== ANONYMOUS_USERNAME) {
         const socket = yield call(connect);
         const task = yield fork(handleIO, socket);
@@ -98,6 +106,7 @@ function* flow() {
         socket.disconnect();
       }
     } catch (e) {
+      // this has to be non blocking
       yield fork(function*() {
         yield delay(3000);
         yield put(retrySocketConnection());

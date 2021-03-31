@@ -2,6 +2,10 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { get, keyBy } from "lodash";
 import { CommentsReduxState } from "./interfaces";
 
+/**
+ * Reset application threads map: { appId: { ref1: threadIds, ref2: threadIds, ... } }
+ * Update common threads store
+ */
 const handleFetchApplicationCommentsSuccess = (
   state: CommentsReduxState,
   action: ReduxAction<any>,

@@ -19,6 +19,10 @@ const initialState: CommentsReduxState = {
   creatingNewThreadComment: false,
 };
 
+/**
+ * Action constants with suffix as `EVENT` are a result of socket updates
+ * They are handled separately
+ */
 const commentsReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_COMMENT_THREADS_SUCCESS]: (
     state: CommentsReduxState,
@@ -27,6 +31,7 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     ...action.payload,
   }),
+  // Only one unpublished comment threads exists at a time
   [ReduxActionTypes.CREATE_UNPUBLISHED_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
     action: ReduxAction<any>,

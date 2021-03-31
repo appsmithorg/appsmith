@@ -1,9 +1,8 @@
 import React from "react";
-import styled, { withTheme } from "styled-components";
-import { getTypographyByKey, Theme } from "constants/DefaultTheme";
+import styled from "styled-components";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import CommentContextMenu from "./CommentContextMenu";
+// import CommentContextMenu from "./CommentContextMenu";
 
 const StyledContainer = styled.div`
   width: 100%;

@@ -22,6 +22,7 @@ const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   left: ${(props) => props.left}%;
 `;
 
+// TODO look into drying this up using comment thread component
 const UnpublishedCommentThread = withTheme(
   ({ theme, commentThread }: { commentThread: any; theme: Theme }) => {
     const { top, left } = get(commentThread, "position", {
@@ -42,7 +43,6 @@ const UnpublishedCommentThread = withTheme(
         key={`${top}-${left}`}
         onClick={(e: any) => {
           // capture clicks so that create new thread is not triggered
-          // todo: should be enabled in comment mode only
           e.preventDefault();
           e.stopPropagation();
         }}

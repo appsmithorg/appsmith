@@ -9,7 +9,7 @@ import { COMMENT_EVENTS } from "constants/CommentConstants";
 import { reduceCommentsByRef } from "components/ads/Comments/utils";
 
 export default function* handleCommentEvents(event: any) {
-  console.log(event, "event");
+  // TODO use constants here
   switch (event.type) {
     case COMMENT_EVENTS.SET_COMMENTS: {
       const comments = event.payload;
