@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -353,19 +354,20 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 }
                 // Only extract mustache keys from leaf nodes
                 if (isLeafNode) {
-                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
 
                     // We found the path. But if the path does not have any mustache bindings, throw the error
-                    if (mustacheKeysFromFields.isEmpty()) {
+                    if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
                         try {
                             String bindingAsString = objectMapper.writeValueAsString(parent);
                             throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
+                                    widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
                         } catch (JsonProcessingException e) {
                             throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
                         }
                     }
 
+                    // Stricter extraction of dynamic bindings
+                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
                     dynamicBindings.addAll(mustacheKeysFromFields);
                 }
             }
@@ -467,6 +469,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public Mono<ActionDTO> updateAction(String id, ActionDTO action) {
         Mono<ActionDTO> updateUnpublishedAction = newActionService
                 .updateUnpublishedAction(id, action)
+                .flatMap(newActionService::populateHintMessages)
                 .cache();
 
         // First update the action

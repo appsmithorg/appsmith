@@ -39,7 +39,7 @@ import equal from "fast-deep-equal/es6";
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
-} from "constants/ActionConstants";
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluate, { EvalResult } from "workers/evaluate";
 
@@ -166,20 +166,24 @@ export default class DataTreeEvaluator {
 
     // Evaluate
     const evalStart = performance.now();
-    // We are setting all values from our uneval tree to the old eval tree we have
-    // this way we can get away with just evaluating the sort order and nothing else
-    subTreeSortOrder.forEach((propertyPath) => {
+
+    // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
+    const evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
+      // We are setting all values from our uneval tree to the old eval tree we have
+      // So that the actual uneval value can be evaluated
       if (this.isDynamicLeaf(unEvalTree, propertyPath)) {
         const unEvalPropValue = _.get(unEvalTree, propertyPath);
         _.set(this.evalTree, propertyPath, unEvalPropValue);
+        return true;
       }
+      return false;
     });
 
     // Remove any deleted paths from the eval tree
     removedPaths.forEach((removedPath) => {
       _.unset(this.evalTree, removedPath);
     });
-    this.evalTree = this.evaluateTree(this.evalTree, subTreeSortOrder);
+    this.evalTree = this.evaluateTree(this.evalTree, evaluationOrder);
     const evalStop = performance.now();
 
     const totalEnd = performance.now();
@@ -387,6 +391,13 @@ export default class DataTreeEvaluator {
             // The following line will calculated the property name to be selectedRow
             // instead of selectedRow.email
             const propertyName = propertyPath.split(".")[1];
+            const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
+              .defaultProperties;
+            const isDefaultProperty = !!Object.values(
+              defaultPropertyMap,
+            ).filter(
+              (defaultPropertyName) => propertyName === defaultPropertyName,
+            ).length;
             if (propertyName) {
               let parsedValue = this.validateAndParseWidgetProperty(
                 propertyPath,
@@ -394,9 +405,8 @@ export default class DataTreeEvaluator {
                 currentTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
+                isDefaultProperty,
               );
-              const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
-                .defaultProperties;
               const hasDefaultProperty = propertyName in defaultPropertyMap;
               if (hasDefaultProperty) {
                 const defaultProperty = defaultPropertyMap[propertyName];
@@ -576,6 +586,7 @@ export default class DataTreeEvaluator {
     currentTree: DataTree,
     evalPropertyValue: any,
     unEvalPropertyValue: string,
+    isDefaultProperty: boolean,
   ): any {
     const entityPropertyName = _.drop(propertyPath.split(".")).join(".");
     let valueToValidate = evalPropertyValue;
@@ -615,7 +626,9 @@ export default class DataTreeEvaluator {
       return unEvalPropertyValue;
     } else {
       const parsedCache = this.getParsedValueCache(propertyPath);
-      if (!equal(parsedCache.value, parsed)) {
+      // In case this is a default property, always set the cache even if the value remains the same so that the version
+      // in cache gets updated and the property dependent on default property updates accordingly.
+      if (!equal(parsedCache.value, parsed) || isDefaultProperty) {
         this.parsedValueCache.set(propertyPath, {
           value: parsed,
           version: Date.now(),
@@ -877,11 +890,6 @@ export default class DataTreeEvaluator {
           continue;
         }
         if (!isAction(entity) && !isWidget(entity)) {
-          continue;
-        }
-        if (isAction(entity)) {
-          // TODO create proper binding paths for actions
-          changePaths.add(convertPathToString(d.path));
           continue;
         }
         const parentPropertyPath = convertPathToString(d.path);

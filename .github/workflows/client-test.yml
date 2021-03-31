@@ -13,7 +13,7 @@ on:
 
   # trigger for pushes to release and master
   push:
-    branches: [ release, master ]
+    branches: [release, master]
     paths:
       - "app/client/**"
       - "!app/client/cypress/manual_TestSuite/**"
@@ -25,12 +25,15 @@ defaults:
 
 jobs:
   build:
-    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches 
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
     # then we don't check for the PR approved state
+    # Only PR approvals of internally created PRs should trigger this workflow
     if: |
       github.event_name == 'workflow_dispatch' || 
       github.event_name == 'push' || 
-      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
+      (github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'approved' && 
+      github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -196,8 +199,6 @@ jobs:
         if: github.ref == 'refs/heads/release' || github.event.pull_request.base.ref == 'release'
         shell: bash
         run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
             --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
             --env APPSMITH_REDIS_URL=redis://localhost:6379 \
@@ -213,8 +214,6 @@ jobs:
         if: github.ref == 'refs/heads/master' || github.event.pull_request.base.ref == 'master'
         shell: bash
         run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
             --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
             --env APPSMITH_REDIS_URL=redis://localhost:6379 \

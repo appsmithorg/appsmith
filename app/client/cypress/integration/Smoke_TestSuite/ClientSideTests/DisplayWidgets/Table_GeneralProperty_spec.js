@@ -46,7 +46,7 @@ describe("Table Widget property pane feature validation", function() {
       .last()
       .click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Table widget toggle test for text alignment", function() {
@@ -57,7 +57,7 @@ describe("Table Widget property pane feature validation", function() {
       .click({ force: true });
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingGenAlign);
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-end");
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-start");
   });
@@ -76,7 +76,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(1000);
     cy.selectTextSize("Heading 1");
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait(1000);
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
   });
