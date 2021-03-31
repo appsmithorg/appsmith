@@ -55,6 +55,7 @@ export type UpdatePropertyArgs = {
 export type BlueprintOperationAddActionFn = () => void;
 export type BlueprintOperationModifyPropsFn = (
   widget: WidgetProps & { children?: WidgetProps[] },
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
   parent?: WidgetProps,
 ) => UpdatePropertyArgs[] | undefined;
 
@@ -111,6 +112,7 @@ export function* executeWidgetBlueprintOperations(
           | UpdatePropertyArgs[]
           | undefined = (operation.fn as BlueprintOperationModifyPropsFn)(
           widget as WidgetProps & { children?: WidgetProps[] },
+          widgets,
           get(widgets, widget.parentId || "", undefined),
         );
         updatePropertyPayloads &&

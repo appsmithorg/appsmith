@@ -1,7 +1,7 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
-import { get } from "lodash";
+import { cloneDeep, get, isString } from "lodash";
 import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagas";
@@ -240,7 +240,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       blueprint: {
         operations: [
           {
-            type: "MODIFY_PROPS",
+            type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
               const tabs = [...widget.tabs];
 
@@ -335,9 +335,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 ],
                 operations: [
                   {
-                    type: "MODIFY_PROPS",
+                    type: BlueprintOperationTypes.MODIFY_PROPS,
                     fn: (
                       widget: WidgetProps & { children?: WidgetProps[] },
+                      widgets: { [widgetId: string]: FlattenedWidgetProps },
                       parent?: WidgetProps & { children?: WidgetProps[] },
                     ) => {
                       const iconChild =
@@ -554,31 +555,39 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       items: [
         {
           id: 1,
-          email: "michael.lawson@reqres.in",
-          first_name: "Michael",
-          last_name: "Lawson",
-          avatar: "https://reqres.in/img/faces/7-image.jpg",
+          num: "001",
+          name: "Bulbasaur",
+          img: "http://www.serebii.net/pokemongo/pokemon/001.png",
         },
         {
           id: 2,
-          email: "lindsay.ferguson@reqres.in",
-          first_name: "Lindsay",
-          last_name: "Ferguson",
-          avatar: "https://reqres.in/img/faces/8-image.jpg",
+          num: "002",
+          name: "Ivysaur",
+          img: "http://www.serebii.net/pokemongo/pokemon/002.png",
         },
         {
           id: 3,
-          email: "lindsay.ferguson@reqres.in",
-          first_name: "Lindsay",
-          last_name: "Ferguson",
-          avatar: "https://reqres.in/img/faces/8-image.jpg",
+          num: "003",
+          name: "Venusaur",
+          img: "http://www.serebii.net/pokemongo/pokemon/003.png",
         },
         {
           id: 4,
-          email: "lindsay.ferguson@reqres.in",
-          first_name: "Lindsay",
-          last_name: "Ferguson",
-          avatar: "https://reqres.in/img/faces/8-image.jpg",
+          num: "004",
+          name: "Charmander",
+          img: "http://www.serebii.net/pokemongo/pokemon/004.png",
+        },
+        {
+          id: 5,
+          num: "005",
+          name: "Charmeleon",
+          img: "http://www.serebii.net/pokemongo/pokemon/005.png",
+        },
+        {
+          id: 6,
+          num: "006",
+          name: "Charizard",
+          img: "http://www.serebii.net/pokemongo/pokemon/006.png",
         },
       ],
       widgetName: "List",
@@ -609,6 +618,76 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       isDeletable: false,
                       paddingEnabled: false,
                       settingsControlDisabled: true,
+                      children: [],
+                      blueprint: {
+                        view: [
+                          {
+                            type: "CANVAS_WIDGET",
+                            position: { top: 0, left: 0 },
+                            props: {
+                              containerStyle: "none",
+                              canExtend: false,
+                              detachFromLayout: true,
+                              children: [],
+                              version: 1,
+                              blueprint: {
+                                view: [
+                                  {
+                                    type: "IMAGE_WIDGET",
+                                    size: { rows: 3, cols: 4 },
+                                    position: { top: 0, left: 0 },
+                                    props: {
+                                      defaultImage:
+                                        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                                      imageShape: "RECTANGLE",
+                                      maxZoomLevel: 1,
+                                      image: "{{currentItem.img}}",
+                                      dynamicBindingPathList: [
+                                        {
+                                          key: "image",
+                                        },
+                                      ],
+                                      dynamicTriggerPathList: [],
+                                    },
+                                  },
+                                  {
+                                    type: "TEXT_WIDGET",
+                                    size: { rows: 1, cols: 12 },
+                                    position: { top: 0, left: 4 },
+                                    props: {
+                                      text: "{{currentItem.name}}",
+                                      textStyle: "HEADING",
+                                      textAlign: "LEFT",
+                                      dynamicBindingPathList: [
+                                        {
+                                          key: "text",
+                                        },
+                                      ],
+                                      dynamicTriggerPathList: [],
+                                    },
+                                  },
+                                  {
+                                    type: "TEXT_WIDGET",
+                                    size: { rows: 1, cols: 12 },
+                                    position: { top: 1, left: 4 },
+                                    props: {
+                                      text: "{{currentItem.num}}",
+                                      textStyle: "BODY",
+                                      textAlign: "LEFT",
+                                      dynamicBindingPathList: [
+                                        {
+                                          key: "text",
+                                        },
+                                      ],
+                                      dynamicTriggerPathList: [],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          },
+                        ],
+                      },
                     },
                   },
                 ],
@@ -617,6 +696,75 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
         operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (
+              widget: WidgetProps & { children?: WidgetProps[] },
+              widgets: { [widgetId: string]: FlattenedWidgetProps },
+            ) => {
+              let template = {};
+              const container = get(
+                widgets,
+                `${get(widget, "children.0.children.0")}`,
+              );
+              const canvas = get(widgets, `${get(container, "children.0")}`);
+              let updatePropertyMap: any = [];
+              const dynamicBindingPathList: any[] = get(
+                widget,
+                "dynamicBindingPathList",
+                [],
+              );
+
+              canvas.children &&
+                get(canvas, "children", []).forEach((child: string) => {
+                  const childWidget = cloneDeep(get(widgets, `${child}`));
+                  const keys = Object.keys(childWidget);
+
+                  for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
+                    let value = childWidget[key];
+
+                    if (isString(value) && value.indexOf("currentItem") > -1) {
+                      const { jsSnippets } = getDynamicBindings(value);
+
+                      const modifiedAction = jsSnippets.reduce(
+                        (prev: string, next: string) => {
+                          return prev + `${next}`;
+                        },
+                        "",
+                      );
+
+                      value = `{{${widget.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+
+                      childWidget[key] = value;
+
+                      dynamicBindingPathList.push({
+                        key: `template.${childWidget.widgetName}.${key}`,
+                      });
+                    }
+                  }
+
+                  template = {
+                    ...template,
+                    [childWidget.widgetName]: childWidget,
+                  };
+                });
+
+              updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "dynamicBindingPathList",
+                  propertyValue: dynamicBindingPathList,
+                },
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "template",
+                  propertyValue: template,
+                },
+              ];
+              return updatePropertyMap;
+            },
+          },
           {
             type: BlueprintOperationTypes.CHILD_OPERATIONS,
             fn: (

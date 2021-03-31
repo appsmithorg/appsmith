@@ -162,7 +162,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   ): ContainerWidgetProps<WidgetProps>[] => {
     const gridGap = this.props.gridGap || 0;
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
-      const gap = gridGap;
+      const gap = gridGap - 8;
 
       return {
         ...child,
