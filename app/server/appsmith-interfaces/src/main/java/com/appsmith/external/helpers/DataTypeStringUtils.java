@@ -5,6 +5,11 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -13,9 +18,13 @@ import org.apache.commons.validator.routines.DateValidator;
 import reactor.core.Exceptions;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -25,9 +34,12 @@ public class DataTypeStringUtils {
 
     private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
 
-    private static  ObjectMapper objectMapper = new ObjectMapper();
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     private static JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+
+    private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
+            new Gson().getAdapter(JsonObject.class);
 
     public static class DateValidatorUsingDateFormat extends DateValidator {
         private String dateFormat;
@@ -60,6 +72,8 @@ public class DataTypeStringUtils {
         if (input.startsWith("[") && input.endsWith("]")) {
             String betweenBraces = input.substring(1, input.length() - 1);
             String trimmedInputBetweenBraces = betweenBraces.trim();
+            // In case of no values in the array, set this as null. Otherwise plugins like postgres and ms-sql
+            // would break while creating a SQL array.
             if (trimmedInputBetweenBraces.isEmpty()) {
                 return DataType.NULL;
             }
@@ -104,13 +118,13 @@ public class DataTypeStringUtils {
             return DataType.NULL;
         }
 
-        DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
-        if (dateValidator.isValid(input)) {
-            return DataType.DATE;
+        DateValidator timestampValidator = new DateValidatorUsingDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (timestampValidator.isValid(input)) {
+            return DataType.TIMESTAMP;
         }
 
-        DateValidator dateTimeValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd hh:mm:ss");
-        if (dateTimeValidator.isValid(input)) {
+        DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
+        if (dateValidator.isValid(input)) {
             return DataType.DATE;
         }
 
@@ -119,14 +133,16 @@ public class DataTypeStringUtils {
             return DataType.TIME;
         }
 
-        try {
-            objectMapper.readValue(input, Object.class);
+        try (JsonReader reader = new JsonReader(new StringReader(input))) {
+            strictGsonObjectAdapter.read(reader);
+            reader.hasNext(); // throws on multiple top level values
             return DataType.JSON_OBJECT;
-        } catch (IOException e) {
-            // Not a JSON object
+        } catch (IOException | JsonSyntaxException e) {
+            // Not a strict JSON object
         }
+
         /**
-         * TODO : Timestamp, ASCII, Binary and Bytes Array
+         * TODO : ASCII, Binary and Bytes Array
          */
 
 //        // Check if unicode stream also gets handled as part of this since the destination SQL type is the same.
@@ -149,8 +165,15 @@ public class DataTypeStringUtils {
         return DataType.STRING;
     }
 
-    public static String jsonSmartReplacementQuestionWithValue(String input, String replacement) {
+    public static String jsonSmartReplacementQuestionWithValue(String input,
+                                                               String replacement,
+                                                               List<Map.Entry<String, String>> insertedParams) {
+
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+
+        Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
+        insertedParams.add(parameter);
+
         switch (dataType) {
             case INTEGER:
             case LONG:

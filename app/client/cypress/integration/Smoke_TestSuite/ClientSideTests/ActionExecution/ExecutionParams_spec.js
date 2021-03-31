@@ -40,7 +40,7 @@ describe("API Panel Test Functionality", function() {
       "{{MultiApi.run(undefined, undefined, { endpoint: 'users",
       false,
     );
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
     // Choose dynamic button
     cy.SearchEntityandOpen("DynamicButton");

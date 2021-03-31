@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetState } from "../BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   getDefaultColumnProperties,
   getTableStyles,
