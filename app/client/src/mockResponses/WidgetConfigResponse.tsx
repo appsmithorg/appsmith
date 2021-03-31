@@ -173,6 +173,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       ],
       widgetName: "Dropdown",
       defaultOptionValue: "VEG",
+      isFilterable: true,
       version: 1,
     },
     CHECKBOX_WIDGET: {
