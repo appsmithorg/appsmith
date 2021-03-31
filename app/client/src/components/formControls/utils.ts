@@ -1,12 +1,69 @@
 import { isBoolean, get, map, set } from "lodash";
-import { HiddenType, hidden } from "./BaseControl";
+import { HiddenType } from "./BaseControl";
 
-export const isHiddenForArray = (hiddenConfig: any) => {
-  if (!!hiddenConfig) {
-    const valueAtPath = hiddenConfig.path;
-    const value = hiddenConfig.value;
+export const evaluateCondtionWithType = (
+  conditions: Array<boolean> | undefined,
+  type: string | undefined,
+) => {
+  if (conditions) {
+    let flag;
+    //this is where each conditions gets evaluated
+    if (conditions.length > 1) {
+      if (type === "AND") {
+        flag = conditions.reduce((acc: any, item: boolean) => {
+          return acc && item;
+        }, conditions[0]);
+      } else if (type === "OR") {
+        flag = conditions.reduce((acc: any, item: boolean) => {
+          return acc || item;
+        }, undefined);
+      }
+    } else {
+      flag = conditions[0];
+    }
+    return flag;
+  }
+};
 
-    switch (hiddenConfig.comparison) {
+export const isHiddenConditionsEvaluation = (
+  values: any,
+  hidden?: HiddenType,
+): any => {
+  if (!!hidden && !isBoolean(hidden)) {
+    //if nested condtions are there recursively from bottom to top call this function on each condtion
+    let conditionType, conditions;
+    if ("conditionType" in hidden) {
+      conditionType = hidden.conditionType;
+    }
+    if ("conditions" in hidden) {
+      conditions = hidden.conditions;
+    }
+    if (Array.isArray(conditions)) {
+      conditions = conditions.map((rule: any) => {
+        return isHiddenConditionsEvaluation(values, rule);
+      });
+    } else {
+      return caculateIsHidden(values, hidden);
+    }
+    return evaluateCondtionWithType(conditions, conditionType);
+  }
+};
+
+export const caculateIsHidden = (values: any, hiddenConfig?: HiddenType) => {
+  if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
+    let valueAtPath;
+    let value, comparison;
+    if ("path" in hiddenConfig) {
+      valueAtPath = get(values, hiddenConfig.path);
+    }
+    if ("value" in hiddenConfig) {
+      value = hiddenConfig.value;
+    }
+    if ("comparison" in hiddenConfig) {
+      comparison = hiddenConfig.comparison;
+    }
+
+    switch (comparison) {
       case "EQUALS":
         return valueAtPath === value;
       case "NOT_EQUALS":
@@ -23,64 +80,17 @@ export const isHiddenForArray = (hiddenConfig: any) => {
         return true;
     }
   }
-  return !!hiddenConfig;
-};
-
-export const evaluateCondtionsWithType = (conditions: any, type: string) => {
-  let flag;
-  if (conditions.length > 1) {
-    if (type === "AND") {
-      flag = conditions.reduce((acc: any, item: boolean) => {
-        return acc && item;
-      }, conditions[0]);
-    } else if (type === "OR") {
-      flag = conditions.reduce((acc: any, item: boolean) => {
-        return acc || item;
-      }, undefined);
-    }
-  } else {
-    flag = conditions[0];
-  }
-  return flag;
-};
-
-export const isHiddenEvaluation = (hidden: any) => {
-  const conditionType = hidden.conditionType;
-  let conditions = hidden.conditions;
-  if (conditions) {
-    conditions = conditions.map((rule: any) => {
-      return isHiddenEvaluation(rule);
-    });
-  } else {
-    return isHiddenForArray(hidden);
-  }
-  return evaluateCondtionsWithType(conditions, conditionType);
 };
 
 export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
-  console.log(isHiddenEvaluation(hidden));
   if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
-    const valueAtPath = get(values, hiddenConfig.path);
-    const value = hiddenConfig.value;
-
-    switch (hiddenConfig.comparison) {
-      case "EQUALS":
-        return valueAtPath === value;
-      case "NOT_EQUALS":
-        return valueAtPath !== value;
-      case "GREATER":
-        return valueAtPath > value;
-      case "LESSER":
-        return valueAtPath < value;
-      case "IN":
-        return Array.isArray(value) && value.includes(valueAtPath);
-      case "NOT_IN":
-        return Array.isArray(value) && !value.includes(valueAtPath);
-      default:
-        return true;
+    if ("conditionType" in hiddenConfig) {
+      //check if nested conditions exist
+      return isHiddenConditionsEvaluation(values, hiddenConfig);
+    } else {
+      return caculateIsHidden(values, hiddenConfig);
     }
   }
-
   return !!hiddenConfig;
 };
 

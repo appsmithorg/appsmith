@@ -5,6 +5,34 @@ describe("isHidden test", () => {
     const hiddenTrueInputs: any = [
       { values: { name: "Name" }, hidden: true },
       {
+        values: { name: "Name", number: 2, email: "temp@temp.com" },
+        hidden: {
+          conditionType: "AND",
+          conditions: [
+            {
+              path: "name",
+              value: "Name",
+              comparison: "EQUALS",
+            },
+            {
+              conditionType: "AND",
+              conditions: [
+                {
+                  path: "number",
+                  value: 2,
+                  comparison: "EQUALS",
+                },
+                {
+                  path: "email",
+                  value: "temp@temp.com",
+                  comparison: "EQUALS",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
         values: { name: "Name" },
         hidden: {
           path: "name",
@@ -83,6 +111,48 @@ describe("isHidden test", () => {
       },
       {
         values: { name: "Name" },
+      },
+      {
+        values: {
+          name: "Name",
+          config: { type: "EMAIL", name: "TEMP" },
+          contact: { number: 1234, address: "abcd" },
+        },
+        hidden: {
+          conditionType: "AND",
+          conditions: [
+            {
+              path: "contact.number",
+              value: 1234,
+              comparison: "NOT_EQUALS",
+            },
+            {
+              conditionType: "OR",
+              conditions: [
+                {
+                  conditionType: "AND",
+                  conditions: [
+                    {
+                      path: "config.name",
+                      value: "TEMP",
+                      comparison: "EQUALS",
+                    },
+                    {
+                      path: "config.name",
+                      value: "HELLO",
+                      comparison: "EQUALS",
+                    },
+                  ],
+                },
+                {
+                  path: "config.type",
+                  value: "EMAIL",
+                  comparison: "NOT_EQUALS",
+                },
+              ],
+            },
+          ],
+        },
       },
     ];
 

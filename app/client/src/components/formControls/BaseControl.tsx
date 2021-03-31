@@ -17,10 +17,17 @@ export type ComparisonOperations =
   | "IN"
   | "NOT_IN";
 
-export type HiddenType =
-  | boolean
-  | { path: string; comparison: ComparisonOperations; value: any };
+export type HiddenType = boolean | Condition | ConditionObject;
 
+export type ConditionObject = { conditionType: string; conditions: Conditions };
+
+export type Condition = {
+  path: string;
+  comparison: ComparisonOperations;
+  value: any;
+};
+
+export type Conditions = Array<Condition> | ConditionObject;
 export interface ControlBuilder<T extends ControlProps> {
   buildPropertyControl(controlProps: T): JSX.Element;
 }
@@ -49,46 +56,5 @@ export interface ControlData {
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
 }
-
-export const hidden = {
-  conditionType: "AND",
-  conditions: [
-    {
-      conditionType: "AND",
-      conditions: [
-        {
-          path: 2,
-          value: 2,
-          comparison: "EQUALS",
-        },
-        {
-          path: 2,
-          value: 2,
-          comparison: "EQUALS",
-        },
-      ],
-    },
-    {
-      conditionType: "AND",
-      conditions: [
-        {
-          conditionType: "OR",
-          conditions: [
-            {
-              path: 2,
-              value: 3,
-              comparison: "EQUALS",
-            },
-          ],
-        },
-        {
-          path: 3,
-          value: 3,
-          comparison: "EQUALS",
-        },
-      ],
-    },
-  ],
-};
 
 export default BaseControl;
