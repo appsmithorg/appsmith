@@ -17,10 +17,10 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   getDefaultColumnProperties,
   getTableStyles,
-  reorderColumns,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { debounce } from "lodash";
 import { Size, Category } from "components/ads/Button";
+import { reorderColumns } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -250,8 +250,6 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       index,
       this.props.widgetProperties.columnOrder,
     );
-
-    console.log("Table log:", { originalColumn });
 
     this.props.openNextPanel({
       ...originalColumn,

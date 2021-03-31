@@ -151,7 +151,7 @@ export default {
     ) {
       const newColumnsInOrder = {};
 
-      props.columnOrder.forEach((id, index) => {
+      _.uniq(props.columnOrder).forEach((id, index) => {
         if (allColumns[id])
           newColumnsInOrder[id] = { ...allColumns[id], index };
       });
