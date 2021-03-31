@@ -11,7 +11,7 @@ export default [
       {
         label: "Body",
         configProperty: "actionConfiguration.body",
-        controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+        controlType: "SMART_SUBSTITUTION_DYNAMIC_TEXT",
       },
       {
         label: "Query Parameters",

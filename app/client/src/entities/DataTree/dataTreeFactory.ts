@@ -35,6 +35,12 @@ export type RunActionPayload = {
   params: Record<string, any> | string;
 };
 
+export enum EvaluationSubstitutionType {
+  TEMPLATE = "TEMPLATE",
+  PARAMETER = "PARAMETER",
+  SMART_SUBSTITUTE = "SMART_SUBSTITUTE",
+}
+
 export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   data: ActionResponse["body"];
   actionId: string;
@@ -45,12 +51,12 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
     | ActionDispatcher<RunActionPayload, [string, string, string]>
     | Record<string, any>;
   dynamicBindingPathList: DynamicPath[];
-  bindingPaths: Record<string, boolean>;
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
 
 export interface DataTreeWidget extends WidgetProps {
-  bindingPaths: Record<string, boolean>;
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }

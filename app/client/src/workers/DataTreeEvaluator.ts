@@ -17,6 +17,7 @@ import {
   DataTreeObjectEntity,
   DataTreeWidget,
   ENTITY_TYPE,
+  EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import {
   addDependantsOfNestedPropertyPaths,
@@ -28,6 +29,7 @@ import {
   getValidatedTree,
   makeParentsDependOnChildren,
   removeFunctions,
+  substituteDynamicBindingWithValues,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   validateWidgetProperty,
@@ -353,23 +355,29 @@ export default class DataTreeEvaluator {
         (currentTree: DataTree, propertyPath: string) => {
           this.logs.push(`evaluating ${propertyPath}`);
           const entityName = propertyPath.split(".")[0];
-          const entity: DataTreeEntity = currentTree[entityName];
+          const bindingPath = propertyPath.substring(
+            propertyPath.indexOf(".") + 1,
+          );
+          const entity = currentTree[entityName] as
+            | DataTreeWidget
+            | DataTreeAction;
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
           const isABindingPath =
             (isAction(entity) || isWidget(entity)) &&
-            isPathADynamicBinding(
-              entity,
-              propertyPath.substring(propertyPath.indexOf(".") + 1),
-            );
+            isPathADynamicBinding(entity, bindingPath);
           let evalPropertyValue;
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
+          const evaluationSubstitutionType =
+            entity.bindingPaths[bindingPath] ||
+            EvaluationSubstitutionType.TEMPLATE;
           if (requiresEval) {
             try {
-              evalPropertyValue = this.evaluateDynamicProperty(
-                propertyPath,
-                currentTree,
+              evalPropertyValue = this.getDynamicValue(
                 unEvalPropertyValue,
+                currentTree,
+                evaluationSubstitutionType,
+                false,
               );
             } catch (e) {
               this.errors.push({
@@ -515,6 +523,7 @@ export default class DataTreeEvaluator {
   getDynamicValue(
     dynamicBinding: string,
     data: DataTree,
+    evaluationSubstitutionType: EvaluationSubstitutionType,
     returnTriggers: boolean,
     callBackData?: Array<any>,
   ) {
@@ -543,10 +552,15 @@ export default class DataTreeEvaluator {
         }
       });
 
-      // if it is just one binding, no need to create template string
+      // if it is just one binding, return that directly
       if (stringSegments.length === 1) return values[0];
-      // else return a string template with bindings
-      return createDynamicValueString(dynamicBinding, stringSegments, values);
+      // else return a combined value according to the evaluation type
+      return substituteDynamicBindingWithValues(
+        dynamicBinding,
+        stringSegments,
+        values,
+        evaluationSubstitutionType,
+      );
     }
     return undefined;
   }
@@ -572,14 +586,6 @@ export default class DataTreeEvaluator {
     }
   }
 
-  evaluateDynamicProperty(
-    propertyPath: string,
-    currentTree: DataTree,
-    unEvalPropertyValue: any,
-  ): any {
-    return this.getDynamicValue(unEvalPropertyValue, currentTree, false);
-  }
-
   validateAndParseWidgetProperty(
     propertyPath: string,
     widget: DataTreeWidget,
@@ -594,6 +600,7 @@ export default class DataTreeEvaluator {
       const { triggers } = this.getDynamicValue(
         unEvalPropertyValue,
         currentTree,
+        EvaluationSubstitutionType.TEMPLATE,
         true,
         undefined,
       );
@@ -995,6 +1002,7 @@ export default class DataTreeEvaluator {
       evaluatedExecutionParams = this.getDynamicValue(
         `{{${JSON.stringify(executionParams)}}}`,
         this.evalTree,
+        EvaluationSubstitutionType.TEMPLATE,
         false,
       );
     }
@@ -1013,6 +1021,7 @@ export default class DataTreeEvaluator {
       this.getDynamicValue(
         `{{${binding}}}`,
         dataTreeWithExecutionParams,
+        EvaluationSubstitutionType.TEMPLATE,
         false,
       ),
     );
@@ -1061,31 +1070,6 @@ const extractReferencesFromBinding = (
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 const isDynamicValue = (value: string): boolean => DATA_BIND_REGEX.test(value);
-
-// For creating a final value where bindings could be in a template format
-const createDynamicValueString = (
-  binding: string,
-  subBindings: string[],
-  subValues: string[],
-): string => {
-  // Replace the string with the data tree values
-  let finalValue = binding;
-  subBindings.forEach((b, i) => {
-    let value = subValues[i];
-    if (Array.isArray(value) || _.isObject(value)) {
-      value = JSON.stringify(value);
-    }
-    try {
-      if (JSON.parse(value)) {
-        value = value.replace(/\\([\s\S])|(")/g, "\\$1$2");
-      }
-    } catch (e) {
-      // do nothing
-    }
-    finalValue = finalValue.replace(b, value);
-  });
-  return finalValue;
-};
 
 function isValidEntity(entity: DataTreeEntity): entity is DataTreeObjectEntity {
   if (!_.isObject(entity)) {

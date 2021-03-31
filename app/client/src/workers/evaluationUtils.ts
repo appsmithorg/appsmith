@@ -14,8 +14,10 @@ import {
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
+  EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+import { getType, Types } from "utils/TypeHelpers";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -470,4 +472,100 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   withFunction.actionPaths.push("resetWidget");
 
   return withFunction;
+};
+
+export const smartSubstituteDynamicValues = (
+  binding: string,
+  subBindings: string[],
+  subValues: string[],
+): string => {
+  let finalValue = binding;
+  subBindings.forEach((b, i) => {
+    const value = subValues[i];
+    switch (getType(value)) {
+      case Types.NUMBER:
+      case Types.BOOLEAN:
+      case Types.NULL:
+      case Types.UNDEFINED:
+        // Direct substitution
+        finalValue = finalValue.replace(b, value);
+        break;
+      case Types.STRING:
+        debugger;
+        // Add quotes to a string
+        finalValue = finalValue.replace(b, `"${value}"`);
+        break;
+      case Types.ARRAY:
+      case Types.OBJECT:
+        // Stringify and substitute
+        finalValue = finalValue.replace(b, JSON.stringify(value, null, 2));
+        break;
+    }
+  });
+  return finalValue;
+};
+
+export const parameterSubstituteDynamicValues = (
+  binding: string,
+  subBindings: string[],
+  subValues: string[],
+) => {
+  let finalValue = binding;
+  const parameters: Record<string, unknown> = {};
+  subBindings.forEach((b, i) => {
+    // Replace binding with $1, $2;
+    const key = `$${i + 1}`;
+    finalValue = finalValue.replace(b, key);
+    parameters[key] = subValues[i];
+  });
+  return { value: finalValue, parameters };
+};
+
+// For creating a final value where bindings could be in a template format
+export const templateSubstituteDynamicValues = (
+  binding: string,
+  subBindings: string[],
+  subValues: string[],
+): string => {
+  // Replace the string with the data tree values
+  let finalValue = binding;
+  subBindings.forEach((b, i) => {
+    let value = subValues[i];
+    if (Array.isArray(value) || _.isObject(value)) {
+      value = JSON.stringify(value);
+    }
+    try {
+      if (typeof value === "string" && JSON.parse(value)) {
+        value = value.replace(/\\([\s\S])|(")/g, "\\$1$2");
+      }
+    } catch (e) {
+      // do nothing
+    }
+    finalValue = finalValue.replace(b, value);
+  });
+  return finalValue;
+};
+
+export const substituteDynamicBindingWithValues = (
+  binding: string,
+  subSegments: string[],
+  subSegmentValues: string[],
+  evaluationSubstitutionType: EvaluationSubstitutionType,
+): string | { value: string; parameters: Record<string, unknown> } => {
+  const subBindings: string[] = [];
+  const subValues: string[] = [];
+  subSegments.forEach((segment, i) => {
+    if (isDynamicValue(segment)) {
+      subBindings.push(segment);
+      subValues.push(subSegmentValues[i]);
+    }
+  });
+  switch (evaluationSubstitutionType) {
+    case EvaluationSubstitutionType.TEMPLATE:
+      return templateSubstituteDynamicValues(binding, subBindings, subValues);
+    case EvaluationSubstitutionType.SMART_SUBSTITUTE:
+      return smartSubstituteDynamicValues(binding, subBindings, subValues);
+    case EvaluationSubstitutionType.PARAMETER:
+      return parameterSubstituteDynamicValues(binding, subBindings, subValues);
+  }
 };

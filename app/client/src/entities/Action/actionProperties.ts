@@ -1,20 +1,25 @@
 import { Action } from "entities/Action/index";
 import _ from "lodash";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
-const dynamicFields = ["QUERY_DYNAMIC_TEXT", "QUERY_DYNAMIC_INPUT_TEXT"];
+const dynamicFields = [
+  "QUERY_DYNAMIC_TEXT",
+  "QUERY_DYNAMIC_INPUT_TEXT",
+  "SMART_SUBSTITUTION_DYNAMIC_TEXT",
+];
 
 export const getBindingPathsOfAction = (
   action: Action,
   formConfig?: any[],
-): Record<string, true> => {
-  const bindingPaths: Record<string, true> = {
-    data: true,
-    isLoading: true,
+): Record<string, EvaluationSubstitutionType> => {
+  const bindingPaths: Record<string, EvaluationSubstitutionType> = {
+    data: EvaluationSubstitutionType.TEMPLATE,
+    isLoading: EvaluationSubstitutionType.TEMPLATE,
   };
   if (!formConfig) {
     return {
       ...bindingPaths,
-      config: true,
+      config: EvaluationSubstitutionType.TEMPLATE,
     };
   }
   const recursiveFindBindingPaths = (formConfig: any) => {
@@ -26,7 +31,12 @@ export const getBindingPathsOfAction = (
         "config.",
       );
       if (dynamicFields.includes(formConfig.controlType)) {
-        bindingPaths[configPath] = true;
+        if (formConfig.controlType === "SMART_SUBSTITUTION_DYNAMIC_TEXT") {
+          bindingPaths[configPath] =
+            EvaluationSubstitutionType.SMART_SUBSTITUTE;
+        } else {
+          bindingPaths[configPath] = EvaluationSubstitutionType.TEMPLATE;
+        }
       }
       if (formConfig.controlType === "ARRAY_FIELD") {
         const actionValue = _.get(action, formConfig.configProperty);
@@ -38,7 +48,8 @@ export const getBindingPathsOfAction = (
                 dynamicFields.includes(schemaField.controlType)
               ) {
                 const arrayConfigPath = `${configPath}[${i}].${schemaField.key}`;
-                bindingPaths[arrayConfigPath] = true;
+                bindingPaths[arrayConfigPath] =
+                  EvaluationSubstitutionType.TEMPLATE;
               }
             });
           }
