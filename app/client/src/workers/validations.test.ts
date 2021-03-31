@@ -1,6 +1,7 @@
 import { VALIDATORS, validateDateString } from "workers/validations";
 import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import moment from "moment";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -12,7 +13,7 @@ const DUMMY_WIDGET: WidgetProps = {
   rightColumn: 0,
   topRow: 0,
   type: WidgetTypes.SKELETON_WIDGET,
-  version: 0,
+  version: 2,
   widgetId: "",
   widgetName: "",
 };
@@ -474,6 +475,11 @@ describe("validateDateString test", () => {
         format: "YYYY-MM-DD",
         version: 1,
       },
+      {
+        date: "2021-03-12",
+        format: "YYYY-MM-DD",
+        version: 2,
+      },
     ];
 
     validDateStrings.forEach((item) => {
@@ -506,6 +512,29 @@ describe("validateDateString test", () => {
       expect(
         validateDateString(item.date, item.format, item.version),
       ).toBeFalsy();
+    });
+  });
+
+  it("Checks whether a valid value is returned even if a valid date is not an ISO string", () => {
+    const validator = VALIDATORS.DEFAULT_DATE;
+    const inputs = [
+      "2014/12/01",
+      "2014-12-01",
+      "01/13/2014",
+      "01-13-2014",
+      moment().toISOString(),
+      moment().toISOString(true),
+    ];
+    inputs.forEach((item) => {
+      const dateString = moment(item).toISOString(true);
+      const result = validator(item, DUMMY_WIDGET);
+
+      const expected = {
+        parsed: dateString,
+        isValid: true,
+        message: "",
+      };
+      expect(result).toStrictEqual(expected);
     });
   });
 });

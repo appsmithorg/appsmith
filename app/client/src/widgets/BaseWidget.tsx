@@ -17,7 +17,7 @@ import {
 } from "constants/WidgetConstants";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
-import { ExecuteActionPayload } from "constants/ActionConstants";
+import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";

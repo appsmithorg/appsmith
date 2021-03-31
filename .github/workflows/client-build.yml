@@ -8,14 +8,14 @@ on:
     branches: [release, master]
     # Only trigger if files have changed in this specific path
     paths:
-      - 'app/client/**'
-      - '!app/client/cypress/manual_TestSuite/**'
+      - "app/client/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
   pull_request:
     branches: [release, master]
     paths:
-      - 'app/client/**'
-      - '!app/client/cypress/manual_TestSuite/**'
+      - "app/client/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -25,6 +25,11 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Only run for internal PRs or commits to release or master
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository || 
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch'
     defaults:
       run:
         working-directory: app/client

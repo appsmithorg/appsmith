@@ -85,7 +85,10 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { forceOpenPropertyPane } from "actions/widgetActions";
+import {
+  closePropertyPane,
+  forceOpenPropertyPane,
+} from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   clearEvalPropertyCacheOfWidget,
@@ -486,6 +489,8 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         widgetName = widget.tabName;
       }
       if (saveStatus && !disallowUndo) {
+        // close property pane after delete
+        yield put(closePropertyPane());
         Toaster.show({
           text: createMessage(WIDGET_DELETE, widgetName),
           hideProgressBar: false,
@@ -642,9 +647,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
     });
 
     yield put(updateAndSaveLayout(widgets));
-
-    const widget = yield select(getWidget, action.payload.widgetId);
-
+    yield put(forceOpenPropertyPane(action.payload.widgetId));
     yield flushDeletedWidgets(action.payload.widgetId);
   }
 }

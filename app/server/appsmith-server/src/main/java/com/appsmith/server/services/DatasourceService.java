@@ -31,4 +31,6 @@ public interface DatasourceService extends CrudService<Datasource, String> {
     Flux<Datasource> saveAll(List<Datasource> datasourceList);
 
     AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication);
+
+    public Mono<Datasource> populateHintMessages(Datasource datasource);
 }

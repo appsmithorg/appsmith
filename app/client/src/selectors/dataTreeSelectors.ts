@@ -1,14 +1,15 @@
 import { createSelector } from "reselect";
-import { getActionsForCurrentPage, getAppData } from "./entitiesSelector";
+import {
+  getActionsForCurrentPage,
+  getAppData,
+  getPluginEditorConfigs,
+} from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { AppState } from "../reducers";
+import { AppState } from "reducers";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -16,20 +17,17 @@ export const getUnevaluatedDataTree = createSelector(
   getWidgetsMeta,
   getPageList,
   getAppData,
-  (actions, widgets, widgetsMeta, pageListPayload, appData) => {
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.CONSTRUCT_UNEVAL_TREE,
-    );
+  getPluginEditorConfigs,
+  (actions, widgets, widgetsMeta, pageListPayload, appData, editorConfigs) => {
     const pageList = pageListPayload || [];
-    const unevalTree = DataTreeFactory.create({
+    return DataTreeFactory.create({
       actions,
       widgets,
       widgetsMeta,
       pageList,
       appData,
+      editorConfigs,
     });
-    PerformanceTracker.stopTracking();
-    return unevalTree;
   },
 );
 

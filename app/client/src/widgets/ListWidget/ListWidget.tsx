@@ -20,7 +20,7 @@ import ListComponent from "./ListComponent";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 import { ContainerWidgetProps } from "../ContainerWidget";
 import propertyPaneConfig from "./ListPropertyPaneConfig";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination from "./ListPagination";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";

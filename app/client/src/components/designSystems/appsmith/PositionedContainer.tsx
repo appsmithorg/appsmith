@@ -3,6 +3,7 @@ import { BaseStyle } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
+import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 
 const PositionedWidget = styled.div`
   &:hover {
@@ -20,8 +21,11 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
   const x = props.style.xPosition + (props.style.xPositionUnit || "px");
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
+  const openPropertyPane = useClickOpenPropPane();
+
   return (
     <PositionedWidget
+      onClickCapture={openPropertyPane}
       style={{
         position: "absolute",
         left: x,

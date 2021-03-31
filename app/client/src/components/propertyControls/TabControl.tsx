@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledHiddenIcon,
@@ -12,7 +12,7 @@ import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 
@@ -67,6 +67,8 @@ type RenderComponentProps = {
 
 function TabControlComponent(props: RenderComponentProps) {
   const { deleteOption, updateOption, item, index, toggleVisibility } = props;
+  const debouncedUpdate = debounce(updateOption, 1000);
+  const [visibility, setVisibility] = useState(item.isVisible);
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
@@ -74,7 +76,7 @@ function TabControlComponent(props: RenderComponentProps) {
         dataType="text"
         placeholder="Tab Title"
         onChange={(value: string) => {
-          updateOption(index, value);
+          debouncedUpdate(index, value);
         }}
         defaultValue={item.label}
       />
@@ -87,13 +89,14 @@ function TabControlComponent(props: RenderComponentProps) {
           deleteOption(index);
         }}
       />
-      {item.isVisible || item.isVisible === undefined ? (
+      {visibility || visibility === undefined ? (
         <StyledVisibleIcon
           className="t--show-tab-btn"
           height={20}
           width={20}
           marginRight={36}
           onClick={() => {
+            setVisibility(!visibility);
             toggleVisibility && toggleVisibility(index);
           }}
         />
@@ -104,6 +107,7 @@ function TabControlComponent(props: RenderComponentProps) {
           width={20}
           marginRight={36}
           onClick={() => {
+            setVisibility(!visibility);
             toggleVisibility && toggleVisibility(index);
           }}
         />
@@ -157,6 +161,7 @@ class TabControl extends BaseControl<ControlProps> {
       <TabsWrapper>
         <DroppableComponent
           items={tabs}
+          itemHeight={45}
           renderComponent={TabControlComponent}
           deleteOption={this.deleteOption}
           updateOption={this.updateOption}
@@ -228,6 +233,7 @@ class TabControl extends BaseControl<ControlProps> {
       id: string;
       label: string;
       widgetId: string;
+      isVisible: boolean;
     }> = this.props.propertyValue;
     const newTabId = generateReactKey({ prefix: "tab" });
     const newTabLabel = getNextEntityName(
@@ -236,7 +242,12 @@ class TabControl extends BaseControl<ControlProps> {
     );
     tabs = [
       ...tabs,
-      { id: newTabId, label: newTabLabel, widgetId: generateReactKey() },
+      {
+        id: newTabId,
+        label: newTabLabel,
+        widgetId: generateReactKey(),
+        isVisible: true,
+      },
     ];
 
     this.updateProperty(this.props.propertyName, tabs);

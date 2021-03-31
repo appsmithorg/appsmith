@@ -3,10 +3,10 @@ import {
   all,
   call,
   put,
+  race,
   select,
   take,
   takeLatest,
-  race,
 } from "redux-saga/effects";
 import {
   InitializeEditorPayload,
@@ -24,7 +24,7 @@ import {
   updateAppPersistentStore,
 } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourceActions";
-import { fetchPlugins } from "actions/pluginActions";
+import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
 import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -36,16 +36,22 @@ import { populatePageDSLsSaga } from "./PageSagas";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import {
-  restoreRecentEntitiesRequest,
   resetRecentEntities,
+  restoreRecentEntitiesRequest,
 } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
   const { applicationId, pageId } = initializeEditorAction.payload;
   try {
+    PerformanceTracker.startAsyncTracking(
+      PerformanceTransactionName.INIT_EDIT_APP,
+    );
     yield put(setAppMode(APP_MODE.EDIT));
     yield put(updateAppPersistentStore(getPersistentAppStore(applicationId)));
     yield put({ type: ReduxActionTypes.START_EVALUATION });
@@ -105,7 +111,28 @@ function* initializeEditorSaga(
         type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
-            resultOfPrimaryCalls,
+            resultOfSecondaryCalls,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
+      });
+      return;
+    }
+
+    yield put(fetchPluginFormConfigs());
+
+    const resultOfPluginFormsCall = yield race({
+      success: take(ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS),
+      failure: take(ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR),
+    });
+
+    if (resultOfPluginFormsCall.failure) {
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfPluginFormsCall,
             "failure.payload.error.code",
             ERROR_CODES.SERVER_ERROR,
           ),
@@ -127,6 +154,9 @@ function* initializeEditorSaga(
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.INIT_EDIT_APP,
+    );
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
@@ -146,6 +176,9 @@ export function* initializeAppViewerSaga(
   action: ReduxAction<{ applicationId: string; pageId: string }>,
 ) {
   const { applicationId, pageId } = action.payload;
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.INIT_VIEW_APP,
+  );
   yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put(updateAppPersistentStore(getPersistentAppStore(applicationId)));
   yield put({ type: ReduxActionTypes.START_EVALUATION });
@@ -213,6 +246,9 @@ export function* initializeAppViewerSaga(
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.INIT_VIEW_APP,
+    );
     if ("serviceWorker" in navigator) {
       yield put({
         type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,

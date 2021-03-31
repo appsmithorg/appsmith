@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.Param;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface SmartSubstitutionInterface {
@@ -23,7 +24,7 @@ public interface SmartSubstitutionInterface {
     default Object smartSubstitutionOfBindings(Object input,
                                                List<String> mustacheValuesInOrder,
                                                List<Param> evaluatedParams,
-                                               List<String> insertedParams,
+                                               List<Map.Entry<String, String>> insertedParams,
                                                Object... args) throws AppsmithPluginException {
 
         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
@@ -35,9 +36,8 @@ public interface SmartSubstitutionInterface {
                 // If the evaluated value of the mustache binding is present, set it in the prepared statement
                 if (matchingParam.isPresent()) {
                     String value = matchingParam.get().getValue();
-                    insertedParams.add(value);
                     input = substituteValueInInput(i + 1, key,
-                            value, input, args);
+                            value, input, insertedParams, args);
                 } else {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Uh oh! This is unexpected. " +
                             "Did not receive any information for the binding "
@@ -50,7 +50,7 @@ public interface SmartSubstitutionInterface {
 
     // Default implementation does not do any substitution. The plugin doing intelligent substitution is responsible
     // for overriding this function.
-    default Object substituteValueInInput(int index, String binding, String value, Object input, Object... args) throws AppsmithPluginException {
+    default Object substituteValueInInput(int index, String binding, String value, Object input, List<Map.Entry<String, String>> insertedParams, Object... args) throws AppsmithPluginException {
         return input;
     }
 }
