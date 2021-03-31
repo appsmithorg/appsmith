@@ -15,7 +15,7 @@ export const SeverityIcon: Record<Severity, string> = {
 };
 
 export const SeverityIconColor: Record<Severity, string> = {
-  [Severity.INFO]: "rgb(255, 255, 255)",
+  [Severity.INFO]: "#03B365",
   [Severity.ERROR]: "rgb(255, 255, 255)",
   [Severity.WARNING]: "rgb(224, 179, 14)",
 };

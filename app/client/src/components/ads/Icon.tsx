@@ -2,6 +2,8 @@ import React, { forwardRef, Ref } from "react";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
 import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
+import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
+import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
@@ -97,6 +99,8 @@ export const sizeHandler = (size?: IconSize) => {
 export const IconCollection = [
   "book",
   "bug",
+  "cancel",
+  "cross",
   "delete",
   "user",
   "general",
@@ -159,6 +163,9 @@ export const IconWrapper = styled.span<IconProps>`
     path {
       fill: ${(props) => props.fillColor || props.theme.colors.icon.normal};
     }
+    circle {
+      fill: ${(props) => props.fillColor || props.theme.colors.icon.normal};
+    }
   }
   ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
@@ -195,6 +202,12 @@ const Icon = forwardRef(
         break;
       case "bug":
         returnIcon = <BugIcon />;
+        break;
+      case "cancel":
+        returnIcon = <CancelIcon />;
+        break;
+      case "cross":
+        returnIcon = <CrossIcon />;
         break;
       case "delete":
         returnIcon = <DeleteIcon />;

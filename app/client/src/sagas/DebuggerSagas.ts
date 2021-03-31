@@ -38,12 +38,11 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
       });
     }
   }
-
-  yield put(debuggerLog(payload));
 }
 
 function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
   const { payload } = action;
+  yield put(debuggerLog(payload));
 
   switch (payload.logType) {
     case "WIDGET_UPDATE":
@@ -87,8 +86,6 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
       });
       break;
   }
-
-  yield put(debuggerLog(payload));
 }
 
 export default function* debuggerSagasListeners() {

@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { TabComponent } from "components/ads/Tabs";
-import DebuggerLogs from "./DebuggerLogs";
 import Icon, { IconSize } from "components/ads/Icon";
+import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch } from "react-redux";
 import { showDebugger } from "actions/debuggerActions";
 import Errors from "./Errors";
@@ -24,8 +24,9 @@ const Container = styled.div`
 
   .close-debugger {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 0px;
+    right: 0px;
+    padding: 12px 15px;
   }
 `;
 
@@ -50,8 +51,8 @@ const Content = () => {
       />
       <Icon
         className="close-debugger"
-        name="downArrow"
-        size={IconSize.XXS}
+        name="cross"
+        size={IconSize.SMALL}
         onClick={() => {
           dispatch(showDebugger(false));
         }}

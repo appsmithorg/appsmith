@@ -37,7 +37,7 @@ const FilterHeader = (props: any) => {
   return (
     <Wrapper>
       <Icon
-        name="delete"
+        name="cancel"
         size={IconSize.XL}
         onClick={() => dispatch(clearLogs())}
       />
