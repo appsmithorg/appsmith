@@ -45,6 +45,7 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
+import * as Sentry from "@sentry/react";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -459,4 +460,4 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
 });
 
-export default connect(mapStateToProps)(CodeEditor);
+export default Sentry.withProfiler(connect(mapStateToProps)(CodeEditor));

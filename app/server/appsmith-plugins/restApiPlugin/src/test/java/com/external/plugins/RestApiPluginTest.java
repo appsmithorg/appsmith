@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
@@ -30,6 +31,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -39,7 +41,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class RestApiPluginTest {
-    RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor();
+    RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor(() -> 10 * 1024 * 1024);
 
     @Before
     public void setUp() {
@@ -56,7 +58,7 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -104,7 +106,7 @@ public class RestApiPluginTest {
         actionConfig.setHeaders(List.of(new Property("content-type", "application/x-www-form-urlencoded")));
         actionConfig.setHttpMethod(HttpMethod.POST);
         actionConfig.setBodyFormData(List.of(new Property("key", "value"), new Property("key1", "value1")));
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -127,7 +129,7 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -151,7 +153,7 @@ public class RestApiPluginTest {
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -183,7 +185,7 @@ public class RestApiPluginTest {
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -215,7 +217,7 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(queryParams);
         actionConfig.setEncodeParamsToggle(true);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -245,7 +247,7 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(queryParams);
         actionConfig.setEncodeParamsToggle(null);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -276,7 +278,8 @@ public class RestApiPluginTest {
         actionConfig.setEncodeParamsToggle(false);
 
         Mono<RestApiPlugin.RestApiPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
-        Mono<ActionExecutionResult> resultMono = pluginExecutorMono.flatMap(executor -> executor.execute(null,
+        Mono<ActionExecutionResult> resultMono = pluginExecutorMono.flatMap(executor -> executor.executeParameterized(null,
+                new ExecuteActionDTO(),
                 dsConfig,
                 actionConfig));
         StepVerifier.create(resultMono)
@@ -372,6 +375,31 @@ public class RestApiPluginTest {
                     } catch (ParseException | JsonProcessingException e) {
                         e.printStackTrace();
                     }
+
+                    // Assert the debug request parameters are getting set.
+                    ActionExecutionRequest request = result.getRequest();
+                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    assertEquals(parameters.size(), 7);
+
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "this is a string! Yay :D");
+                    assertEquals(parameterEntry.getValue(), "STRING");
+
+                    parameterEntry = parameters.get(1);
+                    assertEquals(parameterEntry.getKey(), "true");
+                    assertEquals(parameterEntry.getValue(), "BOOLEAN");
+
+                    parameterEntry = parameters.get(2);
+                    assertEquals(parameterEntry.getKey(), "0");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
+
+                    parameterEntry = parameters.get(3);
+                    assertEquals(parameterEntry.getKey(), "12/01/2018");
+                    assertEquals(parameterEntry.getValue(), "STRING");
+
+                    parameterEntry = parameters.get(4);
+                    assertEquals(parameterEntry.getKey(), "null");
+                    assertEquals(parameterEntry.getValue(), "NULL");
                 })
                 .verifyComplete();
     }

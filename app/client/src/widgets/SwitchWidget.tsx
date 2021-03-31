@@ -9,7 +9,7 @@ import {
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { SwitchComponent } from "components/designSystems/blueprint/SwitchComponent";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {

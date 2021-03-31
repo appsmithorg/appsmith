@@ -7,7 +7,7 @@ import {
   ExecuteActionPayload,
   ExecuteErrorPayload,
   PageAction,
-} from "constants/ActionConstants";
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -98,6 +98,15 @@ export const forceOpenPropertyPane = (id: string) => {
     payload: {
       widgetId: id,
       force: true,
+    },
+  };
+};
+
+export const closePropertyPane = () => {
+  return {
+    type: ReduxActionTypes.HIDE_PROPERTY_PANE,
+    payload: {
+      force: false,
     },
   };
 };

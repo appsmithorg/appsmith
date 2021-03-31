@@ -46,7 +46,7 @@ describe("Table Widget property pane feature validation", function() {
       .last()
       .click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Table widget toggle test for text alignment", function() {
@@ -55,9 +55,10 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleTextAlign)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingGenAlign);
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-end");
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-start");
   });
@@ -69,14 +70,17 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleTextAlign)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(widgetsPage.textSize)
       .last()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.selectTextSize("Heading 1");
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
   });
@@ -100,6 +104,7 @@ describe("Table Widget property pane feature validation", function() {
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.greenColor).click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)");
@@ -111,6 +116,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.backgroundColor)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.xpath(widgetsPage.greenColor)
       .first()

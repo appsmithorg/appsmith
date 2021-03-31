@@ -3,7 +3,7 @@ import BaseWidget, { WidgetProps } from "./BaseWidget";
 import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
 import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
-import { ExecuteActionPayload } from "../constants/ActionConstants";
+import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 
 type DebouncedExecuteActionPayload = Omit<
   ExecuteActionPayload,
