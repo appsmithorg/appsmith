@@ -39,7 +39,7 @@ const UserName = styled.span`
 const CommentCard = ({ comment }: { comment: any }) => {
   const { authorName, body } = comment;
   return (
-    <StyledContainer>
+    <StyledContainer data-cy={`t--comment-card-${comment.id}`}>
       <CommentHeader>
         <div style={{ display: "flex" }}>
           <ProfileImage userName={authorName || ""} side={24} />

@@ -89,7 +89,11 @@ const OverlayCommentsWrapper = ({ children, refId, widgetType }: Props) => {
     preventInteractionsBlacklist.indexOf(widgetType) !== -1;
 
   return (
-    <Container ref={containerRef} onClick={clickHandler}>
+    <Container
+      ref={containerRef}
+      onClick={clickHandler}
+      data-cy="overlay-comments-wrapper"
+    >
       {children}
       {/* Prevent clicks to the component in the comment mode */}
       {!shouldNotPreventComponentInteraction && <PreventClicksOverlay />}

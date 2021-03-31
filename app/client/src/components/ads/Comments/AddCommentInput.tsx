@@ -81,11 +81,12 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
           value={value}
           onKeyDown={handleKeyDown}
           autoFocus
+          data-cy="add-comment-input"
         />
         <StyledEmojiTrigger>
           <EmojiPicker onSelectEmoji={handleEmojiClick} />
         </StyledEmojiTrigger>
-        <StyledSendButton onClick={onSaveComment}>
+        <StyledSendButton onClick={onSaveComment} data-cy="add-comment-submit">
           <Icon
             name="send-button"
             fillColor={theme.colors.comments.sendButton}

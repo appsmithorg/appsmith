@@ -46,6 +46,7 @@ const UnpublishedCommentThread = withTheme(
           e.preventDefault();
           e.stopPropagation();
         }}
+        data-cy="unpublished-comment-thread"
       >
         <CommentTriggerContainer top={top} left={left}>
           <Popover

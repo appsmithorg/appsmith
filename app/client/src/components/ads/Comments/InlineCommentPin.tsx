@@ -42,6 +42,7 @@ const InlineCommentPin = withTheme(
           e.preventDefault();
           e.stopPropagation();
         }}
+        data-cy="inline-comment-pin"
       >
         <Popover
           hasBackdrop
@@ -58,6 +59,7 @@ const InlineCommentPin = withTheme(
             name="pin"
             fillColor={theme.colors.comments.pin}
             size={IconSize.XXL}
+            data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
           />
           <InlineCommentThreadContainer
             isOpen={!!commentThread.isVisible}

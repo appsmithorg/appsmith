@@ -73,7 +73,8 @@ const InlineCommentThreadContainer = ({
   };
 
   const scrollToBottom = () => {
-    messagesBottomRef.current?.scrollIntoView();
+    if (typeof messagesBottomRef.current?.scrollIntoView === "function")
+      messagesBottomRef.current?.scrollIntoView();
   };
 
   const resolveCommentThread = () => {
