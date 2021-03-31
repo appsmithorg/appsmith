@@ -117,7 +117,7 @@ const ForkApplicationModal = (props: any) => {
 
   return (
     <StyledDialog
-      title={"Select the organisation to fork"}
+      title={"Choose where to fork the app"}
       maxHeight={"540px"}
       className={"fork-modal"}
       canOutsideClickClose={true}

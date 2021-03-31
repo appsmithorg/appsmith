@@ -10,13 +10,13 @@ import { ApiResponse } from "api/ApiResponses";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createMessage, CURL_IMPORT_SUCCESS } from "constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { CURL } from "constants/ApiConstants";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
 import { API_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { type, pageId, name } = action.payload;

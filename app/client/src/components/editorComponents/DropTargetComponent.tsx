@@ -242,11 +242,11 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       if (!props.parentId) {
         selectWidget && selectWidget(props.widgetId);
         focusWidget && focusWidget(props.widgetId);
+        showPropertyPane && showPropertyPane();
       } else {
         selectWidget && selectWidget(props.parentId);
         focusWidget && focusWidget(props.parentId);
       }
-      showPropertyPane && showPropertyPane();
     }
 
     if (!isCommentMode) {

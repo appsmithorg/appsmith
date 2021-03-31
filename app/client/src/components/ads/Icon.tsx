@@ -50,6 +50,7 @@ import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
 import Spinner from "./Spinner";
+import { ControlIcons } from "icons/ControlIcons";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -144,6 +145,11 @@ export const IconCollection = [
   "emoji",
   "pin",
   "oval-check",
+  "HEADING_ONE",
+  "HEADING_TWO",
+  "HEADING_THREE",
+  "PARAGRAPH",
+  "PARAGRAPH_TWO",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -332,6 +338,16 @@ const Icon = forwardRef(
       case "oval-check":
         returnIcon = <OvalCheck />;
         break;
+
+      case "HEADING_ONE":
+      case "HEADING_TWO":
+      case "HEADING_THREE":
+      case "PARAGRAPH":
+      case "PARAGRAPH_TWO":
+        const ControlIcon = ControlIcons[props.name];
+        returnIcon = <ControlIcon width={24} height={24} />;
+        break;
+
       default:
         returnIcon = null;
         break;

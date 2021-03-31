@@ -339,7 +339,7 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
     if (isValidResponse) {
       AnalyticsUtil.reset();
       yield put(logoutUserSuccess());
-      localStorage.removeItem("THEME");
+      localStorage.clear();
       yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
     }
   } catch (error) {

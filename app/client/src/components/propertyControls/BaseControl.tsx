@@ -40,6 +40,7 @@ export interface ControlData
   evaluatedValue: any;
   validationMessage?: string;
   widgetProperties: any;
+  useValidationMessage?: boolean;
 }
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
