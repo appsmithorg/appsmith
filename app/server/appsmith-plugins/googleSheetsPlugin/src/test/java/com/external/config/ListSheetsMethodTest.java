@@ -13,8 +13,8 @@ public class ListSheetsMethodTest {
     public void testTransformResponse_missingJSON_throwsException() {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        ListSheetsMethod listSheetsMethod = new ListSheetsMethod();
-        listSheetsMethod.transformResponse(null, objectMapper);
+        ListSheetsMethod listSheetsMethod = new ListSheetsMethod(objectMapper);
+        listSheetsMethod.transformResponse(null, null);
     }
 
     @Test
@@ -27,8 +27,8 @@ public class ListSheetsMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        ListSheetsMethod listSheetsMethod = new ListSheetsMethod();
-        JsonNode result = listSheetsMethod.transformResponse(jsonNode, objectMapper);
+        ListSheetsMethod listSheetsMethod = new ListSheetsMethod(objectMapper);
+        JsonNode result = listSheetsMethod.transformResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -45,8 +45,8 @@ public class ListSheetsMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        ListSheetsMethod listSheetsMethod = new ListSheetsMethod();
-        JsonNode result = listSheetsMethod.transformResponse(jsonNode, objectMapper);
+        ListSheetsMethod listSheetsMethod = new ListSheetsMethod(objectMapper);
+        JsonNode result = listSheetsMethod.transformResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -57,17 +57,17 @@ public class ListSheetsMethodTest {
     public void testTransformResponse_validFiles_toListOfFiles() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        final String jsonString = "{\"key1\":\"value1\",\"files\":[\"Some\",\"123\",\"values\",\"to\"]}";
+        final String jsonString = "{\"key1\":\"value1\",\"files\":[{\"id\":\"1\", \"name\":\"test\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
         Assert.assertNotNull(jsonNode);
 
-        ListSheetsMethod listSheetsMethod = new ListSheetsMethod();
-        JsonNode result = listSheetsMethod.transformResponse(jsonNode, objectMapper);
+        ListSheetsMethod listSheetsMethod = new ListSheetsMethod(objectMapper);
+        JsonNode result = listSheetsMethod.transformResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
-        Assert.assertTrue("Some".equalsIgnoreCase(result.get(0).asText()));
+        Assert.assertTrue("Test".equalsIgnoreCase(result.get(0).get("name").asText()));
     }
 }

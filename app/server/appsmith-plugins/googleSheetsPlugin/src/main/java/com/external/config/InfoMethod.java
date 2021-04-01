@@ -2,36 +2,42 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.Property;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.JsonSyntaxException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 /**
- * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
+ * API reference: https://developers.google.com/drive/api/v3/reference/files/get
+ * For allowed fields: https://developers.google.com/drive/api/v3/reference/files
  */
 public class InfoMethod implements Method {
 
+    ObjectMapper objectMapper;
+
+    public InfoMethod(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+    public boolean validateMethodRequest(MethodConfig methodConfig, String body) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
 
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
-                methodConfig.getSpreadsheetId() /* spreadsheet Id */);
+        return true;
+    }
 
-        uriBuilder.queryParam("includeGridData", Boolean.FALSE);
+    @Override
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
+                methodConfig.getSpreadsheetId() +
+                        "?fields=id,name,permissions/role,createdTime,modifiedTime");
 
         return webClient.method(HttpMethod.GET)
-                .uri(uriBuilder.build(true).toUri())
+                .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.empty());
     }
 
