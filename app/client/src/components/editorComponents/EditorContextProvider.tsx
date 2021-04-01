@@ -12,7 +12,7 @@ import {
   BatchPropertyUpdatePayload,
 } from "actions/controlActions";
 
-import { ExecuteActionPayload } from "constants/ActionConstants";
+import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { OccupiedSpace } from "constants/editorConstants";
 

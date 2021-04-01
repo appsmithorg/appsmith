@@ -56,6 +56,44 @@
           "initialValue": ""
         },
         {
+          "label": "Timestamp Value Path Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "timestampValuePath",
+          "hidden": true
+        },
+        {
+          "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "[\"checkinLog.timestampKey\", \"auditLog.timestampKey\"]",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value":  ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT"]
+          }
+        },
+        {
+          "label": "Delete Key Value Pair Path Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "deleteKeyValuePairPath",
+          "hidden": true
+        },
+        {
+          "label": "Delete Key Value Pair Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "[\"userKey.nestedNamekey\", \"cityKey.nestedPincodeKey\"]",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value":  ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT", "CREATE_DOCUMENT", "ADD_TO_COLLECTION", "SET_DOCUMENT"]
+          }
+        },
+        {
           "label": "Order By Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
           "controlType": "INPUT_TEXT",

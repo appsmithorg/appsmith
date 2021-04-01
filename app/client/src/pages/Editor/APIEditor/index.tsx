@@ -36,6 +36,7 @@ import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { Theme } from "constants/DefaultTheme";
+import { getPluginSettingConfigs } from "selectors/entitiesSelector";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -52,6 +53,7 @@ interface ReduxStateProps {
   pages: any;
   plugins: Plugin[];
   pluginId: any;
+  settingsConfig: any;
   apiAction: Action | ActionData | RapidApiAction | undefined;
   paginationType: PaginationType;
   isEditorInitialized: boolean;
@@ -200,6 +202,7 @@ class ApiEditor extends React.Component<Props> {
                     : ""
                 }
                 apiName={this.props.apiName}
+                settingsConfig={this.props.settingsConfig}
               />
             )}
 
@@ -233,6 +236,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
   const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
+  const pluginId = _.get(apiAction, "pluginId", "");
+  const settingsConfig = getPluginSettingConfigs(state, pluginId);
   return {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
@@ -240,7 +245,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pages: state.entities.pageList.pages,
     apiName: apiName || "",
     plugins: state.entities.plugins.list,
-    pluginId: _.get(apiAction, "pluginId"),
+    pluginId,
+    settingsConfig,
     paginationType: _.get(apiAction, "actionConfiguration.paginationType"),
     apiAction,
     isRunning: isRunning[props.match.params.apiId],
