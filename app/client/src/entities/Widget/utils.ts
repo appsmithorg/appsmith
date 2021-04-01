@@ -124,13 +124,13 @@ export const getAllPathsFromPropertyConfig = (
 };
 
 export const nextAvailableRowInContainer = (
-  parenContainerId: string,
+  parentContainerId: string,
   canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
 ) => {
   return (
     Object.values(canvasWidgets).reduce(
       (prev: number, next: any) =>
-        next?.parentId === parenContainerId && next.bottomRow > prev
+        next?.parentId === parentContainerId && next.bottomRow > prev
           ? next.bottomRow
           : prev,
       0,
