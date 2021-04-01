@@ -186,10 +186,12 @@ public class AuthenticationService {
                 })
                 // We have no use of the datasource object during redirection, we merely send the response as a success state
                 .flatMap((datasource -> this.getPageRedirectUrl(state, null)))
-                .onErrorResume(e -> {
-                    log.debug("Error while retrieving access token: ", e);
-                    return this.getPageRedirectUrl(state, "appsmith_error");
-                });
+                .onErrorResume(
+                        e -> !(AppsmithError.UNAUTHORIZED_ACCESS.equals(((AppsmithException) e).getError())),
+                        e -> {
+                            log.debug("Error while retrieving access token: ", e);
+                            return this.getPageRedirectUrl(state, "appsmith_error");
+                        });
     }
 
     private Mono<String> getPageRedirectUrl(String state, String error) {
