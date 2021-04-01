@@ -11,10 +11,8 @@ import {
   ColumnTypes,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
-  FontStyleTypes,
   ColumnProperties,
   CellLayoutProperties,
-  TextSizes,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { isString, isEmpty, findIndex, without } from "lodash";
@@ -28,6 +26,7 @@ import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
+import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 
 export const renderCell = (
   value: any,
