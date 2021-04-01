@@ -4,8 +4,10 @@ describe("globalsearch utils", () => {
   it("returns default github docs", async () => {
     let documents = [];
     await fetchDefaultDocs(
-      (b) => {
+      (truthy) => {
         // do nothing for now
+        // to turn off errors
+        expect(truthy === null || typeof truthy === "boolean").toBeTruthy();
       },
       (docs) => {
         documents = docs;
