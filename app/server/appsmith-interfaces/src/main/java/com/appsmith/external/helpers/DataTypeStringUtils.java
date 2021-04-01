@@ -211,6 +211,7 @@ public class DataTypeStringUtils {
                 try {
                     JSONObject jsonObject = (JSONObject) parser.parse(replacement);
                     String jsonString = String.valueOf(objectMapper.writeValueAsString(jsonObject));
+                    // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
                     input = questionPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(jsonString));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(

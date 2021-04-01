@@ -616,7 +616,7 @@ public class MongoPluginTest {
                     ActionExecutionRequest request = result.getRequest();
                     List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
                     assertEquals(parameters.size(), 4);
-                    
+
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
                     assertEquals(parameterEntry.getKey(), "users");
                     assertEquals(parameterEntry.getValue(), "STRING");
