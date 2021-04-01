@@ -251,7 +251,7 @@ abstract class BaseWidget<
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
-          if (!this.props.dragDisabled) content = this.makeDraggable(content);
+          content = this.makeDraggable(content);
           content = this.makePositioned(content);
         }
         return content;

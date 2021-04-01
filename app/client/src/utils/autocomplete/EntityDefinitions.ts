@@ -224,7 +224,7 @@ export const entityDefinitions = {
     isDisabled: "bool",
     uploadedFileUrls: "string",
   },
-  LIST_WIDGET: {
+  LIST_WIDGET: (widget: any) => ({
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
     "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
@@ -233,7 +233,8 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
     },
     isVisible: isVisible,
-  },
+    selectedRow: generateTypeDef(widget.selectedRow),
+  }),
 };
 
 export const GLOBAL_DEFS = {

@@ -23,6 +23,7 @@ import propertyPaneConfig from "./ListPropertyPaneConfig";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination from "./ListPagination";
+import withMeta, { WithMeta } from "./../MetaHOC";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
@@ -37,9 +38,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     page: 1,
   };
 
-  /** this variable stores template widget object */
-  template = undefined;
-
   /**
    * returns the property pane config of the widget
    */
@@ -48,7 +46,25 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   }
 
   static getDerivedPropertiesMap() {
-    return {};
+    return {
+      selectedRow: `{{(()=>{
+        const selectedRowIndex =
+          this.selectedRowIndex === undefined ||
+          Number.isNaN(parseInt(this.selectedRowIndex))
+            ? -1
+            : parseInt(this.selectedRowIndex);
+        const items = this.items || [];
+        if (selectedRowIndex === -1) {
+          const emptyRow = { ...items[0] };
+          Object.keys(emptyRow).forEach((key) => {
+            emptyRow[key] = "";
+          });
+          return emptyRow;
+        }
+        const selectedRow = { ...items[selectedRowIndex] };
+        return selectedRow;
+      })()}}`,
+    };
   }
 
   /**
@@ -112,6 +128,20 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     action: string | undefined,
     onComplete: () => void,
   ) => {
+    // setting selectedRowIndex on click of container
+    const selectedRowIndex = isNumber(this.props.selectedRowIndex)
+      ? this.props.selectedRowIndex
+      : -1;
+
+    if (selectedRowIndex !== rowIndex) {
+      this.props.updateWidgetMetaProperty("selectedRowIndex", rowIndex, {
+        dynamicString: this.props.onRowSelected,
+        event: {
+          type: EventType.ON_ROW_SELECTED,
+        },
+      });
+    }
+
     if (!action) return;
 
     try {
@@ -267,16 +297,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     widget: WidgetProps,
     itemIndex: number,
   ) => {
+    const { page } = this.state;
+    const { perPage } = this.shouldPaginate();
+
     if (itemIndex > 0 && this.props.renderMode === RenderModes.CANVAS) {
-      set(
-        widget,
-        `widgetId`,
-        `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
-      );
-      set(widget, `resizeDisabled`, true);
-      set(widget, `settingsControlDisabled`, true);
-      set(widget, `dragDisabled`, true);
-      set(widget, `dropDisabled`, true);
+      const originalIndex = (page - 1) * perPage - itemIndex;
+
+      if (originalIndex !== 0) {
+        set(
+          widget,
+          `widgetId`,
+          `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
+        );
+
+        set(widget, `resizeDisabled`, true);
+        set(widget, `settingsControlDisabled`, true);
+        set(widget, `dragDisabled`, true);
+        set(widget, `dropDisabled`, true);
+      }
     }
 
     return widget;
@@ -504,7 +542,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             current={this.state.page}
             perPage={perPage}
             onChange={(page: number) => this.setState({ page })}
-            disabled={this.props.renderMode === RenderModes.CANVAS}
+            disabled={false && this.props.renderMode === RenderModes.CANVAS}
           />
         )}
       </ListComponent>
@@ -529,4 +567,4 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
 }
 
 export default ListWidget;
-export const ProfiledListWidget = Sentry.withProfiler(ListWidget);
+export const ProfiledListWidget = Sentry.withProfiler(withMeta(ListWidget));

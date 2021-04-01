@@ -34,10 +34,10 @@ const PropertyPaneConfig = [
       },
 
       {
-        helpText: "Gap between items in Pixels",
+        helpText: "Spacing between items in Pixels",
         placeholderText: "0",
         propertyName: "gridGap",
-        label: "Grid Gap",
+        label: "Item Spacing (px)",
         controlType: "INPUT_TEXT",
         isBindProperty: false,
         isTriggerProperty: false,
