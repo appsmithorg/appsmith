@@ -1,4 +1,10 @@
-import { isHidden, getConfigInitialValues } from "./utils";
+import {
+  isHidden,
+  getConfigInitialValues,
+  caculateIsHidden,
+  evaluateCondtionWithType,
+} from "./utils";
+import { HiddenType } from "./BaseControl";
 
 describe("isHidden test", () => {
   it("Test for isHidden true", () => {
@@ -243,5 +249,38 @@ describe("getConfigInitialValues test", () => {
     testCases.forEach((testCase) => {
       expect(getConfigInitialValues(testCase.input)).toEqual(testCase.output);
     });
+  });
+});
+
+describe("caculateIsHidden test", () => {
+  it("calcualte hidden field value", () => {
+    const values = { name: "Name" };
+    const hiddenTruthy: HiddenType = {
+      path: "name",
+      comparison: "EQUALS",
+      value: "Name",
+    };
+    const hiddenFalsy: HiddenType = {
+      path: "name",
+      comparison: "EQUALS",
+      value: "Different Name",
+    };
+    expect(caculateIsHidden(values, hiddenTruthy)).toBeTruthy();
+    expect(caculateIsHidden(values, hiddenFalsy)).toBeFalsy();
+  });
+});
+
+describe("evaluateCondtionWithType test", () => {
+  it("accumulate boolean of array into one based on conditionType", () => {
+    const andConditionType = "AND";
+    const orConditionType = "OR";
+    const booleanArray = [true, false, true];
+
+    expect(
+      evaluateCondtionWithType(booleanArray, andConditionType),
+    ).toBeFalsy();
+    expect(
+      evaluateCondtionWithType(booleanArray, orConditionType),
+    ).toBeTruthy();
   });
 });
