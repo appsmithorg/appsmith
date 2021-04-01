@@ -6,7 +6,18 @@ const dynamicFields = [
   "QUERY_DYNAMIC_TEXT",
   "QUERY_DYNAMIC_INPUT_TEXT",
   "SMART_SUBSTITUTION_DYNAMIC_TEXT",
+  "PREPARED_STATEMENT_DYNAMIC_TEXT",
 ];
+
+const getCorrectEvaluationSubstitutionType = (controlType: string) => {
+  if (controlType === "SMART_SUBSTITUTION_DYNAMIC_TEXT") {
+    return EvaluationSubstitutionType.SMART_SUBSTITUTE;
+  } else if (controlType === "PREPARED_STATEMENT_DYNAMIC_TEXT") {
+    return EvaluationSubstitutionType.PARAMETER;
+  } else {
+    return EvaluationSubstitutionType.TEMPLATE;
+  }
+};
 
 export const getBindingPathsOfAction = (
   action: Action,
@@ -31,12 +42,9 @@ export const getBindingPathsOfAction = (
         "config.",
       );
       if (dynamicFields.includes(formConfig.controlType)) {
-        if (formConfig.controlType === "SMART_SUBSTITUTION_DYNAMIC_TEXT") {
-          bindingPaths[configPath] =
-            EvaluationSubstitutionType.SMART_SUBSTITUTE;
-        } else {
-          bindingPaths[configPath] = EvaluationSubstitutionType.TEMPLATE;
-        }
+        bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
+          formConfig.controlType,
+        );
       }
       if (formConfig.controlType === "ARRAY_FIELD") {
         const actionValue = _.get(action, formConfig.configProperty);
@@ -48,8 +56,11 @@ export const getBindingPathsOfAction = (
                 dynamicFields.includes(schemaField.controlType)
               ) {
                 const arrayConfigPath = `${configPath}[${i}].${schemaField.key}`;
-                bindingPaths[arrayConfigPath] =
-                  EvaluationSubstitutionType.TEMPLATE;
+                bindingPaths[
+                  arrayConfigPath
+                ] = getCorrectEvaluationSubstitutionType(
+                  formConfig.controlType,
+                );
               }
             });
           }

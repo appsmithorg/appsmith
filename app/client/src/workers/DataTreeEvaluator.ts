@@ -29,7 +29,6 @@ import {
   getValidatedTree,
   makeParentsDependOnChildren,
   removeFunctions,
-  substituteDynamicBindingWithValues,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   validateWidgetProperty,
@@ -44,6 +43,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluate, { EvalResult } from "workers/evaluate";
+import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
