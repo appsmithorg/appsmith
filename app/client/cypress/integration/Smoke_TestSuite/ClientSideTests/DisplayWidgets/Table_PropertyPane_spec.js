@@ -24,7 +24,6 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(commonlocators.collapsesection)
       .scrollIntoView()
       .first()
-      .should("be.visible")
       .click();
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("email");
