@@ -15,6 +15,7 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import org.apache.commons.validator.routines.DateValidator;
+import org.bson.BsonInvalidOperationException;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
 import reactor.core.Exceptions;
@@ -147,7 +148,7 @@ public class DataTypeStringUtils {
         try {
             Document.parse(input);
             return DataType.BSON;
-        } catch (JsonParseException e) {
+        } catch (JsonParseException | BsonInvalidOperationException e) {
             // Not BSON
         }
 

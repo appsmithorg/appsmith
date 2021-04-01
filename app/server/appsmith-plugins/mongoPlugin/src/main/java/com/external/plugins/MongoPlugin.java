@@ -82,7 +82,7 @@ public class MongoPlugin extends BasePlugin {
 
     private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
-    private static final int SMART_JSON_SUBSTITUTION_INDEX = 0;
+    private static final int SMART_BSON_SUBSTITUTION_INDEX = 0;
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -112,25 +112,25 @@ public class MongoPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
-            Boolean smartJsonSubstitution;
+            Boolean smartBsonSubstitution;
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             if (CollectionUtils.isEmpty(properties)) {
                 /**
                  * TODO :
-                 * In case the smart json substitution configuration is missing, default to true once smart json
+                 * In case the smart bson substitution configuration is missing, default to true once smart bson
                  * substitution is no longer in beta.
                  */
-                smartJsonSubstitution = false;
+                smartBsonSubstitution = false;
             } else {
                 // Since properties is not empty, we are guaranteed to find the first property.
-                smartJsonSubstitution = Boolean.parseBoolean(properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue());
+                smartBsonSubstitution = Boolean.parseBoolean(properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue());
             }
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
-            if (TRUE.equals(smartJsonSubstitution)) {
-                // Do smart replacements in JSON body
+            if (TRUE.equals(smartBsonSubstitution)) {
+                // Do smart replacements in BSON body
                 if (actionConfiguration.getBody() != null) {
 
                     // First extract all the bindings in order

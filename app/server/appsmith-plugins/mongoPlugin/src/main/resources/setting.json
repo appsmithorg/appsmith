@@ -17,7 +17,7 @@
           "info": "Ask confirmation from the user each time before refreshing data"
         },
         {
-          "label": "[Beta] Smart BSOM Substitution",
+          "label": "[Beta] Smart BSON Substitution",
           "info": "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
           "controlType": "SWITCH",

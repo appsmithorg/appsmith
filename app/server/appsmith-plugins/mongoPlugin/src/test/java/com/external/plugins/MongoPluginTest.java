@@ -564,7 +564,7 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testJsonSmartSubstitution() {
+    public void testBsonSmartSubstitution() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
