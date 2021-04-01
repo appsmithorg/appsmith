@@ -2,6 +2,7 @@ import {
   DataTreeAction,
   DataTreeWidget,
   ENTITY_TYPE,
+  EvaluationSubstitutionType,
 } from "../entities/DataTree/dataTreeFactory";
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
@@ -432,8 +433,8 @@ const BASE_ACTION: DataTreeAction = {
   data: {},
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
   bindingPaths: {
-    isLoading: true,
-    data: true,
+    isLoading: EvaluationSubstitutionType.TEMPLATE,
+    data: EvaluationSubstitutionType.TEMPLATE,
   },
 };
 
@@ -445,7 +446,7 @@ describe("DataTreeEvaluator", () => {
       text: "Label",
       type: WidgetTypes.TEXT_WIDGET,
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
       },
     },
     Text2: {
@@ -455,7 +456,7 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "text" }],
       type: WidgetTypes.TEXT_WIDGET,
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
       },
     },
     Text3: {
@@ -465,7 +466,7 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "text" }],
       type: WidgetTypes.TEXT_WIDGET,
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
       },
     },
     Dropdown1: {
@@ -482,18 +483,18 @@ describe("DataTreeEvaluator", () => {
       ],
       type: WidgetTypes.DROP_DOWN_WIDGET,
       bindingPaths: {
-        options: true,
-        defaultOptionValue: true,
-        isRequired: true,
-        isVisible: true,
-        isDisabled: true,
-        isValid: true,
-        selectedOption: true,
-        selectedOptionArr: true,
-        selectedIndex: true,
-        selectedIndexArr: true,
-        value: true,
-        selectedOptionValues: true,
+        options: EvaluationSubstitutionType.TEMPLATE,
+        defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
+        isRequired: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        isDisabled: EvaluationSubstitutionType.TEMPLATE,
+        isValid: EvaluationSubstitutionType.TEMPLATE,
+        selectedOption: EvaluationSubstitutionType.TEMPLATE,
+        selectedOptionArr: EvaluationSubstitutionType.TEMPLATE,
+        selectedIndex: EvaluationSubstitutionType.TEMPLATE,
+        selectedIndexArr: EvaluationSubstitutionType.TEMPLATE,
+        value: EvaluationSubstitutionType.TEMPLATE,
+        selectedOptionValues: EvaluationSubstitutionType.TEMPLATE,
       },
     },
     Table1: {
@@ -502,9 +503,9 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "tableData" }],
       type: WidgetTypes.TABLE_WIDGET,
       bindingPaths: {
-        tableData: true,
-        selectedRow: true,
-        selectedRows: true,
+        tableData: EvaluationSubstitutionType.TEMPLATE,
+        selectedRow: EvaluationSubstitutionType.TEMPLATE,
+        selectedRows: EvaluationSubstitutionType.TEMPLATE,
       },
     },
     Text4: {
@@ -513,7 +514,7 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "text" }],
       type: WidgetTypes.TEXT_WIDGET,
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
       },
     },
   };
@@ -613,10 +614,10 @@ describe("DataTreeEvaluator", () => {
         widgetName: "Input1",
         type: WidgetTypes.INPUT_WIDGET,
         bindingPaths: {
-          defaultText: true,
-          isValid: true,
-          value: true,
-          text: true,
+          defaultText: EvaluationSubstitutionType.TEMPLATE,
+          isValid: EvaluationSubstitutionType.TEMPLATE,
+          value: EvaluationSubstitutionType.TEMPLATE,
+          text: EvaluationSubstitutionType.TEMPLATE,
         },
       },
     };
@@ -642,18 +643,18 @@ describe("DataTreeEvaluator", () => {
         ],
         type: WidgetTypes.DROP_DOWN_WIDGET,
         bindingPaths: {
-          options: true,
-          defaultOptionValue: true,
-          isRequired: true,
-          isVisible: true,
-          isDisabled: true,
-          isValid: true,
-          selectedOption: true,
-          selectedOptionArr: true,
-          selectedIndex: true,
-          selectedIndexArr: true,
-          value: true,
-          selectedOptionValues: true,
+          options: EvaluationSubstitutionType.TEMPLATE,
+          defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
+          isRequired: EvaluationSubstitutionType.TEMPLATE,
+          isVisible: EvaluationSubstitutionType.TEMPLATE,
+          isDisabled: EvaluationSubstitutionType.TEMPLATE,
+          isValid: EvaluationSubstitutionType.TEMPLATE,
+          selectedOption: EvaluationSubstitutionType.TEMPLATE,
+          selectedOptionArr: EvaluationSubstitutionType.TEMPLATE,
+          selectedIndex: EvaluationSubstitutionType.TEMPLATE,
+          selectedIndexArr: EvaluationSubstitutionType.TEMPLATE,
+          value: EvaluationSubstitutionType.TEMPLATE,
+          selectedOptionValues: EvaluationSubstitutionType.TEMPLATE,
         },
       },
     };

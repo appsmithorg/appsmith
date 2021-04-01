@@ -1,5 +1,6 @@
 import { Action, PluginType } from "entities/Action/index";
 import { getBindingPathsOfAction } from "entities/Action/actionProperties";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const DEFAULT_ACTION: Action = {
   actionConfiguration: {},
@@ -24,9 +25,9 @@ describe("getBindingPathsOfAction", () => {
   it("returns default list of no config is sent", () => {
     const response = getBindingPathsOfAction(DEFAULT_ACTION, undefined);
     expect(response).toStrictEqual({
-      data: true,
-      isLoading: true,
-      config: true,
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      config: EvaluationSubstitutionType.TEMPLATE,
     });
   });
 
@@ -59,10 +60,10 @@ describe("getBindingPathsOfAction", () => {
 
     const response = getBindingPathsOfAction(basicAction, config);
     expect(response).toStrictEqual({
-      data: true,
-      isLoading: true,
-      "config.body": true,
-      "config.body2": true,
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      "config.body": EvaluationSubstitutionType.TEMPLATE,
+      "config.body2": EvaluationSubstitutionType.TEMPLATE,
     });
   });
 
@@ -122,12 +123,12 @@ describe("getBindingPathsOfAction", () => {
     // @ts-ignore
     const response = getBindingPathsOfAction(basicAction, config);
     expect(response).toStrictEqual({
-      data: true,
-      isLoading: true,
-      "config.params[0].key": true,
-      "config.params[0].value": true,
-      "config.params[1].key": true,
-      "config.params[1].value": true,
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      "config.params[0].key": EvaluationSubstitutionType.TEMPLATE,
+      "config.params[0].value": EvaluationSubstitutionType.TEMPLATE,
+      "config.params[1].key": EvaluationSubstitutionType.TEMPLATE,
+      "config.params[1].value": EvaluationSubstitutionType.TEMPLATE,
     });
   });
 
@@ -177,10 +178,10 @@ describe("getBindingPathsOfAction", () => {
     // @ts-ignore
     const response = getBindingPathsOfAction(basicAction, config);
     expect(response).toStrictEqual({
-      data: true,
-      isLoading: true,
-      "config.key": true,
-      "config.value": true,
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      "config.key": EvaluationSubstitutionType.TEMPLATE,
+      "config.value": EvaluationSubstitutionType.TEMPLATE,
     });
   });
 });
