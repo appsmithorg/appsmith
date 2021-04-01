@@ -103,40 +103,75 @@ const defaultDocsConfig = [
 const githubDocsAssetsPath =
   "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/.gitbook";
 
+const fetchRawGithubContentList = async () => {
+  const data = await Promise.all(
+    defaultDocsConfig.map(async (doc: any) => {
+      const response = await fetch(doc.link);
+      let document = await response.text();
+      const assetRegex = new RegExp("[../]*?/.gitbook", "g");
+      document = document.replace(assetRegex, githubDocsAssetsPath);
+      return {
+        _highlightResult: {
+          document: {
+            value: document,
+          },
+          title: {
+            value: doc.title,
+          },
+        },
+        ...doc,
+      } as DocSearchItem;
+    }),
+  );
+  if (data) {
+    return data;
+  }
+  return [];
+};
+
+const fetchDefaultDocs = (
+  updateIsFetching: (b: boolean) => void,
+  setDefaultDocs: (t: DocSearchItem[]) => void,
+  retries: number,
+  maxRetries: number,
+) => {
+  if (maxRetries >= retries) {
+    return;
+  }
+  (async () => {
+    updateIsFetching(true);
+    try {
+      const data = await fetchRawGithubContentList();
+      if (data && data.length > 0) {
+        setDefaultDocs(data);
+        updateIsFetching(false);
+      } else {
+        fetchDefaultDocs(
+          updateIsFetching,
+          setDefaultDocs,
+          retries + 1,
+          maxRetries,
+        );
+      }
+    } catch (e) {
+      fetchDefaultDocs(
+        updateIsFetching,
+        setDefaultDocs,
+        retries + 1,
+        maxRetries,
+      );
+    }
+  })();
+};
+
 export const useDefaultDocumentationResults = (modalOpen: boolean) => {
   const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
   const [isFetching, updateIsFetching] = useState(false);
+  // usestate
   useEffect(() => {
     if (!isFetching && !defaultDocs.length) {
-      try {
-        // fetching the API
-        // done update the isFetching to true
-        (async () => {
-          const data = await Promise.all(
-            defaultDocsConfig.map(async (doc: any) => {
-              const response = await fetch(doc.link);
-              let document = await response.text();
-              const assetRegex = new RegExp("[../]*?/.gitbook", "g");
-              document = document.replace(assetRegex, githubDocsAssetsPath);
-              updateIsFetching(true);
-              return {
-                _highlightResult: {
-                  document: {
-                    value: document,
-                  },
-                  title: {
-                    value: doc.title,
-                  },
-                },
-                ...doc,
-              } as DocSearchItem;
-            }),
-          );
-          setDefaultDocs(data);
-        })();
-      } catch (e) {
-        // ignore
-      }
+      // Keep trying to fetch until a max retries is reached
+      fetchDefaultDocs(updateIsFetching, setDefaultDocs, 0, 2);
     }
   }, [modalOpen]);
 
