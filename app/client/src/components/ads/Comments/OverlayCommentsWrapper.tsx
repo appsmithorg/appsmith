@@ -44,14 +44,6 @@ const getOffsetPos = (clickEvent: any, containerRef: any) => {
   };
 };
 
-const PreventClicksOverlay = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 0;
-`;
-
 const Container = styled.div`
   width: 100%;
   height: 100%;
@@ -92,9 +84,6 @@ const OverlayCommentsWrapper = ({ children, refId, widgetType }: Props) => {
 
   if (!isCommentMode) return <>{children}</>;
 
-  const shouldNotPreventComponentInteraction =
-    preventInteractionsBlacklist.indexOf(widgetType) !== -1;
-
   return (
     <Container
       ref={containerRef}
@@ -102,11 +91,6 @@ const OverlayCommentsWrapper = ({ children, refId, widgetType }: Props) => {
       data-cy="overlay-comments-wrapper"
     >
       {children}
-      {/**
-       * Prevent clicks to the component in the comment mode
-       * TODO: decouple from the overlay wrapper
-       */}
-      {!shouldNotPreventComponentInteraction && <PreventClicksOverlay />}
       <Comments refId={refId} />
     </Container>
   );

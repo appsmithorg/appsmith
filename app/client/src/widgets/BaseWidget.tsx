@@ -36,6 +36,7 @@ import {
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import OverlayCommentsWrapper from "components/ads/Comments/OverlayCommentsWrapper";
+import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 
 /***
  * BaseWidget
@@ -49,6 +50,7 @@ import OverlayCommentsWrapper from "components/ads/Comments/OverlayCommentsWrapp
  * 3) Call actions in widgets or connect the widgets to the entity reducers
  *
  */
+
 abstract class BaseWidget<
   T extends WidgetProps,
   K extends WidgetState
@@ -239,11 +241,20 @@ abstract class BaseWidget<
     );
   }
 
+  addPreventInteractionOverlay(content: ReactNode) {
+    return (
+      <PreventInteractionsOverlay widgetType={this.props.type}>
+        {content}
+      </PreventInteractionsOverlay>
+    );
+  }
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
+        content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
         if (!this.props.detachFromLayout) {
           content = this.makeResizable(content);
@@ -257,6 +268,7 @@ abstract class BaseWidget<
       case RenderModes.PAGE:
         content = this.getPageView();
         if (this.props.isVisible) {
+          content = this.addPreventInteractionOverlay(content);
           content = this.addOverlayComments(content);
           content = this.addErrorBoundary(content);
           if (!this.props.detachFromLayout) {

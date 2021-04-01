@@ -17,33 +17,9 @@ import {
   setCommentResolutionRequest,
 } from "actions/commentActions";
 
+import useIsScrolledToBottom from "utils/hooks/useIsScrolledToBottom";
+
 import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
-
-/**
- * Hook to get if the containerRef is scrolled to the bottom
- * TODO move to common utils, accept dependencies
- */
-const useIsScrolledToBottom = (
-  ref: React.RefObject<HTMLDivElement | null>,
-  comments: any,
-) => {
-  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
-  useEffect(() => {
-    const calculateIsScrolledToBottom = (e: any) => {
-      const { scrollHeight, offsetHeight, scrollTop } = e.target;
-      setIsScrolledToBottom(scrollHeight - (offsetHeight + scrollTop) < 10);
-    };
-
-    ref?.current?.addEventListener("scroll", calculateIsScrolledToBottom);
-    calculateIsScrolledToBottom({ target: ref.current });
-
-    return () => {
-      ref?.current?.removeEventListener("scroll", calculateIsScrolledToBottom);
-    };
-  }, [ref?.current, comments]);
-
-  return isScrolledToBottom;
-};
 
 /**
  * Comment thread popover
@@ -67,10 +43,9 @@ const InlineCommentThreadContainer = ({
   // Check if the comments window is scrolled to the bottom
   // We don't autoscroll for the user receiving the updates
   // for better UX, instead we'd show a helper message to indicate
-  const isScrolledToBottom = useIsScrolledToBottom(
-    commentsContainerRef,
+  const isScrolledToBottom = useIsScrolledToBottom(commentsContainerRef, [
     comments,
-  );
+  ]);
 
   const addComment = (text: string) => {
     dispatch(
