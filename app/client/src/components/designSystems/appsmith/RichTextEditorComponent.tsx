@@ -97,7 +97,7 @@ export const RichtextEditorComponent = (
         "insertdatetime media table paste code help",
       ],
       toolbar:
-        "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
+        "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help",
     });
 
     return () => {

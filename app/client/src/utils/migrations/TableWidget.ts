@@ -1,14 +1,16 @@
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetTypes } from "constants/WidgetConstants";
+import {
+  WidgetTypes,
+  FontStyleTypes,
+  TextSizes,
+} from "constants/WidgetConstants";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import {
   ColumnProperties,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
   ColumnTypes,
-  TextSizes,
-  FontStyleTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
