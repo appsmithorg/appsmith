@@ -15,6 +15,8 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import org.apache.commons.validator.routines.DateValidator;
+import org.bson.Document;
+import org.bson.json.JsonParseException;
 import reactor.core.Exceptions;
 
 import java.io.IOException;
@@ -25,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -141,6 +144,13 @@ public class DataTypeStringUtils {
             // Not a strict JSON object
         }
 
+        try {
+            Document.parse(input);
+            return DataType.BSON;
+        } catch (JsonParseException e) {
+            // Not BSON
+        }
+
         /**
          * TODO : ASCII, Binary and Bytes Array
          */
@@ -200,7 +210,8 @@ public class DataTypeStringUtils {
             case JSON_OBJECT:
                 try {
                     JSONObject jsonObject = (JSONObject) parser.parse(replacement);
-                    input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonObject)));
+                    String jsonString = String.valueOf(objectMapper.writeValueAsString(jsonObject));
+                    input = questionPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(jsonString));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -210,6 +221,9 @@ public class DataTypeStringUtils {
                             )
                     );
                 }
+                break;
+            case BSON:
+                input = questionPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(replacement));
                 break;
             case DATE:
             case TIME:
