@@ -38,6 +38,7 @@ import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
+import { get } from "lodash";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -178,6 +179,10 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   }
 
   render() {
+    if (get(this.props, "widgetProperties.settingsControlDisabled")) {
+      return null;
+    }
+
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane();

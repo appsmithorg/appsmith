@@ -77,7 +77,7 @@ class ContainerWidget extends BaseWidget<
     const padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
     let width = componentWidth;
     if (!this.props.noPad) width -= padding;
-    else width -= WIDGET_PADDING * 3;
+    else width -= WIDGET_PADDING * 2;
 
     return {
       snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,

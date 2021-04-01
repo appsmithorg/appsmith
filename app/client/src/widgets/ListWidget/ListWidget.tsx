@@ -23,7 +23,7 @@ import propertyPaneConfig from "./ListPropertyPaneConfig";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination from "./ListPagination";
-import withMeta, { WithMeta } from "./../MetaHOC";
+import withMeta from "./../MetaHOC";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
