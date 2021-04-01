@@ -55,6 +55,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
 
+    Mono<ActionDTO> populateHintMessages(ActionDTO action);
+
     Mono<NewAction> save(NewAction action);
 
     Flux<NewAction> saveAll(List<NewAction> actions);

@@ -150,11 +150,16 @@ public class AuthenticationService {
             return this.getPageRedirectUrl(state, error);
         }
 
-        Mono<Datasource> datasourceMono = datasourceService
-                .getById(state.split(",")[1])
-                .cache();
         // Otherwise, proceed to retrieve the access token from the authorization server
-        return datasourceMono
+        return Mono.justOrEmpty(state)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
+                .flatMap(localState -> {
+                    if (localState.split(",").length != 3) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                    } else
+                        return Mono.just(localState.split(",")[1]);
+                })
+                .flatMap(datasourceService::getById)
                 .flatMap(datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                     WebClient.Builder builder = WebClient.builder().baseUrl(oAuth2.getAccessTokenUrl());
@@ -218,10 +223,12 @@ public class AuthenticationService {
                 })
                 // We have no use of the datasource object during redirection, we merely send the response as a success state
                 .flatMap((datasource -> this.getPageRedirectUrl(state, null)))
-                .onErrorResume(e -> {
-                    log.debug("Error while retrieving access token: ", e);
-                    return this.getPageRedirectUrl(state, "appsmith_error");
-                });
+                .onErrorResume(
+                        e -> !(AppsmithError.UNAUTHORIZED_ACCESS.equals(((AppsmithException) e).getError())),
+                        e -> {
+                            log.debug("Error while retrieving access token: ", e);
+                            return this.getPageRedirectUrl(state, "appsmith_error");
+                        });
     }
 
     private Mono<String> getPageRedirectUrl(String state, String error) {

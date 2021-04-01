@@ -50,6 +50,13 @@ export const hideScrollbar = css`
   }
 `;
 
+export const truncateTextUsingEllipsis = css`
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+`;
+
 export const getTypographyByKey = (props: Record<string, any>, key: string) => `
   font-weight: ${props.theme.typography[key].fontWeight};
   font-size: ${props.theme.typography[key].fontSize}px;
@@ -281,6 +288,7 @@ type PropertyPaneTheme = {
   width: number;
   height: number;
   dividerColor: Color;
+  titleHeight: number;
 };
 
 export type NestedObjectOrArray<T> =
@@ -916,6 +924,10 @@ type ColorType = {
   };
   scrollbar: string;
   scrollbarBG: string;
+  helpModal: {
+    itemHighlight: string;
+    background: string;
+  };
 };
 
 const auth: any = {
@@ -930,6 +942,11 @@ const auth: any = {
   socialBtnText: darkShades[8],
   socialBtnBorder: darkShades[8],
   socialBtnHighlight: darkShades[1],
+};
+
+const helpModal = {
+  itemHighlight: "#231f20",
+  background: "#262626",
 };
 
 const formMessage = {
@@ -972,6 +989,7 @@ const globalSearch = {
 };
 
 export const dark: ColorType = {
+  helpModal,
   globalSearch,
   selected: darkShades[10],
   header: {
@@ -1382,6 +1400,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  helpModal,
   globalSearch,
   selected: lightShades[12],
   header: {
@@ -1919,6 +1938,7 @@ export const theme: Theme = {
   },
   propertyPane: {
     width: 270,
+    titleHeight: 40,
     height: 600,
     dividerColor: Colors.MAKO,
   },
@@ -1988,6 +2008,7 @@ export const theme: Theme = {
     scrollbarLightBG: getColorWithOpacity(Colors.WHITE, 0.5),
     scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
     scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
+    dropdownIconBg: Colors.ALTO2,
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],

@@ -1,7 +1,7 @@
 import React from "react";
 import { InjectedFormProps } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
+import { Icon, Popover, Tag } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
@@ -23,14 +23,13 @@ import Table from "./Table";
 import { Action } from "entities/Action";
 import { useDispatch } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-
 import { ControlProps } from "components/formControls/BaseControl";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import log from "loglevel";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -194,10 +193,6 @@ const NameWrapper = styled.div`
   }
 `;
 
-const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
-`;
-
 const TabContainerView = styled.div`
   .react-tabs__tab-panel {
     overflow: scroll;
@@ -269,7 +264,6 @@ type QueryFormProps = {
     state: any;
   };
   editorConfig?: any;
-  loadingFormConfigs: boolean;
   formName: string;
   settingConfig: any;
 };
@@ -300,7 +294,6 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
     runErrorMessage,
     responseType,
     documentationLink,
-    loadingFormConfigs,
     editorConfig,
     settingConfig,
     formName,
@@ -386,14 +379,6 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
       </>
     );
   };
-
-  if (loadingFormConfigs) {
-    return (
-      <LoadingContainer>
-        <Spinner size={30} />
-      </LoadingContainer>
-    );
-  }
 
   return (
     <QueryFormContainer onSubmit={handleSubmit}>
@@ -587,7 +572,7 @@ const renderEachConfig = (formName: string) => (section: any): any => {
           </FieldWrapper>
         );
       } catch (e) {
-        console.log(e);
+        log.error(e);
       }
     }
     return null;

@@ -218,7 +218,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
           routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
         }),
       ],
-      tracesSampleRate: 0.5,
+      tracesSampleRate: 0.1,
     },
     smartLook: {
       enabled: smartLook.enabled,

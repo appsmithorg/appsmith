@@ -22,9 +22,6 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "selectors/entitiesSelector";
 
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { WidgetTypes } from "../constants/WidgetConstants";
 
@@ -148,9 +145,6 @@ export const getCanvasWidgetDsl = createSelector(
     evaluatedDataTree,
     loadingEntities,
   ): ContainerWidgetProps<WidgetProps> => {
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.CONSTRUCT_CANVAS_DSL,
-    );
     const widgets: Record<string, DataTreeWidget> = {};
     Object.keys(canvasWidgets).forEach((widgetKey) => {
       const canvasWidget = canvasWidgets[widgetKey];
@@ -167,11 +161,9 @@ export const getCanvasWidgetDsl = createSelector(
       );
     });
 
-    const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
+    return CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets: widgets,
     });
-    PerformanceTracker.stopTracking();
-    return denormalizedWidgets;
   },
 );
 

@@ -19,6 +19,14 @@ describe("Create new org and share with a user", function() {
         Cypress.env("TESTUSERNAME1"),
         homePage.viewerRole,
       );
+      // check that the success message is correct
+      const successMessage = "The user has been invited successfully";
+      cy.contains(successMessage);
+      cy.get(homePage.manageUsers).click({ force: true });
+      cy.xpath(homePage.appHome)
+        .first()
+        .should("be.visible")
+        .click();
       cy.CheckShareIcon(orgid, 2);
       cy.CreateAppForOrg(orgid, appid);
     });
@@ -28,6 +36,7 @@ describe("Create new org and share with a user", function() {
   it("login as invited user and then validate viewer privilage", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(orgid);
     cy.xpath(homePage.ShareBtn)
@@ -50,6 +59,7 @@ describe("Create new org and share with a user", function() {
       200,
     );
     cy.get(homePage.searchInput).type(appid);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.deleteUserFromOrg(orgid, Cypress.env("TESTUSERNAME1"));
     cy.updateUserRoleForOrg(
@@ -63,6 +73,7 @@ describe("Create new org and share with a user", function() {
   it("login as invited user and then validate developer privilage", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(orgid);
     cy.xpath(homePage.ShareBtn)
@@ -87,6 +98,7 @@ describe("Create new org and share with a user", function() {
       200,
     );
     cy.get(homePage.searchInput).type(appid);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.deleteUserFromOrg(orgid, Cypress.env("TESTUSERNAME1"));
     cy.updateUserRoleForOrg(
@@ -100,6 +112,7 @@ describe("Create new org and share with a user", function() {
   it("login as invited user and then validate administrator privilage", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(orgid);
     cy.inviteUserForOrg(
@@ -119,6 +132,7 @@ describe("Create new org and share with a user", function() {
       200,
     );
     cy.get(homePage.searchInput).type(appid);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.navigateToOrgSettings(orgid);
     cy.get(homePage.emailList).then(function($list) {

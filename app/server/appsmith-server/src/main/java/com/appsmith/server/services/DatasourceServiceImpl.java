@@ -140,7 +140,45 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                             });
                                 })
                 )
-                .flatMap(this::validateAndSaveDatasourceToRepository);
+                .flatMap(this::validateAndSaveDatasourceToRepository)
+                .flatMap(this::populateHintMessages); // For REST API datasource create flow.
+    }
+
+    public Mono<Datasource> populateHintMessages(Datasource datasource) {
+
+        if(datasource == null) {
+            /*
+             * - Not throwing an exception here because we do not throw an error in case of missing datasource.
+             *   We try not to fail as much as possible during create and update actions.
+             */
+            return Mono.just(new Datasource());
+        }
+
+        Set<String> messages = new HashSet<>();
+
+        if (datasource.getDatasourceConfiguration() != null) {
+            boolean usingLocalhostUrl = false;
+
+            if(!StringUtils.isEmpty(datasource.getDatasourceConfiguration().getUrl())) {
+                usingLocalhostUrl = datasource.getDatasourceConfiguration().getUrl().contains("localhost");
+            }
+            else if(!CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
+                usingLocalhostUrl = datasource
+                        .getDatasourceConfiguration()
+                        .getEndpoints()
+                        .stream()
+                        .anyMatch(endpoint -> endpoint.getHost().contains("localhost"));
+            }
+
+            if(usingLocalhostUrl) {
+                messages.add("You may not able to access your localhost if Appsmith is running inside a docker " +
+                        "container or on the cloud. Please check out Appsmith's documentation to understand more.");
+            }
+        }
+
+        datasource.setMessages(messages);
+
+        return Mono.just(datasource);
     }
 
     @Override
@@ -170,7 +208,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     }
                     return dbDatasource;
                 })
-                .flatMap(this::validateAndSaveDatasourceToRepository);
+                .flatMap(this::validateAndSaveDatasourceToRepository)
+                .flatMap(this::populateHintMessages);
     }
 
     @Override
@@ -294,12 +333,20 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         return datasourceMono
                 .flatMap(this::validateDatasource)
+                .flatMap(this::populateHintMessages)
                 .flatMap(datasource1 -> {
+                    Mono<DatasourceTestResult> datasourceTestResultMono;
                     if (CollectionUtils.isEmpty(datasource1.getInvalids())) {
-                        return testDatasourceViaPlugin(datasource1);
+                        datasourceTestResultMono = testDatasourceViaPlugin(datasource1);
                     } else {
-                        return Mono.just(new DatasourceTestResult(datasource1.getInvalids()));
+                        datasourceTestResultMono = Mono.just(new DatasourceTestResult(datasource1.getInvalids()));
                     }
+
+                    return datasourceTestResultMono
+                            .map(datasourceTestResult -> {
+                                datasourceTestResult.setMessages(datasource1.getMessages());
+                                return datasourceTestResult;
+                            });
                 });
     }
 
@@ -349,7 +396,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
-        return repository.findAllByOrganizationId(organizationId, permission);
+        return repository.findAllByOrganizationId(organizationId, permission)
+                .flatMap(this::populateHintMessages);
     }
 
     @Override

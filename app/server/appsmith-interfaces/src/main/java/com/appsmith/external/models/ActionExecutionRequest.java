@@ -21,6 +21,6 @@ public class ActionExecutionRequest {
     Object headers;
     HttpMethod httpMethod;
     String url;
-    Map<String, Object> properties;
+    Map<String, ?> properties;
     List<String> executionParameters;
 }

@@ -1,4 +1,3 @@
-import { Spinner } from "@blueprintjs/core";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import React from "react";
 import styled from "styled-components";
@@ -70,7 +69,6 @@ export interface JSONtoFormProps {
   formName: string;
   formConfig: any[];
   datasourceId: string;
-  loadingFormConfigs: boolean;
 }
 
 export class JSONtoForm<
@@ -202,13 +200,6 @@ export class JSONtoForm<
     }
 
     return formData;
-  };
-  renderLoader = () => {
-    return (
-      <LoadingContainer>
-        <Spinner size={30} />
-      </LoadingContainer>
-    );
   };
 
   renderForm = (content: any) => {

@@ -148,10 +148,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
   };
 
   render() {
-    const { formConfig, loadingFormConfigs } = this.props;
-    if (loadingFormConfigs) {
-      return this.renderLoader();
-    }
+    const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
     return this.renderForm(content);
   }

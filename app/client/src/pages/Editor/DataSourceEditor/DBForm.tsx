@@ -44,7 +44,6 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   isDeleting: boolean;
   datasourceId: string;
   applicationId: string;
-  loadingFormConfigs: boolean;
   pageId: string;
   isTesting: boolean;
   isNewDatasource: boolean;
@@ -101,10 +100,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   };
 
   render() {
-    const { formConfig, loadingFormConfigs } = this.props;
-    if (loadingFormConfigs) {
-      return this.renderLoader();
-    }
+    const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
     return this.renderForm(content);
   }

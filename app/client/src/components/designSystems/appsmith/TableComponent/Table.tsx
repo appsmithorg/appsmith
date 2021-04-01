@@ -19,7 +19,7 @@ import {
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors } from "constants/Colors";
 
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
 interface TableProps {

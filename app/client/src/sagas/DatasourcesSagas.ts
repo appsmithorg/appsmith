@@ -33,11 +33,9 @@ import {
   fetchDatasourceStructure,
   setDatsourceEditorMode,
 } from "actions/datasourceActions";
-import { fetchPluginForm } from "actions/pluginActions";
 import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
-import PluginApi, { DatasourceForm } from "api/PluginApi";
 
 import {
   API_EDITOR_ID_URL,
@@ -73,6 +71,7 @@ import {
   DATASOURCE_UPDATE,
   DATASOURCE_VALID,
 } from "constants/messages";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -371,25 +370,15 @@ function* createDatasourceFromFormSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
 ) {
   try {
-    let formConfig;
     const organizationId = yield select(getCurrentOrgId);
-    formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
-
-    if (!formConfig) {
-      const formConfigResponse: GenericApiResponse<DatasourceForm> = yield PluginApi.fetchFormConfig(
-        actionPayload.payload.pluginId,
-      );
-      yield validateResponse(formConfigResponse);
-      yield put({
-        type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
-        payload: {
-          id: actionPayload.payload.pluginId,
-          ...formConfigResponse.data,
-        },
-      });
-
-      formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
-    }
+    yield call(
+      checkAndGetPluginFormConfigsSaga,
+      actionPayload.payload.pluginId,
+    );
+    const formConfig = yield select(
+      getPluginForm,
+      actionPayload.payload.pluginId,
+    );
 
     const initialValues = yield call(getConfigInitialValues, formConfig);
 
@@ -454,9 +443,7 @@ function* updateDraftsSaga() {
 function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   const { id, pluginId } = actionPayload.payload;
   const datasource = actionPayload.payload;
-  const state = yield select();
   const draft = yield select(getDatasourceDraft, id);
-  const formConfigs = state.entities.plugins.formConfigs;
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   let data;
@@ -469,9 +456,6 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
 
-  if (!formConfigs[pluginId]) {
-    yield put(fetchPluginForm({ id: pluginId }));
-  }
   history.push(
     DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
   );

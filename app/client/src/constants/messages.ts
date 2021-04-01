@@ -129,6 +129,8 @@ export const INVITE_USERS_SUBMIT_ERROR = () =>
   `We were unable to invite the users, please try again later`;
 export const INVITE_USERS_SUBMIT_SUCCESS = () =>
   `The users have been invited successfully`;
+export const INVITE_USER_SUBMIT_SUCCESS = () =>
+  `The user has been invited successfully`;
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `Please enter the user emails`;
 

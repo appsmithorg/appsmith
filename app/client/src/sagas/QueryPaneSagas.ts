@@ -1,12 +1,4 @@
-import {
-  all,
-  select,
-  put,
-  take,
-  takeEvery,
-  call,
-  race,
-} from "redux-saga/effects";
+import { all, select, put, take, takeEvery, call } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
@@ -31,15 +23,12 @@ import {
 import { autofill, change, initialize } from "redux-form";
 import {
   getAction,
-  getPluginEditorConfigs,
   getDatasource,
   getPluginTemplates,
   getPlugin,
-  getEditorConfig,
 } from "selectors/entitiesSelector";
 import { PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
-import { fetchPluginForm } from "actions/pluginActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -73,22 +62,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     return;
   }
 
-  let currentEditorConfig = editorConfigs[action.datasource.pluginId];
-
-  if (!currentEditorConfig) {
-    yield put(fetchPluginForm({ id: action.datasource.pluginId }));
-
-    // Wait for either these events
-    const { success } = yield race({
-      error: take(ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR),
-      success: take(ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS),
-    });
-
-    // Update the config
-    if (success) {
-      currentEditorConfig = success.payload.editor;
-    }
-  }
+  const currentEditorConfig = editorConfigs[action.datasource.pluginId];
   const currentSettingConfig = settingConfigs[action.datasource.pluginId];
 
   // If config exists
@@ -123,7 +97,6 @@ function* formValueChangeSaga(
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
 
   if (field === "datasource.id") {
-    const editorConfigs = yield select(getPluginEditorConfigs);
     const datasource = yield select(getDatasource, actionPayload.payload);
 
     // Update the datasource not just the datasource id.
@@ -134,10 +107,6 @@ function* formValueChangeSaga(
         value: datasource,
       }),
     );
-
-    if (!editorConfigs[datasource.pluginId]) {
-      yield put(fetchPluginForm({ id: datasource.pluginId }));
-    }
 
     // Update the datasource of the form as well
     yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
@@ -162,12 +131,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     actionConfiguration,
   } = actionPayload.payload;
   if (pluginType === PluginType.DB) {
-    const editorConfig = yield select(getEditorConfig, pluginId);
-
-    if (!editorConfig) {
-      yield put(fetchPluginForm({ id: pluginId }));
-    }
-
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);

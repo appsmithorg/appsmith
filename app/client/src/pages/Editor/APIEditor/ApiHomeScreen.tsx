@@ -45,9 +45,9 @@ import { Plugin } from "api/PluginApi";
 import { createNewApiAction, setCurrentCategory } from "actions/apiPaneActions";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
-import { CURL } from "constants/ApiConstants";
 import { getAppsmithConfigs } from "configs";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
+import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 const { enableRapidAPI } = getAppsmithConfigs();
 
