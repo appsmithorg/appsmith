@@ -1102,7 +1102,9 @@ function useApiOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
 
   const actions = useSelector(getActionsForCurrentPage).filter(
-    (action) => action.config.pluginType === "API",
+    (action) =>
+      action.config.pluginType === PluginType.API ||
+      action.config.pluginType === PluginType.SAAS,
   );
   let filteredBaseOptions = baseOptions;
 
