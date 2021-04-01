@@ -129,7 +129,11 @@ const fetchRawGithubContentList = async () => {
   return [];
 };
 
-const fetchDefaultDocs = async (
+// Helper function to keep calling
+// github fetch until either number
+// of retries is over or the content
+// is succesfully fetched
+export const fetchDefaultDocs = async (
   updateIsFetching: (b: boolean) => void,
   setDefaultDocs: (t: DocSearchItem[]) => void,
   retries: number,
@@ -146,6 +150,9 @@ const fetchDefaultDocs = async (
     updateIsFetching(false);
   } catch (e) {
     updateIsFetching(false);
+    // We don't want to fetch
+    // immediately to avoid
+    // same error again
     setTimeout(
       () =>
         fetchDefaultDocs(
@@ -157,9 +164,6 @@ const fetchDefaultDocs = async (
       500 * maxRetries,
     );
   }
-  // (async () => {
-
-  // })();
 };
 
 export const useDefaultDocumentationResults = (modalOpen: boolean) => {
