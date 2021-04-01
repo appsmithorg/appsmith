@@ -5,14 +5,17 @@ import { ThemeProvider } from "../src/constants/DefaultTheme";
 import store from "../src/store";
 import { getCurrentThemeDetails } from "../src/selectors/themeSelectors";
 import * as customQueries from "./customQueries";
+import { MemoryRouter } from "react-router-dom";
 
 const AllTheProviders: FC = ({ children }) => {
   const defaultTheme = getCurrentThemeDetails(store.getState());
 
   return (
-    <Provider store={store}>
-      <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
-    </Provider>
+    <MemoryRouter>
+      <Provider store={store}>
+        <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
+      </Provider>
+    </MemoryRouter>
   );
 };
 
