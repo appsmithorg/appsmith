@@ -129,45 +129,42 @@ const fetchRawGithubContentList = async () => {
   return [];
 };
 
-const fetchDefaultDocs = (
+const fetchDefaultDocs = async (
   updateIsFetching: (b: boolean) => void,
   setDefaultDocs: (t: DocSearchItem[]) => void,
   retries: number,
   maxRetries: number,
 ) => {
-  if (maxRetries >= retries) {
+  if (maxRetries <= retries) {
+    updateIsFetching(false);
     return;
   }
-  (async () => {
-    updateIsFetching(true);
-    try {
-      const data = await fetchRawGithubContentList();
-      if (data && data.length > 0) {
-        setDefaultDocs(data);
-        updateIsFetching(false);
-      } else {
+  updateIsFetching(true);
+  try {
+    const data = await fetchRawGithubContentList();
+    setDefaultDocs(data);
+    updateIsFetching(false);
+  } catch (e) {
+    updateIsFetching(false);
+    setTimeout(
+      () =>
         fetchDefaultDocs(
           updateIsFetching,
           setDefaultDocs,
           retries + 1,
           maxRetries,
-        );
-      }
-    } catch (e) {
-      fetchDefaultDocs(
-        updateIsFetching,
-        setDefaultDocs,
-        retries + 1,
-        maxRetries,
-      );
-    }
-  })();
+        ),
+      500 * maxRetries,
+    );
+  }
+  // (async () => {
+
+  // })();
 };
 
 export const useDefaultDocumentationResults = (modalOpen: boolean) => {
   const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
   const [isFetching, updateIsFetching] = useState(false);
-  // usestate
   useEffect(() => {
     if (!isFetching && !defaultDocs.length) {
       // Keep trying to fetch until a max retries is reached
