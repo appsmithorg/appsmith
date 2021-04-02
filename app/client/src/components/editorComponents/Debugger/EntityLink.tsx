@@ -78,7 +78,8 @@ const DatasourceLink = (props: SourceEntity) => {
 const Link = (props: { name: string; onClick: any }) => {
   const dispatch = useDispatch();
 
-  const onClick = () => {
+  const onClick = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
     dispatch(showDebugger(false));
     props.onClick();
   };

@@ -148,7 +148,11 @@ const LogItem = (props: LogItemProps) => {
   const showToggleIcon = props.state || props.message;
 
   return (
-    <Log className={props.severity} collapsed={!isOpen}>
+    <Log
+      className={props.severity}
+      collapsed={!isOpen}
+      onClick={() => setIsOpen(!isOpen)}
+    >
       <Icon name={props.icon} size={IconSize.XL} fillColor={props.iconColor} />
       <span className="debugger-time">{props.timestamp}</span>
       <div className="debugger-description">
@@ -175,7 +179,10 @@ const LogItem = (props: LogItemProps) => {
           className={`${Classes.ICON} debugger-copy-text`}
           name={"duplicate"}
           size={IconSize.SMALL}
-          onClick={() => copy(props.text)}
+          onClick={(e) => {
+            e.stopPropagation();
+            copy(props.text);
+          }}
         />
         {showToggleIcon && (
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
@@ -185,12 +192,15 @@ const LogItem = (props: LogItemProps) => {
                 <Icon
                   name={"duplicate"}
                   size={IconSize.SMALL}
-                  onClick={() => copy(props.message)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    copy(props.message);
+                  }}
                 />
               </div>
             )}
             {props.state && (
-              <JsonWrapper>
+              <JsonWrapper onClick={(e) => e.stopPropagation()}>
                 <ReactJson src={props.state} {...reactJsonProps} />
               </JsonWrapper>
             )}
