@@ -5,7 +5,10 @@ import { ReactComponent as DownloadIcon } from "assets/icons/control/download-ta
 import { ReactTableColumnProps } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
 import TableActionIcon from "components/designSystems/appsmith/TableComponent/TableActionIcon";
-import { isString } from "lodash";
+import {
+  downloadTableDataAsCSV,
+  transformTableDataIntoCsv,
+} from "./CommonUtilities";
 
 interface TableDataDownloadProps {
   data: Array<Record<string, unknown>>;
@@ -17,63 +20,14 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
   const [selected, toggleButtonClick] = React.useState(false);
   const downloadTableData = () => {
     toggleButtonClick(true);
-    const csvData = [];
-    csvData.push(
-      props.columns
-        .map((column: ReactTableColumnProps) => {
-          if (column.metaProperties && !column.metaProperties.isHidden) {
-            return column.Header;
-          }
-          return null;
-        })
-        .filter((i) => !!i),
-    );
-    for (let row = 0; row < props.data.length; row++) {
-      const data: { [key: string]: any } = props.data[row];
-      const csvDataRow = [];
-      for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
-        const column = props.columns[colIndex];
-        let value = data[column.accessor];
-        if (column.metaProperties && !column.metaProperties.isHidden) {
-          value =
-            isString(value) && value.includes("\n")
-              ? value.replace("\n", " ")
-              : value;
-          if (isString(value) && value.includes(",")) {
-            csvDataRow.push(`"${value}"`);
-          } else {
-            csvDataRow.push(value);
-          }
-        }
-      }
-      csvData.push(csvDataRow);
-    }
-    let csvContent = "";
-    csvData.forEach(function(infoArray, index) {
-      const dataString = infoArray.join(",");
-      csvContent += index < csvData.length ? dataString + "\n" : dataString;
+    const csvData = transformTableDataIntoCsv({
+      columns: props.columns,
+      data: props.data,
     });
-    const fileName = `${props.widgetName}.csv`;
-    const anchor = document.createElement("a");
-    const mimeType = "application/octet-stream";
-    if (navigator.msSaveBlob) {
-      navigator.msSaveBlob(
-        new Blob([csvContent], {
-          type: mimeType,
-        }),
-        fileName,
-      );
-    } else if (URL && "download" in anchor) {
-      anchor.href = URL.createObjectURL(
-        new Blob([csvContent], {
-          type: mimeType,
-        }),
-      );
-      anchor.setAttribute("download", fileName);
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-    }
+    downloadTableDataAsCSV({
+      csvData: csvData,
+      fileName: `${props.widgetName}.csv`,
+    });
     toggleButtonClick(false);
   };
 

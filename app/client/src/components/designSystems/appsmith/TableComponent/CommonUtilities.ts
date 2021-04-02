@@ -1,5 +1,8 @@
-import { ColumnTypes } from "components/designSystems/appsmith/TableComponent/Constants";
-import { isPlainObject, isNil } from "lodash";
+import {
+  ColumnTypes,
+  TableColumnProps,
+} from "components/designSystems/appsmith/TableComponent/Constants";
+import { isPlainObject, isNil, isString } from "lodash";
 import moment from "moment";
 
 export function sortTableFunction(
@@ -51,3 +54,72 @@ export function sortTableFunction(
     },
   );
 }
+
+export const transformTableDataIntoCsv = (props: {
+  columns: TableColumnProps[];
+  data: Array<Record<string, unknown>>;
+}) => {
+  const csvData = [];
+  csvData.push(
+    props.columns
+      .map((column: TableColumnProps) => {
+        if (column.metaProperties && !column.metaProperties.isHidden) {
+          return column.Header;
+        }
+        return null;
+      })
+      .filter((i) => !!i),
+  );
+  for (let row = 0; row < props.data.length; row++) {
+    const data: { [key: string]: any } = props.data[row];
+    const csvDataRow = [];
+    for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
+      const column = props.columns[colIndex];
+      let value = data[column.accessor];
+      if (column.metaProperties && !column.metaProperties.isHidden) {
+        value =
+          isString(value) && value.includes("\n")
+            ? value.replace("\n", " ")
+            : value;
+        if (isString(value) && value.includes(",")) {
+          csvDataRow.push(`"${value}"`);
+        } else {
+          csvDataRow.push(value);
+        }
+      }
+    }
+    csvData.push(csvDataRow);
+  }
+  return csvData;
+};
+
+export const downloadTableDataAsCSV = (props: {
+  csvData: Array<Array<any>>;
+  fileName: string;
+}) => {
+  let csvContent = "";
+  props.csvData.forEach((infoArray: Array<any>, index: number) => {
+    const dataString = infoArray.join(",");
+    csvContent += index < props.csvData.length ? dataString + "\n" : dataString;
+  });
+  const anchor = document.createElement("a");
+  const mimeType = "application/octet-stream";
+  if (navigator.msSaveBlob) {
+    navigator.msSaveBlob(
+      new Blob([csvContent], {
+        type: mimeType,
+      }),
+      props.fileName,
+    );
+  } else if (URL && "download" in anchor) {
+    anchor.href = URL.createObjectURL(
+      new Blob([csvContent], {
+        type: mimeType,
+      }),
+    );
+    anchor.setAttribute("download", props.fileName);
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  }
+};
