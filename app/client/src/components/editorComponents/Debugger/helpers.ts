@@ -2,12 +2,6 @@ import { Message, Severity } from "entities/AppsmithConsole";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 
-export const SeverityColor: Record<Severity, string> = {
-  [Severity.INFO]: "rgba(3, 179, 101, 0.09)",
-  [Severity.ERROR]: "rgba(242, 43, 43, 0.08)",
-  [Severity.WARNING]: "rgba(254, 184, 17, 0.1)",
-};
-
 export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",
   [Severity.ERROR]: "error",

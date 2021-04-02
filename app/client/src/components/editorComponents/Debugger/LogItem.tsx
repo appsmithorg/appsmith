@@ -1,20 +1,32 @@
 import { Collapse } from "@blueprintjs/core";
 import { Classes } from "components/ads/common";
-import Icon, { IconSize } from "components/ads/Icon";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
 import copy from "copy-to-clipboard";
-import { Message } from "entities/AppsmithConsole";
+import { Message, Severity, SourceEntity } from "entities/AppsmithConsole";
 import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
 import { isString } from "lodash";
 import EntityLink from "./EntityLink";
-import { SeverityColor, SeverityIcon, SeverityIconColor } from "./helpers";
+import { SeverityIcon, SeverityIconColor } from "./helpers";
 
-const Log = styled.div<{ backgroundColor: string; collapsed: boolean }>`
+const Log = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
   display: flex;
-  background-color: ${(props) => props.backgroundColor};
-  margin-bottom: 1px;
+
+  &.${Severity.INFO} {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  &.${Severity.ERROR} {
+    background-color: rgba(242, 43, 43, 0.08);
+    border-bottom: 1px solid white;
+  }
+
+  &.${Severity.WARNING} {
+    background-color: rgba(254, 184, 17, 0.1);
+    border-bottom: 1px solid white;
+  }
 
   .${Classes.ICON} {
     display: inline-block;
@@ -96,11 +108,10 @@ export const getLogItemProps = (e: Message) => {
     icon: SeverityIcon[e.severity],
     iconColor: SeverityIconColor[e.severity],
     timestamp: e.timestamp,
-    entityType: e.source ? e.source.type : null,
+    source: e.source,
     label: e.text,
     timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
-    sourceName: e.source ? e.source.name : null,
-    backgroundColor: SeverityColor[e.severity],
+    severity: e.severity,
     text: e.text,
     message: e.message && isString(e.message) ? e.message : "",
     state: e.state,
@@ -108,7 +119,21 @@ export const getLogItemProps = (e: Message) => {
   };
 };
 
-const LogItem = (props: any) => {
+type LogItemProps = {
+  icon: IconName;
+  iconColor: string;
+  timestamp: string;
+  label: string;
+  timeTaken: string;
+  severity: Severity;
+  text: string;
+  message: string;
+  state: Record<string, any>;
+  id?: string;
+  source: SourceEntity;
+};
+
+const LogItem = (props: LogItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const reactJsonProps = {
     name: null,
@@ -123,7 +148,7 @@ const LogItem = (props: any) => {
   const showToggleIcon = props.state || props.message;
 
   return (
-    <Log backgroundColor={props.backgroundColor} collapsed={!isOpen}>
+    <Log className={props.severity} collapsed={!isOpen}>
       <Icon name={props.icon} size={IconSize.XL} fillColor={props.iconColor} />
       <span className="debugger-time">{props.timestamp}</span>
       <div className="debugger-description">
@@ -135,11 +160,11 @@ const LogItem = (props: any) => {
             size={IconSize.XXS}
           />
         )}
-        {props.entityType && (
+        {props.source && (
           <EntityLink
-            type={props.entityType}
-            name={props.sourceName}
-            id={props.id}
+            type={props.source.type}
+            name={props.source.name}
+            id={props.source.id}
           />
         )}
         <span className="debugger-label">{props.text}</span>
