@@ -115,3 +115,28 @@ export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
+
+export enum FontStyleTypes {
+  BOLD = "BOLD",
+  ITALIC = "ITALIC",
+  REGULAR = "REGULAR",
+  UNDERLINE = "UNDERLINE",
+}
+
+export enum TextSizes {
+  HEADING1 = "HEADING1",
+  HEADING2 = "HEADING2",
+  HEADING3 = "HEADING3",
+  PARAGRAPH = "PARAGRAPH",
+  PARAGRAPH2 = "PARAGRAPH2",
+}
+
+export const TEXT_SIZES = {
+  HEADING1: "24px",
+  HEADING2: "18px",
+  HEADING3: "16px",
+  PARAGRAPH: "14px",
+  PARAGRAPH2: "12px",
+};
+
+export type TextSize = keyof typeof TextSizes;
