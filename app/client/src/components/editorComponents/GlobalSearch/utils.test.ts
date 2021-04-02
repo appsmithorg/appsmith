@@ -26,7 +26,6 @@ const simpleMockStateFn = jest.fn((truthy: boolean) => {
 
 describe("globalsearch utils", () => {
   it("returns default github docs", async () => {
-    const documents = [];
     await fetchDefaultDocs(simpleMockStateFn, simpleMockHookFn, 0, 2);
   });
   it("makes sure that the helper dependency function is also called", async () => {
