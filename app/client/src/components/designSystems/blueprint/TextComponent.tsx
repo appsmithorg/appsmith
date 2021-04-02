@@ -1,11 +1,15 @@
 import * as React from "react";
-import { Text, Classes } from "@blueprintjs/core";
+import { Text } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import { TextStyle, TextAlign } from "widgets/TextWidget";
+import { TextAlign } from "widgets/TextWidget";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
-import { labelStyle } from "constants/DefaultTheme";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
 };
@@ -29,6 +33,10 @@ export const TextContainer = styled.div`
 export const StyledText = styled(Text)<{
   scroll: boolean;
   textAlign: string;
+  backgroundColor?: string;
+  textColor?: string;
+  fontStyle?: string;
+  fontSize?: TextSize;
 }>`
   height: 100%;
   overflow-y: ${(props) => (props.scroll ? "auto" : "hidden")};
@@ -38,13 +46,15 @@ export const StyledText = styled(Text)<{
   width: 100%;
   justify-content: flex-start;
   align-items: ${(props) => (props.scroll ? "flex-start" : "center")};
-  &.bp3-heading {
-    font-weight: ${(props) => props.theme.fontWeights[4]};
-    font-size: 21px;
-  }
-  &.bp3-ui-text {
-    ${labelStyle}
-  }
+  background: ${(props) => props?.backgroundColor};
+  color: ${(props) => props?.textColor};
+  font-style: ${(props) =>
+    props?.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+  text-decoration: ${(props) =>
+    props?.fontStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
+  font-weight: ${(props) =>
+    props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+  font-size: ${(props) => props?.fontSize && TEXT_SIZES[props?.fontSize]};
   span {
     width: 100%;
   }
@@ -54,44 +64,36 @@ export interface TextComponentProps extends ComponentProps {
   text?: string;
   textAlign: TextAlign;
   ellipsize?: boolean;
-  textStyle?: TextStyle;
+  fontSize?: TextSize;
   isLoading: boolean;
   shouldScroll?: boolean;
+  backgroundColor?: string;
+  textColor?: string;
+  fontStyle?: string;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
-  getTextClass(textStyle?: TextStyle) {
-    const className = [];
-
-    if (this.props.isLoading) {
-      className.push("bp3-skeleton");
-    }
-    switch (textStyle) {
-      case "HEADING":
-        className.push(Classes.HEADING);
-        break;
-      case "BODY":
-        className.push(Classes.RUNNING_TEXT);
-        break;
-      case "LABEL":
-        className.push(Classes.UI_TEXT);
-        break;
-      default:
-        break;
-    }
-
-    return className.join(" ");
-  }
-
   render() {
-    const { textStyle, text, ellipsize, textAlign } = this.props;
+    const {
+      text,
+      ellipsize,
+      textAlign,
+      fontStyle,
+      fontSize,
+      textColor,
+      backgroundColor,
+    } = this.props;
     return (
       <TextContainer>
         <StyledText
           scroll={!!this.props.shouldScroll}
           textAlign={textAlign}
-          className={this.getTextClass(textStyle)}
+          fontSize={fontSize}
           ellipsize={ellipsize}
+          fontStyle={fontStyle}
+          textColor={textColor}
+          backgroundColor={backgroundColor}
+          className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
         >
           <Interweave
             content={text}

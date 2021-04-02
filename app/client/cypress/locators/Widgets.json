@@ -36,7 +36,7 @@
     "deleteWidget": ".t--modal-widget>div .t--widget-delete-control",
     "textbuttonWidget": ".t--draggable-buttonwidget button.bp3-button[type='button']",
     "textInputval": ".t--draggable-textwidget span.t--widget-name",
-    "textAlign": ".t--property-control-textalign",
+    "textCenterAlign": ".t--property-control-textalign .t--icon-tab-CENTER",
     "ColumnAction": ".t--property-control-rowbutton button",
     "videoWidget": ".t--draggable-videowidget",
     "autoPlay": ".t--property-control-autoplay > .bp3-control > .bp3-control-indicator",
