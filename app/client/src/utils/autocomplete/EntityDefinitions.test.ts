@@ -1,7 +1,4 @@
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { WidgetProps } from "widgets/BaseWidget";
-import { ListWidgetProps } from "widgets/ListWidget/ListWidget";
 import { WidgetTypes } from "../../constants/WidgetConstants";
 
 describe("EntityDefinitions", () => {
