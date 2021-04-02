@@ -1,7 +1,7 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
-import { cloneDeep, get, isString } from "lodash";
+import { cloneDeep, get, indexOf, isString } from "lodash";
 import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagas";
@@ -778,8 +778,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               if (!parentId) return { widgets };
               const widget = { ...widgets[widgetId] };
               const parent = { ...widgets[parentId] };
+
+              const disallowedWidgets = [WidgetTypes.FILE_PICKER_WIDGET];
+
               if (
-                Object.keys(widgetPropertyMaps.defaultPropertyMap).length > 0
+                Object.keys(widgetPropertyMaps.defaultPropertyMap).length > 0 ||
+                indexOf(disallowedWidgets, widget.type) > -1
               ) {
                 const widget = widgets[widgetId];
                 if (widget.children && widget.children.length > 0) {
