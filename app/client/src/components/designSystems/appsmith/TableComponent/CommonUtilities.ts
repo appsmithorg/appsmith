@@ -92,34 +92,3 @@ export const transformTableDataIntoCsv = (props: {
   }
   return csvData;
 };
-
-export const downloadTableDataAsCSV = (props: {
-  csvData: Array<Array<any>>;
-  fileName: string;
-}) => {
-  let csvContent = "";
-  props.csvData.forEach((infoArray: Array<any>, index: number) => {
-    const dataString = infoArray.join(",");
-    csvContent += index < props.csvData.length ? dataString + "\n" : dataString;
-  });
-  const anchor = document.createElement("a");
-  const mimeType = "application/octet-stream";
-  if (navigator.msSaveBlob) {
-    navigator.msSaveBlob(
-      new Blob([csvContent], {
-        type: mimeType,
-      }),
-      props.fileName,
-    );
-  } else if (URL && "download" in anchor) {
-    anchor.href = URL.createObjectURL(
-      new Blob([csvContent], {
-        type: mimeType,
-      }),
-    );
-    anchor.setAttribute("download", props.fileName);
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-  }
-};
