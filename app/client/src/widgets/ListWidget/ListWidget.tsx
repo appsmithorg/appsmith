@@ -47,22 +47,22 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      selectedRow: `{{(()=>{
-        const selectedRowIndex =
-          this.selectedRowIndex === undefined ||
-          Number.isNaN(parseInt(this.selectedRowIndex))
+      selectedItem: `{{(()=>{
+        const selectedItemIndex =
+          this.selectedItemIndex === undefined ||
+          Number.isNaN(parseInt(this.selectedItemIndex))
             ? -1
-            : parseInt(this.selectedRowIndex);
+            : parseInt(this.selectedItemIndex);
         const items = this.items || [];
-        if (selectedRowIndex === -1) {
+        if (selectedItemIndex === -1) {
           const emptyRow = { ...items[0] };
           Object.keys(emptyRow).forEach((key) => {
             emptyRow[key] = "";
           });
           return emptyRow;
         }
-        const selectedRow = { ...items[selectedRowIndex] };
-        return selectedRow;
+        const selectedItem = { ...items[selectedItemIndex] };
+        return selectedItem;
       })()}}`,
     };
   }
@@ -128,13 +128,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     action: string | undefined,
     onComplete: () => void,
   ) => {
-    // setting selectedRowIndex on click of container
-    const selectedRowIndex = isNumber(this.props.selectedRowIndex)
-      ? this.props.selectedRowIndex
+    // setting selectedItemIndex on click of container
+    const selectedItemIndex = isNumber(this.props.selectedItemIndex)
+      ? this.props.selectedItemIndex
       : -1;
 
-    if (selectedRowIndex !== rowIndex) {
-      this.props.updateWidgetMetaProperty("selectedRowIndex", rowIndex, {
+    if (selectedItemIndex !== rowIndex) {
+      this.props.updateWidgetMetaProperty("selectedItemIndex", rowIndex, {
         dynamicString: this.props.onRowSelected,
         event: {
           type: EventType.ON_ROW_SELECTED,

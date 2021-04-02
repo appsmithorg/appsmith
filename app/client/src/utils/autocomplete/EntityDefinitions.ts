@@ -233,7 +233,7 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
     },
     isVisible: isVisible,
-    selectedRow: generateTypeDef(widget.selectedRow),
+    selectedItem: generateTypeDef(widget.selectedItem),
   }),
 };
 

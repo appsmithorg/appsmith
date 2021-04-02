@@ -1,0 +1,50 @@
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { WidgetProps } from "widgets/BaseWidget";
+import { ListWidgetProps } from "widgets/ListWidget/ListWidget";
+import { WidgetTypes } from "../../constants/WidgetConstants";
+
+describe("EntityDefinitions", () => {
+  it("it tests list widget selectRow", () => {
+    const listWidgetProps = {
+      widgetId: "yolo",
+      widgetName: "List1",
+      parentId: "123",
+      renderMode: "CANVAS",
+      text: "yo",
+      type: WidgetTypes.INPUT_WIDGET,
+      parentColumnSpace: 1,
+      parentRowSpace: 2,
+      leftColumn: 2,
+      rightColumn: 3,
+      topRow: 1,
+      bottomRow: 2,
+      isLoading: false,
+      version: 1,
+      selectedItem: {
+        id: 1,
+        name: "Some random name",
+      },
+    };
+    const listWidgetEntityDefinitions = entityDefinitions.LIST_WIDGET(
+      listWidgetProps,
+    );
+
+    const output = {
+      "!doc":
+        "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+      "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+      backgroundColor: {
+        "!type": "string",
+        "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+      },
+      isVisible: {
+        "!type": "bool",
+        "!doc": "Boolean value indicating if the widget is in visible state",
+      },
+      selectedItem: { id: "number", name: "string" },
+    };
+
+    expect(listWidgetEntityDefinitions).toStrictEqual(output);
+  });
+});
