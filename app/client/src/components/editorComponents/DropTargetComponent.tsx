@@ -245,7 +245,8 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         focusWidget && focusWidget(props.parentId);
       }
     }
-    e.stopPropagation();
+    // commenting this out to allow propagation of click events
+    // e.stopPropagation();
     e.preventDefault();
   };
   const height = canDropTargetExtend

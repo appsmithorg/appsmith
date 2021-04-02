@@ -218,17 +218,13 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   renderPropertyPane() {
     const { widgetProperties } = this.props;
 
-    if (!widgetProperties)
-      return (
-        <PropertyPaneWrapper
-          className={"t--propertypane"}
-          themeMode={this.getTheme()}
-        />
-      );
+    if (!widgetProperties) {
+      return <></>;
+    }
 
     // if settings control is disabled, don't render anything
     // for e.g - this will be true for list widget tempalte container widget
-    if (widgetProperties.settingsControlDisabled) return <></>;
+    if (widgetProperties?.settingsControlDisabled) return <></>;
 
     return (
       <PropertyPaneWrapper

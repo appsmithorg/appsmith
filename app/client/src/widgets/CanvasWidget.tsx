@@ -77,11 +77,7 @@ class CanvasWidget extends ContainerWidget {
     // This div is the DropTargetComponent alternative for the page view
     // DropTargetComponent and this div are responsible for the canvas height
     return (
-      <div
-        className={getCanvasClassName()}
-        style={style}
-        onClick={this.props.onClick}
-      >
+      <div className={getCanvasClassName()} style={style}>
         {this.renderAsContainerComponent(this.getCanvasProps())}
       </div>
     );
