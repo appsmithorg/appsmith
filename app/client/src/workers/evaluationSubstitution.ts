@@ -53,7 +53,8 @@ export const smartSubstituteDynamicValues = (
         break;
       case Types.STRING:
         // Add quotes to a string
-        finalBinding = finalBinding.replace(b, `"${value}"`);
+        // JSON.stringify string to escape any unsupported characters
+        finalBinding = finalBinding.replace(b, `${JSON.stringify(value)}`);
         break;
       case Types.ARRAY:
       case Types.OBJECT:

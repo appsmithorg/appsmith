@@ -279,5 +279,24 @@ describe("substituteDynamicBindingWithValues", () => {
 
       expect(result).toBe(expected);
     });
+
+    it("escapes strings before substitution", () => {
+      const binding = `{\n  "paragraph": {{paragraph}},\n}`;
+      const subBindings = ['{\n  "paragraph": ', "{{paragraph}}", ",\n}"];
+      const subValues = [
+        '{\n  "paragraph": ',
+        `This is a \f string \b with \n many different " characters that are not \n all. these \r\t`,
+        ",\n}",
+      ];
+      const expected = `{\n  "paragraph": "This is a \\f string \\b with \\n many different \\" characters that are not \\n all. these \\r\\t",\n}`;
+      const result = substituteDynamicBindingWithValues(
+        binding,
+        subBindings,
+        subValues,
+        EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      );
+
+      expect(result).toBe(expected);
+    });
   });
 });
