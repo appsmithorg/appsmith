@@ -1,6 +1,6 @@
 import { DocSearchItem } from "./utils";
 
-const defaultDocsConfig = [
+export const defaultDocsConfig = [
   {
     link:
       "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/tutorial-1/README.md",

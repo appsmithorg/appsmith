@@ -5,7 +5,11 @@ import * as githubHelper from "./githubHelper";
 // and make sure that this is called from the
 // module we are testing(utils)
 jest.mock("./githubHelper", () => ({
-  fetchRawGithubContentList: jest.fn(),
+  fetchRawGithubContentList: jest.fn(() =>
+    Promise.resolve({
+      json: () => Promise.resolve(githubHelper.defaultDocsConfig),
+    }),
+  ),
 }));
 
 describe("globalsearch utils", () => {
