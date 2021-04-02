@@ -1288,7 +1288,7 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
   cy.wait(200);
 });
 
-Cypress.Commands.add("tableDataHide", (endp, value) => {
+Cypress.Commands.add("tableDataTextAreaCheck", (endp, value) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror")
     .first()
     .should("not.be.visible");

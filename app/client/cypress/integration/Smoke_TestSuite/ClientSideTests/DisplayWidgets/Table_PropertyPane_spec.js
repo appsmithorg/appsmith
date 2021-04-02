@@ -17,7 +17,7 @@ describe("Table Widget property pane feature validation", function() {
       .first()
       .should("be.visible")
       .click();
-    cy.tableDataHide("tabledata");
+    cy.tableDataTextAreaCheck("tabledata");
   });
 
   it("Check open section and column data in property pane", function() {
