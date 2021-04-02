@@ -105,7 +105,7 @@ const StyledCollapse = styled(Collapse)`
 
 export const getLogItemProps = (e: Message) => {
   return {
-    icon: SeverityIcon[e.severity],
+    icon: SeverityIcon[e.severity] as IconName,
     iconColor: SeverityIconColor[e.severity],
     timestamp: e.timestamp,
     source: e.source,
@@ -115,7 +115,7 @@ export const getLogItemProps = (e: Message) => {
     text: e.text,
     message: e.message && isString(e.message) ? e.message : "",
     state: e.state,
-    id: e.source ? e.source.id : null,
+    id: e.source ? e.source.id : undefined,
   };
 };
 
@@ -128,9 +128,9 @@ type LogItemProps = {
   severity: Severity;
   text: string;
   message: string;
-  state: Record<string, any>;
+  state?: Record<string, any>;
   id?: string;
-  source: SourceEntity;
+  source?: SourceEntity;
 };
 
 const LogItem = (props: LogItemProps) => {
