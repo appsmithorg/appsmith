@@ -26,6 +26,7 @@ import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
+import ErrorLogs from "./Debugger/Errors";
 
 const ResponseContainer = styled.div`
   position: relative;
@@ -248,6 +249,11 @@ const ApiResponseView = (props: Props) => {
           }
         />
       ),
+    },
+    {
+      key: "error-logs",
+      title: "Errors",
+      panelComponent: <ErrorLogs />,
     },
     {
       key: "logs",
