@@ -38,7 +38,10 @@ export const CreateApplicationForm = (
   );
 
   return (
-    <Form onSubmit={handleSubmit(submitHandler)}>
+    <Form
+      onSubmit={handleSubmit(submitHandler)}
+      data-cy="create-organisation-form"
+    >
       {error && !pristine && <FormMessage intent="danger" message={error} />}
       <FormGroup intent={error ? "danger" : "none"} helperText={error}>
         <TextField
@@ -46,6 +49,7 @@ export const CreateApplicationForm = (
           placeholder="Name"
           validate={noSpaces}
           autoFocus
+          data-cy="create-organisation-form__name"
         />
       </FormGroup>
       <FormFooter

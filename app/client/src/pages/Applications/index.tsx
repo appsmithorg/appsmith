@@ -393,6 +393,7 @@ function LeftPane() {
         key={"new-workspace"}
         text={"Create Organization"}
         icon="plus"
+        data-cy="create-organisation-link"
       />
     </NewWorkspaceWrapper>
   );

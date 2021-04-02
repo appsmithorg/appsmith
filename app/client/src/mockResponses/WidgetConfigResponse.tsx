@@ -7,7 +7,8 @@ import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagas";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { FileDataTypes } from "widgets/FilepickerWidget";
+import { Colors } from "constants/Colors";
+import FileDataTypes from "widgets/FileDataTypes";
 
 /**
  * this config sets the default values of properties being used in the widget
@@ -27,8 +28,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     TEXT_WIDGET: {
       text: "Label",
-      textStyle: "LABEL",
+      fontSize: "PARAGRAPH",
+      fontStyle: "BOLD",
       textAlign: "LEFT",
+      textColor: Colors.THUNDER,
       rows: 1,
       columns: 4,
       widgetName: "Text",
