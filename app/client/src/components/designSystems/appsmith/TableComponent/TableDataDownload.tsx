@@ -33,13 +33,14 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
       const csvDataRow = [];
       for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
         const column = props.columns[colIndex];
-        const value = data[column.accessor];
+        let value = data[column.accessor];
         if (column.metaProperties && !column.metaProperties.isHidden) {
+          value =
+            isString(value) && value.includes("\n")
+              ? value.replace("\n", " ")
+              : value;
           if (isString(value) && value.includes(",")) {
             csvDataRow.push(`"${value}"`);
-          } else if (isString(value) && value.includes("\n")) {
-            const escapedValue = value.replace("\n", " ");
-            csvDataRow.push(`"${escapedValue}"`);
           } else {
             csvDataRow.push(value);
           }
