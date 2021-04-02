@@ -12,24 +12,30 @@ jest.mock("./githubHelper", () => ({
   ),
 }));
 
+// simple mocked hook function
+const simpleMockHookFn = jest.fn((docs: DocSearchItem[]) => {
+  expect(docs.length).toEqual(4);
+});
+
+// simple mocked state function
+const simpleMockStateFn = jest.fn((truthy: boolean) => {
+  // do nothing for now
+  // to turn off errors
+  expect(truthy === null || typeof truthy === "boolean").toBeTruthy();
+});
+
 describe("globalsearch utils", () => {
   it("returns default github docs", async () => {
-    let documents = [];
-    await fetchDefaultDocs(
-      (truthy: boolean) => {
-        // do nothing for now
-        // to turn off errors
-        expect(truthy === null || typeof truthy === "boolean").toBeTruthy();
-      },
-      (docs: DocSearchItem[]) => {
-        documents = docs;
-        expect(documents.length).toEqual(4);
-      },
-      0,
-      2,
-    );
+    const documents = [];
+    await fetchDefaultDocs(simpleMockStateFn, simpleMockHookFn, 0, 2);
   });
   it("makes sure that the helper dependency function is also called", async () => {
     expect(githubHelper.fetchRawGithubContentList).toBeCalled();
+  });
+  it("makes sure that the hook function is also called", async () => {
+    expect(simpleMockHookFn).toBeCalled();
+  });
+  it("makes sure that the state function is also called", async () => {
+    expect(simpleMockStateFn).toBeCalled();
   });
 });
