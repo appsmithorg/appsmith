@@ -81,30 +81,36 @@ async function onSocketConnected(socket) {
 }
 
 async function tryAuth(socket, cookie) {
-	let response;
+	const sessionCookie = cookie.match(/\bSESSION=\S+/)[0]
+	let response
 	try {
 		response = await axios.request({
 			method: "GET",
 			url: API_BASE_URL + "/applications/new",
 			headers: {
-				Cookie: cookie.match(/\bSESSION=\S+/)[0],
+				Cookie: sessionCookie,
 			},
 		})
 	} catch (error) {
-		console.error("Error authenticating", error)
+		if (error.response?.status === 401) {
+			console.info("Couldn't authenticate user with cookie:", sessionCookie)
+		} else {
+			console.error("Error authenticating", error)
+		}
 		return false
 	}
 
 	const email = response.data.data.user.email
 	ROOMS[email] = []
 	socket.join("email:" + email)
-	for (const org of response.data.data.organizationApplications) {
+
+	/*for (const org of response.data.data.organizationApplications) {
 		for (const app of org.applications) {
 			ROOMS[email].push(app.id)
 			console.log("Joining", app.id)
 			socket.join("application:" + app.id)
 		}
-	}
+	}//*/
 
 	socket.on("disconnect", (reason) => {
 		delete ROOMS[email]
@@ -123,6 +129,13 @@ async function watchMongoDB(io) {
 
 	interface Comment {
 		threadId: string
+		policies: Policy[]
+	}
+
+	interface Policy {
+		permission: string
+		users: string[]
+		groups: string[]
 	}
 
 	const threadCollection: mongodb.Collection<CommentThread> = db.collection("commentThread")
@@ -135,10 +148,25 @@ async function watchMongoDB(io) {
 			{ _id: new ObjectId(comment.threadId) },
 			{ projection: { applicationId: 1 } },
 		)
-		const roomName = "application:" + applicationId
 		const eventName = event.operationType + ":" + event.ns.coll
-		console.log("Emitting to room '" + roomName + "', event '" + eventName + "'.", comment)
-		io.to(roomName).emit(eventName, { comment })
+
+		let target = io
+		let shouldEmit = false
+
+		for (const policy of comment.policies) {
+			if (policy.permission === "read:comments") {
+				for (const email of policy.users) {
+					shouldEmit = true
+					console.log("Emitting comment to email", email)
+					target = target.to("email:" + email)
+				}
+				break
+			}
+		}
+
+		if (shouldEmit) {
+			target.emit(eventName, { comment })
+		}
 	})
 
 	const threadChangeStream = threadCollection.watch(
@@ -161,6 +189,11 @@ async function watchMongoDB(io) {
 	threadChangeStream.on("change", (event: mongodb.ChangeEventCR) => {
 		console.log("change thread", event)
 		const comment = event.fullDocument
+		if (comment == null) {
+			// This happens when `event.operationType === "drop"`, when a comment is deleted.
+			console.error("Null document recieved for comment change event", event)
+			return
+		}
 		const roomName = "application:" + comment.applicationId
 		const eventName = event.operationType + ":" + event.ns.coll
 		console.log("Emitting to room '" + roomName + "', event '" + eventName + "'.", comment)

@@ -67,13 +67,25 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             return Mono.empty();
         }
 
-        // TODO: Check if a thread with this ID exists and if this user has permission to comment on that thread.
-        comment.setThreadId(threadId);
-
-        return sessionUserService.getCurrentUser()
-                .flatMap(user -> {
-                    comment.setAuthorName(user.getName());
-                    return repository.save(comment);
+        return threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
+                .flatMap(thread -> {
+                    comment.setThreadId(threadId);
+                    comment.setPolicies(policyGenerator.getAllChildPolicies(
+                            thread.getPolicies(),
+                            CommentThread.class,
+                            Comment.class
+                    ));
+                    return Mono.zip(
+                            Mono.just(comment),
+                            sessionUserService.getCurrentUser()
+                    );
+                })
+                .flatMap(tuple -> {
+                    final Comment comment1 = tuple.getT1();
+                    final User user = tuple.getT2();
+                    comment1.setAuthorName(user.getName());
+                    return repository.save(comment1);
                 });
     }
 

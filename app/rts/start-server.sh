@@ -6,4 +6,4 @@ cd "$(dirname "$0")"
 npx tsc
 set -o allexport
 source .env
-exec node dist/server.js
+exec node --require source-map-support/register dist/server.js

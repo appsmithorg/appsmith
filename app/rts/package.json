@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "mongodb": "^3.6.4",
     "socket.io": "^3.1.2",
+    "source-map-support": "^0.5.19",
     "typescript": "^4.2.3"
   }
 }
