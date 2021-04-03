@@ -263,7 +263,7 @@ const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   top: 18px;
   cursor: pointer;
   transform: rotate(180deg);
-  svg {
+  && svg {
     path {
       fill: ${(props) => props.theme.colors.secondary};
     }
@@ -275,7 +275,7 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   position: relative;
   top: 3px;
   cursor: pointer;
-  svg {
+  && svg {
     path {
       fill: ${(props) => props.theme.colors.secondary};
     }
@@ -327,7 +327,7 @@ export const TableHeaderCell = (props: {
             : "hidden-header"
         }
       >
-        {column.render("Header")}
+        {props.columnName}
       </div>
       <div
         {...column.getResizerProps()}
