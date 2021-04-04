@@ -1,6 +1,6 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { WidgetType, TextSize } from "constants/WidgetConstants";
 import TextComponent from "components/designSystems/blueprint/TextComponent";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
@@ -9,14 +9,6 @@ import {
 } from "utils/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
-
-const LINE_HEIGHTS: { [key in TextStyle]: number } = {
-  // The following values are arrived at by multiplying line-height with font-size
-  BODY: 1.5 * 14,
-  HEADING: 1.28581 * 16,
-  LABEL: 1.28581 * 14,
-  SUB_TEXT: 1.28581 * 12,
-};
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -31,50 +23,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             placeholderText: "Enter text",
             isBindProperty: true,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "textAlign",
-            helpText: "Sets the alignments of the text",
-            label: "Text Align",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Left",
-                value: "LEFT",
-              },
-              {
-                label: "Center",
-                value: "CENTER",
-              },
-              {
-                label: "Right",
-                value: "RIGHT",
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "textStyle",
-            helpText: "Sets the font and style of the text",
-            label: "Text Style",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Heading",
-                value: "HEADING",
-              },
-              {
-                label: "Label",
-                value: "LABEL",
-              },
-              {
-                label: "Body",
-                value: "BODY",
-              },
-            ],
-            isBindProperty: false,
             isTriggerProperty: false,
           },
           {
@@ -96,6 +44,103 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            label: "Cell Background",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "textColor",
+            label: "Text Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "fontSize",
+            label: "Text Size",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Heading 1",
+                value: "HEADING1",
+                subText: "24px",
+                icon: "HEADING_ONE",
+              },
+              {
+                label: "Heading 2",
+                value: "HEADING2",
+                subText: "18px",
+                icon: "HEADING_TWO",
+              },
+              {
+                label: "Heading 3",
+                value: "HEADING3",
+                subText: "16px",
+                icon: "HEADING_THREE",
+              },
+              {
+                label: "Paragraph",
+                value: "PARAGRAPH",
+                subText: "14px",
+                icon: "PARAGRAPH",
+              },
+              {
+                label: "Paragraph 2",
+                value: "PARAGRAPH2",
+                subText: "12px",
+                icon: "PARAGRAPH_TWO",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "fontStyle",
+            label: "Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "textAlign",
+            label: "Text Align",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: "LEFT",
+              },
+              {
+                icon: "CENTER_ALIGN",
+                value: "CENTER",
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: "RIGHT",
+              },
+            ],
+            defaultValue: "LEFT",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+        ],
+      },
     ];
   }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -107,24 +152,19 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     };
   }
 
-  getNumberOfLines() {
-    const height = (this.props.bottomRow - this.props.topRow) * 40;
-    const lineHeight = LINE_HEIGHTS[this.props.textStyle];
-    return Math.floor(height / lineHeight);
-  }
-
   getPageView() {
-    // const lines = this.getNumberOfLines();
     return (
       <TextComponent
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
-        textStyle={this.props.textStyle}
         text={this.props.text}
+        fontStyle={this.props.fontStyle}
+        fontSize={this.props.fontSize}
+        textColor={this.props.textColor}
+        backgroundColor={this.props.backgroundColor}
         textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
         isLoading={this.props.isLoading}
         shouldScroll={this.props.shouldScroll}
-        // lines={lines}
       />
     );
   }
@@ -140,14 +180,19 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   }
 }
 
-export type TextStyle = "BODY" | "HEADING" | "LABEL" | "SUB_TEXT";
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
-export interface TextWidgetProps extends WidgetProps {
+export interface TextStyles {
+  backgroundColor?: string;
+  textColor?: string;
+  fontStyle?: string;
+  fontSize?: TextSize;
+  textAlign?: TextAlign;
+}
+
+export interface TextWidgetProps extends WidgetProps, TextStyles {
   text?: string;
-  textStyle: TextStyle;
   isLoading: boolean;
-  textAlign: TextAlign;
   shouldScroll: boolean;
 }
 
