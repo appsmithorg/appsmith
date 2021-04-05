@@ -4,7 +4,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import styled from "styled-components";
-import Content from "./Content";
+import DebuggerTabs from "./DebuggerTabs";
 import { AppState } from "reducers";
 import { showDebugger as showDebuggerAction } from "actions/debuggerActions";
 
@@ -65,7 +65,7 @@ const Debugger = () => {
         <div className="debugger-count">{errorCount}</div>
       </Container>
     );
-  return <Content />;
+  return <DebuggerTabs defaultIndex={errorCount ? 0 : 1} />;
 };
 
 export default Debugger;

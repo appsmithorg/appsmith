@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { TabComponent } from "components/ads/Tabs";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -30,12 +30,19 @@ const Container = styled.div`
   }
 `;
 
-const Content = () => {
+type DebuggerTabsProps = {
+  defaultIndex: number;
+};
+
+const DebuggerTabs = (props: DebuggerTabsProps) => {
+  const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
   const dispatch = useDispatch();
 
   return (
     <Container>
       <TabComponent
+        selectedIndex={selectedIndex}
+        onSelect={(index) => setSelectedIndex(index)}
         tabs={[
           {
             key: "errors",
@@ -61,4 +68,4 @@ const Content = () => {
   );
 };
 
-export default Content;
+export default DebuggerTabs;
