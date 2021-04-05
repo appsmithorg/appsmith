@@ -36,6 +36,7 @@ export const createUnpublishedCommentThreadSuccess = (payload: any) => ({
 
 export const removeUnpublishedCommentThreads = () => ({
   type: ReduxActionTypes.REMOVE_UNPUBLISHED_COMMENT_THREAD_REQUEST,
+  payload: null,
 });
 
 export const createCommentThreadRequest = (payload: any) => ({
