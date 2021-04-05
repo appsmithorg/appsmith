@@ -41,7 +41,6 @@ export type INJECTED_CONFIGS = {
   intercomAppID: string;
   mailEnabled: boolean;
   disableTelemetry: boolean;
-  commentsEnabled: boolean;
 };
 declare global {
   interface Window {
@@ -114,7 +113,6 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
     disableTelemetry: true,
-    commentsEnabled: !!process.env.REACT_APP_COMMENTS_ENABLED,
   };
 };
 
@@ -265,7 +263,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
     mailEnabled: ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS.mailEnabled,
     disableTelemetry: APPSMITH_FEATURE_CONFIGS.disableTelemetry,
-    commentsEnabled: APPSMITH_FEATURE_CONFIGS.commentsEnabled,
+    commentsEnabled: true,
     commentsTestModeEnabled: false,
   };
 };
