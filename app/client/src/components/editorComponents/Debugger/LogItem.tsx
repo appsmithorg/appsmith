@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
 import { isString } from "lodash";
-import EntityLink from "./EntityLink";
+import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon, SeverityIconColor } from "./helpers";
 
 const Log = styled.div<{ collapsed: boolean }>`
@@ -58,7 +58,6 @@ const Log = styled.div<{ collapsed: boolean }>`
 
       & > span {
         cursor: pointer;
-        cursor: pointer;
 
         &:hover {
           text-decoration: underline;
@@ -77,6 +76,14 @@ const Log = styled.div<{ collapsed: boolean }>`
   .debugger-copy-text {
     margin-left: 10px;
     vertical-align: middle;
+  }
+
+  .debugger-entity-link {
+    margin-left: auto;
+    font-size: 13px;
+    color: #6d6d6d;
+    text-decoration-line: underline;
+    cursor: pointer;
   }
 `;
 
@@ -169,6 +176,7 @@ const LogItem = (props: LogItemProps) => {
             type={props.source.type}
             name={props.source.name}
             id={props.source.id}
+            uiComponent={DebuggerLinkUI.ENTITY_TYPE}
           />
         )}
         <span className="debugger-label">{props.text}</span>
@@ -207,6 +215,14 @@ const LogItem = (props: LogItemProps) => {
           </StyledCollapse>
         )}
       </div>
+      {props.source && (
+        <EntityLink
+          type={props.source.type}
+          name={props.source.name}
+          id={props.source.id}
+          uiComponent={DebuggerLinkUI.ENTITY_NAME}
+        />
+      )}
     </Log>
   );
 };

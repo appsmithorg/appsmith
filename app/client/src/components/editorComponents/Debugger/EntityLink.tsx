@@ -18,7 +18,7 @@ import {
 import { getSelectedWidget } from "selectors/ui";
 import history from "utils/history";
 
-const ActionLink = (props: SourceEntity) => {
+const ActionLink = (props: EntityLinkProps) => {
   const applicationId = useSelector(getCurrentApplicationId);
   const action = useSelector((state: AppState) => getAction(state, props.id));
 
@@ -35,10 +35,17 @@ const ActionLink = (props: SourceEntity) => {
     }
   }, []);
 
-  return <Link name={props.name} onClick={onClick} />;
+  return (
+    <Link
+      name={props.name}
+      onClick={onClick}
+      entityType={props.type}
+      uiComponent={props.uiComponent}
+    />
+  );
 };
 
-const WidgetLink = (props: SourceEntity) => {
+const WidgetLink = (props: EntityLinkProps) => {
   const widgetMap = useSelector(getAllWidgetsMap);
   const selectedWidgetId = useSelector(getSelectedWidget);
   const { navigateToWidget } = useNavigateToWidget();
@@ -56,10 +63,17 @@ const WidgetLink = (props: SourceEntity) => {
     );
   }, []);
 
-  return <Link name={props.name} onClick={onClick} />;
+  return (
+    <Link
+      name={props.name}
+      onClick={onClick}
+      entityType={props.type}
+      uiComponent={props.uiComponent}
+    />
+  );
 };
 
-const DatasourceLink = (props: SourceEntity) => {
+const DatasourceLink = (props: EntityLinkProps) => {
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, props.id),
   );
@@ -72,10 +86,22 @@ const DatasourceLink = (props: SourceEntity) => {
     }
   }, []);
 
-  return <Link name={props.name} onClick={onClick} />;
+  return (
+    <Link
+      name={props.name}
+      onClick={onClick}
+      entityType={props.type}
+      uiComponent={props.uiComponent}
+    />
+  );
 };
 
-const Link = (props: { name: string; onClick: any }) => {
+const Link = (props: {
+  name: string;
+  onClick: any;
+  entityType: ENTITY_TYPE;
+  uiComponent: DebuggerLinkUI;
+}) => {
   const dispatch = useDispatch();
 
   const onClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -84,18 +110,31 @@ const Link = (props: { name: string; onClick: any }) => {
     props.onClick();
   };
 
-  return (
-    <span className="debugger-entity">
-      [
-      <span className="debugger-entity-name" onClick={onClick}>
-        {props.name}
-      </span>
-      ]
-    </span>
-  );
+  switch (props.uiComponent) {
+    case DebuggerLinkUI.ENTITY_TYPE:
+      const EntityType = {
+        [ENTITY_TYPE.ACTION]: "Action",
+        [ENTITY_TYPE.WIDGET]: "Widget",
+        [ENTITY_TYPE.DATASOURCE]: "DB",
+      };
+
+      return (
+        <span className="debugger-entity">
+          [<span onClick={onClick}>{EntityType[props.entityType]}</span>]
+        </span>
+      );
+    case DebuggerLinkUI.ENTITY_NAME:
+      return (
+        <span className="debugger-entity-link" onClick={onClick}>
+          {props.name}.{props.entityType.toLowerCase()}
+        </span>
+      );
+    default:
+      return null;
+  }
 };
 
-const EntityLink = (props: SourceEntity) => {
+const EntityLink = (props: EntityLinkProps) => {
   switch (props.type) {
     case ENTITY_TYPE.WIDGET:
       return <WidgetLink {...props} />;
@@ -107,5 +146,14 @@ const EntityLink = (props: SourceEntity) => {
       return null;
   }
 };
+
+type EntityLinkProps = {
+  uiComponent: DebuggerLinkUI;
+} & SourceEntity;
+
+export enum DebuggerLinkUI {
+  ENTITY_TYPE,
+  ENTITY_NAME,
+}
 
 export default EntityLink;

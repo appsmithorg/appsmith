@@ -7,6 +7,7 @@ import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
+import { Colors } from "constants/Colors";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
@@ -116,7 +117,7 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
     >
       <FlexContainer>
         {props.variant === Variant.success ? (
-          <Icon name="success" size={IconSize.XXL} />
+          <Icon name="success" size={IconSize.XXL} fillColor={Colors.GREEN} />
         ) : props.variant === Variant.warning ? (
           <Icon name="warning" size={IconSize.XXL} />
         ) : null}
