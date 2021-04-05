@@ -132,9 +132,12 @@ public class RestApiPlugin extends BasePlugin {
                  * substitution is no longer in beta.
                  */
                 smartJsonSubstitution = false;
-            } else {
+
                 // Since properties is not empty, we are guaranteed to find the first property.
+            } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null){
                 smartJsonSubstitution = Boolean.parseBoolean(properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue());
+            } else {
+                smartJsonSubstitution = false;
             }
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.

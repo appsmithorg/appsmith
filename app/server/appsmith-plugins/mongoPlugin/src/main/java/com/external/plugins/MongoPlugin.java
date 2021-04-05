@@ -123,9 +123,12 @@ public class MongoPlugin extends BasePlugin {
                  * substitution is no longer in beta.
                  */
                 smartBsonSubstitution = false;
-            } else {
+
                 // Since properties is not empty, we are guaranteed to find the first property.
+            } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null){
                 smartBsonSubstitution = Boolean.parseBoolean(properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue());
+            } else {
+                smartBsonSubstitution = false;
             }
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
