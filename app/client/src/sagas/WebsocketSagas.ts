@@ -99,6 +99,7 @@ function* flow() {
       ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
       ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION,
     ]);
+
     try {
       /**
        * Incase the socket is disconnected due to network latencies
@@ -108,6 +109,9 @@ function* flow() {
        * in the first attempt itself
        */
       if (payload.name !== ANONYMOUS_USERNAME) {
+        const commentsEnabled = yield select(areCommentsEnabledForUser);
+        if (!commentsEnabled) return;
+
         const socket = yield call(connect);
         const task = yield fork(handleIO, socket);
         yield put(setIsWebsocketConnected(true));
@@ -126,7 +130,5 @@ function* flow() {
 }
 
 export default function* rootSaga() {
-  const commentsEnabled = yield select(areCommentsEnabledForUser);
-  if (!commentsEnabled) return;
   yield fork(flow);
 }
