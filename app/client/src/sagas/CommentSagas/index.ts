@@ -36,7 +36,11 @@ import { getAppsmithConfigs } from "configs";
 
 import { validateResponse } from "../ErrorSagas";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
+import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 
 const { commentsTestModeEnabled } = getAppsmithConfigs();
 
@@ -126,10 +130,14 @@ function* addCommentToThread(action: ReduxAction<any>) {
 
 function* fetchApplicationComments() {
   try {
-    yield race([
-      take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS),
-      take(ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS),
-    ]);
+    const isEditorInitialised = yield select(getIsEditorInitialized);
+    const isViewerInitialized = yield select(getIsViewerInitialized);
+    if (!isEditorInitialised && !isViewerInitialized) {
+      yield race([
+        take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS),
+        take(ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS),
+      ]);
+    }
 
     const applicationId = yield select(getCurrentApplicationId);
     const response = yield CommentsApi.fetchAppCommentThreads(applicationId);
