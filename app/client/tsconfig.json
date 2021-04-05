@@ -32,7 +32,10 @@
     ],
     "sourceMap": true,
     "baseUrl": "./src",
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "test/*": ["../test/*"]
+    }
   },
   "include": [
     "./src/**/*"
