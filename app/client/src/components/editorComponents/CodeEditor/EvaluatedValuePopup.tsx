@@ -177,7 +177,6 @@ export const CurrentValueViewer = (props: {
 
 const PopoverContent = (props: PopoverContentProps) => {
   const typeTextRef = React.createRef<HTMLPreElement>();
-  console.log(props);
   return (
     <ContentWrapper
       onMouseEnter={props.onMouseEnter}

@@ -4,7 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
   ButtonType,
 } from "components/designSystems/blueprint/ButtonComponent";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,

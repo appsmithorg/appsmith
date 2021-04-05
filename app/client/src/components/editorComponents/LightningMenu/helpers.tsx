@@ -1,4 +1,5 @@
 import React from "react";
+import { toUpper, get } from "lodash";
 import { Action } from "entities/Action";
 import { Directions } from "utils/helpers";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -194,7 +195,9 @@ export const getLightningMenuOptions = (
   ];
   if (widgets.length > 0) {
     widgets = widgets.sort((a: WidgetProps, b: WidgetProps) => {
-      return a.widgetName.toUpperCase() > b.widgetName.toUpperCase() ? 1 : -1;
+      return toUpper(get(a, "widgetName")) > toUpper(get(b, "widgetName"))
+        ? 1
+        : -1;
     });
     options.push({
       content: (

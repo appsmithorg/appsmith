@@ -440,7 +440,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
-                .flatMap(action1 -> generateActionByViewMode(action1, false));
+                .flatMap(action1 -> generateActionByViewMode(action1, false))
+                .flatMap(this::populateHintMessages);
     }
 
     @Override
@@ -796,6 +797,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         data.put("error", errorJson);
                     }
 
+                    if (actionExecutionResult.getStatusCode() != null) {
+                        data.putAll(Map.of(
+                                "statusCode", actionExecutionResult.getStatusCode()
+                        ));
+                    }
+
                     analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
                     return request;
                 })
@@ -928,6 +935,20 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 })
                 .flatMap(analyticsService::sendDeleteEvent)
                 .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));
+    }
+
+    /*
+     * - Any hint message specific to action configuration can be handled here.
+     */
+    public Mono<ActionDTO> populateHintMessages(ActionDTO action) {
+        /*
+         * - No need for this null check: action == null. By the time the code flow reaches here, action is
+         *   guaranteed to be non null.
+         */
+
+        datasourceService.populateHintMessages(action.getDatasource());
+
+        return Mono.just(action);
     }
 
     @Override

@@ -241,6 +241,55 @@ public class MySqlPluginTest {
     }
 
     @Test
+    public void testExecuteWithFormattingWithShowCmd() {
+        dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show\n\tdatabases");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    String expectedBody = "[{\"Database\":\"information_schema\"},{\"Database\":\"test_db\"}]";
+                    assertEquals(expectedBody, result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteWithFormattingWithSelectCmd() {
+        dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select\n\t*\nfrom\nusers where id=1");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("2018-12-31", node.get("dob").asText());
+                    assertEquals("2018", node.get("yob").asText());
+                    assertEquals("Jack", node.get("username").asText());
+                    assertEquals("jill", node.get("password").asText());
+                    assertEquals("1", node.get("id").asText());
+                    assertEquals("jack@exemplars.com", node.get("email").asText());
+                    assertEquals("18:32:45", node.get("time1").asText());
+                    assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testStaleConnectionCheck() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
