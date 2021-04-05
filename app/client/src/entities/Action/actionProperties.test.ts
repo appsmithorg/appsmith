@@ -50,12 +50,14 @@ describe("getBindingPathsOfAction", () => {
           {
             label: "",
             configProperty: "actionConfiguration.field1",
-            controlType: "SMART_SUBSTITUTION_DYNAMIC_TEXT",
+            controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+            evaluationSubstitutionType: "SMART_SUBSTITUTE",
           },
           {
             label: "",
             configProperty: "actionConfiguration.field2",
-            controlType: "PREPARED_STATEMENT_DYNAMIC_TEXT",
+            controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+            evaluationSubstitutionType: "PARAMETER",
           },
         ],
       },
@@ -223,7 +225,8 @@ describe("getBindingPathsOfAction", () => {
           {
             label: "",
             configProperty: "actionConfiguration.field1",
-            controlType: "SMART_SUBSTITUTION_DYNAMIC_TEXT",
+            controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+            evaluationSubstitutionType: "SMART_SUBSTITUTE",
             hidden: {
               path: "actionConfiguration.template.setting",
               comparison: "EQUALS",

@@ -11,7 +11,8 @@ export default [
       {
         label: "Body",
         configProperty: "actionConfiguration.body",
-        controlType: "SMART_SUBSTITUTION_DYNAMIC_TEXT",
+        controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+        evaluationSubstitutionType: "SMART_SUBSTITUTE",
         hidden: {
           path: "actionConfiguration.pluginSpecifiedTemplates[0].value",
           comparison: "EQUALS",
@@ -22,6 +23,7 @@ export default [
         label: "Body",
         configProperty: "actionConfiguration.body",
         controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+        evaluationSubstitutionType: "TEMPLATE",
         hidden: {
           path: "actionConfiguration.pluginSpecifiedTemplates[0].value",
           comparison: "EQUALS",

@@ -3,21 +3,17 @@ import _ from "lodash";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isHidden } from "components/formControls/utils";
 
-const dynamicFields = [
-  "QUERY_DYNAMIC_TEXT",
-  "QUERY_DYNAMIC_INPUT_TEXT",
-  "SMART_SUBSTITUTION_DYNAMIC_TEXT",
-  "PREPARED_STATEMENT_DYNAMIC_TEXT",
-];
+const dynamicFields = ["QUERY_DYNAMIC_TEXT", "QUERY_DYNAMIC_INPUT_TEXT"];
 
-const getCorrectEvaluationSubstitutionType = (controlType: string) => {
-  if (controlType === "SMART_SUBSTITUTION_DYNAMIC_TEXT") {
-    return EvaluationSubstitutionType.SMART_SUBSTITUTE;
-  } else if (controlType === "PREPARED_STATEMENT_DYNAMIC_TEXT") {
-    return EvaluationSubstitutionType.PARAMETER;
-  } else {
-    return EvaluationSubstitutionType.TEMPLATE;
+const getCorrectEvaluationSubstitutionType = (substitutionType?: string) => {
+  if (substitutionType) {
+    if (substitutionType === EvaluationSubstitutionType.SMART_SUBSTITUTE) {
+      return EvaluationSubstitutionType.SMART_SUBSTITUTE;
+    } else if (substitutionType === EvaluationSubstitutionType.PARAMETER) {
+      return EvaluationSubstitutionType.PARAMETER;
+    }
   }
+  return EvaluationSubstitutionType.TEMPLATE;
 };
 
 export const getBindingPathsOfAction = (
@@ -45,7 +41,7 @@ export const getBindingPathsOfAction = (
       if (dynamicFields.includes(formConfig.controlType)) {
         if (!isHidden(action, formConfig.hidden)) {
           bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
-            formConfig.controlType,
+            formConfig.evaluationSubstitutionType,
           );
         }
       }
@@ -62,7 +58,7 @@ export const getBindingPathsOfAction = (
                 bindingPaths[
                   arrayConfigPath
                 ] = getCorrectEvaluationSubstitutionType(
-                  formConfig.controlType,
+                  formConfig.evaluationSubstitutionType,
                 );
               }
             });
