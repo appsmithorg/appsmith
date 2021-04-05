@@ -7,6 +7,7 @@ import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -69,7 +70,7 @@ public class UpdateMethod implements Method {
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
                 .queryFormat("ROWS")
-                .spreadsheetRange(row)
+                .rowOffset(row)
                 .rowLimit("1")
                 .build();
 
@@ -117,6 +118,7 @@ public class UpdateMethod implements Method {
                     returnedRowObject.getValueMap().putAll(finalRowObjectFromBody.getValueMap());
 
                     methodConfig.setBody(returnedRowObject);
+                    assert jsonNodeBody != null;
                     methodConfig.setSpreadsheetRange(jsonNodeBody.get("valueRanges").get(1).get("range").asText());
                     return methodConfig;
                 })
@@ -161,7 +163,9 @@ public class UpdateMethod implements Method {
 
     private RowObject getRowObjectFromBody(JsonNode body) {
         return new RowObject(
-                this.objectMapper.convertValue(body, LinkedHashMap.class))
+                this.objectMapper.convertValue(body, TypeFactory
+                        .defaultInstance()
+                        .constructMapType(LinkedHashMap.class, String.class, String.class)))
                 .initialize();
     }
 

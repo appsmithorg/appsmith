@@ -146,13 +146,7 @@
           },
           "initialValue": ""
         },
-        {
-          "label": "Table Header Index Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "tableHeaderIndex"
-        },
+
         {
           "label": "Query Format Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
@@ -191,19 +185,78 @@
           "initialValue": "range"
         },
         {
-          "label": "Range (or Row Offset)",
+          "label": "Range",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "GET",
-              "DELETE_ROW"
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_EQUALS",
+                "value": "GET"
+              },
+              {
+                "conditionType": "AND",
+                "conditions": [
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                    "comparison": "EQUALS",
+                    "value": "GET"
+                  },
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+                    "comparison": "EQUALS",
+                    "value": "ROWS"
+                  }
+                ]
+              }
             ]
           },
           "initialValue": "",
-          "placeholderText": "E.g: 3:5"
+          "placeholderText": "1"
+        },
+        {
+          "label": "Row Offset Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "rowOffset"
+        },
+        {
+          "label": "Row Offset",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": [
+                  "GET",
+                  "DELETE_ROW"
+                ]
+              },
+              {
+                "conditionType": "AND",
+                "conditions": [
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                    "comparison": "EQUALS",
+                    "value": "GET"
+                  },
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+                    "comparison": "EQUALS",
+                    "value": "RANGE"
+                  }
+                ]
+              }
+            ]
+          },
+          "initialValue": "",
+          "placeholderText": "1"
         },
         {
           "label": "Row Limit Key",
@@ -217,14 +270,42 @@
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[6].value",
-            "comparison": "NOT_EQUALS",
-            "value": "ROWS"
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_EQUALS",
+                "value": "GET"
+              },
+              {
+                "conditionType": "AND",
+                "conditions": [
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                    "comparison": "EQUALS",
+                    "value": "GET"
+                  },
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+                    "comparison": "EQUALS",
+                    "value": "RANGE"
+                  }
+                ]
+              }
+            ]
           },
-          "initialValue": ""
+          "initialValue": "",
+          "placeholderText": "10"
         },
         {
-          "label": "Table Header Index",
+          "label": "Table Header Index Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "tableHeaderIndex"
+        },
+        {
+          "label": "Table Heading Row Number",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {

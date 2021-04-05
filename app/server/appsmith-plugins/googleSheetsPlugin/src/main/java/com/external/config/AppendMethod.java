@@ -7,6 +7,7 @@ import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -18,8 +19,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
@@ -82,7 +81,7 @@ public class AppendMethod implements Method {
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
                 .queryFormat("ROWS")
-                .spreadsheetRange(row)
+                .rowOffset(row)
                 .rowLimit("1")
                 .build();
 
@@ -174,7 +173,7 @@ public class AppendMethod implements Method {
                     "Missing a valid response object.");
         }
 
-        return this.objectMapper.valueToTree(Map.of("message", "Updated sheet successfully!"));
+        return this.objectMapper.valueToTree(Map.of("message", "Inserted row successfully!"));
     }
 
     private RowObject getRowObjectFromBody(JsonNode body) {
@@ -183,22 +182,9 @@ public class AppendMethod implements Method {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                     "Expected a row object.");
         }
-        return new RowObject(this.objectMapper.convertValue(body, LinkedHashMap.class))
+        return new RowObject(this.objectMapper.convertValue(body, TypeFactory
+                .defaultInstance()
+                .constructMapType(LinkedHashMap.class, String.class, String.class)))
                 .initialize();
-    }
-
-    private List<RowObject> getRowObjectListFromBody(JsonNode body) {
-
-        if (!body.isArray() || body.isEmpty()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected an array of row objects");
-        }
-        return StreamSupport
-                .stream(body.spliterator(), false)
-                .map(rowJson -> new RowObject(
-                        this.objectMapper.convertValue(rowJson, LinkedHashMap.class))
-                        .initialize())
-                .collect(Collectors.toList());
-
     }
 }

@@ -7,6 +7,7 @@ import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -85,7 +86,7 @@ public class BulkUpdateMethod implements Method {
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
                 .queryFormat("ROWS")
-                .spreadsheetRange(String.valueOf(rowStart))
+                .rowOffset(String.valueOf(rowStart))
                 .rowLimit(String.valueOf(rowEnd - rowStart + 1))
                 .build();
 
@@ -108,7 +109,7 @@ public class BulkUpdateMethod implements Method {
                                 "Could not map request back to existing data"));
                     }
                     String jsonBody = new String(responseBody);
-                    JsonNode jsonNodeBody = null;
+                    JsonNode jsonNodeBody;
                     try {
                         jsonNodeBody = objectMapper.readTree(jsonBody);
                     } catch (IOException e) {
@@ -196,7 +197,9 @@ public class BulkUpdateMethod implements Method {
         return StreamSupport
                 .stream(body.spliterator(), false)
                 .map(rowJson -> new RowObject(
-                        this.objectMapper.convertValue(rowJson, LinkedHashMap.class))
+                        this.objectMapper.convertValue(rowJson, TypeFactory
+                                .defaultInstance()
+                                .constructMapType(LinkedHashMap.class, String.class, String.class)))
                         .initialize())
                 .collect(Collectors.toMap(
                         RowObject::getCurrentRowIndex,

@@ -7,6 +7,7 @@ import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -64,6 +65,10 @@ public class BulkAppendMethod implements Method {
         return true;
     }
 
+    /**
+     * We need to execute this prerequisite even for append, so that we can maintain the column ordering as
+     * received from the sheet itself.
+     */
     @Override
     public Mono<Boolean> executePrerequisites(MethodConfig methodConfig, String body, OAuth2 oauth2) {
         WebClient client = WebClient.builder()
@@ -85,7 +90,7 @@ public class BulkAppendMethod implements Method {
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
                 .queryFormat("ROWS")
-                .spreadsheetRange(row)
+                .rowOffset(row)
                 .rowLimit("1")
                 .build();
 
@@ -108,7 +113,7 @@ public class BulkAppendMethod implements Method {
                                 "Could not map request back to existing data"));
                     }
                     String jsonBody = new String(responseBody);
-                    JsonNode jsonNodeBody = null;
+                    JsonNode jsonNodeBody;
                     try {
                         jsonNodeBody = objectMapper.readTree(jsonBody);
                     } catch (IOException e) {
@@ -129,7 +134,10 @@ public class BulkAppendMethod implements Method {
                     // We replace these original values with new ones
                     finalRowObjectListFromBody.forEach(rowObject -> {
                         final Map<String, String> valueMap = new LinkedHashMap<>(returnedRowObject.getValueMap());
-                        valueMap.replaceAll((k, v) -> rowObject.getValueMap().getOrDefault(k, null));
+                        valueMap.replaceAll((k, v) ->
+                                rowObject
+                                        .getValueMap()
+                                        .getOrDefault(k, null));
                         rowObject.setValueMap(valueMap);
                     });
 
@@ -182,7 +190,7 @@ public class BulkAppendMethod implements Method {
                     "Missing a valid response object.");
         }
 
-        return this.objectMapper.valueToTree(Map.of("message", "Updated sheet successfully!"));
+        return this.objectMapper.valueToTree(Map.of("message", "Inserted rows successfully!"));
     }
 
     private List<RowObject> getRowObjectListFromBody(JsonNode body) {
@@ -194,7 +202,11 @@ public class BulkAppendMethod implements Method {
         return StreamSupport
                 .stream(body.spliterator(), false)
                 .map(rowJson -> new RowObject(
-                        this.objectMapper.convertValue(rowJson, LinkedHashMap.class))
+                        this.objectMapper.convertValue(
+                                rowJson,
+                                TypeFactory
+                                        .defaultInstance()
+                                        .constructMapType(LinkedHashMap.class, String.class, String.class)))
                         .initialize())
                 .collect(Collectors.toList());
 

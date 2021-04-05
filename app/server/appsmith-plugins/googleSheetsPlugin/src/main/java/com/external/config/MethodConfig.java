@@ -16,11 +16,12 @@ import java.util.List;
 @ToString
 public class MethodConfig {
     String spreadsheetId;
-    String spreadsheetRange; // doubles as rowOffset
+    String spreadsheetRange;
     String sheetId;
     String spreadsheetName;
     String tableHeaderIndex;
     String queryFormat;
+    String rowOffset;
     String rowLimit;
     String sheetName;
     Object body;
@@ -48,6 +49,9 @@ public class MethodConfig {
                     break;
                 case "rowLimit":
                     this.rowLimit = property.getValue();
+                    break;
+                case "rowOffset":
+                    this.rowOffset = property.getValue();
                     break;
                 case "sheetName":
                     this.sheetName = property.getValue();

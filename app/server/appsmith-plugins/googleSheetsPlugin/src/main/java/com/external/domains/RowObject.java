@@ -31,7 +31,7 @@ public class RowObject {
     int startingColumnIndex = 0;
 
     public RowObject(LinkedHashMap<String, String> valueMap) {
-        this.rowIndex = valueMap.remove("index");
+        this.rowIndex = valueMap.remove("row_id");
         this.valueMap = valueMap;
     }
 
@@ -53,7 +53,7 @@ public class RowObject {
 
         this.currentRowIndex = rowIndex;
         this.rowIndex = String.valueOf(rowIndex);
-        valueMap.put("index", this.rowIndex);
+        valueMap.put("row_id", this.rowIndex);
     }
 
     public RowObject initialize() {

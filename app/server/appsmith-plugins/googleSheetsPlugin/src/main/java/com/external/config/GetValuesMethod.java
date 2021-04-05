@@ -52,12 +52,12 @@ public class GetValuesMethod implements Method {
             }
         }
         if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {
+            if (methodConfig.getRowOffset() == null || methodConfig.getRowOffset().isBlank()) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Row offset");
             }
             int rowOffset = 1;
             try {
-                rowOffset = Integer.parseInt(methodConfig.getSpreadsheetRange());
+                rowOffset = Integer.parseInt(methodConfig.getRowOffset());
                 if (rowOffset <= 0) {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                             "Unexpected value for row offset. Please use a number starting from 1");
@@ -124,7 +124,7 @@ public class GetValuesMethod implements Method {
         if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             int rowOffset = 1;
             try {
-                rowOffset = Integer.parseInt(methodConfig.getSpreadsheetRange());
+                rowOffset = Integer.parseInt(methodConfig.getRowOffset());
             } catch (NumberFormatException e) {
                 // Should have already been caught
             }
