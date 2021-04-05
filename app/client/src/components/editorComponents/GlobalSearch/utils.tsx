@@ -1,5 +1,6 @@
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
+import { fetchRawGithubContentList } from "./githubHelper";
 
 export type RecentEntity = {
   type: string;
@@ -69,67 +70,52 @@ export const getItemTitle = (item: SearchItem): string => {
   }
 };
 
-const defaultDocsConfig = [
-  {
-    link:
-      "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/tutorial-1/README.md",
-    title: "Tutorial",
-    path: "master/tutorial-1",
-    kind: "document",
-  },
-  {
-    link:
-      "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/core-concepts/connecting-to-data-sources/README.md",
-    title: "Connecting to Data Sources",
-    path: "master/core-concepts/connecting-to-data-sources",
-    kind: "document",
-  },
-  {
-    link:
-      "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/core-concepts/displaying-data-read/README.md",
-    title: "Displaying Data (Read)",
-    path: "master/core-concepts/displaying-data-read",
-    kind: "document",
-  },
-  {
-    link:
-      "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/core-concepts/writing-code/README.md",
-    title: "Writing Code",
-    path: "master/core-concepts/writing-code",
-    kind: "document",
-  },
-];
+// Helper function to keep calling
+// github fetch until either number
+// of retries is over or the content
+// is succesfully fetched
+export const fetchDefaultDocs = async (
+  updateIsFetching: (b: boolean) => void,
+  setDefaultDocs: (t: DocSearchItem[]) => void,
+  retries: number,
+  maxRetries: number,
+) => {
+  if (maxRetries <= retries) {
+    updateIsFetching(false);
+    return;
+  }
+  updateIsFetching(true);
+  try {
+    const data = await fetchRawGithubContentList();
+    setDefaultDocs(data);
+    updateIsFetching(false);
+  } catch (e) {
+    updateIsFetching(false);
+    // We don't want to fetch
+    // immediately to avoid
+    // same error again
+    setTimeout(
+      () =>
+        fetchDefaultDocs(
+          updateIsFetching,
+          setDefaultDocs,
+          retries + 1,
+          maxRetries,
+        ),
+      500 * maxRetries,
+    );
+  }
+};
 
-const githubDocsAssetsPath =
-  "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/.gitbook";
-
-export const useDefaultDocumentationResults = () => {
+export const useDefaultDocumentationResults = (modalOpen: boolean) => {
   const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
-
+  const [isFetching, updateIsFetching] = useState(false);
   useEffect(() => {
-    (async () => {
-      const data = await Promise.all(
-        defaultDocsConfig.map(async (doc: any) => {
-          const response = await fetch(doc.link);
-          let document = await response.text();
-          const assetRegex = new RegExp("[../]*?/.gitbook", "g");
-          document = document.replace(assetRegex, githubDocsAssetsPath);
-          return {
-            _highlightResult: {
-              document: {
-                value: document,
-              },
-              title: {
-                value: doc.title,
-              },
-            },
-            ...doc,
-          } as DocSearchItem;
-        }),
-      );
-      setDefaultDocs(data);
-    })();
-  }, []);
+    if (!isFetching && !defaultDocs.length) {
+      // Keep trying to fetch until a max retries is reached
+      fetchDefaultDocs(updateIsFetching, setDefaultDocs, 0, 2);
+    }
+  }, [modalOpen]);
 
   return defaultDocs;
 };

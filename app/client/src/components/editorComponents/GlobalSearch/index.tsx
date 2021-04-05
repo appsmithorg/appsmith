@@ -93,7 +93,8 @@ const getSectionTitle = (title: string, icon: any) => ({
 });
 
 const GlobalSearch = () => {
-  const defaultDocs = useDefaultDocumentationResults();
+  const modalOpen = useSelector(isModalOpenSelector);
+  const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
   const toggleShow = () => dispatch(toggleShowGlobalSearchModal());
@@ -129,7 +130,6 @@ const GlobalSearch = () => {
     [allWidgets],
   );
   const actions = useSelector(getActions);
-  const modalOpen = useSelector(isModalOpenSelector);
   const pages = useSelector(getPageList) || [];
   const pageMap = keyBy(pages, "pageId");
 
