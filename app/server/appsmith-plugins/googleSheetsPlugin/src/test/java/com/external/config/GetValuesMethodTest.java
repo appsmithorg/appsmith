@@ -132,7 +132,7 @@ public class GetValuesMethodTest {
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
         Assert.assertEquals(3, result.size());
-        Assert.assertEquals(1, result.get(0).get("index").asInt());
+        Assert.assertEquals(1, result.get(0).get("row_id").asInt());
     }
 
 }
