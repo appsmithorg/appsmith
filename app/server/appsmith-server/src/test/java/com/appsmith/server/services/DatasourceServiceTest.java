@@ -807,9 +807,10 @@ public class DatasourceServiceTest {
                     assertThat(testResult.getInvalids()).isEmpty();
                     assertThat(testResult.getMessages()).isNotEmpty();
 
-                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
-                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
-                            "understand more.";
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
+                            "inside a docker container or on the cloud. To enable access to your localhost you may use " +
+                            "ngrok to expose your local endpoint to the internet. Please check out Appsmith's " +
+                            "documentation to understand more.";
                     assertThat(
                             testResult.getMessages().stream()
                                     .anyMatch(message -> expectedMessage.equals(message))
@@ -841,9 +842,10 @@ public class DatasourceServiceTest {
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getMessages()).isNotEmpty();
 
-                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
-                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
-                            "understand more.";
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
+                            "inside a docker container or on the cloud. To enable access to your localhost you may " +
+                            "use ngrok to expose your local endpoint to the internet. Please check out Appsmith's " +
+                            "documentation to understand more.";
                     assertThat(
                             createdDatasource.getMessages().stream()
                                     .anyMatch(message -> expectedMessage.equals(message))
@@ -891,9 +893,10 @@ public class DatasourceServiceTest {
                 .create(datasourceMono)
                 .assertNext(updatedDatasource -> {
                     assertThat(updatedDatasource.getMessages().size()).isNotZero();
-                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
-                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
-                            "understand more.";
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
+                            "inside a docker container or on the cloud. To enable access to your localhost you may " +
+                            "use ngrok to expose your local endpoint to the internet. Please check out Appsmith's " +
+                            "documentation to understand more.";
                     assertThat(
                             updatedDatasource.getMessages().stream()
                                     .anyMatch(message -> expectedMessage.equals(message))
@@ -928,9 +931,10 @@ public class DatasourceServiceTest {
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getMessages()).isNotEmpty();
 
-                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
-                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
-                            "understand more.";
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
+                            "inside a docker container or on the cloud. To enable access to your localhost you may " +
+                            "use ngrok to expose your local endpoint to the internet. Please check out Appsmith's " +
+                            "documentation to understand more.";
                     assertThat(
                             createdDatasource.getMessages().stream()
                                     .anyMatch(message -> expectedMessage.equals(message))
@@ -980,9 +984,10 @@ public class DatasourceServiceTest {
                 .create(datasourceMono)
                 .assertNext(updatedDatasource -> {
                     assertThat(updatedDatasource.getMessages().size()).isNotZero();
-                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
-                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
-                            "understand more.";
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
+                            "inside a docker container or on the cloud. To enable access to your localhost you may " +
+                            "use ngrok to expose your local endpoint to the internet. Please check out " +
+                            "Appsmith's documentation to understand more.";
                     assertThat(
                             updatedDatasource.getMessages().stream()
                                     .anyMatch(message -> expectedMessage.equals(message))
