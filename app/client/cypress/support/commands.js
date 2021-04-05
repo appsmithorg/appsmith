@@ -997,12 +997,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
 
   cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
   cy.testCodeMirror(ModalName);
-  cy.get(widgetsPage.textAlign + " " + commonlocators.dropDownBtn)
-    .last()
-    .click();
-  cy.get(widgetsPage.alignOpt)
-    .contains("Center")
-    .click();
+  cy.get(widgetsPage.textCenterAlign).click({ force: true });
   cy.assertPageSave();
   cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
@@ -1042,12 +1037,7 @@ Cypress.Commands.add("updateModal", (modalType, ModalName) => {
 
   cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
   cy.testCodeMirror(ModalName);
-  cy.get(widgetsPage.textAlign + " " + commonlocators.dropDownBtn)
-    .last()
-    .click();
-  cy.get(widgetsPage.alignOpt)
-    .contains("Center")
-    .click();
+  cy.get(widgetsPage.textCenterAlign).click({ force: true });
   cy.assertPageSave();
   cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
