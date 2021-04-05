@@ -342,8 +342,8 @@ public class MongoPlugin extends BasePlugin {
                 default:
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
-                                    "customer support to resolve this."
+                            "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                    " Appsmith customer support to resolve this."
                     );
             }
 
