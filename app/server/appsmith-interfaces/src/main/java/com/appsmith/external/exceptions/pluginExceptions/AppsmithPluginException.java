@@ -33,4 +33,5 @@ public class AppsmithPluginException extends Exception {
         return this.error.getErrorAction();
     }
 
+    public String getTitle() { return this.error.getTitle(); }
 }
