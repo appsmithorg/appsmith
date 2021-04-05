@@ -34,7 +34,7 @@ describe("Form Widget Functionality", function() {
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom")
       .should("be.visible");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.PublishtheApp();
   });
   it("Form Widget Functionality To Verify The Colour", function() {

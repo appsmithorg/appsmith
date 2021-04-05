@@ -30,7 +30,6 @@ interface ReduxStateProps {
   isSaving: boolean;
   isTesting: boolean;
   formConfig: any[];
-  loadingFormConfigs: boolean;
   isDeleting: boolean;
   isNewDatasource: boolean;
   pluginImages: Record<string, string>;
@@ -80,7 +79,6 @@ class DataSourceEditor extends React.Component<Props> {
       isSaving,
       formData,
       isTesting,
-      loadingFormConfigs,
       formConfig,
       isDeleting,
       deleteDatasource,
@@ -106,7 +104,6 @@ class DataSourceEditor extends React.Component<Props> {
         onTest={this.props.testDatasource}
         selectedPluginPackage={selectedPluginPackage}
         datasourceId={datasourceId}
-        loadingFormConfigs={loadingFormConfigs}
         formData={formData}
         formConfig={formConfig}
         handleDelete={deleteDatasource}
@@ -122,7 +119,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
   const datasource = getDatasource(state, props.match.params.datasourceId);
-  const { formConfigs, loadingFormConfigs } = plugins;
+  const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
@@ -138,7 +135,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDeleting: datasources.isDeleting,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
-    loadingFormConfigs,
     isNewDatasource:
       datasourcePane.newDatasource === props.match.params.datasourceId,
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,

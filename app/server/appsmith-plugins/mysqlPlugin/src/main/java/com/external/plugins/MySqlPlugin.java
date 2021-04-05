@@ -46,6 +46,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -164,9 +165,12 @@ public class MySqlPlugin extends BasePlugin {
                  * is no longer in beta.
                  */
                 isPreparedStatement = false;
-            } else {
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+            } else {
+                isPreparedStatement = false;
             }
+
             requestData.put("preparedStatement", TRUE.equals(isPreparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
@@ -312,18 +316,19 @@ public class MySqlPlugin extends BasePlugin {
             System.out.println("Query : " + query);
 
             List<Param> params = executeActionDTO.getParams();
-            List<String> parameters = new ArrayList<>();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             try {
                 connectionStatement = (Statement) this.smartSubstitutionOfBindings(connectionStatement,
                         mustacheValuesInOrder,
                         executeActionDTO.getParams(),
                         parameters);
+
+                requestData.put("ps-parameters", parameters);
             } catch (AppsmithPluginException e) {
                 return Flux.error(e);
             }
 
-            requestData.put("parameters", parameters);
 
             return Flux.from(connectionStatement.execute());
 
@@ -334,10 +339,14 @@ public class MySqlPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
 
             Statement connectionStatement = (Statement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
 
             if (DataType.NULL.equals(valueType)) {
                 try {
@@ -417,8 +426,8 @@ public class MySqlPlugin extends BasePlugin {
 
             String lastQuery = queries[queries.length - 1].trim();
 
-            return (lastQuery.trim().split(" ")[0].equalsIgnoreCase("select")
-                    || lastQuery.trim().split(" ")[0].equalsIgnoreCase("show"));
+            return (lastQuery.trim().split("\\s+")[0].equalsIgnoreCase("select")
+                    || lastQuery.trim().split("\\s+")[0].equalsIgnoreCase("show"));
         }
 
         @Override
@@ -507,8 +516,8 @@ public class MySqlPlugin extends BasePlugin {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
-                                    "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
-                                            "customer support to resolve this."
+                                    "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                            " Appsmith customer support to resolve this."
                             )
                     );
             }

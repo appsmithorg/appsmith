@@ -46,6 +46,7 @@ import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,8 +122,10 @@ public class MssqlPlugin extends BasePlugin {
                  * is no longer in beta.
                  */
                 isPreparedStatement = false;
-            } else {
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+            } else {
+                isPreparedStatement = false;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
@@ -184,13 +187,13 @@ public class MssqlPlugin extends BasePlugin {
                     } else {
                         preparedQuery = connection.prepareStatement(query);
 
-                        List<String> parameters = new ArrayList<>();
+                        List<Map.Entry<String, String>> parameters = new ArrayList<>();
                         preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
                                 mustacheValuesInOrder,
                                 executeActionDTO.getParams(),
                                 parameters);
 
-                        requestData.put("parameters", parameters);
+                        requestData.put("ps-parameters", parameters);
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
                     }
@@ -307,6 +310,7 @@ public class MssqlPlugin extends BasePlugin {
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
+                        request.setProperties(requestData);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -474,10 +478,14 @@ public class MssqlPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
                                              Object... args) throws AppsmithPluginException {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
 
             try {
                 switch (valueType) {

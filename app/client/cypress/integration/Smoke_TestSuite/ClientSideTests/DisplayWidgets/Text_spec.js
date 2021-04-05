@@ -29,11 +29,11 @@ describe("Text Widget Functionality", function() {
       commonlocators.headingTextStyle,
       this.data.TextLabelValue,
     );
+    cy.wait("@updateLayout");
     cy.PublishtheApp();
-    cy.get(commonlocators.headingTextStyle).should(
-      "have.text",
-      this.data.TextLabelValue,
-    );
+    cy.get(commonlocators.headingTextStyle)
+      .should("have.text", this.data.TextLabelValue)
+      .should("have.css", "font-size", "24px");
   });
 
   it("Text-TextStyle Label Validation", function() {
@@ -44,10 +44,9 @@ describe("Text Widget Functionality", function() {
       this.data.TextLabelValue,
     );
     cy.PublishtheApp();
-    cy.get(commonlocators.labelTextStyle).should(
-      "have.text",
-      this.data.TextLabelValue,
-    );
+    cy.get(commonlocators.labelTextStyle)
+      .should("have.text", this.data.TextLabelValue)
+      .should("have.css", "font-size", "14px");
   });
 
   it("Text-TextStyle Body Validation", function() {
@@ -57,10 +56,9 @@ describe("Text Widget Functionality", function() {
       this.data.TextLabelValue,
     );
     cy.PublishtheApp();
-    cy.get(commonlocators.bodyTextStyle).should(
-      "have.text",
-      this.data.TextLabelValue,
-    );
+    cy.get(commonlocators.bodyTextStyle)
+      .should("have.text", this.data.TextLabelValue)
+      .should("have.css", "font-size", "18px");
   });
 
   it("Text widget depends on itself", function() {

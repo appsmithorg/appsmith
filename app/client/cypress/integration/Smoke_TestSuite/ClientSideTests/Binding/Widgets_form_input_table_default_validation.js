@@ -14,7 +14,7 @@ describe("Binding the multiple input Widget", function() {
   it("Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -25,7 +25,7 @@ describe("Binding the multiple input Widget", function() {
   it("Binding second input widget with first input widget and validating", function() {
     cy.SearchEntityandOpen("Input2");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultMoustacheData);
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

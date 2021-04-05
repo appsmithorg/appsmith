@@ -616,6 +616,7 @@ describe("DataTreeEvaluator", () => {
           defaultText: true,
           isValid: true,
           value: true,
+          text: true,
         },
       },
     };
