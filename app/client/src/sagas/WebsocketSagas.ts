@@ -1,6 +1,14 @@
 import { io } from "socket.io-client";
 import { eventChannel } from "redux-saga";
-import { fork, take, call, cancel, put, delay } from "redux-saga/effects";
+import {
+  fork,
+  take,
+  call,
+  cancel,
+  put,
+  delay,
+  select,
+} from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
@@ -17,6 +25,8 @@ import {
   setIsWebsocketConnected,
   retrySocketConnection,
 } from "actions/websocketActions";
+
+import { areCommentsEnabledForUser } from "components/ads/Comments/selectors";
 
 function connect() {
   const socket = io();
@@ -116,5 +126,7 @@ function* flow() {
 }
 
 export default function* rootSaga() {
+  const commentsEnabled = yield select(areCommentsEnabledForUser);
+  if (!commentsEnabled) return;
   yield fork(flow);
 }

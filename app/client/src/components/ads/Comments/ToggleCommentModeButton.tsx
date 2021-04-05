@@ -6,11 +6,10 @@ import {
   setCommentMode as setCommentModeAction,
   fetchApplicationCommentsRequest,
 } from "actions/commentActions";
-import { commentModeSelector } from "./selectors";
-
-import { getAppsmithConfigs } from "configs";
-
-const { commentsEnabled } = getAppsmithConfigs();
+import {
+  commentModeSelector,
+  areCommentsEnabledForUser as areCommentsEnabledForUserSelector,
+} from "./selectors";
 
 const StyledToggleCommentMode = styled.div<{ isCommentMode: boolean }>`
   display: flex;
@@ -40,6 +39,7 @@ const StyledToggleCommentMode = styled.div<{ isCommentMode: boolean }>`
  */
 const ToggleCommentModeButton = () => {
   const dispatch = useDispatch();
+  const commentsEnabled = useSelector(areCommentsEnabledForUserSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const setCommentMode = () => dispatch(setCommentModeAction(!isCommentMode));
 

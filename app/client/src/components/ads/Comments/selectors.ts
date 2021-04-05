@@ -1,5 +1,6 @@
 import { AppState } from "reducers";
 import { get } from "lodash";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 export const refCommentThreadsSelector = (
   refId: string,
@@ -28,3 +29,10 @@ export const commentModeSelector = (state: AppState) =>
 export const applicationCommentsSelector = (applicationId: string) => (
   state: AppState,
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
+
+export const areCommentsEnabledForUser = (state: AppState) => {
+  const user = getCurrentUser(state);
+  const email = get(user, "email", "");
+  const isAppsmithEmail = email.toLowerCase().indexOf("@appsmith.com") !== -1;
+  return isAppsmithEmail;
+};

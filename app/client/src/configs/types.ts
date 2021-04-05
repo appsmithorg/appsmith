@@ -69,6 +69,5 @@ export type AppsmithUIConfigs = {
   mailEnabled: boolean;
 
   disableTelemetry: boolean;
-  commentsEnabled: boolean;
   commentsTestModeEnabled: boolean;
 };

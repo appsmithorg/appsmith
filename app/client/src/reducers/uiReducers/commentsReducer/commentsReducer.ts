@@ -14,7 +14,7 @@ const initialState: CommentsReduxState = {
   commentThreadsMap: {},
   applicationCommentThreadsByRef: {},
   unpublishedCommentThreads: {},
-  isCommentMode: true,
+  isCommentMode: false,
   creatingNewThread: false,
   creatingNewThreadComment: false,
 };
