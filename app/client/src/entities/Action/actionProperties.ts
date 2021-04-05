@@ -1,6 +1,7 @@
 import { Action } from "entities/Action/index";
 import _ from "lodash";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { isHidden } from "components/formControls/utils";
 
 const dynamicFields = [
   "QUERY_DYNAMIC_TEXT",
@@ -42,9 +43,11 @@ export const getBindingPathsOfAction = (
         "config.",
       );
       if (dynamicFields.includes(formConfig.controlType)) {
-        bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
-          formConfig.controlType,
-        );
+        if (!isHidden(action, formConfig.hidden)) {
+          bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
+            formConfig.controlType,
+          );
+        }
       }
       if (formConfig.controlType === "ARRAY_FIELD") {
         const actionValue = _.get(action, formConfig.configProperty);

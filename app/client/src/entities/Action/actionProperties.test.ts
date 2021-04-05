@@ -47,6 +47,16 @@ describe("getBindingPathsOfAction", () => {
             configProperty: "actionConfiguration.body2",
             controlType: "QUERY_DYNAMIC_INPUT_TEXT",
           },
+          {
+            label: "",
+            configProperty: "actionConfiguration.field1",
+            controlType: "SMART_SUBSTITUTION_DYNAMIC_TEXT",
+          },
+          {
+            label: "",
+            configProperty: "actionConfiguration.field2",
+            controlType: "PREPARED_STATEMENT_DYNAMIC_TEXT",
+          },
         ],
       },
     ];
@@ -55,6 +65,8 @@ describe("getBindingPathsOfAction", () => {
       actionConfiguration: {
         body: "basic action",
         body2: "another body",
+        field1: "test",
+        field2: "anotherTest",
       },
     };
 
@@ -64,6 +76,8 @@ describe("getBindingPathsOfAction", () => {
       isLoading: EvaluationSubstitutionType.TEMPLATE,
       "config.body": EvaluationSubstitutionType.TEMPLATE,
       "config.body2": EvaluationSubstitutionType.TEMPLATE,
+      "config.field1": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      "config.field2": EvaluationSubstitutionType.PARAMETER,
     });
   });
 
@@ -182,6 +196,71 @@ describe("getBindingPathsOfAction", () => {
       isLoading: EvaluationSubstitutionType.TEMPLATE,
       "config.key": EvaluationSubstitutionType.TEMPLATE,
       "config.value": EvaluationSubstitutionType.TEMPLATE,
+    });
+  });
+
+  it("checks for hidden field and returns bindingPaths accordingly", () => {
+    const config = [
+      {
+        sectionName: "",
+        id: 1,
+        children: [
+          {
+            label: "",
+            configProperty: "actionConfiguration.body",
+            controlType: "QUERY_DYNAMIC_TEXT",
+          },
+          {
+            label: "",
+            configProperty: "actionConfiguration.body2",
+            controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+            hidden: {
+              path: "actionConfiguration.template.setting",
+              comparison: "EQUALS",
+              value: false,
+            },
+          },
+          {
+            label: "",
+            configProperty: "actionConfiguration.field1",
+            controlType: "SMART_SUBSTITUTION_DYNAMIC_TEXT",
+            hidden: {
+              path: "actionConfiguration.template.setting",
+              comparison: "EQUALS",
+              value: true,
+            },
+          },
+        ],
+      },
+    ];
+    const basicAction = {
+      ...DEFAULT_ACTION,
+      actionConfiguration: {
+        body: "basic action",
+        body2: "another body",
+        field1: "alternate body",
+        template: {
+          setting: false,
+        },
+      },
+    };
+
+    const response = getBindingPathsOfAction(basicAction, config);
+    expect(response).toStrictEqual({
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      "config.body": EvaluationSubstitutionType.TEMPLATE,
+      "config.field1": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    });
+
+    basicAction.actionConfiguration.template.setting = true;
+
+    const response2 = getBindingPathsOfAction(basicAction, config);
+    expect(response2).toStrictEqual({
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      "config.body": EvaluationSubstitutionType.TEMPLATE,
+      "config.body2": EvaluationSubstitutionType.TEMPLATE,
     });
   });
 });
