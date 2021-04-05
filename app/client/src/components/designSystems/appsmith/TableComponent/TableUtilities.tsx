@@ -4,6 +4,7 @@ import {
   CellWrapper,
   ActionWrapper,
   SortIconWrapper,
+  DraggableHeaderWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -319,7 +320,8 @@ export const TableHeaderCell = (props: {
           )}
         </SortIconWrapper>
       ) : null}
-      <div
+      <DraggableHeaderWrapper
+        horizontalAlignment={column.columnProperties.horizontalAlignment}
         className={
           !props.isHidden
             ? `draggable-header ${
@@ -329,7 +331,7 @@ export const TableHeaderCell = (props: {
         }
       >
         {column.render("Header")}
-      </div>
+      </DraggableHeaderWrapper>
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}
