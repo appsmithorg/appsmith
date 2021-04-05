@@ -461,7 +461,7 @@ describe("Validates Derived Properties", () => {
           isDerived: true,
         },
       },
-      columns: [
+      tableColumns: [
         {
           index: 0,
           width: 150,
@@ -608,7 +608,7 @@ describe("Validates Derived Properties", () => {
           isDerived: true,
         },
       },
-      columns: [
+      tableColumns: [
         {
           index: 0,
           width: 150,

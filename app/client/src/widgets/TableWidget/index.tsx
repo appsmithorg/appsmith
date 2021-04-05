@@ -83,7 +83,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
       sanitizedTableData: `{{(()=>{${derivedProperties.getSanitizedTableData}})()}}`,
-      columns: `{{(()=>{${derivedProperties.getTableColumns}})()}}`,
+      tableColumns: `{{(()=>{${derivedProperties.getTableColumns}})()}}`,
       filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
     };
   }
@@ -157,7 +157,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       totalColumnSizes += columnSizeMap[i];
     }
 
-    const allColumnProperties = this.props.columns || [];
+    const allColumnProperties = this.props.tableColumns || [];
     for (let index = 0; index < allColumnProperties.length; index++) {
       const columnProperties = allColumnProperties[index];
       const isHidden = !columnProperties.isVisible;

@@ -116,7 +116,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
   };
 };
 
-const getConfig = (fromENV: string, fromWindow: string) => {
+const getConfig = (fromENV: string, fromWindow = "") => {
   if (fromWindow.length > 0) return { enabled: true, value: fromWindow };
   else if (fromENV.length > 0) return { enabled: true, value: fromENV };
   return { enabled: false, value: "" };
@@ -127,7 +127,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const { APPSMITH_FEATURE_CONFIGS } = window;
   const ENV_CONFIG = getConfigsFromEnvVars();
   const getFeatureFlags = (
-    optimizelyApiKey: string,
+    optimizelyApiKey = "",
   ): FeatureFlagConfig | undefined => {
     if (optimizelyApiKey.length > 0) {
       return {
