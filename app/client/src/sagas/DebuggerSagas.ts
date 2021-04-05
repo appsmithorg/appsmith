@@ -1,9 +1,9 @@
-import { debuggerLog } from "actions/debuggerActions";
+import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { LogActionPayload } from "entities/AppsmithConsole";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { all, call, put, takeEvery, select } from "redux-saga/effects";
+import { all, put, takeEvery, select, fork } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { get, isEmpty } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
@@ -24,18 +24,16 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
   if (payload.state) {
     const propertyPath = Object.keys(payload.state)[0];
 
-    const validationMessage: DataTreeWidget =
-      dataTree[payload.source.name].validationMessages[propertyPath];
+    const validationMessages = dataTree[payload.source.name].validationMessages;
+    const validationMessage = validationMessages[propertyPath];
     const errors = yield select(getDebuggerErrors);
     const widgetErrorLog = errors[source.id];
+    const noError = isEmpty(validationMessage[propertyPath]);
 
-    if (isEmpty(validationMessage[propertyPath])) {
+    if (noError && widgetErrorLog.state[propertyPath]) {
       delete widgetErrorLog.state[propertyPath];
 
-      yield put({
-        type: "DEBUGGER_UPDATE_ERROR_LOG",
-        payload: widgetErrorLog,
-      });
+      yield put(updateErrorLog(widgetErrorLog));
     }
   }
 }
@@ -46,7 +44,7 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
 
   switch (payload.logType) {
     case "WIDGET_UPDATE":
-      yield call(onWidgetUpdateSaga, payload);
+      yield fork(onWidgetUpdateSaga, payload);
       return;
     case "WIDGET_PROPERTY_VALIDATION_ERROR":
       if (payload.source && payload.source.propertyPath) {
@@ -54,9 +52,8 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
         const widget: DataTreeWidget = dataTree[payload.source.name];
 
         if (get(widget, `validationMessages.${payload.source.propertyPath}`)) {
-          yield put({
-            type: "DEBUGGER_ERROR_LOG",
-            payload: {
+          yield put(
+            errorLog({
               ...payload,
               text: "Widget properties have errors",
               state: {
@@ -65,25 +62,21 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
                   `validationMessages.${payload.source.propertyPath}`,
                 ),
               },
-            },
-          });
+            }),
+          );
         }
       }
       break;
     case "ACTION_EXECUTION_ERROR":
-      yield put({
-        type: "DEBUGGER_ERROR_LOG",
-        payload,
-      });
+      yield put(errorLog(payload));
       break;
     case "ACTION_EXECUTION_SUCCESS":
-      yield put({
-        type: "DEBUGGER_UPDATE_ERROR_LOG",
-        payload: {
+      yield put(
+        updateErrorLog({
           ...payload,
           state: {},
-        },
-      });
+        }),
+      );
       break;
   }
 }

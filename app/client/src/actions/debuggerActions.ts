@@ -27,3 +27,17 @@ export const showDebugger = (payload: boolean) => {
     payload,
   };
 };
+
+export const errorLog = (payload: LogActionPayload) => {
+  return {
+    type: ReduxActionTypes.DEBUGGER_ERROR_LOG,
+    payload,
+  };
+};
+
+export const updateErrorLog = (payload: LogActionPayload) => {
+  return {
+    type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG,
+    payload,
+  };
+};
