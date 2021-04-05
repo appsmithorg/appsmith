@@ -45,6 +45,7 @@ const PageNumberInput = (props: {
   pageNo: number;
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
+  disabled: boolean;
 }) => {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
   useEffect(() => {
@@ -57,6 +58,7 @@ const PageNumberInput = (props: {
       max={props.pageCount || 1}
       buttonPosition="none"
       clampValueOnBlur
+      disabled={props.disabled}
       onBlur={(e: any) => {
         const oldPageNo = Number(props.pageNo || 0);
         const value = e.target.value;
@@ -196,6 +198,7 @@ const TableHeader = (props: TableHeaderProps) => {
               pageNo={props.pageNo + 1}
               updatePageNo={props.updatePageNo}
               pageCount={props.pageCount}
+              disabled={props.pageCount === 1}
             />{" "}
             of {props.pageCount}
           </RowWrapper>
