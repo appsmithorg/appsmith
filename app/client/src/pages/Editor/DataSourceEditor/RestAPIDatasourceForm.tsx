@@ -632,7 +632,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <AuthorizeButton
             onClick={() =>
-              this.save(redirectAuthorizationCode(pageId, datasourceId))
+              this.save(redirectAuthorizationCode(pageId, datasourceId, "REST"))
             }
             text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
             intent="primary"

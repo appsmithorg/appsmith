@@ -211,28 +211,37 @@ function* updateDatasourceSaga(
 }
 
 function* redirectAuthorizationCodeSaga(
-  actionPayload: ReduxAction<{ datasourceId: string; pageId: string }>,
+  actionPayload: ReduxAction<{
+    datasourceId: string;
+    pageId: string;
+    type: string;
+  }>,
 ) {
-  const { datasourceId, pageId } = actionPayload.payload;
-  try {
-    // Get an "appsmith token" from the server
-    const response: ApiResponse = yield SaasApi.getAppsmithToken(
-      datasourceId,
-      pageId,
-    );
-    if (validateResponse(response)) {
-      const appsmithToken = response.data;
-      // Save the token for later use once we come back from the auth flow
-      localStorage.setItem(APPSMITH_TOKEN_STORAGE_KEY, appsmithToken);
-      // Redirect to the cloud services to authorise
-      window.location.assign(authorizeSaasWithAppsmithToken(appsmithToken));
+  const { datasourceId, pageId, type } = actionPayload.payload;
+
+  if (type === "REST") {
+    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
+  } else {
+    try {
+      // Get an "appsmith token" from the server
+      const response: ApiResponse = yield SaasApi.getAppsmithToken(
+        datasourceId,
+        pageId,
+      );
+      if (validateResponse(response)) {
+        const appsmithToken = response.data;
+        // Save the token for later use once we come back from the auth flow
+        localStorage.setItem(APPSMITH_TOKEN_STORAGE_KEY, appsmithToken);
+        // Redirect to the cloud services to authorise
+        window.location.assign(authorizeSaasWithAppsmithToken(appsmithToken));
+      }
+    } catch (e) {
+      Toaster.show({
+        text: SAAS_AUTHORIZATION_FAILED,
+        variant: Variant.danger,
+      });
+      log.error(e);
     }
-  } catch (e) {
-    Toaster.show({
-      text: SAAS_AUTHORIZATION_FAILED,
-      variant: Variant.danger,
-    });
-    log.error(e);
   }
 }
 
