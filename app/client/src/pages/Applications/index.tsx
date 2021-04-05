@@ -79,6 +79,9 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
+// testing
+import { createOrganizationSubmitHandler } from "../organization/helpers";
+
 const OrgDropDown = styled.div`
   display: flex;
   padding: ${(props) => props.theme.spaces[4]}px
@@ -383,6 +386,12 @@ const OrgMenuItem = ({ org, isFetchingApplications, selected }: any) => {
   );
 };
 
+const testSubmitCreateOrganizationForm = async (data: any, dispatch: any) => {
+  console.log("creating organization with data: ", data);
+  const result = await createOrganizationSubmitHandler(data, dispatch);
+  // if (typeof onCancel === "function") onCancel(); // close after submit
+  return result;
+};
 function LeftPane() {
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
@@ -430,11 +439,24 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          <FormDialogComponent
-            trigger={NewWorkspaceTrigger}
-            Form={CreateOrganizationForm}
-            title={CREATE_ORGANIZATION_FORM_NAME}
-          />
+          {!isFetchingApplications && fetchedUserOrgs && (
+            <MenuItem
+              icon="plus"
+              text={CREATE_ORGANIZATION_FORM_NAME}
+              cypressSelector="t--org-new-organization-auto-create"
+              onSelect={() =>
+                testSubmitCreateOrganizationForm(
+                  {
+                    name: getNextEntityName(
+                      "Untitled organization ",
+                      fetchedUserOrgs.map((el: any) => el.organization.name),
+                    ),
+                  },
+                  dispatch,
+                )
+              }
+            />
+          )}
           {userOrgs &&
             userOrgs.map((org: any) => (
               <OrgMenuItem
