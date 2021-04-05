@@ -7,7 +7,7 @@ const handleUpdateCommentThreadEvent = (
   state: CommentsReduxState,
   action: ReduxAction<Partial<CommentThread & { _id: string }>>,
 ) => {
-  const id = action.payload._id!;
+  const id = action.payload._id as string;
   const commentThreadInStore = state.commentThreadsMap[id];
   const existingComments = get(commentThreadInStore, "comments", []);
 

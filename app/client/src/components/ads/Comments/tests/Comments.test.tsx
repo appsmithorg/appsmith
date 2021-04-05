@@ -36,7 +36,7 @@ describe("Comment threads", () => {
     // follows a approach waiting for the element to appear on screen
     // instead of waiting for the api execution
     const { findAllByDataCy } = render(
-      <OverlayCommentsWrapper refId="0" widgetType="button">
+      <OverlayCommentsWrapper refId="0">
         <div style={{ height: 100, width: 100 }} />
       </OverlayCommentsWrapper>,
       container,
@@ -47,7 +47,7 @@ describe("Comment threads", () => {
   });
   it("can be created", async (done) => {
     const { getByDataCy, getAllByDataCy, findByDataCy, findByText } = render(
-      <OverlayCommentsWrapper refId="0" widgetType="button">
+      <OverlayCommentsWrapper refId="0">
         <div style={{ height: 100, width: 100 }} />
       </OverlayCommentsWrapper>,
       container,
@@ -68,7 +68,7 @@ describe("Comment threads", () => {
   });
   it("accept replies", async (done) => {
     const { getByDataCy, findByText, findByDataCy } = render(
-      <OverlayCommentsWrapper refId="0" widgetType="button">
+      <OverlayCommentsWrapper refId="0">
         <div style={{ height: 100, width: 100 }} />
       </OverlayCommentsWrapper>,
       container,

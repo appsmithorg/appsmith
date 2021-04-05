@@ -8,7 +8,6 @@ import { createUnpublishedCommentThreadRequest } from "actions/commentActions";
 type Props = {
   children: React.ReactNode;
   refId: string;
-  widgetType: string;
 };
 
 /**
@@ -56,14 +55,7 @@ const Container = styled.div`
     auto;
 `;
 
-const preventInteractionsBlacklist = [
-  "CONTAINER_WIDGET",
-  "CANVAS_WIDGET",
-  "TABS_WIDGET",
-  "FORM_WIDGET",
-];
-
-const OverlayCommentsWrapper = ({ children, refId, widgetType }: Props) => {
+const OverlayCommentsWrapper = ({ children, refId }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isCommentMode = useSelector(isCommentModeSelector);
   const dispatch = useDispatch();
