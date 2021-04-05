@@ -34,6 +34,7 @@ import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
+import getAppViewerHeaderCTA from "./getAppViewerHeaderCTA";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -162,49 +163,14 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}/fork`;
   const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
-  let CTA = null;
-
-  if (props.url && canEdit) {
-    CTA = (
-      <Cta
-        className="t--back-to-editor"
-        href={props.url}
-        icon="arrow-left"
-        text={createMessage(EDIT_APP)}
-      />
-    );
-  } else if (
-    currentApplicationDetails?.forkingEnabled &&
-    currentApplicationDetails?.isPublic
-  ) {
-    if (currentUser?.username === ANONYMOUS_USERNAME) {
-      CTA = (
-        <ForkButton
-          className="t--fork-app"
-          href={forkUrl}
-          text={createMessage(FORK_APP)}
-          icon="fork"
-        />
-      );
-    } else {
-      CTA = (
-        <div className="header__application-fork-btn-wrapper">
-          <ForkApplicationModal applicationId={currentApplicationDetails.id} />
-        </div>
-      );
-    }
-  } else if (
-    currentApplicationDetails?.isPublic &&
-    currentUser?.username === ANONYMOUS_USERNAME
-  ) {
-    CTA = (
-      <Cta
-        className="t--sign-in"
-        href={loginUrl}
-        text={createMessage(SIGN_IN)}
-      />
-    );
-  }
+  const CTA = getAppViewerHeaderCTA({
+    url: props.url,
+    canEdit,
+    currentApplicationDetails,
+    currentUser,
+    forkUrl,
+    loginUrl,
+  });
 
   return (
     <ThemeProvider theme={props.lightTheme}>
