@@ -441,7 +441,7 @@ function* updateDraftsSaga() {
 }
 
 function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
-  const { id, pluginId } = actionPayload.payload;
+  const { id } = actionPayload.payload;
   const datasource = actionPayload.payload;
   const draft = yield select(getDatasourceDraft, id);
   const applicationId = yield select(getCurrentApplicationId);

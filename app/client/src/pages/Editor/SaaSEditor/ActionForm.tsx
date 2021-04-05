@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import history from "utils/history";
 import { SAAS_EDITOR_URL } from "pages/Editor/SaaSEditor/constants";
@@ -16,10 +16,8 @@ import {
   getPlugin,
 } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
-import { saasActionSettingsConfig } from "mockResponses/ActionSettings";
 import { RouteComponentProps } from "react-router";
 import { deleteAction, runActionInit } from "actions/actionActions";
-import { fetchPluginForm } from "actions/pluginActions";
 import {
   EditorJSONtoForm,
   EditorJSONtoFormProps,
@@ -45,7 +43,6 @@ const ActionForm: React.FC<Props> = (props: Props) => {
     },
     actionName,
     plugin,
-    pluginId,
   } = props;
 
   const dispatch = useDispatch();
@@ -60,11 +57,6 @@ const ActionForm: React.FC<Props> = (props: Props) => {
     history.push(SAAS_EDITOR_URL(applicationId, pageId, plugin?.packageName));
   };
 
-  useEffect(() => {
-    if (!pluginId) return;
-    dispatch(fetchPluginForm({ id: pluginId }));
-  }, [pluginId]);
-
   const childProps: any = {
     ...props,
     onRunClick,
@@ -78,7 +70,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const { apiId } = props.match.params;
   const { runErrorMessage } = state.ui.queryPane;
   const { plugins } = state.entities;
-  const { editorConfigs, settingConfigs, loadingFormConfigs } = plugins;
+  const { editorConfigs, settingConfigs } = plugins;
   const pluginImages = getPluginImages(state);
 
   const action = getAction(state, apiId);
@@ -100,10 +92,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   if (settingConfigs && pluginId) {
     settingConfig = settingConfigs[pluginId];
   }
-
-  if (!settingConfig) {
-    settingConfig = saasActionSettingsConfig;
-  }
   merge(initialValues, getConfigInitialValues(settingConfig));
   merge(initialValues, action);
 
@@ -118,7 +106,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   return {
     isRunning: state.ui.queryPane.isRunning[apiId],
     isDeleting: state.ui.queryPane.isDeleting[apiId],
-    loadingFormConfigs,
     editorConfig,
     settingConfig,
     actionName,

@@ -6,11 +6,7 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import history from "utils/history";
-import {
-  getDatasource,
-  getPlugin,
-  getPluginEditorConfigs,
-} from "selectors/entitiesSelector";
+import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
 import {
   SAAS_EDITOR_DATASOURCE_ID_URL,
@@ -25,7 +21,6 @@ import { Action, PluginType } from "entities/Action";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { getFormData } from "selectors/formSelectors";
 import { setActionProperty } from "actions/actionActions";
-import { fetchPluginForm } from "actions/pluginActions";
 import { autofill } from "redux-form";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
@@ -69,7 +64,6 @@ function* formValueChangeSaga(
   const { values } = yield select(getFormData, SAAS_EDITOR_FORM);
 
   if (field === "datasource.id") {
-    const editorConfigs = yield select(getPluginEditorConfigs);
     const datasource = yield select(getDatasource, actionPayload.payload);
 
     // Update the datasource not just the datasource id.
@@ -80,10 +74,6 @@ function* formValueChangeSaga(
         value: datasource,
       }),
     );
-
-    if (!editorConfigs[datasource.pluginId]) {
-      yield put(fetchPluginForm({ id: datasource.pluginId }));
-    }
 
     // Update the datasource of the form as well
     yield put(autofill(SAAS_EDITOR_FORM, "datasource", datasource));

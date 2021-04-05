@@ -22,7 +22,6 @@ import { Spinner, Button } from "@blueprintjs/core";
 import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { API_EDITOR_URL } from "constants/routes";
-import { fetchPluginForm } from "actions/pluginActions";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;
@@ -66,7 +65,6 @@ interface StateProps {
 interface DispatchFunctions {
   createDatasource: (data: any) => void;
   createAction: (data: Partial<SaaSAction>) => void;
-  fetchPluginForm: (id: string) => void;
 }
 
 type RouteProps = RouteComponentProps<{
@@ -77,21 +75,6 @@ type RouteProps = RouteComponentProps<{
 
 type Props = StateProps & DispatchFunctions & RouteProps;
 class ListView extends React.Component<Props> {
-  componentDidMount() {
-    if (this.props.plugin?.id) {
-      this.props.fetchPluginForm(this.props.plugin.id);
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      this.props.plugin?.id &&
-      prevProps.plugin?.id !== this.props.plugin?.id
-    ) {
-      this.props.fetchPluginForm(this.props.plugin.id);
-    }
-  }
-
   handleCreateNewDatasource = (pluginId: string) => {
     this.props.createDatasource({ pluginId });
   };
@@ -216,7 +199,6 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
 const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
   return {
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
-    fetchPluginForm: (id: string) => dispatch(fetchPluginForm({ id })),
     createAction: (data: Partial<SaaSAction>) => {
       dispatch(createActionRequest(data));
     },

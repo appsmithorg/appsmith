@@ -21,7 +21,6 @@ import {
   updateDatasource,
   getOAuthAccessToken,
 } from "actions/datasourceActions";
-import { fetchPluginForm } from "actions/pluginActions";
 import { historyPush } from "actions/utilActions";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { createActionRequest } from "actions/actionActions";
@@ -54,7 +53,6 @@ interface StateProps extends JSONtoFormProps {
 }
 
 interface DispatchFunctions {
-  fetchPluginForm: (id: string) => void;
   updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => void;
   deleteDatasource: (id: string, onSuccess?: ReduxAction<unknown>) => void;
   getOAuthAccessToken: (id: string) => void;
@@ -91,9 +89,6 @@ const CreateApiButton = styled(BaseButton)`
 class DatasourceSaaSEditor extends JSONtoForm<Props> {
   componentDidMount() {
     super.componentDidMount();
-    if (this.props.pluginId) {
-      this.props.fetchPluginForm(this.props.pluginId);
-    }
     const search = new URLSearchParams(this.props.location.search);
     const status = search.get("response_status");
 
@@ -110,13 +105,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
       } else {
         this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    super.componentDidUpdate(prevProps);
-    if (this.props.pluginId && prevProps.pluginId !== this.props.pluginId) {
-      this.props.fetchPluginForm(this.props.pluginId);
     }
   }
 
@@ -237,7 +225,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
   const datasource = getDatasource(state, props.match.params.datasourceId);
-  const { formConfigs, loadingFormConfigs } = plugins;
+  const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
   const formConfig = formConfigs[pluginId];
@@ -249,7 +237,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   return {
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
-    loadingFormConfigs: loadingFormConfigs,
     formData: formData,
     formConfig,
     isNewDatasource:
@@ -266,7 +253,6 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
   return {
     deleteDatasource: (id: string, onSuccess?: ReduxAction<unknown>) =>
       dispatch(deleteDatasource({ id }, onSuccess)),
-    fetchPluginForm: (id: string) => dispatch(fetchPluginForm({ id })),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
     getOAuthAccessToken: (datasourceId: string) =>
