@@ -29,7 +29,6 @@ export const TableWrapper = styled.div<{
     position: relative;
     width: ${(props) => props.width - 8}px;
     overflow-x: auto;
-    ${DisableNativeScrollbar};
   }
   .table {
     border-spacing: 0;
@@ -49,7 +48,6 @@ export const TableWrapper = styled.div<{
       height: ${(props) => props.height - 80}px;
       width: 100%;
       overflow-y: auto;
-      ${DisableNativeScrollbar};
       .tr {
         width: 100%;
       }
