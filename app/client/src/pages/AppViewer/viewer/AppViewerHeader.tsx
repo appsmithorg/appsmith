@@ -4,7 +4,6 @@ import { Helmet } from "react-helmet";
 import styled, { ThemeProvider } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo.png";
-import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -33,7 +32,6 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import getAppViewerHeaderCTA from "./getAppViewerHeaderCTA";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
@@ -108,17 +106,6 @@ const AppsmithLogoImg = styled.img`
   max-width: 110px;
 `;
 
-const Cta = styled(Button)`
-  ${(props) => getTypographyByKey(props, "btnLarge")}
-  height: 100%;
-`;
-
-const ForkButton = styled(Cta)`
-  svg {
-    transform: rotate(-90deg);
-  }
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
-`;
 const HeaderRightItemContainer = styled.div`
   display: flex;
   align-items: center;
