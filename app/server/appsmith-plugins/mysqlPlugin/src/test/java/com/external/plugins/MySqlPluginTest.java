@@ -28,10 +28,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -232,6 +236,55 @@ public class MySqlPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteWithFormattingWithShowCmd() {
+        dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show\n\tdatabases");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    String expectedBody = "[{\"Database\":\"information_schema\"},{\"Database\":\"test_db\"}]";
+                    assertEquals(expectedBody, result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteWithFormattingWithSelectCmd() {
+        dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select\n\t*\nfrom\nusers where id=1");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("2018-12-31", node.get("dob").asText());
+                    assertEquals("2018", node.get("yob").asText());
+                    assertEquals("Jack", node.get("username").asText());
+                    assertEquals("jill", node.get("password").asText());
+                    assertEquals("1", node.get("id").asText());
+                    assertEquals("jack@exemplars.com", node.get("email").asText());
+                    assertEquals("18:32:45", node.get("time1").asText());
+                    assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
                 })
                 .verifyComplete();
     }
@@ -696,4 +749,41 @@ public class MySqlPluginTest {
                 .verifyComplete();
     }
 
+    public void testDuplicateColumnNames() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id, username as id, password, email as password FROM users WHERE id = 1");
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotEquals(0, result.getMessages().size());
+
+                    String expectedMessage = "Your MySQL query result may not have all the columns because duplicate column names " +
+                            "were found for the column(s)";
+                    assertTrue(
+                            result.getMessages().stream()
+                                    .anyMatch(message -> message.contains(expectedMessage))
+                    );
+
+                    /*
+                     * - Check if all of the duplicate column names are reported.
+                     */
+                    Set<String> expectedColumnNames = Stream.of("id", "password")
+                            .collect(Collectors.toCollection(HashSet::new));
+                    Set<String> foundColumnNames = new HashSet<>();
+                    result.getMessages().stream()
+                            .filter(message -> message.contains(expectedMessage))
+                            .forEach(message -> {
+                                Arrays.stream(message.split(":")[1].split("\\.")[0].split(","))
+                                        .forEach(columnName -> foundColumnNames.add(columnName.trim()));
+                            });
+                    assertTrue(expectedColumnNames.equals(foundColumnNames));
+                })
+                .verifyComplete();
+    }
 }

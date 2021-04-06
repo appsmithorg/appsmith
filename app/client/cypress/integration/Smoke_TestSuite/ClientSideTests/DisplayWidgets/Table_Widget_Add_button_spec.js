@@ -22,7 +22,7 @@ describe("Table Widget property pane feature validation", function() {
       .contains("Show Message")
       .click();
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(widgetsPage.tableBtn)
       .last()
       .click({ force: true });

@@ -1,3 +1,4 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -16,7 +17,7 @@ describe("Chart Widget Functionality", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(widgetsPage.defaultInput).type(testdata.bindChartData);
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

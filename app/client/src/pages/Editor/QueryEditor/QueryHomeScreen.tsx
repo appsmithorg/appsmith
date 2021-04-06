@@ -17,7 +17,6 @@ import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
-import { fetchDBPluginForms } from "actions/pluginActions";
 
 const QueryHomePage = styled.div`
   padding: 20px;
@@ -55,10 +54,8 @@ type QueryHomeScreenProps = {
   applicationId: string;
   pageId: string;
   createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
-  fetchDBPluginForms: () => void;
   actions: ActionDataState;
   isCreating: boolean;
-  loadingDBFormConfigs: boolean;
   location: {
     search: string;
   };
@@ -71,10 +68,6 @@ type QueryHomeScreenProps = {
 };
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
-  componentDidMount() {
-    this.props.fetchDBPluginForms();
-  }
-
   handleCreateNewQuery = (dataSource: Datasource) => {
     const { actions, location } = this.props;
     const params: string = location.search;
@@ -107,7 +100,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       history,
       isCreating,
       location,
-      loadingDBFormConfigs,
     } = this.props;
 
     const destinationPageId = new URLSearchParams(location.search).get(
@@ -120,7 +112,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       );
     }
 
-    if (isCreating || loadingDBFormConfigs) {
+    if (isCreating) {
       return (
         <LoadingContainer>
           <Spinner size={30} />
@@ -170,15 +162,11 @@ const mapStateToProps = (state: AppState) => ({
   pluginImages: getPluginImages(state),
   actions: state.entities.actions,
   pages: state.entities.pageList.pages,
-  loadingDBFormConfigs: state.entities.plugins.loadingDBFormConfigs,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   createAction: (data: Partial<QueryAction> & { eventData: any }) => {
     dispatch(createActionRequest(data));
-  },
-  fetchDBPluginForms: () => {
-    dispatch(fetchDBPluginForms());
   },
 });
 

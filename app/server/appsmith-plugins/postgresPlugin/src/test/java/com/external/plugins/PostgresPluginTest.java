@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -28,14 +29,19 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -514,6 +520,14 @@ public class PostgresPluginTest {
                                     .toArray()
                     );
 
+                    // Assert the debug request parameters are getting set.
+                    ActionExecutionRequest request = result.getRequest();
+                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("ps-parameters");
+                    assertEquals(parameters.size(), 1);
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "1");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
+
                 })
                 .verifyComplete();
     }
@@ -854,5 +868,170 @@ public class PostgresPluginTest {
                      */
                     assertTrue(error.getMessage().contains("The server does not support SSL"));
                 });
+    }
+
+    @Test
+    public void testSslPrefer() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from pg_stat_ssl");
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.PREFER);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    String body = result.getBody().toString();
+                    /*
+                     * - Since the mode is 'prefer' and the testcontainer server does not support SSL, the connection
+                     *   gets established without SSL layer.
+                     */
+                    assertTrue(body.contains("\"ssl\":false"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslAllow() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from pg_stat_ssl");
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.ALLOW);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    String body = result.getBody().toString();
+                    /*
+                     * - Since the mode is 'allow' and the testcontainer server does not support SSL, the connection
+                     *   gets established without SSL layer.
+                     */
+                    assertTrue(body.contains("\"ssl\":false"));
+                })
+                .verifyComplete();
+    }
+
+    public void testDuplicateColumnNames() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id, username as id, password, email as password FROM users WHERE id = 1");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotEquals(0, result.getMessages().size());
+
+                    String expectedMessage = "Your PostgreSQL query result may not have all the columns because " +
+                            "duplicate column names were found for the column(s)";
+                    assertTrue(
+                            result.getMessages().stream()
+                                    .anyMatch(message -> message.contains(expectedMessage))
+                    );
+
+                    /*
+                     * - Check if all of the duplicate column names are reported.
+                     */
+                    Set<String> expectedColumnNames = Stream.of("id", "password")
+                            .collect(Collectors.toCollection(HashSet::new));
+                    Set<String> foundColumnNames = new HashSet<>();
+                    result.getMessages().stream()
+                            .filter(message -> message.contains(expectedMessage))
+                            .forEach(message -> {
+                                Arrays.stream(message.split(":")[1].split("\\.")[0].split(","))
+                                        .forEach(columnName -> foundColumnNames.add(columnName.trim()));
+                            });
+                    assertTrue(expectedColumnNames.equals(foundColumnNames));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTimestampPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("UPDATE public.\"users\" set " +
+                "created_on = {{binding1}}\n" +
+                "  where id = 3;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("2021-03-24 14:05:34");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+
+        actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = 3;");
+        resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals(node.get("created_on").asText(), "2021-03-24T14:05:34Z");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSettingCommentedBindingPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT * FROM public.\"users\"; -- {{binding1}} in comment, should be ignored");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("2021-03-24 14:05:34");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
     }
 }
