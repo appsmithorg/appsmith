@@ -81,7 +81,9 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite");
+  cy.wait("@mockPostInvite")
+    .its("request.headers")
+    .should("have.property", "origin", "Cypress");
   cy.contains(email);
 });
 
@@ -96,14 +98,8 @@ Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
 
 Cypress.Commands.add("stubPostHeaderReq", () => {
   cy.intercept("POST", "/api/v1/users/invite", (req) => {
-    headers: {
-      accept: "application/json";
-      origin: "dev.appsmith.com";
-    }
-    {
-      statusCode: 200;
-    }
-  }).as("postInvite");
+    req.headers["origin"] = "Cypress";
+  }).as("mockPostInvite");
 });
 
 Cypress.Commands.add("shareApp", (email, role) => {
@@ -114,7 +110,9 @@ Cypress.Commands.add("shareApp", (email, role) => {
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite");
+  cy.wait("@mockPostInvite")
+    .its("request.headers")
+    .should("have.property", "origin", "Cypress");
   cy.contains(email);
   cy.get(homePage.closeBtn).click();
 });
@@ -127,7 +125,9 @@ Cypress.Commands.add("shareAndPublic", (email, role) => {
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite");
+  cy.wait("@mockPostInvite")
+    .its("request.headers")
+    .should("have.property", "origin", "Cypress");
   cy.contains(email);
   cy.enablePublicAccess();
 });
@@ -191,7 +191,9 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite");
+  cy.wait("@mockPostInvite")
+    .its("request.headers")
+    .should("have.property", "origin", "Cypress");
   cy.contains(email);
   cy.get(".bp3-icon-small-cross").click({ force: true });
   cy.xpath(homePage.appHome)
