@@ -401,10 +401,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     private JSONObject removeSpecialCharactersFromKeys(JSONObject dsl, Set<String> escapedWidgetNames) {
         String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
-        log.debug("removeSpecialChar for widget type : {}", widgetType);
 
         // Only Table widget has this behaviour.
-        if (widgetType.equals("TABLE_WIDGET")) {
+        if (widgetType != null && widgetType.equals(FieldName.TABLE_WIDGET)) {
             return WidgetSpecificUtils.escapeTableWidgetPrimaryColumns(dsl, escapedWidgetNames);
         }
 

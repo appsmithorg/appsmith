@@ -62,6 +62,7 @@ public class FieldName {
     public static String PUBLISHED_APPLICATION = "deployed application";
     public static final String TOKEN = "token";
     public static String WIDGET_TYPE = "type";
+    public static String TABLE_WIDGET = "TABLE_WIDGET";
     public static String PRIMARY_COLUMNS = "primaryColumns";
     public static String MONGO_ESCAPE_ID = "mongo_escape_id";
     public static String MONGO_ESCAPE_CLASS = "mongo_escape_class";
