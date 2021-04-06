@@ -4,9 +4,12 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
+import { getAppMode } from "selectors/applicationSelectors";
+import { useSelector } from "store";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 const PositionedWidget = styled.div`
-  &:hover {
+  &.allow-hover:hover {
     z-index: 1;
   }
 `;
