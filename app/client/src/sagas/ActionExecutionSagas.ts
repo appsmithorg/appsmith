@@ -10,7 +10,7 @@ import {
   ExecuteActionPayload,
   ExecuteActionPayloadEvent,
   PageAction,
-} from "constants/ActionConstants";
+} from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
 import {
   all,

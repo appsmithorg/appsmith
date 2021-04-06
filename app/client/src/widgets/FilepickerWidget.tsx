@@ -12,13 +12,17 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { EventType, ExecutionResult } from "constants/ActionConstants";
+import {
+  EventType,
+  ExecutionResult,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import FileDataTypes from "./FileDataTypes";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -61,7 +65,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "maxFileSize",
             helpText: "Sets the maximum size of each file that can be uploaded",
-            label: "Max file size",
+            label: "Max file size(Mb)",
             controlType: "INPUT_TEXT",
             placeholderText: "File size in mb",
             inputType: "INTEGER",
@@ -475,12 +479,6 @@ export interface FilePickerWidgetProps extends WidgetProps, WithMeta {
   fileDataType: FileDataTypes;
   isRequired?: boolean;
   uploadedFileUrlPaths?: string;
-}
-
-export enum FileDataTypes {
-  Base64 = "Base64",
-  Text = "Text",
-  Binary = "Binary",
 }
 
 export default FilePickerWidget;

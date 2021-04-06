@@ -461,7 +461,7 @@ describe("Validates Derived Properties", () => {
           isDerived: true,
         },
       },
-      columns: [
+      tableColumns: [
         {
           index: 0,
           width: 150,
@@ -519,8 +519,8 @@ describe("Validates Derived Properties", () => {
       ],
     };
     const expected = [
-      { id: 234, name: "Jane Doe", extra: "Extra2" },
-      { id: 123, name: "John Doe", extra: "Extra1" },
+      { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 1 },
+      { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 0 },
     ];
 
     let result = getFilteredTableData(input, moment, _);
@@ -608,7 +608,7 @@ describe("Validates Derived Properties", () => {
           isDerived: true,
         },
       },
-      columns: [
+      tableColumns: [
         {
           index: 0,
           width: 150,
@@ -666,9 +666,9 @@ describe("Validates Derived Properties", () => {
       ],
     };
     const expected = [
-      { id: 1234, name: "Jim Doe", extra: "" },
-      { id: 234, name: "Jane Doe", extra: "Extra2" },
-      { id: 123, name: "John Doe", extra: "Extra1" },
+      { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+      { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+      { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
     ];
 
     let result = getFilteredTableData(input, moment, _);

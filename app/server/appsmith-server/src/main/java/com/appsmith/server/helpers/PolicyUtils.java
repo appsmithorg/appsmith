@@ -147,7 +147,8 @@ public class PolicyUtils {
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByOrgId(String orgId, Map<String, Policy> newPoliciesMap, boolean addPolicyToObject) {
 
         return datasourceRepository
-                .findAllByOrganizationId(orgId, AclPermission.MANAGE_DATASOURCES)
+                // fetch datasources with execute permissions so that app viewers can invite other app viewers
+                .findAllByOrganizationId(orgId, AclPermission.EXECUTE_DATASOURCES)
                 // In case we have come across a datasource for this organization that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(datasource -> {
@@ -184,7 +185,8 @@ public class PolicyUtils {
     public Flux<Application> updateWithNewPoliciesToApplicationsByOrgId(String orgId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
 
         return applicationRepository
-                .findByOrganizationId(orgId, AclPermission.MANAGE_APPLICATIONS)
+                // fetch applications with read permissions so that app viewers can invite other app viewers
+                .findByOrganizationId(orgId, AclPermission.READ_APPLICATIONS)
                 // In case we have come across an application for this organization that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(application -> {
@@ -205,7 +207,8 @@ public class PolicyUtils {
         // in published app but has been deleted in the edit mode]. This means that we don't have to do any special treatment
         // during deployment of the application to handle edge cases.
         return newPageRepository
-                .findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
+                // fetch pages with read permissions so that app viewers can invite other app viewers
+                .findByApplicationId(applicationId, AclPermission.READ_PAGES)
                 .switchIfEmpty(Mono.empty())
                 .map(page -> {
                     if (addPolicyToObject) {
