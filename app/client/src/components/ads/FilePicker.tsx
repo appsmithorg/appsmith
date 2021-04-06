@@ -196,6 +196,8 @@ const FilePickerComponent = (props: FilePickerProps) => {
       const files = monitor.getItem().files;
       if (files) {
         handleFileUpload(files);
+      } else {
+        return;
       }
     }
   }
@@ -224,6 +226,8 @@ const FilePickerComponent = (props: FilePickerProps) => {
     if (file) {
       fileSize = Math.floor(file.size / 1024);
       setFileInfo({ name: file.name, size: fileSize });
+    } else {
+      return;
     }
 
     if (fileSize < 250) {
