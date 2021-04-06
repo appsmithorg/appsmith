@@ -58,6 +58,7 @@ const PageNumberInput = (props: {
       max={props.pageCount || 1}
       buttonPosition="none"
       clampValueOnBlur
+      className="t--table-widget-page-input"
       disabled={props.disabled}
       onBlur={(e: any) => {
         const oldPageNo = Number(props.pageNo || 0);

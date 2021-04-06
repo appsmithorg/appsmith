@@ -12,6 +12,12 @@ describe("Table Widget property pane feature validation", function() {
     cy.addDsl(dsl);
   });
 
+  it("Test to validate table pagination is disabled", function() {
+    cy.get(".t--table-widget-prev-page").should("have.attr", "disabled");
+    cy.get(".t--table-widget-next-page").should("have.attr", "disabled");
+    cy.get(".t--table-widget-page-input input").should("have.attr", "disabled");
+  });
+
   it("Test to validate text allignment", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.centerAlign)
