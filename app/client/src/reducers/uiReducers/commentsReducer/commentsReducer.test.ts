@@ -11,12 +11,21 @@ import {
 } from "actions/commentActions";
 
 import {
+  newCommentEvent,
+  newCommentThreadEvent,
+  updateCommentThreadEvent,
+} from "actions/commentActions";
+
+import {
   applicationCommentThreadsByRefInitial,
   commentThreadsMapInitial,
   unpublishedCommentPayload,
   createCommentThreadSuccessPayload,
   addCommentToThreadSuccessPayload,
   updateCommentThreadPayload,
+  newCommentThreadEventPayload,
+  updateCommentThreadEventPayload,
+  newCommentEventPayload,
 } from "./testFixtures";
 
 describe("Test comments reducer handles", () => {
@@ -38,12 +47,14 @@ describe("Test comments reducer handles", () => {
       state,
       createUnpublishedCommentThreadSuccess(unpublishedCommentPayload),
     );
-    expect(state.unpublishedCommentThreads).toEqual(unpublishedCommentPayload);
+    expect(state.unpublishedCommentThreads).toStrictEqual(
+      unpublishedCommentPayload,
+    );
   });
 
   it("remove unpublished comment thread", () => {
     state = commentsReducer(state, removeUnpublishedCommentThreads());
-    expect(state.unpublishedCommentThreads).toEqual({});
+    expect(state.unpublishedCommentThreads).toStrictEqual({});
   });
 
   it("create comment thread", () => {
@@ -52,12 +63,12 @@ describe("Test comments reducer handles", () => {
       state,
       createCommentThreadSuccess(createCommentThreadSuccessPayload),
     );
-    expect(state.commentThreadsMap).toEqual({
+    expect(state.commentThreadsMap).toStrictEqual({
       ...state.commentThreadsMap,
       [createCommentThreadSuccessPayload.id]: createCommentThreadSuccessPayload,
     });
 
-    expect(state.applicationCommentThreadsByRef).toEqual({
+    expect(state.applicationCommentThreadsByRef).toStrictEqual({
       ...prevState.applicationCommentThreadsByRef,
       [createCommentThreadSuccessPayload.applicationId]: {
         ...prevState.applicationCommentThreadsByRef[
@@ -82,7 +93,7 @@ describe("Test comments reducer handles", () => {
       addCommentToThreadSuccess(addCommentToThreadSuccessPayload),
     );
 
-    expect(state.commentThreadsMap).toEqual({
+    expect(state.commentThreadsMap).toStrictEqual({
       ...state.commentThreadsMap,
       [addCommentToThreadSuccessPayload.commentThreadId]: {
         ...prevState.commentThreadsMap[
@@ -111,8 +122,76 @@ describe("Test comments reducer handles", () => {
     });
   });
 
-  // TODO add tests for handlers for socket events
-  // ReduxActionTypes.NEW_COMMENT_THREAD_EVENT
-  // ReduxActionTypes.NEW_COMMENT_EVENT
-  // ReduxActionTypes.UPDATE_COMMENT_THREAD_EVENT
+  it("new comment thread real time event", () => {
+    const prevState = JSON.parse(JSON.stringify(state || {}));
+    state = commentsReducer(
+      state,
+      newCommentThreadEvent(newCommentThreadEventPayload),
+    );
+
+    expect(state.commentThreadsMap).toStrictEqual({
+      ...state.commentThreadsMap,
+      [newCommentThreadEventPayload.comment._id]: {
+        ...newCommentThreadEventPayload.comment,
+        id: newCommentThreadEventPayload.comment._id,
+        isVisible: false,
+      },
+    });
+
+    expect(state.applicationCommentThreadsByRef).toStrictEqual({
+      ...prevState.applicationCommentThreadsByRef,
+      [newCommentThreadEventPayload.comment.applicationId]: {
+        ...prevState.applicationCommentThreadsByRef[
+          newCommentThreadEventPayload.comment.applicationId
+        ],
+        [newCommentThreadEventPayload.comment.refId]: Array.from(
+          new Set([
+            ...((prevState.applicationCommentThreadsByRef[
+              newCommentThreadEventPayload.comment.applicationId
+            ] || {})[newCommentThreadEventPayload.comment.refId] || []),
+            newCommentThreadEventPayload.comment._id,
+          ]),
+        ),
+      },
+    });
+  });
+
+  it("new comment real time event", () => {
+    const prevState = JSON.parse(JSON.stringify(state));
+    state = commentsReducer(state, newCommentEvent(newCommentEventPayload));
+
+    expect(
+      state.commentThreadsMap[newCommentEventPayload.comment.threadId]
+        .comments[1],
+    ).toStrictEqual(
+      {
+        ...prevState.commentThreadsMap[newCommentEventPayload.comment.threadId],
+        comments: [
+          ...((
+            prevState.commentThreadsMap[
+              newCommentEventPayload.comment.threadId
+            ] || {}
+          ).comments || []),
+          {
+            ...newCommentEventPayload.comment,
+            id: newCommentEventPayload.comment._id,
+          },
+        ],
+      }.comments[1],
+    );
+  });
+
+  it("thread update event", () => {
+    state = commentsReducer(
+      state,
+      updateCommentThreadEvent(updateCommentThreadEventPayload),
+    );
+
+    expect(
+      state.commentThreadsMap[updateCommentThreadEventPayload._id],
+    ).toStrictEqual({
+      ...state.commentThreadsMap[updateCommentThreadEventPayload._id],
+      ...updateCommentThreadEventPayload,
+    });
+  });
 });

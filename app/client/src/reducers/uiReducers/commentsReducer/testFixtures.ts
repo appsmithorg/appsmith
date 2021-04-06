@@ -193,7 +193,7 @@ export const createCommentThreadSuccessPayload = {
     left: 72,
   },
   refId: "0",
-  applicationId: "604e364d287dc323eb2b5577",
+  applicationId: "605c435a91dea93f0eaf91b8",
   comments: [
     {
       id: "606acdfac7a35467ac887f67",
@@ -231,6 +231,37 @@ export const updateCommentThreadPayload = {
   },
   refId: "0",
   resolved: true,
-  applicationId: "606ad816c7a35467ac887f87",
+  applicationId: "605c435a91dea93f0eaf91b8",
   new: false,
+};
+
+export const newCommentThreadEventPayload = {
+  comment: {
+    _id: "606bf995c7a35467ac887f99",
+    position: {
+      top: 4,
+      left: 28,
+    },
+    refId: "0",
+    applicationId: "605c435a91dea93f0eaf91b8",
+  },
+};
+
+export const updateCommentThreadEventPayload = {
+  _id: "605c436591dea93f0eaf91bb",
+  position: {
+    top: 11,
+    left: 28,
+  },
+  refId: "0",
+  applicationId: "605c435a91dea93f0eaf91b8",
+  resolved: true,
+};
+
+export const newCommentEventPayload = {
+  comment: {
+    _id: "606c08edc7a35467ac887faf",
+    threadId: "605c436591dea93f0eaf91bb",
+    body: "newest",
+  },
 };
