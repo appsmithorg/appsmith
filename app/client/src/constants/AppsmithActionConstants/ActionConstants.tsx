@@ -1,5 +1,9 @@
-import { ErrorActionPayload } from "../sagas/ErrorSagas";
-import { ActionResponse } from "../api/ActionAPI";
+import { ErrorActionPayload } from "sagas/ErrorSagas";
+import { ActionResponse } from "api/ActionAPI";
+import { PluginType } from "entities/Action";
+import queryActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/QuerySettingsConfig";
+import apiActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/ApiSettingsConfig";
+import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/ApiEditorConfigs";
 
 export type ExecuteActionPayloadEvent = {
   type: EventType;
@@ -15,6 +19,19 @@ export type ExecuteActionPayload = {
   event: ExecuteActionPayloadEvent;
   responseData?: Array<any>;
 };
+
+export type ContentType =
+  | "application/json"
+  | "application/x-www-form-urlencoded";
+
+export interface APIHeaders {
+  "Content-Type": ContentType;
+  Accept?: string;
+}
+
+export interface APIRequest {
+  requestId?: string;
+}
 
 export enum EventType {
   ON_RESET = "ON_RESET",
@@ -62,7 +79,7 @@ export type DownloadFiletype = "CSV" | "XLS" | "JSON" | "TXT";
 
 export interface PageAction {
   id: string;
-  pluginType: ActionType;
+  pluginType: PluginType;
   name: string;
   jsonPathKeys: string[];
   timeoutInMillisecond: number;
@@ -81,3 +98,20 @@ export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/\S*?)(\?\S*)?$/;
 
 export const EXECUTION_PARAM_KEY = "executionParams";
 export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
+
+export const API_REQUEST_HEADERS: APIHeaders = {
+  "Content-Type": "application/json",
+};
+export const POSTMAN = "POSTMAN";
+export const CURL = "CURL";
+export const Swagger = "Swagger";
+
+export const defaultActionSettings: Record<PluginType, any> = {
+  [PluginType.API]: apiActionSettingsConfig,
+  [PluginType.DB]: queryActionSettingsConfig,
+};
+
+export const defaultActionEditorConfigs: Record<PluginType, any> = {
+  [PluginType.API]: apiActionEditorConfig,
+  [PluginType.DB]: [],
+};

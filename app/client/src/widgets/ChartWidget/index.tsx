@@ -6,7 +6,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import withMeta, { WithMeta } from "widgets/MetaHOC";
 import propertyConfig from "widgets/ChartWidget/propertyConfig";
 import { CustomFusionChartConfig } from "components/designSystems/appsmith/ChartComponent";

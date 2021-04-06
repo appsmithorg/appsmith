@@ -171,8 +171,10 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             }
 
             if(usingLocalhostUrl) {
-                messages.add("You may not able to access your localhost if Appsmith is running inside a docker " +
-                        "container or on the cloud. Please check out Appsmith's documentation to understand more.");
+                messages.add("You may not be able to access your localhost if Appsmith is running inside a docker " +
+                        "container or on the cloud. To enable access to your localhost you may use ngrok to expose " +
+                        "your local endpoint to the internet. Please check out Appsmith's documentation to understand more" +
+                        ".");
             }
         }
 
