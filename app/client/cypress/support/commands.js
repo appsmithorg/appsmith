@@ -1288,17 +1288,10 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
   cy.wait(200);
 });
 
-Cypress.Commands.add("tableDataHide", (endp, value) => {
-  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+Cypress.Commands.add("assertControlVisibility", (endp, value) => {
+  cy.get(".t--property-control-" + endp + " .CodeMirror")
     .first()
     .should("not.be.visible");
-});
-
-Cypress.Commands.add("tableDataVisiblity", (endp, value) => {
-  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
-    .first()
-    .focus({ force: true })
-    .should("be.visible");
 });
 
 Cypress.Commands.add("tableColumnDataValidation", (columnName) => {

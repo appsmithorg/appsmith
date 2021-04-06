@@ -17,10 +17,17 @@ export type ComparisonOperations =
   | "IN"
   | "NOT_IN";
 
-export type HiddenType =
-  | boolean
-  | { path: string; comparison: ComparisonOperations; value: any };
+export type HiddenType = boolean | Condition | ConditionObject;
 
+export type ConditionObject = { conditionType: string; conditions: Conditions };
+
+export type Condition = {
+  path: string;
+  comparison: ComparisonOperations;
+  value: any;
+};
+
+export type Conditions = Array<Condition> | ConditionObject;
 export interface ControlBuilder<T extends ControlProps> {
   buildPropertyControl(controlProps: T): JSX.Element;
 }
