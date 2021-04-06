@@ -28,9 +28,9 @@ if (env === "PRODUCTION" || env === "STAGING") {
         ignore: ["node_modules", "webpack.config.js"],
         release: process.env.REACT_APP_SENTRY_RELEASE,
         deploy: {
-          env: process.env.REACT_APP_SENTRY_ENVIRONMENT
-        }
-      })
+          env: process.env.REACT_APP_SENTRY_ENVIRONMENT,
+        },
+      }),
     );
   } else {
     console.log(
@@ -42,5 +42,13 @@ if (env === "PRODUCTION" || env === "STAGING") {
 module.exports = merge(common, {
   webpack: {
     plugins: plugins,
+  },
+  jest: {
+    configure: {
+      moduleNameMapper: {
+        // Jest module mapper which will detect our absolute imports.
+        "^@test(.*)$": "<rootDir>/test$1",
+      },
+    },
   },
 });
