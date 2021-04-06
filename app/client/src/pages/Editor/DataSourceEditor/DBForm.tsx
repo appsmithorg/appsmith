@@ -28,7 +28,6 @@ import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
-import { Spinner } from "@blueprintjs/core";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -43,7 +42,6 @@ interface DatasourceDBEditorProps {
   isDeleting: boolean;
   datasourceId: string;
   applicationId: string;
-  loadingFormConfigs: boolean;
   pageId: string;
   formData: Datasource;
   isTesting: boolean;
@@ -215,14 +213,7 @@ class DatasourceDBEditor extends React.Component<
   };
 
   render() {
-    const { formConfig, loadingFormConfigs } = this.props;
-    if (loadingFormConfigs) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
-    }
+    const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
     return <DBForm>{content}</DBForm>;
   }

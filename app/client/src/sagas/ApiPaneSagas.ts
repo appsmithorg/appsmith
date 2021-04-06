@@ -402,7 +402,6 @@ function* handleCreateNewApiActionSaga(
   );
   const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
-  log.debug({ pageId, pluginId });
   if (pageId && pluginId) {
     const actions = yield select(getActions);
     const pageActions = actions.filter(

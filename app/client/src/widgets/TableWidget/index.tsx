@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetState } from "../BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   getDefaultColumnProperties,
   getTableStyles,
@@ -83,7 +83,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
       sanitizedTableData: `{{(()=>{${derivedProperties.getSanitizedTableData}})()}}`,
-      columns: `{{(()=>{${derivedProperties.getTableColumns}})()}}`,
+      tableColumns: `{{(()=>{${derivedProperties.getTableColumns}})()}}`,
       filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
     };
   }
@@ -157,7 +157,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       totalColumnSizes += columnSizeMap[i];
     }
 
-    const allColumnProperties = this.props.columns || [];
+    const allColumnProperties = this.props.tableColumns || [];
     for (let index = 0; index < allColumnProperties.length; index++) {
       const columnProperties = allColumnProperties[index];
       const isHidden = !columnProperties.isVisible;
