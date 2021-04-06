@@ -106,7 +106,7 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, LOG_TYPE } from "entities/AppsmithConsole";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -518,7 +518,7 @@ export function* executeActionSaga(
     );
     if (isErrorResponse(response)) {
       AppsmithConsole.error({
-        logType: "ACTION_EXECUTION_ERROR",
+        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode}`,
         source: {
           type: ENTITY_TYPE.ACTION,
@@ -560,7 +560,7 @@ export function* executeActionSaga(
         actionId,
       );
       AppsmithConsole.info({
-        logType: "ACTION_EXECUTION_SUCCESS",
+        logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
         text: "Executed successfully from widget request",
         timeTaken: response.clientMeta.duration,
         source: {
@@ -795,7 +795,7 @@ function* runActionSaga(
       });
       if (payload.isExecutionSuccess) {
         AppsmithConsole.info({
-          logType: "ACTION_EXECUTION_SUCCESS",
+          logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
           text: "Executed successfully from user request",
           timeTaken: response.clientMeta.duration,
           source: {
@@ -813,7 +813,7 @@ function* runActionSaga(
         });
       } else {
         AppsmithConsole.error({
-          logType: "ACTION_EXECUTION_ERROR",
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed with status ${response.data.statusCode}`,
           source: {
             type: ENTITY_TYPE.ACTION,
@@ -836,7 +836,7 @@ function* runActionSaga(
       }
 
       AppsmithConsole.error({
-        logType: "ACTION_EXECUTION_ERROR",
+        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode} `,
         source: {
           type: ENTITY_TYPE.ACTION,

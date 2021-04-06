@@ -39,6 +39,7 @@ import {
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { LOG_TYPE } from "entities/AppsmithConsole";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -94,7 +95,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
       }
       case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
         AppsmithConsole.error({
-          logType: "WIDGET_PROPERTY_VALIDATION_ERROR",
+          logType: LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR,
           text: error.message,
           source: error.context?.source,
         });

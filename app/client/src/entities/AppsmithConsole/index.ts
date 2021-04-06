@@ -12,6 +12,13 @@ export enum ENTITY_TYPE {
 
 export type ErrorType = BindingError | ActionError | WidgetError | EvalError;
 
+export enum LOG_TYPE {
+  WIDGET_PROPERTY_VALIDATION_ERROR,
+  WIDGET_UPDATE,
+  ACTION_EXECUTION_ERROR,
+  ACTION_EXECUTION_SUCCESS,
+}
+
 export enum Severity {
   // Everything, irrespective of what the user should see or not
   // DEBUG = "debug",
@@ -47,7 +54,7 @@ export interface SourceEntity {
 
 export interface LogActionPayload {
   // What is the log about. Is it a datasource update, widget update, eval error etc.
-  logType?: string;
+  logType?: LOG_TYPE;
   text: string;
   // More contextual message
   message?: string;

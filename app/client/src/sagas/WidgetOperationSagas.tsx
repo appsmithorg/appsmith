@@ -255,7 +255,6 @@ function* generateChildWidgets(
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
-    console.log(addChildAction, "addChildAction");
     const start = performance.now();
     Toaster.clear();
     const { widgetId } = addChildAction.payload;
@@ -266,14 +265,11 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const stateWidgets = yield select(getWidgets);
     const widgets = Object.assign({}, stateWidgets);
     // Generate the full WidgetProps of the widget to be added.
-    console.log(stateWidgets, "stateWidgets");
     const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
       stateParent,
       addChildAction.payload,
       widgets,
     );
-    console.log(childWidgetPayload, "childWidgetPayload");
-
     // Update widgets to put back in the canvasWidgetsReducer
     // TODO(abhinav): This won't work if dont already have an empty children: []
     const parent = {
