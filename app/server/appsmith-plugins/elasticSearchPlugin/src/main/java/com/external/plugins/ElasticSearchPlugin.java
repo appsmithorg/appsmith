@@ -125,6 +125,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                         result.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {
                             result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                            result.setTitle(((AppsmithPluginException) error).getTitle());
                         }
                         result.setBody(error.getMessage());
                         return Mono.just(result);

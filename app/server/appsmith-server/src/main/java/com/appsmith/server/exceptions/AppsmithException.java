@@ -34,4 +34,6 @@ public class AppsmithException extends Exception {
         return this.error.getErrorAction();
     }
 
+    public String getTitle() { return this.error.getTitle(); }
+
 }

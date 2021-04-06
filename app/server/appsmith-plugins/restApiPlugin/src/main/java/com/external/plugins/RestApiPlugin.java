@@ -156,6 +156,7 @@ public class RestApiPlugin extends BasePlugin {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
                         errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         errorResult.setIsExecutionSuccess(false);
+                        errorResult.setTitle(e.getTitle());
                         errorResult.setBody(e.getMessage());
                         return Mono.just(errorResult);
                     }
@@ -193,6 +194,7 @@ public class RestApiPlugin extends BasePlugin {
             ActionExecutionResult errorResult = new ActionExecutionResult();
             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
             errorResult.setIsExecutionSuccess(false);
+            errorResult.setTitle(AppsmithPluginError.PLUGIN_ERROR.getTitle());
 
             // Initializing request URL
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
@@ -375,6 +377,7 @@ public class RestApiPlugin extends BasePlugin {
                         errorResult.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {
                             errorResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                            errorResult.setTitle(((AppsmithPluginException) error).getTitle());
                         }
                         errorResult.setBody(error.getMessage());
                         return Mono.just(errorResult);

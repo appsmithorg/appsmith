@@ -154,10 +154,8 @@ public class GlobalExceptionHandler {
         AppsmithError appsmithError = AppsmithError.INTERNAL_SERVER_ERROR;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
-        //TODO: remove it.
-        System.out.println("devtest: catch plugin exception");
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                e.getMessage(), e.getTitle())));
+                e.getMessage())));
     }
 
     @ExceptionHandler

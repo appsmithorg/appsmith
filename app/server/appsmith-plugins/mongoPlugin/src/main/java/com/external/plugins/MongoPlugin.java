@@ -196,6 +196,7 @@ public class MongoPlugin extends BasePlugin {
                         actionExecutionResult.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {
                             actionExecutionResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                            actionExecutionResult.setTitle(((AppsmithPluginException) error).getTitle());
                         }
                         actionExecutionResult.setBody(error.getMessage());
                         return Mono.just(actionExecutionResult);

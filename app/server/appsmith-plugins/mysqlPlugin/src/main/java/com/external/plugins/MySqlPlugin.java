@@ -179,6 +179,7 @@ public class MySqlPlugin extends BasePlugin {
                 errorResult.setIsExecutionSuccess(false);
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Missing required " +
                         "parameter: Query."));
+                errorResult.setTitle(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle());
                 ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                 actionExecutionRequest.setProperties(requestData);
                 errorResult.setRequest(actionExecutionRequest);
@@ -282,6 +283,7 @@ public class MySqlPlugin extends BasePlugin {
                         result.setIsExecutionSuccess(false);
                         if (error instanceof AppsmithPluginException) {
                             result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
+                            result.setTitle(((AppsmithPluginException) error).getTitle());
                         }
                         result.setBody(error.getMessage());
                         return Mono.just(result);

@@ -543,6 +543,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         result.setBody(e.getMessage());
                         if (e instanceof AppsmithPluginException) {
                             result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
+                            result.setTitle(((AppsmithPluginException) e).getTitle());
                         }
                         return Mono.just(result);
 

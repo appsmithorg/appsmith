@@ -38,8 +38,8 @@ public enum AppsmithPluginError {
         this.appErrorCode = appErrorCode;
         MessageFormat fmt = new MessageFormat(message);
         this.errorAction = errorAction;
-        this.title = title;
         this.message = fmt.format(args);
+        this.title = title;
     }
 
     public String getMessage(Object... args) {

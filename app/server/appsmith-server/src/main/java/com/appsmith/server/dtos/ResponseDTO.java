@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.exceptions.ErrorDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -15,6 +15,7 @@ import java.util.Set;
 public class ActionExecutionResult {
 
     String statusCode;
+    String title;
     JsonNode headers;
     Object body;
     Boolean isExecutionSuccess = false;
