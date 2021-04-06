@@ -8,7 +8,7 @@ import java.text.MessageFormat;
 @Getter
 public enum AppsmithPluginError {
 
-    PLUGIN_ERROR(500, 5000, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Plugin error"),
+    PLUGIN_ERROR(500, 5000, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Query execution error"),
     PLUGIN_GET_STRUCTURE_ERROR(500, 5001, "Failed to get database structure with error: {0}",
             AppsmithErrorAction.LOG_EXTERNALLY, "Failed to get datasource structure"),
     PLUGIN_QUERY_TIMEOUT_ERROR(504, 5002, "{0} timed out in {1} milliseconds. " +
@@ -23,7 +23,8 @@ public enum AppsmithPluginError {
             AppsmithErrorAction.DEFAULT, "Invalid JSON found"),
     PLUGIN_DATASOURCE_TEST_GENERIC_ERROR(500, 5007, "Plugin failed to test with the given configuration. Please reach out to Appsmith customer support to report this",
             AppsmithErrorAction.LOG_EXTERNALLY, "Datasource configuration is invalid"),
-    PLUGIN_DATASOURCE_TIMEOUT_ERROR(504, 5008, "{0}", AppsmithErrorAction.DEFAULT, "Timed out when testing datasource"),
+    PLUGIN_DATASOURCE_TIMEOUT_ERROR(504, 5008, "{0}", AppsmithErrorAction.DEFAULT, "Timed out when connecting to " +
+            "datasource"),
     ;
 
     private final Integer httpErrorCode;

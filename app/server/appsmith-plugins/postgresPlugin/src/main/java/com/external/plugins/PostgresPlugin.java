@@ -24,6 +24,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariProxyConnection;
+import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -918,7 +919,15 @@ public class PostgresPlugin extends BasePlugin {
         config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
 
         // Now create the connection pool from the configuration
-        HikariDataSource datasource = new HikariDataSource(config);
+        HikariDataSource datasource = null;
+        try {
+            datasource = new HikariDataSource(config);
+        } catch (PoolInitializationException e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    e.getMessage()
+            );
+        }
 
         return datasource;
     }
@@ -930,7 +939,8 @@ public class PostgresPlugin extends BasePlugin {
      * @param connectionPool
      * @return SQL Connection
      */
-    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool, DatasourceConfiguration datasourceConfiguration) throws SQLException {
+    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
+                                                         DatasourceConfiguration datasourceConfiguration) throws SQLException {
 
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
             System.out.println(Thread.currentThread().getName() +

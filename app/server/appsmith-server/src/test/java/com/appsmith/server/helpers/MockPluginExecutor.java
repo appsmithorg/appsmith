@@ -10,10 +10,19 @@ import reactor.core.publisher.Mono;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.lang.Thread.sleep;
+
 public class MockPluginExecutor implements PluginExecutor {
 
     @Override
     public Mono<ActionExecutionResult> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        //TODO remove it
+        try {
+            sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         if (actionConfiguration == null) {
             return Mono.error(new Exception("ActionConfiguration is null"));
         }

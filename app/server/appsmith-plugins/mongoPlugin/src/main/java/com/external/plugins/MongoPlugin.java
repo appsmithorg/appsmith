@@ -16,6 +16,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
@@ -114,9 +115,16 @@ public class MongoPlugin extends BasePlugin {
 
             return mongoOutputMono
                     .onErrorMap(
+                            MongoTimeoutException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                                    error.getMessage()
+                            )
+                    )
+                    .onErrorMap(
                             MongoCommandException.class,
                             error -> new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
                     )

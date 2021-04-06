@@ -480,7 +480,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
-
         // 1. Validate input parameters which are required for mustache replacements
         List<Param> params = executeActionDTO.getParams();
         if (!CollectionUtils.isEmpty(params)) {
@@ -545,6 +544,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                         FieldName.DATASOURCE,
                                         action.getDatasource().getId())));
                     }
+
                     // This is a nested datasource. Return as is.
                     return Mono.just(action.getDatasource());
                 })

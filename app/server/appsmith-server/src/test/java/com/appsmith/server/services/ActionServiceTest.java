@@ -53,6 +53,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -525,6 +527,7 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
                     assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
+                    assertThat(result.getTitle()).isEqualTo(pluginException.getTitle());
                 })
                 .verifyComplete();
     }
@@ -570,6 +573,7 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
                     assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
+                    assertThat(result.getTitle()).isEqualTo(pluginException.getTitle());
                 })
                 .verifyComplete();
     }
@@ -611,6 +615,7 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
                     assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                    assertThat(result.getTitle()).isEqualTo(AppsmithPluginError.PLUGIN_ERROR.getTitle());
                 })
                 .verifyComplete();
     }
@@ -652,6 +657,7 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
                     assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getAppErrorCode().toString());
+                    assertThat(result.getTitle()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getTitle());
                 })
                 .verifyComplete();
     }

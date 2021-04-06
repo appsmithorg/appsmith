@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -739,6 +740,7 @@ public class FirestorePluginTest {
                     String expectedErrorMessage = "Appsmith has found an unexpected query form property - 'Delete Key " +
                             "Value Pair Path'. Please reach out to Appsmith customer support to resolve this.";
                     assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
 
@@ -773,6 +775,7 @@ public class FirestorePluginTest {
                     String expectedErrorMessage = "Appsmith has found an unexpected query form property - 'Timestamp " +
                             "Value Path'. Please reach out to Appsmith customer support to resolve this.";
                     assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -807,9 +810,9 @@ public class FirestorePluginTest {
                     String expectedErrorMessage = "Appsmith failed to parse the query editor form field 'Delete Key " +
                             "Value Pair Path'. Please check out Appsmith's documentation to find the correct syntax.";
                     assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
-
     }
 
     @Test
@@ -842,6 +845,7 @@ public class FirestorePluginTest {
                     String expectedErrorMessage = "Appsmith failed to parse the query editor form field 'Timestamp " +
                             "Value Path'. Please check out Appsmith's documentation to find the correct syntax.";
                     assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
