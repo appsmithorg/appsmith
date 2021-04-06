@@ -24,7 +24,7 @@ import FilePicker, {
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 
 const InputLabelWrapper = styled.div`
-  width: 160px;
+  width: 150px;
   display: flex;
   align-items: center;
 `;
