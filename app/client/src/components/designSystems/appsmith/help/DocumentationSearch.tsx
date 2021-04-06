@@ -46,7 +46,7 @@ const StyledOpenLinkIcon = styled(OenLinkIcon)`
   width: 12px;
   height: 12px;
   display: none;
-  svg {
+  && svg {
     width: 12px;
     height: 12px;
   }
@@ -138,8 +138,7 @@ const DefaultHelpMenuItem = (props: {
 
 const SearchContainer = styled.div`
   height: 100%;
-  background: #181f24;
-
+  background: ${(props) => props.theme.colors.helpModal.background};
   .ais-SearchBox {
     position: relative;
     height: 30px;

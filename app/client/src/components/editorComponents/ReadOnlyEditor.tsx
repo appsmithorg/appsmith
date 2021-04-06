@@ -15,6 +15,7 @@ interface Props {
     onChange?: (event: ChangeEvent<HTMLTextAreaElement>) => void;
   };
   height: string;
+  folding: boolean;
 }
 
 const ReadOnlyEditor = (props: Props) => {
@@ -30,6 +31,7 @@ const ReadOnlyEditor = (props: Props) => {
     showLightningMenu: false,
     showLineNumbers: true,
     borderLess: true,
+    folding: props.folding,
   };
   return <CodeEditor {...editorProps} />;
 };

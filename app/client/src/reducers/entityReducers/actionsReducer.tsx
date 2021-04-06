@@ -5,7 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { ActionResponse } from "api/ActionAPI";
-import { ExecuteErrorPayload } from "constants/ActionConstants";
+import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import _ from "lodash";
 import { Action } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/actionActions";

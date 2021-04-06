@@ -35,7 +35,7 @@ describe("Image Widget Functionality", function() {
 
     //Zoom validation
     cy.changeZoomLevel("2x");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("contain", "zoom-in");

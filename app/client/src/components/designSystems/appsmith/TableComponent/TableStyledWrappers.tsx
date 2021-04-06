@@ -2,9 +2,9 @@ import styled, { css } from "styled-components";
 import {
   TableSizes,
   CellLayoutProperties,
-  FontStyleTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors, Color } from "constants/Colors";
+import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -276,14 +276,6 @@ const ALIGN_ITEMS = {
   BOTTOM: "flex-end",
 };
 
-const TEXT_SIZES = {
-  HEADING1: "24px",
-  HEADING2: "18px",
-  HEADING3: "16px",
-  PARAGRAPH: "14px",
-  PARAGRAPH2: "12px",
-};
-
 export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
   font-weight: ${(props) =>
     props?.cellProperties?.fontStyle?.includes(FontStyleTypes.BOLD)
@@ -313,6 +305,8 @@ export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
   cellProperties?: CellLayoutProperties;
+  isHyperLink?: boolean;
+  useLinkToolTip?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -342,11 +336,33 @@ export const CellWrapper = styled.div<{
   video {
     border-radius: 4px;
   }
+  ${(props) =>
+    props.isHyperLink &&
+    `
+    cursor: pointer;
+    &:hover {
+      color: ${Colors.ROYAL_BLUE};      
+      text-decoration: underline;
+    }`};
   &.video-cell {
     height: 100%;
     iframe {
       border: none;
       border-radius: 4px;
+    }
+  }
+  .link-text {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .hidden-icon {
+    display: none;
+  }
+  &:hover {
+    .hidden-icon {
+      display: inline;
     }
   }
 `;
