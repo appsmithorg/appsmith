@@ -209,7 +209,6 @@
                            {
                                "isVisible": true,
                                "text": "Label",
-                               "textStyle": "LABEL",
                                "textAlign": "LEFT",
                                "widgetName": "Text1",
                                "type": "TEXT_WIDGET",

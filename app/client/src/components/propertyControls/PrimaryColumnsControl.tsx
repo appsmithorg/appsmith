@@ -91,6 +91,7 @@ const getOriginalColumn = (
 
 function ColumnControlComponent(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
+
   const {
     updateOption,
     onEdit,
@@ -99,6 +100,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
     toggleVisibility,
     index,
   } = props;
+  const [visibility, setVisibility] = useState(item.isVisible);
   const debouncedUpdate = debounce(updateOption, 1000);
   const onChange = useCallback(
     (index: number, value: string) => {
@@ -135,12 +137,13 @@ function ColumnControlComponent(props: RenderComponentProps) {
             deleteOption && deleteOption(index);
           }}
         />
-      ) : item.isVisible ? (
+      ) : visibility ? (
         <StyledVisibleIcon
           className="t--show-column-btn"
           height={20}
           width={20}
           onClick={() => {
+            setVisibility(!visibility);
             toggleVisibility && toggleVisibility(index);
           }}
         />
@@ -150,6 +153,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
           height={20}
           width={20}
           onClick={() => {
+            setVisibility(!visibility);
             toggleVisibility && toggleVisibility(index);
           }}
         />

@@ -1,9 +1,3 @@
-module.exports = {
-  process() {
-    return "module.exports = {};";
-  },
-  getCacheKey() {
-    // The output is always the same.
-    return "svgTransform";
-  },
-};
+import * as React from 'react'
+export default 'SvgrURL'
+export const ReactComponent = 'div'

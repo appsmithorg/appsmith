@@ -6,7 +6,7 @@ import {
   ReactTableColumnProps,
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;

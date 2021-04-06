@@ -225,7 +225,7 @@ export default {
       __originalIndex__: index,
     }));
 
-    const columns = props.columns;
+    const columns = props.tableColumns;
 
     let sortedTableData;
     if (props.sortedColumn) {

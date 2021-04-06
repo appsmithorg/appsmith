@@ -52,7 +52,6 @@ const CanvasContainer = styled.section`
 
 /* eslint-disable react/display-name */
 const WidgetsEditor = () => {
-  PerformanceTracker.startTracking(PerformanceTransactionName.EDITOR_MOUNT);
   const { focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
@@ -64,7 +63,6 @@ const WidgetsEditor = () => {
   const currentApp = useSelector(getCurrentApplication);
   useDynamicAppLayout();
   useEffect(() => {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
   });
 
