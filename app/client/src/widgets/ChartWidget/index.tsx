@@ -93,6 +93,9 @@ export interface ChartDataPoint {
   y: any;
 }
 
+export interface AllChartData {
+  [key: number]: ChartData;
+}
 export interface ChartData {
   seriesName?: string;
   data: ChartDataPoint[];
@@ -100,7 +103,7 @@ export interface ChartData {
 
 export interface ChartWidgetProps extends WidgetProps, WithMeta {
   chartType: ChartType;
-  chartData: ChartData[];
+  chartData: AllChartData;
   customFusionChartConfig: { config: CustomFusionChartConfig };
   xAxisName: string;
   yAxisName: string;

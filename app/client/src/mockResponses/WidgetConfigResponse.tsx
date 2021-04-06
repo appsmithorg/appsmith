@@ -373,8 +373,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       chartName: "Sales on working days",
       allowHorizontalScroll: false,
       version: 1,
-      chartData: [
-        {
+      chartData: {
+        0: {
           seriesName: "Sales",
           data: [
             {
@@ -407,7 +407,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             },
           ],
         },
-      ],
+      },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
     },

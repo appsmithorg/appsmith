@@ -1,10 +1,15 @@
-import _, { isString } from "lodash";
+import _, { get, isString } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "configs";
-import { ChartData, ChartDataPoint, ChartType } from "widgets/ChartWidget";
+import {
+  AllChartData,
+  ChartData,
+  ChartDataPoint,
+  ChartType,
+} from "widgets/ChartWidget";
 import log from "loglevel";
 
 export interface CustomFusionChartConfig {
@@ -43,7 +48,7 @@ FusionCharts.options.license({
 
 export interface ChartComponentProps {
   chartType: ChartType;
-  chartData: ChartData[];
+  chartData: AllChartData;
   customFusionChartConfig: CustomFusionChartConfig;
   xAxisName: string;
   yAxisName: string;
@@ -73,7 +78,8 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartType = () => {
     const { chartType, allowHorizontalScroll, chartData } = this.props;
-    const isMSChart = chartData.length > 1;
+    const dataLength = Object.keys(chartData).length;
+    const isMSChart = dataLength > 1;
     switch (chartType) {
       case "PIE_CHART":
         return "pie2d";
@@ -107,9 +113,10 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartData = () => {
-    const chartData: ChartData[] = this.props.chartData;
+    const chartData: AllChartData = this.props.chartData;
+    const dataLength = Object.keys(chartData).length;
 
-    if (chartData.length === 0) {
+    if (dataLength === 0) {
       return [
         {
           label: "",
@@ -118,10 +125,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       ];
     }
 
-    let data: ChartDataPoint[] = chartData[0].data;
-    if (isString(chartData[0].data)) {
+    let data: ChartDataPoint[] = get(chartData, "0.data");
+
+    if (isString(data)) {
       try {
-        data = JSON.parse(chartData[0].data);
+        data = JSON.parse(data);
       } catch (e) {
         data = [];
       }
@@ -142,10 +150,13 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     });
   };
 
-  getChartCategoriesMutliSeries = (chartData: ChartData[]) => {
+  getChartCategoriesMutliSeries = (chartData: AllChartData) => {
     const categories: string[] = [];
-    for (let index = 0; index < chartData.length; index++) {
-      const data: ChartDataPoint[] = chartData[index].data;
+    const dataLength = Object.keys(chartData).length;
+
+    for (let index = 0; index < dataLength; index++) {
+      const data: ChartDataPoint[] = get(chartData, `${index}.data`);
+
       for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
         const category = data[dataIndex].x;
         if (!categories.includes(category)) {
@@ -153,10 +164,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         }
       }
     }
+
     return categories;
   };
 
-  getChartCategories = (chartData: ChartData[]) => {
+  getChartCategories = (chartData: AllChartData) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
     if (categories.length === 0) {
       return [
@@ -192,9 +204,14 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     });
   };
 
-  getChartDataset = (chartData: ChartData[]) => {
+  getChartDataset = (chartData: AllChartData) => {
+    console.log({ chartData });
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
-    return chartData.map((item: ChartData) => {
+    return Object.keys(chartData).map((key: number | string) => {
+      const item = get(chartData, `${key}`);
+
+      console.log({ item });
+
       const seriesChartData: Array<Record<
         string,
         unknown
@@ -219,10 +236,9 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartDataSource = () => {
-    if (
-      this.props.chartData.length <= 1 ||
-      this.props.chartType === "PIE_CHART"
-    ) {
+    const dataLength = Object.keys(this.props.chartData).length;
+
+    if (dataLength <= 1 || this.props.chartType === "PIE_CHART") {
       return {
         chart: this.getChartConfig(),
         data: this.getChartData(),
@@ -279,6 +295,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   createGraph = () => {
+    console.log({ props: this.props });
     if (this.props.chartType === "CUSTOM_FUSION_CHART") {
       const chartConfig = {
         renderAt: this.props.widgetId + "chart-container",

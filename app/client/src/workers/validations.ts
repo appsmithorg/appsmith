@@ -8,6 +8,7 @@ import {
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import _, {
   every,
+  get,
   isBoolean,
   isNil,
   isNumber,
@@ -221,6 +222,44 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
   },
+  [VALIDATION_TYPES.ARRAY_LIKE]: (value: any): ValidationResponse => {
+    let parsed = value;
+    try {
+      if (isUndefined(value)) {
+        return {
+          isValid: false,
+          parsed: [],
+          transformed: undefined,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
+        };
+      }
+      if (isString(value)) {
+        parsed = JSON.parse(parsed as string);
+      }
+
+      // here we are checking if all the keys of value are numbers
+      if (
+        Object.keys(parsed).filter((key) => typeof key !== "number").length ===
+        0
+      ) {
+        return {
+          isValid: false,
+          parsed: [],
+          transformed: parsed,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
+        };
+      }
+      return { isValid: true, parsed, transformed: parsed };
+    } catch (e) {
+      console.error(e);
+      return {
+        isValid: false,
+        parsed: [],
+        transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
+      };
+    }
+  },
   [VALIDATION_TYPES.TABS_DATA]: (
     value: any,
     props: WidgetProps,
@@ -300,7 +339,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY_LIKE](
       value,
       props,
       dataTree,
@@ -318,7 +357,9 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     const parsedChartData = [];
     let isValidChart = true;
 
-    for (const seriesData of parsed) {
+    for (let i = 0; i < Object.keys(parsed).length; i++) {
+      const seriesData = get(parsed, `${i}`);
+
       let isValidSeries = false;
       try {
         const validatedResponse: {

@@ -1,5 +1,5 @@
 import React from "react";
-import _ from "lodash";
+import _, { get } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
@@ -13,6 +13,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Size, Category } from "components/ads/Button";
+import { AllChartData, ChartData } from "widgets/ChartWidget";
 
 const Wrapper = styled.div`
   background-color: ${(props) =>
@@ -212,26 +213,20 @@ class ChartDataControl extends BaseControl<ControlProps> {
   };
 
   render() {
-    const chartData: Array<{ seriesName: string; data: string }> = _.isString(
-      this.props.propertyValue,
-    )
+    const chartData: AllChartData = _.isString(this.props.propertyValue)
       ? []
       : this.props.propertyValue;
-    const dataLength = chartData.length;
+    const dataLength = Object.keys(chartData).length;
     const { validationMessage, isValid } = this.props;
     const validations: Array<{
       isValid: boolean;
       validationMessage: string;
-    }> = this.getValidations(
-      validationMessage || "",
-      isValid,
-      chartData.length,
-    );
+    }> = this.getValidations(validationMessage || "", isValid, dataLength);
 
     const evaluatedValue = this.getEvaluatedValue();
     if (this.props.widgetProperties.chartType === "PIE_CHART") {
-      const data = chartData.length
-        ? chartData[0]
+      const data = dataLength
+        ? get(chartData, "0")
         : {
             seriesName: "",
             data: "",
@@ -253,7 +248,9 @@ class ChartDataControl extends BaseControl<ControlProps> {
     return (
       <React.Fragment>
         <Wrapper>
-          {chartData.map((data, index) => {
+          {Object.keys(chartData).map((key, index) => {
+            const data = get(chartData, `${key}`);
+
             return (
               <DataControlComponent
                 key={index}
@@ -285,7 +282,11 @@ class ChartDataControl extends BaseControl<ControlProps> {
   }
 
   deleteOption = (index: number) => {
-    this.deleteProperties([`${this.props.propertyName}[${index}]`]);
+    console.log({
+      path: `${this.props.propertyName}.${index}`,
+      props: this.props,
+    });
+    // this.deleteProperties([`${this.props.propertyName}.${index}`]);
   };
 
   updateOption = (
@@ -294,7 +295,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
     updatedValue: string,
   ) => {
     this.updateProperty(
-      `${this.props.propertyName}[${index}].${propertyName}`,
+      `${this.props.propertyName}.${index}.${propertyName}`,
       updatedValue,
     );
   };
@@ -304,7 +305,10 @@ class ChartDataControl extends BaseControl<ControlProps> {
       seriesName: string;
       data: string;
     }> = this.props.propertyValue;
-    this.updateProperty(`${this.props.propertyName}[${chartData.length}]`, {
+
+    const dataLength = Object.keys(chartData).length;
+
+    this.updateProperty(`${this.props.propertyName}.${dataLength}`, {
       seriesName: "",
       data: JSON.stringify([{ x: "label", y: 50 }]),
     });
