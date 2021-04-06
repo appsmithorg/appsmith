@@ -1,7 +1,7 @@
 import { FetchPageResponse } from "api/PageApi";
 import { generateReactKey } from "utils/generators";
 import { WidgetType } from "constants/WidgetConstants";
-import { ActionType } from "constants/ActionConstants";
+import { PluginType } from "entities/Action";
 
 const PageMockResponse: FetchPageResponse = {
   responseMeta: {
@@ -45,7 +45,7 @@ const PageMockResponse: FetchPageResponse = {
             id: "5d8082e2795dc6000482bc84",
             name: "someActions",
             jsonPathKeys: [],
-            pluginType: "API" as ActionType,
+            pluginType: PluginType.API,
             timeoutInMillisecond: 10000,
           },
         ],

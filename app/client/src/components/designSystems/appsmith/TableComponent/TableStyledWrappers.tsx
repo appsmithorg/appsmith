@@ -2,10 +2,10 @@ import styled, { css } from "styled-components";
 import {
   TableSizes,
   CellLayoutProperties,
-  FontStyleTypes,
   CellAlignment,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors, Color } from "constants/Colors";
+import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -281,14 +281,6 @@ const ALIGN_ITEMS = {
   TOP: "flex-start",
   CENTER: "center",
   BOTTOM: "flex-end",
-};
-
-const TEXT_SIZES = {
-  HEADING1: "24px",
-  HEADING2: "18px",
-  HEADING3: "16px",
-  PARAGRAPH: "14px",
-  PARAGRAPH2: "12px",
 };
 
 export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`

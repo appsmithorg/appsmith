@@ -115,7 +115,7 @@ const DatePickerComponent = (props: DatePickerComponentProps) => {
       formatDate={props.formatDate}
       parseDate={props.parseDate}
       className={Classes.DATE_PICKER_OVARLAY}
-      popoverProps={{ usePortal: false }}
+      popoverProps={{ usePortal: true }}
     />
   );
 };
