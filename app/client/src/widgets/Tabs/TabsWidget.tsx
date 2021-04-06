@@ -198,7 +198,7 @@ class TabsWidget extends BaseWidget<
           (this.props.rightColumn - this.props.leftColumn) *
           this.props.parentColumnSpace;
         const rows =
-          (this.props.bottomRow - this.props.topRow - 1) *
+          (this.props.bottomRow - this.props.topRow - 4) *
           this.props.parentRowSpace;
         const config = {
           type: WidgetTypes.CANVAS_WIDGET,

@@ -648,13 +648,37 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateChartDataFromArrayToObject(currentDSL);
     currentDSL.version = 17;
   }
-
   if (currentDSL.version === 17) {
     currentDSL = migrateTabsData(currentDSL);
     currentDSL.version = 18;
   }
 
+  if (currentDSL.version === 18) {
+    currentDSL.snapColumns = GridDefaults.DEFAULT_GRID_COLUMNS;
+    currentDSL.snapRows = getCanvasSnapRows(
+      currentDSL.bottomRow,
+      currentDSL.detachFromLayout || false,
+    );
+    currentDSL = migrateToNewLayout(currentDSL);
+    currentDSL.version = 19;
+  }
   return currentDSL;
+};
+
+export const migrateToNewLayout = (dsl: ContainerWidgetProps<WidgetProps>) => {
+  const scaleWidget = (widgetProps: WidgetProps) => {
+    widgetProps.bottomRow *= 4;
+    widgetProps.topRow *= 4;
+    widgetProps.leftColumn *= 4;
+    widgetProps.rightColumn *= 4;
+    if (widgetProps.children && widgetProps.children.length) {
+      widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
+        scaleWidget(eachWidgetProp);
+      });
+    }
+  };
+  scaleWidget(dsl);
+  return dsl;
 };
 
 export const extractCurrentDSL = (
@@ -756,10 +780,7 @@ export const noCollision = (
       top,
       bottom: top + widgetHeight,
     };
-    return (
-      !isDropZoneOccupied(currentOffset, widget.widgetId, occupiedSpaces) &&
-      !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset)
-    );
+    return !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset);
   }
   return false;
 };
