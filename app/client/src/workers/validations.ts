@@ -21,6 +21,7 @@ import _, {
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
+import { AllChartData } from "widgets/ChartWidget";
 
 export function validateDateString(
   dateString: string,
@@ -237,19 +238,22 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed = JSON.parse(parsed as string);
       }
 
-      // here we are checking if all the keys of value are numbers
-      if (
-        Object.keys(parsed).filter((key) => typeof key !== "number").length ===
-        0
-      ) {
-        return {
-          isValid: false,
-          parsed: [],
-          transformed: parsed,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
-        };
-      }
+      console.log({ parsed });
       return { isValid: true, parsed, transformed: parsed };
+
+      // here we are checking if all the keys of value are numbers
+      // if (
+      //   Object.keys(parsed).filter((key) => typeof key !== "number").length ===
+      //   0
+      // ) {
+      //   return {
+      //     isValid: false,
+      //     parsed: [],
+      //     transformed: parsed,
+      //     message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
+      //   };
+      // }
+      // return { isValid: true, parsed, transformed: parsed };
     } catch (e) {
       console.error(e);
       return {
@@ -354,7 +358,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     let validationMessage = "";
     let index = 0;
-    const parsedChartData = [];
+    const parsedChartData: AllChartData = {};
     let isValidChart = true;
 
     for (let i = 0; i < Object.keys(parsed).length; i++) {
@@ -385,16 +389,17 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         }
         if (!isValidSeries) {
           isValidChart = false;
-          parsedChartData.push({
+          parsedChartData[i] = {
             ...seriesData,
             data: [],
-          });
+          };
+
           validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
         } else {
-          parsedChartData.push({
+          parsedChartData[i] = {
             ...seriesData,
             data: validatedResponse.parsed,
-          });
+          };
         }
       } catch (e) {
         console.error(e);
@@ -409,6 +414,8 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: validationMessage,
       };
     }
+
+    console.log({ parsedChartData });
     return { isValid, parsed: parsedChartData, transformed: parsedChartData };
   },
   [VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA]: (

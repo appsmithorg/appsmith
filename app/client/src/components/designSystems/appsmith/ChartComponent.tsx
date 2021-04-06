@@ -152,10 +152,9 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartCategoriesMutliSeries = (chartData: AllChartData) => {
     const categories: string[] = [];
-    const dataLength = Object.keys(chartData).length;
 
-    for (let index = 0; index < dataLength; index++) {
-      const data: ChartDataPoint[] = get(chartData, `${index}.data`);
+    Object.keys(chartData).forEach((key: string) => {
+      const data: ChartDataPoint[] = get(chartData, `${key}.data`);
 
       for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
         const category = data[dataIndex].x;
@@ -163,7 +162,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           categories.push(category);
         }
       }
-    }
+    });
 
     return categories;
   };
@@ -205,12 +204,10 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartDataset = (chartData: AllChartData) => {
-    console.log({ chartData });
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
-    return Object.keys(chartData).map((key: number | string) => {
-      const item = get(chartData, `${key}`);
 
-      console.log({ item });
+    return Object.keys(chartData).map((key: string) => {
+      const item = get(chartData, `${key}`);
 
       const seriesChartData: Array<Record<
         string,
@@ -295,7 +292,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   createGraph = () => {
-    console.log({ props: this.props });
     if (this.props.chartType === "CUSTOM_FUSION_CHART") {
       const chartConfig = {
         renderAt: this.props.widgetId + "chart-container",

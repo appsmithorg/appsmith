@@ -14,6 +14,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Size, Category } from "components/ads/Button";
 import { AllChartData, ChartData } from "widgets/ChartWidget";
+import { getRandomIntExcludingExistingNumbers } from "utils/helpers";
 
 const Wrapper = styled.div`
   background-color: ${(props) =>
@@ -77,7 +78,7 @@ const Box = styled.div`
 `;
 
 type RenderComponentProps = {
-  index: number;
+  index: string;
   item: {
     seriesName: string;
     data: Array<{ x: string; y: string }> | string;
@@ -85,8 +86,8 @@ type RenderComponentProps = {
   length: number;
   isValid: boolean;
   validationMessage: string;
-  deleteOption: (index: number) => void;
-  updateOption: (index: number, key: string, value: string) => void;
+  deleteOption: (index: string) => void;
+  updateOption: (index: string, key: string, value: string) => void;
   evaluated: {
     seriesName: string;
     data: Array<{ x: string; y: string }> | any;
@@ -205,25 +206,21 @@ class ChartDataControl extends BaseControl<ControlProps> {
     return validations;
   };
 
-  getEvaluatedValue = () => {
-    if (Array.isArray(this.props.evaluatedValue)) {
-      return this.props.evaluatedValue;
-    }
-    return [];
-  };
-
   render() {
     const chartData: AllChartData = _.isString(this.props.propertyValue)
-      ? []
+      ? {}
       : this.props.propertyValue;
+
     const dataLength = Object.keys(chartData).length;
     const { validationMessage, isValid } = this.props;
+
     const validations: Array<{
       isValid: boolean;
       validationMessage: string;
     }> = this.getValidations(validationMessage || "", isValid, dataLength);
 
-    const evaluatedValue = this.getEvaluatedValue();
+    const evaluatedValue = this.props.evaluatedValue;
+
     if (this.props.widgetProperties.chartType === "PIE_CHART") {
       const data = dataLength
         ? get(chartData, "0")
@@ -233,7 +230,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
           };
       return (
         <DataControlComponent
-          index={0}
+          index={"0"}
           item={data}
           length={1}
           deleteOption={this.deleteOption}
@@ -253,15 +250,18 @@ class ChartDataControl extends BaseControl<ControlProps> {
 
             return (
               <DataControlComponent
-                key={index}
-                index={index}
+                key={key}
+                index={key}
                 item={data}
                 length={dataLength}
                 deleteOption={this.deleteOption}
                 updateOption={this.updateOption}
-                isValid={validations[index].isValid}
-                validationMessage={validations[index].validationMessage}
-                evaluated={evaluatedValue[index]}
+                isValid={get(validations, `${index}.isValid`)}
+                validationMessage={get(
+                  validations,
+                  `${index}.validationMessage`,
+                )}
+                evaluated={get(evaluatedValue, `${key}`)}
                 theme={this.props.theme}
               />
             );
@@ -281,16 +281,12 @@ class ChartDataControl extends BaseControl<ControlProps> {
     );
   }
 
-  deleteOption = (index: number) => {
-    console.log({
-      path: `${this.props.propertyName}.${index}`,
-      props: this.props,
-    });
-    // this.deleteProperties([`${this.props.propertyName}.${index}`]);
+  deleteOption = (index: string) => {
+    this.deleteProperties([`${this.props.propertyName}.${index}`]);
   };
 
   updateOption = (
-    index: number,
+    index: string,
     propertyName: string,
     updatedValue: string,
   ) => {
@@ -307,10 +303,15 @@ class ChartDataControl extends BaseControl<ControlProps> {
     }> = this.props.propertyValue;
 
     const dataLength = Object.keys(chartData).length;
+    const randomNumber = getRandomIntExcludingExistingNumbers(
+      0,
+      dataLength,
+      Object.keys(chartData).map(parseInt),
+    );
 
-    this.updateProperty(`${this.props.propertyName}.${dataLength}`, {
+    this.updateProperty(`${this.props.propertyName}.${randomNumber}`, {
       seriesName: "",
-      data: JSON.stringify([{ x: "label", y: 50 }]),
+      data: [{ x: "label", y: 50 }],
     });
   };
 
