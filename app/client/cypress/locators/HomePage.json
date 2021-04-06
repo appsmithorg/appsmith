@@ -60,7 +60,6 @@
     "orgEmailInput": "[data-cy=t--org-email-input]",
     "orgWebsiteInput": "[data-cy=t--org-website-input]",
     "orgHeaderName": ".t--organization-header",
-    "orgSettingsFilePickerCol": ".t--organization-settings-filepicker",
     "leftPanelContainer": "[data-cy=t--left-panel]",
     "themeText": "label div",
     "shareUserIcons": ".org-share-user-icons",
