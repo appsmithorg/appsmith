@@ -1,6 +1,6 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
@@ -32,9 +32,10 @@ public class ActionExecutionResult {
 
     public void setErrorInfo(Throwable error) {
         this.body = error.getMessage();
-        if (error instanceof AppsmithPluginException) {
-            this.statusCode = ((AppsmithPluginException) error).getAppErrorCode().toString();
-            this.title = ((AppsmithPluginException) error).getTitle();
+
+        if (error instanceof BaseException) {
+            this.statusCode = ((BaseException) error).getAppErrorCode().toString();
+            this.title = ((BaseException) error).getTitle();
         }
     }
 
