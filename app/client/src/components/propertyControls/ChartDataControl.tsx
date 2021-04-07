@@ -311,7 +311,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
 
     this.updateProperty(`${this.props.propertyName}.${randomNumber}`, {
       seriesName: "",
-      data: [{ x: "label", y: 50 }],
+      data: JSON.stringify([{ x: "label", y: 50 }]),
     });
   };
 

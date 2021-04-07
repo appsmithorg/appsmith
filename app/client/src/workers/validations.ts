@@ -16,6 +16,7 @@ import _, {
   isPlainObject,
   isString,
   isUndefined,
+  set,
   toNumber,
   toString,
 } from "lodash";
@@ -361,8 +362,8 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     const parsedChartData: AllChartData = {};
     let isValidChart = true;
 
-    for (let i = 0; i < Object.keys(parsed).length; i++) {
-      const seriesData = get(parsed, `${i}`);
+    Object.keys(parsed).forEach((key: string) => {
+      const seriesData = get(parsed, `${key}`);
 
       let isValidSeries = false;
       try {
@@ -375,6 +376,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
           props,
           dataTree,
         );
+
         if (validatedResponse.isValid) {
           isValidSeries = every(
             validatedResponse.parsed,
@@ -387,25 +389,28 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             },
           );
         }
+
         if (!isValidSeries) {
           isValidChart = false;
-          parsedChartData[i] = {
+
+          set(parsedChartData, `${key}`, {
             ...seriesData,
             data: [],
-          };
+          });
 
           validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
         } else {
-          parsedChartData[i] = {
+          set(parsedChartData, `${key}`, {
             ...seriesData,
             data: validatedResponse.parsed,
-          };
+          });
         }
       } catch (e) {
         console.error(e);
       }
       index++;
-    }
+    });
+
     if (!isValidChart) {
       return {
         isValid: false,
@@ -415,7 +420,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
 
-    console.log({ parsedChartData });
     return { isValid, parsed: parsedChartData, transformed: parsedChartData };
   },
   [VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA]: (

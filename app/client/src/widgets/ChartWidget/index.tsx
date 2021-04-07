@@ -94,7 +94,7 @@ export interface ChartDataPoint {
 }
 
 export interface AllChartData {
-  [key: number]: ChartData;
+  [key: string]: ChartData;
 }
 export interface ChartData {
   seriesName?: string;
