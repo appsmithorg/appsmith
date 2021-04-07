@@ -198,7 +198,6 @@ const FilePickerComponent = (props: FilePickerProps) => {
         return;
       }
       handleFileUpload(files);
-      }
     }
   }
 
@@ -224,11 +223,10 @@ const FilePickerComponent = (props: FilePickerProps) => {
     let fileSize = 0;
 
     if (!file) {
-      return
+      return;
     }
     fileSize = Math.floor(file.size / 1024);
     setFileInfo({ name: file.name, size: fileSize });
-    }
 
     if (fileSize < 250) {
       if (bgRef.current) {
