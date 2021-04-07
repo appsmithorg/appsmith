@@ -213,11 +213,7 @@ class TabControl extends BaseControl<ControlProps> {
     const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
       return i !== index;
     });
-    const indexUpdatedArray = updatedArray.map((each: any, index: number) => ({
-      ...each,
-      index,
-    }));
-    const updatedObj = indexUpdatedArray.reduce(
+    const updatedObj = updatedArray.reduce(
       (obj: any, each: any, index: number) => {
         obj[each.id] = {
           ...each,
