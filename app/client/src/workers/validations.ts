@@ -140,6 +140,27 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
+  [VALIDATION_TYPES.TAB_PROPS]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+    dynamicProperty?: string,
+  ): ValidationResponse => {
+    const validations: any = {
+      isVisible: VALIDATORS[VALIDATION_TYPES.BOOLEAN],
+    };
+    if (dynamicProperty) {
+      const property = dynamicProperty.split(".").pop();
+      if (property && validations[property]) {
+        const validator = validations[property];
+        return validator(value, props, dataTree);
+      }
+    }
+    return {
+      isValid: true,
+      parsed: value,
+    };
+  },
   [VALIDATION_TYPES.BOOLEAN]: (value: any): ValidationResponse => {
     let parsed = value;
     if (isUndefined(value)) {
@@ -220,45 +241,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
       };
     }
-  },
-  [VALIDATION_TYPES.TABS_DATA]: (
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
-      value,
-      props,
-      dataTree,
-    );
-    if (!isValid) {
-      return {
-        isValid,
-        parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
-      };
-    } else if (
-      !every(
-        parsed,
-        (datum: {
-          id: string;
-          label: string;
-          widgetId: string;
-          isVisible?: boolean;
-        }) =>
-          isObject(datum) &&
-          !isUndefined(datum.id) &&
-          !isUndefined(datum.label) &&
-          !isUndefined(datum.widgetId),
-      )
-    ) {
-      return {
-        isValid: false,
-        parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
-      };
-    }
-    return { isValid, parsed };
   },
   [VALIDATION_TYPES.TABLE_DATA]: (
     value: any,

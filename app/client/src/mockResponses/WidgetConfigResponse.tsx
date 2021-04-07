@@ -226,6 +226,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8,
       shouldScrollContents: false,
       widgetName: "Tabs",
+      tabsObj: {
+        tab1: { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
+        tab2: { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
+      },
       tabs: [
         { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
         { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
@@ -238,10 +242,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             type: "MODIFY_PROPS",
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
               const tabs = [...widget.tabs];
+              const tabsObj = { ...widget.tabsObj };
 
               const newTabs = tabs.map((tab: any) => {
                 const newTab = { ...tab };
                 newTab.widgetId = generateReactKey();
+                tabsObj[newTab.id] = newTab;
                 return newTab;
               });
               const updatePropertyMap = [
@@ -249,6 +255,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   widgetId: widget.widgetId,
                   propertyName: "tabs",
                   propertyValue: newTabs,
+                },
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "tabsObj",
+                  propertyValue: tabsObj,
                 },
               ];
               return updatePropertyMap;

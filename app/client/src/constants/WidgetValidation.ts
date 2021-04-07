@@ -16,7 +16,7 @@ export const VALIDATION_TYPES = {
   DEFAULT_DATE: "DEFAULT_DATE",
   MIN_DATE: "MIN_DATE",
   MAX_DATE: "MAX_DATE",
-  TABS_DATA: "TABS_DATA",
+  TAB_PROPS: "TAB_PROPS",
   CHART_DATA: "CHART_DATA",
   CUSTOM_FUSION_CHARTS_DATA: "CUSTOM_FUSION_CHARTS_DATA",
   MARKERS: "MARKERS",
@@ -43,6 +43,7 @@ export type Validator = (
   value: any,
   props: WidgetProps,
   dataTree?: DataTree,
+  property?: string,
 ) => ValidationResponse;
 
 export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";

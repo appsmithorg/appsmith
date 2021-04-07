@@ -252,7 +252,9 @@ export function validateWidgetProperty(
   dataTree?: DataTree,
 ) {
   const propertyValidationTypes = widgetConfigMap[widgetType].validations;
-  const validationTypeOrValidator = propertyValidationTypes[property];
+  const validationTypeOrValidator =
+    propertyValidationTypes[property] ||
+    propertyValidationTypes.dynamicPropertiesValidation;
   let validator;
 
   if (typeof validationTypeOrValidator === "function") {
@@ -261,7 +263,7 @@ export function validateWidgetProperty(
     validator = VALIDATORS[validationTypeOrValidator];
   }
   if (validator) {
-    return validator(value, props, dataTree);
+    return validator(value, props, dataTree, property);
   } else {
     return { isValid: true, parsed: value };
   }
