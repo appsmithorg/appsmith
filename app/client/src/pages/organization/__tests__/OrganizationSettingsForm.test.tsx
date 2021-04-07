@@ -1,6 +1,6 @@
 import React from "react";
 import { unmountComponentAtNode } from "react-dom";
-import { findByText, render } from "test/testUtils";
+import { render } from "test/testUtils";
 import "@testing-library/jest-dom";
 import { GeneralSettings } from "../General";
 
