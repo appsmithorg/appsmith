@@ -21,6 +21,7 @@ import {
   convertObjectToQueryParams,
   getQueryParams,
 } from "utils/AppsmithUtils";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const Wrapper = styled.div`
   .dynamic-text-field {
@@ -57,7 +58,7 @@ class DynamicTextControl extends BaseControl<
   }
 
   render() {
-    const { responseType, label } = this.props;
+    const { responseType, label, evaluationSubstitutionType } = this.props;
     const isNewQuery =
       new URLSearchParams(window.location.search).get("showTemplate") ===
       "true";
@@ -91,6 +92,7 @@ class DynamicTextControl extends BaseControl<
             className="dynamic-text-field"
             mode={mode}
             tabBehaviour={TabBehaviour.INDENT}
+            evaluationSubstitutionType={evaluationSubstitutionType}
           />
         )}
       </Wrapper>
@@ -103,6 +105,7 @@ export interface DynamicTextFieldProps extends ControlProps {
   createTemplate: (template: any) => any;
   pluginId: string;
   responseType: string;
+  evaluationSubstitutionType: EvaluationSubstitutionType;
 }
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
