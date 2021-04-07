@@ -146,7 +146,31 @@
           },
           "initialValue": ""
         },
-
+        {
+          "label": "Table Header Index Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "tableHeaderIndex"
+        },
+        {
+          "label": "Table Heading Row Number",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": [
+              "GET",
+              "UPDATE",
+              "BULK_UPDATE",
+              "DELETE_ROW",
+              "APPEND",
+              "BULK_APPEND"
+            ]
+          },
+          "initialValue": "1"
+        },
         {
           "label": "Query Format Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
@@ -296,31 +320,6 @@
           },
           "initialValue": "",
           "placeholderText": "10"
-        },
-        {
-          "label": "Table Header Index Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "tableHeaderIndex"
-        },
-        {
-          "label": "Table Heading Row Number",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "GET",
-              "UPDATE",
-              "BULK_UPDATE",
-              "DELETE_ROW",
-              "APPEND",
-              "BULK_APPEND"
-            ]
-          },
-          "initialValue": "1"
         },
         {
           "label": "Body",

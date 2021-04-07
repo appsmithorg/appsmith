@@ -34,7 +34,7 @@ public class InfoMethod implements Method {
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
                 methodConfig.getSpreadsheetId() +
-                        "?fields=id,name,permissions/role,createdTime,modifiedTime");
+                        "?fields=id,name,permissions/role,permissions/emailAddress,createdTime,modifiedTime");
 
         return webClient.method(HttpMethod.GET)
                 .uri(uriBuilder.build(false).toUri())
