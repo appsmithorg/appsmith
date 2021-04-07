@@ -52,7 +52,7 @@ const getAppViewerHeaderCTA = ({
       );
     } else {
       CTA = (
-        <div className="header__application-fork-btn-wrapper">
+        <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
           <ForkApplicationModal applicationId={currentApplicationDetails.id} />
         </div>
       );

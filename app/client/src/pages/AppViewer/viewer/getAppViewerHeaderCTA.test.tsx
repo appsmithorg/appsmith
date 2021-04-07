@@ -64,7 +64,7 @@ describe("get app viewer header CTA", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
   });
-  it("renders the edit app button", async () => {
+  it("renders the edit app button and does not render the fork app button", async () => {
     const CTA = getAppViewerHeaderCTA(sampleProps);
     if (CTA) {
       render(CTA);
@@ -72,6 +72,11 @@ describe("get app viewer header CTA", () => {
         document.querySelector(".t--back-to-editor"),
       );
       expect(!!result).toBeTruthy();
+
+      const forkButton = await waitFor(() =>
+        document.querySelector(".t--fork-app"),
+      );
+      expect(!!forkButton).toBeFalsy();
     }
   });
   it("renders the fork app button", async () => {
@@ -109,7 +114,7 @@ describe("get app viewer header CTA", () => {
     if (CTA) {
       render(CTA);
       const result = await waitFor(() =>
-        document.querySelector(".header__application-fork-btn-wrapper"),
+        document.querySelector(".t--fork-btn-wrapper"),
       );
       expect(!!result).toBeTruthy();
     }
