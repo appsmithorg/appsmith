@@ -310,7 +310,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       dataTree,
     );
 
-    console.log({ value, isValid, parsed });
     if (!isValid) {
       return {
         isValid,
