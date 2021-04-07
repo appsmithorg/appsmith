@@ -227,13 +227,21 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       shouldScrollContents: false,
       widgetName: "Tabs",
       tabsObj: {
-        tab1: { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
-        tab2: { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
+        tab1: {
+          label: "Tab 1",
+          id: "tab1",
+          widgetId: "",
+          isVisible: true,
+          index: 0,
+        },
+        tab2: {
+          label: "Tab 2",
+          id: "tab2",
+          widgetId: "",
+          isVisible: true,
+          index: 1,
+        },
       },
-      tabs: [
-        { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
-        { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
-      ],
       shouldShowTabs: true,
       defaultTab: "Tab 1",
       blueprint: {

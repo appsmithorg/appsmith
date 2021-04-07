@@ -104,10 +104,10 @@ const PropertyControl = memo((props: Props) => {
       }
       if (propertiesToUpdate) {
         const allUpdates: Record<string, unknown> = {};
+        allUpdates[propertyName] = propertyValue;
         propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
           allUpdates[propertyPath] = propertyValue;
         });
-        allUpdates[propertyName] = propertyValue;
         onBatchUpdateProperties(allUpdates);
       }
       if (!propertiesToUpdate) {

@@ -130,8 +130,15 @@ class TabControl extends BaseControl<ControlProps> {
     }
   }
 
-  updateItems = (items: Array<Record<string, unknown>>) => {
-    this.updateProperty(this.props.propertyName, items);
+  updateItems = (items: Array<Record<string, any>>) => {
+    const tabsObj = items.reduce((obj: any, each: any, index: number) => {
+      obj[each.id] = {
+        ...each,
+        index,
+      };
+      return obj;
+    }, {});
+    this.updateProperty(this.props.propertyName, tabsObj);
   };
 
   onEdit = (index: number) => {
@@ -203,12 +210,24 @@ class TabControl extends BaseControl<ControlProps> {
 
   deleteOption = (index: number) => {
     const tabsArray: any = Object.values(this.props.propertyValue);
-    const itemId = tabsArray[index].id;
-    if (itemId) {
-      const tabs = this.props.propertyValue;
-      delete tabs[itemId];
-      this.updateProperty(this.props.propertyName, tabs);
-    }
+    const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
+      return i !== index;
+    });
+    const indexUpdatedArray = updatedArray.map((each: any, index: number) => ({
+      ...each,
+      index,
+    }));
+    const updatedObj = indexUpdatedArray.reduce(
+      (obj: any, each: any, index: number) => {
+        obj[each.id] = {
+          ...each,
+          index,
+        };
+        return obj;
+      },
+      {},
+    );
+    this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {

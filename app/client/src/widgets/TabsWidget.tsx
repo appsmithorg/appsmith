@@ -268,6 +268,7 @@ class TabsWidget extends BaseWidget<
               id: "tab1",
               widgetId: newTabContainerWidgetId,
               label: "Tab 1",
+              index: 0,
             },
           };
           this.updateWidgetProperty("tabsObj", tabs);
@@ -358,9 +359,9 @@ class TabsWidget extends BaseWidget<
   getVisibleTabs = () => {
     const tabs = Object.values(this.props.tabsObj);
     if (tabs.length) {
-      return tabs.filter(
-        (tab) => tab.isVisible === undefined || tab.isVisible === true,
-      );
+      return tabs
+        .filter((tab) => tab.isVisible === undefined || tab.isVisible === true)
+        .sort((tab1, tab2) => tab1.index - tab2.index);
     }
     return [];
   };
@@ -427,6 +428,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
       label: string;
       widgetId: string;
       isVisible?: boolean;
+      index: number;
     }
   >;
   shouldShowTabs: boolean;
