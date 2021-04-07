@@ -151,6 +151,22 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> getPage(String pageId, boolean viewMode) {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return newPageService.findPageById(pageId, permission, viewMode)
+                .map(newPage -> {
+                    List<Layout> layouts = newPage.getLayouts();
+                    if (layouts == null || layouts.isEmpty()) {
+                        return newPage;
+                    }
+                    for (Layout layout : layouts) {
+                        if (layout.getDsl() == null ||
+                                layout.getMongoEscapedWidgetNames() == null ||
+                                layout.getMongoEscapedWidgetNames().isEmpty()) {
+                            continue;
+                        }
+                        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
+                    }
+                    newPage.setLayouts(layouts);
+                    return newPage;
+                })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)));
     }
 
