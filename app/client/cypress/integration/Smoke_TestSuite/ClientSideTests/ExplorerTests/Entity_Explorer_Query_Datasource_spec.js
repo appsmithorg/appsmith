@@ -16,6 +16,10 @@ describe("Entity explorer tests related to query and datasource", function() {
     });
   });
 
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("Create a page/moveQuery/rename/delete in explorer", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();

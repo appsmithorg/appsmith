@@ -29,6 +29,7 @@ import {
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
+import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 
 export type WidgetOperationParams = {
@@ -474,6 +475,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 14) {
     currentDSL = rteDefaultValueMigration(currentDSL);
     currentDSL.version = 15;
+  }
+
+  if (currentDSL.version === 15) {
+    currentDSL = migrateTextStyleFromTextWidget(currentDSL);
+    currentDSL.version = 16;
   }
 
   return currentDSL;

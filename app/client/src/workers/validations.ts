@@ -29,8 +29,13 @@ export function validateDateString(
   let isValid = true;
   if (version === 2) {
     try {
-      const d = new Date(dateString);
-      isValid = d.toISOString() === dateString;
+      const d = moment(dateString);
+      isValid =
+        d.toISOString(true) === dateString || d.toISOString() === dateString;
+      if (!isValid) {
+        const parsedDate = moment(dateString);
+        isValid = parsedDate.isValid();
+      }
     } catch (e) {
       isValid = false;
     }
@@ -498,6 +503,16 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const isValid = validateDateString(dateString, dateFormat, props.version);
+    let parsedDate = dateString;
+
+    try {
+      if (isValid && props.version === 2) {
+        parsedDate = moment(dateString).toISOString(true);
+      }
+    } catch (e) {
+      console.error("Could not parse date", parsedDate, e);
+    }
+
     if (!isValid) {
       return {
         isValid: isValid,
@@ -507,7 +522,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return {
       isValid,
-      parsed: dateString,
+      parsed: parsedDate,
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
     };
   },
@@ -536,7 +551,17 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             : "",
       };
     }
+
     const isValid = validateDateString(dateString, dateFormat, props.version);
+    let parsedDate = dateString;
+
+    try {
+      if (isValid && props.version === 2) {
+        parsedDate = moment(dateString).toISOString(true);
+      }
+    } catch (e) {
+      console.error("Could not parse date", parsedDate, e);
+    }
     if (!isValid) {
       return {
         isValid: isValid,
@@ -546,7 +571,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return {
       isValid: isValid,
-      parsed: dateString,
+      parsed: parsedDate,
       message: "",
     };
   },

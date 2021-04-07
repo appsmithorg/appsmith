@@ -41,6 +41,8 @@ public class MustacheHelper {
     private static Pattern quoteQuestionPattern = Pattern.compile(regexQuotesTrimming);
     // The final replacement string of ? for replacing '?' or "?"
     private static String postQuoteTrimmingQuestionMark = "\\?";
+    private static String laxMustacheBindingRegex = "\\{\\{([\\s\\S]*?)\\}\\}";
+    private static Pattern laxMustacheBindingPattern = Pattern.compile(laxMustacheBindingRegex);
 
 
     /**
@@ -363,5 +365,9 @@ public class MustacheHelper {
         body = quoteQuestionPattern.matcher(body).replaceAll(postQuoteTrimmingQuestionMark);
 
         return body;
+    }
+
+    public static Boolean laxIsBindingPresentInString(String input) {
+        return laxMustacheBindingPattern.matcher(input).find();
     }
 }
