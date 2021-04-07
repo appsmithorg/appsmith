@@ -22,15 +22,20 @@ const explorer = require("../locators/explorerlocators.json");
 
 let pageidcopy = " ";
 
-Cypress.Commands.add("createOrg", (orgName) => {
+Cypress.Commands.add("createOrg", () => {
   cy.get(homePage.createOrg)
     .should("be.visible")
     .first()
     .click({ force: true });
-  cy.xpath(homePage.inputOrgName)
-    .should("be.visible")
-    .type(orgName);
-  cy.xpath(homePage.submitBtn).click();
+  // cy.xpath(homePage.inputOrgName)
+  //   .should("be.visible")
+  //   .type(orgName);
+  // cy.xpath(homePage.submitBtn).click();
+  cy.wait("@organizations").should(({ request, response }) => {
+    const organizationName = request.name;
+    console.log("request org create: ", request, response);
+    cy.contains(organizationName);
+  });
   cy.wait("@applications").should(
     "have.nested.property",
     "response.body.responseMeta.status",

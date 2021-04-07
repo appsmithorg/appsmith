@@ -673,6 +673,7 @@ const ApplicationsSection = (props: any) => {
                     editInteractionKind={EditInteractionKind.SINGLE}
                     placeholder="Workspace name"
                     hideEditIcon={false}
+                    cypressSelector="t--org-rename-input"
                     isInvalid={(value: string) => {
                       return notEmptyValidator(value).message;
                     }}
