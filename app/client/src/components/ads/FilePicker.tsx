@@ -194,10 +194,10 @@ const FilePickerComponent = (props: FilePickerProps) => {
   function onDrop(monitor: DropTargetMonitor) {
     if (monitor) {
       const files = monitor.getItem().files;
-      if (files) {
-        handleFileUpload(files);
-      } else {
+      if (!files) {
         return;
+      }
+      handleFileUpload(files);
       }
     }
   }
