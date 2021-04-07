@@ -147,7 +147,7 @@ export const PreparedStatementViewer = (props: {
   const stringSegments = value.split(/\$\d/);
   const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
   const paramsWithTooltips = $params.map((param) => (
-    <Tooltip content={<span>{parameters[param]}</span>} key={param}>
+    <Tooltip content={<span>{parameters[param].toString()}</span>} key={param}>
       <PreparedStatementParameter key={param}>
         {param}
       </PreparedStatementParameter>
