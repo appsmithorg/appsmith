@@ -60,6 +60,8 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_JSON;
+import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_RAW;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -209,6 +211,7 @@ public class MongoPlugin extends BasePlugin {
 
                             if (BigInteger.ONE.equals(status)) {
                                 result.setIsExecutionSuccess(true);
+                                result.setDataTypes(List.of(RETURN_DATA_TYPE_JSON, RETURN_DATA_TYPE_RAW));
 
                                 /**
                                  * For the `findAndModify` command, we don't get the count of modifications made. Instead,

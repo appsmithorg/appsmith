@@ -69,8 +69,12 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_JSON;
+import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_RAW;
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -687,7 +691,44 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         result.setRequest(null);
                     }
                     return result;
-                });
+                })
+                .map(result -> addDataTypes(result));
+    }
+
+    private ActionExecutionResult addDataTypes(ActionExecutionResult result) {
+        /*
+         * - Do not process if data types are already present.
+         * - It means that data types have been added by specific plugin.
+         */
+        if(!CollectionUtils.isEmpty(result.getDataTypes())) {
+            return result;
+        }
+
+        List<String> dataTypes = new ArrayList<>();
+
+        // TODO: add handler for table
+//        Pattern pattern = Pattern.compile("[\\[][\\]]", Pattern.CASE_INSENSITIVE);
+//        Matcher matcher = pattern.matcher("Visit W3Schools!");
+//        boolean matchFound = matcher.find();
+
+        /*
+         * - Check if the returned data is a valid json.
+         */
+        try {
+            objectMapper.readTree(result.getBody().toString());
+            dataTypes.add(RETURN_DATA_TYPE_JSON);
+        } catch (JsonProcessingException e) {
+            /* Do nothing */
+        }
+
+        /*
+         * - All return data types can be categorized as raw by default.
+         */
+        dataTypes.add(RETURN_DATA_TYPE_RAW);
+
+        result.setDataTypes(dataTypes);
+
+        return result;
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -27,4 +28,5 @@ public class ActionExecutionResult {
 
     ActionExecutionRequest request;
 
+    List<String> dataTypes;
 }
