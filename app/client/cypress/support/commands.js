@@ -19,6 +19,7 @@ const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
 const explorer = require("../locators/explorerlocators.json");
+const datasource = require("../locators/DatasourcesEditor.json");
 
 let pageidcopy = " ";
 
@@ -66,6 +67,7 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
 });
 
 Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
+  cy.stubPostHeaderReq();
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
@@ -79,11 +81,9 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@mockPostInvite")
+    .its("request.headers")
+    .should("have.property", "origin", "Cypress");
   cy.contains(email);
 });
 
@@ -96,34 +96,38 @@ Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
   ).should("have.length", count);
 });
 
+Cypress.Commands.add("stubPostHeaderReq", () => {
+  cy.intercept("POST", "/api/v1/users/invite", (req) => {
+    req.headers["origin"] = "Cypress";
+  }).as("mockPostInvite");
+});
+
 Cypress.Commands.add("shareApp", (email, role) => {
+  cy.stubPostHeaderReq();
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@mockPostInvite")
+    .its("request.headers")
+    .should("have.property", "origin", "Cypress");
   cy.contains(email);
   cy.get(homePage.closeBtn).click();
 });
 
 Cypress.Commands.add("shareAndPublic", (email, role) => {
+  cy.stubPostHeaderReq();
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@mockPostInvite")
+    .its("request.headers")
+    .should("have.property", "origin", "Cypress");
   cy.contains(email);
   cy.enablePublicAccess();
 });
@@ -166,6 +170,7 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
 });
 
 Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
+  cy.stubPostHeaderReq();
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
@@ -186,11 +191,9 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.xpath(homePage.selectRole).click({ force: true });
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
-  cy.wait("@postInvite").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@mockPostInvite")
+    .its("request.headers")
+    .should("have.property", "origin", "Cypress");
   cy.contains(email);
   cy.get(".bp3-icon-small-cross").click({ force: true });
   cy.xpath(homePage.appHome)
@@ -256,6 +259,48 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
+});
+
+Cypress.Commands.add(
+  "addOauthAuthDetails",
+  (accessTokenUrl, clientId, clientSecret, authURL) => {
+    cy.get(datasource.authType).click();
+    cy.xpath(datasource.OAuth2).click();
+    cy.get(datasource.grantType).click();
+    cy.xpath(datasource.authorisecode).click();
+    cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
+    cy.get(datasource.clienID).type(clientId);
+    cy.get(datasource.clientSecret).type(clientSecret);
+    cy.get(datasource.authorizationURL).type(authURL);
+    cy.xpath('//input[contains(@value,"api/v1/datasources/authorize")]')
+      .first()
+      .invoke("attr", "value")
+      .then((text) => {
+        const firstTxt = text;
+        cy.log("date time : ", firstTxt);
+        const expectedvalue = Cypress.config().baseUrl.concat(
+          "api/v1/datasources/authorize",
+        );
+        expect(firstTxt).to.equal(expectedvalue);
+      });
+  },
+);
+
+Cypress.Commands.add("firestoreDatasourceForm", () => {
+  cy.get(datasourceEditor.datasourceConfigUrl).type(
+    datasourceFormData["database-url"],
+  );
+  cy.get(datasourceEditor.projectID).type(datasourceFormData["projectID"]);
+  cy.get(datasourceEditor.serviceAccCredential)
+    .clear()
+    .type(datasourceFormData["serviceAccCredentials"]);
+});
+
+Cypress.Commands.add("amazonDatasourceForm", () => {
+  cy.get(datasourceEditor.projectID).type(datasourceFormData["access_key"]);
+  cy.get(datasourceEditor.serviceAccCredential)
+    .clear()
+    .type(datasourceFormData["secret_key"]);
 });
 
 Cypress.Commands.add("DeleteApp", (appName) => {
@@ -2056,6 +2101,12 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
   });
 });
 
+Cypress.Commands.add("startRoutesForDatasource", () => {
+  cy.server();
+  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
+});
+
 Cypress.Commands.add("startServerAndRoutes", () => {
   //To update route with intercept after working on alias wrt wait and alias
   cy.server();
@@ -2080,7 +2131,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
   cy.route("DELETE", "/api/v1/pages/*").as("deletePage");
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
     "getDatasourceStructure",
@@ -2110,8 +2160,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
-  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
   cy.route("POST", "/api/v1/applications/?orgId=*").as("createNewApplication");
@@ -2120,7 +2168,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
-  cy.route("POST", "/api/v1/users/invite").as("postInvite");
   cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
     "getRoles",
   );
