@@ -946,6 +946,7 @@ type ColorType = {
     itemHighlight: string;
     background: string;
   };
+  mentionsInput: Record<string, string>;
 };
 
 const comments = {
@@ -1022,7 +1023,16 @@ const globalSearch = {
   navigateToEntityEnterkey: "#3DA5D9",
 };
 
+const mentionsInput = {
+  suggestionsListBackground: "#fff",
+  suggestionsListBorder: "rgba(0,0,0,0.15)",
+  focusedItemBackground: "#cee4e5",
+  itemBorderBottom: "#cee4e5",
+  mentionBackground: "#fff",
+};
+
 export const dark: ColorType = {
+  mentionsInput,
   helpModal,
   globalSearch,
   comments,
@@ -1435,6 +1445,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  mentionsInput,
   helpModal,
   globalSearch,
   comments: {
