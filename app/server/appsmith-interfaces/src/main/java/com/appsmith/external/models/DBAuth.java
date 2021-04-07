@@ -1,6 +1,6 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.annotations.DocumentType;
+import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.constants.FieldName;
 import com.fasterxml.jackson.annotation.JsonProperty;

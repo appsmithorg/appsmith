@@ -17,6 +17,11 @@ describe("Binding the multiple widgets and validating default data", function() 
   before(() => {
     cy.addDsl(dsl);
   });
+
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("Create a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
