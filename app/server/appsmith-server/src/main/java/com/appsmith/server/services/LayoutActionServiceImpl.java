@@ -694,7 +694,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         JSONObject dsl = layout.getDsl();
 
         // Unescape specific widgets
-        dsl = WidgetSpecificUtils.unEscapeTableWidgetPrimaryColumns(dsl);
+        dsl = WidgetSpecificUtils.recursivelyUnescapeDslKeys(dsl, layout.getMongoEscapedWidgetNames());
 
         return dsl;
     }
