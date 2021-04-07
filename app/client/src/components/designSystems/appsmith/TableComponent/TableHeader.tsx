@@ -95,7 +95,6 @@ interface TableHeaderProps {
   pageOptions: number[];
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
-  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   widgetName: string;
   searchKey: string;
   searchTableData: (searchKey: any) => void;
@@ -137,13 +136,6 @@ const TableHeader = (props: TableHeaderProps) => {
           columns={props.tableColumns}
           widgetName={props.widgetName}
         />
-        {/* {props.editMode && (
-          <TableColumnsVisibility
-            columns={props.columns}
-            hiddenColumns={props.hiddenColumns}
-            updateHiddenColumns={props.updateHiddenColumns}
-          />
-        )} */}
         <TableCompactMode
           compactMode={props.compactMode}
           updateCompactMode={props.updateCompactMode}
