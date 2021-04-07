@@ -202,11 +202,7 @@ public class MongoPlugin extends BasePlugin {
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            actionExecutionResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                            actionExecutionResult.setTitle(((AppsmithPluginException) error).getTitle());
-                        }
-                        actionExecutionResult.setBody(error.getMessage());
+                        actionExecutionResult.setErrorInfo(error);
                         return Mono.just(actionExecutionResult);
                     })
                     // Now set the request in the result to be returned back to the server

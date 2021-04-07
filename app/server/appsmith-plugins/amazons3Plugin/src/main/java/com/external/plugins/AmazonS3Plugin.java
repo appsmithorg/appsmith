@@ -540,11 +540,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setBody(e.getMessage());
-                        if (e instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
-                            result.setTitle(((AppsmithPluginException) e).getTitle());
-                        }
+                        result.setErrorInfo(e);
                         return Mono.just(result);
 
                     })

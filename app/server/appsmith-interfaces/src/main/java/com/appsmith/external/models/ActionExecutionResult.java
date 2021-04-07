@@ -1,5 +1,7 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,5 +29,13 @@ public class ActionExecutionResult {
     Set<String> messages;
 
     ActionExecutionRequest request;
+
+    public void setErrorInfo(Throwable error) {
+        this.body = error.getMessage();
+        if (error instanceof AppsmithPluginException) {
+            this.statusCode = ((AppsmithPluginException) error).getAppErrorCode().toString();
+            this.title = ((AppsmithPluginException) error).getTitle();
+        }
+    }
 
 }

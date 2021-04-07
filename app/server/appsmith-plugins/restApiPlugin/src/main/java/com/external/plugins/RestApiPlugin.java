@@ -154,10 +154,9 @@ public class RestApiPlugin extends BasePlugin {
                                 parameters);
                     } catch (AppsmithPluginException e) {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
-                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         errorResult.setIsExecutionSuccess(false);
-                        errorResult.setTitle(e.getTitle());
-                        errorResult.setBody(e.getMessage());
+                        errorResult.setErrorInfo(e);
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         return Mono.just(errorResult);
                     }
 
@@ -375,11 +374,7 @@ public class RestApiPlugin extends BasePlugin {
                     })
                     .onErrorResume(error  -> {
                         errorResult.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            errorResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                            errorResult.setTitle(((AppsmithPluginException) error).getTitle());
-                        }
-                        errorResult.setBody(error.getMessage());
+                        errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
         }
