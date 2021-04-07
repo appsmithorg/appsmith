@@ -1,4 +1,4 @@
-import { all, select, put, take, takeEvery, call } from "redux-saga/effects";
+import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
@@ -11,9 +11,9 @@ import { getFormData } from "selectors/formSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";
 import {
-  QUERIES_EDITOR_URL,
-  QUERIES_EDITOR_ID_URL,
   APPLICATIONS_URL,
+  QUERIES_EDITOR_ID_URL,
+  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -25,13 +25,14 @@ import {
   getDatasource,
   getPluginTemplates,
 } from "selectors/entitiesSelector";
-import { QueryAction } from "entities/Action";
+import { Action, PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
+import { changeQuery } from "actions/queryPaneActions";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -181,6 +182,12 @@ function* handleNameChangeFailureSaga(
   yield put(change(QUERY_EDITOR_FORM_NAME, "name", action.payload.oldName));
 }
 
+function* updateFormValues(action: ReduxAction<{ data: Action }>) {
+  if (action.payload.data.pluginType === PluginType.DB) {
+    yield call(changeQuerySaga, changeQuery(action.payload.data.id));
+  }
+}
+
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleQueryCreatedSaga),
@@ -194,6 +201,7 @@ export default function* root() {
       ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       handleNameChangeFailureSaga,
     ),
+    takeEvery(ReduxActionTypes.UPDATE_ACTION_SUCCESS, updateFormValues),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
