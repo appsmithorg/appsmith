@@ -79,10 +79,7 @@ const Box = styled.div`
 
 type RenderComponentProps = {
   index: string;
-  item: {
-    seriesName: string;
-    data: Array<{ x: string; y: string }> | string;
-  };
+  item: ChartData;
   length: number;
   isValid: boolean;
   validationMessage: string;
@@ -185,6 +182,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
     }> = [];
     let index = -1;
     let validationMessage = "";
+
     if (message.indexOf("##") !== -1) {
       const messages = message.split("##");
       index = Number(messages[0]);
@@ -226,7 +224,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
         ? get(chartData, "0")
         : {
             seriesName: "",
-            data: "",
+            data: [],
           };
       return (
         <DataControlComponent
@@ -245,7 +243,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
     return (
       <React.Fragment>
         <Wrapper>
-          {Object.keys(chartData).map((key, index) => {
+          {Object.keys(chartData).map((key: string, index: number) => {
             const data = get(chartData, `${key}`);
 
             return (
@@ -296,6 +294,9 @@ class ChartDataControl extends BaseControl<ControlProps> {
     );
   };
 
+  /**
+   * it adds new series data object in the chartData
+   */
   addOption = () => {
     const chartData: Array<{
       seriesName: string;

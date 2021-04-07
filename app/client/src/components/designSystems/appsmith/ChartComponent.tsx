@@ -125,7 +125,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       ];
     }
 
-    let data: ChartDataPoint[] = get(chartData, "0.data");
+    let data: ChartDataPoint[] = get(chartData, "0").data;
 
     if (isString(data)) {
       try {
@@ -154,7 +154,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     const categories: string[] = [];
 
     Object.keys(chartData).forEach((key: string) => {
-      const data: ChartDataPoint[] = get(chartData, `${key}.data`);
+      const data: ChartDataPoint[] = get(chartData, `${key}`).data;
 
       for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
         const category = data[dataIndex].x;

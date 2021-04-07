@@ -22,6 +22,7 @@ import _, {
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
+import log from "loglevel";
 import { AllChartData } from "widgets/ChartWidget";
 
 export function validateDateString(
@@ -224,47 +225,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
   },
-  [VALIDATION_TYPES.ARRAY_LIKE]: (value: any): ValidationResponse => {
-    let parsed = value;
-    try {
-      if (isUndefined(value)) {
-        return {
-          isValid: false,
-          parsed: [],
-          transformed: undefined,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
-        };
-      }
-      if (isString(value)) {
-        parsed = JSON.parse(parsed as string);
-      }
-
-      console.log({ parsed });
-      return { isValid: true, parsed, transformed: parsed };
-
-      // here we are checking if all the keys of value are numbers
-      // if (
-      //   Object.keys(parsed).filter((key) => typeof key !== "number").length ===
-      //   0
-      // ) {
-      //   return {
-      //     isValid: false,
-      //     parsed: [],
-      //     transformed: parsed,
-      //     message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
-      //   };
-      // }
-      // return { isValid: true, parsed, transformed: parsed };
-    } catch (e) {
-      console.error(e);
-      return {
-        isValid: false,
-        parsed: [],
-        transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
-      };
-    }
-  },
   [VALIDATION_TYPES.TABS_DATA]: (
     value: any,
     props: WidgetProps,
@@ -344,11 +304,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY_LIKE](
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.OBJECT](
       value,
       props,
       dataTree,
     );
+
+    console.log({ value, isValid, parsed });
     if (!isValid) {
       return {
         isValid,
@@ -357,6 +319,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
       };
     }
+
     let validationMessage = "";
     let index = 0;
     const parsedChartData: AllChartData = {};
@@ -365,6 +328,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     Object.keys(parsed).forEach((key: string) => {
       const seriesData = get(parsed, `${key}`);
 
+      log.debug({ seriesData });
       let isValidSeries = false;
       try {
         const validatedResponse: {
