@@ -14,7 +14,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.CustomDatasourceRepository;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.EncryptionService;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.services.PluginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -13,7 +13,7 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticationResponse {
+public class AuthenticationResponse implements AppsmithDomain {
     String token;
 
     String refreshToken;
