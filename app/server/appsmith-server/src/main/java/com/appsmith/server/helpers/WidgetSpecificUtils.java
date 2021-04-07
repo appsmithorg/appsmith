@@ -1,12 +1,10 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.constants.FieldName;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,18 +47,31 @@ public class WidgetSpecificUtils {
 
     public static JSONObject unEscapeTableWidgetPrimaryColumns(JSONObject dsl) {
 
-        String dslAsString;
-        try {
-            dslAsString = objectMapper.writeValueAsString(dsl);
-            dslAsString = dslAsString.replaceAll(FieldName.MONGO_ESCAPE_ID, FieldName.MONGO_UNESCAPED_ID);
-            dslAsString = dslAsString.replaceAll(FieldName.MONGO_ESCAPE_CLASS, FieldName.MONGO_UNESCAPED_CLASS);
+        Set<String> keySet = dsl.keySet();
 
-            return (JSONObject) jsonParser.parse(dslAsString);
+        if (keySet.contains(FieldName.PRIMARY_COLUMNS)) {
+            Map primaryColumns = (Map) dsl.get(FieldName.PRIMARY_COLUMNS);
 
-        } catch (JsonProcessingException | ParseException e) {
-            // Something went wrong in parsing the DSL. Return as is
-            return dsl;
+            Map newPrimaryColumns = new HashMap();
+
+            Boolean updateRequired = false;
+
+            for (String columnName : (Set<String>) primaryColumns.keySet()) {
+                if (columnName.equals(FieldName.MONGO_ESCAPE_ID)) {
+                    updateRequired = true;
+                    newPrimaryColumns.put(FieldName.MONGO_UNESCAPED_ID, primaryColumns.get(columnName));
+                } else if (columnName.equals(FieldName.MONGO_ESCAPE_CLASS)) {
+                    updateRequired = true;
+                    newPrimaryColumns.put(FieldName.MONGO_UNESCAPED_CLASS, primaryColumns.get(columnName));
+                } else {
+                    newPrimaryColumns.put(columnName, primaryColumns.get(columnName));
+                }
+            }
+            if (updateRequired) {
+                dsl.put(FieldName.PRIMARY_COLUMNS, newPrimaryColumns);
+            }
         }
-
+        return dsl;
     }
+
 }
