@@ -328,7 +328,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     Object.keys(parsed).forEach((key: string) => {
       const seriesData = get(parsed, `${key}`);
 
-      log.debug({ seriesData });
       let isValidSeries = false;
       try {
         const validatedResponse: {
