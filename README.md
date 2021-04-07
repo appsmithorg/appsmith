@@ -78,10 +78,14 @@ Connect your own data to build apps for your team. [Read more here.](https://doc
 
 ## 📚 Tutorials
 
-1. [How to run manual jobs in Gitlab CI/CD](https://blog.appsmith.com/how-to-run-manual-jobs-in-gitlab-cicd)
-2. [Build Your Admin Panel Without CSS or HTML](https://blog.appsmith.com/build-your-admin-panel-without-css-or-html)
-3. [Building an Admin Panel with MongoDB using Appsmith](https://blog.appsmith.com/building-an-admin-panel-with-mongodb-using-appsmith)
-4. [How to build a Calendly clone in 30 minutes](https://blog.appsmith.com/how-to-build-a-calendly-clone-in-30-minutes)
+1. How to run manual jobs in Gitlab CI/CD with Appsmith([Blog](https://blog.appsmith.com/how-to-run-manual-jobs-in-gitlab-cicd), [Video](https://www.youtube.com/watch?v=CYdeJcD4I8A))
+2. Building Internal Tools with Appsmith ([Part 1](https://youtu.be/eYYYfuW-kEE), [Part 2](https://youtu.be/CsbrA8Hze2w), [Part 3](https://youtu.be/eyfDdIXalYI)) `Community`
+3. [How to Build an Issue Tracker with Appsmith](https://dev.to/pjmantoss/how-to-build-an-issue-tracker-with-appsmith-204e) `Community`
+4. [Building a Customer Support Dashboard in 5 mins using Appsmith](https://www.youtube.com/watch?v=-O_6OLREEzo&t=272s)
+5. Building an Admin Panel with MongoDB using Appsmith ([Blog](https://blog.appsmith.com/building-an-admin-panel-with-mongodb-using-appsmith), [Video](https://www.youtube.com/watch?v=tisUaIgI86k))
+6. [How to write Javascript in Appsmith](https://www.youtube.com/watch?v=qlczLNJKUp0)
+7. [Build Your Admin Panel Without CSS or HTML](https://blog.appsmith.com/build-your-admin-panel-without-css-or-html)
+8. [How to build a Calendly clone in 30 minutes](https://blog.appsmith.com/how-to-build-a-calendly-clone-in-30-minutes)
 
 ## 📕 Support & Troubleshooting
 
