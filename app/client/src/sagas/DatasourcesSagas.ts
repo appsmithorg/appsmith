@@ -56,6 +56,11 @@ import { setActionProperty } from "actions/actionActions";
 import SaasApi from "api/SaasApi";
 import { authorizeSaasWithAppsmithToken } from "api/CloudServicesApi";
 import {
+  createMessage,
+  DATASOURCE_CREATE,
+  DATASOURCE_DELETE,
+  DATASOURCE_UPDATE,
+  DATASOURCE_VALID,
   SAAS_APPSMITH_TOKEN_NOT_FOUND,
   SAAS_AUTHORIZATION_APPSMITH_ERROR,
   SAAS_AUTHORIZATION_FAILED,
@@ -64,14 +69,8 @@ import {
 import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
-import {
-  createMessage,
-  DATASOURCE_CREATE,
-  DATASOURCE_DELETE,
-  DATASOURCE_UPDATE,
-  DATASOURCE_VALID,
-} from "constants/messages";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
+import { PluginType } from "entities/Action";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -175,7 +174,7 @@ function* updateDatasourceSaga(
 
       const state = yield select();
       const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
-      const datasourceStruture =
+      const datasourceStructure =
         state.entities.datasources.structure[response.data.id];
 
       yield put({
@@ -195,7 +194,7 @@ function* updateDatasourceSaga(
         setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
       );
 
-      if (expandDatasourceId === response.data.id && !datasourceStruture) {
+      if (expandDatasourceId === response.data.id && !datasourceStructure) {
         yield put(fetchDatasourceStructure(response.data.id));
       }
     }
@@ -211,28 +210,37 @@ function* updateDatasourceSaga(
 }
 
 function* redirectAuthorizationCodeSaga(
-  actionPayload: ReduxAction<{ datasourceId: string; pageId: string }>,
+  actionPayload: ReduxAction<{
+    datasourceId: string;
+    pageId: string;
+    pluginType: PluginType;
+  }>,
 ) {
-  const { datasourceId, pageId } = actionPayload.payload;
-  try {
-    // Get an "appsmith token" from the server
-    const response: ApiResponse = yield SaasApi.getAppsmithToken(
-      datasourceId,
-      pageId,
-    );
-    if (validateResponse(response)) {
-      const appsmithToken = response.data;
-      // Save the token for later use once we come back from the auth flow
-      localStorage.setItem(APPSMITH_TOKEN_STORAGE_KEY, appsmithToken);
-      // Redirect to the cloud services to authorise
-      window.location.assign(authorizeSaasWithAppsmithToken(appsmithToken));
+  const { datasourceId, pageId, pluginType } = actionPayload.payload;
+
+  if (pluginType === PluginType.API) {
+    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
+  } else if (pluginType === PluginType.SAAS) {
+    try {
+      // Get an "appsmith token" from the server
+      const response: ApiResponse = yield SaasApi.getAppsmithToken(
+        datasourceId,
+        pageId,
+      );
+      if (validateResponse(response)) {
+        const appsmithToken = response.data;
+        // Save the token for later use once we come back from the auth flow
+        localStorage.setItem(APPSMITH_TOKEN_STORAGE_KEY, appsmithToken);
+        // Redirect to the cloud services to authorise
+        window.location.assign(authorizeSaasWithAppsmithToken(appsmithToken));
+      }
+    } catch (e) {
+      Toaster.show({
+        text: SAAS_AUTHORIZATION_FAILED,
+        variant: Variant.danger,
+      });
+      log.error(e);
     }
-  } catch (e) {
-    Toaster.show({
-      text: SAAS_AUTHORIZATION_FAILED,
-      variant: Variant.danger,
-    });
-    log.error(e);
   }
 }
 
@@ -547,7 +555,7 @@ function* updateDatasourceSuccessSaga(action: ReduxAction<Datasource>) {
   });
 }
 
-function* fetchDatasourceStrucuture(action: ReduxAction<{ id: string }>) {
+function* fetchDatasourceStructureSaga(action: ReduxAction<{ id: string }>) {
   try {
     const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
@@ -573,7 +581,7 @@ function* fetchDatasourceStrucuture(action: ReduxAction<{ id: string }>) {
   }
 }
 
-function* refreshDatasourceStrucuture(action: ReduxAction<{ id: string }>) {
+function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
   try {
     const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
@@ -632,11 +640,11 @@ export function* watchDatasourcesSagas() {
     ),
     takeEvery(
       ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
-      fetchDatasourceStrucuture,
+      fetchDatasourceStructureSaga,
     ),
     takeEvery(
       ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,
-      refreshDatasourceStrucuture,
+      refreshDatasourceStructure,
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
