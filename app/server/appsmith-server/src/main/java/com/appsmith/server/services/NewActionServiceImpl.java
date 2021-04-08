@@ -73,6 +73,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -703,37 +704,60 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return result;
         }
 
-        List<ParsedDataType> dataTypes = new ArrayList<>();
+        List<ParsedDataType> parsedDataTypeList = new ArrayList<>();
+        Stream.of(ActionResultDataType.values())
+                .parallel()
+                .map(type -> {
+                    try {
+                        return parseActionResultDataType(result.getBody().toString(), type);
+                    } catch (AppsmithException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .filter(type -> type != null)
+                .forEachOrdered(type -> parsedDataTypeList.add(type));
 
-        /*
-         * - Check if the returned data is a valid table - i.e. an array of simple json objects.
-         */
-        try {
-            objectMapper.readValue(result.getBody().toString(),
-                    new TypeReference<ArrayList<HashMap<String, String>>>() {});
-            dataTypes.add(new ParsedDataType(ActionResultDataType.TABLE));
-        } catch (JsonProcessingException e) {
-            /* Do nothing */
-        }
-
-        /*
-         * - Check if the returned data is a valid json.
-         */
-        try {
-            objectMapper.readTree(result.getBody().toString());
-            dataTypes.add(new ParsedDataType(ActionResultDataType.JSON));
-        } catch (JsonProcessingException e) {
-            /* Do nothing */
-        }
-
-        /*
-         * - All return data types can be categorized as raw by default.
-         */
-        dataTypes.add(new ParsedDataType(ActionResultDataType.RAW));
-
-        result.setDataTypes(dataTypes);
+        result.setDataTypes(parsedDataTypeList);
 
         return result;
+    }
+
+    private ParsedDataType parseActionResultDataType(String body, ActionResultDataType expectedType) throws AppsmithException {
+
+        switch (expectedType) {
+            case TABLE:
+                try {
+                    /*
+                     * - Check and return if the returned data is a valid table - i.e. an array of simple json objects.
+                     */
+                    objectMapper.readValue(body, new TypeReference<ArrayList<HashMap<String, String>>>() {});
+                    return new ParsedDataType(ActionResultDataType.TABLE);
+                } catch (JsonProcessingException e) {
+                    return null;
+                }
+
+            case JSON:
+                try {
+                    /*
+                     * - Check and return if the returned data is a valid json.
+                     */
+                    objectMapper.readTree(body);
+                    return new ParsedDataType(ActionResultDataType.JSON);
+                } catch (JsonProcessingException e) {
+                    return null;
+                }
+
+            case RAW:
+                /*
+                 * - Any data is by default categorized as raw.
+                 */
+                return new ParsedDataType(ActionResultDataType.RAW);
+            default:
+                throw new AppsmithException(
+                    AppsmithError.UNKNOWN_ACTION_RESULT_DATA_TYPE,
+                        expectedType.toString()
+                );
+        }
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
