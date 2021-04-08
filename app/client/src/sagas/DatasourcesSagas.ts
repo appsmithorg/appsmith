@@ -555,7 +555,7 @@ function* updateDatasourceSuccessSaga(action: ReduxAction<Datasource>) {
   });
 }
 
-function* fetchDatasourceStructure(action: ReduxAction<{ id: string }>) {
+function* fetchDatasourceStructureSaga(action: ReduxAction<{ id: string }>) {
   try {
     const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
@@ -640,7 +640,7 @@ export function* watchDatasourcesSagas() {
     ),
     takeEvery(
       ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
-      fetchDatasourceStructure,
+      fetchDatasourceStructureSaga,
     ),
     takeEvery(
       ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,
