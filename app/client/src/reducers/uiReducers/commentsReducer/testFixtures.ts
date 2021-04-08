@@ -236,7 +236,7 @@ export const updateCommentThreadPayload = {
 };
 
 export const newCommentThreadEventPayload = {
-  comment: {
+  thread: {
     _id: "606bf995c7a35467ac887f99",
     position: {
       top: 4,

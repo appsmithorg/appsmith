@@ -131,9 +131,9 @@ describe("Test comments reducer handles", () => {
 
     expect(state.commentThreadsMap).toStrictEqual({
       ...state.commentThreadsMap,
-      [newCommentThreadEventPayload.comment._id]: {
-        ...newCommentThreadEventPayload.comment,
-        id: newCommentThreadEventPayload.comment._id,
+      [newCommentThreadEventPayload.thread._id]: {
+        ...newCommentThreadEventPayload.thread,
+        id: newCommentThreadEventPayload.thread._id,
         isVisible: false,
       },
     });

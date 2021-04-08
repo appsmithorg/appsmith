@@ -46,7 +46,8 @@ const CommentCard = ({ comment }: { comment: any }) => {
         </div>
         {/* <CommentContextMenu /> */}
       </CommentHeader>
-      <CommentBody>{body}</CommentBody>
+      {/**TODO dangerously set inner html for highlighting mentions */}
+      <CommentBody>{body.replace(/\[(\S*)\]\(\S*\)/, "$1")}</CommentBody>
     </StyledContainer>
   );
 };

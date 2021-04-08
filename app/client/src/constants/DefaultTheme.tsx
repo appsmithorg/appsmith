@@ -1028,7 +1028,7 @@ const mentionsInput = {
   suggestionsListBorder: "rgba(0,0,0,0.15)",
   focusedItemBackground: "#cee4e5",
   itemBorderBottom: "#cee4e5",
-  mentionBackground: "#fff",
+  mentionBackground: "#cee4e5",
 };
 
 export const dark: ColorType = {

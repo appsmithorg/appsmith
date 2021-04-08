@@ -6,7 +6,7 @@ const handleNewCommentThreadEvent = (
   state: CommentsReduxState,
   action: ReduxAction<any>,
 ) => {
-  const { comment: thread } = action.payload;
+  const { thread } = action.payload;
   const applicationCommentIdsByRefId = get(
     state.applicationCommentThreadsByRef,
     thread.applicationId,
@@ -20,6 +20,12 @@ const handleNewCommentThreadEvent = (
     `${thread._id}.isVisible`,
     false,
   );
+  const existingComments = get(
+    state.commentThreadsMap,
+    `${thread._id}.comments`,
+    [],
+  ) as [];
+
   return {
     ...state,
     applicationCommentThreadsByRef: {
@@ -31,7 +37,12 @@ const handleNewCommentThreadEvent = (
     },
     commentThreadsMap: {
       ...state.commentThreadsMap,
-      [thread._id]: { id: thread._id, ...thread, isVisible },
+      [thread._id]: {
+        id: thread._id,
+        ...thread,
+        isVisible,
+        comments: [...existingComments, ...(thread.comments || [])],
+      },
     },
   };
 };

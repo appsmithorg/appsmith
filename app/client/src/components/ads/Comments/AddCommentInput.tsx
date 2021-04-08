@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled, { withTheme } from "styled-components";
@@ -91,12 +91,23 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
     setValue("");
   };
 
-  const handleKeyDown = (e: KeyboardEvent) => {
-    const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-    if (isEnterKey && !e.shiftKey) {
-      onSaveComment();
-      e.preventDefault();
-    }
+  const handleSubmitOnKeyDown = useCallback(
+    (
+      e:
+        | React.KeyboardEvent<HTMLTextAreaElement>
+        | React.KeyboardEvent<HTMLInputElement>,
+    ) => {
+      const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+      if (isEnterKey && !e.shiftKey) {
+        onSaveComment();
+        e.preventDefault();
+      }
+    },
+    [value],
+  );
+
+  const handleKeyDown = () => {
+    // TODO move to a separate hook
     setTimeout(() => {
       if (mentionsInputRef.current) {
         // need to reset the height so that
@@ -127,8 +138,11 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
       <PaddingContainer>
         <StyledInputContainer>
           <StyledMentionsInput
+            onKeyDown={handleSubmitOnKeyDown}
             inputRef={mentionsInputRef}
-            onChange={(e: any) => setValue(e.target.value)}
+            onChange={(e: any) => {
+              setValue(e.target.value);
+            }}
             value={value}
             autoFocus
             data-cy="add-comment-input"

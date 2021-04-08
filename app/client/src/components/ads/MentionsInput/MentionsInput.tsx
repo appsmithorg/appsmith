@@ -34,7 +34,7 @@ const MentionsInput = withTheme(
     );
 
     return (
-      <ReactMentionsInput style={styles} {...rest}>
+      <ReactMentionsInput style={styles} allowSuggestionsAboveCursor {...rest}>
         {props.children}
       </ReactMentionsInput>
     );
