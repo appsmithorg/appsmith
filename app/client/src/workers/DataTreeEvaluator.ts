@@ -384,6 +384,7 @@ export default class DataTreeEvaluator {
           } else {
             evalPropertyValue = unEvalPropertyValue;
           }
+
           if (isWidget(entity)) {
             const widgetEntity = entity;
             // TODO fix for nested properties
@@ -407,6 +408,7 @@ export default class DataTreeEvaluator {
                 unEvalPropertyValue,
                 isDefaultProperty,
               );
+
               const hasDefaultProperty = propertyName in defaultPropertyMap;
               if (hasDefaultProperty) {
                 const defaultProperty = defaultPropertyMap[propertyName];

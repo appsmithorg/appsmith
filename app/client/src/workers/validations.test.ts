@@ -23,95 +23,95 @@ describe("Validate Validators", () => {
   it("correctly validates chart data ", () => {
     const cases = [
       {
-        input: [
-          {
+        input: {
+          0: {
             seriesName: "Sales",
             data: [{ x: "Jan", y: 1000 }],
           },
-        ],
+        },
         output: {
           isValid: true,
-          parsed: [
-            {
+          parsed: {
+            0: {
               seriesName: "Sales",
               data: [{ x: "Jan", y: 1000 }],
             },
-          ],
-          transformed: [
-            {
+          },
+          transformed: {
+            0: {
               seriesName: "Sales",
               data: [{ x: "Jan", y: 1000 }],
             },
-          ],
+          },
         },
       },
       {
-        input: [
-          {
+        input: {
+          0: {
             seriesName: "Sales",
             data: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
           },
-        ],
+        },
         output: {
           isValid: false,
           message: '0##Value does not match type: [{ "x": "val", "y": "val" }]',
-          parsed: [
-            {
+          parsed: {
+            0: {
               seriesName: "Sales",
               data: [],
             },
-          ],
-          transformed: [
-            {
+          },
+          transformed: {
+            0: {
               seriesName: "Sales",
               data: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
             },
-          ],
+          },
         },
       },
       {
-        input: [
-          {
+        input: {
+          0: {
             seriesName: "Sales",
             data: undefined,
           },
-          {
+          1: {
             seriesName: "Expenses",
             data: [
               { x: "Jan", y: 1000 },
               { x: "Feb", y: 2000 },
             ],
           },
-        ],
+        },
         output: {
           isValid: false,
           message: '0##Value does not match type: [{ "x": "val", "y": "val" }]',
-          parsed: [
-            {
+          parsed: {
+            0: {
               seriesName: "Sales",
               data: [],
             },
-            {
+            1: {
               seriesName: "Expenses",
               data: [
                 { x: "Jan", y: 1000 },
                 { x: "Feb", y: 2000 },
               ],
             },
-          ],
-          transformed: [
-            {
+          },
+          transformed: {
+            0: {
               seriesName: "Sales",
               data: undefined,
             },
-            {
+            1: {
               seriesName: "Expenses",
               data: [
                 { x: "Jan", y: 1000 },
                 { x: "Feb", y: 2000 },
               ],
             },
-          ],
+          },
         },
       },
     ];

@@ -246,6 +246,8 @@ class ChartDataControl extends BaseControl<ControlProps> {
           {Object.keys(chartData).map((key: string, index: number) => {
             const data = get(chartData, `${key}`);
 
+            console.log({ data });
+
             return (
               <DataControlComponent
                 key={key}
