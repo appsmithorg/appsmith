@@ -149,6 +149,43 @@ describe("substituteDynamicBindingWithValues", () => {
       // @ts-ignore
       expect(result.parameters).toStrictEqual(expected.parameters);
     });
+
+    it("stringifies objects and arrays", () => {
+      const binding = "SELECT * from {{testObject}} WHERE {{testArray}}";
+      const subBindings = [
+        "SELECT * from ",
+        "{{testObject}}",
+        " WHERE ",
+        "{{testArray}}",
+      ];
+      const subValues = [
+        "SELECT * from ",
+        { name: "tester" },
+        " WHERE ",
+        [42, "meaning", false],
+      ];
+      const expected = {
+        value: "SELECT * from $1 WHERE $2",
+        parameters: {
+          $1: `{\n  \"name\": \"tester\"\n}`,
+          $2: `[\n  42,\n  \"meaning\",\n  false\n]`,
+        },
+      };
+      const result = substituteDynamicBindingWithValues(
+        binding,
+        subBindings,
+        subValues,
+        EvaluationSubstitutionType.PARAMETER,
+      );
+
+      expect(result).toHaveProperty("value");
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      expect(result.value).toBe(expected.value);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      expect(result.parameters).toStrictEqual(expected.parameters);
+    });
   });
   describe("smart substitution", () => {
     it("substitutes strings, numbers, boolean, undefined, null values correctly", () => {

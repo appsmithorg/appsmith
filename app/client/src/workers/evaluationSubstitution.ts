@@ -87,9 +87,9 @@ export const parameterSubstituteDynamicValues = (
     const key = `$${i + 1}`;
     finalBinding = finalBinding.replace(b, key);
     parameters[key] =
-      typeof subValues[1] === "object"
+      typeof subValues[i] === "object"
         ? JSON.stringify(subValues[i], null, 2)
-        : subValues.toString();
+        : subValues[i];
   });
   return { value: finalBinding, parameters };
 };
