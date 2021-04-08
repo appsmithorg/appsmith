@@ -1,7 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
@@ -37,6 +39,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -386,6 +389,98 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(newActionService.findById(createdAction2.getId()))
                 .assertNext(newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad()).isTrue());
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testHintMessageOnLocalhostUrlOnUpdateActionEvent() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("query1");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        ActionDTO unreferencedAction = new ActionDTO();
+        unreferencedAction.setName("query2");
+        unreferencedAction.setPageId(testPage.getId());
+        unreferencedAction.setUserSetOnLoad(true);
+        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+        actionConfiguration2.setHttpMethod(HttpMethod.GET);
+        unreferencedAction.setActionConfiguration(actionConfiguration2);
+        unreferencedAction.setDatasource(datasource);
+
+        Mono<ActionDTO> resultMono = newActionService
+                .createAction(action)
+                .flatMap(savedAction -> {
+                    ActionDTO updates = new ActionDTO();
+                    updates.setExecuteOnLoad(true);
+                    updates.setPolicies(null);
+                    updates.setUserPermissions(null);
+                    Datasource ds = new Datasource();
+                    ds.setName("testName");
+                    ds.setOrganizationId(datasource.getOrganizationId());
+                    ds.setDatasourceConfiguration(new DatasourceConfiguration());
+                    ds.getDatasourceConfiguration().setUrl("http://localhost");
+                    ds.setPluginId(datasource.getPluginId());
+                    updates.setDatasource(ds);
+                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                });
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(resultAction -> {
+                    assertThat(resultAction.getDatasource().getMessages().size()).isNotZero();
+
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
+                            "inside a docker container or on the cloud. To enable access to your localhost you may " +
+                            "use ngrok to expose your local endpoint to the internet. Please check out " +
+                            "Appsmith's documentation to understand more.";
+                    assertThat(resultAction.getDatasource().getMessages().stream()
+                            .anyMatch(message -> expectedMessage.equals(message))
+                    ).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void tableWidgetKeyEscape() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "Table1");
+        dsl.put("type", "TABLE_WIDGET");
+        Map primaryColumns = new HashMap<String, Object>();
+        JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+        primaryColumns.put("_id", jsonObject);
+        primaryColumns.put("_class", jsonObject);
+        dsl.put("primaryColumns", primaryColumns);
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).cache();
+
+        Mono<PageDTO> pageFromRepoMono = updateLayoutMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+
+        StepVerifier
+                .create(Mono.zip(updateLayoutMono, pageFromRepoMono))
+                .assertNext(tuple -> {
+                    LayoutDTO updatedLayout = tuple.getT1();
+                    PageDTO pageFromRepo = tuple.getT2();
+
+                    Map primaryColumns1 = (Map) updatedLayout.getDsl().get("primaryColumns");
+                    assertThat(primaryColumns1.keySet()).containsAll(Set.of(FieldName.MONGO_UNESCAPED_ID, FieldName.MONGO_UNESCAPED_CLASS));
+
+                    Map primaryColumns2 = (Map) pageFromRepo.getLayouts().get(0).getDsl().get("primaryColumns");
+                    assertThat(primaryColumns2.keySet()).containsAll(Set.of(FieldName.MONGO_ESCAPE_ID, FieldName.MONGO_ESCAPE_CLASS));
+                })
+                .verifyComplete();
+
 
     }
 

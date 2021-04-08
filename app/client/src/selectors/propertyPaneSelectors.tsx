@@ -1,7 +1,6 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
-
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";

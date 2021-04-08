@@ -4,6 +4,10 @@ const queryEditor = require("../../../../locators/QueryEditor.json");
 let datasourceName;
 
 describe("Postgres datasource test cases", function() {
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("Create, test, save then delete a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();

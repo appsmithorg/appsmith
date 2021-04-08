@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.Blob;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -31,6 +33,8 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -603,4 +607,246 @@ public class FirestorePluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testUpdateDocumentWithFieldValueTimestamp() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(new Property("key path", "[\"value\"]")); // index 8 - path for timestampServer fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    try {
+                        final DocumentSnapshot documentSnapshot = firestoreConnection.document("changing/to-update").get().get();
+                        assertTrue(documentSnapshot.exists());
+
+                        try {
+                            /*
+                             * - If the value against the key "value" has been replaced by a valid timestamp, then
+                             *   the getString method here must fail.
+                             */
+                            documentSnapshot.getString("value");
+                        } catch (Exception e) {
+                            assertTrue(e.getMessage().contains("Timestamp cannot be cast to class java.lang.String"));
+                        }
+                    } catch (NullPointerException | InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException(e);
+                    }
+                })
+                .verifyComplete();
+    }
+
+    /*
+     * - First delete key.
+     * - Then verify that the key does not exist in the list of keys returned by reading the document.
+     */
+    @Test
+    public void testUpdateDocumentWithFieldValueDelete() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(null); // index 8
+        properties.add(new Property("key path", "[\"value\"]")); // index 9 - path for delete fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        /*
+         * - Delete key.
+         */
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("");
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
+
+        resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        /*
+         * - Verify that the key does not exist in the list of keys returned by reading the document.
+         */
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    final Map<String, Object> doc = (Map) result.getBody();
+                    assertFalse(doc.keySet().contains("value"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFieldValueDeleteWithUnsupportedAction() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "CREATE_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(null); // index 8
+        properties.add(new Property("key path", "[\"value\"]")); // index 9 - path for delete fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+
+                    String expectedErrorMessage = "Appsmith has found an unexpected query form property - 'Delete Key " +
+                            "Value Pair Path'. Please reach out to Appsmith customer support to resolve this.";
+                    assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testFieldValueTimestampWithUnsupportedAction() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "GET_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(new Property("key path", "[\"value\"]")); // index 8 - path for serverTimestamp fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+
+                    String expectedErrorMessage = "Appsmith has found an unexpected query form property - 'Timestamp " +
+                            "Value Path'. Please reach out to Appsmith customer support to resolve this.";
+                    assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFieldValueDeleteWithBadArgument() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(null); // index 8
+        properties.add(new Property("key path", "value")); // index 9 - path for delete fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+
+                    String expectedErrorMessage = "Appsmith failed to parse the query editor form field 'Delete Key " +
+                            "Value Pair Path'. Please check out Appsmith's documentation to find the correct syntax.";
+                    assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFieldValueTimestampWithBadArgument() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(new Property("key path", "value")); // index 8 - path for serverTimestamp fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertFalse(result.getIsExecutionSuccess());
+
+                    String expectedErrorMessage = "Appsmith failed to parse the query editor form field 'Timestamp " +
+                            "Value Path'. Please check out Appsmith's documentation to find the correct syntax.";
+                    assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+                })
+                .verifyComplete();
+    }
 }

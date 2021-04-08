@@ -376,17 +376,14 @@ const OrgMenuItem = ({ org, isFetchingApplications, selected }: any) => {
   );
 };
 
-const testSubmitCreateOrganizationForm = async (data: any, dispatch: any) => {
-  console.log("creating organization with data: ", data);
+const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
   const result = await createOrganizationSubmitHandler(data, dispatch);
-  // if (typeof onCancel === "function") onCancel(); // close after submit
   return result;
 };
 function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-
   let userOrgs;
   if (!isFetchingApplications) {
     userOrgs = fetchedUserOrgs;
@@ -412,7 +409,7 @@ function LeftPane() {
               text={CREATE_ORGANIZATION_FORM_NAME}
               cypressSelector="t--org-new-organization-auto-create"
               onSelect={() =>
-                testSubmitCreateOrganizationForm(
+                submitCreateOrganizationForm(
                   {
                     name: getNextEntityName(
                       "Untitled organization ",

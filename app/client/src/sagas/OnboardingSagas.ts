@@ -68,6 +68,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { createActionRequest, runActionInit } from "actions/actionActions";
 import {
@@ -88,6 +89,7 @@ import {
   updateWidgetPropertyRequest,
 } from "../actions/controlActions";
 import OnSubmitGif from "assets/gifs/onsubmit.gif";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -148,6 +150,7 @@ function* listenForWidgetAdditions() {
         yield put(
           batchUpdateWidgetProperty(selectedWidget.widgetId, {
             modify: {
+              widgetName: "Standup_Table",
               tableData: [],
               columnSizeMap: {
                 avatar: 20,
@@ -280,7 +283,7 @@ function* listenForSuccessfulBinding() {
     yield take();
 
     let bindSuccessful = true;
-    const selectedWidget = yield select(getSelectedWidget);
+    const selectedWidget = yield call(getStandupTableWidget);
     if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
       const dataTree = yield select(getDataTree);
 
@@ -340,7 +343,9 @@ function* createOnboardingDatasource() {
   AnalyticsUtil.logEvent("ONBOARDING_INTRODUCTION");
 
   try {
-    yield take([ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]);
+    const isEditorInitialized = yield select(getIsEditorInitialized);
+    if (!isEditorInitialized)
+      yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
 
     const organizationId = yield select(getCurrentOrgId);
     const plugins = yield select(getPlugins);
@@ -362,6 +367,7 @@ function* createOnboardingDatasource() {
         datasourceConfiguration: {
           connection: {
             mode: "READ_WRITE",
+            ssl: { authType: "DEFAULT" },
           },
           endpoints: [
             {
@@ -374,6 +380,7 @@ function* createOnboardingDatasource() {
             username: "fakeapi",
             password: "LimitedAccess123#",
           },
+          sshProxyEnabled: false,
         },
       };
 
@@ -381,6 +388,7 @@ function* createOnboardingDatasource() {
         datasourceConfig,
       );
       yield validateResponse(datasourceResponse);
+      yield checkAndGetPluginFormConfigsSaga(postgresPlugin.id);
       yield put({
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: datasourceResponse.data,
@@ -597,6 +605,7 @@ function* createQuery() {
       actionConfiguration: {
         body:
           "Select avatar, name, notes from standup_updates order by id desc",
+        timeoutInMillisecond: 30000,
       },
     } as Partial<QueryAction>;
 
@@ -800,13 +809,23 @@ function* addOnSubmitHandler() {
   }
 }
 
-function* addBinding() {
-  const selectedWidget = yield select(getSelectedWidget);
+function* getStandupTableWidget() {
+  const canvasWidgets: Record<string, any> = yield select(getCanvasWidgets);
+  const result =
+    Object.entries(canvasWidgets).find((widgetEntry) => {
+      const [, widget] = widgetEntry;
+      return widget.widgetName === "Standup_Table";
+    }) || [];
+  const standupTable = result[1];
+  return standupTable;
+}
 
-  if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
+function* addBinding() {
+  const standupTable = yield call(getStandupTableWidget);
+  if (standupTable) {
     yield put(
       updateWidgetPropertyRequest(
-        selectedWidget.widgetId,
+        standupTable.widgetId,
         "tableData",
         "{{fetch_standup_updates.data}}",
         RenderModes.CANVAS,

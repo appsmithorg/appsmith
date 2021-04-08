@@ -58,6 +58,15 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.assertDateFormat();
   });
 
+  it("Datepicker default date validation message", function() {
+    cy.openPropertyPane("datepickerwidget2");
+    cy.testJsontext("defaultdate", "24-12-2021");
+    cy.evaluateErrorMessage(
+      "Value does not match ISO 8601 standard date string",
+    );
+    cy.closePropertyPane();
+  });
+
   it("Datepicker default date validation with strings", function() {
     cy.openPropertyPane("datepickerwidget2");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();

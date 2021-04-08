@@ -440,7 +440,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
-                .flatMap(action1 -> generateActionByViewMode(action1, false));
+                .flatMap(action1 -> generateActionByViewMode(action1, false))
+                .flatMap(this::populateHintMessages);
     }
 
     @Override
@@ -479,7 +480,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
-
         // 1. Validate input parameters which are required for mustache replacements
         List<Param> params = executeActionDTO.getParams();
         if (!CollectionUtils.isEmpty(params)) {
@@ -544,6 +544,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                         FieldName.DATASOURCE,
                                         action.getDatasource().getId())));
                     }
+
                     // This is a nested datasource. Return as is.
                     return Mono.just(action.getDatasource());
                 })
@@ -640,8 +641,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 // Set the status code for Appsmith plugin errors
                                 if (e instanceof AppsmithPluginException) {
                                     result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
+                                    result.setTitle(((AppsmithPluginException) e).getTitle());
                                 } else {
                                     result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+
+                                    if (e instanceof AppsmithException) {
+                                        result.setTitle(((AppsmithException) e).getTitle());
+                                    }
                                 }
                                 return Mono.just(result);
                             })
@@ -678,6 +684,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setIsExecutionSuccess(false);
                     result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
+                    result.setTitle(error.getTitle());
                     return Mono.just(result);
                 })
                 .map(result -> {
@@ -794,6 +801,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             errorJson = "\"Failed to serialize error data to JSON.\"";
                         }
                         data.put("error", errorJson);
+                    }
+
+                    if (actionExecutionResult.getStatusCode() != null) {
+                        data.putAll(Map.of(
+                                "statusCode", actionExecutionResult.getStatusCode()
+                        ));
                     }
 
                     analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
@@ -928,6 +941,20 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 })
                 .flatMap(analyticsService::sendDeleteEvent)
                 .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));
+    }
+
+    /*
+     * - Any hint message specific to action configuration can be handled here.
+     */
+    public Mono<ActionDTO> populateHintMessages(ActionDTO action) {
+        /*
+         * - No need for this null check: action == null. By the time the code flow reaches here, action is
+         *   guaranteed to be non null.
+         */
+
+        datasourceService.populateHintMessages(action.getDatasource());
+
+        return Mono.just(action);
     }
 
     @Override

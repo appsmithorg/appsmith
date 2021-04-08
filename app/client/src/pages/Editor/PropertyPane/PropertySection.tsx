@@ -55,8 +55,8 @@ const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
 export const PropertySection = memo((props: PropertySectionProps) => {
   const [isOpen, open] = useState(!!props.isDefaultOpen);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
-  if (props.hidden && props.propertyPath) {
-    if (props.propertyPath && props.hidden(widgetProps, props.propertyPath)) {
+  if (props.hidden) {
+    if (props.hidden(widgetProps, props.propertyPath || "")) {
       return null;
     }
   }

@@ -8,26 +8,14 @@ import {
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
 import {
-  ReactTableColumnProps,
   ColumnTypes,
-  Condition,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
-  FontStyleTypes,
   ColumnProperties,
   CellLayoutProperties,
-  TextSizes,
-  ConditionFunctions,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import {
-  isString,
-  isEmpty,
-  findIndex,
-  isPlainObject,
-  isNil,
-  without,
-} from "lodash";
+import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
@@ -35,10 +23,10 @@ import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import moment from "moment";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
+import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 
 export const renderCell = (
   value: any,
@@ -127,6 +115,7 @@ export const renderCell = (
           isHidden={isHidden}
           cellProperties={cellProperties}
           tableWidth={tableWidth}
+          columnType={columnType}
         >
           {value.toString()}
         </AutoToolTipComponent>
@@ -274,7 +263,7 @@ const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   top: 18px;
   cursor: pointer;
   transform: rotate(180deg);
-  svg {
+  && svg {
     path {
       fill: ${(props) => props.theme.colors.secondary};
     }
@@ -286,7 +275,7 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   position: relative;
   top: 3px;
   cursor: pointer;
-  svg {
+  && svg {
     path {
       fill: ${(props) => props.theme.colors.secondary};
     }
@@ -338,7 +327,7 @@ export const TableHeaderCell = (props: {
             : "hidden-header"
         }
       >
-        {column.render("Header")}
+        {props.columnName}
       </div>
       <div
         {...column.getResizerProps()}
@@ -350,95 +339,6 @@ export const TableHeaderCell = (props: {
       />
     </div>
   );
-};
-
-export function sortTableFunction(
-  filteredTableData: Array<Record<string, unknown>>,
-  columns: ReactTableColumnProps[],
-  sortedColumn: string,
-  sortOrder: boolean,
-) {
-  const tableData = filteredTableData ? [...filteredTableData] : [];
-  const columnType =
-    columns.find(
-      (column: ReactTableColumnProps) => column.accessor === sortedColumn,
-    )?.metaProperties?.type || ColumnTypes.TEXT;
-  return tableData.sort(
-    (a: { [key: string]: any }, b: { [key: string]: any }) => {
-      if (
-        isPlainObject(a) &&
-        isPlainObject(b) &&
-        !isNil(a[sortedColumn]) &&
-        !isNil(b[sortedColumn])
-      ) {
-        switch (columnType) {
-          case ColumnTypes.NUMBER:
-            return sortOrder
-              ? Number(a[sortedColumn]) > Number(b[sortedColumn])
-                ? 1
-                : -1
-              : Number(b[sortedColumn]) > Number(a[sortedColumn])
-              ? 1
-              : -1;
-          case ColumnTypes.DATE:
-            return sortOrder
-              ? moment(a[sortedColumn]).isAfter(b[sortedColumn])
-                ? 1
-                : -1
-              : moment(b[sortedColumn]).isAfter(a[sortedColumn])
-              ? 1
-              : -1;
-          default:
-            return sortOrder
-              ? a[sortedColumn].toString().toUpperCase() >
-                b[sortedColumn].toString().toUpperCase()
-                ? 1
-                : -1
-              : b[sortedColumn].toString().toUpperCase() >
-                a[sortedColumn].toString().toUpperCase()
-              ? 1
-              : -1;
-        }
-      } else {
-        return sortOrder ? 1 : 0;
-      }
-    },
-  );
-}
-
-export function compare(a: any, b: any, condition: Condition) {
-  let result = true;
-  try {
-    const conditionFunction = ConditionFunctions[condition];
-    if (conditionFunction) {
-      result = conditionFunction(a, b);
-    }
-  } catch (e) {
-    console.error(e);
-  }
-  return result;
-}
-
-export const reorderColumns = (
-  columns: Record<string, ColumnProperties>,
-  columnOrder: string[],
-) => {
-  const newColumnsInOrder: Record<string, ColumnProperties> = {};
-
-  columnOrder.forEach((id: string, index: number) => {
-    if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
-  });
-  const remaining = without(
-    Object.keys(columns),
-    ...Object.keys(newColumnsInOrder),
-  );
-  const len = Object.keys(newColumnsInOrder).length;
-  if (remaining && remaining.length > 0) {
-    remaining.forEach((id: string, index: number) => {
-      newColumnsInOrder[id] = { ...columns[id], index: len + index };
-    });
-  }
-  return newColumnsInOrder;
 };
 
 export function getDefaultColumnProperties(

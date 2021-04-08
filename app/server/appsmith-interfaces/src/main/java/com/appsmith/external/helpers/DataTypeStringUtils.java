@@ -5,17 +5,30 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import org.apache.commons.validator.routines.DateValidator;
+import org.bson.BsonInvalidOperationException;
+import org.bson.Document;
+import org.bson.json.JsonParseException;
 import reactor.core.Exceptions;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -25,9 +38,12 @@ public class DataTypeStringUtils {
 
     private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
 
-    private static  ObjectMapper objectMapper = new ObjectMapper();
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     private static JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+
+    private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
+            new Gson().getAdapter(JsonObject.class);
 
     public static class DateValidatorUsingDateFormat extends DateValidator {
         private String dateFormat;
@@ -60,6 +76,8 @@ public class DataTypeStringUtils {
         if (input.startsWith("[") && input.endsWith("]")) {
             String betweenBraces = input.substring(1, input.length() - 1);
             String trimmedInputBetweenBraces = betweenBraces.trim();
+            // In case of no values in the array, set this as null. Otherwise plugins like postgres and ms-sql
+            // would break while creating a SQL array.
             if (trimmedInputBetweenBraces.isEmpty()) {
                 return DataType.NULL;
             }
@@ -104,13 +122,13 @@ public class DataTypeStringUtils {
             return DataType.NULL;
         }
 
-        DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
-        if (dateValidator.isValid(input)) {
-            return DataType.DATE;
+        DateValidator timestampValidator = new DateValidatorUsingDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (timestampValidator.isValid(input)) {
+            return DataType.TIMESTAMP;
         }
 
-        DateValidator dateTimeValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd hh:mm:ss");
-        if (dateTimeValidator.isValid(input)) {
+        DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
+        if (dateValidator.isValid(input)) {
             return DataType.DATE;
         }
 
@@ -119,14 +137,23 @@ public class DataTypeStringUtils {
             return DataType.TIME;
         }
 
-        try {
-            objectMapper.readValue(input, Object.class);
+        try (JsonReader reader = new JsonReader(new StringReader(input))) {
+            strictGsonObjectAdapter.read(reader);
+            reader.hasNext(); // throws on multiple top level values
             return DataType.JSON_OBJECT;
-        } catch (IOException e) {
-            // Not a JSON object
+        } catch (IOException | JsonSyntaxException e) {
+            // Not a strict JSON object
         }
+
+        try {
+            Document.parse(input);
+            return DataType.BSON;
+        } catch (JsonParseException | BsonInvalidOperationException e) {
+            // Not BSON
+        }
+
         /**
-         * TODO : Timestamp, ASCII, Binary and Bytes Array
+         * TODO : ASCII, Binary and Bytes Array
          */
 
 //        // Check if unicode stream also gets handled as part of this since the destination SQL type is the same.
@@ -149,8 +176,15 @@ public class DataTypeStringUtils {
         return DataType.STRING;
     }
 
-    public static String jsonSmartReplacementQuestionWithValue(String input, String replacement) {
+    public static String jsonSmartReplacementQuestionWithValue(String input,
+                                                               String replacement,
+                                                               List<Map.Entry<String, String>> insertedParams) {
+
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+
+        Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
+        insertedParams.add(parameter);
+
         switch (dataType) {
             case INTEGER:
             case LONG:
@@ -177,7 +211,9 @@ public class DataTypeStringUtils {
             case JSON_OBJECT:
                 try {
                     JSONObject jsonObject = (JSONObject) parser.parse(replacement);
-                    input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonObject)));
+                    String jsonString = String.valueOf(objectMapper.writeValueAsString(jsonObject));
+                    // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
+                    input = questionPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(jsonString));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -188,6 +224,9 @@ public class DataTypeStringUtils {
                     );
                 }
                 break;
+            case BSON:
+                input = questionPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(replacement));
+                break;
             case DATE:
             case TIME:
             case ASCII:
@@ -196,7 +235,9 @@ public class DataTypeStringUtils {
             case STRING:
             default:
                 try {
-                    input = questionPattern.matcher(input).replaceFirst(objectMapper.writeValueAsString(replacement));
+                    replacement = escapeSpecialCharacters(replacement);
+                    String valueAsString = objectMapper.writeValueAsString(replacement);
+                    input = questionPattern.matcher(input).replaceFirst(valueAsString);
                 } catch (JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -209,6 +250,19 @@ public class DataTypeStringUtils {
         }
 
         return input;
+    }
+
+    private static String escapeSpecialCharacters(String raw) {
+        String escaped = raw;
+        escaped = escaped.replace("\\", "\\\\");
+        escaped = escaped.replace("\"", "\\\"");
+        escaped = escaped.replace("\b", "\\b");
+        escaped = escaped.replace("\f", "\\f");
+        escaped = escaped.replace("\n", "\\n");
+        escaped = escaped.replace("\r", "\\r");
+        escaped = escaped.replace("\t", "\\t");
+        // TODO: escape other non-printing characters using uXXXX notation
+        return escaped;
     }
 
     private static boolean isBinary(String input) {

@@ -14,5 +14,7 @@ public enum DataType {
     STRING,
     NULL,
     ARRAY,
-    JSON_OBJECT
+    JSON_OBJECT,
+    TIMESTAMP,
+    BSON
 }
