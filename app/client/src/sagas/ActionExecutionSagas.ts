@@ -570,6 +570,7 @@ export function* executeActionSaga(
         },
         state: {
           response: payload.body,
+          request: response.data.request,
         },
       });
       if (onSuccess) {
@@ -805,6 +806,7 @@ function* runActionSaga(
           },
           state: {
             response: payload.body,
+            request: response.data.request,
           },
         });
         Toaster.show({
