@@ -21,6 +21,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
@@ -193,9 +194,16 @@ public class MongoPlugin extends BasePlugin {
 
             return mongoOutputMono
                     .onErrorMap(
+                            MongoTimeoutException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                                    error.getMessage()
+                            )
+                    )
+                    .onErrorMap(
                             MongoCommandException.class,
                             error -> new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
                     )
@@ -273,10 +281,7 @@ public class MongoPlugin extends BasePlugin {
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            actionExecutionResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        actionExecutionResult.setBody(error.getMessage());
+                        actionExecutionResult.setErrorInfo(error);
                         return Mono.just(actionExecutionResult);
                     })
                     // Now set the request in the result to be returned back to the server

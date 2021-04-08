@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -229,6 +230,7 @@ public class MongoPluginTest {
                     assertFalse(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals("unknown top level operator: $is", result.getBody());
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -559,7 +561,10 @@ public class MongoPluginTest {
          * - Expect error here because testcontainer does not support SSL connection.
          */
         StepVerifier.create(executeMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getTitle(), result.getTitle());
+                })
                 .verifyComplete();
     }
 
