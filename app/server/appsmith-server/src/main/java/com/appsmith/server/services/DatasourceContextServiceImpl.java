@@ -4,6 +4,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.Plugin;

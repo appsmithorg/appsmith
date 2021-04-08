@@ -15,7 +15,7 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @Document
-public class DatasourceConfiguration {
+public class DatasourceConfiguration implements AppsmithDomain {
 
     Connection connection;
 

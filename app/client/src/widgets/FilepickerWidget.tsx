@@ -22,6 +22,7 @@ import shallowequal from "shallowequal";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import FileDataTypes from "./FileDataTypes";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -478,12 +479,6 @@ export interface FilePickerWidgetProps extends WidgetProps, WithMeta {
   fileDataType: FileDataTypes;
   isRequired?: boolean;
   uploadedFileUrlPaths?: string;
-}
-
-export enum FileDataTypes {
-  Base64 = "Base64",
-  Text = "Text",
-  Binary = "Binary",
 }
 
 export default FilePickerWidget;

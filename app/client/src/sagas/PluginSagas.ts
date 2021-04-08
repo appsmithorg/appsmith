@@ -25,6 +25,7 @@ import {
 import { GenericApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
+import { PluginType } from "entities/Action";
 
 function* fetchPluginsSaga() {
   try {
@@ -52,11 +53,18 @@ function* fetchPluginFormConfigsSaga() {
   try {
     const datasources: Datasource[] = yield select(getDatasources);
     const plugins: Plugin[] = yield select(getPlugins);
-    const pluginIds = new Set(
+    const pluginFormRequests = [];
+    // Add plugins of all the datasources of their org
+    const pluginIdFormsToFetch = new Set(
       datasources.map((datasource) => datasource.pluginId),
     );
-    const pluginFormRequests = [];
-    for (const id of pluginIds) {
+    // Add the api plugin id by default because it is the only type of action that
+    // can exist without a saved datasource
+    const apiPlugin = plugins.find((plugin) => plugin.type === PluginType.API);
+    if (apiPlugin) {
+      pluginIdFormsToFetch.add(apiPlugin.id);
+    }
+    for (const id of pluginIdFormsToFetch) {
       pluginFormRequests.push(yield call(PluginsApi.fetchFormConfig, id));
     }
     const pluginFormData: PluginFormPayload[] = [];
@@ -70,7 +78,7 @@ function* fetchPluginFormConfigsSaga() {
     const editorConfigs: Record<string, any[]> = {};
     const settingConfigs: Record<string, any[]> = {};
 
-    Array.from(pluginIds).forEach((pluginId, index) => {
+    Array.from(pluginIdFormsToFetch).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
       formConfigs[pluginId] = pluginFormData[index].form;
       if (plugin && !pluginFormData[index].editor) {
@@ -93,6 +101,7 @@ function* fetchPluginFormConfigsSaga() {
       }),
     );
   } catch (error) {
+    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR,
       payload: { error },
