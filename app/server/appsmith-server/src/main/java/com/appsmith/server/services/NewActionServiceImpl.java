@@ -38,6 +38,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +76,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_JSON;
 import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_RAW;
+import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_TABLE;
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -706,10 +708,16 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         List<String> dataTypes = new ArrayList<>();
 
-        // TODO: add handler for table
-//        Pattern pattern = Pattern.compile("[\\[][\\]]", Pattern.CASE_INSENSITIVE);
-//        Matcher matcher = pattern.matcher("Visit W3Schools!");
-//        boolean matchFound = matcher.find();
+        /*
+         * - Check if the returned data is a valid table - i.e. an array of simple json objects.
+         */
+        try {
+            objectMapper.readValue(result.getBody().toString(),
+                    new TypeReference<ArrayList<HashMap<String, String>>>() {});
+            dataTypes.add(RETURN_DATA_TYPE_TABLE);
+        } catch (JsonProcessingException e) {
+            /* Do nothing */
+        }
 
         /*
          * - Check if the returned data is a valid json.

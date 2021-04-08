@@ -433,7 +433,7 @@ public class ActionServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult);
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of("raw"));
     }
 
     @Test
@@ -461,7 +461,7 @@ public class ActionServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult);
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of("raw"));
     }
 
     @Test
@@ -486,7 +486,7 @@ public class ActionServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult);
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of("raw"));
     }
 
     @Test
@@ -755,7 +755,8 @@ public class ActionServiceTest {
                 .verifyComplete();
     }
 
-    private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration, ActionExecutionResult mockResult) {
+    private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration,
+                                        ActionExecutionResult mockResult, List<String> expectedReturnDataTypes) {
 
         Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
 
@@ -763,6 +764,7 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
+                    assertThat(result.getDataTypes()).isEqualTo(expectedReturnDataTypes);
                 })
                 .verifyComplete();
     }
@@ -1166,5 +1168,105 @@ public class ActionServiceTest {
                     ).isFalse();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteWithTableReturnType() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("[\n" +
+                "{\"name\": \"Richard\", \"profession\": \"medical\"},\n" +
+                "{\"name\": \"John\", \"profession\": \"self employed\"},\n" +
+                "{\"name\": \"Mary\", \"profession\": \"engineer\"}\n" +
+                "]");
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of("table", "json", "raw"));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteWithJsonReturnType() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("{\n" +
+                "  \"name\":\"John\",\n" +
+                "  \"age\":30,\n" +
+                "  \"cars\": {\n" +
+                "    \"car1\":\"Ford\",\n" +
+                "    \"car2\":\"BMW\",\n" +
+                "    \"car3\":\"Fiat\"\n" +
+                "  }\n" +
+                " }");
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of("json", "raw"));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteWithPreAssignedReturnType() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of("type1", "type2"));
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of("type1", "type2"));
     }
 }
