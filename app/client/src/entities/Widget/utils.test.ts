@@ -193,8 +193,8 @@ describe("getAllPathsFromPropertyConfig", () => {
       bindingPaths: {
         chartType: true,
         chartName: true,
-        "chartData[0].seriesName": true,
-        "chartData[0].data": true,
+        "chartData.0.seriesName": true,
+        "chartData.0.data": true,
         xAxisName: true,
         yAxisName: true,
         isVisible: true,
