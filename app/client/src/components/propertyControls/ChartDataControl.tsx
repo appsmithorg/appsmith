@@ -15,7 +15,6 @@ import {
 import { Size, Category } from "components/ads/Button";
 import { AllChartData, ChartData } from "widgets/ChartWidget";
 import { generateReactKey } from "utils/generators";
-import { getRandomIntExcludingExistingNumbers } from "utils/helpers";
 
 const Wrapper = styled.div`
   background-color: ${(props) =>
