@@ -570,7 +570,6 @@ public class DatasourceServiceTest {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
-                    assertThat(authentication.isEncrypted()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -604,7 +603,6 @@ public class DatasourceServiceTest {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isNull();
                     assertThat(authentication.getPassword()).isNull();
-                    assertThat(authentication.isEncrypted()).isNull();
                 })
                 .verifyComplete();
     }
@@ -654,7 +652,6 @@ public class DatasourceServiceTest {
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(encryptionService.encryptString(password)).isEqualTo(authentication.getPassword());
-                    assertThat(authentication.isEncrypted()).isTrue();
                 })
                 .verifyComplete();
     }

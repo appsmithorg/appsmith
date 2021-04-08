@@ -1,6 +1,5 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -10,8 +9,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -43,24 +40,4 @@ public class AuthenticationDTO implements AppsmithDomain {
 
     @JsonIgnore
     AuthenticationResponse authenticationResponse;
-
-    @JsonIgnore
-    public Map<String, String> getEncryptionFields() {
-        return Collections.emptyMap();
-    }
-
-    public void setEncryptionFields(Map<String, String> encryptedFields) {
-        // This is supposed to be overridden by implementations.
-    }
-
-    @JsonIgnore
-    public Set<String> getEmptyEncryptionFields() {
-        return Collections.emptySet();
-    }
-
-    @JsonIgnore
-    public Boolean isEncrypted() {
-        return this.isEncrypted;
-    }
-
 }
