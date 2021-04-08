@@ -35,7 +35,7 @@ import {
 } from "../utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import OverlayCommentsWrapper from "components/ads/Comments/OverlayCommentsWrapper";
+import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 
 /***

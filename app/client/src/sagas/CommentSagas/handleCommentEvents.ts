@@ -6,10 +6,9 @@ import {
   updateCommentThreadEvent,
 } from "actions/commentActions";
 import { COMMENT_EVENTS } from "constants/CommentConstants";
-import { reduceCommentsByRef } from "components/ads/Comments/utils";
+import { reduceCommentsByRef } from "comments/utils";
 
 export default function* handleCommentEvents(event: any) {
-  // TODO use constants here
   switch (event.type) {
     case COMMENT_EVENTS.SET_COMMENTS: {
       const comments = event.payload;
@@ -17,16 +16,16 @@ export default function* handleCommentEvents(event: any) {
       yield put(setCommentThreadsSuccess(payload));
       return;
     }
-    case "insert:commentThread": {
+    case COMMENT_EVENTS.INSERT_COMMENT_THREAD: {
       yield put(newCommentThreadEvent(event.payload[0]));
       return;
     }
-    case "insert:comment": {
+    case COMMENT_EVENTS.INSERT_COMMENT: {
       yield put(newCommentEvent(event.payload[0]));
       return;
     }
-    case "update:commentThread": {
-      yield put(updateCommentThreadEvent(event.payload[0].comment));
+    case COMMENT_EVENTS.UPDATE_COMMENT_THREAD: {
+      yield put(updateCommentThreadEvent(event.payload[0].thread));
       return;
     }
   }

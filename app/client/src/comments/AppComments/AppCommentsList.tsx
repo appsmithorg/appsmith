@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { commentThreadsSelector } from "../selectors";
-import CommentCard from "../CommentCard";
+import { commentThreadsSelector } from "../../selectors/commentsSelectors";
+import CommentCard from "../CommentCard/CommentCard";
 
 type Props = {
   commentThreadIds: Array<string>;
@@ -20,8 +20,11 @@ const CommentThread = ({ commentThreadId }: { commentThreadId: string }) => {
 const AppCommentsList = ({ commentThreadIds }: Props) => {
   return (
     <>
-      {commentThreadIds.map((commentThreadId: string, index) => (
-        <CommentThread key={index} commentThreadId={commentThreadId} />
+      {commentThreadIds.map((commentThreadId: string) => (
+        <CommentThread
+          key={commentThreadId}
+          commentThreadId={commentThreadId}
+        />
       ))}
     </>
   );

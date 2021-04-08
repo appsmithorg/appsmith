@@ -140,16 +140,16 @@ describe("Test comments reducer handles", () => {
 
     expect(state.applicationCommentThreadsByRef).toStrictEqual({
       ...prevState.applicationCommentThreadsByRef,
-      [newCommentThreadEventPayload.comment.applicationId]: {
+      [newCommentThreadEventPayload.thread.applicationId]: {
         ...prevState.applicationCommentThreadsByRef[
-          newCommentThreadEventPayload.comment.applicationId
+          newCommentThreadEventPayload.thread.applicationId
         ],
-        [newCommentThreadEventPayload.comment.refId]: Array.from(
+        [newCommentThreadEventPayload.thread.refId]: Array.from(
           new Set([
             ...((prevState.applicationCommentThreadsByRef[
-              newCommentThreadEventPayload.comment.applicationId
-            ] || {})[newCommentThreadEventPayload.comment.refId] || []),
-            newCommentThreadEventPayload.comment._id,
+              newCommentThreadEventPayload.thread.applicationId
+            ] || {})[newCommentThreadEventPayload.thread.refId] || []),
+            newCommentThreadEventPayload.thread._id,
           ]),
         ),
       },

@@ -1,7 +1,7 @@
 import React from "react";
 import userEvent from "@testing-library/user-event";
 import { unmountComponentAtNode } from "react-dom";
-import OverlayCommentsWrapper from "../OverlayCommentsWrapper";
+import OverlayCommentsWrapper from "../inlineComments/OverlayCommentsWrapper";
 import store from "store";
 import { render } from "test/testUtils";
 import { fetchApplicationCommentsRequest } from "actions/commentActions";

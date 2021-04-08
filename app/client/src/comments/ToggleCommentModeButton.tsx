@@ -9,7 +9,7 @@ import {
 import {
   commentModeSelector,
   areCommentsEnabledForUser as areCommentsEnabledForUserSelector,
-} from "./selectors";
+} from "../selectors/commentsSelectors";
 
 const StyledToggleCommentMode = styled.div<{ isCommentMode: boolean }>`
   display: flex;

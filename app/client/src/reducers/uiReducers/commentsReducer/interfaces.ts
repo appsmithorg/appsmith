@@ -1,4 +1,4 @@
-import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
+import { CommentThread } from "entities/Comments/CommentsInterfaces";
 
 export interface CommentsReduxState {
   commentThreadsMap: Record<string, CommentThread>;

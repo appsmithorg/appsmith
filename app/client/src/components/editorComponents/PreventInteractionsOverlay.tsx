@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { isCommentMode as isCommentModeSelector } from "components/ads/Comments/selectors";
+import { isCommentMode as isCommentModeSelector } from "selectors/commentsSelectors";
 
 const StyledPreventInteractionsOverlay = styled.div`
   position: absolute;

@@ -10,7 +10,7 @@ import {
   fork,
   select,
 } from "redux-saga/effects";
-import { updateLayout, getTestComments } from "components/ads/Comments/init";
+import { updateLayout, getTestComments } from "comments/init";
 import {
   COMMENT_EVENTS_CHANNEL,
   COMMENT_EVENTS,
@@ -28,7 +28,7 @@ import {
 import {
   transformPublishedCommentActionPayload,
   transformUnpublishCommentThreadToCreateNew,
-} from "components/ads/Comments/utils";
+} from "comments/utils";
 
 import CommentsApi from "api/CommentsAPI";
 
@@ -41,6 +41,11 @@ import {
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
+import {
+  AddCommentToCommentThreadRequestPayload,
+  CreateCommentThreadPayload,
+  CreateCommentThreadRequest,
+} from "entities/Comments/CommentsInterfaces";
 
 const { commentsTestModeEnabled } = getAppsmithConfigs();
 
@@ -71,14 +76,16 @@ function* watchCommentEvents() {
   }
 }
 
-function* createUnpublishedCommentThread(action: ReduxAction<any>) {
+function* createUnpublishedCommentThread(
+  action: ReduxAction<Partial<CreateCommentThreadRequest>>,
+) {
   const transformedPayload = transformPublishedCommentActionPayload(
     action.payload,
   );
   yield put(createUnpublishedCommentThreadSuccess(transformedPayload));
 }
 
-function* createCommentThread(action: ReduxAction<any>) {
+function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
   yield put(removeUnpublishedCommentThreads());
   const newCommentThreadPayload = transformUnpublishCommentThreadToCreateNew(
     action.payload,
@@ -103,7 +110,9 @@ function* createCommentThread(action: ReduxAction<any>) {
   }
 }
 
-function* addCommentToThread(action: ReduxAction<any>) {
+function* addCommentToThread(
+  action: ReduxAction<AddCommentToCommentThreadRequestPayload>,
+) {
   const { payload } = action;
   const { commentBody, commentThread, callback } = payload;
 

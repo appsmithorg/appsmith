@@ -1,11 +1,21 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { COMMENT_EVENTS_CHANNEL } from "constants/CommentConstants";
-import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
+import {
+  CommentThread,
+  CommentEventPayload,
+  CreateCommentThreadPayload,
+  CreateCommentThreadRequest,
+  AddCommentToCommentThreadSuccessPayload,
+  AddCommentToCommentThreadRequestPayload,
+  NewCommentEventPayload,
+  NewCommentThreadPayload,
+} from "entities/Comments/CommentsInterfaces";
 
 export const setCommentThreadsRequest = () => ({
   type: ReduxActionTypes.SET_COMMENT_THREADS_REQUEST,
 });
 
+// todo remove (for dev)
 export const setCommentThreadsSuccess = (payload: any) => ({
   type: ReduxActionTypes.SET_COMMENT_THREADS_SUCCESS,
   payload,
@@ -16,20 +26,21 @@ export const initCommentThreads = () => ({
   type: ReduxActionTypes.INIT_COMMENT_THREADS,
 });
 
-export const commentEvent = (payload: any) => ({
+export const commentEvent = (payload: CommentEventPayload) => ({
   type: COMMENT_EVENTS_CHANNEL,
   payload,
 });
 
-export const createUnpublishedCommentThreadRequest = (payload: {
-  refId: string;
-  position: any;
-}) => ({
+export const createUnpublishedCommentThreadRequest = (
+  payload: Partial<CreateCommentThreadRequest>,
+) => ({
   type: ReduxActionTypes.CREATE_UNPUBLISHED_COMMENT_THREAD_REQUEST,
   payload,
 });
 
-export const createUnpublishedCommentThreadSuccess = (payload: any) => ({
+export const createUnpublishedCommentThreadSuccess = (
+  payload: Record<string, Partial<CreateCommentThreadRequest>>,
+) => ({
   type: ReduxActionTypes.CREATE_UNPUBLISHED_COMMENT_THREAD_SUCCESS,
   payload,
 });
@@ -39,22 +50,28 @@ export const removeUnpublishedCommentThreads = () => ({
   payload: null,
 });
 
-export const createCommentThreadRequest = (payload: any) => ({
+export const createCommentThreadRequest = (
+  payload: CreateCommentThreadPayload,
+) => ({
   type: ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST,
   payload,
 });
 
-export const createCommentThreadSuccess = (payload: any) => ({
+export const createCommentThreadSuccess = (payload: CommentThread) => ({
   type: ReduxActionTypes.CREATE_COMMENT_THREAD_SUCCESS,
   payload,
 });
 
-export const addCommentToThreadRequest = (payload: any) => ({
+export const addCommentToThreadRequest = (
+  payload: AddCommentToCommentThreadRequestPayload,
+) => ({
   type: ReduxActionTypes.ADD_COMMENT_TO_THREAD_REQUEST,
   payload,
 });
 
-export const addCommentToThreadSuccess = (payload: any) => ({
+export const addCommentToThreadSuccess = (
+  payload: AddCommentToCommentThreadSuccessPayload,
+) => ({
   type: ReduxActionTypes.ADD_COMMENT_TO_THREAD_SUCCESS,
   payload,
 });
@@ -76,17 +93,19 @@ export const fetchApplicationCommentsRequest = () => ({
   type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
 });
 
-export const fetchApplicationCommentsSuccess = (payload: any) => ({
+export const fetchApplicationCommentsSuccess = (
+  payload: Array<CommentThread>,
+) => ({
   type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_SUCCESS,
   payload,
 });
 
-export const newCommentEvent = (payload: any) => ({
+export const newCommentEvent = (payload: NewCommentEventPayload) => ({
   type: ReduxActionTypes.NEW_COMMENT_EVENT,
   payload,
 });
 
-export const newCommentThreadEvent = (payload: any) => ({
+export const newCommentThreadEvent = (payload: NewCommentThreadPayload) => ({
   type: ReduxActionTypes.NEW_COMMENT_THREAD_EVENT,
   payload,
 });

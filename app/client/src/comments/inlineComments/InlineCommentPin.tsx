@@ -5,7 +5,7 @@ import InlineCommentThreadContainer from "./InlineCommentThreadContainer";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Popover } from "@blueprintjs/core";
 import { get } from "lodash";
-import { commentThreadsSelector } from "./selectors";
+import { commentThreadsSelector } from "../../selectors/commentsSelectors";
 import { Theme } from "constants/DefaultTheme";
 import { setIsCommentThreadVisible as setIsCommentThreadVisibleAction } from "actions/commentActions";
 
@@ -18,6 +18,7 @@ const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
 
 /**
  * Comment pins that toggle comment thread popover visibility on click
+ * They position themselves using position absolute based on top and left values (in percent)
  */
 const InlineCommentPin = withTheme(
   ({ commentThreadId, theme }: { commentThreadId: string; theme: Theme }) => {

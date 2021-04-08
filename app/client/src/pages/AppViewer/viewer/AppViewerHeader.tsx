@@ -34,7 +34,7 @@ import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
-import ToggleCommentModeButton from "components/ads/Comments/ToggleCommentModeButton";
+import ToggleCommentModeButton from "comments/ToggleCommentModeButton";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;

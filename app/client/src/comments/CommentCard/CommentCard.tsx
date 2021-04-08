@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
+import { Comment } from "entities/Comments/CommentsInterfaces";
 // import CommentContextMenu from "./CommentContextMenu";
 
 const StyledContainer = styled.div`
@@ -35,15 +36,19 @@ const UserName = styled.span`
   align-items: center;
 `;
 
-const CommentCard = ({ comment }: { comment: any }) => {
+const HeaderLeft = styled.div`
+  display: flex;
+`;
+
+const CommentCard = ({ comment }: { comment: Comment }) => {
   const { authorName, body } = comment;
   return (
     <StyledContainer data-cy={`t--comment-card-${comment.id}`}>
       <CommentHeader>
-        <div style={{ display: "flex" }}>
+        <HeaderLeft>
           <ProfileImage userName={authorName || ""} side={24} />
           <UserName>{authorName}</UserName>
-        </div>
+        </HeaderLeft>
         {/* <CommentContextMenu /> */}
       </CommentHeader>
       {/**TODO dangerously set inner html for highlighting mentions */}

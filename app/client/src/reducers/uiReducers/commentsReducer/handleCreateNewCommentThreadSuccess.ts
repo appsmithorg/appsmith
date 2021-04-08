@@ -11,34 +11,24 @@ const handleCreateNewCommentThreadSuccess = (
   action: ReduxAction<any>,
 ) => {
   const { refId, id, applicationId } = action.payload;
-  const applicationCommentThreadsByRef = get(
-    state,
-    `applicationCommentThreadsByRef.${applicationId}`,
-    {},
-  );
+
+  state.commentThreadsMap[id] = action.payload;
+
+  if (!state.applicationCommentThreadsByRef[applicationId]) {
+    state.applicationCommentThreadsByRef[applicationId] = {};
+  }
+
   const commentThreadsIdsForRefId = get(
-    applicationCommentThreadsByRef,
+    state.applicationCommentThreadsByRef[applicationId],
     refId,
     [],
   );
 
-  const calcApplicationCommentThreadsByRef = {
-    ...state.applicationCommentThreadsByRef,
-    [applicationId]: {
-      ...applicationCommentThreadsByRef,
-      [refId]: Array.from(new Set([...commentThreadsIdsForRefId, id])),
-    },
-  };
+  state.applicationCommentThreadsByRef[applicationId][refId] = Array.from(
+    new Set([...commentThreadsIdsForRefId, id]),
+  );
 
-  return {
-    ...state,
-    applicationCommentThreadsByRef: calcApplicationCommentThreadsByRef,
-    commentThreadsMap: {
-      ...state.commentThreadsMap,
-      [id]: action.payload,
-    },
-    creatingNewThread: false,
-  };
+  return { ...state };
 };
 
 export default handleCreateNewCommentThreadSuccess;

@@ -1,5 +1,5 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
-import { get, keyBy } from "lodash";
+import { keyBy } from "lodash";
 import { CommentsReduxState } from "./interfaces";
 
 /**
@@ -11,38 +11,27 @@ const handleFetchApplicationCommentsSuccess = (
   action: ReduxAction<any>,
 ) => {
   const applicationCommentsMap = keyBy(action.payload, "id");
+  if (action.payload.length === 0) return state;
+  const applicationId = action.payload[0].applicationId;
   const applicationCommentIdsByRefId = action.payload.reduce(
     (res: any, curr: any) => {
-      const applicationCommentIds = res[curr.applicationId] || {};
-      const applicationCommentIdsForRefId = get(
-        applicationCommentIds,
-        curr.refId,
-        [],
-      );
-
-      return {
-        [curr.applicationId]: {
-          ...applicationCommentIds,
-          [curr.refId]: Array.from(
-            new Set([...applicationCommentIdsForRefId, curr.id]),
-          ),
-        },
-      };
+      if (!res[curr.refId]) res[curr.refId] = [];
+      res[curr.refId].push(curr.id);
+      return res;
     },
     {},
   );
 
-  return {
-    ...state,
-    applicationCommentThreadsByRef: {
-      ...state.applicationCommentThreadsByRef,
-      ...applicationCommentIdsByRefId,
-    },
-    commentThreadsMap: {
-      ...state.commentThreadsMap,
-      ...applicationCommentsMap,
-    },
+  state.applicationCommentThreadsByRef[
+    applicationId
+  ] = applicationCommentIdsByRefId;
+
+  state.commentThreadsMap = {
+    ...state.commentThreadsMap,
+    ...applicationCommentsMap,
   };
+
+  return { ...state };
 };
 
 export default handleFetchApplicationCommentsSuccess;

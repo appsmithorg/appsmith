@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 
-import CommentCard from "./CommentCard";
-import AddCommentInput from "./AddCommentInput";
-import ResolveCommentButton from "./ResolveCommentButton";
+import CommentCard from "comments/CommentCard/CommentCard";
+import AddCommentInput from "comments/inlineComments/AddCommentInput";
+import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
 import {
   ThreadContainer,
   ThreadHeader,
@@ -19,7 +19,7 @@ import {
 
 import useIsScrolledToBottom from "utils/hooks/useIsScrolledToBottom";
 
-import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
+import { CommentThread } from "entities/Comments/CommentsInterfaces";
 
 /**
  * Comment thread popover

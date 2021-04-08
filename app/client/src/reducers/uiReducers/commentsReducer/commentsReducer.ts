@@ -9,12 +9,19 @@ import handleUpdateCommentThreadSuccess from "./handleUpdateCommentThreadSuccess
 import handleUpdateCommentThreadEvent from "./handleUpdateCommentThreadEvent";
 
 import { CommentsReduxState } from "./interfaces";
+import {
+  AddCommentToCommentThreadSuccessPayload,
+  CommentThread,
+  CreateCommentThreadRequest,
+  NewCommentEventPayload,
+  NewCommentThreadPayload,
+} from "entities/Comments/CommentsInterfaces";
 
 const initialState: CommentsReduxState = {
   commentThreadsMap: {},
   applicationCommentThreadsByRef: {},
   unpublishedCommentThreads: {},
-  isCommentMode: false,
+  isCommentMode: true,
   creatingNewThread: false,
   creatingNewThreadComment: false,
 };
@@ -24,6 +31,7 @@ const initialState: CommentsReduxState = {
  * They are handled separately
  */
 const commentsReducer = createReducer(initialState, {
+  // todo: remove (for dev)
   [ReduxActionTypes.SET_COMMENT_THREADS_SUCCESS]: (
     state: CommentsReduxState,
     action: ReduxAction<any>,
@@ -34,7 +42,7 @@ const commentsReducer = createReducer(initialState, {
   // Only one unpublished comment threads exists at a time
   [ReduxActionTypes.CREATE_UNPUBLISHED_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
-    action: ReduxAction<any>,
+    action: ReduxAction<Record<string, Partial<CreateCommentThreadRequest>>>,
   ) => ({
     ...state,
     unpublishedCommentThreads: action.payload,
@@ -47,13 +55,13 @@ const commentsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
-    action: ReduxAction<any>,
+    action: ReduxAction<CommentThread>,
   ) => {
     return handleCreateNewCommentThreadSuccess(state, action);
   },
   [ReduxActionTypes.ADD_COMMENT_TO_THREAD_SUCCESS]: (
     state: CommentsReduxState,
-    action: ReduxAction<any>,
+    action: ReduxAction<AddCommentToCommentThreadSuccessPayload>,
   ) => {
     return handleAddCommentToThreadSuccess(state, action);
   },
@@ -67,16 +75,14 @@ const commentsReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_IS_COMMENT_THREAD_VISIBLE]: (
     state: CommentsReduxState,
     action: ReduxAction<{ isVisible: boolean; commentThreadId: string }>,
-  ) => ({
-    ...state,
-    commentThreadsMap: {
-      ...state.commentThreadsMap,
-      [action.payload.commentThreadId]: {
-        ...state.commentThreadsMap[action.payload.commentThreadId],
-        isVisible: action.payload.isVisible,
-      },
-    },
-  }),
+  ) => {
+    state.commentThreadsMap[action.payload.commentThreadId] = {
+      ...state.commentThreadsMap[action.payload.commentThreadId],
+      isVisible: action.payload.isVisible,
+    };
+
+    return { ...state };
+  },
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
     state: CommentsReduxState,
   ) => ({
@@ -91,48 +97,43 @@ const commentsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.FETCH_APPLICATION_COMMENTS_SUCCESS]: (
     state: CommentsReduxState,
-    action: ReduxAction<any>,
+    action: ReduxAction<CommentThread>,
   ) => {
     return handleFetchApplicationCommentsSuccess(state, action);
   },
   [ReduxActionTypes.NEW_COMMENT_THREAD_EVENT]: (
     state: CommentsReduxState,
-    action: ReduxAction<any>,
+    action: ReduxAction<NewCommentThreadPayload>,
   ) => {
     return handleNewCommentThreadEvent(state, action);
   },
   [ReduxActionTypes.NEW_COMMENT_EVENT]: (
     state: CommentsReduxState,
-    action: ReduxAction<any>,
+    action: ReduxAction<NewCommentEventPayload>,
   ) => {
     const { comment } = action.payload;
     const threadInState = state.commentThreadsMap[comment.threadId];
-    if (!threadInState) return state;
+    if (!threadInState) return { ...state };
     const existingComments = get(threadInState, "comments", []);
-
-    return {
-      ...state,
-      commentThreadsMap: {
-        ...state.commentThreadsMap,
-        [comment.threadId]: {
-          ...threadInState,
-          comments: uniqBy(
-            [...existingComments, { ...comment, id: comment._id }],
-            "id",
-          ),
-        },
-      },
+    state.commentThreadsMap[comment.threadId] = {
+      ...threadInState,
+      comments: uniqBy(
+        [...existingComments, { ...comment, id: comment._id }],
+        "id",
+      ),
     };
+
+    return { ...state };
   },
   [ReduxActionTypes.UPDATE_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
-    action: ReduxAction<any>,
+    action: ReduxAction<CommentThread>,
   ) => {
     return handleUpdateCommentThreadSuccess(state, action);
   },
   [ReduxActionTypes.UPDATE_COMMENT_THREAD_EVENT]: (
     state: CommentsReduxState,
-    action: ReduxAction<any>,
+    action: ReduxAction<CommentThread>,
   ) => {
     return handleUpdateCommentThreadEvent(state, action);
   },

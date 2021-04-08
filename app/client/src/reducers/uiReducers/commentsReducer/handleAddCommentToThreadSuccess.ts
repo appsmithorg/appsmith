@@ -9,18 +9,12 @@ const handleAddCommentToThreadSuccess = (
   const { commentThreadId, comment } = action.payload;
   const commentThreadInStore = state.commentThreadsMap[commentThreadId];
   const existingComments = get(commentThreadInStore, "comments", []);
-
-  return {
-    ...state,
-    commentThreadsMap: {
-      ...state.commentThreadsMap,
-      [commentThreadId]: {
-        ...commentThreadInStore,
-        comments: Array.from(new Set([...existingComments, comment])),
-      },
-    },
-    creatingNewThreadComment: false,
+  state.commentThreadsMap[commentThreadId] = {
+    ...commentThreadInStore,
+    comments: Array.from(new Set([...existingComments, comment])),
   };
+
+  return { ...state };
 };
 
 export default handleAddCommentToThreadSuccess;

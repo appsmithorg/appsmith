@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import Picker from "emoji-picker-react";
+import React, { useCallback, useState } from "react";
+import Picker, { IEmojiData } from "emoji-picker-react";
 import { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Popover, Position } from "@blueprintjs/core";
@@ -11,14 +11,17 @@ const EmojiPicker = withTheme(
     onSelectEmoji,
   }: {
     theme: Theme;
-    onSelectEmoji: (e: any, emojiObject: any) => void;
+    onSelectEmoji: (e: React.MouseEvent, emojiObject: IEmojiData) => void;
   }) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleSelectEmoji = (e: any, emojiObject: any) => {
-      onSelectEmoji(e, emojiObject);
-      setIsOpen(false);
-    };
+    const handleSelectEmoji = useCallback(
+      (e: React.MouseEvent, emojiObject: IEmojiData) => {
+        onSelectEmoji(e, emojiObject);
+        setIsOpen(false);
+      },
+      [],
+    );
 
     return (
       <Popover

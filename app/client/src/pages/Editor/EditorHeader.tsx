@@ -50,7 +50,7 @@ import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ToggleCommentModeButton from "components/ads/Comments/ToggleCommentModeButton";
+import ToggleCommentModeButton from "comments/ToggleCommentModeButton";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;

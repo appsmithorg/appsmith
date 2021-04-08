@@ -26,7 +26,7 @@ import {
   retrySocketConnection,
 } from "actions/websocketActions";
 
-import { areCommentsEnabledForUser } from "components/ads/Comments/selectors";
+import { areCommentsEnabledForUser } from "selectors/commentsSelectors";
 
 function connect() {
   const socket = io();

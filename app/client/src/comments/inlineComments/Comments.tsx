@@ -1,23 +1,17 @@
 import React from "react";
-import { Classes } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
-import { createGlobalStyle } from "styled-components";
 import UnpublishedCommentThread from "./UnpublishedCommentThread";
 import InlineCommentPin from "./InlineCommentPin";
 import {
   refCommentThreadsSelector,
   unpublishedCommentThreadSelector,
-} from "./selectors";
+} from "../../selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-
-const CommentThreadPopoverStyles = createGlobalStyle`
-  .comment-thread .${Classes.POPOVER_CONTENT} {
-    border-radius: 0px;
-  }
-`;
 
 /**
  * Renders comment threads associated with a refId (for example widgetId)
+ * Comment thread pins (children) are absolutely positioned from the parent boundary
+ * Children set their position themselves
  */
 const Comments = ({ refId }: { refId: string }) => {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -30,7 +24,6 @@ const Comments = ({ refId }: { refId: string }) => {
 
   return (
     <>
-      <CommentThreadPopoverStyles />
       {Array.isArray(commentsThreadIds) &&
         commentsThreadIds.map((commentsThreadId: any) => (
           <InlineCommentPin

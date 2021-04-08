@@ -1,4 +1,4 @@
-import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
+import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { get } from "lodash";
 import { CommentsReduxState } from "./interfaces";
@@ -11,16 +11,14 @@ const handleUpdateCommentThreadSuccess = (
   const commentThreadInStore = state.commentThreadsMap[id];
   const existingComments = get(commentThreadInStore, "comments", []);
 
+  state.commentThreadsMap[id] = {
+    ...commentThreadInStore,
+    ...action.payload,
+    comments: existingComments,
+  };
+
   return {
     ...state,
-    commentThreadsMap: {
-      ...state.commentThreadsMap,
-      [id]: {
-        ...commentThreadInStore,
-        ...action.payload,
-        comments: existingComments,
-      },
-    },
     creatingNewThreadComment: false,
   };
 };

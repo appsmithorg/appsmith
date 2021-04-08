@@ -1,4 +1,4 @@
-import { CommentThread } from "components/ads/Comments/CommentsInterfaces";
+import { CommentThread } from "entities/Comments/CommentsInterfaces";
 
 // used for dev
 export const reduceCommentsByRef = (comments: any[]) => {

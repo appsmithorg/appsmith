@@ -26,24 +26,22 @@ const handleNewCommentThreadEvent = (
     [],
   ) as [];
 
+  state.commentThreadsMap[thread._id] = {
+    id: thread._id,
+    ...thread,
+    isVisible,
+    comments: [...existingComments, ...(thread.comments || [])],
+  };
+
+  if (!state.applicationCommentThreadsByRef[thread.applicationId]) {
+    state.applicationCommentThreadsByRef[thread.applicationId] = {};
+  }
+  state.applicationCommentThreadsByRef[thread.applicationId][
+    thread.refId
+  ] = Array.from(new Set([...threadsForRefId, thread._id]));
+
   return {
     ...state,
-    applicationCommentThreadsByRef: {
-      ...state.applicationCommentThreadsByRef,
-      [thread.applicationId]: {
-        ...applicationCommentIdsByRefId,
-        [thread.refId]: Array.from(new Set([...threadsForRefId, thread._id])),
-      },
-    },
-    commentThreadsMap: {
-      ...state.commentThreadsMap,
-      [thread._id]: {
-        id: thread._id,
-        ...thread,
-        isVisible,
-        comments: [...existingComments, ...(thread.comments || [])],
-      },
-    },
   };
 };
 

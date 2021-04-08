@@ -2,7 +2,10 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import AppCommentsList from "./AppCommentsList";
 import styled from "styled-components";
-import { commentModeSelector, applicationCommentsSelector } from "../selectors";
+import {
+  commentModeSelector,
+  applicationCommentsSelector,
+} from "../../selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Container = styled.div`

@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled, { withTheme } from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import EmojiPicker from "./EmojiPicker";
+import EmojiPicker from "components/ads/EmojiPicker";
 import MentionsInput, {
   Mention,
 } from "components/ads/MentionsInput/MentionsInput";
+import useAutoGrow from "utils/hooks/useAutoGrow";
 
 import { getAllUsers } from "selectors/organizationSelectors";
-import { useSpring } from "react-spring";
 
 const style = {
   input: {
@@ -83,13 +83,13 @@ const getInputHeight = (scrollHeight: number) => {
 };
 
 const AddCommentInput = withTheme(({ onSave, theme }: any) => {
+  // TODO: pass data as a prop
   const users = useSelector(getAllUsers) || [];
   const [value, setValue] = useState("");
-  const [springHeight, setHeight] = useSpring(() => ({ height: 24 }));
-  const onSaveComment = () => {
+  const onSaveComment = useCallback(() => {
     onSave(value);
     setValue("");
-  };
+  }, [value]);
 
   const handleSubmitOnKeyDown = useCallback(
     (
@@ -106,32 +106,15 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
     [value],
   );
 
-  const handleKeyDown = () => {
-    // TODO move to a separate hook
-    setTimeout(() => {
-      if (mentionsInputRef.current) {
-        // need to reset the height so that
-        // the input shrinks as well on removing lines
-        setHeight({ height: 0 });
-        setHeight({
-          height: getInputHeight(mentionsInputRef.current?.scrollHeight || 0),
-        });
-      }
-    });
-  };
-
   const handleEmojiClick = (e: any, emojiObject: any) => {
     setValue(`${value}${emojiObject.emoji}`);
   };
 
   const mentionsInputRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    mentionsInputRef.current?.addEventListener("keydown", handleKeyDown);
-    return () => {
-      mentionsInputRef.current?.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [mentionsInputRef.current]);
+  const height = useAutoGrow(mentionsInputRef.current);
+  const calcHeight = useMemo(() => {
+    return getInputHeight((height as number) || 0);
+  }, [height]);
 
   return (
     <>
@@ -149,12 +132,12 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
             style={{
               input: {
                 ...style.input,
-                height: springHeight.height,
+                height: calcHeight,
                 maxHeight: MAX_INPUT_HEIGHT,
               },
               highlighter: {
                 ...style.highlighter,
-                height: springHeight.height,
+                height: calcHeight,
                 maxHeight: MAX_INPUT_HEIGHT,
               },
             }}
