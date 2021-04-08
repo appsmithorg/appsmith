@@ -1,11 +1,12 @@
-import React from "react";
-import Dropdown from "components/ads/Dropdown";
+import React, { createRef } from "react";
+import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import TextInput from "components/ads/TextInput";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
+import { Classes } from "components/ads/common";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -21,6 +22,7 @@ const Wrapper = styled.div`
   .debugger-search {
     height: 28px;
     width: 160px;
+    padding-right: 25px;
   }
 
   .debugger-filter {
@@ -29,10 +31,29 @@ const Wrapper = styled.div`
     box-shadow: none;
     width: 100px;
   }
+
+  .input-container {
+    position: relative;
+    .${Classes.ICON} {
+      position: absolute;
+      right: 0;
+      top: 9px;
+    }
+  }
 `;
 
-const FilterHeader = (props: any) => {
+type FilterHeaderProps = {
+  options: DropdownOption[];
+  selected: DropdownOption;
+  onChange: (value: string) => void;
+  onSelect: (value?: string) => void;
+  defaultValue: string;
+  searchQuery: string;
+};
+
+const FilterHeader = (props: FilterHeaderProps) => {
   const dispatch = useDispatch();
+  const searchRef = createRef<HTMLInputElement>();
 
   return (
     <Wrapper>
@@ -41,12 +62,26 @@ const FilterHeader = (props: any) => {
         size={IconSize.XL}
         onClick={() => dispatch(clearLogs())}
       />
-      <TextInput
-        className="debugger-search"
-        placeholder="Filter"
-        onChange={props.onChange}
-        defaultValue={props.defaultValue}
-      />
+      <div className="input-container">
+        <TextInput
+          ref={searchRef}
+          className="debugger-search"
+          placeholder="Filter"
+          onChange={props.onChange}
+          defaultValue={props.defaultValue}
+        />
+        {props.searchQuery && (
+          <Icon
+            name="close"
+            onClick={() => {
+              if (searchRef.current) {
+                props.onChange("");
+                searchRef.current.value = "";
+              }
+            }}
+          />
+        )}
+      </div>
       <Dropdown
         className="debugger-filter"
         width={"100px"}

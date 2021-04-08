@@ -47,10 +47,11 @@ const DebbuggerLogs = (props: Props) => {
     <ContainerWrapper>
       <FilterHeader
         options={filterOptions}
-        selected={selectedFilter}
+        selected={selectedFilter || filterOptions[0]}
         onChange={setSearchQuery}
-        onSelect={(value: string) => setFilter(value)}
+        onSelect={(value) => value && setFilter(value)}
         defaultValue={props.searchQuery}
+        searchQuery={searchQuery}
       />
       <ListWrapper className="debugger-list">
         {logs.map((e, index) => {
