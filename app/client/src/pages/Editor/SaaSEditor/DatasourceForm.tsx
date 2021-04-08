@@ -7,7 +7,7 @@ import history from "utils/history";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
-import { reduxForm, InjectedFormProps, getFormValues } from "redux-form";
+import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import BackButton from "pages/Editor/DataSourceEditor/BackButton";
 import { RouteComponentProps } from "react-router";
@@ -17,9 +17,9 @@ import { getDatasource, getPluginImages } from "selectors/entitiesSelector";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import {
   deleteDatasource,
+  getOAuthAccessToken,
   redirectAuthorizationCode,
   updateDatasource,
-  getOAuthAccessToken,
 } from "actions/datasourceActions";
 import { historyPush } from "actions/utilActions";
 import { createNewApiName } from "utils/AppsmithUtils";
@@ -41,6 +41,7 @@ import {
 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { PluginType } from "entities/Action";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -205,7 +206,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             <StyledButton
               className="t--save-datasource"
               onClick={() =>
-                this.save(redirectAuthorizationCode(pageId, datasourceId))
+                this.save(
+                  redirectAuthorizationCode(
+                    pageId,
+                    datasourceId,
+                    PluginType.SAAS,
+                  ),
+                )
               }
               text="Save and Authorize"
               disabled={this.validate()}

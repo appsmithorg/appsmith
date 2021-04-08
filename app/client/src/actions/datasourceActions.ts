@@ -5,6 +5,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
+import { PluginType } from "entities/Action";
 
 export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
   return {
@@ -29,14 +30,14 @@ export const updateDatasource = (
 export const redirectAuthorizationCode = (
   pageId: string,
   datasourceId: string,
-  type?: string,
+  pluginType: PluginType,
 ) => {
   return {
     type: ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
     payload: {
       pageId,
       datasourceId,
-      type,
+      pluginType,
     },
   };
 };
