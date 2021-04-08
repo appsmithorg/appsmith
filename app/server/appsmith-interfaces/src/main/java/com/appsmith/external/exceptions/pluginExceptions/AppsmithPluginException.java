@@ -1,12 +1,13 @@
 package com.appsmith.external.exceptions.pluginExceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
+import com.appsmith.external.exceptions.BaseException;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class AppsmithPluginException extends Exception {
+public class AppsmithPluginException extends BaseException {
     private final AppsmithPluginError error;
     private final Object[] args;
 
@@ -33,4 +34,5 @@ public class AppsmithPluginException extends Exception {
         return this.error.getErrorAction();
     }
 
+    public String getTitle() { return this.error.getTitle(); }
 }
