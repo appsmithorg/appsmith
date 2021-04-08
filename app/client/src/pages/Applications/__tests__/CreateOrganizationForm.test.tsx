@@ -28,13 +28,6 @@ describe("Applications", () => {
       userEvent.click(createOrgLink);
     });
     const orgName = CreateOrganisationMockResponse.data.name;
-    const form = await findByDataCy("create-organisation-form");
-    const orgNameField = await findByDataCy("create-organisation-form__name");
-
-    act(() => {
-      userEvent.type(orgNameField, orgName);
-      fireEvent.submit(form);
-    });
 
     await findByText(orgName);
 
