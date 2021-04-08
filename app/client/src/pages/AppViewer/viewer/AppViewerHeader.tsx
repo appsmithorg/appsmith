@@ -32,7 +32,6 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import ToggleCommentModeButton from "comments/ToggleCommentModeButton";
 import getAppViewerHeaderCTA from "./getAppViewerHeaderCTA";
 
