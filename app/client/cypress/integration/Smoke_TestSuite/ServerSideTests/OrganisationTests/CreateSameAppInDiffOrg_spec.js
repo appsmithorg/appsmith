@@ -10,7 +10,8 @@ describe("Create app same name in different org", function() {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
-      cy.createOrg(orgid);
+      cy.createOrg();
+      cy.renameRandomOrg(orgid);
       cy.CreateAppForOrg(orgid, appid);
       cy.NavigateToHome();
       cy.LogOut();
@@ -27,7 +28,8 @@ describe("Create app same name in different org", function() {
     );
     cy.reload();
     const newOrgName = orgid + "1";
-    cy.createOrg(newOrgName);
+    cy.createOrg();
+    cy.renameRandomOrg(newOrgName);
     cy.CreateAppForOrg(newOrgName, appid);
   });
 });

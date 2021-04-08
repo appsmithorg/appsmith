@@ -12,7 +12,8 @@ describe("Create new org and share with a user", function() {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
-      cy.createOrg(orgid);
+      cy.createOrg();
+      cy.renameRandomOrg(orgid);
       cy.CheckShareIcon(orgid, 1);
       cy.inviteUserForOrg(
         orgid,

@@ -38,7 +38,6 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 // import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
-import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
 import {
   DropdownOnSelectActions,
@@ -321,15 +320,6 @@ const textIconStyles = (props: { color: string; hover: string }) => {
   `;
 };
 
-const NewWorkspaceWrapper = styled.div`
-  ${(props) => {
-    return `${textIconStyles({
-      color: props.theme.colors.applications.textColor,
-      hover: props.theme.colors.applications.hover.textColor,
-    })}`;
-  }}
-`;
-
 const ApplicationAddCardWrapper = styled(Card)`
   display: flex;
   flex-direction: column;
@@ -394,19 +384,9 @@ const testSubmitCreateOrganizationForm = async (data: any, dispatch: any) => {
 };
 function LeftPane() {
   const dispatch = useDispatch();
-  const theme = useContext(ThemeContext);
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const NewWorkspaceTrigger = (
-    <NewWorkspaceWrapper>
-      <MenuItem
-        className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
-        key={"new-workspace"}
-        text={"Create Organization"}
-        icon="plus"
-      />
-    </NewWorkspaceWrapper>
-  );
+
   let userOrgs;
   if (!isFetchingApplications) {
     userOrgs = fetchedUserOrgs;
@@ -418,19 +398,6 @@ function LeftPane() {
   const urlHash = location.hash.slice(1);
 
   const initiateOnboarding = useIntiateOnboarding();
-
-  const createNewOrganization = (organizationName: string, orgId: string) => {
-    const color = getRandomPaletteColor(theme.colors.appCardColors);
-    const icon =
-      AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
-
-    return dispatch({
-      type: ReduxActionTypes.CREATE_ORGANIZATION_INIT,
-      payload: {
-        name: organizationName,
-      },
-    });
-  };
 
   return (
     <LeftPaneWrapper>
@@ -665,7 +632,7 @@ const ApplicationsSection = (props: any) => {
                     orgSlug: organization.slug,
                   })}
                   position={Position.BOTTOM_RIGHT}
-                  className="t--org-name"
+                  cypressSelector="t--org-name"
                   disabled={!hasManageOrgPermissions || isFetchingApplications}
                 >
                   <OrgRename
@@ -673,7 +640,7 @@ const ApplicationsSection = (props: any) => {
                     editInteractionKind={EditInteractionKind.SINGLE}
                     placeholder="Workspace name"
                     hideEditIcon={false}
-                    cypressSelector="t--org-rename-input"
+                    className="t--org-rename-input"
                     isInvalid={(value: string) => {
                       return notEmptyValidator(value).message;
                     }}

@@ -13,7 +13,8 @@ describe("Org Settings validation spec", function() {
         uid;
       localStorage.setItem("OrgName", orgid);
       // create org with long name
-      cy.createOrg(orgid);
+      cy.createOrg();
+      cy.renameRandomOrg(orgid);
       cy.navigateToOrgSettings(orgid);
       // checking parent's(<a></a>) since the child(<span>) inherits css from it
       cy.get(homePage.orgHeaderName)
