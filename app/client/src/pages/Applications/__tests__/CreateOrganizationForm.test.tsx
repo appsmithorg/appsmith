@@ -1,7 +1,7 @@
 import React from "react";
 import userEvent from "@testing-library/user-event";
 import { unmountComponentAtNode } from "react-dom";
-import { render, fireEvent } from "test/testUtils";
+import { render } from "test/testUtils";
 import { act } from "react-dom/test-utils";
 import CreateOrganisationMockResponse from "mockResponses/CreateOrganisationMockResponse.json";
 import Applications from "../index";
@@ -14,7 +14,7 @@ describe("Applications", () => {
     document.body.appendChild(container);
   });
   it("create a new organisation", async (done) => {
-    const { findByDataCy, findByText } = render(
+    const { findByText } = render(
       <Applications
         deleteApplication={() => {
           console.log("Delete application");
