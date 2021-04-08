@@ -4,6 +4,7 @@ import { unmountComponentAtNode } from "react-dom";
 import { render } from "test/testUtils";
 import { act } from "react-dom/test-utils";
 import CreateOrganisationMockResponse from "mockResponses/CreateOrganisationMockResponse.json";
+
 import Applications from "../index";
 
 let container: any = null;
@@ -33,6 +34,39 @@ describe("Applications", () => {
 
     await done();
   });
+
+  it("checks that create new application is visible", async (done) => {
+    const { findAllByText } = render(
+      <Applications
+        deleteApplication={() => {
+          console.log("Delete application");
+        }}
+      />,
+    );
+
+    const orgs = await findAllByText("Create New");
+    expect(orgs.length).toEqual(2);
+    await done();
+  });
+
+  it("checks that share button is clickable and opens a modal", async (done) => {
+    const { findAllByText, findByText } = render(
+      <Applications
+        deleteApplication={() => {
+          console.log("Delete application");
+        }}
+      />,
+    );
+
+    const shares = await findAllByText("Share");
+    act(() => {
+      userEvent.click(shares[0]);
+    });
+
+    await findByText("Invite Users to b1's apps");
+    await done();
+  });
+
   afterEach(() => {
     // cleanup on exiting
     unmountComponentAtNode(container);
