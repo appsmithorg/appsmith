@@ -10,8 +10,10 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -72,9 +74,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_JSON;
-import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_RAW;
-import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_TABLE;
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -704,7 +703,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return result;
         }
 
-        List<String> dataTypes = new ArrayList<>();
+        List<ParsedDataType> dataTypes = new ArrayList<>();
 
         /*
          * - Check if the returned data is a valid table - i.e. an array of simple json objects.
@@ -712,7 +711,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         try {
             objectMapper.readValue(result.getBody().toString(),
                     new TypeReference<ArrayList<HashMap<String, String>>>() {});
-            dataTypes.add(RETURN_DATA_TYPE_TABLE);
+            dataTypes.add(new ParsedDataType(ActionResultDataType.TABLE));
         } catch (JsonProcessingException e) {
             /* Do nothing */
         }
@@ -722,7 +721,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
          */
         try {
             objectMapper.readTree(result.getBody().toString());
-            dataTypes.add(RETURN_DATA_TYPE_JSON);
+            dataTypes.add(new ParsedDataType(ActionResultDataType.JSON));
         } catch (JsonProcessingException e) {
             /* Do nothing */
         }
@@ -730,7 +729,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         /*
          * - All return data types can be categorized as raw by default.
          */
-        dataTypes.add(RETURN_DATA_TYPE_RAW);
+        dataTypes.add(new ParsedDataType(ActionResultDataType.RAW));
 
         result.setDataTypes(dataTypes);
 

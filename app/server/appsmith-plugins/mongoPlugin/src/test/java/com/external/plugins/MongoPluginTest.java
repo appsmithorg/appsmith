@@ -4,12 +4,14 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -639,7 +641,10 @@ public class MongoPluginTest {
                     assertEquals(parameterEntry.getKey(),"10");
                     assertEquals(parameterEntry.getValue(), "INTEGER");
 
-                    assertEquals(List.of("json", "raw"), result.getDataTypes());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }

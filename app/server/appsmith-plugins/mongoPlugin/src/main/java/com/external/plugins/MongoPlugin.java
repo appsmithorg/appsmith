@@ -9,12 +9,14 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
@@ -60,8 +62,6 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_JSON;
-import static com.appsmith.external.constants.ActionConstants.RETURN_DATA_TYPE_RAW;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -211,7 +211,10 @@ public class MongoPlugin extends BasePlugin {
 
                             if (BigInteger.ONE.equals(status)) {
                                 result.setIsExecutionSuccess(true);
-                                result.setDataTypes(List.of(RETURN_DATA_TYPE_JSON, RETURN_DATA_TYPE_RAW));
+                                result.setDataTypes(List.of(
+                                        new ParsedDataType(ActionResultDataType.JSON),
+                                        new ParsedDataType(ActionResultDataType.RAW)
+                                ));
 
                                 /**
                                  * For the `findAndModify` command, we don't get the count of modifications made. Instead,

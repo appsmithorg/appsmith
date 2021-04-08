@@ -28,5 +28,5 @@ public class ActionExecutionResult {
 
     ActionExecutionRequest request;
 
-    List<String> dataTypes;
+    List<ParsedDataType> dataTypes;
 }
