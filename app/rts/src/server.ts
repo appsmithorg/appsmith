@@ -24,6 +24,12 @@ const ROOMS = {}
 
 main()
 
+interface Policy {
+	permission: string
+	users: string[]
+	groups: string[]
+}
+
 function main() {
 	const app = express()
 	const server = new http.Server(app)
@@ -103,6 +109,7 @@ async function tryAuth(socket, cookie) {
 	const email = response.data.data.user.email
 	ROOMS[email] = []
 	socket.join("email:" + email)
+	console.log("A socket joined email:" + email)
 
 	/*for (const org of response.data.data.organizationApplications) {
 		for (const app of org.applications) {
@@ -132,39 +139,29 @@ async function watchMongoDB(io) {
 		policies: Policy[]
 	}
 
-	interface Policy {
-		permission: string
-		users: string[]
-		groups: string[]
-	}
-
 	const threadCollection: mongodb.Collection<CommentThread> = db.collection("commentThread")
 
 	const commentChangeStream = db.collection("comment").watch();
 	commentChangeStream.on("change", async (event: mongodb.ChangeEventCR<Comment>) => {
-		console.log("change comment", event)
+		console.log("comment event", event)
 		const comment: Comment = event.fullDocument
 		const { applicationId }: CommentThread = await threadCollection.findOne(
 			{ _id: new ObjectId(comment.threadId) },
 			{ projection: { applicationId: 1 } },
 		)
-		const eventName = event.operationType + ":" + event.ns.coll
 
 		let target = io
 		let shouldEmit = false
 
-		for (const policy of comment.policies) {
-			if (policy.permission === "read:comments") {
-				for (const email of policy.users) {
-					shouldEmit = true
-					console.log("Emitting comment to email", email)
-					target = target.to("email:" + email)
-				}
-				break
-			}
+		for (const email of findPolicyEmails(comment.policies, "read:comments")) {
+			shouldEmit = true
+			console.log("Emitting comment to email", email)
+			target = target.to("email:" + email)
 		}
 
 		if (shouldEmit) {
+			const eventName = event.operationType + ":" + event.ns.coll
+			console.log("Emitting", eventName)
 			target.emit(eventName, { comment })
 		}
 	})
@@ -178,7 +175,6 @@ async function watchMongoDB(io) {
 					"updatedAt",
 					"deletedAt",
 					"deleted",
-					"policies",
 					"_class",
 				].map(f => "fullDocument." + f)
 			},
@@ -187,17 +183,28 @@ async function watchMongoDB(io) {
 	);
 
 	threadChangeStream.on("change", (event: mongodb.ChangeEventCR) => {
-		console.log("change thread", event)
-		const comment = event.fullDocument
-		if (comment == null) {
+		console.log("thread event", event)
+		const thread = event.fullDocument
+		if (thread == null) {
 			// This happens when `event.operationType === "drop"`, when a comment is deleted.
 			console.error("Null document recieved for comment change event", event)
 			return
 		}
-		const roomName = "application:" + comment.applicationId
-		const eventName = event.operationType + ":" + event.ns.coll
-		console.log("Emitting to room '" + roomName + "', event '" + eventName + "'.", comment)
-		io.to(roomName).emit(eventName, { comment })
+
+		let target = io
+		let shouldEmit = false
+
+		for (const email of findPolicyEmails(thread.policies, "read:commentThreads")) {
+			shouldEmit = true
+			console.log("Emitting thread to email", email)
+			target = target.to("email:" + email)
+		}
+
+		if (shouldEmit) {
+			const eventName = event.operationType + ":" + event.ns.coll
+			console.log("Emitting", eventName)
+			target.emit(eventName, { thread })
+		}
 	})
 
 	process.on("exit", () => {
@@ -207,4 +214,18 @@ async function watchMongoDB(io) {
 	})
 
 	console.log("Watching MongoDB")
+}
+
+function findPolicyEmails(policies: Policy[], permission: string): string[] {
+	const emails: string[] = []
+	for (const policy of policies) {
+		if (policy.permission === permission) {
+			for (const email of policy.users) {
+				console.log("Emitting comment to email", email)
+				emails.push(email)
+			}
+			break
+		}
+	}
+	return emails
 }
