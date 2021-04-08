@@ -377,13 +377,15 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
 
           set(transformedChartData, `${key}`, {
             ...seriesData,
-            data: validatedResponse.transformed,
+            data: validatedResponse.parsed,
           });
         }
       } catch (e) {
         console.error(e);
       }
     });
+
+    console.log({ parsedChartData, transformedChartData });
 
     if (!isValidChart) {
       return {
