@@ -1,6 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -156,6 +156,7 @@ public class RedisPluginTest {
                 .assertNext(result -> {
                     Assert.assertNotNull(result);
                     Assert.assertFalse(result.getIsExecutionSuccess());
+                    Assert.assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -175,6 +176,7 @@ public class RedisPluginTest {
                 .assertNext(result -> {
                     Assert.assertNotNull(result);
                     Assert.assertFalse(result.getIsExecutionSuccess());
+                    Assert.assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
