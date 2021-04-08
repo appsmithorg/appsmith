@@ -86,6 +86,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     // We default the origin header to the production deployment of the client's URL
     private static final String DEFAULT_ORIGIN_HEADER = "https://app.appsmith.com";
 
+    private enum typeOfEmail {welcome, passwordReset, inviteExistingUserToOrg, inviteNewUserToOrg};
+
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
@@ -219,7 +221,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             URLEncoder.encode(email, StandardCharsets.UTF_8)
                     );
 
-                    Map<String, String> params = Map.of("resetUrl", resetUrl);
+                    Map<String, String> params = getEmailParams(null, null, null, resetUrl, false, typeOfEmail.passwordReset);
                     return emailSender.sendMail(
                             email,
                             "Appsmith Password Reset",
@@ -492,9 +494,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     }
 
     public Mono<User> sendWelcomeEmail(User user, String originHeader) {
-        Map<String, String> params = new HashMap<>();
-        params.put("firstName", user.getName());
-        params.put("appsmithLink", originHeader);
+        Map<String, String> params = getEmailParams(null, null, user, originHeader, true, typeOfEmail.welcome);
         return emailSender
                 .sendMail(user.getEmail(), "Welcome to Appsmith", WELCOME_USER_EMAIL_TEMPLATE, params)
                 .thenReturn(user)
@@ -536,6 +536,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * 2. User exists :
      * a. Add user to the organization
      * b. Add organization to the user
+     *
      * @return Publishes the invited users, after being saved with the new organization ID.
      */
     @Override
@@ -557,7 +558,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         List<String> usernames = new ArrayList<>();
         for (String username : originalUsernames) {
-             usernames.add(username.toLowerCase());
+            usernames.add(username.toLowerCase());
         }
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
@@ -589,13 +590,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     User currentUser = tuple.getT3();
 
                     // Email template parameters initialization below.
-                    Map<String, String> params = new HashMap<>();
-                    if (!StringUtils.isEmpty(currentUser.getName())) {
-                        params.put("Inviter_First_Name", currentUser.getName());
-                    } else {
-                        params.put("Inviter_First_Name", currentUser.getEmail());
-                    }
-                    params.put("inviter_org_name", organization.getName());
+                    Map<String, String> params = getEmailParams(organization, currentUser, null, originHeader, false, typeOfEmail.inviteExistingUserToOrg);
 
                     return repository.findByEmail(username)
                             .flatMap(existingUser -> {
@@ -603,7 +598,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                 // to a new organization
                                 log.debug("Going to send email to user {} informing that the user has been added to new organization {}",
                                         existingUser.getEmail(), organization.getName());
-                                params.put("inviteUrl", originHeader + "/applications#" + organization.getSlug());
                                 Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
                                         "Appsmith: You have been added to a new organization",
                                         USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
@@ -740,6 +734,38 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                         ? repository.findByEmail(user.getEmail())
                                         : sessionUserService.refreshCurrentUser(exchange))
                 );
+    }
+
+    public Map<String, String> getEmailParams(Organization organization,
+                                              User inviterUser,
+                                              User invitedUser,
+                                              String originHeader,
+                                              boolean isNewUser,
+                                              typeOfEmail emailType) {
+        Map<String, String> params = new HashMap<>();
+        if (inviterUser != null) {
+            if (!StringUtils.isEmpty(inviterUser.getName())) {
+                params.put("Inviter_First_Name", inviterUser.getName());
+            } else {
+                params.put("Inviter_First_Name", inviterUser.getEmail());
+            }
+        }
+        if (organization != null) {
+            params.put("inviter_org_name", organization.getName());
+        }
+        if (isNewUser) {
+            if (emailType == typeOfEmail.welcome) {
+                params.put("firstName", invitedUser.getName());
+            }
+            params.put("inviteUrl", originHeader);
+        } else {
+            if (emailType == typeOfEmail.passwordReset) {
+                params = Map.of("resetUrl", originHeader);
+            } else if (emailType == typeOfEmail.inviteExistingUserToOrg) {
+                params.put("inviteUrl", originHeader + "/applications#" + organization.getSlug());
+            }
+        }
+        return params;
     }
 
 }
