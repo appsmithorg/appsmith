@@ -183,7 +183,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       widgetId: "x1naz9is2b",
       dynamicBindingPathList: [
         {
-          key: "chartData[0].data",
+          key: "chartData.0.data",
         },
       ],
     };

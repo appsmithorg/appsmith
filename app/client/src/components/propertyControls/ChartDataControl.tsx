@@ -1,5 +1,5 @@
 import React from "react";
-import _, { get } from "lodash";
+import _, { get, isString, set } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
@@ -14,6 +14,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Size, Category } from "components/ads/Button";
 import { AllChartData, ChartData } from "widgets/ChartWidget";
+import { generateReactKey } from "utils/generators";
 import { getRandomIntExcludingExistingNumbers } from "utils/helpers";
 
 const Wrapper = styled.div`
@@ -76,6 +77,13 @@ const StyledLabel = styled.label`
 const Box = styled.div`
   height: 16px;
 `;
+
+type ControlValidations = {
+  [key: string]: {
+    isValid: boolean;
+    validationMessage: string;
+  };
+};
 
 type RenderComponentProps = {
   index: string;
@@ -175,32 +183,45 @@ function DataControlComponent(props: RenderComponentProps) {
 }
 
 class ChartDataControl extends BaseControl<ControlProps> {
-  getValidations = (message: string, isValid: boolean, len: number) => {
-    const validations: Array<{
-      isValid: boolean;
-      validationMessage: string;
-    }> = [];
-    let index = -1;
-    let validationMessage = "";
+  /**
+   * creating objects of validations
+   * {
+   *  'some-random-string':  {
+   *      isValid: false | true,
+   *      validationMessage: messageValue,
+   *    }
+   * }
+   * @param message
+   * @param isValid
+   * @param keys
+   * @returns
+   */
+  getValidations = (message: string, isValid: boolean, keys: string[]) => {
+    const validations: ControlValidations = {};
+    const messages = message.split("##").filter(Boolean);
 
-    if (message.indexOf("##") !== -1) {
-      const messages = message.split("##");
-      index = Number(messages[0]);
-      validationMessage = messages[1];
-    }
-    for (let i = 0; i < len; i++) {
-      if (i === index) {
-        validations.push({
-          isValid: false,
-          validationMessage: validationMessage,
-        });
-      } else {
-        validations.push({
+    // setting error validation message for existing error validations
+    messages.map((key: string) => {
+      const messageSplit = key.split("==");
+      const messageKey = messageSplit[0];
+      const messageValue = messageSplit[1];
+
+      set(validations, `${messageKey}`, {
+        isValid: false,
+        validationMessage: messageValue,
+      });
+    });
+
+    // setting validation message for right values
+    keys
+      .filter((key) => key in validations === false)
+      .map((key: string) => {
+        set(validations, `${key}`, {
           isValid: true,
           validationMessage: "",
         });
-      }
-    }
+      });
+
     return validations;
   };
 
@@ -212,30 +233,33 @@ class ChartDataControl extends BaseControl<ControlProps> {
     const dataLength = Object.keys(chartData).length;
     const { validationMessage, isValid } = this.props;
 
-    const validations: Array<{
-      isValid: boolean;
-      validationMessage: string;
-    }> = this.getValidations(validationMessage || "", isValid, dataLength);
+    const validations: ControlValidations = this.getValidations(
+      isString(validationMessage) ? validationMessage : "",
+      isValid,
+      Object.keys(chartData),
+    );
 
     const evaluatedValue = this.props.evaluatedValue;
+    const firstKey = Object.keys(chartData)[0] as string;
 
     if (this.props.widgetProperties.chartType === "PIE_CHART") {
       const data = dataLength
-        ? get(chartData, "0")
+        ? get(chartData, `${firstKey}`)
         : {
             seriesName: "",
             data: [],
           };
+
       return (
         <DataControlComponent
-          index={"0"}
+          index={firstKey}
           item={data}
           length={1}
           deleteOption={this.deleteOption}
           updateOption={this.updateOption}
-          isValid={validations[0].isValid}
-          validationMessage={validations[0].validationMessage}
-          evaluated={evaluatedValue[0]}
+          isValid={get(validations, `${firstKey}`).isValid}
+          validationMessage={get(validations, `${firstKey}`).validationMessage}
+          evaluated={get(evaluatedValue, `${firstKey}`)}
           theme={this.props.theme}
         />
       );
@@ -246,8 +270,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
           {Object.keys(chartData).map((key: string, index: number) => {
             const data = get(chartData, `${key}`);
 
-            console.log({ data });
-
             return (
               <DataControlComponent
                 key={key}
@@ -256,11 +278,8 @@ class ChartDataControl extends BaseControl<ControlProps> {
                 length={dataLength}
                 deleteOption={this.deleteOption}
                 updateOption={this.updateOption}
-                isValid={get(validations, `${index}.isValid`)}
-                validationMessage={get(
-                  validations,
-                  `${index}.validationMessage`,
-                )}
+                isValid={get(validations, `${key}`).isValid}
+                validationMessage={get(validations, `${key}`).validationMessage}
                 evaluated={get(evaluatedValue, `${key}`)}
                 theme={this.props.theme}
               />
@@ -300,19 +319,9 @@ class ChartDataControl extends BaseControl<ControlProps> {
    * it adds new series data object in the chartData
    */
   addOption = () => {
-    const chartData: Array<{
-      seriesName: string;
-      data: string;
-    }> = this.props.propertyValue;
+    const randomString = generateReactKey();
 
-    const dataLength = Object.keys(chartData).length;
-    const randomNumber = getRandomIntExcludingExistingNumbers(
-      0,
-      dataLength,
-      Object.keys(chartData).map(parseInt),
-    );
-
-    this.updateProperty(`${this.props.propertyName}.${randomNumber}`, {
+    this.updateProperty(`${this.props.propertyName}.${randomString}`, {
       seriesName: "",
       data: JSON.stringify([{ x: "label", y: 50 }]),
     });

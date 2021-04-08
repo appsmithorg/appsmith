@@ -385,6 +385,7 @@ export default class DataTreeEvaluator {
             evalPropertyValue = unEvalPropertyValue;
           }
 
+          // debugger;
           if (isWidget(entity)) {
             const widgetEntity = entity;
             // TODO fix for nested properties

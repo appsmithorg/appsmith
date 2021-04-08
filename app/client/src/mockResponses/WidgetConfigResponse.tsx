@@ -374,7 +374,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       allowHorizontalScroll: false,
       version: 1,
       chartData: {
-        0: {
+        [generateReactKey()]: {
           seriesName: "Sales",
           data: [
             {

@@ -21,7 +21,7 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { isString } from "lodash";
+import { isString, set } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
@@ -354,6 +354,42 @@ function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
   return currentDSL;
 }
 
+/**
+ * changes chartData which we were using as array. now it will be a object
+ *
+ *
+ * @param currentDSL
+ * @returns
+ */
+function migrateChartDataFromArrayToObject(
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (children.type === WidgetTypes.CHART_WIDGET) {
+      if (Array.isArray(currentDSL.chartData)) {
+        const newChartData = {};
+
+        currentDSL.chartData.map((datum: any) => {
+          set(newChartData, `${generateReactKey()}`, datum);
+        });
+
+        children.chartData = newChartData;
+      }
+    } else if (
+      children.type === WidgetTypes.CONTAINER_WIDGET ||
+      children.type === WidgetTypes.FORM_WIDGET ||
+      children.type === WidgetTypes.CANVAS_WIDGET ||
+      children.type === WidgetTypes.TABS_WIDGET
+    ) {
+      children = migrateChartDataFromArrayToObject(children);
+    }
+
+    return children;
+  });
+
+  return currentDSL;
+}
+
 export const calculateDynamicHeight = (
   canvasWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
@@ -480,6 +516,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 15) {
     currentDSL = migrateTextStyleFromTextWidget(currentDSL);
     currentDSL.version = 16;
+  }
+
+  if (currentDSL.version === 16) {
+    currentDSL = migrateChartDataFromArrayToObject(currentDSL);
+    currentDSL.version = 17;
   }
 
   return currentDSL;

@@ -206,6 +206,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       if (isString(value)) {
         parsed = JSON.parse(parsed as string);
       }
+
       if (!Array.isArray(parsed)) {
         return {
           isValid: false,
@@ -214,6 +215,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
           message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
         };
       }
+
       return { isValid: true, parsed, transformed: parsed };
     } catch (e) {
       console.error(e);
@@ -320,24 +322,22 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
 
     let validationMessage = "";
-    let index = 0;
+
+    // here we are two chart objects because we still want to show the correct evaluated values for
+    // correct data
     const parsedChartData: AllChartData = {};
+    const transformedChartData: any = {};
     let isValidChart = true;
 
+    // iterating over the objects of chart data and validating data for every datum
     Object.keys(parsed).forEach((key: string) => {
       const seriesData = get(parsed, `${key}`);
 
       let isValidSeries = false;
       try {
-        const validatedResponse: {
-          isValid: boolean;
-          parsed: Array<unknown>;
-          message?: string;
-        } = VALIDATORS[VALIDATION_TYPES.ARRAY](
-          seriesData.data,
-          props,
-          dataTree,
-        );
+        const validatedResponse: ValidationResponse = VALIDATORS[
+          VALIDATION_TYPES.ARRAY
+        ](seriesData.data, props, dataTree);
 
         if (validatedResponse.isValid) {
           isValidSeries = every(
@@ -360,24 +360,36 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             data: [],
           });
 
-          validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
+          set(transformedChartData, `${key}`, {
+            ...seriesData,
+            data: validatedResponse.transformed,
+          });
+
+          validationMessage =
+            validationMessage +
+            "##" +
+            `${key}==${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
         } else {
           set(parsedChartData, `${key}`, {
             ...seriesData,
             data: validatedResponse.parsed,
           });
+
+          set(transformedChartData, `${key}`, {
+            ...seriesData,
+            data: validatedResponse.transformed,
+          });
         }
       } catch (e) {
         console.error(e);
       }
-      index++;
     });
 
     if (!isValidChart) {
       return {
         isValid: false,
         parsed: parsedChartData,
-        transformed: parsed,
+        transformed: transformedChartData,
         message: validationMessage,
       };
     }
