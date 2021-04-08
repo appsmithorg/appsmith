@@ -870,6 +870,52 @@ public class PostgresPluginTest {
                 });
     }
 
+    @Test
+    public void testSslPrefer() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from pg_stat_ssl");
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.PREFER);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    String body = result.getBody().toString();
+                    /*
+                     * - Since the mode is 'prefer' and the testcontainer server does not support SSL, the connection
+                     *   gets established without SSL layer.
+                     */
+                    assertTrue(body.contains("\"ssl\":false"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslAllow() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from pg_stat_ssl");
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.ALLOW);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    String body = result.getBody().toString();
+                    /*
+                     * - Since the mode is 'allow' and the testcontainer server does not support SSL, the connection
+                     *   gets established without SSL layer.
+                     */
+                    assertTrue(body.contains("\"ssl\":false"));
+                })
+                .verifyComplete();
+    }
+
     public void testDuplicateColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);

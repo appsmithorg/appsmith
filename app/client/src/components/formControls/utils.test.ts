@@ -1,9 +1,43 @@
-import { isHidden, getConfigInitialValues } from "./utils";
+import {
+  isHidden,
+  getConfigInitialValues,
+  caculateIsHidden,
+  evaluateCondtionWithType,
+} from "./utils";
+import { HiddenType } from "./BaseControl";
 
 describe("isHidden test", () => {
   it("Test for isHidden true", () => {
     const hiddenTrueInputs: any = [
       { values: { name: "Name" }, hidden: true },
+      {
+        values: { name: "Name", number: 2, email: "temp@temp.com" },
+        hidden: {
+          conditionType: "AND",
+          conditions: [
+            {
+              path: "name",
+              value: "Name",
+              comparison: "EQUALS",
+            },
+            {
+              conditionType: "AND",
+              conditions: [
+                {
+                  path: "number",
+                  value: 2,
+                  comparison: "EQUALS",
+                },
+                {
+                  path: "email",
+                  value: "temp@temp.com",
+                  comparison: "EQUALS",
+                },
+              ],
+            },
+          ],
+        },
+      },
       {
         values: { name: "Name" },
         hidden: {
@@ -83,6 +117,48 @@ describe("isHidden test", () => {
       },
       {
         values: { name: "Name" },
+      },
+      {
+        values: {
+          name: "Name",
+          config: { type: "EMAIL", name: "TEMP" },
+          contact: { number: 1234, address: "abcd" },
+        },
+        hidden: {
+          conditionType: "AND",
+          conditions: [
+            {
+              path: "contact.number",
+              value: 1234,
+              comparison: "NOT_EQUALS",
+            },
+            {
+              conditionType: "OR",
+              conditions: [
+                {
+                  conditionType: "AND",
+                  conditions: [
+                    {
+                      path: "config.name",
+                      value: "TEMP",
+                      comparison: "EQUALS",
+                    },
+                    {
+                      path: "config.name",
+                      value: "HELLO",
+                      comparison: "EQUALS",
+                    },
+                  ],
+                },
+                {
+                  path: "config.type",
+                  value: "EMAIL",
+                  comparison: "NOT_EQUALS",
+                },
+              ],
+            },
+          ],
+        },
       },
     ];
 
@@ -173,5 +249,38 @@ describe("getConfigInitialValues test", () => {
     testCases.forEach((testCase) => {
       expect(getConfigInitialValues(testCase.input)).toEqual(testCase.output);
     });
+  });
+});
+
+describe("caculateIsHidden test", () => {
+  it("calcualte hidden field value", () => {
+    const values = { name: "Name" };
+    const hiddenTruthy: HiddenType = {
+      path: "name",
+      comparison: "EQUALS",
+      value: "Name",
+    };
+    const hiddenFalsy: HiddenType = {
+      path: "name",
+      comparison: "EQUALS",
+      value: "Different Name",
+    };
+    expect(caculateIsHidden(values, hiddenTruthy)).toBeTruthy();
+    expect(caculateIsHidden(values, hiddenFalsy)).toBeFalsy();
+  });
+});
+
+describe("evaluateCondtionWithType test", () => {
+  it("accumulate boolean of array into one based on conditionType", () => {
+    const andConditionType = "AND";
+    const orConditionType = "OR";
+    const booleanArray = [true, false, true];
+
+    expect(
+      evaluateCondtionWithType(booleanArray, andConditionType),
+    ).toBeFalsy();
+    expect(
+      evaluateCondtionWithType(booleanArray, orConditionType),
+    ).toBeTruthy();
   });
 });

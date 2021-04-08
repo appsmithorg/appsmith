@@ -24,8 +24,8 @@
 Appsmith is a JavaScript-based visual development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive pages. Connect UI to your APIs and Databases to build complex workflows in minutes.<br/><br/>
 
 **UI Components**: Table, Chart, Form, Map, Image, Video, and many more.<br/>
-**API Support**: REST APIs<br/>
-**Database Support**: PostgreSQL, MongoDB, MySQL, Firestore, Redshift, Elastic Search, DynamoDB, Redis, and MSFT SQL Server<br/>
+**API Support**: REST APIs, OAuth 2.0, CURL<br/>
+**Database Support**: PostgreSQL, MongoDB, MySQL, Firestore, S3, Redshift, Elastic Search, DynamoDB, Redis, and MSFT SQL Server<br/>
 **Hosting**: Cloud-hosted & On-premise
 
 Already familiar with Appsmith? [Quickly start building on your own](#%EF%B8%8F-quickstart).
@@ -145,6 +145,9 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
     <td align="center"><a href="https://github.com/Devedunkey"><img src="https://avatars.githubusercontent.com/u/29448764?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Young Yoo</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=Devedunkey" title="Code">💻</a></td>
     <td align="center"><a href="http://dwayne.io"><img src="https://avatars.githubusercontent.com/u/347097?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dwayne Forde</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=osis" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=osis" title="Tests">⚠️</a></td>
     <td align="center"><a href="https://github.com/monarch0111"><img src="https://avatars.githubusercontent.com/u/2965013?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Abhishek</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=monarch0111" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="http://www.navdeepsingh.in/"><img src="https://avatars.githubusercontent.com/u/2968787?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Navdeep Singh</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=navdeepsingh" title="Code">💻</a></td>
   </tr>
 </table>
 
