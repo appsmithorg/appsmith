@@ -19,12 +19,28 @@
           "initialValue": "GET",
           "options": [
             {
-              "label": "Bulk insert rows",
-              "value": "BULK_APPEND"
+              "label": "Fetch sheet rows",
+              "value": "GET"
             },
             {
-              "label": "Insert row",
+              "label": "Insert sheet row",
               "value": "APPEND"
+            },
+            {
+              "label": "Update sheet row",
+              "value": "UPDATE"
+            },
+            {
+              "label": "Delete row",
+              "value": "DELETE_ROW"
+            },
+            {
+              "label": "List sheets",
+              "value": "LIST"
+            },
+            {
+              "label": "Fetch sheet",
+              "value": "INFO"
             },
             {
               "label": "Create new spreadsheet",
@@ -35,28 +51,12 @@
               "value": "DELETE"
             },
             {
-              "label": "Fetch sheet rows",
-              "value": "GET"
-            },
-            {
-              "label": "Fetch sheet",
-              "value": "INFO"
-            },
-            {
-              "label": "List sheets",
-              "value": "LIST"
-            },
-            {
-              "label": "Update row",
-              "value": "UPDATE"
+              "label": "Bulk insert rows",
+              "value": "BULK_APPEND"
             },
             {
               "label": "Bulk update rows",
               "value": "BULK_UPDATE"
-            },
-            {
-              "label": "Delete row",
-              "value": "DELETE_ROW"
             }
           ]
         },
@@ -78,7 +78,8 @@
               "CREATE",
               "LIST"
             ]
-          }
+          },
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
         },
         {
           "label": "Sheet Key",

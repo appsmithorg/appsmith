@@ -1,5 +1,7 @@
 package com.external.config;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Property;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,9 +37,13 @@ public class MethodConfig {
             switch (property.getKey()) {
                 case "sheetUrl":
                     this.spreadsheetUrl = property.getValue();
-                    final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
-                    if (matcher.find()) {
-                        this.spreadsheetId = matcher.group(1);
+                    if (this.spreadsheetUrl != null && !this.spreadsheetUrl.isBlank()) {
+                        final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
+                        if (matcher.find()) {
+                            this.spreadsheetId = matcher.group(1);
+                        } else {
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Cannot read spreadsheet URL.");
+                        }
                     }
                     break;
                 case "range":
