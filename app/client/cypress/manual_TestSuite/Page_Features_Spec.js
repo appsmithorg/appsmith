@@ -2,7 +2,6 @@ const dsl = require("../../../fixtures/pageWidgetDsl.json");
 
 describe("Page functionality ", function() {
   it("Simple Page hide and show back", function() {
-
     // Add addtional page
     // Navigate to Page 2
     // Click on the Page2 functions (Three dots)
@@ -41,4 +40,3 @@ describe("Page functionality ", function() {
     // Ensure the the clone page is not displayed and other pages are displayed to user
   });
 });
-
