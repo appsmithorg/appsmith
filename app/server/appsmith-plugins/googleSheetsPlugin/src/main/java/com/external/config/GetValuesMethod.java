@@ -106,7 +106,6 @@ public class GetValuesMethod implements Method {
         uriBuilder.queryParam("majorDimension", "ROWS");
         uriBuilder.queryParam("ranges", ranges);
 
-        System.out.println("Request: " + uriBuilder.toUriString());
         return webClient.method(HttpMethod.GET)
                 .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.empty());
@@ -144,7 +143,6 @@ public class GetValuesMethod implements Method {
         } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             Matcher matcher = findAllRowsPattern.matcher(methodConfig.getSpreadsheetRange());
             matcher.find();
-            System.out.println(matcher.groupCount() + " : " + matcher.group());
             return List.of(
                     "'" + methodConfig.getSheetName() + "'!" + matcher.group(1) + tableHeaderIndex + ":" + matcher.group(2) + tableHeaderIndex,
                     "'" + methodConfig.getSheetName() + "'!" + methodConfig.getSpreadsheetRange());
@@ -161,11 +159,10 @@ public class GetValuesMethod implements Method {
         }
 
         ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
-        System.out.println("valueRanges: \n" + valueRanges.toPrettyString());
         ArrayNode headers = (ArrayNode) valueRanges.get(0).get("values");
         ArrayNode values = (ArrayNode) valueRanges.get(1).get("values");
 
-        if (headers == null || values == null) {
+        if (headers == null || values == null || headers.isEmpty()) {
             return this.objectMapper.createArrayNode();
         }
 
