@@ -29,7 +29,6 @@ const TriggerButton = styled(Button)`
   svg {
     transform: rotate(-90deg);
   }
-  margin-right: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const StyledDialog = styled(Dialog)`

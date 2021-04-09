@@ -194,9 +194,10 @@ const FilePickerComponent = (props: FilePickerProps) => {
   function onDrop(monitor: DropTargetMonitor) {
     if (monitor) {
       const files = monitor.getItem().files;
-      if (files) {
-        handleFileUpload(files);
+      if (!files) {
+        return;
       }
+      handleFileUpload(files);
     }
   }
 
@@ -221,10 +222,11 @@ const FilePickerComponent = (props: FilePickerProps) => {
     const file = files && files[0];
     let fileSize = 0;
 
-    if (file) {
-      fileSize = Math.floor(file.size / 1024);
-      setFileInfo({ name: file.name, size: fileSize });
+    if (!file) {
+      return;
     }
+    fileSize = Math.floor(file.size / 1024);
+    setFileInfo({ name: file.name, size: fileSize });
 
     if (fileSize < 250) {
       if (bgRef.current) {

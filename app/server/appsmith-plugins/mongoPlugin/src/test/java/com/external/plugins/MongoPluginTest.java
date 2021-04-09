@@ -1,15 +1,18 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -203,6 +206,10 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -229,6 +236,7 @@ public class MongoPluginTest {
                     assertFalse(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals("unknown top level operator: $is", result.getBody());
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -258,6 +266,10 @@ public class MongoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -289,6 +301,10 @@ public class MongoPluginTest {
                     assertEquals("M", value.get("gender").asText());
                     assertEquals("Alden Cantrell", value.get("name").asText());
                     assertEquals(30, value.get("age").asInt());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -319,6 +335,10 @@ public class MongoPluginTest {
                     assertTrue(node.get("luckyNumber").isNumber());
                     assertEquals("2018-12-31T00:00:00Z", node.get("dob").asText());
                     assertEquals("123456.789012", node.get("netWorth").toString());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -501,6 +521,10 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -531,6 +555,10 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -559,7 +587,10 @@ public class MongoPluginTest {
          * - Expect error here because testcontainer does not support SSL connection.
          */
         StepVerifier.create(executeMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getTitle(), result.getTitle());
+                })
                 .verifyComplete();
     }
 
@@ -632,6 +663,11 @@ public class MongoPluginTest {
                     parameterEntry = parameters.get(3);
                     assertEquals(parameterEntry.getKey(),"10");
                     assertEquals(parameterEntry.getValue(), "INTEGER");
+
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
