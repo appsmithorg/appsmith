@@ -238,7 +238,7 @@
             ]
           },
           "initialValue": "",
-          "placeholderText": "1"
+          "placeholderText": "A2:B"
         },
         {
           "label": "Row Offset Key",
