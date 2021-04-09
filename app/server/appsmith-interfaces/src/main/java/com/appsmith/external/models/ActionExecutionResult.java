@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -30,6 +31,8 @@ public class ActionExecutionResult {
 
     ActionExecutionRequest request;
 
+    List<ParsedDataType> dataTypes;
+
     public void setErrorInfo(Throwable error) {
         this.body = error.getMessage();
 
@@ -38,5 +41,4 @@ public class ActionExecutionResult {
             this.title = ((BaseException) error).getTitle();
         }
     }
-
 }
