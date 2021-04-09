@@ -5,6 +5,10 @@ describe("Switch datasource", function() {
   let postgresDatasourceName;
   let mongoDatasourceName;
 
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("Create postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();

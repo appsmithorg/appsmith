@@ -8,6 +8,10 @@ describe("GlobalSearch", function() {
     cy.addDsl(dsl);
   });
 
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("showsAndHidesUsingKeyboardShortcuts", () => {
     const isMac = Cypress.platform === "darwin";
     if (isMac) {

@@ -9,18 +9,21 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
@@ -193,9 +196,16 @@ public class MongoPlugin extends BasePlugin {
 
             return mongoOutputMono
                     .onErrorMap(
+                            MongoTimeoutException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                                    error.getMessage()
+                            )
+                    )
+                    .onErrorMap(
                             MongoCommandException.class,
                             error -> new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
                     )
@@ -209,6 +219,10 @@ public class MongoPlugin extends BasePlugin {
 
                             if (BigInteger.ONE.equals(status)) {
                                 result.setIsExecutionSuccess(true);
+                                result.setDataTypes(List.of(
+                                        new ParsedDataType(ActionResultDataType.JSON),
+                                        new ParsedDataType(ActionResultDataType.RAW)
+                                ));
 
                                 /**
                                  * For the `findAndModify` command, we don't get the count of modifications made. Instead,
@@ -273,10 +287,7 @@ public class MongoPlugin extends BasePlugin {
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            actionExecutionResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        actionExecutionResult.setBody(error.getMessage());
+                        actionExecutionResult.setErrorInfo(error);
                         return Mono.just(actionExecutionResult);
                     })
                     // Now set the request in the result to be returned back to the server
