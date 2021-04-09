@@ -30,11 +30,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
@@ -43,6 +39,7 @@ import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @Slf4j
@@ -77,6 +74,42 @@ public class UserServiceTest {
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
         organizationMono = organizationService.getBySlug("spring-test-organization");
+    }
+
+    //Test if email params are updating correctly
+    @Test
+    public void checkEmailParamsForExistingUser() {
+        Organization organization = new Organization();
+        organization.setName("UserServiceTest Update Org");
+        organization.setSlug("userservicetest-update-org");
+
+        User inviter = new User();
+        inviter.setName("inviterUserToApplication");
+
+        String inviteUrl = "http://localhost:8080";
+        String expectedUrl = inviteUrl + "/applications#userservicetest-update-org";
+
+        Map<String, String> params = userService.getEmailParams(organization, inviter, inviteUrl, false);
+        assertEquals(expectedUrl, params.get("inviteUrl"));
+        assertEquals("inviterUserToApplication", params.get("Inviter_First_Name"));
+        assertEquals("UserServiceTest Update Org", params.get("inviter_org_name"));
+    }
+
+    @Test
+    public void checkEmailParamsForNewUser() {
+        Organization organization = new Organization();
+        organization.setName("UserServiceTest Update Org");
+        organization.setSlug("userservicetest-update-org");
+
+        User inviter = new User();
+        inviter.setName("inviterUserToApplication");
+
+        String inviteUrl = "http://localhost:8080";
+
+        Map<String, String> params = userService.getEmailParams(organization, inviter, inviteUrl, true);
+        assertEquals(inviteUrl, params.get("inviteUrl"));
+        assertEquals("inviterUserToApplication", params.get("Inviter_First_Name"));
+        assertEquals("UserServiceTest Update Org", params.get("inviter_org_name"));
     }
 
     //Test the update organization flow.

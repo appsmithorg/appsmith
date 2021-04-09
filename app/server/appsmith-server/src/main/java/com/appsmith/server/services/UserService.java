@@ -35,4 +35,5 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> updateCurrentUser(User updates, ServerWebExchange exchange);
 
+    Map<String, String> getEmailParams(Organization organization, User inviterUser, String inviteUrl, boolean isNewUser);
 }
