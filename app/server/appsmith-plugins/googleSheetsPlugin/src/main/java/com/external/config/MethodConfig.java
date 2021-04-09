@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 @Setter
@@ -16,6 +18,7 @@ import java.util.List;
 @ToString
 public class MethodConfig {
     String spreadsheetId;
+    String spreadsheetUrl;
     String spreadsheetRange;
     String sheetId;
     String spreadsheetName;
@@ -25,12 +28,17 @@ public class MethodConfig {
     String rowLimit;
     String sheetName;
     Object body;
+    Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?.*");
 
     public MethodConfig(List<Property> propertyList) {
         propertyList.stream().parallel().forEach(property -> {
             switch (property.getKey()) {
-                case "sheetId":
-                    this.spreadsheetId = property.getValue();
+                case "sheetUrl":
+                    this.spreadsheetUrl = property.getValue();
+                    final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
+                    if (matcher.find()) {
+                        this.spreadsheetId = matcher.group(1);
+                    }
                     break;
                 case "range":
                     this.spreadsheetRange = property.getValue();

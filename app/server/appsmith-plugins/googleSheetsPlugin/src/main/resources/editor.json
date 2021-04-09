@@ -61,14 +61,14 @@
           ]
         },
         {
-          "label": "Spreadsheet Id Key",
+          "label": "Spreadsheet Url Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
-          "initialValue": "sheetId"
+          "initialValue": "sheetUrl"
         },
         {
-          "label": "Spreadsheet Id",
+          "label": "Spreadsheet Url",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
           "controlType": "INPUT_TEXT",
           "hidden": {
