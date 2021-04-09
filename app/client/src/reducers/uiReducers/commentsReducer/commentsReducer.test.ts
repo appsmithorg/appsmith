@@ -135,6 +135,9 @@ describe("Test comments reducer handles", () => {
         ...newCommentThreadEventPayload.thread,
         id: newCommentThreadEventPayload.thread._id,
         isVisible: false,
+        comments:
+          state.commentThreadsMap[newCommentThreadEventPayload.thread._id]
+            .comments || [],
       },
     });
 
