@@ -206,7 +206,10 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
-                    assertEquals(List.of("json", "raw"), result.getDataTypes());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -263,7 +266,10 @@ public class MongoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    assertEquals(List.of("json", "raw"), result.getDataTypes());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -295,7 +301,10 @@ public class MongoPluginTest {
                     assertEquals("M", value.get("gender").asText());
                     assertEquals("Alden Cantrell", value.get("name").asText());
                     assertEquals(30, value.get("age").asInt());
-                    assertEquals(List.of("json", "raw"), result.getDataTypes());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -326,7 +335,10 @@ public class MongoPluginTest {
                     assertTrue(node.get("luckyNumber").isNumber());
                     assertEquals("2018-12-31T00:00:00Z", node.get("dob").asText());
                     assertEquals("123456.789012", node.get("netWorth").toString());
-                    assertEquals(List.of("json", "raw"), result.getDataTypes());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -509,7 +521,10 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
-                    assertEquals(List.of("json", "raw"), result.getDataTypes());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -540,7 +555,10 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
-                    assertEquals(List.of("json", "raw"), result.getDataTypes());
+                    assertEquals(
+                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
