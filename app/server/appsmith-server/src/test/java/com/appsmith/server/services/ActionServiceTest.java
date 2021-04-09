@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionExceptio
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -419,6 +420,9 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        ActionExecutionRequest request = new ActionExecutionRequest();
+        request.setBody("random-request-body");
+        mockResult.setRequest(request);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -435,7 +439,8 @@ public class ActionServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(ActionResultDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(ActionResultDataType.RAW)), List.of(new ParsedDataType(ActionResultDataType.RAW)));
     }
 
     @Test
@@ -448,6 +453,9 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        ActionExecutionRequest request = new ActionExecutionRequest();
+        request.setBody("random-request-body");
+        mockResult.setRequest(request);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -463,7 +471,8 @@ public class ActionServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(ActionResultDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(ActionResultDataType.RAW)), List.of(new ParsedDataType(ActionResultDataType.RAW)));
     }
 
     @Test
@@ -474,6 +483,9 @@ public class ActionServiceTest {
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
+        ActionExecutionRequest request = new ActionExecutionRequest();
+        request.setBody("random-request-body");
+        mockResult.setRequest(request);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -489,7 +501,7 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                List.of(new ParsedDataType(ActionResultDataType.RAW)), List.of(new ParsedDataType(ActionResultDataType.RAW)));
     }
 
     @Test
@@ -763,7 +775,9 @@ public class ActionServiceTest {
     }
 
     private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration,
-                                        ActionExecutionResult mockResult, List<ParsedDataType> expectedReturnDataTypes) {
+                                        ActionExecutionResult mockResult,
+                                        List<ParsedDataType> expectedResponseDataTypes,
+                                        List<ParsedDataType> expectedRequestDataTypes) {
 
         Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
 
@@ -771,7 +785,8 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
-                    assertThat(result.getDataTypes().toString()).isEqualTo(expectedReturnDataTypes.toString());
+                    assertThat(result.getRequest().getDataTypes().toString()).isEqualTo(expectedRequestDataTypes.toString());
+                    assertThat(result.getDataTypes().toString()).isEqualTo(expectedResponseDataTypes.toString());
                 })
                 .verifyComplete();
     }
@@ -1191,6 +1206,13 @@ public class ActionServiceTest {
                 "]");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        ActionExecutionRequest request = new ActionExecutionRequest();
+        request.setBody("[\n" +
+                "{\"name\": \"Richard\", \"profession\": \"medical\"},\n" +
+                "{\"name\": \"John\", \"profession\": \"self employed\"},\n" +
+                "{\"name\": \"Mary\", \"profession\": \"engineer\"}\n" +
+                "]");
+        mockResult.setRequest(request);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1208,6 +1230,8 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(ActionResultDataType.TABLE), new ParsedDataType(ActionResultDataType.JSON)
+                        , new ParsedDataType(ActionResultDataType.RAW)),
                 List.of(new ParsedDataType(ActionResultDataType.TABLE), new ParsedDataType(ActionResultDataType.JSON)
                         , new ParsedDataType(ActionResultDataType.RAW)));
     }
@@ -1230,6 +1254,17 @@ public class ActionServiceTest {
                 " }");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        ActionExecutionRequest request = new ActionExecutionRequest();
+        request.setBody("{\n" +
+                "  \"name\":\"John\",\n" +
+                "  \"age\":30,\n" +
+                "  \"cars\": {\n" +
+                "    \"car1\":\"Ford\",\n" +
+                "    \"car2\":\"BMW\",\n" +
+                "    \"car3\":\"Fiat\"\n" +
+                "  }\n" +
+                " }");
+        mockResult.setRequest(request);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1247,6 +1282,7 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)),
                 List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)));
     }
 
@@ -1269,6 +1305,9 @@ public class ActionServiceTest {
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(ActionResultDataType.RAW)));
+        ActionExecutionRequest request = new ActionExecutionRequest();
+        request.setBody("random-request-body");
+        mockResult.setRequest(request);
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1286,6 +1325,6 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                List.of(new ParsedDataType(ActionResultDataType.RAW)), List.of(new ParsedDataType(ActionResultDataType.RAW)));
     }
 }

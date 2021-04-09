@@ -60,6 +60,7 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -696,26 +697,72 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
                         result.setRequest(null);
                     }
-                    return result;
+                    return addRequestDataTypes(result);
                 })
-                .map(result -> addDataTypes(result));
+                .map(result -> addResultDataTypes(result));
     }
 
-    private ActionExecutionResult addDataTypes(ActionExecutionResult result) {
+    /*
+     * - Return data types for query request body so that the request body can be displayed properly on the client
+     * side.
+     */
+    private ActionExecutionResult addRequestDataTypes(ActionExecutionResult result) {
+        /*
+         * - Under normal circumstances, this case is expected to occur in view mode, where request details are not
+         * returned.
+         */
+        if (result.getRequest() == null) {
+            return result;
+        }
+
+        if (result.getRequest().getBody() == null && result.getRequest().getQuery() == null) {
+            /*
+             * - Any data is by default categorized as raw.
+             */
+            result.getRequest().setDataTypes(List.of(new ParsedDataType(ActionResultDataType.RAW)));
+            return result;
+        }
+
+        String body = result.getRequest().getBody() != null ? result.getRequest().getBody().toString() :
+                result.getRequest().getQuery();
+        result.getRequest().setDataTypes(getActionResultDataTypes(body));
+
+        return result;
+    }
+
+    /*
+     * - Return data types for query response body so that the request body can be displayed properly on the client
+     * side.
+     */
+    private ActionExecutionResult addResultDataTypes(ActionExecutionResult result) {
         /*
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
-        if(!CollectionUtils.isEmpty(result.getDataTypes())) {
+        if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
 
+        if (result.getBody() == null) {
+            /*
+             * - Any data is by default categorized as raw.
+             */
+            result.setDataTypes(List.of(new ParsedDataType(ActionResultDataType.RAW)));
+            return result;
+        }
+
+        result.setDataTypes(getActionResultDataTypes(result.getBody().toString()));
+
+        return result;
+    }
+
+    private List<ParsedDataType> getActionResultDataTypes(String body) {
         List<ParsedDataType> parsedDataTypeList = new ArrayList<>();
         Stream.of(ActionResultDataType.values())
                 .parallel()
                 .map(type -> {
                     try {
-                        return parseActionResultDataType(result.getBody().toString(), type);
+                        return parseActionResultDataType(body, type);
                     } catch (AppsmithException e) {
                         throw new RuntimeException(e);
                     }
@@ -723,9 +770,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .filter(type -> type != null)
                 .forEachOrdered(type -> parsedDataTypeList.add(type));
 
-        result.setDataTypes(parsedDataTypeList);
-
-        return result;
+        return parsedDataTypeList;
     }
 
     private ParsedDataType parseActionResultDataType(String body, ActionResultDataType expectedType) throws AppsmithException {
@@ -792,7 +837,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     actionExecutionRequest.getHttpMethod(),
                     actionExecutionRequest.getUrl(),
                     actionExecutionRequest.getProperties(),
-                    actionExecutionRequest.getExecutionParameters()
+                    actionExecutionRequest.getExecutionParameters(),
+                    actionExecutionRequest.getDataTypes()
             );
         } else {
             request = new ActionExecutionRequest();

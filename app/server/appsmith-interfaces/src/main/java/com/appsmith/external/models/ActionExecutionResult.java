@@ -22,6 +22,7 @@ public class ActionExecutionResult {
     JsonNode headers;
     Object body;
     Boolean isExecutionSuccess = false;
+    Boolean isRequestDebugEnabled = true;
 
     /*
      * - To return useful hints to the user.
