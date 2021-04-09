@@ -233,10 +233,9 @@ export const Table = (props: TableProps) => {
                         : ""
                     }`
                   }
-                  onClick={(e) => {
+                  onClick={() => {
                     row.toggleRowSelected();
                     props.selectTableRow(row);
-                    e.stopPropagation();
                   }}
                   key={rowIndex}
                 >
