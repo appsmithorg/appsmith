@@ -3,12 +3,18 @@ import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import copy from "copy-to-clipboard";
 import { Message, Severity, SourceEntity } from "entities/AppsmithConsole";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
 import { isString } from "lodash";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon, SeverityIconColor } from "./helpers";
+import { useDispatch } from "react-redux";
+import {
+  setGlobalSearchQuery,
+  toggleShowGlobalSearchModal,
+} from "actions/globalSearchActions";
+import { showDebugger } from "actions/debuggerActions";
 
 const Log = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
@@ -153,6 +159,13 @@ const LogItem = (props: LogItemProps) => {
     collapsed: 1,
   };
   const showToggleIcon = props.state || props.message;
+  const dispatch = useDispatch();
+
+  const openHelpModal = useCallback((text: string) => {
+    dispatch(showDebugger(false));
+    dispatch(setGlobalSearchQuery(text || ""));
+    dispatch(toggleShowGlobalSearchModal());
+  }, []);
 
   return (
     <Log
@@ -185,11 +198,11 @@ const LogItem = (props: LogItemProps) => {
         )}
         <Icon
           className={`${Classes.ICON} debugger-copy-text`}
-          name={"duplicate"}
-          size={IconSize.SMALL}
+          name={"open"}
+          size={IconSize.MEDIUM}
           onClick={(e) => {
             e.stopPropagation();
-            copy(props.text);
+            openHelpModal(props.text);
           }}
         />
         {showToggleIcon && (

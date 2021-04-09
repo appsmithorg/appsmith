@@ -4,6 +4,7 @@ import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
 import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
+import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
@@ -102,6 +103,7 @@ export const IconCollection = [
   "cancel",
   "cross",
   "delete",
+  "open",
   "user",
   "general",
   "billing",
@@ -211,6 +213,9 @@ const Icon = forwardRef(
         break;
       case "delete":
         returnIcon = <DeleteIcon />;
+        break;
+      case "open":
+        returnIcon = <OpenIcon />;
         break;
       case "user":
         returnIcon = <UserIcon />;
