@@ -484,7 +484,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
-
         // 1. Validate input parameters which are required for mustache replacements
         List<Param> params = executeActionDTO.getParams();
         if (!CollectionUtils.isEmpty(params)) {
@@ -549,6 +548,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                         FieldName.DATASOURCE,
                                         action.getDatasource().getId())));
                     }
+
                     // This is a nested datasource. Return as is.
                     return Mono.just(action.getDatasource());
                 })
@@ -645,8 +645,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 // Set the status code for Appsmith plugin errors
                                 if (e instanceof AppsmithPluginException) {
                                     result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
+                                    result.setTitle(((AppsmithPluginException) e).getTitle());
                                 } else {
                                     result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+
+                                    if (e instanceof AppsmithException) {
+                                        result.setTitle(((AppsmithException) e).getTitle());
+                                    }
                                 }
                                 return Mono.just(result);
                             })
@@ -683,6 +688,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setIsExecutionSuccess(false);
                     result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
+                    result.setTitle(error.getTitle());
                     return Mono.just(result);
                 })
                 .map(result -> {

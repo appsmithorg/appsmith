@@ -5,6 +5,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.LayoutDTO;
+import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
 public interface LayoutActionService {
@@ -19,4 +20,6 @@ public interface LayoutActionService {
     Mono<ActionDTO> updateAction(String id, ActionDTO action);
 
     Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad);
+
+    JSONObject unescapeMongoSpecialCharacters(Layout layout);
 }

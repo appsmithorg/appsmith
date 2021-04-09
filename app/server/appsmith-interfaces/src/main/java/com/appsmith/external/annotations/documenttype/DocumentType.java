@@ -1,4 +1,4 @@
-package com.appsmith.external.annotations;
+package com.appsmith.external.annotations.documenttype;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

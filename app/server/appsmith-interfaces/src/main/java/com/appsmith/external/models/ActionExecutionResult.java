@@ -1,5 +1,7 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.exceptions.BaseException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,7 @@ import java.util.Set;
 public class ActionExecutionResult {
 
     String statusCode;
+    String title;
     JsonNode headers;
     Object body;
     Boolean isExecutionSuccess = false;
@@ -29,4 +32,13 @@ public class ActionExecutionResult {
     ActionExecutionRequest request;
 
     List<ParsedDataType> dataTypes;
+
+    public void setErrorInfo(Throwable error) {
+        this.body = error.getMessage();
+
+        if (error instanceof BaseException) {
+            this.statusCode = ((BaseException) error).getAppErrorCode().toString();
+            this.title = ((BaseException) error).getTitle();
+        }
+    }
 }
