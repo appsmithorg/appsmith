@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -28,6 +29,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -650,6 +652,24 @@ public class CurlImporterServiceTest {
                 action,
                 new Property("a\\n", "")
         );
+    }
+
+    @Test
+    public void importInvalidMethod() {
+        assertThatThrownBy(() -> {
+            curlImporterService.curlToAction("curl -X invalid-method http://httpbin.org/get");
+        })
+                .isInstanceOf(AppsmithException.class)
+                .matches(err -> ((AppsmithException) err).getError() == AppsmithError.INVALID_CURL_METHOD);
+    }
+
+    @Test
+    public void importInvalidHeader() {
+        assertThatThrownBy(() -> {
+            curlImporterService.curlToAction("curl -H x-custom http://httpbin.org/headers");
+        })
+                .isInstanceOf(AppsmithException.class)
+                .matches(err -> ((AppsmithException) err).getError() == AppsmithError.INVALID_CURL_HEADER);
     }
 
     @Test
