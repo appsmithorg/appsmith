@@ -3,6 +3,7 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.domains.RowObject;
+import com.external.utils.SheetsUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -32,8 +33,9 @@ public class GetValuesMethod implements Method {
         this.objectMapper = objectMapper;
     }
 
-    Pattern findAllRowsPattern = Pattern.compile("\\d+");
+    Pattern findAllRowsPattern = Pattern.compile("([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
     Pattern findOffsetRowPattern = Pattern.compile("(\\d+):");
+    Pattern sheetRangePattern = Pattern.compile(".*!([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
 
     @Override
     public boolean validateMethodRequest(MethodConfig methodConfig, String body) {
@@ -104,8 +106,9 @@ public class GetValuesMethod implements Method {
         uriBuilder.queryParam("majorDimension", "ROWS");
         uriBuilder.queryParam("ranges", ranges);
 
+        System.out.println("Request: " + uriBuilder.toUriString());
         return webClient.method(HttpMethod.GET)
-                .uri(uriBuilder.build(true).toUri())
+                .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.empty());
     }
 
@@ -132,18 +135,19 @@ public class GetValuesMethod implements Method {
             try {
                 rowLimit = Integer.parseInt(methodConfig.getRowLimit());
                 return List.of(
-                        tableHeaderIndex + ":" + tableHeaderIndex,
-                        (tableHeaderIndex + rowOffset) + ":" + (tableHeaderIndex + rowOffset + rowLimit - 1));
+                        "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
+                        "'" + methodConfig.getSheetName() + "'!" + (tableHeaderIndex + rowOffset) + ":" + (tableHeaderIndex + rowOffset + rowLimit - 1));
 
             } catch (NumberFormatException e) {
                 // Should have already been caught
             }
         } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             Matcher matcher = findAllRowsPattern.matcher(methodConfig.getSpreadsheetRange());
-            final String tableHeaderRange = matcher.replaceAll(String.valueOf(tableHeaderIndex));
+            matcher.find();
+            System.out.println(matcher.groupCount() + " : " + matcher.group());
             return List.of(
-                    tableHeaderRange,
-                    methodConfig.getSpreadsheetRange());
+                    "'" + methodConfig.getSheetName() + "'!" + matcher.group(1) + tableHeaderIndex + ":" + matcher.group(2) + tableHeaderIndex,
+                    "'" + methodConfig.getSheetName() + "'!" + methodConfig.getSpreadsheetRange());
         }
         return List.of();
     }
@@ -155,32 +159,21 @@ public class GetValuesMethod implements Method {
                     AppsmithPluginError.PLUGIN_ERROR,
                     "Missing a valid response object.");
         }
+
         ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
+        System.out.println("valueRanges: \n" + valueRanges.toPrettyString());
         ArrayNode headers = (ArrayNode) valueRanges.get(0).get("values");
         ArrayNode values = (ArrayNode) valueRanges.get(1).get("values");
-        if (headers == null || values == null || headers.size() == 0) {
+
+        if (headers == null || values == null) {
             return this.objectMapper.createArrayNode();
         }
+
+        final String headerRange = valueRanges.get(0).get("range").asText();
+        final String valueRange = valueRanges.get(1).get("range").asText();
         headers = (ArrayNode) headers.get(0);
 
-        Set<String> columnsSet = new LinkedHashSet<>();
-
-        // Manipulation to find valid headers for all columns
-        for (int i = 0; i < headers.size(); i++) {
-            String headerValue = headers.get(i).asText();
-            if (headerValue.isBlank()) {
-                headerValue = "Column-" + (i + 1);
-            }
-
-            int count = 1;
-            String tempHeaderValue = headerValue;
-            while (columnsSet.contains(tempHeaderValue)) {
-                tempHeaderValue += "_" + count++;
-            }
-            headerValue = tempHeaderValue;
-
-            columnsSet.add(headerValue);
-        }
+        Set<String> columnsSet = sanitizeHeaders(headers, headerRange, valueRange);
 
         final List<Map<String, String>> collectedCells = new LinkedList<>();
         final String[] headerArray = columnsSet.toArray(new String[columnsSet.size()]);
@@ -200,5 +193,46 @@ public class GetValuesMethod implements Method {
         }
 
         return this.objectMapper.valueToTree(collectedCells);
+    }
+
+    private Set<String> sanitizeHeaders(ArrayNode headers, String headerRange, String valueRange) {
+        final Set<String> headerSet = new LinkedHashSet<>();
+        int headerSize = headers.size();
+
+        final Matcher matcher1 = sheetRangePattern.matcher(headerRange);
+        matcher1.find();
+        final int headerStart = SheetsUtil.getColumnNumber(matcher1.group(1));
+        final int headerEnd = SheetsUtil.getColumnNumber(matcher1.group(2));
+
+        final Matcher matcher2 = sheetRangePattern.matcher(valueRange);
+        matcher2.find();
+        final int valuesStart = SheetsUtil.getColumnNumber(matcher2.group(1));
+        final int valuesEnd = SheetsUtil.getColumnNumber(matcher2.group(2));
+
+        final int valueSize = (valuesEnd - valuesStart + 1);
+        final int size = Math.max(headerSize, valueSize);
+
+        // Manipulation to find valid headers for all columns
+        for (int j = 0; j < size; j++) {
+            String headerValue = "";
+
+            if (j < headerSize) {
+                headerValue = headers.get(j).asText();
+            }
+            if (headerValue.isBlank()) {
+                headerValue = "Column-" + (j + 1);
+            }
+
+            int count = 1;
+            String tempHeaderValue = headerValue;
+            while (headerSet.contains(tempHeaderValue)) {
+                tempHeaderValue += "_" + count++;
+            }
+            headerValue = tempHeaderValue;
+
+            headerSet.add(headerValue);
+        }
+
+        return headerSet;
     }
 }

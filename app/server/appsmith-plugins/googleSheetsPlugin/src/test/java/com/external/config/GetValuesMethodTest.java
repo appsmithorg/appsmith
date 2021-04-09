@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Set;
 
 public class GetValuesMethodTest {
 
@@ -135,4 +134,31 @@ public class GetValuesMethodTest {
         Assert.assertEquals(1, result.get(0).get("row_id").asInt());
     }
 
+    @Test
+    public void transformResponse() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        final String jsonString = "{\"valueRanges\":\n" +
+                "[ {\n" +
+                "  \"range\" : \"Sheet1!A1:Z1\",\n" +
+                "  \"majorDimension\" : \"ROWS\",\n" +
+                "  \"values\" : [ [ \"The timeline includes other auxillary functions each team will need to perform such as supporting the community with feature requests, fixing bugs, clearing tech debt, improving performance, re-architecting parts of the codebase, writing documentation, etc.\" ] ]\n" +
+                "}, {\n" +
+                "  \"range\" : \"Sheet1!A2:Z4\",\n" +
+                "  \"majorDimension\" : \"ROWS\",\n" +
+                "  \"values\" : [ [ \"Quarter\", \"Projects\", \"Teams\", \"Frontend\", \"Backend\", \"QA\" ], [ \"\", \"Add 15 Widgets\", \"Widget Team\", \"0\", \"0\" ], [ \"\", \"Add 20 SAAS Integrations\", \"Integrations\", \"1\", \"1\", \"\", \"1\" ] ]\n" +
+                "} ]}";
+
+        JsonNode jsonNode = objectMapper.readTree(jsonString);
+
+        Assert.assertNotNull(jsonNode);
+
+        GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
+        JsonNode result = getValuesMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isArray());
+        Assert.assertEquals(3, result.size());
+        Assert.assertEquals(1, result.get(0).get("row_id").asInt());
+    }
 }
