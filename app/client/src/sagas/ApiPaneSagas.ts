@@ -44,7 +44,7 @@ import { createActionRequest, setActionProperty } from "actions/actionActions";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import { Action, ApiAction } from "entities/Action";
+import { Action, ApiAction, PluginType } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
@@ -57,6 +57,7 @@ import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getIndextoUpdate } from "utils/ApiPaneUtils";
+import { changeQuery } from "actions/queryPaneActions";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -529,6 +530,12 @@ function* handleApiNameChangeFailureSaga(
   yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.oldName));
 }
 
+function* updateFormValues(action: ReduxAction<{ data: Action }>) {
+  if (action.payload.data.pluginType === PluginType.API) {
+    yield call(changeApiSaga, changeQuery(action.payload.data.id));
+  }
+}
+
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
@@ -554,6 +561,7 @@ export default function* root() {
       ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
       handleUpdateBodyContentType,
     ),
+    takeEvery(ReduxActionTypes.UPDATE_ACTION_SUCCESS, updateFormValues),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
