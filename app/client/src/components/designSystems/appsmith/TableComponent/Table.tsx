@@ -194,7 +194,29 @@ export const Table = (props: TableProps) => {
         className={props.isLoading ? Classes.SKELETON : "tableWrap"}
         ref={tableWrapperRef}
       >
-        <Scrollbars style={{ width: props.width, height: props.height - 38 }}>
+        <Scrollbars
+          renderTrackHorizontal={({ style, ...props }) => (
+            <div {...props} style={{ ...style }} className="track-horizontal" />
+          )}
+          renderTrackVertical={({ style, ...props }) => (
+            <div {...props} style={{ ...style }} className="track-vertical" />
+          )}
+          renderThumbHorizontal={({ style, ...props }) => (
+            <div
+              {...props}
+              style={{ ...style, backgroundColor: "red" }}
+              className="thumb-horizontal"
+            />
+          )}
+          renderThumbVertical={({ style, ...props }) => (
+            <div
+              {...props}
+              style={{ ...style, backgroundColor: "red" }}
+              className="thumb-vertical"
+            />
+          )}
+          style={{ width: props.width, height: props.height - 48 }}
+        >
           <div {...getTableProps()} className="table">
             <div
               onMouseOver={props.disableDrag}
