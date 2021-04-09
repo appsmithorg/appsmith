@@ -19,7 +19,7 @@ import {
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors } from "constants/Colors";
 
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
 interface TableProps {
@@ -32,8 +32,6 @@ interface TableProps {
   isLoading: boolean;
   columnSizeMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
-  hiddenColumns?: string[];
-  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   data: Array<Record<string, unknown>>;
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
@@ -170,8 +168,6 @@ export const Table = (props: TableProps) => {
         columns={props.columns.filter((column: ReactTableColumnProps) => {
           return column.accessor !== "actions";
         })}
-        hiddenColumns={props.hiddenColumns}
-        updateHiddenColumns={props.updateHiddenColumns}
         filters={props.filters}
         applyFilter={props.applyFilter}
         editMode={props.editMode}

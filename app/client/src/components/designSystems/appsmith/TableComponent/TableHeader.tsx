@@ -21,7 +21,7 @@ import {
 import TableDataDownload from "components/designSystems/appsmith/TableComponent/TableDataDownload";
 import TableCompactMode from "components/designSystems/appsmith/TableComponent/TableCompactMode";
 import { Colors } from "constants/Colors";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const PageNumberInputWrapper = styled(NumericInput)`
@@ -95,7 +95,6 @@ interface TableHeaderProps {
   pageOptions: number[];
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
-  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   widgetName: string;
   searchKey: string;
   searchTableData: (searchKey: any) => void;
@@ -137,13 +136,6 @@ const TableHeader = (props: TableHeaderProps) => {
           columns={props.tableColumns}
           widgetName={props.widgetName}
         />
-        {/* {props.editMode && (
-          <TableColumnsVisibility
-            columns={props.columns}
-            hiddenColumns={props.hiddenColumns}
-            updateHiddenColumns={props.updateHiddenColumns}
-          />
-        )} */}
         <TableCompactMode
           compactMode={props.compactMode}
           updateCompactMode={props.updateCompactMode}

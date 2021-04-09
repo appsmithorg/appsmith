@@ -44,7 +44,7 @@ import { createActionRequest, setActionProperty } from "actions/actionActions";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import { Action, ApiAction } from "entities/Action";
+import { Action, ApiAction, PluginType } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
@@ -56,6 +56,8 @@ import { Toaster } from "components/ads/Toast";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { getIndextoUpdate } from "utils/ApiPaneUtils";
+import { changeQuery } from "actions/queryPaneActions";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -167,19 +169,7 @@ function* handleUpdateBodyContentType(
       element.key &&
       element.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
   );
-
-  const firstEmptyHeaderRowIndex: number = headers.findIndex(
-    (element: { key: string; value: string }) =>
-      element && element.key === "" && element.value === "",
-  );
-
-  const newHeaderIndex =
-    firstEmptyHeaderRowIndex > -1 ? firstEmptyHeaderRowIndex : headers.length;
-
-  // If there is an existing header with content type, use that or
-  // create a new header
-  const indexToUpdate =
-    contentTypeHeaderIndex > -1 ? contentTypeHeaderIndex : newHeaderIndex;
+  const indexToUpdate = getIndextoUpdate(headers, contentTypeHeaderIndex);
 
   headers[indexToUpdate] = {
     key: CONTENT_TYPE_HEADER_KEY,
@@ -278,30 +268,39 @@ function* updateFormFields(
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
 
   if (field === "actionConfiguration.httpMethod") {
-    if (value !== "GET") {
-      const { actionConfiguration } = values;
-      const actionConfigurationHeaders = actionConfiguration.headers;
-      let contentType;
-      if (actionConfigurationHeaders) {
-        contentType = actionConfigurationHeaders.find(
-          (header: any) =>
-            header &&
-            header.key &&
-            header.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+    const { actionConfiguration } = values;
+    const actionConfigurationHeaders = cloneDeep(actionConfiguration.headers);
+    if (actionConfigurationHeaders) {
+      const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
+        (header: { key: string; value: string }) =>
+          header &&
+          header.key &&
+          header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+      );
+      if (value !== "GET") {
+        const indexToUpdate = getIndextoUpdate(
+          actionConfigurationHeaders,
+          contentTypeHeaderIndex,
         );
+        actionConfigurationHeaders[indexToUpdate] = {
+          key: CONTENT_TYPE_HEADER_KEY,
+          value: POST_BODY_FORMAT_OPTIONS[0].value,
+        };
+      } else {
+        if (contentTypeHeaderIndex > -1) {
+          actionConfigurationHeaders[contentTypeHeaderIndex] = {
+            key: "",
+            value: "",
+          };
+        }
       }
-
-      if (!contentType) {
-        yield put(
-          change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", [
-            ...actionConfigurationHeaders,
-            {
-              key: CONTENT_TYPE_HEADER_KEY,
-              value: POST_BODY_FORMAT_OPTIONS[0].value,
-            },
-          ]),
-        );
-      }
+      yield put(
+        change(
+          API_EDITOR_FORM_NAME,
+          "actionConfiguration.headers",
+          actionConfigurationHeaders,
+        ),
+      );
     }
   } else if (field.includes("actionConfiguration.headers")) {
     const actionConfigurationHeaders = get(
@@ -404,7 +403,6 @@ function* handleCreateNewApiActionSaga(
   );
   const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
-  log.debug({ pageId, pluginId });
   if (pageId && pluginId) {
     const actions = yield select(getActions);
     const pageActions = actions.filter(
@@ -532,6 +530,12 @@ function* handleApiNameChangeFailureSaga(
   yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.oldName));
 }
 
+function* updateFormValues(action: ReduxAction<{ data: Action }>) {
+  if (action.payload.data.pluginType === PluginType.API) {
+    yield call(changeApiSaga, changeQuery(action.payload.data.id));
+  }
+}
+
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
@@ -557,6 +561,7 @@ export default function* root() {
       ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
       handleUpdateBodyContentType,
     ),
+    takeEvery(ReduxActionTypes.UPDATE_ACTION_SUCCESS, updateFormValues),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),

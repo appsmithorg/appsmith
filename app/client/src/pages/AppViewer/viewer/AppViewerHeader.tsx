@@ -4,7 +4,6 @@ import { Helmet } from "react-helmet";
 import styled, { ThemeProvider } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo.png";
-import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -33,7 +32,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
+import getAppViewerHeaderCTA from "./getAppViewerHeaderCTA";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -107,17 +106,6 @@ const AppsmithLogoImg = styled.img`
   max-width: 110px;
 `;
 
-const Cta = styled(Button)`
-  ${(props) => getTypographyByKey(props, "btnLarge")}
-  height: 100%;
-`;
-
-const ForkButton = styled(Cta)`
-  svg {
-    transform: rotate(-90deg);
-  }
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
-`;
 const HeaderRightItemContainer = styled.div`
   display: flex;
   align-items: center;
@@ -162,42 +150,14 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}/fork`;
   const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
-  let CTA = null;
-
-  if (props.url && canEdit) {
-    CTA = (
-      <Cta
-        className="t--back-to-editor"
-        href={props.url}
-        icon="arrow-left"
-        text={createMessage(EDIT_APP)}
-      />
-    );
-  } else if (
-    currentApplicationDetails?.forkingEnabled &&
-    currentApplicationDetails?.isPublic &&
-    currentUser?.username === ANONYMOUS_USERNAME
-  ) {
-    CTA = (
-      <ForkButton
-        className="t--fork-app"
-        href={forkUrl}
-        text={createMessage(FORK_APP)}
-        icon="fork"
-      />
-    );
-  } else if (
-    currentApplicationDetails?.isPublic &&
-    currentUser?.username === ANONYMOUS_USERNAME
-  ) {
-    CTA = (
-      <Cta
-        className="t--sign-in"
-        href={loginUrl}
-        text={createMessage(SIGN_IN)}
-      />
-    );
-  }
+  const CTA = getAppViewerHeaderCTA({
+    url: props.url,
+    canEdit,
+    currentApplicationDetails,
+    currentUser,
+    forkUrl,
+    loginUrl,
+  });
 
   return (
     <ThemeProvider theme={props.lightTheme}>
@@ -232,15 +192,6 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                   title={currentApplicationDetails.name}
                   canOutsideClickClose={true}
                 />
-                {currentUser &&
-                  currentUser.username !== ANONYMOUS_USERNAME &&
-                  currentApplicationDetails?.forkingEnabled && (
-                    <div className="header__application-fork-btn-wrapper">
-                      <ForkApplicationModal
-                        applicationId={currentApplicationDetails.id}
-                      />
-                    </div>
-                  )}
                 {CTA && (
                   <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
                 )}

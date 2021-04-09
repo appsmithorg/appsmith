@@ -17,6 +17,11 @@ describe("Binding the multiple widgets and validating default data", function() 
   before(() => {
     cy.addDsl(dsl);
   });
+
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("Create a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
@@ -50,7 +55,7 @@ describe("Binding the multiple widgets and validating default data", function() 
   it("Button widget test with on action query run", function() {
     cy.SearchEntityandOpen("Button1");
     cy.executeDbQuery("Query1");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -61,7 +66,7 @@ describe("Binding the multiple widgets and validating default data", function() 
   it("Input widget test with default value update with query data", function() {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputQuery);
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
