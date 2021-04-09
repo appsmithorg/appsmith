@@ -322,7 +322,7 @@
           "placeholderText": "10"
         },
         {
-          "label": "Body",
+          "label": "Row Object(s)",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "hidden": {
