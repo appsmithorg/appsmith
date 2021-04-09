@@ -24,7 +24,7 @@ import FilePicker, {
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 
 const InputLabelWrapper = styled.div`
-  width: 200px;
+  width: 150px;
   display: flex;
   align-items: center;
 `;
@@ -52,6 +52,18 @@ const FilePickerLoader = styled.div`
   height: 190px;
   width: 333px;
   border-radius: 0;
+`;
+
+// testing
+export const Row = styled.div`
+  margin: 0;
+  padding: 0;
+  display: flex;
+`;
+
+export const Col = styled.div`
+  margin: 0;
+  padding: 0;
 `;
 
 export function GeneralSettings() {
@@ -121,75 +133,103 @@ export function GeneralSettings() {
 
   return (
     <>
-      <SettingsHeading type={TextType.H2}>General</SettingsHeading>
+      <SettingsHeading type={TextType.H2}>
+        <Row>
+          <Col>General</Col>
+        </Row>
+      </SettingsHeading>
       <SettingWrapper>
-        <InputLabelWrapper>
-          <Text type={TextType.H4}>Organization Name</Text>
-        </InputLabelWrapper>
-        {isFetchingApplications && (
-          <Loader className={Classes.SKELETON}></Loader>
-        )}
-        {!isFetchingApplications && (
-          <TextInput
-            validator={notEmptyValidator}
-            placeholder="Organization Name"
-            onChange={onWorkspaceNameChange}
-            defaultValue={currentOrg && currentOrg.name}
-            cypressSelector="t--org-name-input"
-          ></TextInput>
-        )}
+        <Row>
+          <Col>
+            <InputLabelWrapper>
+              <Text type={TextType.H4}>Organization Name</Text>
+            </InputLabelWrapper>
+          </Col>
+          <Col>
+            {isFetchingApplications && (
+              <Loader className={Classes.SKELETON}></Loader>
+            )}
+            {!isFetchingApplications && (
+              <TextInput
+                validator={notEmptyValidator}
+                placeholder="Organization Name"
+                onChange={onWorkspaceNameChange}
+                defaultValue={currentOrg && currentOrg.name}
+                cypressSelector="t--org-name-input"
+              ></TextInput>
+            )}
+          </Col>
+        </Row>
       </SettingWrapper>
 
       <SettingWrapper>
-        <InputLabelWrapper>
-          <Text type={TextType.H4}>Upload Logo</Text>
-        </InputLabelWrapper>
-        {isFetchingOrg && (
-          <FilePickerLoader className={Classes.SKELETON}></FilePickerLoader>
-        )}
-        {!isFetchingOrg && (
-          <FilePicker
-            url={currentOrg && currentOrg.logoUrl}
-            fileUploader={FileUploader}
-            onFileRemoved={DeleteLogo}
-            logoUploadError={logoUploadError.message}
-          />
-        )}
+        <Row className="t--organization-settings-filepicker">
+          <Col>
+            <InputLabelWrapper>
+              <Text type={TextType.H4}>Upload Logo</Text>
+            </InputLabelWrapper>
+          </Col>
+          <Col>
+            {isFetchingOrg && (
+              <FilePickerLoader className={Classes.SKELETON}></FilePickerLoader>
+            )}
+            {!isFetchingOrg && (
+              <FilePicker
+                url={currentOrg && currentOrg.logoUrl}
+                fileUploader={FileUploader}
+                onFileRemoved={DeleteLogo}
+                logoUploadError={logoUploadError.message}
+              />
+            )}
+          </Col>
+        </Row>
       </SettingWrapper>
 
       <SettingWrapper>
-        <InputLabelWrapper>
-          <Text type={TextType.H4}>Website</Text>
-        </InputLabelWrapper>
-        {isFetchingApplications && (
-          <Loader className={Classes.SKELETON}></Loader>
-        )}
-        {!isFetchingApplications && (
-          <TextInput
-            placeholder="Your website"
-            onChange={onWebsiteChange}
-            defaultValue={(currentOrg && currentOrg.website) || ""}
-            cypressSelector="t--org-website-input"
-          ></TextInput>
-        )}
+        <Row>
+          <Col>
+            <InputLabelWrapper>
+              <Text type={TextType.H4}>Website</Text>
+            </InputLabelWrapper>
+          </Col>
+          <Col>
+            {isFetchingApplications && (
+              <Loader className={Classes.SKELETON}></Loader>
+            )}
+            {!isFetchingApplications && (
+              <TextInput
+                placeholder="Your website"
+                onChange={onWebsiteChange}
+                defaultValue={(currentOrg && currentOrg.website) || ""}
+                cypressSelector="t--org-website-input"
+              ></TextInput>
+            )}
+          </Col>
+        </Row>
       </SettingWrapper>
 
       <SettingWrapper>
-        <InputLabelWrapper>
-          <Text type={TextType.H4}>Email</Text>
-        </InputLabelWrapper>
-        {isFetchingApplications && (
-          <Loader className={Classes.SKELETON}></Loader>
-        )}
-        {!isFetchingApplications && (
-          <TextInput
-            validator={emailValidator}
-            placeholder="Email"
-            onChange={onEmailChange}
-            defaultValue={(currentOrg && currentOrg.email) || ""}
-            cypressSelector="t--org-email-input"
-          ></TextInput>
-        )}
+        <Row>
+          <Col>
+            <InputLabelWrapper>
+              <Text type={TextType.H4}>Email</Text>
+            </InputLabelWrapper>
+          </Col>
+          <Col>
+            {isFetchingApplications && (
+              <Loader className={Classes.SKELETON}></Loader>
+            )}
+            {!isFetchingApplications && (
+              <TextInput
+                validator={emailValidator}
+                placeholder="Email"
+                onChange={onEmailChange}
+                defaultValue={(currentOrg && currentOrg.email) || ""}
+                cypressSelector="t--org-email-input"
+              ></TextInput>
+            )}
+          </Col>
+        </Row>
       </SettingWrapper>
     </>
   );

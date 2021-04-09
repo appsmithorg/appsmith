@@ -1,9 +1,8 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.annotations.DocumentType;
+import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.constants.FieldName;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,9 +13,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
 
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
