@@ -54,7 +54,8 @@ describe("Validate Validators", () => {
         },
         output: {
           isValid: false,
-          message: '0##Value does not match type: [{ "x": "val", "y": "val" }]',
+          message:
+            '##0==Value does not match type: [{ "x": "val", "y": "val" }]',
           parsed: {
             0: {
               seriesName: "Sales",
@@ -85,7 +86,8 @@ describe("Validate Validators", () => {
         },
         output: {
           isValid: false,
-          message: '0##Value does not match type: [{ "x": "val", "y": "val" }]',
+          message:
+            '##0==Value does not match type: [{ "x": "val", "y": "val" }]',
           parsed: {
             0: {
               seriesName: "Sales",
