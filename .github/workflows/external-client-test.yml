@@ -172,7 +172,7 @@ jobs:
       - name: Mark build job as complete
         uses: actions/github-script@v1
         id: update-check-run
-        if: ${{ success() }}
+        if: ${{ always() }}
         env:
           run_id: ${{ github.run_id }}
           repository: ${{ github.repository }}
@@ -400,7 +400,7 @@ jobs:
       - name: Mark ui-test-result job as complete
         uses: actions/github-script@v1
         id: update-check-run
-        if: ${{ success() }}
+        if: ${{ always() }}
         env:
           run_id: ${{ github.run_id }}
           repository: ${{ github.repository }}
@@ -505,7 +505,7 @@ jobs:
       - name: Mark package job as complete
         uses: actions/github-script@v1
         id: update-check-run
-        if: ${{ success() }}
+        if: ${{ always() }}
         env:
           run_id: ${{ github.run_id }}
           repository: ${{ github.repository }}
