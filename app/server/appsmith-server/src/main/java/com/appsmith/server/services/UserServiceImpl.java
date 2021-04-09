@@ -86,10 +86,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     // We default the origin header to the production deployment of the client's URL
     private static final String DEFAULT_ORIGIN_HEADER = "https://app.appsmith.com";
 
-    public enum typeOfEmail {welcome, passwordReset, inviteExistingUserToOrg, inviteNewUserToOrg}
-
-    ;
-
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
@@ -745,7 +741,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {
         Map<String, String> params = new HashMap<>();
-        
+
         if (inviter != null) {
             if (!StringUtils.isEmpty(inviter.getName())) {
                 params.put("Inviter_First_Name", inviter.getName());
