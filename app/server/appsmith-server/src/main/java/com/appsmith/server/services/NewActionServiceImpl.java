@@ -10,8 +10,10 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -38,6 +40,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +73,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -693,7 +697,73 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         result.setRequest(null);
                     }
                     return result;
-                });
+                })
+                .map(result -> addDataTypes(result));
+    }
+
+    private ActionExecutionResult addDataTypes(ActionExecutionResult result) {
+        /*
+         * - Do not process if data types are already present.
+         * - It means that data types have been added by specific plugin.
+         */
+        if(!CollectionUtils.isEmpty(result.getDataTypes())) {
+            return result;
+        }
+
+        List<ParsedDataType> parsedDataTypeList = new ArrayList<>();
+        Stream.of(ActionResultDataType.values())
+                .parallel()
+                .map(type -> {
+                    try {
+                        return parseActionResultDataType(result.getBody().toString(), type);
+                    } catch (AppsmithException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .filter(type -> type != null)
+                .forEachOrdered(type -> parsedDataTypeList.add(type));
+
+        result.setDataTypes(parsedDataTypeList);
+
+        return result;
+    }
+
+    private ParsedDataType parseActionResultDataType(String body, ActionResultDataType expectedType) throws AppsmithException {
+
+        switch (expectedType) {
+            case TABLE:
+                try {
+                    /*
+                     * - Check and return if the returned data is a valid table - i.e. an array of simple json objects.
+                     */
+                    objectMapper.readValue(body, new TypeReference<ArrayList<HashMap<String, String>>>() {});
+                    return new ParsedDataType(ActionResultDataType.TABLE);
+                } catch (JsonProcessingException e) {
+                    return null;
+                }
+
+            case JSON:
+                try {
+                    /*
+                     * - Check and return if the returned data is a valid json.
+                     */
+                    objectMapper.readTree(body);
+                    return new ParsedDataType(ActionResultDataType.JSON);
+                } catch (JsonProcessingException e) {
+                    return null;
+                }
+
+            case RAW:
+                /*
+                 * - Any data is by default categorized as raw.
+                 */
+                return new ParsedDataType(ActionResultDataType.RAW);
+            default:
+                throw new AppsmithException(
+                    AppsmithError.UNKNOWN_ACTION_RESULT_DATA_TYPE,
+                        expectedType.toString()
+                );
+        }
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
