@@ -61,6 +61,16 @@ function isInt(val: string | number): boolean {
   return !isNaN(parseInt(val));
 }
 
+// Removes the entity name from the property path
+export function getEntityNameAndPropertyPath(
+  fullPath: string,
+): { entityName: string; propertyPath: string } {
+  const indexOfFirstDot = fullPath.indexOf(".");
+  const entityName = fullPath.substring(0, indexOfFirstDot);
+  const propertyPath = fullPath.substring(fullPath.indexOf(".") + 1);
+  return { entityName, propertyPath };
+}
+
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
 ): DataTreeDiff => {
