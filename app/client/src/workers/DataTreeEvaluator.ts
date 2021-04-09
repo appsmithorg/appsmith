@@ -397,7 +397,7 @@ export default class DataTreeEvaluator {
             ).length;
             if (propertyPath) {
               let parsedValue = this.validateAndParseWidgetProperty(
-                propertyPath,
+                fullPropertyPath,
                 widgetEntity,
                 currentTree,
                 evalPropertyValue,
@@ -410,15 +410,15 @@ export default class DataTreeEvaluator {
                 parsedValue = this.overwriteDefaultDependentProps(
                   defaultProperty,
                   parsedValue,
-                  propertyPath,
+                  fullPropertyPath,
                   widgetEntity,
                 );
               }
-              return _.set(currentTree, propertyPath, parsedValue);
+              return _.set(currentTree, fullPropertyPath, parsedValue);
             }
-            return _.set(currentTree, propertyPath, evalPropertyValue);
+            return _.set(currentTree, fullPropertyPath, evalPropertyValue);
           } else {
-            return _.set(currentTree, propertyPath, evalPropertyValue);
+            return _.set(currentTree, fullPropertyPath, evalPropertyValue);
           }
         },
         tree,
@@ -577,13 +577,14 @@ export default class DataTreeEvaluator {
   }
 
   validateAndParseWidgetProperty(
-    propertyPath: string,
+    fullPropertyPath: string,
     widget: DataTreeWidget,
     currentTree: DataTree,
     evalPropertyValue: any,
     unEvalPropertyValue: string,
     isDefaultProperty: boolean,
   ): any {
+    const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
     let valueToValidate = evalPropertyValue;
     if (isPathADynamicTrigger(widget, propertyPath)) {
       const { triggers } = this.getDynamicValue(
@@ -620,11 +621,11 @@ export default class DataTreeEvaluator {
     if (isPathADynamicTrigger(widget, propertyPath)) {
       return unEvalPropertyValue;
     } else {
-      const parsedCache = this.getParsedValueCache(propertyPath);
+      const parsedCache = this.getParsedValueCache(fullPropertyPath);
       // In case this is a default property, always set the cache even if the value remains the same so that the version
       // in cache gets updated and the property dependent on default property updates accordingly.
       if (!equal(parsedCache.value, parsed) || isDefaultProperty) {
-        this.parsedValueCache.set(propertyPath, {
+        this.parsedValueCache.set(fullPropertyPath, {
           value: parsed,
           version: Date.now(),
         });
