@@ -6,9 +6,6 @@
   "author": "Appsmith Team",
   "license": "Apache-2.0",
   "private": true,
-  "scripts": {
-    "start": "tsc && node dist/server.js"
-  },
   "devDependencies": {
     "@types/express": "^4.17.11",
     "@types/mongodb": "^3.6.10",
