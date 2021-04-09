@@ -209,7 +209,7 @@
           "initialValue": "range"
         },
         {
-          "label": "Range",
+          "label": "Cell Range",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
