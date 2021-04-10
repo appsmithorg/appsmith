@@ -203,7 +203,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     payload = Base64.getDecoder().decode(encodedPayload);
                 } catch (IllegalArgumentException e) {
                     throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "File content is not base64 encoded. File content needs to be base64 encoded when the " +
                                     "'File Data Type: Base64/Text' field is selected 'Yes'."
                     );
@@ -540,10 +540,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setBody(e.getMessage());
-                        if (e instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
-                        }
+                        result.setErrorInfo(e);
                         return Mono.just(result);
 
                     })

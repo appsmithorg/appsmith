@@ -3,10 +3,12 @@ package com.appsmith.server.services;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ConfigRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -28,6 +30,7 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
     private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
 
     private final ApplicationRepository applicationRepository;
+    private final DatasourceRepository datasourceRepository;
 
     // This is permanently cached through the life of the JVM process as this is not intended to change at runtime ever.
     private String instanceId = null;
@@ -38,9 +41,11 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              ConfigRepository repository,
                              AnalyticsService analyticsService,
-                             ApplicationRepository applicationRepository) {
+                             ApplicationRepository applicationRepository,
+                             DatasourceRepository datasourceRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationRepository = applicationRepository;
+        this.datasourceRepository = datasourceRepository;
     }
 
     @Override
@@ -93,4 +98,18 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
                 .onErrorReturn(Collections.emptyList())
                 .flatMapMany(applicationRepository::findByIdIn);
     }
+
+    @Override
+    public Flux<Datasource> getTemplateDatasources() {
+        return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+                .filter(config -> config.getConfig() != null)
+                .map(config -> defaultIfNull(
+                        config.getConfig().getOrDefault("datasourceIds", null),
+                        Collections.emptyList()
+                ))
+                .cast(List.class)
+                .onErrorReturn(Collections.emptyList())
+                .flatMapMany(datasourceRepository::findByIdIn);
+    }
+
 }

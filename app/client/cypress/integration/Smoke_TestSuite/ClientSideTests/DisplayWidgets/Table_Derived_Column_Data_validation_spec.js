@@ -1,3 +1,4 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableTextPaginationDsl.json");
 const apiPage = require("../../../../locators/ApiEditor.json");
@@ -34,20 +35,17 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Table widget toggle test for background color", function() {
     cy.editColumn("id");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(widgetsPage.toggleJsBcgColor)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", "Green");
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS(
-      "1",
-      "0",
-      "background-color",
-      "rgb(0, 128, 0)",
-    );
+    cy.readTabledataValidateCSS("1", "0", "background-color", "rgb(0, 128, 0)");
   });
 
   it("Edit column name and validate test for computed value based on column type selected", function() {

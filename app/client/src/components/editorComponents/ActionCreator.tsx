@@ -1076,6 +1076,7 @@ function useModalDropdownList() {
       label: "New Modal",
       value: "Modal",
       id: "create",
+      icon: "plus",
       className: "t--create-modal-btn",
       onSelect: (option: TreeDropdownOption, setter?: Function) => {
         const modalName = nextModalName;
