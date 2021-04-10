@@ -75,6 +75,14 @@ describe("Page Load tests", () => {
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
       "have.text",
+      "This is Page 1",
+    );
+    cy.get(publish.backToEditor).click();
+    cy.SearchEntityandOpen("Page2");
+    cy.PublishtheApp();
+    // Assert active page DSL
+    cy.get(commonlocators.headingTextStyle).should(
+      "have.text",
       "This is Page 2",
     );
   });
