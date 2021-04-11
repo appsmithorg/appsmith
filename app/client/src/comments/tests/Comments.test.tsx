@@ -3,17 +3,19 @@ import userEvent from "@testing-library/user-event";
 import { unmountComponentAtNode } from "react-dom";
 import OverlayCommentsWrapper from "../inlineComments/OverlayCommentsWrapper";
 import store from "store";
-import { render } from "test/testUtils";
+import { createEvent, fireEvent, render, waitFor } from "test/testUtils";
 import { fetchApplicationCommentsRequest } from "actions/commentActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { setCommentMode } from "actions/commentActions";
 import { resetEditorSuccess } from "actions/initActions";
 import setMockPages from "./setMockPages";
-// import {
-//   createNewThreadMockResponse,
-//   fetchApplicationThreadsMockResponse,
-//   addCommentToThreadMockResponse,
-// } from "mockResponses/CommentApiMockResponse";
+import {
+  createNewThreadMockResponse,
+  fetchApplicationThreadsMockResponse,
+  addCommentToThreadMockResponse,
+} from "mockResponses/CommentApiMockResponse";
+import { act } from "react-dom/test-utils";
+import { uniqueId } from "lodash";
 
 let container: any = null;
 describe("Comment threads", () => {
@@ -46,50 +48,81 @@ describe("Comment threads", () => {
     done();
   });
 
-  // TODO uncomment once add comment input is finalised
-  // it("can be created", async (done) => {
-  //   const { getByDataCy, getAllByDataCy, findByDataCy, findByText } = render(
-  //     <OverlayCommentsWrapper refId="0">
-  //       <div style={{ height: 100, width: 100 }} />
-  //     </OverlayCommentsWrapper>,
-  //     container,
-  //   );
-  //   // clicking creates a new unpublished comment
-  //   userEvent.click(getByDataCy("overlay-comments-wrapper"));
-  //   userEvent.type(getByDataCy("add-comment-input"), "new comment");
-  //   // wait for text change to be propogated
-  //   await findByText("new comment");
-  //   userEvent.click(getByDataCy("add-comment-submit"));
-  //   const createdThreadId = createNewThreadMockResponse.data.id;
-  //   // wait for the new thread to be rendered
-  //   await findByDataCy(`t--inline-comment-pin-trigger-${createdThreadId}`);
-  //   const commentPins = getAllByDataCy("inline-comment-pin");
-  //   // now we should have 9 threads rendered
-  //   expect(commentPins).toHaveLength(9);
-  //   done();
-  // });
-  // it("accept replies", async (done) => {
-  //   const { getByDataCy, findByText, findByDataCy } = render(
-  //     <OverlayCommentsWrapper refId="0">
-  //       <div style={{ height: 100, width: 100 }} />
-  //     </OverlayCommentsWrapper>,
-  //     container,
-  //   );
-  //   const existingThreadId = fetchApplicationThreadsMockResponse.data[0].id;
-  //   // show comment thread popover
-  //   userEvent.click(
-  //     getByDataCy(`t--inline-comment-pin-trigger-${existingThreadId}`),
-  //   );
-  //   userEvent.type(getByDataCy("add-comment-input"), "new");
-  //   // wait for text change to be propogated
-  //   await findByText("new");
-  //   // mockAddCommentToThread();
-  //   userEvent.click(getByDataCy("add-comment-submit"));
-  //   // newly created comment should be visible
-  //   const createdCommentId = addCommentToThreadMockResponse.data.id;
-  //   await findByDataCy(`t--comment-card-${createdCommentId}`);
-  //   done();
-  // });
+  it("can be created", async (done) => {
+    const { getByDataCy, getAllByDataCy, findByDataCy, findByText } = render(
+      <OverlayCommentsWrapper refId="0">
+        <div style={{ height: 100, width: 100 }} />
+      </OverlayCommentsWrapper>,
+      container,
+    );
+    // clicking creates a new unpublished comment
+    userEvent.click(getByDataCy("overlay-comments-wrapper"));
+    const textAreas = await waitFor(() =>
+      document.querySelectorAll(".public-DraftEditor-content"),
+    );
+    const textArea = textAreas[textAreas.length - 1];
+    expect(textArea).toBeTruthy();
+
+    if (textArea) {
+      const newComment = uniqueId();
+      const event = createEvent.paste(textArea, {
+        clipboardData: {
+          types: ["text/plain"],
+          getData: () => newComment,
+        },
+      });
+      act(() => {
+        fireEvent(textArea, event);
+      });
+      // wait for text change to be propogated
+      await findByText(newComment);
+      userEvent.click(getByDataCy("add-comment-submit"));
+      const createdThreadId = createNewThreadMockResponse.data.id;
+      // wait for the new thread to be rendered
+      await findByDataCy(`t--inline-comment-pin-trigger-${createdThreadId}`);
+      const commentPins = getAllByDataCy("inline-comment-pin");
+      // now we should have 9 threads rendered
+      expect(commentPins).toHaveLength(9);
+    }
+    done();
+  });
+  it("accept replies", async (done) => {
+    const { getByDataCy, findByText, findByDataCy } = render(
+      <OverlayCommentsWrapper refId="0">
+        <div style={{ height: 100, width: 100 }} />
+      </OverlayCommentsWrapper>,
+      container,
+    );
+    const existingThreadId = fetchApplicationThreadsMockResponse.data[0].id;
+    const pin = await findByDataCy(
+      `t--inline-comment-pin-trigger-${existingThreadId}`,
+    );
+    // show comment thread popover
+    userEvent.click(pin);
+
+    const textAreas = await waitFor(() =>
+      document.querySelectorAll(".public-DraftEditor-content"),
+    );
+    const textArea = textAreas[textAreas.length - 1];
+    expect(textArea).toBeTruthy();
+
+    if (textArea) {
+      const event = createEvent.paste(textArea, {
+        clipboardData: {
+          types: ["text/plain"],
+          getData: () => "new",
+        },
+      });
+      fireEvent(textArea, event);
+      // wait for text change to be propogated
+      await findByText("new");
+      userEvent.click(getByDataCy("add-comment-submit"));
+      // newly created comment should be visible
+      const createdCommentId = addCommentToThreadMockResponse.data.id;
+      await findByDataCy(`t--comment-card-${createdCommentId}`);
+    }
+    done();
+  });
 
   afterEach(() => {
     // cleanup on exiting

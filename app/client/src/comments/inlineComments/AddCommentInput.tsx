@@ -1,25 +1,21 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled, { withTheme } from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { EditorState, convertToRaw, Modifier } from "draft-js";
 import EmojiPicker from "components/ads/EmojiPicker";
-import MentionsInput, {
-  Mention,
-} from "components/ads/MentionsInput/MentionsInput";
-import useAutoGrow from "utils/hooks/useAutoGrow";
-
-import { getAllUsers } from "selectors/organizationSelectors";
-
-const style = {
-  input: {
-    overflow: "auto",
-  },
-  highlighter: {
-    boxSizing: "border-box",
-    overflow: "hidden",
-  },
-};
+import MentionsInput from "components/ads/MentionsInput";
+import useOrgUsers from "./useOrgUsers";
+import {
+  defaultSuggestionsFilter,
+  MentionData,
+} from "@draft-js-plugins/mention";
+import { OrgUser } from "constants/orgConstants";
 
 const StyledInputContainer = styled.div`
   display: flex;
@@ -55,114 +51,89 @@ const PaddingContainer = styled.div`
   padding-top: 0;
 `;
 
-const StyledMentionsInput = styled(MentionsInput)`
-  flex: 1;
-  border: none;
-  ${(props) => getTypographyByKey(props, "p1")};
+const insertCharacter = (
+  characterToInsert: string,
+  editorState: EditorState,
+) => {
+  const currentContent = editorState.getCurrentContent(),
+    currentSelection = editorState.getSelection();
 
-  color: ${(props) => props.theme.colors.comments.commentBody};
-  background: ${(props) =>
-    props.theme.colors.comments.addCommentInputBackground};
-  word-wrap: break-word;
-  word-break: break-word;
-  resize: none;
-  outline: none;
-  & textarea {
-    overflow: auto;
-    line-height: 19px;
-    overflow: auto;
-    border: none;
-  }
-`;
+  const newContent = Modifier.replaceText(
+    currentContent,
+    currentSelection,
+    characterToInsert,
+  );
 
-const MAX_INPUT_HEIGHT = 96;
-const MIN_INPUT_HEIGHT = 24;
-const getInputHeight = (scrollHeight: number) => {
-  const height = Math.min(scrollHeight, MAX_INPUT_HEIGHT);
-  return Math.max(height, MIN_INPUT_HEIGHT);
+  const newEditorState = EditorState.push(
+    editorState,
+    newContent,
+    "insert-characters",
+  );
+
+  return EditorState.forceSelection(
+    newEditorState,
+    newContent.getSelectionAfter(),
+  );
+};
+
+const useUserSuggestions = (
+  users: Array<OrgUser>,
+  setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
+) => {
+  useEffect(() => {
+    setSuggestions(users.map((user) => ({ name: user.username })));
+  }, [users]);
 };
 
 const AddCommentInput = withTheme(({ onSave, theme }: any) => {
-  // TODO: pass data as a prop
-  const users = useSelector(getAllUsers) || [];
-  const [value, setValue] = useState("");
-  const onSaveComment = useCallback(() => {
-    onSave(value);
-    setValue("");
-  }, [value]);
+  const users = useOrgUsers();
+  const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
+  useUserSuggestions(users, setSuggestions);
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
-  const handleSubmitOnKeyDown = useCallback(
-    (
-      e:
-        | React.KeyboardEvent<HTMLTextAreaElement>
-        | React.KeyboardEvent<HTMLInputElement>,
-    ) => {
-      const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-      if (isEnterKey && !e.shiftKey) {
-        onSaveComment();
-        e.preventDefault();
-      }
+  const onSaveComment = useCallback(
+    (editorStateArg?: EditorState) => {
+      const latestEditorState = editorStateArg || editorState;
+      const contentState = latestEditorState.getCurrentContent();
+      const rawContent = convertToRaw(contentState);
+      onSave(JSON.stringify(rawContent));
+      setEditorState(EditorState.createEmpty());
     },
-    [value],
+    [editorState],
+  );
+  const handleSubmit = useCallback(() => onSaveComment(), [editorState]);
+
+  const handleEmojiClick = useCallback(
+    (e: any, emojiObject: any) => {
+      const newEditorState = insertCharacter(emojiObject.emoji, editorState);
+      setEditorState(newEditorState);
+    },
+    [editorState],
   );
 
-  const handleEmojiClick = (e: any, emojiObject: any) => {
-    setValue(`${value}${emojiObject.emoji}`);
-  };
-
-  const mentionsInputRef = useRef<HTMLTextAreaElement>(null);
-  const height = useAutoGrow(mentionsInputRef.current);
-  const calcHeight = useMemo(() => {
-    return getInputHeight((height as number) || 0);
-  }, [height]);
+  const onSearchChange = useCallback(
+    ({ value }: { value: string }) => {
+      setSuggestions(defaultSuggestionsFilter(value, suggestions));
+    },
+    [suggestions],
+  );
 
   return (
     <>
       <PaddingContainer>
         <StyledInputContainer>
-          <StyledMentionsInput
-            onKeyDown={handleSubmitOnKeyDown}
-            inputRef={mentionsInputRef}
-            onChange={(e: any) => {
-              setValue(e.target.value);
-            }}
-            value={value}
+          <MentionsInput
+            suggestions={suggestions}
+            editorState={editorState}
+            setEditorState={setEditorState}
+            onSubmit={onSaveComment}
+            onSearchSuggestions={onSearchChange}
             autoFocus
-            data-cy="add-comment-input"
-            style={{
-              input: {
-                ...style.input,
-                height: calcHeight,
-                maxHeight: MAX_INPUT_HEIGHT,
-              },
-              highlighter: {
-                ...style.highlighter,
-                height: calcHeight,
-                maxHeight: MAX_INPUT_HEIGHT,
-              },
-            }}
-          >
-            {users && (
-              <Mention
-                markup="@[__display__](user:__id__)"
-                trigger="@"
-                data={users.map((user) => ({
-                  display: user.username,
-                  id: user.username,
-                }))}
-                displayTransform={(id: string, display: string) =>
-                  `@${display}`
-                }
-              />
-            )}
-          </StyledMentionsInput>
+          />
           <StyledEmojiTrigger>
             <EmojiPicker onSelectEmoji={handleEmojiClick} />
           </StyledEmojiTrigger>
-          <StyledSendButton
-            onClick={onSaveComment}
-            data-cy="add-comment-submit"
-          >
+          <StyledSendButton onClick={handleSubmit} data-cy="add-comment-submit">
             <Icon
               name="send-button"
               fillColor={theme.colors.comments.sendButton}

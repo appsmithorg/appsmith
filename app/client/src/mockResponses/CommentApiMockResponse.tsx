@@ -6,7 +6,8 @@ export const addCommentToThreadMockResponse = {
   data: {
     id: "6063904791dea93f0eaf91d9",
     userPermissions: [],
-    body: "new",
+    body:
+      '{"blocks":[{"key":"9b3or","text":"new","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
     new: false,
   },
 };
@@ -29,7 +30,8 @@ export const createNewThreadMockResponse = {
       {
         id: "60636f0591dea93f0eaf91d6",
         userPermissions: [],
-        body: "asdf",
+        body:
+          '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
         new: false,
       },
     ],
@@ -56,7 +58,8 @@ export const fetchApplicationThreadsMockResponse = {
         {
           id: "605c436591dea93f0eaf91bc",
           userPermissions: [],
-          body: "qwerty",
+          body:
+            '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           new: false,
         },
       ],
@@ -75,7 +78,8 @@ export const fetchApplicationThreadsMockResponse = {
         {
           id: "605c444c91dea93f0eaf91be",
           userPermissions: [],
-          body: "new",
+          body:
+            '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           new: false,
         },
       ],
@@ -94,7 +98,8 @@ export const fetchApplicationThreadsMockResponse = {
         {
           id: "605c519391dea93f0eaf91c0",
           userPermissions: [],
-          body: "asdf",
+          body:
+            '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           new: false,
         },
       ],
@@ -113,13 +118,15 @@ export const fetchApplicationThreadsMockResponse = {
         {
           id: "605c519c91dea93f0eaf91c2",
           userPermissions: [],
-          body: "asdf",
+          body:
+            '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           new: false,
         },
         {
           id: "605c51b191dea93f0eaf91c3",
           userPermissions: [],
-          body: "1",
+          body:
+            '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           new: false,
         },
       ],
@@ -138,7 +145,8 @@ export const fetchApplicationThreadsMockResponse = {
         {
           id: "605c51e891dea93f0eaf91c5",
           userPermissions: [],
-          body: "111",
+          body:
+            '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           new: false,
         },
       ],
@@ -157,7 +165,8 @@ export const fetchApplicationThreadsMockResponse = {
         {
           id: "605c53b491dea93f0eaf91c7",
           userPermissions: [],
-          body: "new",
+          body:
+            '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           new: false,
         },
       ],
@@ -176,7 +185,8 @@ export const fetchApplicationThreadsMockResponse = {
         {
           id: "605cb30c91dea93f0eaf91cc",
           userPermissions: [],
-          body: "1",
+          body:
+            '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           new: false,
         },
       ],
@@ -195,7 +205,8 @@ export const fetchApplicationThreadsMockResponse = {
         {
           id: "6060c45e91dea93f0eaf91cf",
           userPermissions: [],
-          body: "sadf",
+          body:
+            '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
           new: false,
         },
       ],

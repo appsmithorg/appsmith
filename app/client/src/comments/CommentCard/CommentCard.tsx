@@ -1,9 +1,19 @@
 import React from "react";
+import Editor from "@draft-js-plugins/editor";
+import {
+  CompositeDecorator,
+  convertFromRaw,
+  DraftDecorator,
+  EditorState,
+} from "draft-js";
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
 import { Comment } from "entities/Comments/CommentsInterfaces";
+// import { getTypographyByKey } from "constants/DefaultTheme";
 // import CommentContextMenu from "./CommentContextMenu";
+
+import createMentionPlugin from "@draft-js-plugins/mention";
+import { flattenDeep, noop } from "lodash";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -16,12 +26,12 @@ const StyledContainer = styled.div`
   border-radius: 0;
 `;
 
-const CommentBody = styled.div`
-  ${(props) => getTypographyByKey(props, "p1")};
-  line-height: 24px;
-  color: ${(props) => props.theme.colors.comments.commentBody};
-  margin-top: ${(props) => props.theme.spaces[3]}px;
-`;
+// const CommentBodyContainer = styled.div`
+//   ${(props) => getTypographyByKey(props, "p1")};
+//   line-height: 24px;
+//   color: ${(props) => props.theme.colors.comments.commentBody};
+//   margin-top: ${(props) => props.theme.spaces[3]}px;
+// `;
 
 const CommentHeader = styled.div`
   display: flex;
@@ -40,8 +50,18 @@ const HeaderLeft = styled.div`
   display: flex;
 `;
 
+const mentionPlugin = createMentionPlugin();
+const plugins = [mentionPlugin];
+const decorators = flattenDeep(plugins.map((plugin) => plugin.decorators));
+const decorator = new CompositeDecorator(
+  decorators.filter((_decorator, index) => index !== 1) as DraftDecorator[],
+);
+
 const CommentCard = ({ comment }: { comment: Comment }) => {
   const { authorName, body } = comment;
+  const contentState = convertFromRaw(JSON.parse(body));
+  const editorState = EditorState.createWithContent(contentState, decorator);
+
   return (
     <StyledContainer data-cy={`t--comment-card-${comment.id}`}>
       <CommentHeader>
@@ -51,8 +71,12 @@ const CommentCard = ({ comment }: { comment: Comment }) => {
         </HeaderLeft>
         {/* <CommentContextMenu /> */}
       </CommentHeader>
-      {/**TODO dangerously set inner html for highlighting mentions */}
-      <CommentBody>{body.replace(/\[(\S*)\]\(\S*\)/, "$1")}</CommentBody>
+      <Editor
+        editorState={editorState}
+        plugins={plugins}
+        onChange={noop}
+        readOnly
+      />
     </StyledContainer>
   );
 };
