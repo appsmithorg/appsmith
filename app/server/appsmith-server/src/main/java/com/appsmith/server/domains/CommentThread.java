@@ -21,7 +21,6 @@ public class CommentThread extends BaseDomain {
 
     Boolean resolved;
 
-    // TODO: Can we infer this from the widget/entity this comment is connected to?
     String applicationId;
 
     // These comments are saved in a separate collection and loaded by the APIs separately.

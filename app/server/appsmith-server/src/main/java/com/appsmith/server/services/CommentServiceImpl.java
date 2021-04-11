@@ -108,25 +108,20 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     ));
                     return sessionUserService.getCurrentUser();
                 })
-                .zipWhen(user -> threadRepository.save(commentThread))
-                .flatMapMany(tuple -> {
-                    final User user = tuple.getT1();
-                    final CommentThread thread = tuple.getT2();
-
-                    List<Mono<Comment>> saverMonos = new ArrayList<>();
+                .flatMap(ignored -> threadRepository.save(commentThread))
+                .flatMapMany(thread -> {
+                    List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
 
                     if (!CollectionUtils.isEmpty(thread.getComments())) {
                         for (final Comment comment : thread.getComments()) {
                             comment.setId(null);
-                            comment.setAuthorName(user.getName());
-                            comment.setThreadId(thread.getId());
-                            saverMonos.add(repository.save(comment));
+                            commentSaverMonos.add(create(thread.getId(), comment));
                         }
                     }
 
                     // Using `concat` here so that the comments are saved one after the other, so that their `createdAt`
                     // value is meaningful.
-                    return Flux.concat(saverMonos);
+                    return Flux.concat(commentSaverMonos);
                 })
                 .collectList()
                 .map(comments -> {
