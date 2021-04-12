@@ -520,6 +520,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           autocomplete: (parentProps: any) => {
             return parentProps.childAutoComplete;
           },
+          hideEvaluatedValue: () => true,
           propertyUpdateHook: (
             parentProps: any,
             widgetName: string,
@@ -805,7 +806,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
                 return {
                   widgets,
-                  message: "Form Widgets in List Widget are not supported",
+                  message: `${
+                    WidgetConfigResponse.config[widget.type].widgetName
+                  } widgets cannot be used inside the list widget right now.`,
                 };
               }
 

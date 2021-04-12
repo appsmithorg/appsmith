@@ -30,6 +30,7 @@ export enum WidgetEnhancementType {
   PROPERTY_UPDATE = "child.propertyUpdateHook",
   CUSTOM_CONTROL = "child.customJSControl",
   AUTOCOMPLETE = "child.autocomplete",
+  HIDE_EVALUATED_VALUE = "child.hideEvaluatedValue",
 }
 
 function getParentWithEnhancementFn(

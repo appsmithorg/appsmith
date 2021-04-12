@@ -62,6 +62,10 @@ const PropertyControl = memo((props: Props) => {
     widgetProperties.widgetId,
     WidgetEnhancementType.CUSTOM_CONTROL,
   );
+  const childWidgetHideEvaluatedValueEnhancementFn = useChildWidgetEnhancementFn(
+    widgetProperties.widgetId,
+    WidgetEnhancementType.HIDE_EVALUATED_VALUE,
+  );
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
@@ -305,6 +309,18 @@ const PropertyControl = memo((props: Props) => {
       return props.customJSControl;
     };
 
+    /**
+     * should the property control hide evaluated popover
+     * @returns
+     */
+    const hideEvaluatedValue = () => {
+      if (childWidgetHideEvaluatedValueEnhancementFn) {
+        return childWidgetHideEvaluatedValueEnhancementFn();
+      }
+
+      return false;
+    };
+
     try {
       return (
         <ControlWrapper
@@ -353,6 +369,7 @@ const PropertyControl = memo((props: Props) => {
                 isDynamic,
                 getCustomJSControl(),
                 additionAutocomplete,
+                hideEvaluatedValue(),
               )}
             </Indicator>
           </Boxed>

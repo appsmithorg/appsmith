@@ -1,6 +1,15 @@
 import React from "react";
 import log from "loglevel";
-import { compact, floor, get, set, xor, isPlainObject, isNumber } from "lodash";
+import {
+  compact,
+  floor,
+  get,
+  set,
+  xor,
+  isPlainObject,
+  isNumber,
+  round,
+} from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -300,8 +309,16 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { page } = this.state;
     const { perPage } = this.shouldPaginate();
 
-    if (itemIndex > 0 && this.props.renderMode === RenderModes.CANVAS) {
-      const originalIndex = (page - 1) * perPage - itemIndex;
+    if (itemIndex > 0) {
+      const originalIndex = ((page - 1) * perPage - itemIndex) * -1;
+
+      if (this.props.renderMode === RenderModes.PAGE) {
+        set(
+          widget,
+          `widgetId`,
+          `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
+        );
+      }
 
       if (originalIndex !== 0) {
         set(
@@ -310,10 +327,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
         );
 
-        set(widget, `resizeDisabled`, true);
-        set(widget, `settingsControlDisabled`, true);
-        set(widget, `dragDisabled`, true);
-        set(widget, `dropDisabled`, true);
+        if (this.props.renderMode === RenderModes.CANVAS) {
+          set(widget, `resizeDisabled`, true);
+          set(widget, `settingsControlDisabled`, true);
+          set(widget, `dragDisabled`, true);
+          set(widget, `dropDisabled`, true);
+        }
       }
     }
 
@@ -501,18 +520,34 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const templateBottomRow = get(children, "0.children.0.bottomRow");
     const templateHeight = templateBottomRow * 40;
 
-    if (!isNumber(gridGap)) {
+    try {
+      gridGap = parseInt(gridGap);
+
+      console.log({ parsed: gridGap, isNumber: isNumber(gridGap) });
+      if (!isNumber(gridGap) || isNaN(gridGap)) {
+        gridGap = 0;
+      }
+    } catch {
       gridGap = 0;
     }
 
     const shouldPaginate =
       templateHeight * items.length + parseInt(gridGap) * (items.length - 1) >
       componentHeight;
-    const perPage =
-      (componentHeight - WIDGET_PADDING * 2) /
-      (templateHeight + parseInt(gridGap));
 
-    return { shouldPaginate, perPage: floor(perPage) };
+    const totalSpaceAvailable = componentHeight - (100 + WIDGET_PADDING * 2);
+    const spaceTakenByOneContainer =
+      templateHeight + (gridGap * (items.length - 1)) / items.length;
+
+    const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
+
+    console.log({
+      totalSpaceAvailable,
+      spaceTakenByOneContainer,
+      perPage: perPage,
+      gridGap,
+    });
+    return { shouldPaginate, perPage: round(perPage) };
   };
 
   /**

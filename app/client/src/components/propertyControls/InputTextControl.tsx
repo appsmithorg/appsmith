@@ -22,6 +22,7 @@ export function InputText(props: {
   dataTreePath?: string;
   additionalAutocomplete?: Record<string, Record<string, unknown>>;
   theme?: EditorTheme;
+  hideEvaluatedValue?: boolean;
 }) {
   const {
     errorMessage,
@@ -32,7 +33,9 @@ export function InputText(props: {
     placeholder,
     dataTreePath,
     evaluatedValue,
+    hideEvaluatedValue,
   } = props;
+
   return (
     <StyledDynamicInput>
       <CodeEditor
@@ -53,6 +56,7 @@ export function InputText(props: {
         size={EditorSize.EXTENDED}
         placeholder={placeholder}
         additionalDynamicData={props.additionalAutocomplete}
+        hideEvaluatedValue={hideEvaluatedValue}
       />
     </StyledDynamicInput>
   );
@@ -70,7 +74,9 @@ class InputTextControl extends BaseControl<InputControlProps> {
       validationMessage,
       defaultValue,
       additionalAutoComplete,
+      hideEvaluatedValue,
     } = this.props;
+
     return (
       <InputText
         label={label}
@@ -83,6 +89,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         placeholder={placeholderText}
         theme={this.props.theme}
         additionalAutocomplete={additionalAutoComplete}
+        hideEvaluatedValue={hideEvaluatedValue}
       />
     );
   }
