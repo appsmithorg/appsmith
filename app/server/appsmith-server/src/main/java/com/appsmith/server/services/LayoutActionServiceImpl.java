@@ -532,7 +532,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     }
                     return Flux.fromIterable(page.getLayouts())
                             .flatMap(layout -> {
-                                //layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                                layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
                                 return updateLayout(page.getId(), layout.getId(), layout);
                             });
                 })
