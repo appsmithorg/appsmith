@@ -3,9 +3,7 @@ import {
   isChildPropertyPath,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
-import { WidgetType } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { VALIDATORS } from "./validations";
 import { Diff } from "deep-diff";
 import {

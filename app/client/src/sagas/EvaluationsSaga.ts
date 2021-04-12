@@ -23,7 +23,6 @@ import {
   EvalErrorTypes,
 } from "utils/DynamicBindingUtils";
 import log from "loglevel";
-import { WidgetType } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
