@@ -29,7 +29,7 @@ check_ports_occupied() {
     if [[ -n $port_check_output ]]; then
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \
-        --data-raw '{
+        --data '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Error",
             "data": {
@@ -95,7 +95,7 @@ install_docker_compose() {
     else
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \
-        --data-raw '{
+        --data '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Error",
             "data": {
@@ -370,7 +370,7 @@ bye() {  # Prints a friendly good bye message and exits the script.
 
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \
-        --data-raw '{
+        --data '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Support",
             "data": {
@@ -401,7 +401,7 @@ ask_telemetry() {
 
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Telemetry",
         "data": {
@@ -427,7 +427,7 @@ trap bye EXIT
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Installation Started",
   "data": {
@@ -442,7 +442,7 @@ if [[ $desired_os -eq 0 ]];then
     echo_contact_support " if you wish to extend this support."
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
@@ -454,7 +454,7 @@ if [[ $desired_os -eq 0 ]];then
 else
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "OS Check Passed",
       "data": {
@@ -472,7 +472,7 @@ if [[ $EUID -eq 0 ]]; then
     echo "++++++++++++++++++++++++++++++++++++++++"
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
@@ -484,7 +484,7 @@ if [[ $EUID -eq 0 ]]; then
 fi
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Root Check Passed",
   "data": {
@@ -497,7 +497,7 @@ check_ports_occupied
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Port Check Passed",
   "data": {
@@ -519,7 +519,7 @@ if [[ -e "$install_dir" ]]; then
     echo_contact_support " if you're facing problems with the auto-updates."
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
@@ -533,7 +533,7 @@ fi
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Directory Check Passed",
   "data": {
@@ -554,7 +554,7 @@ if ! is_command_present docker; then
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \
-        --data-raw '{
+        --data '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Error",
             "data": {
@@ -568,7 +568,7 @@ fi
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Docker Check Passed",
   "data": {
@@ -594,7 +594,7 @@ echo ""
 if confirm y "Is this a fresh installation?"; then
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Fresh Install",
       "data": {
@@ -614,7 +614,7 @@ if confirm y "Is this a fresh installation?"; then
 else
    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Existing Installation"
     }' > /dev/null
@@ -676,7 +676,7 @@ echo ""
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
 --header 'Content-Type: text/plain' \
---data-raw '{
+--data '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Salt Generation Done",
   "data": {
@@ -688,7 +688,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
 if confirm n "Do you have a custom domain that you would like to link? (Only for cloud installations)"; then
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Custom Domain",
       "data": {
@@ -706,7 +706,7 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     if confirm y '(Your DNS records must be updated for us to proceed)'; then
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \
-        --data-raw '{
+        --data '{
           "userId": "'"$APPSMITH_INSTALLATION_ID"'",
           "event": "SSL Provisioning Start",
           "data": {
@@ -762,7 +762,7 @@ echo ""
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
   --header 'Content-Type: text/plain' \
-  --data-raw '{
+  --data '{
     "userId": "'"$APPSMITH_INSTALLATION_ID"'",
     "event": "Config Files Generated",
     "data": {
@@ -802,7 +802,7 @@ if [[ $status_code -ne 401 ]]; then
     echo "++++++++++++++++++++++++++++++++++++++++"
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
@@ -814,7 +814,7 @@ if [[ $status_code -ne 401 ]]; then
 else
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Success",
       "data": {
@@ -840,7 +840,7 @@ else
     read -rp 'Email: ' email
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
-    --data-raw '{
+    --data '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Identify Successful Installation",
       "data": {
