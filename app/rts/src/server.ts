@@ -61,7 +61,7 @@ function main() {
 
 	app.use(express.static(path.join(__dirname, "static")))
 	server.listen(port, () => {
-		console.log(`Example app listening at http://localhost:${port}`)
+		console.log(`RTS running at http://localhost:${port}`)
 	})
 }
 
@@ -182,7 +182,7 @@ async function watchMongoDB(io) {
 		{ fullDocument: "updateLookup" }
 	);
 
-	threadChangeStream.on("change", (event: mongodb.ChangeEventCR) => {
+	threadChangeStream.on("change", async (event: mongodb.ChangeEventCR) => {
 		console.log("thread event", event)
 		const thread = event.fullDocument
 		if (thread == null) {
