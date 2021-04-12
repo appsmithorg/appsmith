@@ -531,7 +531,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         return Mono.empty();
                     }
                     return Flux.fromIterable(page.getLayouts())
-                            .flatMap(layout -> updateLayout(page.getId(), layout.getId(), layout));
+                            .flatMap(layout -> {
+                                //layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                                return updateLayout(page.getId(), layout.getId(), layout);
+                            });
                 })
                 .collectList()
                 .then(Mono.just(pageId));
