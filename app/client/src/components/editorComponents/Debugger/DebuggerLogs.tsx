@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import { isUndefined } from "lodash";
 import { Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
-import { useFilteredLogs } from "./helpers";
+import { useFilteredLogs, usePagination } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
 
 const LIST_HEADER_HEIGHT = "38px";
@@ -24,7 +25,9 @@ type Props = {
 const DebbuggerLogs = (props: Props) => {
   const [filter, setFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState(props.searchQuery);
-  const logs = useFilteredLogs(searchQuery, filter);
+  const filteredLogs = useFilteredLogs(searchQuery, filter);
+  const { paginatedData, next } = usePagination(filteredLogs);
+  const listRef = useRef(null);
   const filterOptions = [
     {
       label: "All",
@@ -38,10 +41,23 @@ const DebbuggerLogs = (props: Props) => {
     (option) => option.value === filter,
   );
 
+  function handleScroll(e: any) {
+    if (e.target.scrollTop === 0) {
+      next();
+    }
+  }
+
+  useEffect(() => {
+    const list: any = listRef.current;
+    if (!list) return;
+    list.addEventListener("scroll", handleScroll);
+    return () => list.removeEventListener("scroll", handleScroll);
+  }, []);
+
   useEffect(() => {
     const div = document.getElementsByClassName("debugger-list")[0];
     if (div) div.scrollTop = div.scrollHeight - div.clientHeight;
-  }, [logs.length]);
+  }, [paginatedData.length]);
 
   return (
     <ContainerWrapper>
@@ -49,12 +65,12 @@ const DebbuggerLogs = (props: Props) => {
         options={filterOptions}
         selected={selectedFilter || filterOptions[0]}
         onChange={setSearchQuery}
-        onSelect={(value) => value && setFilter(value)}
+        onSelect={(value) => !isUndefined(value) && setFilter(value)}
         defaultValue={props.searchQuery}
         searchQuery={searchQuery}
       />
-      <ListWrapper className="debugger-list">
-        {logs.map((e, index) => {
+      <ListWrapper className="debugger-list" ref={listRef}>
+        {paginatedData.map((e: any, index: number) => {
           const logItemProps = getLogItemProps(e);
 
           return <LogItem key={`debugger-${index}`} {...logItemProps} />;

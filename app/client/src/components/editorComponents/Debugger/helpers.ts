@@ -1,4 +1,5 @@
 import { Message, Severity } from "entities/AppsmithConsole";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 
@@ -34,4 +35,25 @@ export const useFilteredLogs = (query: string, filter?: any) => {
   }
 
   return filteredLogs;
+};
+
+export const usePagination = (data: any, itemsPerPage = 50) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedData, setPaginatedData] = useState([]);
+  const maxPage = Math.ceil(data.length / itemsPerPage);
+
+  useEffect(() => {
+    setPaginatedData(currentData());
+  }, [currentPage, data.length]);
+
+  function currentData() {
+    const end = currentPage * itemsPerPage;
+    return data.slice(0, end);
+  }
+
+  function next() {
+    setCurrentPage((currentPage) => Math.min(currentPage + 1, maxPage));
+  }
+
+  return { next, paginatedData };
 };
