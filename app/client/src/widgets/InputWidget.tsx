@@ -311,7 +311,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         isLoading={this.props.isLoading}
         label={this.props.label}
         multiline={
-          this.props.bottomRow - this.props.topRow > 1 &&
+          (this.props.bottomRow - this.props.topRow) / 4 > 1 &&
           this.props.inputType === "TEXT"
         }
         onFocusChange={this.handleFocusChange}

@@ -321,7 +321,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 view: [
                   {
                     type: "ICON_WIDGET",
-                    position: { left: 14, top: 0 },
+                    position: { left: 14 * 4, top: 1 },
                     size: { rows: 1 * 4, cols: 2 * 4 },
                     props: {
                       iconName: "cross",
@@ -332,7 +332,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "TEXT_WIDGET",
-                    position: { left: 0, top: 0 },
+                    position: { left: 1, top: 1 },
                     size: { rows: 1 * 4, cols: 10 * 4 },
                     props: {
                       text: "Modal Title",
@@ -342,7 +342,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 9, top: 4 },
+                    position: { left: 9 * 4, top: 4 * 4 },
                     size: { rows: 1 * 4, cols: 3 * 4 },
                     props: {
                       text: "Cancel",
@@ -352,7 +352,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 12, top: 4 },
+                    position: { left: 12 * 4, top: 4 * 4 },
                     size: { rows: 1 * 4, cols: 4 * 4 },
                     props: {
                       text: "Confirm",
@@ -475,7 +475,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   {
                     type: "TEXT_WIDGET",
                     size: { rows: 1 * 4, cols: 12 * 4 },
-                    position: { top: 0, left: 0 },
+                    position: { top: 1, left: 1.5 },
                     props: {
                       text: "Form",
                       textStyle: "HEADING",
@@ -485,7 +485,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   {
                     type: "FORM_BUTTON_WIDGET",
                     size: { rows: 1 * 4, cols: 4 * 4 },
-                    position: { top: 11, left: 12 },
+                    position: { top: 11.25 * 4, left: 11.6 * 4 },
                     props: {
                       text: "Submit",
                       buttonStyle: "PRIMARY_BUTTON",
@@ -497,7 +497,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   {
                     type: "FORM_BUTTON_WIDGET",
                     size: { rows: 1 * 4, cols: 4 * 4 },
-                    position: { top: 11, left: 8 },
+                    position: { top: 11.25 * 4, left: 7.5 * 4 },
                     props: {
                       text: "Reset",
                       buttonStyle: "SECONDARY_BUTTON",

@@ -140,8 +140,8 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     }
 
     if (
-      newRowCols.rightColumn - newRowCols.leftColumn < 1 ||
-      newRowCols.bottomRow - newRowCols.topRow < 1
+      newRowCols.rightColumn - newRowCols.leftColumn < 2 ||
+      newRowCols.bottomRow - newRowCols.topRow < 4
     ) {
       return true;
     }
@@ -172,16 +172,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       }
     }
     // Check if new row cols are occupied by sibling widgets
-    return isDropZoneOccupied(
-      {
-        left: newRowCols.leftColumn,
-        top: newRowCols.topRow,
-        bottom: newRowCols.bottomRow,
-        right: newRowCols.rightColumn,
-      },
-      props.widgetId,
-      occupiedSpacesBySiblingWidgets,
-    );
+    return false;
   };
 
   // onResizeStop handler
