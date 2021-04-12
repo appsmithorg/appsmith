@@ -13,13 +13,15 @@ type Props = {
   resolved: boolean;
 };
 
+const BtnContainer = styled.span`
+  margin-left: ${(props) => props.theme.spaces[2]}px;
+`;
+
 const ResolveCommentButton = ({ handleClick, resolved }: Props) => {
   return (
     <Container onClick={handleClick}>
       <Icon name="oval-check" size={IconSize.XXL} />
-      <span style={{ marginLeft: 4 }}>
-        {!resolved ? RESOLVE() : UNRESOLVE()}
-      </span>
+      <BtnContainer>{!resolved ? RESOLVE() : UNRESOLVE()}</BtnContainer>
     </Container>
   );
 };

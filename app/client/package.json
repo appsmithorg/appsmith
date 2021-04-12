@@ -192,7 +192,6 @@
     "@types/jest": "^24.0.22",
     "@types/marked": "^1.2.2",
     "@types/react-beautiful-dnd": "^11.0.4",
-    "@types/react-mentions": "^4.1.0",
     "@types/react-select": "^3.0.5",
     "@types/react-tabs": "^2.3.1",
     "@types/react-window": "^1.8.2",

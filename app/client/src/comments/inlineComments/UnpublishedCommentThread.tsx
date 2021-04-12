@@ -16,6 +16,7 @@ import {
 import Icon, { IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
 import { RawDraftContentState } from "draft-js";
+import { CommentThread } from "entities/Comments/CommentsInterfaces";
 
 const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   position: absolute;
@@ -25,7 +26,13 @@ const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
 
 // TODO look into drying this up using comment thread component
 const UnpublishedCommentThread = withTheme(
-  ({ theme, commentThread }: { commentThread: any; theme: Theme }) => {
+  ({
+    theme,
+    commentThread,
+  }: {
+    commentThread: CommentThread;
+    theme: Theme;
+  }) => {
     const { top, left } = get(commentThread, "position", {
       top: 0,
       left: 0,

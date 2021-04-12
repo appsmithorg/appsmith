@@ -12,11 +12,9 @@ import { EditorState, convertToRaw, Modifier } from "draft-js";
 import EmojiPicker from "components/ads/EmojiPicker";
 import MentionsInput from "components/ads/MentionsInput";
 import useOrgUsers from "./useOrgUsers";
-import {
-  defaultSuggestionsFilter,
-  MentionData,
-} from "@draft-js-plugins/mention";
+import { MentionData } from "@draft-js-plugins/mention";
 import { OrgUser } from "constants/orgConstants";
+import { IEmojiData } from "emoji-picker-react";
 
 const StyledInputContainer = styled.div`
   display: flex;
@@ -106,7 +104,7 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
   const handleSubmit = useCallback(() => onSaveComment(), [editorState]);
 
   const handleEmojiClick = useCallback(
-    (e: any, emojiObject: any) => {
+    (e: React.MouseEvent, emojiObject: IEmojiData) => {
       const newEditorState = insertCharacter(emojiObject.emoji, editorState);
       setEditorState(newEditorState);
     },
