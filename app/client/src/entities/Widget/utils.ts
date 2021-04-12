@@ -30,8 +30,10 @@ export const getAllPathsFromPropertyConfig = (
             !controlConfig.isTriggerProperty
           ) {
             bindingPaths[controlConfig.propertyName] = true;
-            validationPaths[controlConfig.propertyName] =
-              controlConfig.validation;
+            if (controlConfig.validation) {
+              validationPaths[controlConfig.propertyName] =
+                controlConfig.validation;
+            }
           } else if (
             controlConfig.isBindProperty &&
             controlConfig.isTriggerProperty
@@ -71,8 +73,10 @@ export const getAllPathsFromPropertyConfig = (
                               !panelColumnControlConfig.isTriggerProperty
                             ) {
                               bindingPaths[panelPropertyPath] = true;
-                              validationPaths[panelPropertyPath] =
-                                panelColumnControlConfig.validation;
+                              if (panelColumnControlConfig.validation) {
+                                validationPaths[panelPropertyPath] =
+                                  panelColumnControlConfig.validation;
+                              }
                             } else if (
                               panelColumnControlConfig.isBindProperty &&
                               panelColumnControlConfig.isTriggerProperty
@@ -104,6 +108,10 @@ export const getAllPathsFromPropertyConfig = (
                     !childPropertyConfig.isTriggerProperty
                   ) {
                     bindingPaths[childArrayPropertyPath] = true;
+                    if (childPropertyConfig.validation) {
+                      validationPaths[childArrayPropertyPath] =
+                        childPropertyConfig.validation;
+                    }
                   } else if (
                     childPropertyConfig.isBindProperty &&
                     childPropertyConfig.isTriggerProperty
