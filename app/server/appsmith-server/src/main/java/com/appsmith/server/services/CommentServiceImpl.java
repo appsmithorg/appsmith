@@ -142,9 +142,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
     @Override
     public Mono<List<CommentThread>> getThreadsByApplicationId(String applicationId) {
-        return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                .flatMap(ignored -> threadRepository.findByApplicationId(applicationId).collectList())
+        return threadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
+                .collectList()
                 .flatMap(threads -> {
                     final Map<String, CommentThread> threadsByThreadId = new HashMap<>();
 
