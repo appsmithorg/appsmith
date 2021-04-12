@@ -20,7 +20,7 @@ const EmojiPicker = withTheme(
         onSelectEmoji(e, emojiObject);
         setIsOpen(false);
       },
-      [],
+      [onSelectEmoji],
     );
 
     return (
