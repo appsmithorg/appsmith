@@ -3,6 +3,7 @@ import React, {
   SetStateAction,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -90,6 +91,7 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
   useUserSuggestions(users, setSuggestions);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const [suggestionsQuery, setSuggestionsQuery] = useState("");
 
   const onSaveComment = useCallback(
     (editorStateArg?: EditorState) => {
@@ -113,17 +115,28 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
 
   const onSearchChange = useCallback(
     ({ value }: { value: string }) => {
-      setSuggestions(defaultSuggestionsFilter(value, suggestions));
+      setSuggestionsQuery(value);
     },
     [suggestions],
   );
+
+  const filteredSuggestions = useMemo(() => {
+    if (!suggestionsQuery) return suggestions;
+    else {
+      return suggestions.filter((suggestion) => {
+        const str = suggestion.name.toLowerCase();
+        const filter = suggestionsQuery.toLowerCase();
+        return str.indexOf(filter) !== -1;
+      });
+    }
+  }, [suggestionsQuery, suggestions]);
 
   return (
     <>
       <PaddingContainer>
         <StyledInputContainer>
           <MentionsInput
-            suggestions={suggestions}
+            suggestions={filteredSuggestions}
             editorState={editorState}
             setEditorState={setEditorState}
             onSubmit={onSaveComment}
