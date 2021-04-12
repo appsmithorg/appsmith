@@ -5,6 +5,7 @@ import {
   convertFromRaw,
   DraftDecorator,
   EditorState,
+  RawDraftContentState,
 } from "draft-js";
 import styled from "styled-components";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
@@ -59,7 +60,7 @@ const decorator = new CompositeDecorator(
 
 const CommentCard = ({ comment }: { comment: Comment }) => {
   const { authorName, body } = comment;
-  const contentState = convertFromRaw(JSON.parse(body));
+  const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
 
   return (

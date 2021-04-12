@@ -15,6 +15,7 @@ import {
 } from "actions/commentActions";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
+import { RawDraftContentState } from "draft-js";
 
 const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   position: absolute;
@@ -34,7 +35,7 @@ const UnpublishedCommentThread = withTheme(
       dispatch(removeUnpublishedCommentThreads());
     };
 
-    const createCommentThread = (text: string) => {
+    const createCommentThread = (text: RawDraftContentState) => {
       dispatch(createCommentThreadAction({ commentBody: text, commentThread }));
     };
 

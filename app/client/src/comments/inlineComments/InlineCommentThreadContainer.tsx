@@ -20,6 +20,7 @@ import {
 import useIsScrolledToBottom from "utils/hooks/useIsScrolledToBottom";
 
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
+import { RawDraftContentState } from "draft-js";
 
 /**
  * Comment thread popover
@@ -47,7 +48,7 @@ const InlineCommentThreadContainer = ({
     comments,
   ]);
 
-  const addComment = (text: string) => {
+  const addComment = (text: RawDraftContentState) => {
     dispatch(
       addCommentToThreadRequest({
         commentThread,

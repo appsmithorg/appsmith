@@ -27,8 +27,20 @@ export const commentThreadsMapInitial = {
       {
         id: "605c436591dea93f0eaf91bc",
         userPermissions: [],
-        body:
-          '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+        body: {
+          blocks: [
+            {
+              key: "6bfm4",
+              text: "asdf",
+              type: "unstyled",
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
         new: false,
       },
     ],
@@ -47,8 +59,20 @@ export const commentThreadsMapInitial = {
       {
         id: "605c444c91dea93f0eaf91be",
         userPermissions: [],
-        body:
-          '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+        body: {
+          blocks: [
+            {
+              key: "6bfm4",
+              text: "asdf",
+              type: "unstyled",
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
         new: false,
       },
     ],
@@ -67,8 +91,20 @@ export const commentThreadsMapInitial = {
       {
         id: "605c519391dea93f0eaf91c0",
         userPermissions: [],
-        body:
-          '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+        body: {
+          blocks: [
+            {
+              key: "6bfm4",
+              text: "asdf",
+              type: "unstyled",
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
         new: false,
       },
     ],
@@ -87,15 +123,39 @@ export const commentThreadsMapInitial = {
       {
         id: "605c519c91dea93f0eaf91c2",
         userPermissions: [],
-        body:
-          '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+        body: {
+          blocks: [
+            {
+              key: "6bfm4",
+              text: "asdf",
+              type: "unstyled",
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
         new: false,
       },
       {
         id: "605c51b191dea93f0eaf91c3",
         userPermissions: [],
-        body:
-          '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+        body: {
+          blocks: [
+            {
+              key: "6bfm4",
+              text: "asdf",
+              type: "unstyled",
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
         new: false,
       },
     ],
@@ -114,8 +174,20 @@ export const commentThreadsMapInitial = {
       {
         id: "605c51e891dea93f0eaf91c5",
         userPermissions: [],
-        body:
-          '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+        body: {
+          blocks: [
+            {
+              key: "6bfm4",
+              text: "asdf",
+              type: "unstyled",
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
         new: false,
       },
     ],
@@ -134,8 +206,20 @@ export const commentThreadsMapInitial = {
       {
         id: "605c53b491dea93f0eaf91c7",
         userPermissions: [],
-        body:
-          '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+        body: {
+          blocks: [
+            {
+              key: "6bfm4",
+              text: "asdf",
+              type: "unstyled",
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
         new: false,
       },
     ],
@@ -154,8 +238,20 @@ export const commentThreadsMapInitial = {
       {
         id: "605cb30c91dea93f0eaf91cc",
         userPermissions: [],
-        body:
-          '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+        body: {
+          blocks: [
+            {
+              key: "6bfm4",
+              text: "asdf",
+              type: "unstyled",
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
         new: false,
       },
     ],
@@ -174,8 +270,20 @@ export const commentThreadsMapInitial = {
       {
         id: "6060c45e91dea93f0eaf91cf",
         userPermissions: [],
-        body:
-          '{"blocks":[{"key":"6bfm4","text":"asdf","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+        body: {
+          blocks: [
+            {
+              key: "6bfm4",
+              text: "asdf",
+              type: "unstyled",
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
         new: false,
       },
     ],
@@ -208,7 +316,20 @@ export const createCommentThreadSuccessPayload = {
       id: "606acdfac7a35467ac887f67",
       userPermissions: [],
       authorName: "Ozzy osbourne",
-      body: "new test",
+      body: {
+        blocks: [
+          {
+            key: "6bfm4",
+            text: "asdf",
+            type: "unstyled",
+            depth: 0,
+            inlineStyleRanges: [],
+            entityRanges: [],
+            data: {},
+          },
+        ],
+        entityMap: {},
+      },
       new: false,
     },
   ],
@@ -222,7 +343,20 @@ export const addCommentToThreadSuccessPayload = {
     id: "606acf0dc7a35467ac887f68",
     userPermissions: [],
     authorName: "Ozzy osbourne",
-    body: "reply",
+    body: {
+      blocks: [
+        {
+          key: "6bfm4",
+          text: "asdf",
+          type: "unstyled",
+          depth: 0,
+          inlineStyleRanges: [],
+          entityRanges: [],
+          data: {},
+        },
+      ],
+      entityMap: {},
+    },
     new: false,
   },
 };
@@ -271,6 +405,19 @@ export const newCommentEventPayload = {
   comment: {
     _id: "606c08edc7a35467ac887faf",
     threadId: "605c436591dea93f0eaf91bb",
-    body: "newest",
+    body: {
+      blocks: [
+        {
+          key: "6bfm4",
+          text: "asdf",
+          type: "unstyled",
+          depth: 0,
+          inlineStyleRanges: [],
+          entityRanges: [],
+          data: {},
+        },
+      ],
+      entityMap: {},
+    },
   },
 };

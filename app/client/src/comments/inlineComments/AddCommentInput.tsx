@@ -96,7 +96,7 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
       const latestEditorState = editorStateArg || editorState;
       const contentState = latestEditorState.getCurrentContent();
       const rawContent = convertToRaw(contentState);
-      onSave(JSON.stringify(rawContent));
+      onSave(rawContent);
       setEditorState(EditorState.createEmpty());
     },
     [editorState],

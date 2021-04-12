@@ -1,4 +1,5 @@
 import { COMMENT_EVENTS } from "constants/CommentConstants";
+import { RawDraftContentState } from "draft-js";
 
 // export enum CommentThreadParentTypes {
 //   widget = "widget",
@@ -13,7 +14,7 @@ import { COMMENT_EVENTS } from "constants/CommentConstants";
 // }
 
 export type CreateCommentRequest = {
-  body: string;
+  body: RawDraftContentState;
 };
 
 export type CreateCommentThreadRequest = {
@@ -44,7 +45,7 @@ export type CommentEventPayload = {
 };
 
 export type CreateCommentThreadPayload = {
-  commentBody: string;
+  commentBody: RawDraftContentState;
   commentThread: Partial<CreateCommentThreadRequest>;
 };
 
@@ -55,12 +56,16 @@ export type AddCommentToCommentThreadSuccessPayload = {
 
 export type AddCommentToCommentThreadRequestPayload = {
   commentThread: CommentThread;
-  commentBody: string;
+  commentBody: RawDraftContentState;
   callback: () => void;
 };
 
 export type NewCommentEventPayload = {
-  comment: Partial<Comment> & { _id: string; threadId: string; body: string };
+  comment: Partial<Comment> & {
+    _id: string;
+    threadId: string;
+    body: RawDraftContentState;
+  };
 };
 
 export type NewCommentThreadPayload = {
