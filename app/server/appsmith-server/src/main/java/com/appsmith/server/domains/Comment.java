@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Document
@@ -27,6 +30,53 @@ public class Comment extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String authorName;
 
-    String body;
+    Body body;
+
+    @Data
+    public static class Body {
+        List<Block> blocks;
+        Map<String, Entity> entityMap;
+    }
+
+    @Data
+    public static class Block {
+        String key;
+        String text;
+        String type;
+        Integer depth;
+        List<Range> inlineStyleRanges;
+        List<Range> entityRanges;
+    }
+
+    @Data
+    public static class Range {
+        Integer offset;
+        Integer length;
+        Integer key;
+    }
+
+    @Data
+    public static class Entity {
+        String type;
+        String mutability;
+        EntityData data;
+    }
+
+    @Data
+    public static class EntityData {
+        Mention mention;
+
+        @Data
+        public static class Mention {
+            String name;
+            EntityUser user;
+        }
+
+        @Data
+        public static class EntityUser {
+            String username;
+            String roleName;
+        }
+    }
 
 }
