@@ -2,6 +2,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { get } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 export const getAllPathsFromPropertyConfig = (
   widget: WidgetProps,
@@ -10,9 +11,11 @@ export const getAllPathsFromPropertyConfig = (
 ): {
   bindingPaths: Record<string, true>;
   triggerPaths: Record<string, true>;
+  validationPaths: Record<string, VALIDATION_TYPES>;
 } => {
   const bindingPaths: Record<string, true> = derivedProperties;
   const triggerPaths: Record<string, true> = {};
+  const validationPaths: Record<any, VALIDATION_TYPES> = {};
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {
@@ -27,6 +30,8 @@ export const getAllPathsFromPropertyConfig = (
             !controlConfig.isTriggerProperty
           ) {
             bindingPaths[controlConfig.propertyName] = true;
+            validationPaths[controlConfig.propertyName] =
+              controlConfig.validation;
           } else if (
             controlConfig.isBindProperty &&
             controlConfig.isTriggerProperty
@@ -66,6 +71,8 @@ export const getAllPathsFromPropertyConfig = (
                               !panelColumnControlConfig.isTriggerProperty
                             ) {
                               bindingPaths[panelPropertyPath] = true;
+                              validationPaths[panelPropertyPath] =
+                                panelColumnControlConfig.validation;
                             } else if (
                               panelColumnControlConfig.isBindProperty &&
                               panelColumnControlConfig.isTriggerProperty
@@ -112,7 +119,7 @@ export const getAllPathsFromPropertyConfig = (
     }
   });
 
-  return { bindingPaths, triggerPaths };
+  return { bindingPaths, triggerPaths, validationPaths };
 };
 
 export const nextAvailableRowInContainer = (
