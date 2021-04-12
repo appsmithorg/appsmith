@@ -1,4 +1,4 @@
-import { WidgetType, RenderMode } from "constants/WidgetConstants";
+import { RenderMode } from "constants/WidgetConstants";
 import {
   WidgetBuilder,
   WidgetProps,
@@ -15,6 +15,7 @@ import {
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
 import { generateReactKey } from "./generators";
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -44,7 +45,11 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
     return sectionOrControlConfig;
   });
 };
+
+export type WidgetType = typeof WidgetFactory.widgetTypes[number];
+
 class WidgetFactory {
+  static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
     WidgetType,
     WidgetBuilder<WidgetProps, WidgetState>
@@ -71,8 +76,13 @@ class WidgetFactory {
     readonly PropertyPaneConfig[]
   > = new Map();
 
+  static widgetConfigMap: Map<
+    WidgetType,
+    Partial<WidgetProps> & WidgetConfigProps & { type: string }
+  > = new Map();
+
   static registerWidgetBuilder(
-    widgetType: WidgetType,
+    widgetType: string,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
     widgetPropertyValidation: WidgetPropertyValidationType,
     derivedPropertiesMap: DerivedPropertiesMap,
@@ -80,17 +90,35 @@ class WidgetFactory {
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
   ) {
-    this.widgetMap.set(widgetType, widgetBuilder);
-    this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
-    this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
-    this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
-    this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
+    console.log(
+      "Registering",
+      { widgetType },
+      "registered widgets:",
+      this.widgetTypes,
+    );
+    if (!!this.widgetTypes[widgetType]) {
+      console.error(`Widget ${widgetType} is already registered`);
+    } else {
+      this.widgetTypes[widgetType] = widgetType;
+      this.widgetMap.set(widgetType, widgetBuilder);
+      this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
+      this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
+      this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
+      this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
-    propertyPaneConfig &&
-      this.propertyPaneConfigsMap.set(
-        widgetType,
-        Object.freeze(addPropertyConfigIds(propertyPaneConfig)),
-      );
+      propertyPaneConfig &&
+        this.propertyPaneConfigsMap.set(
+          widgetType,
+          Object.freeze(addPropertyConfigIds(propertyPaneConfig)),
+        );
+    }
+  }
+
+  static storeWidgetConfig(
+    widgetType: string,
+    config: Partial<WidgetProps> & WidgetConfigProps & { type: string },
+  ) {
+    this.widgetConfigMap.set(widgetType, Object.freeze(config));
   }
 
   static createWidget(

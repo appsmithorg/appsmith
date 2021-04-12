@@ -10,6 +10,7 @@ import {
 import { getSelectedWidget } from "sagas/selectors";
 import { Theme } from "constants/DefaultTheme";
 import { widgetSidebarConfig } from "mockResponses/WidgetSidebarResponse";
+import { WidgetCardProps } from "widgets/BaseWidget";
 
 type Props = {
   theme: Theme;
@@ -22,7 +23,9 @@ const PropertyPaneHelpButton = withTheme(({ theme }: Props) => {
   const config = selectedWidgetType && widgetSidebarConfig[selectedWidgetType];
 
   const openHelpModal = useCallback(() => {
-    dispatch(setGlobalSearchQuery(config?.widgetCardName || ""));
+    dispatch(
+      setGlobalSearchQuery((config as WidgetCardProps)?.widgetCardName || ""),
+    );
     dispatch(toggleShowGlobalSearchModal());
   }, [selectedWidgetType]);
 

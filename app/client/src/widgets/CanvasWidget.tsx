@@ -1,19 +1,20 @@
 import React, { CSSProperties } from "react";
 import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetTypes, GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import * as Sentry from "@sentry/react";
+import WidgetFactory from "utils/WidgetFactory";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
     return [];
   }
-  getWidgetType = () => {
-    return WidgetTypes.CANVAS_WIDGET;
-  };
+  static getWidgetType() {
+    return "CANVAS_WIDGET";
+  }
 
   getCanvasProps(): ContainerWidgetProps<WidgetProps> {
     return {
@@ -64,6 +65,22 @@ class CanvasWidget extends ContainerWidget {
     return this.renderAsDropTarget();
   }
 }
+
+export const registerWidget = () => {
+  WidgetFactory.registerWidgetBuilder(
+    CanvasWidget.getWidgetType(),
+    {
+      buildWidget(widgetData: any): JSX.Element {
+        return <ProfiledCanvasWidget {...widgetData} />;
+      },
+    },
+    CanvasWidget.getPropertyValidationMap(),
+    CanvasWidget.getDerivedPropertiesMap(),
+    CanvasWidget.getDefaultPropertiesMap(),
+    CanvasWidget.getMetaPropertiesMap(),
+    CanvasWidget.getPropertyPaneConfig(),
+  );
+};
 
 export default CanvasWidget;
 export const ProfiledCanvasWidget = Sentry.withProfiler(CanvasWidget);

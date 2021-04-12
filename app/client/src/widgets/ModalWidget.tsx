@@ -6,7 +6,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import {
-  WidgetTypes,
   RenderMode,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -146,7 +145,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   getWidgetType() {
-    return WidgetTypes.MODAL_WIDGET;
+    return "MODAL_WIDGET";
   }
 }
 

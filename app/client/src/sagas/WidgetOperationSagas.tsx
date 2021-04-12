@@ -53,7 +53,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _, { cloneDeep, isString, set } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory, { WidgetType } from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
   executeWidgetBlueprintOperations,
@@ -64,8 +64,6 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
   WIDGET_DELETE_UNDO_TIMEOUT,
-  WidgetType,
-  WidgetTypes,
 } from "constants/WidgetConstants";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import {
@@ -111,6 +109,9 @@ import {
   WIDGET_CUT,
   WIDGET_DELETE,
 } from "constants/messages";
+
+// Todo(abhinav): abstraction leak
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -314,7 +315,9 @@ export function* addChildrenSaga(
     children.forEach((child) => {
       // Create only if it doesn't already exist
       if (!widgets[child.widgetId]) {
-        const defaultConfig: any = WidgetConfigResponse.config[child.type];
+        const defaultConfig: any = WidgetFactory.widgetConfigMap.get(
+          child.type,
+        );
         const newWidgetName = getNextEntityName(defaultConfig.widgetName, [
           ...widgetNames,
           ...entityNames,
@@ -1148,7 +1151,7 @@ function getNextWidgetName(
   evalTree: Record<string, unknown>,
 ) {
   // Compute the new widget's name
-  const defaultConfig: any = WidgetConfigResponse.config[type];
+  const defaultConfig: any = WidgetFactory.widgetConfigMap.get(type);
   const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
   const entityNames = Object.keys(evalTree);
 

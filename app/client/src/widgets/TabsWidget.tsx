@@ -1,6 +1,5 @@
 import React from "react";
 import TabsComponent from "components/designSystems/appsmith/TabsComponent";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
@@ -150,7 +149,7 @@ class TabsWidget extends BaseWidget<
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
-  getWidgetType(): WidgetType {
+  getWidgetType(): string {
     return "TABS_WIDGET";
   }
 
@@ -165,7 +164,8 @@ class TabsWidget extends BaseWidget<
           (this.props.bottomRow - this.props.topRow - 1) *
           this.props.parentRowSpace;
         const config = {
-          type: WidgetTypes.CANVAS_WIDGET,
+          // Todo(abhinav): abstraction leaks
+          type: "CANVAS_WIDGET",
           columns: columns,
           rows: rows,
           topRow: 1,
@@ -291,7 +291,7 @@ class TabsWidget extends BaseWidget<
     }
 
     const tabContainers = tabsToCreate.map((tab) => ({
-      type: WidgetTypes.CANVAS_WIDGET,
+      type: "CANVAS_WIDGET",
       tabId: tab.id,
       tabName: tab.label,
       widgetId: tab.widgetId,

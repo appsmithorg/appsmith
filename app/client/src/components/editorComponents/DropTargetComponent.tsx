@@ -20,7 +20,6 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import {
   MAIN_CONTAINER_WIDGET_ID,
   GridDefaults,
-  WidgetTypes,
 } from "constants/WidgetConstants";
 import { calculateDropTargetRows } from "./DropTargetUtils";
 import DragLayerComponent from "./DragLayerComponent";
@@ -32,7 +31,8 @@ import {
   useCanvasSnapRowsUpdateHook,
 } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
-
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
   snapColumnSpace: number;

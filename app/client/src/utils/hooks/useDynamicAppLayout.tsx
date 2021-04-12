@@ -16,7 +16,7 @@ import {
   getCurrentApplicationLayout,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { calculateDynamicHeight } from "utils/WidgetPropsUtils";
+import { calculateDynamicHeight } from "utils/DSLMigrations";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 
 export const useDynamicAppLayout = () => {

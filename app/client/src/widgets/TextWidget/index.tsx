@@ -1,14 +1,15 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType, TextSize } from "constants/WidgetConstants";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { TextSize } from "constants/WidgetConstants";
 import TextComponent from "components/designSystems/blueprint/TextComponent";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import IconSVG from "./icon.svg";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -175,10 +176,34 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     };
   }
 
-  getWidgetType(): WidgetType {
+  static getWidgetType(): string {
     return "TEXT_WIDGET";
   }
 }
+
+export const CONFIG = {
+  type: TextWidget.getWidgetType(),
+  name: "Text",
+  iconSVG: IconSVG,
+  defaults: {
+    text: "Label",
+    fontSize: "PARAGRAPH", // Make these into appsmith defaults: For example. AppsmithFontSizes.PARAGRAPH
+    fontStyle: "BOLD", // Make these into general defaults: For example. FontStyles.BOLD,
+    textAlign: "LEFT", // Make these into general defaults: For example. TextAlignments.LEFT
+    textColor: "#231F20", // Make these into appsmith defaults. For example. AppsmithColors.defaultText
+    rows: 1,
+    columns: 4,
+    widgetName: "Text",
+    version: 1,
+  },
+  properties: {
+    validations: TextWidget.getPropertyValidationMap(),
+    derived: TextWidget.getDerivedPropertiesMap(),
+    default: TextWidget.getDefaultPropertiesMap(),
+    meta: TextWidget.getMetaPropertiesMap(),
+    config: TextWidget.getPropertyPaneConfig(),
+  },
+};
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -197,4 +222,4 @@ export interface TextWidgetProps extends WidgetProps, TextStyles {
 }
 
 export default TextWidget;
-export const ProfiledTextWidget = Sentry.withProfiler(TextWidget);
+// export const ProfiledTextWidget = Sentry.withProfiler(TextWidget);

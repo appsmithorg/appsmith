@@ -4,7 +4,6 @@ import _ from "lodash";
 import ContainerComponent, {
   ContainerStyle,
 } from "components/designSystems/appsmith/ContainerComponent";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   GridDefaults,
@@ -79,7 +78,7 @@ class ContainerWidget extends BaseWidget<
     const snapSpaces = this.getSnapSpaces();
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
-    if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
+    if (childWidgetData.type !== "CANVAS_WIDGET") {
       childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
       childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
     } else {
@@ -122,8 +121,8 @@ class ContainerWidget extends BaseWidget<
     return this.renderAsContainerComponent(this.props);
   }
 
-  getWidgetType(): WidgetType {
-    return WidgetTypes.CONTAINER_WIDGET;
+  getWidgetType(): string {
+    return "CONTAINER_WIDGET";
   }
 }
 

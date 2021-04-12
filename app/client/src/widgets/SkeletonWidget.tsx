@@ -3,6 +3,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import * as Sentry from "@sentry/react";
 import styled from "styled-components";
+import WidgetFactory from "utils/WidgetFactory";
 
 const SkeletonWrapper = styled.div`
   height: 100%;
@@ -17,10 +18,26 @@ class SkeletonWidget extends BaseWidget<SkeletonWidgetProps, WidgetState> {
     return <SkeletonWrapper className="bp3-skeleton" />;
   }
 
-  getWidgetType(): WidgetType {
+  static getWidgetType() {
     return "SKELETON_WIDGET";
   }
 }
+
+export const registerWidget = () => {
+  WidgetFactory.registerWidgetBuilder(
+    SkeletonWidget.getWidgetType(),
+    {
+      buildWidget(widgetData: SkeletonWidgetProps): JSX.Element {
+        return <ProfiledSkeletonWidget {...widgetData} />;
+      },
+    },
+    SkeletonWidget.getPropertyValidationMap(),
+    SkeletonWidget.getDerivedPropertiesMap(),
+    SkeletonWidget.getDefaultPropertiesMap(),
+    SkeletonWidget.getMetaPropertiesMap(),
+    SkeletonWidget.getPropertyPaneConfig(),
+  );
+};
 
 export interface SkeletonWidgetProps extends WidgetProps {
   isLoading: boolean;

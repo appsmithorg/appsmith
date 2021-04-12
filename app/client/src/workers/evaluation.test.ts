@@ -4,7 +4,7 @@ import {
   ENTITY_TYPE,
 } from "../entities/DataTree/dataTreeFactory";
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
-import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
+import { RenderModes } from "../constants/WidgetConstants";
 import { PluginType } from "../entities/Action";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 
@@ -411,7 +411,7 @@ const BASE_WIDGET: DataTreeWidget = {
   renderMode: RenderModes.CANVAS,
   rightColumn: 0,
   topRow: 0,
-  type: WidgetTypes.SKELETON_WIDGET,
+  type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
   bindingPaths: {},
@@ -443,7 +443,7 @@ describe("DataTreeEvaluator", () => {
       ...BASE_WIDGET,
       widgetName: "Text1",
       text: "Label",
-      type: WidgetTypes.TEXT_WIDGET,
+      type: "TEXT_WIDGET",
       bindingPaths: {
         text: true,
       },
@@ -453,7 +453,7 @@ describe("DataTreeEvaluator", () => {
       widgetName: "Text2",
       text: "{{Text1.text}}",
       dynamicBindingPathList: [{ key: "text" }],
-      type: WidgetTypes.TEXT_WIDGET,
+      type: "TEXT_WIDGET",
       bindingPaths: {
         text: true,
       },
@@ -463,7 +463,7 @@ describe("DataTreeEvaluator", () => {
       widgetName: "Text3",
       text: "{{Text1.text}}",
       dynamicBindingPathList: [{ key: "text" }],
-      type: WidgetTypes.TEXT_WIDGET,
+      type: "TEXT_WIDGET",
       bindingPaths: {
         text: true,
       },
@@ -480,7 +480,7 @@ describe("DataTreeEvaluator", () => {
           value: "valueTest2",
         },
       ],
-      type: WidgetTypes.DROP_DOWN_WIDGET,
+      type: "DROP_DOWN_WIDGET",
       bindingPaths: {
         options: true,
         defaultOptionValue: true,
@@ -500,7 +500,7 @@ describe("DataTreeEvaluator", () => {
       ...BASE_WIDGET,
       tableData: "{{Api1.data.map(datum => ({ ...datum, raw: Text1.text }) )}}",
       dynamicBindingPathList: [{ key: "tableData" }],
-      type: WidgetTypes.TABLE_WIDGET,
+      type: "TABLE_WIDGET",
       bindingPaths: {
         tableData: true,
         selectedRow: true,
@@ -511,7 +511,7 @@ describe("DataTreeEvaluator", () => {
       ...BASE_WIDGET,
       text: "{{Table1.selectedRow.test}}",
       dynamicBindingPathList: [{ key: "text" }],
-      type: WidgetTypes.TEXT_WIDGET,
+      type: "TEXT_WIDGET",
       bindingPaths: {
         text: true,
       },
@@ -611,7 +611,7 @@ describe("DataTreeEvaluator", () => {
         text: undefined,
         defaultText: "Default value",
         widgetName: "Input1",
-        type: WidgetTypes.INPUT_WIDGET,
+        type: "INPUT_WIDGET",
         bindingPaths: {
           defaultText: true,
           isValid: true,
@@ -640,7 +640,7 @@ describe("DataTreeEvaluator", () => {
             value: "valueTest2",
           },
         ],
-        type: WidgetTypes.DROP_DOWN_WIDGET,
+        type: "DROP_DOWN_WIDGET",
         bindingPaths: {
           options: true,
           defaultOptionValue: true,

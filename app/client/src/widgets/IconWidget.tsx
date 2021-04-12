@@ -1,6 +1,5 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import styled from "styled-components";
 import IconComponent, {
   IconType,
@@ -49,8 +48,8 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
     );
   }
 
-  getWidgetType(): WidgetType {
-    return WidgetTypes.ICON_WIDGET;
+  getWidgetType(): string {
+    return "ICON_WIDGET";
   }
 }
 

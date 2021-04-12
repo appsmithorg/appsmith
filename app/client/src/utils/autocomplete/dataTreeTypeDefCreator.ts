@@ -29,7 +29,7 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
         }
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        def[entityName] = entityDefinitions.ACTION(entity);
+        def[entityName] = (entityDefinitions.ACTION as any)(entity);
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
         def.appsmith = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));

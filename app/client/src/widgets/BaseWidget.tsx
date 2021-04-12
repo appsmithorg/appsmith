@@ -83,7 +83,9 @@ abstract class BaseWidget<
    *   }
    *  ```
    */
-  abstract getWidgetType(): WidgetType;
+  static getWidgetType(): string {
+    return "SKELETON_WIDGET";
+  }
 
   /**
    *  Widgets can execute actions using this `executeAction` method.

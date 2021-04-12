@@ -4,7 +4,7 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 
 describe("evaluate", () => {
   const widget: DataTreeWidget = {
@@ -16,7 +16,7 @@ describe("evaluate", () => {
     renderMode: RenderModes.CANVAS,
     rightColumn: 0,
     topRow: 0,
-    type: WidgetTypes.INPUT_WIDGET,
+    type: "INPUT_WIDGET",
     version: 0,
     widgetId: "",
     widgetName: "",

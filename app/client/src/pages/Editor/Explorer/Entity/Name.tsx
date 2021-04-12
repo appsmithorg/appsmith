@@ -14,7 +14,9 @@ import { removeSpecialChars } from "utils/helpers";
 import { AppState } from "reducers";
 import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
-import { WidgetTypes } from "constants/WidgetConstants";
+
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 const searchHighlightSpanClassName = "token";
 const searchTokenizationDelimiter = "!!";
@@ -82,6 +84,7 @@ export const EntityName = forwardRef(
           state.entities.canvasWidgets.hasOwnProperty(widget.parentId)
         ) {
           const parent = state.entities.canvasWidgets[widget.parentId];
+          // Todo(abhinav): abstraction leak
           if (parent.type === WidgetTypes.TABS_WIDGET) {
             return parent.tabs;
           }
@@ -184,14 +187,13 @@ export const EntityName = forwardRef(
 
     const enterEditMode = useCallback(
       () =>
-        props.updateEntityName &&
         dispatch({
           type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
           payload: {
             id: props.entityId,
           },
         }),
-      [dispatch, props.entityId, props.updateEntityName],
+      [dispatch, props.entityId],
     );
 
     if (!props.isEditing)

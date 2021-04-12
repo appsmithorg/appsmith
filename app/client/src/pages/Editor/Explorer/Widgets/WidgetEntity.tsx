@@ -1,7 +1,6 @@
 import React, { useMemo, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -23,6 +22,9 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityProperties from "../Entity/EntityProperties";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
+
+import WidgetFactory, { WidgetType } from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 

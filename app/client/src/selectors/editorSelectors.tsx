@@ -23,7 +23,7 @@ import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "selectors/entitiesSelector";
 
 import { getCanvasWidgets } from "./entitiesSelector";
-import { WidgetTypes } from "../constants/WidgetConstants";
+import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
@@ -258,7 +258,7 @@ const createLoadingWidget = (
   ) as WidgetProps;
   return {
     ...widgetStaticProps,
-    type: WidgetTypes.SKELETON_WIDGET,
+    type: SKELETON_WIDGET_TYPE,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
     triggerPaths: {},

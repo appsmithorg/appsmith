@@ -1,10 +1,6 @@
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  WidgetTypes,
-  FontStyleTypes,
-  TextSizes,
-} from "constants/WidgetConstants";
+import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import {
   ColumnProperties,
@@ -22,7 +18,7 @@ export const tableWidgetPropertyPaneMigrations = (
   currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
     let child = cloneDeep(_child);
     // If the current child is a TABLE_WIDGET
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       const hiddenColumns = child.hiddenColumns || [];
       const columnNameMap = child.columnNameMap;
       const columnSizeMap = child.columnSizeMap;
@@ -178,7 +174,7 @@ export const migrateTablePrimaryColumnsBindings = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (
         child.primaryColumns &&
         Object.keys(child.primaryColumns).length > 0
