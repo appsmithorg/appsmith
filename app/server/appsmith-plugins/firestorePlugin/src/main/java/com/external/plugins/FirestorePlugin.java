@@ -230,6 +230,7 @@ public class FirestorePlugin extends BasePlugin {
                     .map(result -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
+                        request.setPluginSpecifiedTemplates(actionConfiguration.getPluginSpecifiedTemplates());
                         request.setQuery(query);
                         result.setRequest(request);
                         return result;

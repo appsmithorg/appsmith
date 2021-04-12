@@ -2079,4 +2079,11 @@ public class DatabaseChangelog {
                     }
                 });
     }
+
+    @ChangeSet(order = "062", id = "add-isrequestdebugenabled-attribute-to-plugin", author = "")
+    public void addIsRequestDebugEnabledAttribute(MongoTemplate mongoTemplate) {
+        mongoTemplate.findAll(Plugin.class)
+                .stream()
+                .forEach(plugin -> mongoTemplate.save(plugin));
+    }
 }
