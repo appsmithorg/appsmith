@@ -76,18 +76,51 @@ describe("Text Widget Functionality", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
-    cy.readTextDataValidateCSS(
-      "background",
-      "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
-    );
+    cy.PublishtheApp();
+    /*cy.readTextDataValidateCSS(
+            "background-color",
+            "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
+        );*/
+    cy.get(publishPage.backToEditor).click({ force: true });
+  });
+
+  it("Test to validate text alignment", function() {
+    cy.get(widgetsPage.centerAlign)
+      .first()
+      .click({ force: true });
+    cy.readTextDataValidateCSS("text-align", "center");
+    cy.get(widgetsPage.rightAlign)
+      .first()
+      .click({ force: true });
+    cy.readTextDataValidateCSS("text-align", "right");
+    cy.get(widgetsPage.leftAlign)
+      .first()
+      .click({ force: true });
+    cy.readTextDataValidateCSS("text-align", "left");
+    cy.closePropertyPane();
+  });
+
+  it("Test to validate enable scroll feature", function() {
+    cy.get(".t--property-control-enablescroll .bp3-switch").click({
+      force: true,
+    });
+    cy.wait("@updateLayout");
+    cy.get(commonlocators.headingTextStyle).trigger("mouseover", {
+      force: true,
+    });
+    cy.get(commonlocators.headingTextStyle).scrollIntoView({ duration: 2000 });
+  });
+
+  it.skip("Test to validate color changes background", function() {
     cy.get(widgetsPage.backgroundColor)
       .clear({ force: true })
       .type("purple", { force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
+    cy.PublishtheApp();
     cy.readTextDataValidateCSS(
-      "background",
+      "background-color",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
     );
   });
