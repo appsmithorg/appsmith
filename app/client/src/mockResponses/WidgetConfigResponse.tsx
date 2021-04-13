@@ -620,6 +620,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       containerStyle: "card",
                       dragDisabled: true,
                       isDeletable: false,
+                      disallowCopy: true,
                       paddingEnabled: false,
                       settingsControlDisabled: true,
                       children: [],

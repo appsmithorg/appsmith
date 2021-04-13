@@ -112,6 +112,7 @@ import {
   WIDGET_COPY,
   WIDGET_CUT,
   WIDGET_DELETE,
+  ERROR_WIDGET_COPY_NOT_ALLOWED,
 } from "constants/messages";
 
 function* getChildWidgetProps(
@@ -1190,6 +1191,15 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
       text: createMessage(ERROR_WIDGET_COPY_NO_WIDGET_SELECTED),
       variant: Variant.info,
     });
+    return;
+  }
+
+  if (selectedWidget.disallowCopy === true) {
+    Toaster.show({
+      text: createMessage(ERROR_WIDGET_COPY_NOT_ALLOWED),
+      variant: Variant.info,
+    });
+
     return;
   }
 
