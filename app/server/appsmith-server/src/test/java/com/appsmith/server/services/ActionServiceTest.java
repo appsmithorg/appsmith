@@ -38,6 +38,7 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -55,6 +56,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -146,13 +149,29 @@ public class ActionServiceTest {
             testApp = applicationPageService.createApplication(application, organization.getId()).block();
 
             final String pageId = testApp.getPages().get(0).getId();
-            Layout layout = new Layout();
-            JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
-            layout.setDsl(dsl);
-            layout.setPublishedDsl(dsl);
-            layoutService.createLayout(pageId, layout).block();
 
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+
+            Layout layout = testPage.getLayouts().get(0);
+            JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
+
+            JSONObject dsl2 = new JSONObject();
+            dsl2.put("widgetName", "Table1");
+            dsl2.put("type", "TABLE_WIDGET");
+            Map<String, Object> primaryColumns = new HashMap<>();
+            JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+            primaryColumns.put("_id", "{{ query1.data }}");
+            primaryColumns.put("_class", jsonObject);
+            dsl2.put("primaryColumns", primaryColumns);
+            final ArrayList<Object> objects = new ArrayList<>();
+            JSONArray temp2 = new JSONArray();
+            temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+            dsl2.put("dynamicBindingPathList", temp2);
+            objects.add(dsl2);
+            dsl.put("children", objects);
+
+            layout.setDsl(dsl);
+            layout.setPublishedDsl(dsl);
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
