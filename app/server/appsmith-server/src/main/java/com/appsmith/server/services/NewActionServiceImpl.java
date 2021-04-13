@@ -716,18 +716,19 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return result;
         }
 
+        HashMap<String, List<Object>> dataTypes = new HashMap<>();
+        
         if (result.getRequest().getBody() == null && result.getRequest().getQuery() == null) {
             /*
              * - Any data is by default categorized as raw.
              */
-            result.getRequest().setDataTypes(Map.of(BODY_KEY, List.of(new ParsedDataType(ActionResultDataType.RAW))));
-            return result;
+            dataTypes.put(BODY_KEY, List.of(new ParsedDataType(ActionResultDataType.RAW)));
         }
-
-        HashMap<String, List<Object>> dataTypes = new HashMap<>();
-        String body = result.getRequest().getBody() != null ? result.getRequest().getBody().toString() :
-                result.getRequest().getQuery();
-        dataTypes.put(BODY_KEY, new ArrayList<>(getActionResultDataTypes(body)));
+        else {
+            String body = result.getRequest().getBody() != null ? result.getRequest().getBody().toString() :
+                    result.getRequest().getQuery();
+            dataTypes.put(BODY_KEY, new ArrayList<>(getActionResultDataTypes(body)));
+        }
 
         if (!CollectionUtils.isEmpty(result.getRequest().getProperties())) {
             dataTypes.put(
