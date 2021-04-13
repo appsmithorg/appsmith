@@ -13,6 +13,7 @@ export interface PageWidgetsReduxState {
 const initalState: PageWidgetsReduxState = {};
 
 const pageWidgetsReducer = createImmerReducer(initalState, {
+  [ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST]: () => ({}),
   [ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS]: (
     state: PageWidgetsReduxState,
     action: ReduxAction<Array<{ pageId: string; dsl: DSL }>>,

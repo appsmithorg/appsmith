@@ -427,6 +427,9 @@ export function* createApplicationSaga(
           appName: application.name,
         });
         yield put({
+          type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
+        });
+        yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: {
             orgId,
