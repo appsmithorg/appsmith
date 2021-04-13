@@ -710,6 +710,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return result;
         }
 
+        if (result.getBody() == null) {
+            result.setDataTypes(new ArrayList<>());
+            return result;
+        }
+
         List<ParsedDataType> parsedDataTypeList = new ArrayList<>();
         Stream.of(ActionResultDataType.values())
                 .parallel()
