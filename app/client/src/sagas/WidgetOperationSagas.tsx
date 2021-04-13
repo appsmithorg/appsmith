@@ -1175,6 +1175,13 @@ function* createWidgetCopy() {
   );
 }
 
+/**
+ * copy here actually means saving a JSON in local storage
+ * so when a user hits copy on a selected widget, we save widget in localStorage
+ *
+ * @param action
+ * @returns
+ */
 function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   const selectedWidget = yield select(getSelectedWidget);
   if (!selectedWidget) {
