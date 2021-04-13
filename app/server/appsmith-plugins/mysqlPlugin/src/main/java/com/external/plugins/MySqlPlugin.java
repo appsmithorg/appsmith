@@ -46,7 +46,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -166,9 +165,12 @@ public class MySqlPlugin extends BasePlugin {
                  * is no longer in beta.
                  */
                 isPreparedStatement = false;
-            } else {
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+            } else {
+                isPreparedStatement = false;
             }
+
             requestData.put("preparedStatement", TRUE.equals(isPreparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
@@ -179,6 +181,7 @@ public class MySqlPlugin extends BasePlugin {
                 errorResult.setIsExecutionSuccess(false);
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Missing required " +
                         "parameter: Query."));
+                errorResult.setTitle(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle());
                 ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                 actionExecutionRequest.setProperties(requestData);
                 errorResult.setRequest(actionExecutionRequest);
@@ -280,10 +283,7 @@ public class MySqlPlugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        result.setBody(error.getMessage());
+                        result.setErrorInfo(error);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -514,8 +514,8 @@ public class MySqlPlugin extends BasePlugin {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
-                                    "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
-                                            "customer support to resolve this."
+                                    "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                            " Appsmith customer support to resolve this."
                             )
                     );
             }

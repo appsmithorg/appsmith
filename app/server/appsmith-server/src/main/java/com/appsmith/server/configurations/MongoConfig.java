@@ -1,12 +1,15 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.external.annotations.DocumentTypeMapper;
+import com.appsmith.external.annotations.documenttype.DocumentTypeMapper;
+import com.appsmith.external.annotations.encryption.EncryptionMongoEventListener;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
+import com.appsmith.external.services.EncryptionService;
 import com.github.cloudyrock.mongock.SpringBootMongock;
 import com.github.cloudyrock.mongock.SpringBootMongockBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.conversions.Bson;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,7 +63,7 @@ public class MongoConfig {
     // Custom type mapper here includes our annotation based mapper that is meant to ensure correct mapping for sub-classes
     // We have currently only included the package which contains the DTOs that need this mapping
     @Bean
-    public DefaultTypeMapper typeMapper() {
+    public DefaultTypeMapper<Bson> typeMapper() {
         TypeInformationMapper typeInformationMapper = new DocumentTypeMapper
                 .Builder()
                 .withBasePackages(new String[]{AuthenticationDTO.class.getPackageName()})
@@ -70,10 +73,15 @@ public class MongoConfig {
     }
 
     @Bean
-    public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper typeMapper, MongoMappingContext context) {
+    public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper<Bson> typeMapper, MongoMappingContext context) {
         MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
         converter.setTypeMapper((MongoTypeMapper) typeMapper);
         return converter;
+    }
+
+    @Bean
+    public EncryptionMongoEventListener encryptionMongoEventListener(EncryptionService encryptionService) {
+        return new EncryptionMongoEventListener(encryptionService);
     }
 
 }

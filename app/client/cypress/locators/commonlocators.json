@@ -87,7 +87,7 @@
   "editColText": ".t--propery-page-title span",
   "changeColType": ".t--property-control-columntype .bp3-popover-target",
   "selectedColType": ".t--property-control-columntype button span",
-  "collapsesection": ".t--property-pane-section-collapse-general",
+  "collapsesection": ".t--property-pane-section-collapse-general .bp3-icon",
   "selectTab": ".t--tab-Tab",
   "layoutControl": ".t--layout-control-wrapper",
   "layoutPopover": ".bp3-popover.bp3-minimal.layout-control",

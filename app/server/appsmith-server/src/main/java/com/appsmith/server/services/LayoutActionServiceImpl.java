@@ -17,6 +17,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -58,6 +58,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final NewActionService newActionService;
     private final PageLoadActionsUtil pageLoadActionsUtil;
     private final SessionUserService sessionUserService;
+    private JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
 
     /*
@@ -112,7 +113,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
                                     // 2. Run updateLayout on the old page
                                     return Flux.fromIterable(page.getLayouts())
-                                            .flatMap(layout -> updateLayout(oldPageId, layout.getId(), layout))
+                                            .flatMap(layout -> {
+                                                layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                                                return updateLayout(page.getId(), layout.getId(), layout);
+                                            })
                                             .collect(toSet());
                                 })
                                 // fetch the unpublished destination page
@@ -124,7 +128,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
                                     // 3. Run updateLayout on the new page.
                                     return Flux.fromIterable(page.getLayouts())
-                                            .flatMap(layout -> updateLayout(actionMoveDTO.getDestinationPageId(), layout.getId(), layout))
+                                            .flatMap(layout -> {
+                                                layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                                                return updateLayout(page.getId(), layout.getId(), layout);
+                                            })
                                             .collect(toSet());
                                 })
                                 // 4. Return the saved action.
@@ -269,7 +276,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
                         if (layout.getId().equals(layoutId)) {
-                            return updateLayout(pageId, layout.getId(), layout);
+                            layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                            return updateLayout(page.getId(), layout.getId(), layout);
                         }
                     }
                     return Mono.empty();
@@ -282,21 +290,23 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * in them aggregated in the field dynamicBindingsPathList.
      * A widget may also have other widgets as children, each of which will follow the same structure
      * Refer to FieldName.DEFAULT_PAGE_LAYOUT for a template
-     *
      * @param dsl
      * @param widgetNames
      * @param dynamicBindings
      * @param pageId
      * @param layoutId
+     * @param escapedWidgetNames
+     * @return
      */
-    private void extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl,
-                                                                Set<String> widgetNames,
-                                                                Set<String> dynamicBindings,
-                                                                String pageId,
-                                                                String layoutId) throws AppsmithException {
+    private JSONObject extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl,
+                                                                      Set<String> widgetNames,
+                                                                      Set<String> dynamicBindings,
+                                                                      String pageId,
+                                                                      String layoutId,
+                                                                      Set<String> escapedWidgetNames) throws AppsmithException {
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
             // This isnt a valid widget configuration. No need to traverse this.
-            return;
+            return dsl;
         }
 
         String widgetName = dsl.getAsString(FieldName.WIDGET_NAME);
@@ -373,8 +383,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             }
         }
 
+        // Escape the widget keys if required and update dsl and escapedWidgetNames
+        removeSpecialCharactersFromKeys(dsl, escapedWidgetNames);
+
         // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
+        ArrayList<Object> newChildren = new ArrayList<>();
         if (children != null) {
             for (int i = 0; i < children.size(); i++) {
                 Map data = (Map) children.get(i);
@@ -382,10 +396,25 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // If the children tag exists and there are entries within it
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
-                    extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, dynamicBindings, pageId, layoutId);
+                    JSONObject child = extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, dynamicBindings, pageId, layoutId, escapedWidgetNames);
+                    newChildren.add(child);
                 }
             }
+            dsl.put(FieldName.CHILDREN, newChildren);
         }
+
+        return dsl;
+    }
+
+    private JSONObject removeSpecialCharactersFromKeys(JSONObject dsl, Set<String> escapedWidgetNames) {
+        String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
+
+        // Only Table widget has this behaviour.
+        if (widgetType != null && widgetType.equals(FieldName.TABLE_WIDGET)) {
+            return WidgetSpecificUtils.escapeTableWidgetPrimaryColumns(dsl, escapedWidgetNames);
+        }
+
+        return dsl;
     }
 
     /**
@@ -509,7 +538,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         return Mono.empty();
                     }
                     return Flux.fromIterable(page.getLayouts())
-                            .flatMap(layout -> updateLayout(page.getId(), layout.getId(), layout));
+                            .flatMap(layout -> {
+                                layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                                return updateLayout(page.getId(), layout.getId(), layout);
+                            });
                 })
                 .collectList()
                 .then(Mono.just(pageId));
@@ -546,7 +578,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     @Override
     public Mono<LayoutDTO> updateLayout(String pageId, String layoutId, Layout layout) {
-        final JSONObject dsl = layout.getDsl();
+        JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
             return Mono.just(generateResponseDTO(layout));
@@ -554,13 +586,19 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         Set<String> widgetNames = new HashSet<>();
         Set<String> jsSnippetsInDynamicBindings = new HashSet<>();
+        Set<String> escapedWidgetNames = new HashSet<>();
         try {
-            extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, jsSnippetsInDynamicBindings, pageId, layoutId);
+            dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, jsSnippetsInDynamicBindings, pageId, layoutId, escapedWidgetNames);
         } catch (Throwable t) {
             return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, dsl, false, t)
                     .then(Mono.error(t));
         }
+
         layout.setWidgetNames(widgetNames);
+
+        if (!escapedWidgetNames.isEmpty()) {
+            layout.setMongoEscapedWidgetNames(escapedWidgetNames);
+        }
 
         // dynamicBindingNames is a set of all words extracted from js snippets which could also contain the names
         // of the actions 
@@ -583,6 +621,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .findAllOnLoadActions(dynamicBindingNames, actionNames, pageId, edges, actionsUsedInDSL, flatmapPageLoadActions);
 
         // First update the actions and set execute on load to true
+        JSONObject finalDsl = dsl;
         return allOnLoadActionsMono
                 .flatMap(allOnLoadActions -> {
                     // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
@@ -627,12 +666,16 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     }
                     return Mono.empty();
                 })
+                .map(savedLayout -> {
+                    savedLayout.setDsl(this.unescapeMongoSpecialCharacters(savedLayout));
+                    return savedLayout;
+                })
                 .flatMap(savedLayout -> {
                     LayoutDTO layoutDTO = generateResponseDTO(savedLayout);
                     layoutDTO.setActionUpdates(actionUpdates);
                     layoutDTO.setMessages(messages);
 
-                    return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, dsl, true, null)
+                    return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, finalDsl, true, null)
                             .thenReturn(layoutDTO);
                 });
     }
@@ -648,6 +691,61 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         layoutDTO.setUserPermissions(layout.getUserPermissions());
 
         return layoutDTO;
+    }
+
+    @Override
+    public JSONObject unescapeMongoSpecialCharacters(Layout layout) {
+        Set<String> mongoEscapedWidgetNames = layout.getMongoEscapedWidgetNames();
+
+        if (mongoEscapedWidgetNames == null || mongoEscapedWidgetNames.isEmpty()) {
+            return layout.getDsl();
+        }
+
+        JSONObject dsl = layout.getDsl();
+
+        // Unescape specific widgets
+        dsl = unEscapeDslKeys(dsl, layout.getMongoEscapedWidgetNames());
+
+        return dsl;
+    }
+
+    private JSONObject unEscapeDslKeys(JSONObject dsl, Set<String> escapedWidgetNames) {
+
+        String widgetName = (String) dsl.get(FieldName.WIDGET_NAME);
+
+        if (widgetName == null) {
+            // This isnt a valid widget configuration. No need to traverse further.
+            return dsl;
+        }
+
+        if (escapedWidgetNames.contains(widgetName)) {
+            // We should escape the widget keys
+            String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
+            if (widgetType.equals(FieldName.TABLE_WIDGET)) {
+                // UnEscape Table widget keys
+                // Since this is a table widget, it wouldnt have children. We can safely return from here with updated dsl
+                return WidgetSpecificUtils.unEscapeTableWidgetPrimaryColumns(dsl);
+            }
+        }
+
+        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
+        ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
+        ArrayList<Object> newChildren = new ArrayList<>();
+        if (children != null) {
+            for (int i = 0; i < children.size(); i++) {
+                Map data = (Map) children.get(i);
+                JSONObject object = new JSONObject();
+                // If the children tag exists and there are entries within it
+                if (!CollectionUtils.isEmpty(data)) {
+                    object.putAll(data);
+                    JSONObject child = unEscapeDslKeys(object, escapedWidgetNames);
+                    newChildren.add(child);
+                }
+            }
+            dsl.put(FieldName.CHILDREN, newChildren);
+        }
+
+        return dsl;
     }
 
 }
