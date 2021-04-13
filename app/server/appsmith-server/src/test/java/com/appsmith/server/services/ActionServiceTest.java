@@ -1334,7 +1334,6 @@ public class ActionServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, new ArrayList<>());
     }
 }
