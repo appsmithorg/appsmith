@@ -193,7 +193,7 @@ export function* traverseTreeAndExecuteBlueprintChildOperations(
 ) {
   let root = parent;
 
-  while (root.widgetId !== MAIN_CONTAINER_WIDGET_ID && root.parentId) {
+  while (root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
     const parentConfig = {
       ...(WidgetConfigResponse as any).config[root.type],
     };
