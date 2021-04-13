@@ -29,12 +29,10 @@ const PostBodyContainer = styled.div`
 
 const JSONEditorFieldWrapper = styled.div`
   margin: 0 30px;
+  width: 65%;
   .CodeMirror {
     height: auto;
     min-height: 250px;
-  }
-  &.width-65 {
-    width: 65%;
   }
 `;
 
@@ -64,7 +62,7 @@ const PostBodyData = (props: Props) => {
         tabs={POST_BODY_FORMAT_TITLES_NO_MULTI_PART.map((el) => {
           let component = (
             <JSONEditorFieldWrapper
-              className={"t--apiFormPostBody width-65"}
+              className={"t--apiFormPostBody"}
               key={el.key}
             >
               <DynamicTextField
@@ -94,7 +92,7 @@ const PostBodyData = (props: Props) => {
             );
           } else if (el.title === ApiContentTypes.RAW) {
             component = (
-              <JSONEditorFieldWrapper key={el.key} className={"width-65"}>
+              <JSONEditorFieldWrapper key={el.key}>
                 <DynamicTextField
                   name="actionConfiguration.body"
                   tabBehaviour={TabBehaviour.INDENT}
