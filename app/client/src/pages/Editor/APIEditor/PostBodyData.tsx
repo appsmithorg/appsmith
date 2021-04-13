@@ -61,7 +61,7 @@ const PostBodyData = (props: Props) => {
         tabs={POST_BODY_FORMAT_TITLES_NO_MULTI_PART.map((el) => {
           let component = (
             <JSONEditorFieldWrapper
-              className={"t--apiFormPostBody"}
+              className={"t--apiFormPostBody width-65"}
               key={el.key}
             >
               <DynamicTextField
@@ -91,7 +91,7 @@ const PostBodyData = (props: Props) => {
             );
           } else if (el.title === ApiContentTypes.RAW) {
             component = (
-              <JSONEditorFieldWrapper key={el.key}>
+              <JSONEditorFieldWrapper key={el.key} className={"width-65"}>
                 <DynamicTextField
                   name="actionConfiguration.body"
                   tabBehaviour={TabBehaviour.INDENT}
