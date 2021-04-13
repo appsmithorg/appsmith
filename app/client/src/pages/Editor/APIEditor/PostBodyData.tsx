@@ -33,6 +33,9 @@ const JSONEditorFieldWrapper = styled.div`
     height: auto;
     min-height: 250px;
   }
+  &.width-65 {
+    width: 65%;
+  }
 `;
 
 interface PostDataProps {
