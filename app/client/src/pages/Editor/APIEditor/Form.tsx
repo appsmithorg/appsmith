@@ -81,6 +81,12 @@ const ActionButtons = styled.div`
   }
 `;
 
+const HelpSection = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[12]}px 0px
+    ${(props) => props.theme.spaces[12]}px;
+`;
+
 const DatasourceWrapper = styled.div`
   width: 100%;
 `;
@@ -89,6 +95,9 @@ const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - 126px);
+  ${HelpSection} {
+    margin-bottom: 10px;
+  }
 `;
 
 const TabbedViewContainer = styled.div`
@@ -157,12 +166,6 @@ const Link = styled.a`
   }
 `;
 
-const HelpSection = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[12]}px 0px
-    ${(props) => props.theme.spaces[12]}px;
-`;
-
 interface APIFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -179,6 +182,7 @@ interface APIFormProps {
   headersCount: number;
   paramsCount: number;
   settingsConfig: any;
+  hintMessages: string;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -231,6 +235,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     headersCount,
     paramsCount,
     settingsConfig,
+    hintMessages,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -323,6 +328,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         </FormRow>
       </MainConfiguration>
       <SecondaryWrapper>
+        {hintMessages && hintMessages.length > 0 && (
+          <HelpSection>
+            <Callout text={hintMessages} variant={Variant.warning} fill />
+          </HelpSection>
+        )}
         <TabbedViewContainer>
           <TabComponent
             tabs={[
@@ -467,6 +477,16 @@ export default connect((state: AppState) => {
     paramsCount = validParams.length;
   }
 
+  let hintMessages = selector(state, "datasource.messages");
+
+  if (hintMessages && hintMessages.length) {
+    hintMessages = hintMessages
+      .map(function(msg: string) {
+        return msg;
+      })
+      .join("\n ");
+  }
+
   return {
     actionName,
     apiId,
@@ -474,6 +494,7 @@ export default connect((state: AppState) => {
     actionConfigurationHeaders,
     headersCount,
     paramsCount,
+    hintMessages,
   };
 })(
   reduxForm<Action, APIFormProps>({
