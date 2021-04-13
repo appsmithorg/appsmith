@@ -4,6 +4,7 @@ import {
   CellWrapper,
   ActionWrapper,
   SortIconWrapper,
+  DraggableHeaderWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -15,7 +16,7 @@ import {
   CellLayoutProperties,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import { isString, isEmpty, findIndex, without } from "lodash";
+import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
@@ -318,7 +319,8 @@ export const TableHeaderCell = (props: {
           )}
         </SortIconWrapper>
       ) : null}
-      <div
+      <DraggableHeaderWrapper
+        horizontalAlignment={column.columnProperties.horizontalAlignment}
         className={
           !props.isHidden
             ? `draggable-header ${
@@ -328,7 +330,7 @@ export const TableHeaderCell = (props: {
         }
       >
         {props.columnName}
-      </div>
+      </DraggableHeaderWrapper>
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}
@@ -339,28 +341,6 @@ export const TableHeaderCell = (props: {
       />
     </div>
   );
-};
-
-export const reorderColumns = (
-  columns: Record<string, ColumnProperties>,
-  columnOrder: string[],
-) => {
-  const newColumnsInOrder: Record<string, ColumnProperties> = {};
-
-  columnOrder.forEach((id: string, index: number) => {
-    if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
-  });
-  const remaining = without(
-    Object.keys(columns),
-    ...Object.keys(newColumnsInOrder),
-  );
-  const len = Object.keys(newColumnsInOrder).length;
-  if (remaining && remaining.length > 0) {
-    remaining.forEach((id: string, index: number) => {
-      newColumnsInOrder[id] = { ...columns[id], index: len + index };
-    });
-  }
-  return newColumnsInOrder;
 };
 
 export function getDefaultColumnProperties(
