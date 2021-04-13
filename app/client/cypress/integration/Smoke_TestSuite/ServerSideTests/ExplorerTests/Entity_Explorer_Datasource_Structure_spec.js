@@ -9,6 +9,7 @@ let datasourceName;
 describe("Entity explorer datasource structure", function() {
   beforeEach(() => {
     cy.ClearSearch();
+    cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;

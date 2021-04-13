@@ -113,7 +113,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
                                     // 2. Run updateLayout on the old page
                                     return Flux.fromIterable(page.getLayouts())
-                                            .flatMap(layout -> updateLayout(oldPageId, layout.getId(), layout))
+                                            .flatMap(layout -> {
+                                                layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                                                return updateLayout(page.getId(), layout.getId(), layout);
+                                            })
                                             .collect(toSet());
                                 })
                                 // fetch the unpublished destination page
@@ -125,7 +128,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
                                     // 3. Run updateLayout on the new page.
                                     return Flux.fromIterable(page.getLayouts())
-                                            .flatMap(layout -> updateLayout(actionMoveDTO.getDestinationPageId(), layout.getId(), layout))
+                                            .flatMap(layout -> {
+                                                layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                                                return updateLayout(page.getId(), layout.getId(), layout);
+                                            })
                                             .collect(toSet());
                                 })
                                 // 4. Return the saved action.
@@ -270,7 +276,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
                         if (layout.getId().equals(layoutId)) {
-                            return updateLayout(pageId, layout.getId(), layout);
+                            layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                            return updateLayout(page.getId(), layout.getId(), layout);
                         }
                     }
                     return Mono.empty();
@@ -531,7 +538,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         return Mono.empty();
                     }
                     return Flux.fromIterable(page.getLayouts())
-                            .flatMap(layout -> updateLayout(page.getId(), layout.getId(), layout));
+                            .flatMap(layout -> {
+                                layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                                return updateLayout(page.getId(), layout.getId(), layout);
+                            });
                 })
                 .collectList()
                 .then(Mono.just(pageId));

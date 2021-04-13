@@ -624,7 +624,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const { hiddenColumns, pageSize, filteredTableData = [] } = this.props;
+    const { pageSize, filteredTableData = [] } = this.props;
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const { componentWidth, componentHeight } = this.getComponentDimensions();
@@ -641,8 +641,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           widgetName={this.props.widgetName}
           searchKey={this.props.searchText}
           editMode={this.props.renderMode === RenderModes.CANVAS}
-          hiddenColumns={hiddenColumns}
-          columnOrder={this.props.columnOrder}
           triggerRowSelection={this.props.triggerRowSelection}
           columnSizeMap={this.props.columnSizeMap}
           pageSize={Math.max(1, pageSize)}
@@ -661,9 +659,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           prevPageClick={this.handlePrevPageClick}
           handleResizeColumn={this.handleResizeColumn}
           updatePageNo={this.updatePageNumber}
-          updateHiddenColumns={(hiddenColumns?: string[]) => {
-            super.updateWidgetProperty("hiddenColumns", hiddenColumns);
-          }}
           handleReorderColumn={this.handleReorderColumn}
           disableDrag={(disable: boolean) => {
             this.disableDrag(disable);
@@ -726,10 +721,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         type: EventType.ON_SEARCH,
       },
     });
-  };
-
-  updateHiddenColumns = (hiddenColumns?: string[]) => {
-    super.updateWidgetProperty("hiddenColumns", hiddenColumns);
   };
 
   onCommandClick = (
