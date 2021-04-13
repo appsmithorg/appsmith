@@ -2,7 +2,6 @@ import {
   ISO_DATE_FORMAT,
   VALIDATION_TYPES,
   ValidationResponse,
-  ValidationType,
   Validator,
 } from "../constants/WidgetValidation";
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
@@ -52,7 +51,7 @@ export function validateDateString(
 
 const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type"; // TODO: Lot's of changes in validations.ts file
 
-export const VALIDATORS: Record<ValidationType, Validator> = {
+export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
   [VALIDATION_TYPES.TEXT]: (value: any): ValidationResponse => {
     let parsed = value;
     if (isUndefined(value) || value === null) {
@@ -384,8 +383,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         console.error(e);
       }
     });
-
-    console.log({ parsedChartData, transformedChartData });
 
     if (!isValidChart) {
       return {

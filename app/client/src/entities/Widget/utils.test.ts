@@ -145,6 +145,12 @@ describe("getAllPathsFromPropertyConfig", () => {
         onPageSizeChange: true,
         "primaryColumns.status.onClick": true,
       },
+      validationPaths: {
+        defaultSearchText: "TEXT",
+        defaultSelectedRow: "DEFAULT_SELECTED_ROW",
+        isVisible: "BOOLEAN",
+        tableData: "TABLE_DATA",
+      },
     };
 
     const result = getAllPathsFromPropertyConfig(widget, config, {
@@ -201,6 +207,14 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       triggerPaths: {
         onDataPointClick: true,
+      },
+      validationPaths: {
+        "chartData[0].data": "CHART_DATA",
+        "chartData[0].seriesName": "TEXT",
+        chartName: "TEXT",
+        isVisible: "BOOLEAN",
+        xAxisName: "TEXT",
+        yAxisName: "TEXT",
       },
     };
 

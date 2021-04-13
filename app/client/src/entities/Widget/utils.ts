@@ -2,6 +2,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { get, isObject, isUndefined } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 export const getAllPathsFromPropertyConfig = (
   widget: WidgetProps,
@@ -10,9 +11,11 @@ export const getAllPathsFromPropertyConfig = (
 ): {
   bindingPaths: Record<string, true>;
   triggerPaths: Record<string, true>;
+  validationPaths: Record<string, VALIDATION_TYPES>;
 } => {
   const bindingPaths: Record<string, true> = derivedProperties;
   const triggerPaths: Record<string, true> = {};
+  const validationPaths: Record<any, VALIDATION_TYPES> = {};
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {
@@ -27,6 +30,10 @@ export const getAllPathsFromPropertyConfig = (
             !controlConfig.isTriggerProperty
           ) {
             bindingPaths[controlConfig.propertyName] = true;
+            if (controlConfig.validation) {
+              validationPaths[controlConfig.propertyName] =
+                controlConfig.validation;
+            }
           } else if (
             controlConfig.isBindProperty &&
             controlConfig.isTriggerProperty
@@ -66,6 +73,10 @@ export const getAllPathsFromPropertyConfig = (
                               !panelColumnControlConfig.isTriggerProperty
                             ) {
                               bindingPaths[panelPropertyPath] = true;
+                              if (panelColumnControlConfig.validation) {
+                                validationPaths[panelPropertyPath] =
+                                  panelColumnControlConfig.validation;
+                              }
                             } else if (
                               panelColumnControlConfig.isBindProperty &&
                               panelColumnControlConfig.isTriggerProperty
@@ -83,10 +94,36 @@ export const getAllPathsFromPropertyConfig = (
           }
         }
         if (controlConfig.children) {
-          // Property in object structure
+          // Property in array structure
           const basePropertyPath = controlConfig.propertyName;
-          const widgetPropertyValue = get(widget, basePropertyPath, {});
+          const widgetPropertyValue = get(widget, basePropertyPath, []);
+          if (Array.isArray(widgetPropertyValue)) {
+            widgetPropertyValue.forEach(
+              (arrayPropertyValue: any, index: number) => {
+                const arrayIndexPropertyPath = `${basePropertyPath}[${index}]`;
+                controlConfig.children.forEach((childPropertyConfig: any) => {
+                  const childArrayPropertyPath = `${arrayIndexPropertyPath}.${childPropertyConfig.propertyName}`;
+                  if (
+                    childPropertyConfig.isBindProperty &&
+                    !childPropertyConfig.isTriggerProperty
+                  ) {
+                    bindingPaths[childArrayPropertyPath] = true;
+                    if (childPropertyConfig.validation) {
+                      validationPaths[childArrayPropertyPath] =
+                        childPropertyConfig.validation;
+                    }
+                  } else if (
+                    childPropertyConfig.isBindProperty &&
+                    childPropertyConfig.isTriggerProperty
+                  ) {
+                    triggerPaths[childArrayPropertyPath] = true;
+                  }
+                });
+              },
+            );
+          }
 
+          // Property in object structure
           if (
             !isUndefined(widgetPropertyValue) &&
             isObject(widgetPropertyValue)
@@ -95,11 +132,16 @@ export const getAllPathsFromPropertyConfig = (
               const objectIndexPropertyPath = `${basePropertyPath}.${key}`;
               controlConfig.children.forEach((childPropertyConfig: any) => {
                 const childArrayPropertyPath = `${objectIndexPropertyPath}.${childPropertyConfig.propertyName}`;
+
                 if (
                   childPropertyConfig.isBindProperty &&
                   !childPropertyConfig.isTriggerProperty
                 ) {
                   bindingPaths[childArrayPropertyPath] = true;
+                  if (childPropertyConfig.validation) {
+                    validationPaths[childArrayPropertyPath] =
+                      childPropertyConfig.validation;
+                  }
                 } else if (
                   childPropertyConfig.isBindProperty &&
                   childPropertyConfig.isTriggerProperty
@@ -114,7 +156,7 @@ export const getAllPathsFromPropertyConfig = (
     }
   });
 
-  return { bindingPaths, triggerPaths };
+  return { bindingPaths, triggerPaths, validationPaths };
 };
 
 export const nextAvailableRowInContainer = (

@@ -255,7 +255,7 @@ public class CurlImporterService extends BaseApiImporter {
     public ActionDTO parse(List<String> tokens) throws AppsmithException {
         // Curl argument parsing as per <https://linux.die.net/man/1/curl>.
 
-        if (!"curl".equals(tokens.get(0))) {
+        if (tokens.isEmpty() || !"curl".equals(tokens.get(0))) {
             // Doesn't look like a curl command.
             return null;
         }

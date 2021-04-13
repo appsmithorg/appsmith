@@ -199,16 +199,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "RadioGroup",
       version: 1,
     },
-    ALERT_WIDGET: {
-      alertType: "NOTIFICATION",
-      intent: "SUCCESS",
-      rows: 3,
-      columns: 3,
-      header: "",
-      message: "",
-      widgetName: "Alert",
-      version: 1,
-    },
     FILE_PICKER_WIDGET: {
       rows: 1,
       files: [],

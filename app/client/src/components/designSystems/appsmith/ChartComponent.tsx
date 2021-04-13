@@ -116,6 +116,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     const chartData: AllChartData = this.props.chartData;
     const dataLength = Object.keys(chartData).length;
 
+    // if datalength is zero, just pass a empty datum
     if (dataLength === 0) {
       return [
         {
@@ -126,15 +127,8 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     }
 
     const firstKey = Object.keys(chartData)[0] as string;
-    let data: ChartDataPoint[] = get(chartData, `${firstKey}`).data;
+    const data: ChartDataPoint[] = get(chartData, `${firstKey}`).data;
 
-    if (isString(data)) {
-      try {
-        data = JSON.parse(data);
-      } catch (e) {
-        data = [];
-      }
-    }
     if (data.length === 0) {
       return [
         {
@@ -143,6 +137,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ];
     }
+
     return data.map((item) => {
       return {
         label: item.x,
@@ -204,12 +199,19 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     });
   };
 
+  /**
+   * creates dataset need by fusion chart  from widget object-data
+   *
+   * @param chartData
+   * @returns
+   */
   getChartDataset = (chartData: AllChartData) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
 
-    return Object.keys(chartData).map((key: string) => {
+    const dataset = Object.keys(chartData).map((key: string) => {
       const item = get(chartData, `${key}`);
 
+      console.log({ item });
       const seriesChartData: Array<Record<
         string,
         unknown
@@ -219,6 +221,8 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         data: seriesChartData,
       };
     });
+
+    return dataset;
   };
 
   getChartConfig = () => {
