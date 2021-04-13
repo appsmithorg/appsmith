@@ -23,6 +23,5 @@ public class ActionExecutionRequest {
     String url;
     Map<String, ?> properties;
     List<String> executionParameters;
-    List<Property> pluginSpecifiedTemplates;
     Map<String, List<Object>> dataTypes;
 }

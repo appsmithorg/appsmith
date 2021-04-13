@@ -88,6 +88,9 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAction, String> implements NewActionService {
 
+    private final static String BODY_KEY = "body";
+    private final static String PROPERTIES_KEY = "properties";
+
     private final NewActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
@@ -717,14 +720,25 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             /*
              * - Any data is by default categorized as raw.
              */
-            result.getRequest().setDataTypes(Map.of("body", List.of(new ParsedDataType(ActionResultDataType.RAW))));
+            result.getRequest().setDataTypes(Map.of(BODY_KEY, List.of(new ParsedDataType(ActionResultDataType.RAW))));
             return result;
         }
 
         HashMap<String, List<Object>> dataTypes = new HashMap<>();
         String body = result.getRequest().getBody() != null ? result.getRequest().getBody().toString() :
                 result.getRequest().getQuery();
-        dataTypes.put("body", new ArrayList<>(getActionResultDataTypes(body)));
+        dataTypes.put(BODY_KEY, new ArrayList<>(getActionResultDataTypes(body)));
+
+        if (!CollectionUtils.isEmpty(result.getRequest().getProperties())) {
+            dataTypes.put(
+                    PROPERTIES_KEY,
+                    result.getRequest().getProperties().entrySet().stream()
+                            .map(property -> property.getValue() != null ?
+                                    getActionResultDataTypes(property.getValue().toString()) :
+                                    List.of(new ParsedDataType(ActionResultDataType.RAW)))
+                            .collect(Collectors.toList())
+            );
+        }
 
         result.getRequest().setDataTypes(dataTypes);
 
@@ -758,6 +772,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     private List<ParsedDataType> getActionResultDataTypes(String body) {
+
+        if (StringUtils.isEmpty(body)) {
+            /*
+             * - Any data is by default categorized as raw.
+             */
+            return List.of(new ParsedDataType(ActionResultDataType.RAW));
+        }
+
         List<ParsedDataType> dataTypes = new ArrayList<>();
 
         /*
