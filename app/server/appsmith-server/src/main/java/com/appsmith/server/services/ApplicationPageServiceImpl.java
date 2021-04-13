@@ -320,12 +320,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         Mono<PageDTO> sourcePageMono = newPageService.findPageById(pageId, MANAGE_PAGES, false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .flatMap(page -> Flux.fromIterable(page.getLayouts())
-                        .map(layout -> layout.getDsl())
-                        .map(dsl -> {
+                        .map(layout -> {
                             Layout newLayout = new Layout();
                             String id = new ObjectId().toString();
                             newLayout.setId(id);
-                            newLayout.setDsl(dsl);
+                            newLayout.setMongoEscapedWidgetNames(layout.getMongoEscapedWidgetNames());
+                            newLayout.setDsl(layout.getDsl());
                             return newLayout;
                         })
                         .collectList()
@@ -398,7 +398,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     List<Layout> layouts = savedPage.getLayouts();
 
                     return Flux.fromIterable(layouts)
-                            .flatMap(layout -> layoutActionService.updateLayout(savedPage.getId(), layout.getId(), layout))
+                            .flatMap(layout -> {
+                                layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
+                                return layoutActionService.updateLayout(savedPage.getId(), layout.getId(), layout);
+                            })
                             .collectList()
                             .thenReturn(savedPage);
                 })
