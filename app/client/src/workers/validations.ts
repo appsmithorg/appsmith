@@ -212,7 +212,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       }
       return { isValid: true, parsed, transformed: parsed };
     } catch (e) {
-      console.error(e);
       return {
         isValid: false,
         parsed: [],
@@ -507,7 +506,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       }
       return { isValid, parsed };
     } catch (e) {
-      console.error(e);
       return {
         isValid: false,
         parsed: [],
