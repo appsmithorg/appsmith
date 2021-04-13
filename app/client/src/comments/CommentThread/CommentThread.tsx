@@ -3,13 +3,6 @@ import { useDispatch } from "react-redux";
 
 import CommentCard from "comments/CommentCard/CommentCard";
 import AddCommentInput from "comments/inlineComments/AddCommentInput";
-import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
-import {
-  ThreadContainer,
-  ThreadHeader,
-  ThreadHeaderTitle,
-  CommentsContainer,
-} from "./StyledComponents";
 import ScrollToLatest from "./ScrollToLatest";
 
 import {
@@ -21,6 +14,35 @@ import useIsScrolledToBottom from "utils/hooks/useIsScrolledToBottom";
 
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { RawDraftContentState } from "draft-js";
+
+import styled from "styled-components";
+
+const ThreadContainer = styled.div`
+  width: 400px;
+`;
+
+const CommentsContainer = styled.div`
+  position: relative;
+  max-height: 285px;
+  overflow: auto;
+`;
+
+const ChildCommentsContainer = styled.div`
+  display: flex;
+`;
+
+const ChildCommentIndent = styled.div`
+  width: 1px;
+  background-color: ${(props) =>
+    props.theme.colors.comments.childCommentsIndent};
+  margin-left: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  margin-top: ${(props) => props.theme.spaces[5]}px;
+`;
+
+const ChildComments = styled.div`
+  flex: 1;
+`;
 
 /**
  * Comment thread popover
@@ -74,21 +96,32 @@ const InlineCommentThreadContainer = ({
     );
   };
 
+  const parentComment = Array.isArray(comments) && comments[0];
+  const childComments = Array.isArray(comments) && comments.slice(1);
+
   return (
     <ThreadContainer tabIndex={0}>
-      <ThreadHeader>
-        <ThreadHeaderTitle>Comments</ThreadHeaderTitle>
-        <ResolveCommentButton
-          resolved={!!commentThread.resolved}
-          handleClick={resolveCommentThread}
-        />
-      </ThreadHeader>
       <div style={{ position: "relative" }}>
         <CommentsContainer ref={commentsContainerRef}>
-          {comments &&
-            comments.map((comment, index) => (
-              <CommentCard key={index} comment={comment} />
-            ))}
+          {parentComment && (
+            <CommentCard
+              key={parentComment.id}
+              comment={parentComment}
+              resolved={!!commentThread.resolved}
+              toggleResolved={resolveCommentThread}
+              isParentComment
+            />
+          )}
+          {childComments && childComments.length > 0 && (
+            <ChildCommentsContainer>
+              <ChildCommentIndent />
+              <ChildComments>
+                {childComments.map((comment) => (
+                  <CommentCard key={comment.id} comment={comment} />
+                ))}
+              </ChildComments>
+            </ChildCommentsContainer>
+          )}
           <div ref={messagesBottomRef} />
         </CommentsContainer>
         {!isScrolledToBottom && (

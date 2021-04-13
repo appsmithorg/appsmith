@@ -904,6 +904,18 @@ type ColorType = {
     commentModeButtonIcon: string;
     commentModeButtonBackground: string;
     emojiPicker: string;
+    resolved: string;
+    unresolved: string;
+    childCommentsIndent: string;
+    commentBackground: string;
+    contextMenuTrigger: string;
+    contextMenuItemHover: ShadeColor;
+    contextMenuIcon: ShadeColor;
+    contextMenuIconHover: ShadeColor;
+    contextMenuIconStroke: ShadeColor;
+    contextMenuIconStrokeHover: ShadeColor;
+    contextMenuTitle: ShadeColor;
+    contextMenuTitleHover: ShadeColor;
   };
   treeDropdown: {
     targetBg: string;
@@ -950,19 +962,31 @@ type ColorType = {
 };
 
 const comments = {
-  profileUserName: "#80888D",
-  threadTitle: "#4B4848",
-  commentBody: "#4B4848",
+  profileUserName: darkShades[11],
+  threadTitle: darkShades[8],
+  commentBody: darkShades[8],
   profileImageBorder: Colors.JAFFA_DARK,
   mention: "#F86A2B",
-  threadContainerBorder: "#A9A7A7",
-  addCommentInputBorder: "#E0DEDE",
+  threadContainerBorder: lightShades[5],
+  addCommentInputBorder: lightShades[13],
   sendButton: "#6A86CE",
   addCommentInputBackground: "#FAFAFA",
   pin: "#EF4141",
   commentModeButtonIcon: "#6A86CE",
   commentModeButtonBackground: "#262626",
-  emojiPicker: "#A9A7A7",
+  emojiPicker: lightShades[5],
+  resolved: Colors.GREEN,
+  unresolved: lightShades[5],
+  childCommentsIndent: lightShades[13],
+  commentBackground: lightShades[2],
+  contextMenuTrigger: darkShades[6],
+  contextMenuItemHover: lightShades[2],
+  contextMenuIcon: darkShades[6],
+  contextMenuIconHover: darkShades[11],
+  contextMenuIconStroke: darkShades[6],
+  contextMenuIconStrokeHover: darkShades[11],
+  contextMenuTitle: lightShades[8],
+  contextMenuTitleHover: darkShades[11],
 };
 
 const auth: any = {

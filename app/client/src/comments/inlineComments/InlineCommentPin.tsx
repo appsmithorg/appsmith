@@ -1,11 +1,11 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled, { withTheme } from "styled-components";
-import InlineCommentThreadContainer from "./InlineCommentThreadContainer";
+import CommentThread from "comments/CommentThread/CommentThread";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Popover } from "@blueprintjs/core";
 import { get } from "lodash";
-import { commentThreadsSelector } from "../../selectors/commentsSelectors";
+import { commentThreadsSelector } from "selectors/commentsSelectors";
 import { Theme } from "constants/DefaultTheme";
 import { setIsCommentThreadVisible as setIsCommentThreadVisibleAction } from "actions/commentActions";
 
@@ -66,7 +66,7 @@ const InlineCommentPin = withTheme(
             size={IconSize.XXL}
             data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
           />
-          <InlineCommentThreadContainer
+          <CommentThread
             isOpen={!!commentThread.isVisible}
             commentThread={commentThread}
           />

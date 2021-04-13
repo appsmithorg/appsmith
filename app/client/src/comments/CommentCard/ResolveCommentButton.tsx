@@ -1,29 +1,48 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
-import { RESOLVE, UNRESOLVE } from "constants/messages";
+import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   display: flex;
   cursor: pointer;
+  margin-right: ${(props) => props.theme.spaces[4]}px;
 `;
 
 type Props = {
   handleClick: () => void;
   resolved: boolean;
+  theme: Theme;
 };
 
-const BtnContainer = styled.span`
-  margin-left: ${(props) => props.theme.spaces[2]}px;
+const StyledResolveIcon = styled(Icon)<{ strokeColor: string }>`
+  & circle,
+  & path {
+    stroke: ${(props) => props.strokeColor};
+  }
+  && path {
+    fill: transparent;
+  }
 `;
 
-const ResolveCommentButton = ({ handleClick, resolved }: Props) => {
-  return (
-    <Container onClick={handleClick}>
-      <Icon name="oval-check" size={IconSize.XXL} />
-      <BtnContainer>{!resolved ? RESOLVE() : UNRESOLVE()}</BtnContainer>
-    </Container>
-  );
-};
+const ResolveCommentButton = withTheme(
+  ({ handleClick, resolved, theme }: Props) => {
+    const {
+      resolved: resolvedColor,
+      unresolved: unresolvedColor,
+    } = theme.colors.comments;
+    const strokeColor = resolved ? resolvedColor : unresolvedColor;
+    return (
+      <Container onClick={handleClick}>
+        <StyledResolveIcon
+          fillColor={"transparent"}
+          strokeColor={strokeColor}
+          name="oval-check"
+          size={IconSize.XXL}
+        />
+      </Container>
+    );
+  },
+);
 
 export default ResolveCommentButton;

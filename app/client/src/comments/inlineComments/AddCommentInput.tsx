@@ -16,15 +16,14 @@ import { MentionData } from "@draft-js-plugins/mention";
 import { OrgUser } from "constants/orgConstants";
 import { IEmojiData } from "emoji-picker-react";
 
+import { createMessage, ADD_COMMENT_PLACEHOLDER } from "constants/messages";
+
 const StyledInputContainer = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
   padding: ${(props) =>
     `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
-
-  border: 1px solid
-    ${(props) => props.theme.colors.comments.addCommentInputBorder};
   background: ${(props) =>
     props.theme.colors.comments.addCommentInputBackground};
 `;
@@ -47,7 +46,6 @@ const StyledEmojiTrigger = styled.div`
 const PaddingContainer = styled.div`
   padding: ${(props) =>
     `${props.theme.spaces[4]}px ${props.theme.spaces[6]}px`};
-  padding-top: 0;
 `;
 
 const insertCharacter = (
@@ -134,6 +132,7 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
       <PaddingContainer>
         <StyledInputContainer>
           <MentionsInput
+            placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}
             suggestions={filteredSuggestions}
             editorState={editorState}
             setEditorState={setEditorState}

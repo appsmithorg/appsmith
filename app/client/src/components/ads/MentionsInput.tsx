@@ -5,6 +5,7 @@ import createMentionPlugin, { MentionData } from "@draft-js-plugins/mention";
 import styled from "styled-components";
 
 import "@draft-js-plugins/mention/lib/plugin.css";
+import "draft-js/dist/Draft.css";
 
 const StyledContainer = styled.div`
   max-height: 60px;
@@ -20,6 +21,7 @@ type Props = {
   readOnly?: boolean;
   onSearchSuggestions: ({ value }: { value: string }) => void;
   autoFocus: boolean;
+  placeholder?: string;
 };
 
 const MentionsInput = ({
@@ -29,11 +31,12 @@ const MentionsInput = ({
   editorState,
   setEditorState,
   autoFocus,
+  placeholder,
 }: Props) => {
   const ref = useRef<Editor | null>(null);
   const [open, setOpen] = useState(false);
   const { MentionSuggestions, plugins } = useMemo(() => {
-    const mentionPlugin = createMentionPlugin();
+    const mentionPlugin = createMentionPlugin({ mentionTrigger: "@" });
     const { MentionSuggestions } = mentionPlugin;
     return { plugins: [mentionPlugin], MentionSuggestions };
   }, []);
@@ -73,6 +76,7 @@ const MentionsInput = ({
         onChange={setEditorState}
         plugins={plugins}
         handleReturn={handleReturn}
+        placeholder={placeholder}
       />
       <MentionSuggestions
         open={open}

@@ -45,6 +45,10 @@ import { ReactComponent as SendButton } from "assets/icons/comments/send-button.
 import { ReactComponent as Emoji } from "assets/icons/comments/emoji.svg";
 import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
 import { ReactComponent as OvalCheck } from "assets/icons/comments/check-oval.svg";
+import { ReactComponent as ContextMenu } from "assets/icons/ads/context-menu.svg";
+import { ReactComponent as Trash } from "assets/icons/comments/trash.svg";
+import { ReactComponent as Pin2 } from "assets/icons/comments/pin_2.svg";
+import { ReactComponent as Link2 } from "assets/icons/comments/link.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -150,6 +154,10 @@ export const IconCollection = [
   "HEADING_THREE",
   "PARAGRAPH",
   "PARAGRAPH_TWO",
+  "context-menu",
+  "trash",
+  "pin-2",
+  "link-2",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -346,6 +354,22 @@ const Icon = forwardRef(
       case "PARAGRAPH_TWO":
         const ControlIcon = ControlIcons[props.name];
         returnIcon = <ControlIcon width={24} height={24} />;
+        break;
+
+      case "context-menu":
+        returnIcon = <ContextMenu />;
+        break;
+
+      case "pin-2":
+        returnIcon = <Pin2 />;
+        break;
+
+      case "link-2":
+        returnIcon = <Link2 />;
+        break;
+
+      case "trash":
+        returnIcon = <Trash />;
         break;
 
       default:
