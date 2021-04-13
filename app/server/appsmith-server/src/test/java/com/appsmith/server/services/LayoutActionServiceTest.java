@@ -39,6 +39,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +118,22 @@ public class LayoutActionServiceTest {
             temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
             dsl.put("dynamicBindingPathList", temp);
             dsl.put("testField", "{{ query1.data }}");
+
+            JSONObject dsl2 = new JSONObject();
+            dsl2.put("widgetName", "Table1");
+            dsl2.put("type", "TABLE_WIDGET");
+            Map<String, Object> primaryColumns = new HashMap<>();
+            JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+            primaryColumns.put("_id", "{{ query1.data }}");
+            primaryColumns.put("_class", jsonObject);
+            dsl2.put("primaryColumns", primaryColumns);
+            final ArrayList<Object> objects = new ArrayList<>();
+            JSONArray temp2 = new JSONArray();
+            temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+            dsl2.put("dynamicBindingPathList", temp2);
+            objects.add(dsl2);
+            dsl.put("children", objects);
+
             layout.setDsl(dsl);
             layout.setPublishedDsl(dsl);
             layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
@@ -267,6 +284,7 @@ public class LayoutActionServiceTest {
 
         ActionDTO firstAction = newActionService.createAction(action).block();
 
+        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
         applicationPageService.publish(testPage.getApplicationId()).block();

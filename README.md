@@ -8,7 +8,6 @@
 <p align="center">
     <a href="https://app.appsmith.com/signup"><strong>Try Online Sandbox</strong></a>
 </p>
-
 <p align="center">
   <a href="https://docs.appsmith.com/">Documentation</a>
   ·
@@ -19,7 +18,8 @@
   <br>
 </p>
 
------------------
+---
+
 <div>    
 Appsmith is a JavaScript-based visual development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive pages. Connect UI to your APIs and Databases to build complex workflows in minutes.<br/><br/>
 
@@ -29,6 +29,7 @@ Appsmith is a JavaScript-based visual development platform to build and launch i
 **Hosting**: Cloud-hosted & On-premise
 
 Already familiar with Appsmith? [Quickly start building on your own](#%EF%B8%8F-quickstart).
+
 </div>
 
 <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/UI.gif">
@@ -40,50 +41,63 @@ Already familiar with Appsmith? [Quickly start building on your own](#%EF%B8%8F-
 
 ## 🏭 Features
 
-* **5-minute setup**: Deploy Appsmith on your server, or use our cloud version to start building in 5 minutes. [Quick Start](#%EF%B8%8F-quickstart)
-* **Frontend as a service**: Drag-and-drop from pre-built UI widgets like table, form, and image, to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write JavaScript anywhere to transform data, and dynamically control widget-properties.
-* **Database CRUD**: Query & update your database directly by connecting it to the UI. Connect to **PostgreSQL, MongoDB, MySQL & more!**
-* **Trigger APIs**: Connect to REST APIs to build custom apps.
-* **Security**: DB Credentials are AES 256 encrypted and no data is stored by appsmith. Deploy behind your private VPC for additional security!
-* **One-click deployment**: Managed deployment of your apps with a click of a button.
-* **Access-control**: Assign users different roles & control who can edit / view your applications.
-* **Supports OAuth**: Allow users to authenticate via Google Auth or GitHub Auth.
+- **5-minute setup**: Deploy Appsmith on your server, or use our cloud version to start building in 5 minutes. [Quick Start](#%EF%B8%8F-quickstart)
+- **Frontend as a service**: Drag-and-drop from pre-built UI widgets like table, form, and image, to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write JavaScript anywhere to transform data, and dynamically control widget-properties.
+- **Database CRUD**: Query & update your database directly by connecting it to the UI. Connect to **PostgreSQL, MongoDB, MySQL & more!**
+- **Trigger APIs**: Connect to REST APIs to build custom apps.
+- **Security**: DB Credentials are AES 256 encrypted and no data is stored by appsmith. Deploy behind your private VPC for additional security!
+- **One-click deployment**: Managed deployment of your apps with a click of a button.
+- **Access-control**: Assign users different roles & control who can edit / view your applications.
+- **Supports OAuth**: Allow users to authenticate via Google Auth or GitHub Auth.
 
 ## 📺 Demo
 
-Unsure if Appsmith is for you? [Watch it in action here](http://bit.ly/appsmith-demo-github) 
+Unsure if Appsmith is for you? [Watch it in action here!](http://bit.ly/appsmith-demo-github)
 
 But if you’d rather check out some real applications that can be built with Appsmith, check below:
-* [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
-* [Job Application Tracker](https://bit.ly/3hbYtTi)
+
+- [Customer Support Dashboard](https://bit.ly/cs-dashboard-appsmith)
+- [Job Application Tracker](https://bit.ly/3hbYtTi)
 
 ## 🏃‍♀️ Quickstart
 
 The following steps introduce you to building a simple user-list dashboard on Appsmith.
+
 1. [Sign up on Appsmith Cloud](https://bit.ly/appsmith-signup-github) or [Deploy Appsmith](https://docs.appsmith.com/setup).
 2. Create a new app within the organization that has already been created for you.
 3. Click on the `+` icon next to the `Queries` section to add a new query in the mock database
-    1. Name the query `usersQuery`.
-    2. Write the query `select * from users limit 5;`.
-    3. Run the query.
+   1. Name the query `usersQuery`.
+   2. Write the query `select * from users limit 5;`.
+   3. Run the query.
 4. Click on the `+` icon next to the `Widgets` section and drag a table onto the screen
 5. Link the table data property to the `usersQuery` using JavaScript `{{usersQuery.data}}`
 6. Hit the Deploy button and checkout the view mode of the app.
 
-Congratulations 🎉 You just built your first app on Appsmith! 
+Congratulations 🎉 You just built your first app on Appsmith!
 Connect your own data to build apps for your team. [Read more here.](https://docs.appsmith.com/core-concepts)
+
+## 📚 Tutorials
+
+1. [Building an Admin Panel on MongoDB using Appsmith](https://blog.appsmith.com/building-an-admin-panel-with-mongodb-using-appsmith) ([Video](https://www.youtube.com/watch?v=tisUaIgI86k))
+2. [Building a customer support dashboard in Appsmith](https://www.youtube.com/watch?v=-O_6OLREEzo&t=272s)
+3. [Running CI/CD jobs manually using Appsmith](https://blog.appsmith.com/how-to-run-manual-jobs-in-gitlab-cicd) ([Video](https://www.youtube.com/watch?v=CYdeJcD4I8A))
+4. [Building a calendly clone in Appsmith](https://blog.appsmith.com/how-to-build-a-calendly-clone-in-30-minutes)
+5. [Building Internal Tools with Appsmith](https://youtu.be/eYYYfuW-kEE) `Community`
+6. [Building an Issue Tracker with Appsmith](https://dev.to/pjmantoss/how-to-build-an-issue-tracker-with-appsmith-204e) `Community`
+
 
 ## 📕 Support & Troubleshooting
 
 If you encountered a bug or need help troubleshooting an issue, you can use one of the following channels:
 
-* Self Help: [Documentation](https://docs.appsmith.com)
-* Community Support: [Discord](https://discord.gg/rBTTVJp)
-* Issue & bug tracking: [GitHub Issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
+- Self Help: [Documentation](https://docs.appsmith.com)
+- Community Support: [Discord](https://discord.gg/rBTTVJp)
+- Issue & bug tracking: [GitHub Issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
 
 ## 🧑‍🤝‍🧑 Contributing
 
 If you're interested in contributing to Appsmith:
+
 1. Start by reading our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md).
 2. Learn how to set up your local environment, in our [developer-guide](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development).
 3. Explore our list of [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22).
@@ -95,7 +109,6 @@ We are committed to fostering an open and welcoming environment in the community
 The Appsmith platform is available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) (Apache-2.0).
 
 ## Contributors
-
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove / modify this section -->
 <!-- prettier-ignore-start -->
