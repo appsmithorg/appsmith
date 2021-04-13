@@ -523,7 +523,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     try {
       gridGap = parseInt(gridGap);
 
-      console.log({ parsed: gridGap, isNumber: isNumber(gridGap) });
       if (!isNumber(gridGap) || isNaN(gridGap)) {
         gridGap = 0;
       }
@@ -541,12 +540,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
 
-    console.log({
-      totalSpaceAvailable,
-      spaceTakenByOneContainer,
-      perPage: perPage,
-      gridGap,
-    });
     return { shouldPaginate, perPage: round(perPage) };
   };
 
