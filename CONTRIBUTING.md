@@ -1,7 +1,7 @@
 # Contributing to Appsmith
 
 Thank you for your interest in Appsmith and taking the time to contribute on this project. 🙌 
-Appsmith is a project by developers for developers and there are a lot of ways you can contribute. 
+Appsmith is a project by developers for developers, and there are a lot of ways you can contribute. 
 If you don't know where to start contributing, ask us on our [Discord channel](https://discord.gg/WN8b2W8j). 
 
 ## Code of conduct
