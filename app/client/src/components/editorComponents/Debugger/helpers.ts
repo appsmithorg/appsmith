@@ -43,7 +43,8 @@ export const usePagination = (data: any, itemsPerPage = 50) => {
   const maxPage = Math.ceil(data.length / itemsPerPage);
 
   useEffect(() => {
-    setPaginatedData(currentData());
+    const data = currentData();
+    setPaginatedData(data);
   }, [currentPage, data.length]);
 
   function currentData() {
