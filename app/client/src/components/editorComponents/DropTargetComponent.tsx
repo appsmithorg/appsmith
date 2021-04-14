@@ -48,6 +48,14 @@ const StyledDropTarget = styled.div`
   user-select: none;
 `;
 
+const Onboarding = () => {
+  return (
+    <div style={{ position: "fixed", left: "50%", top: "50vh" }}>
+      <h2 style={{ color: "#ccc" }}>Drag and drop a widget here</h2>
+    </div>
+  );
+};
+
 /*
   This context will provide the function which will help the draglayer and resizablecomponents trigger
   an update of the main container's rows
@@ -271,6 +279,9 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
         className={"t--drop-target"}
       >
         {props.children}
+        {!(childWidgets && childWidgets.length) &&
+          !isDragging &&
+          !props.parentId && <Onboarding />}
         <DragLayerComponent
           parentWidgetId={props.widgetId}
           canDropTargetExtend={canDropTargetExtend}

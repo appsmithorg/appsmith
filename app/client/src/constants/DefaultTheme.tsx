@@ -401,9 +401,6 @@ export type Theme = {
     };
   };
   iconSizes: IconSizeType;
-  appComments: {
-    width: string;
-  };
 };
 
 type IconSizeType = {
@@ -2237,9 +2234,6 @@ export const theme: Theme = {
         background: "transparent",
       },
     },
-  },
-  appComments: {
-    width: "250px",
   },
 };
 
