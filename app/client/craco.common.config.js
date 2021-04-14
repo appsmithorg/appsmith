@@ -1,4 +1,5 @@
 const CracoAlias = require("craco-alias");
+const rawLoader = require("craco-raw-loader");
 
 module.exports = {
   plugins: [
@@ -22,5 +23,6 @@ module.exports = {
         css: false,
       },
     },
+    { plugin: rawLoader, options: { test: /derived\.js$/ } },
   ],
 };

@@ -74,11 +74,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
   //   widgetCardName: "Rich Text Editor",
   //   key: generateReactKey(),
   // },
-  // {
-  //   type: "TABLE_WIDGET",
-  //   widgetCardName: "Table",
-  //   key: generateReactKey(),
-  // },
+  {
+    type: "TABLE_WIDGET",
+    widgetCardName: "Table",
+    key: generateReactKey(),
+  },
   // {
   //   type: "TABS_WIDGET",
   //   widgetCardName: "Tabs",

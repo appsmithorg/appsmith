@@ -119,6 +119,13 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
 }
 
+const EvaluatedValuePopupModifiers = {
+  offset: {
+    enabled: true,
+    offset: "0, 15",
+  },
+};
+
 export const CurrentValueViewer = (props: {
   theme: EditorTheme;
   evaluatedValue: any;
@@ -228,12 +235,7 @@ const EvaluatedValuePopup = (props: Props) => {
           isOpen
           zIndex={15}
           placement={placement}
-          modifiers={{
-            offset: {
-              enabled: true,
-              offset: "0, 15",
-            },
-          }}
+          modifiers={EvaluatedValuePopupModifiers}
         >
           <PopoverContent
             expected={props.expected}

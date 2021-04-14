@@ -13,7 +13,6 @@ import {
   getFormValues,
   getFormMeta,
 } from "redux-form";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BackButton from "./BackButton";
 import InputTextControl, {
@@ -55,6 +54,7 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 interface DatasourceRestApiEditorProps {
   updateDatasource: (

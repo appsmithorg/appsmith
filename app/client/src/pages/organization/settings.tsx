@@ -14,7 +14,7 @@ import history from "utils/history";
 import styled from "styled-components";
 
 import MemberSettings from "./Members";
-import IconComponent from "components/designSystems/appsmith/IconComponent";
+import { Icon } from "@blueprintjs/core";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
 import { getAllApplications } from "actions/applicationActions";
@@ -87,7 +87,7 @@ export default function Settings() {
   return (
     <SettingsWrapper>
       <LinkToApplications to={"/applications"}>
-        <IconComponent iconName="chevron-left" color="#9F9F9F"></IconComponent>
+        <Icon icon="chevron-left" color="#9F9F9F" />
         <Text type={TextType.H1} className="t--organization-header">
           {currentOrg && currentOrg.name}
         </Text>

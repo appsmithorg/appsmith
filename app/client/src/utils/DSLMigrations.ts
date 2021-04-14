@@ -1,5 +1,5 @@
 import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateReactKey } from "./generators";
 import {
@@ -11,7 +11,7 @@ import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { isString } from "lodash";
 import * as Sentry from "@sentry/react";
 import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
-import { ChartDataPoint } from "widgets/ChartWidget";
+import { ChartDataPoint } from "widgets/ChartWidget/constants";
 import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "./migrations/IncorrectDynamicBindingPathLists";
 import {

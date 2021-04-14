@@ -90,12 +90,6 @@ class WidgetFactory {
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
   ) {
-    console.log(
-      "Registering",
-      { widgetType },
-      "registered widgets:",
-      this.widgetTypes,
-    );
     if (!!this.widgetTypes[widgetType]) {
       console.error(`Widget ${widgetType} is already registered`);
     } else {

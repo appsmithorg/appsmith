@@ -61,6 +61,16 @@ const WidgetsEditor = () => {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
+  console.log(
+    "Widgets",
+    "CanvasWidgets",
+    { widgets },
+    { currentApp },
+    { currentPageName },
+    { currentPageId },
+    { isFetchingPage },
+    { params },
+  );
   useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -115,6 +125,7 @@ const WidgetsEditor = () => {
   }
 
   log.debug("Canvas rendered");
+
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
@@ -126,6 +137,10 @@ const WidgetsEditor = () => {
       </EditorWrapper>
     </EditorContextProvider>
   );
+};
+
+WidgetsEditor.whyDidYouRender = {
+  logOnDifferentValues: false,
 };
 
 export default WidgetsEditor;

@@ -17,7 +17,6 @@ import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps } from "redux-form";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -29,6 +28,7 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 const { cloudHosting } = getAppsmithConfigs();
 

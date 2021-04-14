@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import { BaseText } from "components/designSystems/blueprint/TextComponent";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
@@ -21,10 +20,16 @@ import {
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { Case, TextType } from "components/ads/Text";
+import { Text as BlueprintText } from "@blueprintjs/core";
 import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
+
+type TextStyleProps = {
+  accent: "primary" | "secondary" | "error";
+};
+export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 
 const ResponseContainer = styled.div`
   position: relative;

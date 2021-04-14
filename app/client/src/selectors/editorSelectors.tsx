@@ -18,7 +18,7 @@ import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 import { OccupiedSpace } from "constants/editorConstants";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import _ from "lodash";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "selectors/entitiesSelector";
 
@@ -147,6 +147,7 @@ export const getCanvasWidgetDsl = createSelector(
     evaluatedDataTree,
     loadingEntities,
   ): ContainerWidgetProps<WidgetProps> => {
+    console.log("Calling for rerender");
     const widgets: Record<string, DataTreeWidget> = {};
     Object.keys(canvasWidgets).forEach((widgetKey) => {
       const canvasWidget = canvasWidgets[widgetKey];

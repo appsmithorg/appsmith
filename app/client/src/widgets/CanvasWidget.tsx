@@ -1,6 +1,8 @@
 import React, { CSSProperties } from "react";
 import { WidgetProps } from "widgets/BaseWidget";
-import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
+import ContainerWidget, {
+  ContainerWidgetProps,
+} from "widgets/ContainerWidget/widget";
 import { GridDefaults } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";

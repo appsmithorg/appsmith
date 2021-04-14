@@ -15,7 +15,6 @@ import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import FormRow from "components/editorComponents/FormRow";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "entities/Datasource";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
@@ -39,6 +38,7 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import log from "loglevel";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 const QueryFormContainer = styled.form`
   display: flex;

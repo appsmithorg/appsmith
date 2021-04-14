@@ -1,6 +1,6 @@
 import { FetchPageResponse } from "api/PageApi";
 import { XYCoord } from "react-dnd";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
   WidgetOperation,

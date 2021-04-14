@@ -6444,6 +6444,13 @@ craco-babel-loader@^0.1.4:
   dependencies:
     "@craco/craco" "^5.0.0"
 
+craco-raw-loader@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/craco-raw-loader/-/craco-raw-loader-1.0.1.tgz#db04660a24419b09988a5b2651e627a9c3a35d2a"
+  integrity sha512-Xxtvc72WWzmkZIGJmb65c6kg7ErhHuUDH2xjY+vkouZH3W0RgeT4GN6etEDkjHvSJmFcPH9lAUXkt+xK7ks+JQ==
+  dependencies:
+    raw-loader "^1.0.0"
+
 create-ecdh@^4.0.0:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/create-ecdh/-/create-ecdh-4.0.4.tgz#d6e7f4bffa66736085a0762fd3a632684dabcc4e"
@@ -13750,6 +13757,14 @@ raw-body@2.4.0:
     http-errors "1.7.2"
     iconv-lite "0.4.24"
     unpipe "1.0.0"
+
+raw-loader@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/raw-loader/-/raw-loader-1.0.0.tgz#3f9889e73dadbda9a424bce79809b4133ad46405"
+  integrity sha512-Uqy5AqELpytJTRxYT4fhltcKPj0TyaEpzJDcGz7DFJi+pQOOi3GjR/DOdxTkTsF+NzhnldIoG6TORaBlInUuqA==
+  dependencies:
+    loader-utils "^1.1.0"
+    schema-utils "^1.0.0"
 
 raw-loader@^3.1.0:
   version "3.1.0"

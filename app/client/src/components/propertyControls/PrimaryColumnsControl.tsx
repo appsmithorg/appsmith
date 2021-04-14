@@ -11,16 +11,16 @@ import {
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import EmptyDataState from "components/utils/EmptyDataState";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   getDefaultColumnProperties,
   getTableStyles,
-} from "components/designSystems/appsmith/TableComponent/TableUtilities";
+} from "widgets/TableWidget/component/TableUtilities";
 import { debounce } from "lodash";
 import { Size, Category } from "components/ads/Button";
-import { reorderColumns } from "components/designSystems/appsmith/TableComponent/TableHelpers";
+import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
 
 const ItemWrapper = styled.div`
   display: flex;

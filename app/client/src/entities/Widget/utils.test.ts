@@ -1,6 +1,6 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
 import { RenderModes } from "../../constants/WidgetConstants";
-import tablePropertyPaneConfig from "widgets/TableWidget/TablePropertyPaneConfig";
+import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/propertyConfig";
 
 describe("getAllPathsFromPropertyConfig", () => {

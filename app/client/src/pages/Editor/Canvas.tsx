@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import WidgetFactory from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";

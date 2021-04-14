@@ -7,7 +7,6 @@ import {
 } from "selectors/widgetSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { DropdownOption } from "widgets/DropdownWidget";
 import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
 import {
@@ -30,6 +29,7 @@ import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getWidgets } from "sagas/selectors";
 import { Skin } from "constants/DefaultTheme";
+import { DropdownOption } from "components/constants";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */

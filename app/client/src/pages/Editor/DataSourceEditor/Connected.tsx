@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { isNil } from "lodash";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
@@ -25,6 +24,7 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import { inOnboarding } from "sagas/OnboardingSagas";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { createMessage, ERROR_ADD_API_INVALID_URL } from "constants/messages";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 const ConnectedText = styled.div`
   color: ${Colors.OXFORD_BLUE};

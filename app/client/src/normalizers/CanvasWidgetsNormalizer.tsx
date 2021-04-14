@@ -1,6 +1,6 @@
 import { normalize, schema, denormalize } from "normalizr";
 import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 
 export const widgetSchema = new schema.Entity(
   "canvasWidgets",
