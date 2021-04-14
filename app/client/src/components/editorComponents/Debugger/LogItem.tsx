@@ -162,7 +162,6 @@ const LogItem = (props: LogItemProps) => {
   const dispatch = useDispatch();
 
   const openHelpModal = useCallback((text: string) => {
-    dispatch(showDebugger(false));
     dispatch(setGlobalSearchQuery(text || ""));
     dispatch(toggleShowGlobalSearchModal());
   }, []);
