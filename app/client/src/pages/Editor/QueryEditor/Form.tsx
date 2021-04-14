@@ -31,6 +31,8 @@ import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
 } from "selectors/entitiesSelector";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
@@ -374,6 +376,12 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     );
   };
 
+  const handleDocumentationClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(setGlobalSearchQuery("Connect to Databases"));
+    dispatch(toggleShowGlobalSearchModal());
+  };
+
   const CustomOption = (props: OptionProps<OptionTypeBase>) => {
     return (
       <>
@@ -475,8 +483,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       <TabContainerView>
         {documentationLink && (
           <DocumentationLink
-            href={documentationLink}
-            target="_blank"
+            onClick={handleDocumentationClick}
             rel="noopener noreferrer"
           >
             {"Documentation "}

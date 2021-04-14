@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { connect, useSelector } from "react-redux";
+import { connect, useSelector, useDispatch } from "react-redux";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -12,7 +12,8 @@ import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
 import { Action, PaginationType } from "entities/Action";
-import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -247,6 +248,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const location = useLocation();
   const { applicationId, pageId } = useParams<ExplorerURLParams>();
 
+  const dispatch = useDispatch();
+  const handleClickLearnHow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(setGlobalSearchQuery("capturing data"));
+    dispatch(toggleShowGlobalSearchModal());
+  };
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
@@ -339,7 +346,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                           label={
                             <CalloutContent>
                               <Link
-                                href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
+                                onClick={handleClickLearnHow}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
