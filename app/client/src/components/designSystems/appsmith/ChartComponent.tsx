@@ -1,15 +1,10 @@
-import _, { get, isString } from "lodash";
+import _, { get } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "configs";
-import {
-  AllChartData,
-  ChartData,
-  ChartDataPoint,
-  ChartType,
-} from "widgets/ChartWidget";
+import { AllChartData, ChartDataPoint, ChartType } from "widgets/ChartWidget";
 import log from "loglevel";
 
 export interface CustomFusionChartConfig {
@@ -211,7 +206,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     const dataset = Object.keys(chartData).map((key: string) => {
       const item = get(chartData, `${key}`);
 
-      console.log({ item });
       const seriesChartData: Array<Record<
         string,
         unknown
