@@ -21,7 +21,6 @@ import _, {
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
-import log from "loglevel";
 import { AllChartData } from "widgets/ChartWidget";
 
 export function validateDateString(

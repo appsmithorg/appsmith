@@ -266,7 +266,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
     return (
       <React.Fragment>
         <Wrapper>
-          {Object.keys(chartData).map((key: string, index: number) => {
+          {Object.keys(chartData).map((key: string) => {
             const data = get(chartData, `${key}`);
 
             return (
