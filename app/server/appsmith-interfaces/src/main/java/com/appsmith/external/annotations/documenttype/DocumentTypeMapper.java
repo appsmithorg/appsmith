@@ -7,7 +7,6 @@ import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mapping.Alias;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
-import org.springframework.lang.NonNullApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
