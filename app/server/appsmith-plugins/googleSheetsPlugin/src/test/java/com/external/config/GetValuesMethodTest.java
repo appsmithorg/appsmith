@@ -1,6 +1,7 @@
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.external.constants.GoogleSheets;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -131,7 +132,7 @@ public class GetValuesMethodTest {
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
         Assert.assertEquals(3, result.size());
-        Assert.assertEquals(0, result.get(0).get("row_id").asInt());
+        Assert.assertEquals(0, result.get(0).get(GoogleSheets.ROW_INDEX).asInt());
     }
 
     @Test
@@ -159,6 +160,6 @@ public class GetValuesMethodTest {
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
         Assert.assertEquals(3, result.size());
-        Assert.assertEquals(0, result.get(0).get("row_id").asInt());
+        Assert.assertEquals(0, result.get(0).get(GoogleSheets.ROW_INDEX).asInt());
     }
 }
