@@ -182,7 +182,27 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionErrorTypes.TEST_DATASOURCE_ERROR]: (
     state: DatasourceDataState,
-  ) => {
+    action: ReduxAction<{
+      show: boolean;
+      id?: string;
+      messages?: Array<string>;
+      error?: any;
+    }>,
+  ): DatasourceDataState => {
+    let list;
+    if (action.payload.messages) {
+      list = state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, messages: action.payload.messages };
+        }
+        return datasource;
+      });
+      return {
+        ...state,
+        isTesting: false,
+        list: list,
+      };
+    }
     return {
       ...state,
       isTesting: false,

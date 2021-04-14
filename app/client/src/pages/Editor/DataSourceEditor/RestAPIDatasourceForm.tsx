@@ -55,6 +55,7 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
+import Callout from "components/ads/Callout";
 
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
@@ -76,6 +77,7 @@ interface DatasourceRestApiEditorProps {
   formData: ApiDatasourceForm;
   actions: ActionDataState;
   formMeta: any;
+  messages?: string;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -370,10 +372,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderEditor = () => {
-    const { formData } = this.props;
+    const { formData, messages } = this.props;
     if (!formData) return;
     return (
       <>
+        {messages && <Callout text={messages} variant={Variant.warning} fill />}
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
@@ -652,6 +655,17 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
+  const hintMessages = datasource && datasource.messages;
+  let messages;
+
+  if (hintMessages && hintMessages.length) {
+    messages = hintMessages
+      .map(function(msg: string) {
+        return msg;
+      })
+      .join("\n ");
+  }
+
   return {
     initialValues: datasourceToFormValues(datasource),
     datasource: datasource,
@@ -660,6 +674,7 @@ const mapStateToProps = (state: AppState, props: any) => {
       state,
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
+    messages: messages,
   };
 };
 

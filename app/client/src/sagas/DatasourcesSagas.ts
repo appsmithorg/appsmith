@@ -257,8 +257,12 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       },
     );
     const isValidResponse = yield validateResponse(response);
+    let messages;
     if (isValidResponse) {
       const responseData = response.data;
+      if (responseData.messages && responseData.messages.length) {
+        messages = responseData.messages;
+      }
       if (responseData.invalids && responseData.invalids.length) {
         Toaster.show({
           text: responseData.invalids[0],
@@ -266,7 +270,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         });
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
-          payload: { show: false },
+          payload: { show: false, id: datasource.id, messages: messages },
         });
       } else {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
