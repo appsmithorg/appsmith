@@ -7,6 +7,7 @@ import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mapping.Alias;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
+import org.springframework.lang.NonNullApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,8 +59,9 @@ public class DocumentTypeMapper implements TypeInformationMapper {
 
     @Override
     public TypeInformation<?> resolveTypeFrom(Alias alias) {
-        if (aliasToTypeMap.containsKey((String) alias.getValue())) {
-            return aliasToTypeMap.get(alias.getValue());
+        final String aliasAsString = alias.mapTyped(String.class);
+        if (aliasAsString != null && aliasToTypeMap.containsKey(aliasAsString)) {
+            return aliasToTypeMap.get(aliasAsString);
         }
         return null;
     }
