@@ -14,7 +14,6 @@ import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
-import { showDebugger } from "actions/debuggerActions";
 
 const Log = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
