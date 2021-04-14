@@ -112,15 +112,9 @@ const Link = (props: {
 
   switch (props.uiComponent) {
     case DebuggerLinkUI.ENTITY_TYPE:
-      const EntityType = {
-        [ENTITY_TYPE.ACTION]: "Action",
-        [ENTITY_TYPE.WIDGET]: "Widget",
-        [ENTITY_TYPE.DATASOURCE]: "DB",
-      };
-
       return (
         <span className="debugger-entity">
-          [<span onClick={onClick}>{EntityType[props.entityType]}</span>]
+          [<span onClick={onClick}>{props.name}</span>]
         </span>
       );
     case DebuggerLinkUI.ENTITY_NAME:
