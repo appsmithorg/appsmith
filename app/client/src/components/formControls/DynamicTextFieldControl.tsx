@@ -57,7 +57,7 @@ class DynamicTextControl extends BaseControl<
   }
 
   render() {
-    const { responseType, label } = this.props;
+    const { responseType, label, placeholderText } = this.props;
     const isNewQuery =
       new URLSearchParams(window.location.search).get("showTemplate") ===
       "true";
@@ -95,6 +95,7 @@ class DynamicTextControl extends BaseControl<
             className="dynamic-text-field"
             mode={mode}
             tabBehaviour={TabBehaviour.INDENT}
+            placeholder={placeholderText}
           />
         )}
       </Wrapper>
@@ -107,6 +108,7 @@ export interface DynamicTextFieldProps extends ControlProps {
   createTemplate: (template: any, formName: string) => any;
   pluginId: string;
   responseType: string;
+  placeholderText?: string;
 }
 
 const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
