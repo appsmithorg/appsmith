@@ -3,19 +3,19 @@ import styled from "styled-components";
 import { TabComponent } from "components/ads/Tabs";
 import Icon, { IconSize } from "components/ads/Icon";
 import DebuggerLogs from "./DebuggerLogs";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { showDebugger } from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer from "./Resizer";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { AppState } from "reducers";
 
 const TABS_HEADER_HEIGHT = 36;
-const MAX_DEBUGGER_HEIGHT = 337;
-const MIN_DEBUGGER_HEIGHT = 115;
 
 const Container = styled.div`
   position: fixed;
   bottom: 0;
-  height: ${MAX_DEBUGGER_HEIGHT}px;
+  height: 337px;
   background-color: ${(props) => props.theme.colors.debugger.background};
   width: calc(100vw - ${(props) => props.theme.sidebarWidth});
   z-index: 10;
@@ -43,6 +43,9 @@ const DebuggerTabs = (props: DebuggerTabsProps) => {
   const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
+  const headerHeight = useSelector((state: AppState) => {
+    return getCurrentThemeDetails(state).smallHeaderHeight;
+  });
 
   const handleResize = (movementY: number) => {
     const panel = panelRef.current;
@@ -52,10 +55,11 @@ const DebuggerTabs = (props: DebuggerTabsProps) => {
 
     const resizeTop = () => {
       const updatedHeight = height - movementY;
+      const headerHeightNumber = parseInt(headerHeight.replace("px", ""));
 
       if (
-        updatedHeight < MAX_DEBUGGER_HEIGHT &&
-        updatedHeight > MIN_DEBUGGER_HEIGHT
+        updatedHeight < window.innerHeight - headerHeightNumber &&
+        updatedHeight > TABS_HEADER_HEIGHT
       ) {
         panel.style.height = `${height - movementY}px`;
       }
