@@ -166,7 +166,11 @@ export const CurrentValueViewer = (props: {
   }
   return (
     <React.Fragment>
-      {!props.hideLabel && <StyledTitle>Evaluated Value</StyledTitle>}
+      {!props.hideLabel && (
+        <StyledTitle data-testid="evaluated-value-popup-title">
+          Evaluated Value
+        </StyledTitle>
+      )}
       <CurrentValueWrapper colorTheme={props.theme}>
         <>
           {content}
