@@ -290,6 +290,9 @@ public class CurlImporterService extends BaseApiImporter {
             } else if (ARG_HEADER.equals(state)) {
                 // The `token` is next to `--header`.
                 final String[] parts = token.split(":\\s*", 2);
+                if (parts.length != 2) {
+                    throw new AppsmithException(AppsmithError.INVALID_CURL_HEADER, token);
+                }
                 if ("content-type".equalsIgnoreCase(parts[0])) {
                     contentType = parts[1];
                 }
