@@ -4,8 +4,10 @@ import { WidgetTypes } from "constants/WidgetConstants";
 import { LogActionPayload, LOG_TYPE } from "entities/AppsmithConsole";
 import { all, put, takeEvery, select, fork } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { isEmpty } from "lodash";
+import { isEmpty, get } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
+import { getAction } from "selectors/entitiesSelector";
+import { Action, PluginType } from "entities/Action";
 
 function* onWidgetUpdateSaga(payload: LogActionPayload) {
   if (!payload.source) return;
@@ -39,13 +41,52 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
   }
 }
 
+function* formatActionRequestSaga(payload: LogActionPayload) {
+  if (!payload.source) return;
+  const source = payload.source;
+
+  if (payload.state) {
+    const action: Action = yield select(getAction, source.id);
+    if (action.pluginType === PluginType.API) {
+      let formattedHeaders = [];
+
+      const headers = get(payload, "state.request.headers", {});
+      // Convert headers from Record<string, array>[] to Record<string, string>[]
+      // for showing in the logs
+      formattedHeaders = Object.keys(headers).map((key: string) => {
+        const value = headers[key];
+        return {
+          [key]: value[0],
+        };
+      });
+
+      yield put(
+        debuggerLog({
+          ...payload,
+          state: {
+            ...payload.state,
+            request: {
+              ...payload.state.request,
+              headers: formattedHeaders,
+            },
+          },
+        }),
+      );
+    } else {
+      yield put(debuggerLog(payload));
+    }
+  } else {
+    yield put(debuggerLog(payload));
+  }
+}
+
 function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
   const { payload } = action;
-  yield put(debuggerLog(payload));
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:
       yield fork(onWidgetUpdateSaga, payload);
+      yield put(debuggerLog(payload));
       return;
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
@@ -66,11 +107,14 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
           );
         }
       }
+      yield put(debuggerLog(payload));
       break;
     case LOG_TYPE.ACTION_EXECUTION_ERROR:
+      yield fork(formatActionRequestSaga, payload);
       yield put(errorLog(payload));
       break;
     case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
+      yield fork(formatActionRequestSaga, payload);
       yield put(
         updateErrorLog({
           ...payload,
@@ -78,6 +122,8 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
         }),
       );
       break;
+    default:
+      yield put(debuggerLog(payload));
   }
 }
 
