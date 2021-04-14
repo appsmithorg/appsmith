@@ -169,12 +169,12 @@ describe("getAllPathsFromPropertyConfig", () => {
       chartName: "Sales on working days",
       allowHorizontalScroll: false,
       version: 1,
-      chartData: [
-        {
+      chartData: {
+        0: {
           seriesName: "",
           data: "{{Api1.data}}",
         },
-      ],
+      },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
       type: WidgetTypes.CHART_WIDGET,
@@ -209,8 +209,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         onDataPointClick: true,
       },
       validationPaths: {
-        "chartData[0].data": "CHART_DATA",
-        "chartData[0].seriesName": "TEXT",
+        "chartData.0.data": "ARRAY",
+        "chartData.0.seriesName": "TEXT",
         chartName: "TEXT",
         isVisible: "BOOLEAN",
         xAxisName: "TEXT",
