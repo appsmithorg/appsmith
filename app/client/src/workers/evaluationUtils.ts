@@ -286,7 +286,7 @@ export function getValidatedTree(tree: DataTree) {
         validation,
         tree,
       );
-      parsedEntity[property] = parsed;
+      _.set(parsedEntity, property, parsed);
       const evaluatedValue = isValid
         ? parsed
         : _.isUndefined(transformed)
