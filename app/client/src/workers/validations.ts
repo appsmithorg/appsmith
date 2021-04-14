@@ -331,6 +331,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     // iterating over the objects of chart data and validating data for every datum
     Object.keys(parsed).forEach((key: string) => {
       const seriesData = get(parsed, `${key}`);
+      console.log({ key, seriesData });
 
       let isValidSeries = false;
       try {

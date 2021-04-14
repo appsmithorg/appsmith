@@ -85,7 +85,7 @@ export default [
         placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
         label: "Chart Series",
         controlType: "CHART_DATA",
-
+        validation: VALIDATION_TYPES.CHART_DATA,
         isBindProperty: false,
         isTriggerProperty: false,
         children: [
@@ -105,7 +105,7 @@ export default [
             controlType: "INPUT_TEXT_AREA",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.CHART_DATA,
+            validation: VALIDATION_TYPES.ARRAY,
           },
         ],
       },

@@ -361,15 +361,15 @@ function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
  * @param currentDSL
  * @returns
  */
-function migrateChartDataFromArrayToObject(
+export function migrateChartDataFromArrayToObject(
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (children.type === WidgetTypes.CHART_WIDGET) {
-      if (Array.isArray(currentDSL.chartData)) {
+      if (Array.isArray(children.chartData)) {
         const newChartData = {};
 
-        currentDSL.chartData.map((datum: any) => {
+        children.chartData.map((datum: any) => {
           set(newChartData, `${generateReactKey()}`, datum);
         });
 
@@ -518,9 +518,9 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 16;
   }
 
-  if (currentDSL.version === 16) {
+  if (currentDSL.version === 17) {
     currentDSL = migrateChartDataFromArrayToObject(currentDSL);
-    currentDSL.version = 17;
+    currentDSL.version = 18;
   }
 
   return currentDSL;
