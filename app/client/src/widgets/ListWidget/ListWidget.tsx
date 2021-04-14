@@ -1,15 +1,6 @@
 import React from "react";
 import log from "loglevel";
-import {
-  compact,
-  floor,
-  get,
-  set,
-  xor,
-  isPlainObject,
-  isNumber,
-  round,
-} from "lodash";
+import { compact, get, set, xor, isPlainObject, isNumber, round } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
