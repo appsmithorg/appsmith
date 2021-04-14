@@ -343,7 +343,7 @@
               "BULK_UPDATE"
             ]
           },
-          "placeholderText": "Test"
+          "placeholderText": "{{ Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
         }
       ]
     }
