@@ -20,7 +20,7 @@ public class CopyMethod implements Method {
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig, String body) {
+    public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
@@ -31,7 +31,7 @@ public class CopyMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
@@ -42,7 +42,7 @@ public class CopyMethod implements Method {
 
         return webClient.method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
-                .body(BodyInserters.fromObject(body));
+                .body(BodyInserters.fromObject(methodConfig.getRowObjects()));
     }
 
 }

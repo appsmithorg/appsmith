@@ -29,6 +29,8 @@ public class MethodConfig {
     String rowOffset;
     String rowLimit;
     String sheetName;
+    String rowObject;
+    String rowObjects;
     Object body;
     Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?.*");
 
@@ -66,6 +68,12 @@ public class MethodConfig {
                     break;
                 case "sheetName":
                     this.sheetName = property.getValue();
+                    break;
+                case "rowObject":
+                    this.rowObject = property.getValue();
+                    break;
+                case "rowObjects":
+                    this.rowObjects = property.getValue();
                     break;
             }
         });

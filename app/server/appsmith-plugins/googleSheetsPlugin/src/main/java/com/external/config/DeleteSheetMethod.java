@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class DeleteSheetMethod implements Method {
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig, String body) {
+    public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
@@ -39,7 +40,7 @@ public class DeleteSheetMethod implements Method {
     }
 
     @Override
-    public Mono<Boolean> executePrerequisites(MethodConfig methodConfig, String body, OAuth2 oauth2) {
+    public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
         if ("All".equalsIgnoreCase(methodConfig.getSheetName())) {
             methodConfig.setSheetId("All");
             return Mono.just(true);
@@ -64,7 +65,7 @@ public class DeleteSheetMethod implements Method {
                     byte[] responseBody = response.getBody();
 
                     if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
-                        return Mono.error(new AppsmithPluginException(
+                        throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
                                 "Could not map request back to existing data"));
                     }
@@ -73,7 +74,7 @@ public class DeleteSheetMethod implements Method {
                     try {
                         jsonNodeBody = objectMapper.readTree(jsonBody);
                     } catch (IOException e) {
-                        return Mono.error(new AppsmithPluginException(
+                        throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
                                 new String(responseBody),
                                 e.getMessage()
@@ -91,18 +92,17 @@ public class DeleteSheetMethod implements Method {
                     }
 
                     if (sheetId == null) {
-                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown Sheet Name"));
+                        throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown Sheet Name"));
                     } else {
                         methodConfig.setSheetId(sheetId);
                     }
 
                     return methodConfig;
-                })
-                .thenReturn(true);
+                });
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
         if ("All".equalsIgnoreCase(methodConfig.getSheetId())) {
             UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,

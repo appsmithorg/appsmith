@@ -38,7 +38,7 @@ public class GetValuesMethod implements Method {
     Pattern sheetRangePattern = Pattern.compile(".*!([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig, String body) {
+    public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
@@ -57,17 +57,17 @@ public class GetValuesMethod implements Method {
             if (methodConfig.getRowOffset() == null || methodConfig.getRowOffset().isBlank()) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Row offset");
             }
-            int rowOffset = 1;
+            int rowOffset = 0;
             try {
                 rowOffset = Integer.parseInt(methodConfig.getRowOffset());
-                if (rowOffset <= 0) {
+                if (rowOffset < 0) {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                            "Unexpected value for row offset. Please use a number starting from 1");
+                            "Unexpected value for row offset. Please use a number starting from 0");
                 }
 
             } catch (NumberFormatException e) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unexpected format for row offset. Please use a number starting from 1");
+                        "Unexpected format for row offset. Please use a number starting from 0");
             }
             if (methodConfig.getRowLimit() == null || methodConfig.getRowLimit().isBlank()) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Row limit");
@@ -95,9 +95,9 @@ public class GetValuesMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
-        final List<String> ranges = validateInputs(methodConfig, body);
+        final List<String> ranges = validateInputs(methodConfig);
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
@@ -111,7 +111,7 @@ public class GetValuesMethod implements Method {
                 .body(BodyInserters.empty());
     }
 
-    private List<String> validateInputs(MethodConfig methodConfig, String body) {
+    private List<String> validateInputs(MethodConfig methodConfig) {
         int tableHeaderIndex = 1;
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
@@ -124,7 +124,7 @@ public class GetValuesMethod implements Method {
             }
         }
         if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            int rowOffset = 1;
+            int rowOffset = 0;
             try {
                 rowOffset = Integer.parseInt(methodConfig.getRowOffset());
             } catch (NumberFormatException e) {
@@ -135,7 +135,7 @@ public class GetValuesMethod implements Method {
                 rowLimit = Integer.parseInt(methodConfig.getRowLimit());
                 return List.of(
                         "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
-                        "'" + methodConfig.getSheetName() + "'!" + (tableHeaderIndex + rowOffset) + ":" + (tableHeaderIndex + rowOffset + rowLimit - 1));
+                        "'" + methodConfig.getSheetName() + "'!" + (tableHeaderIndex + rowOffset + 1) + ":" + (tableHeaderIndex + rowOffset + rowLimit));
 
             } catch (NumberFormatException e) {
                 // Should have already been caught
@@ -185,7 +185,7 @@ public class GetValuesMethod implements Method {
             RowObject rowObject = new RowObject(
                     headerArray,
                     objectMapper.convertValue(row, String[].class),
-                    rowOffset - tableHeaderIndex + i);
+                    rowOffset - tableHeaderIndex + i - 1);
             collectedCells.add(rowObject.getValueMap());
         }
 

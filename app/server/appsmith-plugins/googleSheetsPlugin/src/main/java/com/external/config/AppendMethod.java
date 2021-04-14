@@ -13,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class AppendMethod implements Method {
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig, String body) {
+    public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
@@ -49,7 +50,7 @@ public class AppendMethod implements Method {
         }
         JsonNode bodyNode;
         try {
-            bodyNode = this.objectMapper.readTree(body);
+            bodyNode = this.objectMapper.readTree(methodConfig.getRowObject());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
@@ -64,7 +65,7 @@ public class AppendMethod implements Method {
     }
 
     @Override
-    public Mono<Boolean> executePrerequisites(MethodConfig methodConfig, String body, OAuth2 oauth2) {
+    public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
         WebClient client = WebClient.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
@@ -72,24 +73,24 @@ public class AppendMethod implements Method {
 
         RowObject rowObjectFromBody = null;
         try {
-            rowObjectFromBody = this.getRowObjectFromBody(this.objectMapper.readTree(body));
+            rowObjectFromBody = this.getRowObjectFromBody(this.objectMapper.readTree(methodConfig.getRowObject()));
         } catch (JsonProcessingException e) {
             // Should never enter here
         }
         assert rowObjectFromBody != null;
-        final String row = String.valueOf(rowObjectFromBody.getCurrentRowIndex());
+//        final String row = String.valueOf(rowObjectFromBody.getCurrentRowIndex());
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
                 .queryFormat("ROWS")
-                .rowOffset(row)
+                .rowOffset(String.valueOf(Integer.parseInt(methodConfig.getTableHeaderIndex()) - 1))
                 .rowLimit("1")
                 .build();
 
-        getValuesMethod.validateMethodRequest(newMethodConfig, body);
+        getValuesMethod.validateMethodRequest(newMethodConfig);
 
         RowObject finalRowObjectFromBody = rowObjectFromBody;
         return getValuesMethod
-                .getClient(client, newMethodConfig, body)
+                .getClient(client, newMethodConfig)
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
@@ -99,7 +100,7 @@ public class AppendMethod implements Method {
                     byte[] responseBody = response.getBody();
 
                     if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
-                        return Mono.error(new AppsmithPluginException(
+                        throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
                                 "Could not map request back to existing data"));
                     }
@@ -108,7 +109,7 @@ public class AppendMethod implements Method {
                     try {
                         jsonNodeBody = objectMapper.readTree(jsonBody);
                     } catch (IOException e) {
-                        return Mono.error(new AppsmithPluginException(
+                        throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
                                 new String(responseBody),
                                 e.getMessage()
@@ -137,12 +138,11 @@ public class AppendMethod implements Method {
                                     .asText()
                     );
                     return methodConfig;
-                })
-                .thenReturn(true);
+                });
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */

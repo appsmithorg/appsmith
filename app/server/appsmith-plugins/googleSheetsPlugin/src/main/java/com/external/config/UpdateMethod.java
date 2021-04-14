@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -27,13 +28,12 @@ public class UpdateMethod implements Method {
 
     ObjectMapper objectMapper;
 
-
     public UpdateMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig, String body) {
+    public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
@@ -52,12 +52,13 @@ public class UpdateMethod implements Method {
     }
 
     @Override
-    public Mono<Boolean> executePrerequisites(MethodConfig methodConfig, String body, OAuth2 oauth2) {
+    public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
         WebClient client = WebClient.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
         final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
 
+        final String body = methodConfig.getRowObject();
         RowObject rowObjectFromBody = null;
         try {
             rowObjectFromBody = this.getRowObjectFromBody(this.objectMapper.readTree(body));
@@ -74,12 +75,12 @@ public class UpdateMethod implements Method {
                 .rowLimit("1")
                 .build();
 
-        getValuesMethod.validateMethodRequest(newMethodConfig, body);
+        getValuesMethod.validateMethodRequest(newMethodConfig);
 
         final RowObject finalRowObjectFromBody = rowObjectFromBody;
 
         return getValuesMethod
-                .getClient(client, newMethodConfig, body)
+                .getClient(client, newMethodConfig)
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
@@ -89,7 +90,7 @@ public class UpdateMethod implements Method {
                     byte[] responseBody = response.getBody();
 
                     if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
-                        return Mono.error(new AppsmithPluginException(
+                        throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
                                 "Could not map request back to existing data"));
                     }
@@ -98,7 +99,7 @@ public class UpdateMethod implements Method {
                     try {
                         jsonNodeBody = objectMapper.readTree(jsonBody);
                     } catch (IOException e) {
-                        Mono.error(new AppsmithPluginException(
+                        throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
                                 new String(responseBody),
                                 e.getMessage()
@@ -109,6 +110,13 @@ public class UpdateMethod implements Method {
                     final JsonNode jsonNode = getValuesMethod
                             .transformResponse(jsonNodeBody, methodConfig)
                             .get(0);
+
+                    if (jsonNode == null) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "No data found at this row index. Do you want to try inserting something first?"
+                        ));
+                    }
 
                     // This is the robObject for original values
                     final RowObject returnedRowObject = this.getRowObjectFromBody(jsonNode);
@@ -121,12 +129,11 @@ public class UpdateMethod implements Method {
                     assert jsonNodeBody != null;
                     methodConfig.setSpreadsheetRange(jsonNodeBody.get("valueRanges").get(1).get("range").asText());
                     return methodConfig;
-                })
-                .thenReturn(true);
+                });
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
         RowObject rowObject = (RowObject) methodConfig.getBody();
 

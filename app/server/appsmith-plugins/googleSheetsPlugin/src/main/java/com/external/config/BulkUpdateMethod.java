@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class BulkUpdateMethod implements Method {
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig, String body) {
+    public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
@@ -52,7 +53,7 @@ public class BulkUpdateMethod implements Method {
         }
         JsonNode bodyNode;
         try {
-            bodyNode = this.objectMapper.readTree(body);
+            bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
@@ -67,7 +68,7 @@ public class BulkUpdateMethod implements Method {
     }
 
     @Override
-    public Mono<Boolean> executePrerequisites(MethodConfig methodConfig, String body, OAuth2 oauth2) {
+    public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
         WebClient client = WebClient.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
@@ -75,7 +76,7 @@ public class BulkUpdateMethod implements Method {
 
         Map<Integer, RowObject> rowObjectMapFromBody = null;
         try {
-            rowObjectMapFromBody = this.getRowObjectMapFromBody(this.objectMapper.readTree(body));
+            rowObjectMapFromBody = this.getRowObjectMapFromBody(this.objectMapper.readTree(methodConfig.getRowObjects()));
         } catch (JsonProcessingException e) {
             // Should never enter here
         }
@@ -90,11 +91,11 @@ public class BulkUpdateMethod implements Method {
                 .rowLimit(String.valueOf(rowEnd - rowStart + 1))
                 .build();
 
-        getValuesMethod.validateMethodRequest(newMethodConfig, body);
+        getValuesMethod.validateMethodRequest(newMethodConfig);
 
         Map<Integer, RowObject> finalRowObjectMapFromBody = rowObjectMapFromBody;
         return getValuesMethod
-                .getClient(client, newMethodConfig, body)
+                .getClient(client, newMethodConfig)
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
@@ -104,7 +105,7 @@ public class BulkUpdateMethod implements Method {
                     byte[] responseBody = response.getBody();
 
                     if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
-                        return Mono.error(new AppsmithPluginException(
+                        throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
                                 "Could not map request back to existing data"));
                     }
@@ -113,7 +114,7 @@ public class BulkUpdateMethod implements Method {
                     try {
                         jsonNodeBody = objectMapper.readTree(jsonBody);
                     } catch (IOException e) {
-                        return Mono.error(new AppsmithPluginException(
+                        throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
                                 new String(responseBody),
                                 e.getMessage()
@@ -147,12 +148,11 @@ public class BulkUpdateMethod implements Method {
                                     .asText()
                     );
                     return methodConfig;
-                })
-                .thenReturn(true);
+                });
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */

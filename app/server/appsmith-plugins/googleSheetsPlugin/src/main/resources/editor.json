@@ -261,7 +261,7 @@
             ]
           },
           "initialValue": "",
-          "placeholderText": "1"
+          "placeholderText": "0"
         },
         {
           "label": "Row Limit Key",

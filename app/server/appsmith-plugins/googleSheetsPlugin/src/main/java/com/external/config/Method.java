@@ -33,13 +33,13 @@ public interface Method {
         }
     }
 
-    boolean validateMethodRequest(MethodConfig methodConfig, String body);
+    boolean validateMethodRequest(MethodConfig methodConfig);
 
-    default Mono<Boolean> executePrerequisites(MethodConfig methodConfig, String body, OAuth2 oauth2) {
+    default Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
         return Mono.just(true);
     }
 
-    WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body);
+    WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig);
 
     default JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {

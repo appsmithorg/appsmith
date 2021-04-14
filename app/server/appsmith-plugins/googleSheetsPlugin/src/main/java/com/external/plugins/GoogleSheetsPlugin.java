@@ -78,12 +78,12 @@ public class GoogleSheetsPlugin extends BasePlugin {
             WebClient.Builder webClientBuilder = WebClient.builder();
 
             // Adding request body
-            final String rowObjectBody = actionConfiguration.getPluginSpecifiedTemplates().get(9).getValue();
+            final String rowObjectBody = actionConfiguration.getPluginSpecifiedTemplates().get(8).getValue();
             String requestBodyAsString = (rowObjectBody == null || rowObjectBody.isEmpty()) ? "" : rowObjectBody;
 
             if ("".equals(requestBodyAsString)) {
-                final String rowObjectsBody = actionConfiguration.getPluginSpecifiedTemplates().get(10).getValue();
-                requestBodyAsString = (rowObjectsBody == null || rowObjectsBody.isEmpty()) ? "" : rowObjectsBody;
+                final String rowObjectsBody = actionConfiguration.getPluginSpecifiedTemplates().get(9).getValue();
+                requestBodyAsString = (rowObjectsBody == null || rowObjectBody.isEmpty()) ? "" : rowObjectsBody;
             }
 
             // Validating request body
@@ -97,7 +97,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                 ));
             }
 
-            method.validateMethodRequest(methodConfig, requestBodyAsString);
+            method.validateMethodRequest(methodConfig);
 
             WebClient client = webClientBuilder
                     .exchangeStrategies(EXCHANGE_STRATEGIES)
@@ -108,80 +108,81 @@ public class GoogleSheetsPlugin extends BasePlugin {
             assert (!oauth2.getIsEncrypted() && oauth2.getAuthenticationResponse() != null);
 
             // Triggering the actual REST API call
-            String finalRequestBodyAsString = requestBodyAsString;
-            return method.executePrerequisites(methodConfig, requestBodyAsString, oauth2)
+            return method.executePrerequisites(methodConfig, oauth2)
                     // This method call will populate the request with all the configurations it needs for a particular method
-                    .flatMap(res -> method.getClient(client, methodConfig, finalRequestBodyAsString)
-                            .headers(headers -> headers.set(
-                                    "Authorization",
-                                    "Bearer " + oauth2.getAuthenticationResponse().getToken()))
-                            .exchange()
-                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                            .map(response -> {
-                                // Populate result object
-                                ActionExecutionResult result = new ActionExecutionResult();
+                    .flatMap(res -> {
+                        return method.getClient(client, methodConfig)
+                                .headers(headers -> headers.set(
+                                        "Authorization",
+                                        "Bearer " + oauth2.getAuthenticationResponse().getToken()))
+                                .exchange()
+                                .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                                .map(response -> {
+                                    // Populate result object
+                                    ActionExecutionResult result = new ActionExecutionResult();
 
-                                // Set response status
-                                result.setStatusCode(response.getStatusCode().toString());
-                                result.setIsExecutionSuccess(response.getStatusCode().is2xxSuccessful());
+                                    // Set response status
+                                    result.setStatusCode(response.getStatusCode().toString());
+                                    result.setIsExecutionSuccess(response.getStatusCode().is2xxSuccessful());
 
-                                HttpHeaders headers = response.getHeaders();
-                                // Convert the headers into json tree to store in the results
-                                String headerInJsonString;
-                                try {
-                                    headerInJsonString = objectMapper.writeValueAsString(headers);
-                                } catch (JsonProcessingException e) {
-                                    throw Exceptions.propagate(
-                                            new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
-                                }
-
-                                // Set headers in the result now
-                                try {
-                                    result.setHeaders(objectMapper.readTree(headerInJsonString));
-                                } catch (IOException e) {
-                                    throw Exceptions.propagate(
-                                            new AppsmithPluginException(
-                                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                                    headerInJsonString,
-                                                    e.getMessage()
-                                            )
-                                    );
-                                }
-
-                                // Choose body depending on response status
-                                byte[] body = response.getBody();
-                                try {
-                                    if (body == null) {
-                                        body = new byte[0];
+                                    HttpHeaders headers = response.getHeaders();
+                                    // Convert the headers into json tree to store in the results
+                                    String headerInJsonString;
+                                    try {
+                                        headerInJsonString = objectMapper.writeValueAsString(headers);
+                                    } catch (JsonProcessingException e) {
+                                        throw Exceptions.propagate(
+                                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                                     }
-                                    String jsonBody = new String(body);
-                                    JsonNode jsonNodeBody = objectMapper.readTree(jsonBody);
 
-                                    if (response.getStatusCode().is2xxSuccessful()) {
-                                        result.setBody(method.transformResponse(jsonNodeBody, methodConfig));
-                                    } else {
-                                        result.setBody(jsonNodeBody
-                                                .get("error")
-                                                .get("message")
-                                                .asText());
+                                    // Set headers in the result now
+                                    try {
+                                        result.setHeaders(objectMapper.readTree(headerInJsonString));
+                                    } catch (IOException e) {
+                                        throw Exceptions.propagate(
+                                                new AppsmithPluginException(
+                                                        AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                                        headerInJsonString,
+                                                        e.getMessage()
+                                                )
+                                        );
                                     }
-                                } catch (IOException e) {
-                                    throw Exceptions.propagate(
-                                            new AppsmithPluginException(
-                                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                                    new String(body),
-                                                    e.getMessage()
-                                            )
-                                    );
-                                }
 
-                                return result;
-                            })
-                            .onErrorResume(e -> {
-                                errorResult.setBody(Exceptions.unwrap(e).getMessage());
-                                System.out.println(e.getMessage());
-                                return Mono.just(errorResult);
-                            }));
+                                    // Choose body depending on response status
+                                    byte[] body = response.getBody();
+                                    try {
+                                        if (body == null) {
+                                            body = new byte[0];
+                                        }
+                                        String jsonBody = new String(body);
+                                        JsonNode jsonNodeBody = objectMapper.readTree(jsonBody);
+
+                                        if (response.getStatusCode().is2xxSuccessful()) {
+                                            result.setBody(method.transformResponse(jsonNodeBody, methodConfig));
+                                        } else {
+                                            result.setBody(jsonNodeBody
+                                                    .get("error")
+                                                    .get("message")
+                                                    .asText());
+                                        }
+                                    } catch (IOException e) {
+                                        throw Exceptions.propagate(
+                                                new AppsmithPluginException(
+                                                        AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                                        new String(body),
+                                                        e.getMessage()
+                                                )
+                                        );
+                                    }
+
+                                    return result;
+                                })
+                                .onErrorResume(e -> {
+                                    errorResult.setBody(Exceptions.unwrap(e).getMessage());
+                                    System.out.println(e.getMessage());
+                                    return Mono.just(errorResult);
+                                });
+                    });
         }
 
         @Override

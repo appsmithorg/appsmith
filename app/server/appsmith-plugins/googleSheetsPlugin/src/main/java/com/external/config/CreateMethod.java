@@ -6,6 +6,7 @@ import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.api.services.sheets.v4.model.CellData;
 import com.google.api.services.sheets.v4.model.ExtendedValue;
 import com.google.api.services.sheets.v4.model.GridData;
@@ -43,7 +44,7 @@ public class CreateMethod implements Method {
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig, String body) {
+    public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetName() == null || methodConfig.getSpreadsheetName().isBlank()) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
@@ -53,7 +54,7 @@ public class CreateMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig, String body) {
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
 
         Spreadsheet spreadsheet = new Spreadsheet();
@@ -64,6 +65,7 @@ public class CreateMethod implements Method {
             final Set<String> headers = new LinkedHashSet<>();
             final Set<String> unknownHeaders = new HashSet<>();
         };
+        final String body = methodConfig.getRowObjects();
         if (body != null && !body.isBlank()) {
 
             try {
@@ -84,7 +86,9 @@ public class CreateMethod implements Method {
                         .map(rowJson ->
                         {
                             RowObject rowObject = new RowObject(
-                                    this.objectMapper.convertValue(rowJson, LinkedHashMap.class))
+                                    this.objectMapper.convertValue(rowJson, TypeFactory
+                                            .defaultInstance()
+                                            .constructMapType(LinkedHashMap.class, String.class, String.class)))
                                     .initialize();
                             if (ref.startingRow == null || rowObject.getCurrentRowIndex() < ref.startingRow) {
                                 ref.startingRow = rowObject.getCurrentRowIndex();
@@ -119,8 +123,8 @@ public class CreateMethod implements Method {
                 }
 
 
-                ref.startingRow = ref.startingRow > 0 ? ref.startingRow : 1;
-                gridData.setStartRow(ref.startingRow - 1);
+                ref.startingRow = ref.startingRow > 0 ? ref.startingRow : 0;
+                gridData.setStartRow(ref.startingRow);
                 gridData.setStartColumn(0);
 
                 final String[] headerArray = ref.headers.toArray(new String[ref.headers.size()]);
