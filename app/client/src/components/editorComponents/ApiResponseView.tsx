@@ -235,22 +235,6 @@ const ApiResponseView = (props: Props) => {
       ),
     },
     {
-      key: "request",
-      title: "Request",
-      panelComponent: (
-        <RequestView
-          requestURL={response.request?.url || ""}
-          requestHeaders={response.request?.headers || {}}
-          requestMethod={response.request?.httpMethod || ""}
-          requestBody={
-            _.isObject(response.request?.body)
-              ? JSON.stringify(response.request?.body, null, 2)
-              : response.request?.body || ""
-          }
-        />
-      ),
-    },
-    {
       key: "error-logs",
       title: "Errors",
       panelComponent: <ErrorLogs />,
