@@ -10,6 +10,7 @@ import { isMac } from "utils/helpers";
 
 const StyledHelpBar = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
+  margin: ${(props) => props.theme.spaces[2]}px;
   .placeholder-text {
     ${(props) => getTypographyByKey(props, "p2")}
   }
