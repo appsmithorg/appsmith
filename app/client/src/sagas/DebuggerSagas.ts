@@ -31,7 +31,7 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
     const widgetErrorLog = errors[source.id];
     if (!widgetErrorLog) return;
 
-    const noError = isEmpty(validationMessage[propertyPath]);
+    const noError = isEmpty(validationMessage);
 
     if (noError && widgetErrorLog.state[propertyPath]) {
       delete widgetErrorLog.state[propertyPath];
