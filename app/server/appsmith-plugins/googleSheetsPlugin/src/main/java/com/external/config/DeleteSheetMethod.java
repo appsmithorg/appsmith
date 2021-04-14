@@ -2,13 +2,17 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.OAuth2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -28,10 +32,73 @@ public class DeleteSheetMethod implements Method {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
         }
-        if (methodConfig.getSheetId() == null || methodConfig.getSheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet Id");
+        if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet Name");
         }
         return true;
+    }
+
+    @Override
+    public Mono<Boolean> executePrerequisites(MethodConfig methodConfig, String body, OAuth2 oauth2) {
+        if ("All".equalsIgnoreCase(methodConfig.getSheetName())) {
+            methodConfig.setSheetId("All");
+            return Mono.just(true);
+        }
+
+        WebClient client = WebClient.builder()
+                .exchangeStrategies(EXCHANGE_STRATEGIES)
+                .build();
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
+                methodConfig.getSpreadsheetId())
+                .queryParam("includeGridData", false);
+
+        return client.method(HttpMethod.GET)
+                .uri(uriBuilder.build(false).toUri())
+                .body(BodyInserters.empty())
+                .headers(headers -> headers.set(
+                        "Authorization",
+                        "Bearer " + oauth2.getAuthenticationResponse().getToken()))
+                .exchange()
+                .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                .map(response -> {// Choose body depending on response status
+                    byte[] responseBody = response.getBody();
+
+                    if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Could not map request back to existing data"));
+                    }
+                    String jsonBody = new String(responseBody);
+                    JsonNode jsonNodeBody;
+                    try {
+                        jsonNodeBody = objectMapper.readTree(jsonBody);
+                    } catch (IOException e) {
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                new String(responseBody),
+                                e.getMessage()
+                        ));
+                    }
+
+                    final ArrayNode sheets = (ArrayNode) jsonNodeBody.get("sheets");
+
+                    String sheetId = null;
+                    for (JsonNode sheet : sheets) {
+                        final JsonNode properties = sheet.get("properties");
+                        if (methodConfig.getSheetName().equals(properties.get("title").asText())) {
+                            sheetId = properties.get("sheetId").asText();
+                        }
+                    }
+
+                    if (sheetId == null) {
+                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown Sheet Name"));
+                    } else {
+                        methodConfig.setSheetId(sheetId);
+                    }
+
+                    return methodConfig;
+                })
+                .thenReturn(true);
     }
 
     @Override

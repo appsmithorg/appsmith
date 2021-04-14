@@ -143,7 +143,13 @@ public class DeleteRowMethod implements Method {
                     "Missing a valid response object.");
         }
 
-        return this.objectMapper.valueToTree(Map.of("message", "Deleted row successfully!"));
+        return this.objectMapper.valueToTree(Map.of("message",
+                "Deleted row number " +
+                        (Integer.parseInt(methodConfig.getTableHeaderIndex()) +
+                        Integer.parseInt(methodConfig.getRowOffset())) +
+                        " with Appsmith row_id " +
+                        Integer.parseInt(methodConfig.getRowOffset()) +
+                        " successfully!"));
     }
 
 }

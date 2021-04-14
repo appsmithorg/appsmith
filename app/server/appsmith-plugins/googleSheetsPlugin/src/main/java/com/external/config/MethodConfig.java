@@ -49,9 +49,6 @@ public class MethodConfig {
                 case "range":
                     this.spreadsheetRange = property.getValue();
                     break;
-                case "sheet":
-                    this.sheetId = property.getValue();
-                    break;
                 case "spreadsheetName":
                     this.spreadsheetName = property.getValue();
                     break;
