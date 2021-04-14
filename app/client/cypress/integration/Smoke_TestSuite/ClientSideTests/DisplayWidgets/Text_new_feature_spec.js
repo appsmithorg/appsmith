@@ -4,7 +4,7 @@ const publishPage = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/textDsl.json");
 const pages = require("../../../../locators/Pages.json");
 
-describe("Text Widget Functionality", function() {
+describe("Text Widget color/font/alignment Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -77,10 +77,6 @@ describe("Text Widget Functionality", function() {
     cy.wait(500);
     cy.wait("@updateLayout");
     cy.PublishtheApp();
-    /*cy.readTextDataValidateCSS(
-            "background-color",
-            "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
-        );*/
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
@@ -109,19 +105,5 @@ describe("Text Widget Functionality", function() {
       force: true,
     });
     cy.get(commonlocators.headingTextStyle).scrollIntoView({ duration: 2000 });
-  });
-
-  it.skip("Test to validate color changes background", function() {
-    cy.get(widgetsPage.backgroundColor)
-      .clear({ force: true })
-      .type("purple", { force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
-    cy.wait("@updateLayout");
-    cy.PublishtheApp();
-    cy.readTextDataValidateCSS(
-      "background-color",
-      "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
-    );
   });
 });
