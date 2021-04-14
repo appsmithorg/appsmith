@@ -35,20 +35,20 @@ public class DeleteRowMethod implements Method {
         if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet name");
         }
-        if (methodConfig.getRowOffset() == null || methodConfig.getRowOffset().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Row offset");
+        if (methodConfig.getRowIndex() == null || methodConfig.getRowIndex().isBlank()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Row index");
         }
-        int rowOffset = 0;
+        int rowIndex = 0;
         try {
-            rowOffset = Integer.parseInt(methodConfig.getRowOffset());
-            if (rowOffset < 0) {
+            rowIndex = Integer.parseInt(methodConfig.getRowIndex());
+            if (rowIndex < 0) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unexpected value for row offset. Please use a number starting from 1");
+                        "Unexpected value for row index. Please use a number starting from 0");
             }
 
         } catch (NumberFormatException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Unexpected format for row offset. Please use a number starting from 1");
+                    "Unexpected format for row index. Please use a number starting from 0");
         }
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
@@ -118,7 +118,7 @@ public class DeleteRowMethod implements Method {
                         + ":batchUpdate");
 
         final int rowIndex = Integer.parseInt(methodConfig.getTableHeaderIndex()) +
-                Integer.parseInt(methodConfig.getRowOffset()) - 1;
+                Integer.parseInt(methodConfig.getRowIndex()) - 1;
         return webClient.method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromValue(
@@ -144,12 +144,7 @@ public class DeleteRowMethod implements Method {
         }
 
         return this.objectMapper.valueToTree(Map.of("message",
-                "Deleted row number " +
-                        (Integer.parseInt(methodConfig.getTableHeaderIndex()) +
-                        Integer.parseInt(methodConfig.getRowOffset())) +
-                        " with Appsmith row_id " +
-                        Integer.parseInt(methodConfig.getRowOffset()) +
-                        " successfully!"));
+                "Deleted row successfully !"));
     }
 
 }

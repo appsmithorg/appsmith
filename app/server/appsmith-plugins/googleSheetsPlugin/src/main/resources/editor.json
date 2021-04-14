@@ -239,8 +239,7 @@
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
                 "value": [
-                  "GET",
-                  "DELETE_ROW"
+                  "GET"
                 ]
               },
               {
@@ -258,6 +257,27 @@
                   }
                 ]
               }
+            ]
+          },
+          "initialValue": "",
+          "placeholderText": "0"
+        },
+        {
+          "label": "Row Index Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "rowIndex"
+        },
+        {
+          "label": "Row Index",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": [
+              "DELETE_ROW"
             ]
           },
           "initialValue": "",

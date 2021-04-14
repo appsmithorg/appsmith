@@ -27,6 +27,7 @@ public class MethodConfig {
     String tableHeaderIndex;
     String queryFormat;
     String rowOffset;
+    String rowIndex;
     String rowLimit;
     String sheetName;
     String rowObject;
@@ -65,6 +66,9 @@ public class MethodConfig {
                     break;
                 case "rowOffset":
                     this.rowOffset = property.getValue();
+                    break;
+                case "rowIndex":
+                    this.rowIndex = property.getValue();
                     break;
                 case "sheetName":
                     this.sheetName = property.getValue();
