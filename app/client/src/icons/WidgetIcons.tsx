@@ -138,7 +138,7 @@ export const WidgetIcons: {
     </IconWrapper>
   ),
   LIST_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
+    <IconWrapper {...props} data-testid="list-widget-icon">
       <ListIcon />
     </IconWrapper>
   ),
