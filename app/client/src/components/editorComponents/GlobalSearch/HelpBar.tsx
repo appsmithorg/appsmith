@@ -21,6 +21,10 @@ const StyledHelpBar = styled.div`
   height: 28px;
   flex: 1;
   max-width: 350px;
+  &:hover {
+    transform: scale(1.03);
+    border: 1.5px solid ${(props) => props.theme.colors.tertiary.light};
+  }
 `;
 
 const modText = () => (isMac() ? <span>&#8984;</span> : "ctrl");
