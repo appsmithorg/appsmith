@@ -39,6 +39,7 @@ const HelpBar = ({ toggleShowModal }: Props) => {
     <StyledHelpBar
       onClick={toggleShowModal}
       className="t--global-search-modal-trigger"
+      data-cy="global-search-modal-trigger"
     >
       <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
       <Text type={TextType.P3} italic>
