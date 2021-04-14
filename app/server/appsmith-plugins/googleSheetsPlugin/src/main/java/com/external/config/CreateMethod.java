@@ -20,8 +20,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -56,14 +56,13 @@ public class CreateMethod implements Method {
     @Override
     public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
-
         Spreadsheet spreadsheet = new Spreadsheet();
         spreadsheet.setProperties(new SpreadsheetProperties().set("title", methodConfig.getSpreadsheetName()));
         var ref = new Object() {
             Integer startingRow = null;
             Integer endingRow = null;
             final Set<String> headers = new LinkedHashSet<>();
-            final Set<String> unknownHeaders = new HashSet<>();
+            final Set<String> unknownHeaders = new LinkedHashSet<>();
         };
         final String body = methodConfig.getRowObjects();
         if (body != null && !body.isBlank()) {
@@ -80,7 +79,6 @@ public class CreateMethod implements Method {
                 spreadsheet.setSheets(List.of(sheet));
                 GridData gridData = new GridData();
                 sheet.setData(List.of(gridData));
-
 
                 final Map<Integer, RowObject> collectedRows = StreamSupport.stream(bodyNode.spliterator(), false)
                         .map(rowJson ->
@@ -111,28 +109,27 @@ public class CreateMethod implements Method {
                                 rowObject -> rowObject,
                                 (a, b) -> b));
 
-                ref.unknownHeaders.removeAll(ref.headers);
+                ref.headers.addAll(ref.unknownHeaders);
 
-                if (!ref.unknownHeaders.isEmpty()) {
-                    throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Unable to parse request body. " +
-                                    "Expected all row objects to have same headers. " +
-                                    "Found extra headers:"
-                                    + ref.unknownHeaders);
-                }
-
+//                if (!ref.unknownHeaders.isEmpty()) {
+//                    throw new AppsmithPluginException(
+//                            AppsmithPluginError.PLUGIN_ERROR,
+//                            "Unable to parse request body. " +
+//                                    "Expected all row objects to have same headers. " +
+//                                    "Found extra headers:"
+//                                    + ref.unknownHeaders);
+//                }
 
                 ref.startingRow = ref.startingRow > 0 ? ref.startingRow : 0;
-                gridData.setStartRow(ref.startingRow);
+                gridData.setStartRow(0);
                 gridData.setStartColumn(0);
 
                 final String[] headerArray = ref.headers.toArray(new String[ref.headers.size()]);
 
-                List<RowData> collect = IntStream.range(ref.startingRow, ref.endingRow + 1)
+                List<RowData> collect = IntStream.range(0, ref.endingRow + 1)
                         .mapToObj(rowIndex -> collectedRows.getOrDefault(rowIndex, new RowObject(new LinkedHashMap<>())))
                         .map(row -> row.getAsSheetRowData(headerArray))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toCollection(ArrayList::new));
 
                 collect.add(0, new RowData()
                         .setValues(Arrays.stream(headerArray)

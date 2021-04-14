@@ -160,7 +160,7 @@
           "initialValue": "queryFormat"
         },
         {
-          "label": "Query format",
+          "label": "Query Format",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
           "controlType": "DROP_DOWN",
           "hidden": {
@@ -363,7 +363,7 @@
               "BULK_UPDATE"
             ]
           },
-          "placeholderText": "{{ Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+          "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
         }
       ]
     }

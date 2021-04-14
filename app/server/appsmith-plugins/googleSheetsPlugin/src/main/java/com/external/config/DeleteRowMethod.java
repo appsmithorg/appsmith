@@ -144,7 +144,7 @@ public class DeleteRowMethod implements Method {
         }
 
         return this.objectMapper.valueToTree(Map.of("message",
-                "Deleted row successfully !"));
+                "Deleted row successfully!"));
     }
 
 }
