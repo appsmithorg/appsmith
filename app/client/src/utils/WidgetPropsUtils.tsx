@@ -518,9 +518,9 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 16;
   }
 
-  if (currentDSL.version === 17) {
+  if (currentDSL.version === 16) {
     currentDSL = migrateChartDataFromArrayToObject(currentDSL);
-    currentDSL.version = 18;
+    currentDSL.version = 17;
   }
 
   return currentDSL;
