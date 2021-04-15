@@ -224,10 +224,22 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8,
       shouldScrollContents: false,
       widgetName: "Tabs",
-      tabs: [
-        { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
-        { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
-      ],
+      tabsObj: {
+        tab1: {
+          label: "Tab 1",
+          id: "tab1",
+          widgetId: "",
+          isVisible: true,
+          index: 0,
+        },
+        tab2: {
+          label: "Tab 2",
+          id: "tab2",
+          widgetId: "",
+          isVisible: true,
+          index: 1,
+        },
+      },
       shouldShowTabs: true,
       defaultTab: "Tab 1",
       blueprint: {
@@ -235,18 +247,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           {
             type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const tabs = [...widget.tabs];
-
-              const newTabs = tabs.map((tab: any) => {
+              const tabs = Object.values({ ...widget.tabsObj });
+              const tabsObj = tabs.reduce((obj: any, tab: any) => {
                 const newTab = { ...tab };
                 newTab.widgetId = generateReactKey();
-                return newTab;
-              });
+                obj[newTab.id] = newTab;
+                return obj;
+              }, {});
               const updatePropertyMap = [
                 {
                   widgetId: widget.widgetId,
-                  propertyName: "tabs",
-                  propertyValue: newTabs,
+                  propertyName: "tabsObj",
+                  propertyValue: tabsObj,
                 },
               ];
               return updatePropertyMap;
@@ -254,7 +266,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
-      version: 1,
+      version: 2,
     },
     MODAL_WIDGET: {
       rows: 6,

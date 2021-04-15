@@ -760,12 +760,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     value: any,
     props: WidgetProps,
   ): ValidationResponse => {
-    const tabs =
-      props.tabs && isString(props.tabs)
-        ? JSON.parse(props.tabs)
-        : props.tabs && Array.isArray(props.tabs)
-        ? props.tabs
-        : [];
+    const tabs: any = Object.values(props.tabsObj);
     const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
     const isValidTabName = tabNames.includes(value);
     return {

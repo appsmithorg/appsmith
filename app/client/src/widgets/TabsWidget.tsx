@@ -22,13 +22,46 @@ class TabsWidget extends BaseWidget<
         children: [
           {
             helpText: "Takes an array of tab names to render tabs",
-            propertyName: "tabs",
-            isJSConvertible: true,
+            propertyName: "tabsObj",
+            isJSConvertible: false,
             label: "Tabs",
             controlType: "TABS_INPUT",
-            isBindProperty: true,
+            isBindProperty: false,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TABS_DATA,
+            panelConfig: {
+              editableTitle: true,
+              titlePropertyName: "label",
+              panelIdPropertyName: "id",
+              updateHook: (
+                props: any,
+                propertyPath: string,
+                propertyValue: string,
+              ) => {
+                return [
+                  {
+                    propertyPath,
+                    propertyValue,
+                  },
+                ];
+              },
+              children: [
+                {
+                  sectionName: "Tab Control",
+                  children: [
+                    {
+                      propertyName: "isVisible",
+                      label: "Visible",
+                      helpText: "Controls the visibility of the widget",
+                      controlType: "SWITCH",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: VALIDATION_TYPES.BOOLEAN,
+                    },
+                  ],
+                },
+              ],
+            },
           },
           {
             propertyName: "defaultTab",
@@ -96,7 +129,7 @@ class TabsWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedTab: `{{_.find(this.tabs, { widgetId: this.selectedTabWidgetId }).label}}`,
+      selectedTab: `{{this.tabsObj[this.selectedTabWidgetId].label}}`,
     };
   }
 
@@ -152,7 +185,8 @@ class TabsWidget extends BaseWidget<
 
   addTabContainer = (widgetIds: string[]) => {
     widgetIds.forEach((newWidgetId: string) => {
-      const tab = this.props.tabs.find((tab) => tab.widgetId === newWidgetId);
+      const tab = this.props.tabsObj[newWidgetId];
+      // const tab = this.props.tabs.find((tab) => tab.widgetId === newWidgetId);
       if (tab) {
         const columns =
           (this.props.rightColumn - this.props.leftColumn) *
@@ -195,38 +229,42 @@ class TabsWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
     if (
-      Array.isArray(this.props.tabs) &&
-      JSON.stringify(this.props.tabs) !== JSON.stringify(prevProps.tabs)
+      JSON.stringify(this.props.tabsObj) !== JSON.stringify(prevProps.tabsObj)
     ) {
-      const tabWidgetIds = this.props.tabs.map((tab) => tab.widgetId);
+      const tabWidgetIds = Object.values(this.props.tabsObj).map(
+        (tab) => tab.widgetId,
+      );
       const childWidgetIds = this.props.children
         .filter(Boolean)
         .map((child) => child.widgetId);
       // If the tabs and children are different,
       // add and/or remove tab container widgets
 
-      if (!this.props.invalidProps?.tabs) {
-        if (_.xor(childWidgetIds, tabWidgetIds).length > 0) {
-          const widgetIdsToRemove: string[] = _.without(
-            childWidgetIds,
-            ...tabWidgetIds,
-          );
-          const widgetIdsToCreate: string[] = _.without(
-            tabWidgetIds,
-            ...childWidgetIds,
-          );
-          this.addTabContainer(widgetIdsToCreate);
-          this.removeTabContainer(widgetIdsToRemove);
-        }
+      if (_.xor(childWidgetIds, tabWidgetIds).length > 0) {
+        const widgetIdsToRemove: string[] = _.without(
+          childWidgetIds,
+          ...tabWidgetIds,
+        );
+        const widgetIdsToCreate: string[] = _.without(
+          tabWidgetIds,
+          ...childWidgetIds,
+        );
+        this.addTabContainer(widgetIdsToCreate);
+        this.removeTabContainer(widgetIdsToRemove);
+      }
 
-        // If all tabs were removed.
-        if (tabWidgetIds.length === 0) {
-          const newTabContainerWidgetId = generateReactKey();
-          const tabs = [
-            { id: "tab1", widgetId: newTabContainerWidgetId, label: "Tab 1" },
-          ];
-          this.updateWidgetProperty("tabs", tabs);
-        }
+      // If all tabs were removed.
+      if (tabWidgetIds.length === 0) {
+        const newTabContainerWidgetId = generateReactKey();
+        const tabs = {
+          tab1: {
+            id: "tab1",
+            widgetId: newTabContainerWidgetId,
+            label: "Tab 1",
+            index: 0,
+          },
+        };
+        this.updateWidgetProperty("tabsObj", tabs);
       }
     }
     const visibleTabs = this.getVisibleTabs();
@@ -275,7 +313,8 @@ class TabsWidget extends BaseWidget<
   }
 
   generateTabContainers = () => {
-    const { tabs, widgetId } = this.props;
+    const { tabsObj, widgetId } = this.props;
+    const tabs = Object.values(tabsObj);
     const childWidgetIds = this.props.children
       ?.filter(Boolean)
       .map((child) => child.widgetId);
@@ -311,10 +350,11 @@ class TabsWidget extends BaseWidget<
   };
 
   getVisibleTabs = () => {
-    if (Array.isArray(this.props.tabs)) {
-      return this.props.tabs.filter(
-        (tab) => tab.isVisible === undefined || tab.isVisible === true,
-      );
+    const tabs = Object.values(this.props.tabsObj);
+    if (tabs.length) {
+      return tabs
+        .filter((tab) => tab.isVisible === undefined || tab.isVisible === true)
+        .sort((tab1, tab2) => tab1.index - tab2.index);
     }
     return [];
   };
@@ -322,7 +362,7 @@ class TabsWidget extends BaseWidget<
   componentDidMount() {
     const visibleTabs = this.getVisibleTabs();
     // If we have a defaultTab
-    if (this.props.defaultTab && this.props.tabs?.length) {
+    if (this.props.defaultTab && Object.keys(this.props.tabsObj).length) {
       // Find the default Tab object
       const selectedTab = _.find(visibleTabs, {
         label: this.props.defaultTab,
@@ -344,7 +384,10 @@ class TabsWidget extends BaseWidget<
           selectedTabWidgetId,
         );
       }
-    } else if (!this.props.selectedTabWidgetId && this.props.tabs?.length) {
+    } else if (
+      !this.props.selectedTabWidgetId &&
+      Object.keys(this.props.tabsObj).length
+    ) {
       // If no tab is selected
       // Select the first tab in the tabs list.
       this.props.updateWidgetMetaProperty(
@@ -371,6 +414,16 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
     widgetId: string;
     isVisible?: boolean;
   }>;
+  tabsObj: Record<
+    string,
+    {
+      id: string;
+      label: string;
+      widgetId: string;
+      isVisible?: boolean;
+      index: number;
+    }
+  >;
   shouldShowTabs: boolean;
   children: T[];
   snapColumns?: number;

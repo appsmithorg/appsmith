@@ -844,7 +844,7 @@ function* setWidgetDynamicPropertySaga(
 ) {
   const { isDynamic, propertyPath, widgetId } = action.payload;
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  let widget = { ...stateWidget };
+  let widget = cloneDeep({ ...stateWidget });
   const propertyValue = _.get(widget, propertyPath);
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
   if (isDynamic) {
@@ -1366,14 +1366,15 @@ function* pasteWidgetSaga() {
       }
 
       // Update the tabs for the tabs widget.
-      if (widget.tabs && widget.type === WidgetTypes.TABS_WIDGET) {
+      if (widget.tabsObj && widget.type === WidgetTypes.TABS_WIDGET) {
         try {
-          const tabs = widget.tabs;
+          const tabs = Object.values(widget.tabsObj);
           if (Array.isArray(tabs)) {
-            widget.tabs = tabs.map((tab) => {
+            widget.tabsObj = tabs.reduce((obj: any, tab) => {
               tab.widgetId = widgetIdMap[tab.widgetId];
-              return tab;
-            });
+              obj[tab.id] = tab;
+              return obj;
+            }, {});
           }
         } catch (error) {
           log.debug("Error updating tabs", error);
