@@ -7,6 +7,7 @@ import { AppState } from "reducers";
 import { formValueSelector } from "redux-form";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { connect } from "react-redux";
+import { actionPathFromName } from "components/formControls/utils";
 
 export function InputText(props: {
   label: string;
@@ -56,15 +57,6 @@ export interface DynamicInputControlProps extends ControlProps {
   placeholderText: string;
   actionName: string;
 }
-
-const actionPathFromName = (actionName: string, name: string): string => {
-  const ActionConfigStarts = "actionConfiguration.";
-  let path = name;
-  if (path.startsWith(ActionConfigStarts)) {
-    path = "config." + path.substr(ActionConfigStarts.length);
-  }
-  return `${actionName}.${path}`;
-};
 
 const mapStateToProps = (state: AppState, props: DynamicInputControlProps) => {
   const valueSelector = formValueSelector(
