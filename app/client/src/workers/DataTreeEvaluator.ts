@@ -141,7 +141,6 @@ export default class DataTreeEvaluator {
 
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
-    debugger;
     const {
       dependenciesOfRemovedPaths,
       removedPaths,
@@ -695,7 +694,6 @@ export default class DataTreeEvaluator {
     differences
       .map(translateDiffEventToDataTreeDiffEvent)
       .forEach((dataTreeDiff) => {
-        debugger;
         const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
         let entity = unEvalDataTree[entityName];
         if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
