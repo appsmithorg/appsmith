@@ -36,8 +36,8 @@
         "parentId": "0",
         "widgetId": "sb070qr2ir",
         "dynamicBindingPathList": [],
-        "primaryColumns": [
-          {
+        "primaryColumns": {
+          "id": {
             "index": 0,
             "width": 150,
             "id": "id",
@@ -54,7 +54,7 @@
             "label": "id",
             "computedValue": ""
           },
-          {
+          "email": {
             "index": 1,
             "width": 150,
             "id": "email",
@@ -71,7 +71,7 @@
             "label": "email",
             "computedValue": ""
           },
-          {
+          "userName": {
             "index": 2,
             "width": 150,
             "id": "userName",
@@ -88,7 +88,7 @@
             "label": "userName",
             "computedValue": ""
           },
-          {
+          "productName": {
             "index": 3,
             "width": 150,
             "id": "productName",
@@ -105,7 +105,7 @@
             "label": "productName",
             "computedValue": ""
           },
-          {
+          "orderAmount": {
             "index": 4,
             "width": 150,
             "id": "orderAmount",
@@ -122,7 +122,7 @@
             "label": "orderAmount",
             "computedValue": ""
           }
-        ]
+        }
       }
     ]
   }
