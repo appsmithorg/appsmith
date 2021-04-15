@@ -182,7 +182,7 @@ interface APIFormProps {
   headersCount: number;
   paramsCount: number;
   settingsConfig: any;
-  hintMessages: string;
+  hintMessages?: Array<string>;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -328,9 +328,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         </FormRow>
       </MainConfiguration>
       <SecondaryWrapper>
-        {hintMessages && hintMessages.length > 0 && (
+        {hintMessages && (
           <HelpSection>
-            <Callout text={hintMessages} variant={Variant.warning} fill />
+            {hintMessages.map((msg, i) => (
+              <Callout text={msg} variant={Variant.warning} fill key={i} />
+            ))}
           </HelpSection>
         )}
         <TabbedViewContainer>
@@ -476,16 +478,7 @@ export default connect((state: AppState) => {
     const validParams = params.filter((value) => value.key && value.key !== "");
     paramsCount = validParams.length;
   }
-
-  let hintMessages = selector(state, "datasource.messages");
-
-  if (hintMessages && hintMessages.length) {
-    hintMessages = hintMessages
-      .map(function(msg: string) {
-        return msg;
-      })
-      .join("\n ");
-  }
+  const hintMessages = selector(state, "datasource.messages");
 
   return {
     actionName,

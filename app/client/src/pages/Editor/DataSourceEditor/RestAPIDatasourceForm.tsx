@@ -56,7 +56,6 @@ import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import Callout from "components/ads/Callout";
-
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
     formValues: Datasource,
@@ -77,7 +76,7 @@ interface DatasourceRestApiEditorProps {
   formData: ApiDatasourceForm;
   actions: ActionDataState;
   formMeta: any;
-  messages?: string;
+  messages?: Array<string>;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -376,7 +375,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     if (!formData) return;
     return (
       <>
-        {messages && <Callout text={messages} variant={Variant.warning} fill />}
+        {messages &&
+          messages.map((msg, i) => (
+            <Callout text={msg} variant={Variant.warning} fill key={i} />
+          ))}
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
@@ -656,15 +658,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   ) as Datasource;
 
   const hintMessages = datasource && datasource.messages;
-  let messages;
-
-  if (hintMessages && hintMessages.length) {
-    messages = hintMessages
-      .map(function(msg: string) {
-        return msg;
-      })
-      .join("\n ");
-  }
 
   return {
     initialValues: datasourceToFormValues(datasource),
@@ -674,7 +667,7 @@ const mapStateToProps = (state: AppState, props: any) => {
       state,
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
-    messages: messages,
+    messages: hintMessages,
   };
 };
 

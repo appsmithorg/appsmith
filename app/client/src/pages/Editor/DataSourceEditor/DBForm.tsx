@@ -29,6 +29,10 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import Callout from "components/ads/Callout";
+import { Variant } from "components/ads/common";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -50,6 +54,7 @@ interface DatasourceDBEditorProps {
   pluginImage: string;
   viewMode: boolean;
   pluginType: string;
+  messages?: Array<string>;
 }
 
 interface DatasourceDBEditorState {
@@ -215,7 +220,7 @@ class DatasourceDBEditor extends React.Component<
   render() {
     const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
-    return <DBForm>{content}</DBForm>;
+    return <DBForm> {content} </DBForm>;
   }
 
   isNewDatasource = () => {
@@ -311,9 +316,9 @@ class DatasourceDBEditor extends React.Component<
       datasourceId,
       handleDelete,
       pluginType,
+      messages,
     } = this.props;
     const { viewMode } = this.props;
-
     return (
       <form
         onSubmit={(e) => {
@@ -347,6 +352,10 @@ class DatasourceDBEditor extends React.Component<
             </Boxed>
           )}
         </Header>
+        {messages &&
+          messages.map((msg, i) => (
+            <Callout text={msg} variant={Variant.warning} fill key={i} />
+          ))}
         {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
@@ -482,6 +491,20 @@ class DatasourceDBEditor extends React.Component<
   };
 }
 
-export default reduxForm<Datasource, DatasourceDBEditorProps>({
-  form: DATASOURCE_DB_FORM,
-})(DatasourceDBEditor);
+const mapStateToProps = (state: AppState, props: any) => {
+  const datasource = state.entities.datasources.list.find(
+    (e) => e.id === props.datasourceId,
+  ) as Datasource;
+
+  const hintMessages = datasource && datasource.messages;
+
+  return {
+    messages: hintMessages,
+  };
+};
+
+export default connect(mapStateToProps)(
+  reduxForm<Datasource, DatasourceDBEditorProps>({
+    form: DATASOURCE_DB_FORM,
+  })(DatasourceDBEditor),
+);

@@ -257,17 +257,22 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       },
     );
     const isValidResponse = yield validateResponse(response);
-    let messages;
+    let messages: Array<string> = [];
     if (isValidResponse) {
       const responseData = response.data;
-      if (responseData.messages && responseData.messages.length) {
-        messages = responseData.messages;
-      }
-      if (responseData.invalids && responseData.invalids.length) {
-        Toaster.show({
-          text: responseData.invalids[0],
-          variant: Variant.danger,
-        });
+      if (
+        (responseData.invalids && responseData.invalids.length) ||
+        (responseData.messages && responseData.messages.length)
+      ) {
+        if (responseData.invalids && responseData.invalids.length) {
+          Toaster.show({
+            text: responseData.invalids[0],
+            variant: Variant.danger,
+          });
+        }
+        if (responseData.messages && responseData.messages.length) {
+          messages = responseData.messages;
+        }
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
           payload: { show: false, id: datasource.id, messages: messages },
@@ -282,7 +287,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         });
         yield put({
           type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
-          payload: datasource,
+          payload: { show: false, id: datasource.id, messages: [] },
         });
       }
     }
