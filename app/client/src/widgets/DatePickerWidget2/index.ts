@@ -4,7 +4,7 @@ import moment from "moment";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "DatePicker2",
+  name: "Date Time Picker",
   iconSVG: IconSVG,
   defaults: {
     isDisabled: false,

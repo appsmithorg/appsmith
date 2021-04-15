@@ -108,6 +108,7 @@ import {
   WIDGET_CUT,
   WIDGET_DELETE,
 } from "constants/messages";
+import produce from "immer";
 
 // Todo(abhinav): abstraction leak
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -117,15 +118,22 @@ function* getChildWidgetProps(
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
-  const { leftColumn, topRow, newWidgetId, props, type } = params;
-  let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
+  const { leftColumn, topRow, newWidgetId, type } = params;
+  let {
+    rows,
+    columns,
+    parentColumnSpace,
+    parentRowSpace,
+    widgetName,
+    props,
+  } = params;
   let minHeight = undefined;
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const entityNames = yield call(getEntityNames);
+    const entityNames: string[] = yield call(getEntityNames);
 
     widgetName = getNextEntityName(restDefaultConfig.widgetName, [
       ...widgetNames,
@@ -139,7 +147,14 @@ function* getChildWidgetProps(
     rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
     parentRowSpace = 1;
     minHeight = rows;
-    if (props) props.children = [];
+
+    if (props) {
+      props = produce((draft: WidgetProps) => {
+        if (!draft.children || !Array.isArray(draft.children)) {
+          draft.children = [];
+        }
+      });
+    }
   }
 
   const widgetProps = {
@@ -955,15 +970,19 @@ function* batchUpdateWidgetPropertySaga(
     widget = yield removeWidgetProperties(widget, remove);
   }
 
-  const stateWidgets = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
   log.debug(
     "Batch widget property update calculations took: ",
     performance.now() - start,
     "ms",
   );
+  yield put({
+    type: ReduxActionTypes.UPDATE_LAYOUT,
+    payload: { widgets },
+  });
   // Save the layout
-  yield put(updateAndSaveLayout(widgets));
+  // yield put(updateAndSaveLayout(widgets));
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {

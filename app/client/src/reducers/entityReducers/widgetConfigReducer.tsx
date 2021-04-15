@@ -21,19 +21,23 @@ export interface WidgetConfigProps {
   widgetName: string;
 }
 
+export interface WidgetConfig
+  extends Partial<WidgetProps>,
+    Omit<WidgetConfigProps, "widgetName"> {
+  type: string;
+  hideCard: boolean;
+  displayName: string;
+  key: string;
+}
+
 export interface WidgetConfigReducerState {
-  config: Record<
-    string,
-    Partial<WidgetProps> & WidgetConfigProps & { type: string }
-  >;
+  config: Record<string, WidgetConfig>;
 }
 
 const widgetConfigReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.ADD_WIDGET_CONFIG]: (
     state: WidgetConfigReducerState,
-    action: ReduxAction<
-      Partial<WidgetProps> & WidgetConfigProps & { type: string }
-    >,
+    action: ReduxAction<WidgetConfig>,
   ) => {
     state.config[action.payload.type] = action.payload;
   },

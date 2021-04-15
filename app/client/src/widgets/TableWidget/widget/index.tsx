@@ -512,6 +512,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (sanitizedTableData.length > 0) {
       newPrimaryColumns = this.createTablePrimaryColumns();
+      console.log("Calling from Table Widget:", { newPrimaryColumns });
       if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);
     }
   }
@@ -546,6 +547,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // If the keys which exist in the tableData are different from the ones available in primaryColumns
       if (xor(columnIds, primaryColumnIds).length > 0) {
         const newTableColumns = this.createTablePrimaryColumns(); // This updates the widget
+        console.log(
+          "Calling from component did update",
+          { newTableColumns },
+          this.props,
+        );
         this.updateColumnProperties(newTableColumns);
       }
     }

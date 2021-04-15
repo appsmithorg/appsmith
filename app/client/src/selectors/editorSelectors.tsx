@@ -2,12 +2,7 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import {
-  WIDGET_STATIC_PROPS,
-  WidgetCardProps,
-  WidgetProps,
-} from "widgets/BaseWidget";
-import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
+import { WIDGET_STATIC_PROPS, WidgetProps } from "widgets/BaseWidget";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import {
   CanvasWidgetsReduxState,
@@ -26,7 +21,6 @@ import { getCanvasWidgets } from "./entitiesSelector";
 import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
-const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 const getPageListState = (state: AppState) => state.entities.pageList;
 export const getDataSources = (state: AppState) =>
   state.entities.datasources.list;
@@ -113,27 +107,36 @@ export const getCurrentPageName = createSelector(
 );
 
 export const getWidgetCards = createSelector(
-  getWidgetSideBar,
   getWidgetConfigs,
-  (
-    widgetCards: WidgetSidebarReduxState,
-    widgetConfigs: WidgetConfigReducerState,
-  ) => {
-    const cards = widgetCards.cards;
+  (widgetConfigs: WidgetConfigReducerState) => {
+    const cards = Object.values(widgetConfigs.config).filter(
+      (config) => !config.hideCard,
+    );
+
     return cards
-      .map((widget: WidgetCardProps) => {
+      .map((config) => {
         const {
+          iconSVG,
+          key,
+          type,
           rows,
           columns,
+          displayName,
           detachFromLayout = false,
-        }: any = widgetConfigs.config[widget.type];
-        return { ...widget, rows, columns, detachFromLayout };
+        }: any = config;
+        return {
+          key,
+          type,
+          rows,
+          columns,
+          detachFromLayout,
+          displayName,
+          icon: iconSVG,
+        };
       })
       .sort(
-        (
-          { widgetCardName: widgetACardName }: WidgetCardProps,
-          { widgetCardName: widgetBCardName }: WidgetCardProps,
-        ) => widgetACardName.localeCompare(widgetBCardName),
+        ({ displayName: widgetACardName }, { displayName: widgetBCardName }) =>
+          widgetACardName.localeCompare(widgetBCardName),
       );
   },
 );

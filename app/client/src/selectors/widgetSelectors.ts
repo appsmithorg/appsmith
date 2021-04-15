@@ -26,7 +26,7 @@ export const getModalDropdownList = createSelector(
 );
 
 const getModalNamePrefix = (state: AppState) =>
-  getWidgetNamePrefix(state, "TEXT_WIDGET"); //TODO (abhinav): Change this back when all widgets are migrated
+  getWidgetNamePrefix(state, "MODAL_WIDGET");
 
 export const getNextModalName = createSelector(
   getExistingWidgetNames,

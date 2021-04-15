@@ -5,6 +5,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Icon",
   iconSVG: IconSVG,
+  hideCard: true,
   defaults: {
     widgetName: "Icon",
     rows: 1,

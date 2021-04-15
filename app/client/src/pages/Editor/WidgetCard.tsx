@@ -3,7 +3,6 @@ import { useDrag, DragPreviewImage } from "react-dnd";
 import blankImage from "assets/images/blank.png";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
-import { WidgetIcons } from "icons/WidgetIcons";
 import {
   useWidgetDragResize,
   useShowPropertyPane,
@@ -83,7 +82,7 @@ const WidgetCard = (props: CardProps) => {
     begin: () => {
       AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
         widgetType: props.details.type,
-        widgetName: props.details.widgetCardName,
+        widgetName: props.details.displayName,
       });
       showPropertyPane && showPropertyPane(undefined);
       setIsDragging && setIsDragging(true);
@@ -94,7 +93,7 @@ const WidgetCard = (props: CardProps) => {
     end: (widget, monitor) => {
       AnalyticsUtil.logEvent("WIDGET_CARD_DROP", {
         widgetType: props.details.type,
-        widgetName: props.details.widgetCardName,
+        widgetName: props.details.displayName,
         didDrop: monitor.didDrop(),
       });
       // We've finished dragging, generate a new widgetId to be used for next drag.
@@ -103,8 +102,8 @@ const WidgetCard = (props: CardProps) => {
     },
   });
 
-  const iconType: string = props.details.type;
-  const Icon = WidgetIcons[iconType];
+  // const iconType: string = props.details.type;
+  // const Icon = WidgetIcons[iconType];
   const className = `t--widget-card-draggable-${props.details.type
     .split("_")
     .join("")
@@ -114,8 +113,8 @@ const WidgetCard = (props: CardProps) => {
       <DragPreviewImage connect={preview} src={blankImage} />
       <Wrapper ref={drag} className={className}>
         <div>
-          <Icon />
-          <IconLabel>{props.details.widgetCardName}</IconLabel>
+          <img src={props.details.icon} width="24px" height="24px" />
+          <IconLabel>{props.details.displayName}</IconLabel>
         </div>
       </Wrapper>
     </React.Fragment>

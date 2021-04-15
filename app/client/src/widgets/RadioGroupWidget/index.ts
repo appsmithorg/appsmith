@@ -3,7 +3,7 @@ import IconSVG from "./icon.svg";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "RadioGroup",
+  name: "Radio Group",
   iconSVG: IconSVG,
   defaults: {
     rows: 2,

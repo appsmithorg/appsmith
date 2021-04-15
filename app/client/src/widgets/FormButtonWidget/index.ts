@@ -5,6 +5,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "FormButton",
   iconSVG: IconSVG,
+  hideCard: true,
   defaults: {
     rows: 1,
     columns: 3,

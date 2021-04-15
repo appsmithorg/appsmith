@@ -50,7 +50,7 @@ export const getEditorConfigs = (
 // };
 
 export const getWidgetNamePrefix = (state: AppState, type: string): string => {
-  return state.entities.widgetConfig.config[type].widgetName;
+  return state.entities.widgetConfig.config[type].widgetName || "";
 };
 
 export const getDefaultPageId = (state: AppState): string | undefined =>

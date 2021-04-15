@@ -24,6 +24,7 @@ export const CONFIG = {
   type: SkeletonWidget.getWidgetType(),
   name: "Skeleton",
   iconSVG: "",
+  hideCard: true,
   defaults: {
     rows: 1,
     columns: 1,

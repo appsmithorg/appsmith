@@ -1,5 +1,7 @@
 import { registerWidget } from "./WidgetRegisterHelpers";
-import { registerWidget as registerCanvasWidget } from "widgets/CanvasWidget";
+import CanvasWidget, {
+  CONFIG as CANVAS_WIDGET_CONFIG,
+} from "widgets/CanvasWidget";
 import SkeletonWidget, {
   CONFIG as SKELETON_WIDGET_CONFIG,
 } from "widgets/SkeletonWidget";
@@ -62,7 +64,8 @@ import FormButtonWidget, {
 import IconWidget, { CONFIG as ICON_WIDGET_CONFIG } from "widgets/IconWidget";
 
 export const registerWidgets = () => {
-  registerCanvasWidget();
+  const start = performance.now();
+  registerWidget(CanvasWidget, CANVAS_WIDGET_CONFIG);
   registerWidget(SkeletonWidget, SKELETON_WIDGET_CONFIG);
   registerWidget(ContainerWidget, CONTAINER_WIDGET_CONFIG);
   registerWidget(TextWidget, TEXT_WIDGET_CONFIG);
@@ -86,4 +89,5 @@ export const registerWidgets = () => {
   registerWidget(FormWidget, FORM_WIDGET_CONFIG);
   registerWidget(FormButtonWidget, FORM_BUTTON_WIDGET_CONFIG);
   registerWidget(IconWidget, ICON_WIDGET_CONFIG);
+  console.log("Widget registration took: ", performance.now() - start, "ms");
 };

@@ -8,7 +8,6 @@ import DropTargetComponent from "components/editorComponents/DropTargetComponent
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import * as Sentry from "@sentry/react";
-import WidgetFactory from "utils/WidgetFactory";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -68,20 +67,24 @@ class CanvasWidget extends ContainerWidget {
   }
 }
 
-export const registerWidget = () => {
-  WidgetFactory.registerWidgetBuilder(
-    CanvasWidget.getWidgetType(),
-    {
-      buildWidget(widgetData: any): JSX.Element {
-        return <ProfiledCanvasWidget {...widgetData} />;
-      },
-    },
-    CanvasWidget.getPropertyValidationMap(),
-    CanvasWidget.getDerivedPropertiesMap(),
-    CanvasWidget.getDefaultPropertiesMap(),
-    CanvasWidget.getMetaPropertiesMap(),
-    CanvasWidget.getPropertyPaneConfig(),
-  );
+export const CONFIG = {
+  type: CanvasWidget.getWidgetType(),
+  name: "Canvas",
+  iconSVG: "",
+  hideCard: true,
+  defaults: {
+    rows: 1,
+    columns: 1,
+    widgetName: "Canvas",
+    detachFromLayout: true,
+  },
+  properties: {
+    validations: CanvasWidget.getPropertyValidationMap(),
+    derived: CanvasWidget.getDerivedPropertiesMap(),
+    default: CanvasWidget.getDefaultPropertiesMap(),
+    meta: CanvasWidget.getMetaPropertiesMap(),
+    config: CanvasWidget.getPropertyPaneConfig(),
+  },
 };
 
 export default CanvasWidget;

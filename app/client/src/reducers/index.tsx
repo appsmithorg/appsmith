@@ -9,7 +9,6 @@ import { ErrorReduxState } from "./uiReducers/errorReducer";
 import { ActionDataState } from "./entityReducers/actionsReducer";
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
 import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
-import { WidgetSidebarReduxState } from "./uiReducers/widgetSidebarReducer";
 import { DatasourceDataState } from "./entityReducers/datasourceReducer";
 import { AppViewReduxState } from "./uiReducers/appViewReducer";
 import { DatasourcePaneReduxState } from "./uiReducers/datasourcePaneReducer";
@@ -53,7 +52,6 @@ export default appReducer;
 
 export interface AppState {
   ui: {
-    widgetSidebar: WidgetSidebarReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     errors: ErrorReduxState;

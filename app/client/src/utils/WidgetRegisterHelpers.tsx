@@ -11,11 +11,13 @@ import WidgetFactory, { DerivedPropertiesMap } from "./WidgetFactory";
 
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
+import { generateReactKey } from "./generators";
 export interface WidgetConfiguration {
   type: string;
   name: string;
   iconSVG: string;
   defaults: Partial<WidgetProps> & WidgetConfigProps;
+  hideCard?: boolean;
   properties: {
     config: PropertyPaneConfig[];
     validations: WidgetPropertyValidationType;
@@ -44,7 +46,15 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
 };
 
 export const configureWidget = (config: WidgetConfiguration) => {
-  const _config = { ...config.defaults, type: config.type };
+  const _config = {
+    ...config.defaults,
+    type: config.type,
+    hideCard: !!config.hideCard,
+    displayName: config.name,
+    key: generateReactKey(),
+    iconSVG: config.iconSVG,
+  };
+
   store.dispatch({
     type: ReduxActionTypes.ADD_WIDGET_CONFIG,
     payload: _config,

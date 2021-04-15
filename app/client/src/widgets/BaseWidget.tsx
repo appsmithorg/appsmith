@@ -383,7 +383,8 @@ export interface WidgetProps
 export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
-  widgetCardName: string;
+  displayName: string;
+  icon: string;
 }
 
 export const WidgetOperations = {

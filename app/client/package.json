@@ -148,7 +148,8 @@
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "storybook": "start-storybook -p 9009 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "generate": "plop --plopfile generators/index.js"
   },
   "resolution": {
     "jest": "24.8.0"
@@ -216,6 +217,7 @@
     "mochawesome": "^5.0.0",
     "mochawesome-report-generator": "^4.1.0",
     "msw": "^0.28.0",
+    "plop": "^2.7.4",
     "raw-loader": "^4.0.2",
     "react-docgen-typescript-loader": "^3.6.0",
     "react-is": "^16.12.0",

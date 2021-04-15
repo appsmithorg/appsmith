@@ -177,12 +177,12 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return ThemeMode.LIGHT;
   }
 
-  onPositionChange(position: any) {
+  onPositionChange = (position: any) => {
     this.props.setPropPanePoistion(
       position,
       this.props.widgetProperties?.widgetId,
     );
-  }
+  };
 
   render() {
     if (this.props.isVisible) {

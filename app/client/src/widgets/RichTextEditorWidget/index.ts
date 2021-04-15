@@ -3,7 +3,7 @@ import IconSVG from "./icon.svg";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "RichTextEditor",
+  name: "Rich Text Editor",
   iconSVG: IconSVG,
   defaults: {
     defaultText: "This is the initial <b>content</b> of the editor",
