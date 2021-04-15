@@ -180,7 +180,7 @@ public class LayoutActionServiceTest {
         unreferencedAction.setActionConfiguration(actionConfiguration2);
         unreferencedAction.setDatasource(datasource);
 
-        Mono<PageDTO> resultMono = newActionService
+        Mono<PageDTO> resultMono = layoutActionService
                 .createAction(action)
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
@@ -190,7 +190,7 @@ public class LayoutActionServiceTest {
                     updates.setDatasource(datasource);
                     return layoutActionService.updateAction(savedAction.getId(), updates);
                 })
-                .flatMap(savedAction -> newActionService.createAction(unreferencedAction))
+                .flatMap(savedAction -> layoutActionService.createAction(unreferencedAction))
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
@@ -237,7 +237,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
@@ -282,7 +282,7 @@ public class LayoutActionServiceTest {
 
         Layout layout = testPage.getLayouts().get(0);
 
-        ActionDTO firstAction = newActionService.createAction(action).block();
+        ActionDTO firstAction = layoutActionService.createAction(action).block();
 
         layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
@@ -293,7 +293,7 @@ public class LayoutActionServiceTest {
 
         // Create another action with the same name as the erstwhile deleted action
         action.setId(null);
-        ActionDTO secondAction = newActionService.createAction(action).block();
+        ActionDTO secondAction = layoutActionService.createAction(action).block();
 
         RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
         refactorNameDTO.setPageId(testPage.getId());
@@ -346,8 +346,8 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        ActionDTO createdAction1 = newActionService.createAction(action1).block();
-        ActionDTO createdAction2 = newActionService.createAction(action2).block();
+        ActionDTO createdAction1 = layoutActionService.createAction(action1).block();
+        ActionDTO createdAction2 = layoutActionService.createAction(action2).block();
 
         Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
 
@@ -432,7 +432,7 @@ public class LayoutActionServiceTest {
         unreferencedAction.setActionConfiguration(actionConfiguration2);
         unreferencedAction.setDatasource(datasource);
 
-        Mono<ActionDTO> resultMono = newActionService
+        Mono<ActionDTO> resultMono = layoutActionService
                 .createAction(action)
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
