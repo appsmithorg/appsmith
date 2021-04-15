@@ -11,7 +11,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
 
-const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
+export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
 export const getCurrentWidgetId = createSelector(
