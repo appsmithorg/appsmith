@@ -9,7 +9,7 @@ import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import { ActionConfig, PluginType } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
-import { DynamicPath } from "utils/DynamicBindingUtils";
+import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 
@@ -53,6 +53,7 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
+  dependencyMap: DependencyMap;
 }
 
 export interface DataTreeWidget extends WidgetProps {
@@ -83,6 +84,7 @@ export type DataTree = {
 type DataTreeSeed = {
   actions: ActionDataState;
   editorConfigs: Record<string, any[]>;
+  pluginDependencyConfig: Record<string, DependencyMap>;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
   pageList: PageListPayload;
@@ -97,13 +99,16 @@ export class DataTreeFactory {
     pageList,
     appData,
     editorConfigs,
+    pluginDependencyConfig,
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
     actions.forEach((action) => {
       const editorConfig = editorConfigs[action.config.pluginId];
+      const dependencyConfig = pluginDependencyConfig[action.config.pluginId];
       dataTree[action.config.name] = generateDataTreeAction(
         action,
         editorConfig,
+        dependencyConfig,
       );
     });
     Object.values(widgets).forEach((widget) => {

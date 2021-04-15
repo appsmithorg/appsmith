@@ -128,6 +128,9 @@ export const getPlugins = (state: AppState) => state.entities.plugins.list;
 export const getPluginEditorConfigs = (state: AppState) =>
   state.entities.plugins.editorConfigs;
 
+export const getPluginDependencyConfig = (state: AppState) =>
+  state.entities.plugins.dependencies;
+
 export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
   state.entities.plugins.settingConfigs[pluginId];
 

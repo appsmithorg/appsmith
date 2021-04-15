@@ -34,10 +34,7 @@ export const getBindingPathsOfAction = (
     if (formConfig.children) {
       formConfig.children.forEach(recursiveFindBindingPaths);
     } else {
-      const configPath = formConfig.configProperty.replace(
-        "actionConfiguration.",
-        "config.",
-      );
+      const configPath = getDataTreeActionConfigPath(formConfig.configProperty);
       if (dynamicFields.includes(formConfig.controlType)) {
         if (!isHidden(action, formConfig.hidden)) {
           bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
@@ -72,3 +69,6 @@ export const getBindingPathsOfAction = (
 
   return bindingPaths;
 };
+
+export const getDataTreeActionConfigPath = (propertyPath: string) =>
+  propertyPath.replace("actionConfiguration.", "config.");

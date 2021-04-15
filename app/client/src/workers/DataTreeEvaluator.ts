@@ -141,6 +141,7 @@ export default class DataTreeEvaluator {
 
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
+    debugger;
     const {
       dependenciesOfRemovedPaths,
       removedPaths,
@@ -309,7 +310,6 @@ export default class DataTreeEvaluator {
         ),
       );
     });
-    // TODO make this run only for widgets and not actions
     dependencyMap = makeParentsDependOnChildren(dependencyMap);
     return dependencyMap;
   }
@@ -332,15 +332,26 @@ export default class DataTreeEvaluator {
         );
       });
     }
-    if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+    if (isWidget(entity)) {
       // Set default property dependency
       const defaultProperties = this.widgetConfigMap[entity.type]
         .defaultProperties;
-      Object.keys(defaultProperties).forEach((property) => {
-        dependencies[`${entityName}.${property}`] = [
-          `${entityName}.${defaultProperties[property]}`,
-        ];
-      });
+      Object.entries(defaultProperties).forEach(
+        ([property, defaultPropertyPath]) => {
+          dependencies[`${entityName}.${property}`] = [
+            `${entityName}.${defaultPropertyPath}`,
+          ];
+        },
+      );
+    }
+    if (isAction(entity)) {
+      Object.entries(entity.dependencyMap).forEach(
+        ([dependent, entityDependencies]) => {
+          dependencies[`${entityName}.${dependent}`] = entityDependencies.map(
+            (propertyPath) => `${entityName}.${propertyPath}`,
+          );
+        },
+      );
     }
     return dependencies;
   }
@@ -684,6 +695,7 @@ export default class DataTreeEvaluator {
     differences
       .map(translateDiffEventToDataTreeDiffEvent)
       .forEach((dataTreeDiff) => {
+        debugger;
         const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
         let entity = unEvalDataTree[entityName];
         if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
@@ -696,19 +708,19 @@ export default class DataTreeEvaluator {
             case DataTreeDiffEvent.NEW: {
               // If a new widget was added, add all the internal bindings for this widget to the global dependency map
               if (
-                isWidget(entity) &&
+                (isWidget(entity) || isAction(entity)) &&
                 !this.isDynamicLeaf(
                   unEvalDataTree,
                   dataTreeDiff.payload.propertyPath,
                 )
               ) {
-                const widgetDependencyMap: DependencyMap = this.listEntityDependencies(
-                  entity as DataTreeWidget,
+                const entityDependencyMap: DependencyMap = this.listEntityDependencies(
+                  entity,
                   entityName,
                 );
-                if (Object.keys(widgetDependencyMap).length) {
+                if (Object.keys(entityDependencyMap).length) {
                   didUpdateDependencyMap = true;
-                  Object.assign(this.dependencyMap, widgetDependencyMap);
+                  Object.assign(this.dependencyMap, entityDependencyMap);
                 }
               }
               // Either a new entity or a new property path has been added. Go through existing dynamic bindings and
@@ -734,14 +746,14 @@ export default class DataTreeEvaluator {
               removedPaths.push(dataTreeDiff.payload.propertyPath);
               // If an existing widget was deleted, remove all the bindings from the global dependency map
               if (
-                isWidget(entity) &&
+                (isWidget(entity) || isAction(entity)) &&
                 dataTreeDiff.payload.propertyPath === entityName
               ) {
-                const widgetBindings = this.listEntityDependencies(
+                const entityDependencies = this.listEntityDependencies(
                   entity,
                   entityName,
                 );
-                Object.keys(widgetBindings).forEach((widgetDep) => {
+                Object.keys(entityDependencies).forEach((widgetDep) => {
                   didUpdateDependencyMap = true;
                   delete this.dependencyMap[widgetDep];
                 });
@@ -787,8 +799,7 @@ export default class DataTreeEvaluator {
               // Also for a widget, we only care if the difference is in dynamic bindings since static values do not need
               // an evaluation.
               if (
-                (entityType === ENTITY_TYPE.WIDGET ||
-                  entityType === ENTITY_TYPE.ACTION) &&
+                (isWidget(entity) || isAction(entity)) &&
                 typeof dataTreeDiff.payload.value === "string"
               ) {
                 const entity: EntityWithBindings = unEvalDataTree[
