@@ -7,10 +7,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import Button from "components/ads/Button";
-import { Variant } from "components/ads/common";
-import { useDispatch } from "react-redux";
-import { showDebugger } from "actions/debuggerActions";
+import DebugButton from "components/editorComponents/Debugger/DebugButton";
 
 const Wrapper = styled.div`
   position: relative;
@@ -97,18 +94,12 @@ const ErrorText = styled.p`
   color: ${(props) => props.theme.colors.errorMessage};
 `;
 
-const DebugButton = styled(Button)`
-  width: fit-content;
-  margin-top: 4px;
-  margin-left: auto;
-  text-transform: none;
-  font-size: 13px;
-  height: 22px;
-  font-weight: normal;
-`;
-
 const StyledTitle = styled.p`
   margin: 8px 0;
+`;
+
+const StyledDebugButton = styled(DebugButton)`
+  margin-left: auto;
 `;
 
 interface Props {
@@ -191,7 +182,6 @@ export const CurrentValueViewer = (props: {
 
 const PopoverContent = (props: PopoverContentProps) => {
   const typeTextRef = React.createRef<HTMLPreElement>();
-  const dispatch = useDispatch();
 
   return (
     <ContentWrapper
@@ -205,12 +195,7 @@ const PopoverContent = (props: PopoverContentProps) => {
           {props.useValidationMessage && props.error
             ? props.error
             : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
-          <DebugButton
-            onClick={() => dispatch(showDebugger(true))}
-            icon="bug"
-            text="Debug"
-            variant={Variant.danger}
-          />
+          <StyledDebugButton className="evaluated-value" />
         </ErrorText>
       )}
       {!props.hasError && props.expected && (

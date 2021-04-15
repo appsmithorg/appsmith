@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
 import { Colors } from "constants/Colors";
+import DebugButton from "components/editorComponents/Debugger/DebugButton";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
@@ -60,7 +61,7 @@ const ToastBody = styled.div<{
   justify-content: space-between;
   overflow-wrap: anywhere;
 
-  .${Classes.ICON} {
+  div > .${Classes.ICON} {
     cursor: auto;
     margin-right: ${(props) => props.theme.spaces[3]}px;
     margin-top: ${(props) => props.theme.spaces[1] / 2}px;
@@ -124,7 +125,10 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
         {props.variant === Variant.danger ? (
           <Icon name="error" size={IconSize.XXL} />
         ) : null}
-        <Text type={TextType.P1}>{props.text}</Text>
+        <div>
+          <Text type={TextType.P1}>{props.text}</Text>
+          {props.variant === Variant.danger ? <DebugButton /> : null}
+        </div>
       </FlexContainer>
       <div className="undo-section">
         {props.onUndo || props.dispatchableAction ? (
