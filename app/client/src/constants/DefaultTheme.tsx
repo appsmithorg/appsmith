@@ -7,7 +7,6 @@ import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
-import { animated } from "react-spring";
 
 const {
   default: styled,
@@ -49,31 +48,6 @@ export const DisableNativeScrollbar = css`
     display: none;
     -webkit-appearance: none;
   }
-`;
-
-export const ScrollThumb = styled(animated.div)<{
-  mode?: "DARK" | "LIGHT";
-  isVertical?: boolean;
-}>`
-  position: relative;
-  ${(props) => props.isVertical && `width: 4px;`}
-  ${(props) =>
-    !props.isVertical && `height: 100%;`}
-  transform: translate3d(0, 0, 0);
-  background-color: ${(props) =>
-    props.mode
-      ? props.mode === "LIGHT"
-        ? props.theme.colors.scrollbarLight
-        : props.theme.colors.scrollbarDark
-      : props.theme.colors.scrollbarLight};
-  border-radius: ${(props) => props.theme.radii[3]}px;
-`;
-
-export const ScrollTrackCSS = css`
-  position: absolute;
-  z-index: 100;
-  overflow: hidden;
-  transition: opacity 0.15s ease-in;
 `;
 
 export const truncateTextUsingEllipsis = css`

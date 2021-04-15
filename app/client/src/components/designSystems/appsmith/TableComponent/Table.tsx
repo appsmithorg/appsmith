@@ -6,7 +6,11 @@ import {
   useResizeColumns,
   useRowSelect,
 } from "react-table";
-import { TableWrapper, TableHeaderWrapper } from "./TableStyledWrappers";
+import {
+  TableWrapper,
+  TableHeaderWrapper,
+  TableHeaderInnerWrapper,
+} from "./TableStyledWrappers";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/TableFilters";
 import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
@@ -17,7 +21,6 @@ import {
   CompactMode,
   CompactModeTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import HorizontalScrollIndicator from "components/ads/HorizontalScrollIndicator";
 import { Colors } from "constants/Colors";
 
 import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
@@ -163,59 +166,59 @@ export const Table = (props: TableProps) => {
         backgroundColor={Colors.WHITE}
         ref={tableHeaderWrapperRef}
       >
-        <TableHeader
-          tableData={props.data}
-          tableColumns={props.columns}
-          searchTableData={props.searchTableData}
-          searchKey={props.searchKey}
-          updatePageNo={props.updatePageNo}
-          nextPageClick={props.nextPageClick}
-          prevPageClick={props.prevPageClick}
-          pageNo={props.pageNo}
-          pageCount={pageCount}
-          currentPageIndex={currentPageIndex}
-          pageOptions={pageOptions}
-          widgetName={props.widgetName}
-          serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-          columns={props.columns.filter((column: ReactTableColumnProps) => {
-            return column.accessor !== "actions";
-          })}
-          hiddenColumns={props.hiddenColumns}
-          updateHiddenColumns={props.updateHiddenColumns}
-          filters={props.filters}
-          applyFilter={props.applyFilter}
-          editMode={props.editMode}
-          compactMode={props.compactMode}
-          updateCompactMode={props.updateCompactMode}
-          tableSizes={tableSizes}
-        />
+        <Scrollbars
+          style={{ width: props.width, height: 38 }}
+          renderThumbHorizontal={(props) => (
+            <div {...props} className="thumb-horizontal" />
+          )}
+          renderThumbVertical={(props) => (
+            <div {...props} className="thumb-vertical" />
+          )}
+        >
+          <TableHeaderInnerWrapper
+            serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+            width={props.width}
+            tableSizes={tableSizes}
+            backgroundColor={Colors.WHITE}
+          >
+            <TableHeader
+              tableData={props.data}
+              tableColumns={props.columns}
+              searchTableData={props.searchTableData}
+              searchKey={props.searchKey}
+              updatePageNo={props.updatePageNo}
+              nextPageClick={props.nextPageClick}
+              prevPageClick={props.prevPageClick}
+              pageNo={props.pageNo}
+              pageCount={pageCount}
+              currentPageIndex={currentPageIndex}
+              pageOptions={pageOptions}
+              widgetName={props.widgetName}
+              serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+              columns={props.columns.filter((column: ReactTableColumnProps) => {
+                return column.accessor !== "actions";
+              })}
+              hiddenColumns={props.hiddenColumns}
+              updateHiddenColumns={props.updateHiddenColumns}
+              filters={props.filters}
+              applyFilter={props.applyFilter}
+              editMode={props.editMode}
+              compactMode={props.compactMode}
+              updateCompactMode={props.updateCompactMode}
+              tableSizes={tableSizes}
+            />
+          </TableHeaderInnerWrapper>
+        </Scrollbars>
       </TableHeaderWrapper>
       <div
         className={props.isLoading ? Classes.SKELETON : "tableWrap"}
         ref={tableWrapperRef}
       >
         <Scrollbars
-          renderTrackHorizontal={({ style, ...props }) => (
-            <div {...props} style={{ ...style }} className="track-horizontal" />
+          style={{ width: props.width - 6, height: props.height - 48 }}
+          renderThumbHorizontal={(props) => (
+            <div {...props} className="thumb-horizontal" />
           )}
-          renderTrackVertical={({ style, ...props }) => (
-            <div {...props} style={{ ...style }} className="track-vertical" />
-          )}
-          renderThumbHorizontal={({ style, ...props }) => (
-            <div
-              {...props}
-              style={{ ...style, backgroundColor: "red" }}
-              className="thumb-horizontal"
-            />
-          )}
-          renderThumbVertical={({ style, ...props }) => (
-            <div
-              {...props}
-              style={{ ...style, backgroundColor: "red" }}
-              className="thumb-vertical"
-            />
-          )}
-          style={{ width: props.width, height: props.height - 48 }}
         >
           <div {...getTableProps()} className="table">
             <div
@@ -312,25 +315,11 @@ export const Table = (props: TableProps) => {
           </div>
         </Scrollbars>
       </div>
-      <HorizontalScrollIndicator
-        containerRef={tableHeaderWrapperRef}
-        mode="LIGHT"
-        alwaysShowScrollbar
-        top={props.editMode ? "37px" : "40px"}
-        left={props.editMode ? "0px" : "3px"}
-      />
-      {/* <HorizontalScrollIndicator
-        containerRef={tableWrapperRef}
-        mode="LIGHT"
-        alwaysShowScrollbar
-        bottom={props.editMode ? "0px" : "3px"}
-        left={props.editMode ? "0px" : "3px"}
-      />
       <VerticalScrollIndicator
         containerRef={tableBodyRef}
         mode="LIGHT"
         top={props.editMode ? "70px" : "73px"}
-      /> */}
+      />
     </TableWrapper>
   );
 };

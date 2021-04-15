@@ -1,8 +1,23 @@
 import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import _ from "lodash";
+import { animated } from "react-spring";
 import { useSpring, interpolate } from "react-spring";
-import { ScrollThumb, ScrollTrackCSS } from "constants/DefaultTheme";
+
+export const ScrollThumb = styled(animated.div)<{
+  mode?: "DARK" | "LIGHT";
+}>`
+  position: relative;
+  width: 4px;
+  transform: translate3d(0, 0, 0);
+  background-color: ${(props) =>
+    props.mode
+      ? props.mode === "LIGHT"
+        ? props.theme.colors.scrollbarLight
+        : props.theme.colors.scrollbarDark
+      : props.theme.colors.scrollbarLight};
+  border-radius: ${(props) => props.theme.radii[3]}px;
+`;
 
 const ScrollTrack = styled.div<{
   isVisible: boolean;
@@ -11,7 +26,10 @@ const ScrollTrack = styled.div<{
   right?: string;
   mode?: "DARK" | "LIGHT";
 }>`
-  ${ScrollTrackCSS};
+  position: absolute;
+  z-index: 100;
+  overflow: hidden;
+  transition: opacity 0.15s ease-in;
   top: ${(props) => (props.top ? props.top : "0px")};
   bottom: ${(props) => (props.bottom ? props.bottom : "0px")};
   right: ${(props) => (props.right ? props.right : "2px")};
@@ -105,7 +123,6 @@ const VerticalScrollIndicator = ({
       right={right}
     >
       <ScrollThumb
-        isVertical
         ref={thumbRef}
         style={{
           transform: interpolate(

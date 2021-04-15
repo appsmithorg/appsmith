@@ -30,6 +30,14 @@ export const TableWrapper = styled.div<{
     width: ${(props) => props.width - 8}px;
     overflow-x: auto;
     ${DisableNativeScrollbar};
+    .thumb-horizontal {
+      height: 4px !important;
+      border-radius: ${(props) => props.theme.radii[3]}px;
+      background: ${(props) => props.theme.colors.scrollbarLight} !important;
+      &:hover {
+        height: 6px !important;
+      }
+    }
   }
   .table {
     border-spacing: 0;
@@ -50,6 +58,7 @@ export const TableWrapper = styled.div<{
       height: ${(props) => props.height - 80}px;
       width: 100%;
       overflow-y: auto;
+      ${DisableNativeScrollbar};
       .tr {
         width: 100%;
       }
@@ -405,11 +414,33 @@ export const TableHeaderWrapper = styled.div<{
   .show-page-items {
     display: ${(props) => (props.width < 700 ? "none" : "flex")};
   }
-  overflow-x: auto;
-  overflow-y: hidden;
-  ${DisableNativeScrollbar};
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
+  overflow-x: auto;
+  ${DisableNativeScrollbar};
+  .thumb-horizontal {
+    height: 4px !important;
+    border-radius: ${(props) => props.theme.radii[3]}px;
+    background: ${(props) => props.theme.colors.scrollbarLight};
+    &:hover {
+      height: 6px !important;
+    }
+  }
+  .thumb-vertical {
+    display: none;
+  }
+`;
+
+export const TableHeaderInnerWrapper = styled.div<{
+  serverSidePaginationEnabled: boolean;
+  width: number;
+  tableSizes: TableSizes;
+  backgroundColor?: Color;
+}>`
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div<{
