@@ -1,9 +1,5 @@
-export default [
-  {
-    dependencies: {
-      "actionConfiguration.body": [
-        "actionConfiguration.pluginSpecifiedTemplates[0].value",
-      ],
-    },
-  },
-];
+export default {
+  "actionConfiguration.body": [
+    "actionConfiguration.pluginSpecifiedTemplates[0].value",
+  ],
+};

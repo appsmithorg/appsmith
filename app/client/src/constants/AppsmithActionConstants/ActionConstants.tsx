@@ -4,6 +4,7 @@ import { PluginType } from "entities/Action";
 import queryActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/QuerySettingsConfig";
 import apiActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/ApiSettingsConfig";
 import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/ApiEditorConfigs";
+import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
 
 export type ExecuteActionPayloadEvent = {
   type: EventType;
@@ -114,4 +115,12 @@ export const defaultActionSettings: Record<PluginType, any> = {
 export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.API]: apiActionEditorConfig,
   [PluginType.DB]: [],
+};
+
+export const defaultActionDependenciesConfig: Record<
+  PluginType,
+  Record<string, string[]>
+> = {
+  [PluginType.API]: apiActionDependencyConfig,
+  [PluginType.DB]: {},
 };

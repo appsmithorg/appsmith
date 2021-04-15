@@ -19,6 +19,7 @@ import {
   fetchPluginFormConfigSuccess,
 } from "actions/pluginActions";
 import {
+  defaultActionDependenciesConfig,
   defaultActionEditorConfigs,
   defaultActionSettings,
 } from "constants/AppsmithActionConstants/ActionConstants";
@@ -77,19 +78,29 @@ function* fetchPluginFormConfigsSaga() {
     const formConfigs: Record<string, any[]> = {};
     const editorConfigs: Record<string, any[]> = {};
     const settingConfigs: Record<string, any[]> = {};
+    const dependencies: Record<string, Record<string, string[]>> = {};
 
     Array.from(pluginIdFormsToFetch).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
+      // Datasource form always use server's copy
       formConfigs[pluginId] = pluginFormData[index].form;
+      // Action editor form if not available use default
       if (plugin && !pluginFormData[index].editor) {
         editorConfigs[pluginId] = defaultActionEditorConfigs[plugin.type];
       } else {
         editorConfigs[pluginId] = pluginFormData[index].editor;
       }
+      // Action settings form if not available use default
       if (plugin && !pluginFormData[index].setting) {
         settingConfigs[pluginId] = defaultActionSettings[plugin.type];
       } else {
         settingConfigs[pluginId] = pluginFormData[index].setting;
+      }
+      // Action dependencies config if not available use default
+      if (plugin && !pluginFormData[index].dependencies) {
+        dependencies[pluginId] = defaultActionDependenciesConfig[plugin.type];
+      } else {
+        dependencies[pluginId] = pluginFormData[index].dependencies;
       }
     });
 
@@ -98,6 +109,7 @@ function* fetchPluginFormConfigsSaga() {
         formConfigs,
         editorConfigs,
         settingConfigs,
+        dependencies,
       }),
     );
   } catch (error) {
@@ -124,6 +136,10 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
       if (!formConfigResponse.data.editor) {
         formConfigResponse.data.editor =
           defaultActionEditorConfigs[plugin.type];
+      }
+      if (!formConfigResponse.data.dependencies) {
+        formConfigResponse.data.dependencies =
+          defaultActionDependenciesConfig[plugin.type];
       }
       yield put(
         fetchPluginFormConfigSuccess({

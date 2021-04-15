@@ -17,6 +17,7 @@ export type PluginFormsPayload = {
   formConfigs: Record<string, any[]>;
   editorConfigs: Record<string, any[]>;
   settingConfigs: Record<string, any[]>;
+  dependencies: Record<string, Record<string, string[]>>;
 };
 
 export const fetchPluginFormConfigsSuccess = (

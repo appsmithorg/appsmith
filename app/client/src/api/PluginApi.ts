@@ -20,6 +20,7 @@ export interface PluginFormPayload {
   form: any[];
   editor: any[];
   setting: any[];
+  dependencies: Record<string, string[]>;
 }
 
 class PluginsApi extends Api {
