@@ -17,6 +17,8 @@ import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -498,8 +500,37 @@ public class LayoutActionServiceTest {
                     assertThat(primaryColumns2.keySet()).containsAll(Set.of(FieldName.MONGO_ESCAPE_ID, FieldName.MONGO_ESCAPE_CLASS));
                 })
                 .verifyComplete();
-
-
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void duplicateActionNameCreation() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String name = "query1";
+
+        ActionDTO action = new ActionDTO();
+        action.setName(name);
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        layoutActionService.createAction(action).block();
+
+        ActionDTO duplicateAction = new ActionDTO();
+        duplicateAction.setName(name);
+        duplicateAction.setPageId(testPage.getId());
+        duplicateAction.setActionConfiguration(actionConfiguration);
+        duplicateAction.setDatasource(datasource);
+
+        Mono<ActionDTO> duplicateActionMono = layoutActionService.createAction(duplicateAction);
+
+        StepVerifier
+                .create(duplicateActionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.DUPLICATE_KEY_USER_ERROR.getMessage(name, FieldName.NAME)))
+                .verify();
+    }
 }
