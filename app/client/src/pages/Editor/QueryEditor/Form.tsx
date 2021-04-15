@@ -485,6 +485,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           <DocumentationLink
             onClick={handleDocumentationClick}
             rel="noopener noreferrer"
+            className="t--datasource-documentation-link"
           >
             {"Documentation "}
             <StyledOpenDocsIcon icon="document-open" />

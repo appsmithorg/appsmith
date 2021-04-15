@@ -429,7 +429,6 @@ export function* createApplicationSaga(
         // This sets ui.pageWidgets = {} to ensure that
         // widgets are cleaned up from state before
         // finishing creating a new application
-        // MainContainer(Canvas) widget will be loaded later
         yield put({
           type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
         });
