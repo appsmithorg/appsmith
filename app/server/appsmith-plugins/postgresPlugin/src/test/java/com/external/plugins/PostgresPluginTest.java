@@ -870,6 +870,52 @@ public class PostgresPluginTest {
                 });
     }
 
+    @Test
+    public void testSslPrefer() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from pg_stat_ssl");
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.PREFER);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    String body = result.getBody().toString();
+                    /*
+                     * - Since the mode is 'prefer' and the testcontainer server does not support SSL, the connection
+                     *   gets established without SSL layer.
+                     */
+                    assertTrue(body.contains("\"ssl\":false"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSslAllow() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from pg_stat_ssl");
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.ALLOW);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                        actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    String body = result.getBody().toString();
+                    /*
+                     * - Since the mode is 'allow' and the testcontainer server does not support SSL, the connection
+                     *   gets established without SSL layer.
+                     */
+                    assertTrue(body.contains("\"ssl\":false"));
+                })
+                .verifyComplete();
+    }
+
     public void testDuplicateColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -954,6 +1000,37 @@ public class PostgresPluginTest {
 
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertEquals(node.get("created_on").asText(), "2021-03-24T14:05:34Z");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSettingCommentedBindingPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT * FROM public.\"users\"; -- {{binding1}} in comment, should be ignored");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("2021-03-24 14:05:34");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
                 })
                 .verifyComplete();
     }

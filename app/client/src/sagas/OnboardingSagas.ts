@@ -89,6 +89,7 @@ import {
   updateWidgetPropertyRequest,
 } from "../actions/controlActions";
 import OnSubmitGif from "assets/gifs/onsubmit.gif";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -387,6 +388,7 @@ function* createOnboardingDatasource() {
         datasourceConfig,
       );
       yield validateResponse(datasourceResponse);
+      yield checkAndGetPluginFormConfigsSaga(postgresPlugin.id);
       yield put({
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: datasourceResponse.data,

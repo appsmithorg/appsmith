@@ -1,5 +1,6 @@
 import { isString } from "lodash";
 import moment from "moment";
+import { TextSize } from "constants/WidgetConstants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -24,21 +25,6 @@ export enum VerticalAlignmentTypes {
   TOP = "TOP",
   BOTTOM = "BOTTOM",
   CENTER = "CENTER",
-}
-
-export enum TextSizes {
-  HEADING1 = "HEADING1",
-  HEADING2 = "HEADING2",
-  HEADING3 = "HEADING3",
-  PARAGRAPH = "PARAGRAPH",
-  PARAGRAPH2 = "PARAGRAPH2",
-}
-
-export enum FontStyleTypes {
-  BOLD = "BOLD",
-  ITALIC = "ITALIC",
-  REGULAR = "REGULAR",
-  UNDERLINE = "UNDERLINE",
 }
 
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
@@ -90,8 +76,6 @@ export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
 export type CellAlignment = keyof typeof CellAlignmentTypes;
 export type VerticalAlignment = keyof typeof VerticalAlignmentTypes;
-export type FontStyle = keyof typeof FontStyleTypes;
-export type TextSize = keyof typeof TextSizes;
 
 export interface ReactTableFilter {
   column: string;

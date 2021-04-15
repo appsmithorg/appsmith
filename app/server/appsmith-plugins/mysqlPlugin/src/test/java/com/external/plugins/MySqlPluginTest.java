@@ -692,7 +692,6 @@ public class MySqlPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Object body = result.getBody();
                     assertNotNull(body);
-                    System.out.println("devtest: body: " + result.getBody());
                     assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
                             body.toString());
                 })
@@ -717,7 +716,6 @@ public class MySqlPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Object body = result.getBody();
                     assertNotNull(body);
-                    System.out.println("devtest: body: " + result.getBody());
                     assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
                             body.toString());
                 })
@@ -742,7 +740,6 @@ public class MySqlPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Object body = result.getBody();
                     assertNotNull(body);
-                    System.out.println("devtest: body: " + result.getBody());
                     assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
                             body.toString());
                 })

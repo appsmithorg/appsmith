@@ -43,6 +43,7 @@ const PageNumberInput = (props: {
   pageNo: number;
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
+  disabled: boolean;
 }) => {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
   useEffect(() => {
@@ -55,6 +56,8 @@ const PageNumberInput = (props: {
       max={props.pageCount || 1}
       buttonPosition="none"
       clampValueOnBlur
+      className="t--table-widget-page-input"
+      disabled={props.disabled}
       onBlur={(e: any) => {
         const oldPageNo = Number(props.pageNo || 0);
         const value = e.target.value;
@@ -93,7 +96,6 @@ interface TableHeaderProps {
   pageOptions: number[];
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
-  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   widgetName: string;
   searchKey: string;
   searchTableData: (searchKey: any) => void;
@@ -126,13 +128,6 @@ const TableHeader = (props: TableHeaderProps) => {
           columns={props.tableColumns}
           widgetName={props.widgetName}
         />
-        {/* {props.editMode && (
-          <TableColumnsVisibility
-            columns={props.columns}
-            hiddenColumns={props.hiddenColumns}
-            updateHiddenColumns={props.updateHiddenColumns}
-          />
-        )} */}
         <TableCompactMode
           compactMode={props.compactMode}
           updateCompactMode={props.updateCompactMode}
@@ -185,6 +180,7 @@ const TableHeader = (props: TableHeaderProps) => {
               pageNo={props.pageNo + 1}
               updatePageNo={props.updatePageNo}
               pageCount={props.pageCount}
+              disabled={props.pageCount === 1}
             />{" "}
             of {props.pageCount}
           </RowWrapper>

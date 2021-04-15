@@ -37,8 +37,6 @@ interface TableProps {
   isLoading: boolean;
   columnSizeMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
-  hiddenColumns?: string[];
-  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   data: Array<Record<string, unknown>>;
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
@@ -161,10 +159,10 @@ export const Table = (props: TableProps) => {
     >
       <TableHeaderWrapper
         serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-        width={props.width}
         tableSizes={tableSizes}
         backgroundColor={Colors.WHITE}
         ref={tableHeaderWrapperRef}
+        width={props.width}
       >
         <Scrollbars
           style={{ width: props.width, height: 38 }}
@@ -198,8 +196,6 @@ export const Table = (props: TableProps) => {
               columns={props.columns.filter((column: ReactTableColumnProps) => {
                 return column.accessor !== "actions";
               })}
-              hiddenColumns={props.hiddenColumns}
-              updateHiddenColumns={props.updateHiddenColumns}
               filters={props.filters}
               applyFilter={props.applyFilter}
               editMode={props.editMode}

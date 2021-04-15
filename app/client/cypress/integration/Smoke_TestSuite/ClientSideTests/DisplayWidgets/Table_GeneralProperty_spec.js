@@ -12,6 +12,12 @@ describe("Table Widget property pane feature validation", function() {
     cy.addDsl(dsl);
   });
 
+  it("Test to validate table pagination is disabled", function() {
+    cy.get(".t--table-widget-prev-page").should("have.attr", "disabled");
+    cy.get(".t--table-widget-next-page").should("have.attr", "disabled");
+    cy.get(".t--table-widget-page-input input").should("have.attr", "disabled");
+  });
+
   it("Test to validate text allignment", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.centerAlign)
@@ -26,6 +32,28 @@ describe("Table Widget property pane feature validation", function() {
       .first()
       .click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-start");
+  });
+
+  it("Test to validate column heading allignment", function() {
+    // cy.openPropertyPane("tablewidget");
+    cy.get(widgetsPage.centerAlign)
+      .first()
+      .click({ force: true });
+    cy.get(".draggable-header")
+      .first()
+      .should("have.css", "text-align", "center");
+    cy.get(widgetsPage.rightAlign)
+      .first()
+      .click({ force: true });
+    cy.get(".draggable-header")
+      .first()
+      .should("have.css", "text-align", "right");
+    cy.get(widgetsPage.leftAlign)
+      .first()
+      .click({ force: true });
+    cy.get(".draggable-header")
+      .first()
+      .should("have.css", "text-align", "left");
   });
 
   it("Test to validate text format", function() {
@@ -55,6 +83,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleTextAlign)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingGenAlign);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -69,14 +98,17 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleTextAlign)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(widgetsPage.textSize)
       .last()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.selectTextSize("Heading 1");
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
   });
@@ -94,12 +126,21 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(commonlocators.editPropCrossButton).click();
   });
 
+  it("Edit column name and test for table header changes", function() {
+    cy.openPropertyPane("tablewidget");
+    cy.editColumn("email");
+    cy.editColName("Email Address");
+    cy.get(".draggable-header:contains('Email Address')").should("be.visible");
+    cy.get(commonlocators.editPropCrossButton).click();
+  });
+
   it("Test to validate text color and text background", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.textColor)
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.greenColor).click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)");
@@ -111,6 +152,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.backgroundColor)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.xpath(widgetsPage.greenColor)
       .first()

@@ -132,9 +132,12 @@ public class RestApiPlugin extends BasePlugin {
                  * substitution is no longer in beta.
                  */
                 smartJsonSubstitution = false;
-            } else {
+
                 // Since properties is not empty, we are guaranteed to find the first property.
+            } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null){
                 smartJsonSubstitution = Boolean.parseBoolean(properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue());
+            } else {
+                smartJsonSubstitution = false;
             }
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
@@ -154,9 +157,9 @@ public class RestApiPlugin extends BasePlugin {
                                 parameters);
                     } catch (AppsmithPluginException e) {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
-                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         errorResult.setIsExecutionSuccess(false);
-                        errorResult.setBody(e.getMessage());
+                        errorResult.setErrorInfo(e);
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         return Mono.just(errorResult);
                     }
 
@@ -187,12 +190,14 @@ public class RestApiPlugin extends BasePlugin {
 
         public Mono<ActionExecutionResult> executeCommon(APIConnection apiConnection,
                                                          DatasourceConfiguration datasourceConfiguration,
-                                                         ActionConfiguration actionConfiguration, List<Map.Entry<String, String>> insertedParams) {
+                                                         ActionConfiguration actionConfiguration,
+                                                         List<Map.Entry<String, String>> insertedParams) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
             errorResult.setIsExecutionSuccess(false);
+            errorResult.setTitle(AppsmithPluginError.PLUGIN_ERROR.getTitle());
 
             // Initializing request URL
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
@@ -373,10 +378,7 @@ public class RestApiPlugin extends BasePlugin {
                     })
                     .onErrorResume(error  -> {
                         errorResult.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            errorResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        errorResult.setBody(error.getMessage());
+                        errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
         }

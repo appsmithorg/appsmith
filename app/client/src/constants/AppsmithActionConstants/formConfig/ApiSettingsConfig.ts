@@ -28,6 +28,7 @@ export default [
         controlType: "CHECKBOX",
         info:
           "Turning on this property fixes the JSON substitution of bindings in API body by adding/removing quotes intelligently and reduces developer errors",
+        initialValue: "false",
       },
       // {
       //   label: "Cache response",

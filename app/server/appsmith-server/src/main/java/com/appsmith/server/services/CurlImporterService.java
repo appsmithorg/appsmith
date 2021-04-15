@@ -255,7 +255,7 @@ public class CurlImporterService extends BaseApiImporter {
     public ActionDTO parse(List<String> tokens) throws AppsmithException {
         // Curl argument parsing as per <https://linux.die.net/man/1/curl>.
 
-        if (!"curl".equals(tokens.get(0))) {
+        if (tokens.isEmpty() || !"curl".equals(tokens.get(0))) {
             // Doesn't look like a curl command.
             return null;
         }
@@ -290,6 +290,9 @@ public class CurlImporterService extends BaseApiImporter {
             } else if (ARG_HEADER.equals(state)) {
                 // The `token` is next to `--header`.
                 final String[] parts = token.split(":\\s*", 2);
+                if (parts.length != 2) {
+                    throw new AppsmithException(AppsmithError.INVALID_CURL_HEADER, token);
+                }
                 if ("content-type".equalsIgnoreCase(parts[0])) {
                     contentType = parts[1];
                 }

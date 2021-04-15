@@ -24,6 +24,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariProxyConnection;
+import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -170,8 +171,10 @@ public class PostgresPlugin extends BasePlugin {
                  * is no longer in beta.
                  */
                 isPreparedStatement = false;
-            } else {
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
                 isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+            } else {
+                isPreparedStatement = false;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
@@ -384,10 +387,7 @@ public class PostgresPlugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        result.setBody(error.getMessage());
+                        result.setErrorInfo(error);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -793,9 +793,14 @@ public class PostgresPlugin extends BasePlugin {
                 }
 
             } catch (SQLException | IllegalArgumentException | IOException e) {
-                String message = "Query preparation failed while inserting value: "
-                        + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+                if ((e instanceof SQLException) && e.getMessage().contains("The column index is out of range:")) {
+                    // In case the parameter being set is out of range, then this must be getting set in the commented part of
+                    // the query. Ignore the exception
+                } else {
+                    String message = "Query preparation failed while inserting value: "
+                            + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+                }
             }
 
             return preparedStatement;
@@ -887,6 +892,7 @@ public class PostgresPlugin extends BasePlugin {
         SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
             case ALLOW:
+            case PREFER:
             case REQUIRE:
                 config.addDataSourceProperty("ssl", "true");
                 config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
@@ -904,8 +910,8 @@ public class PostgresPlugin extends BasePlugin {
             default:
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
-                                "customer support to resolve this."
+                        "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                " Appsmith customer support to resolve this."
                 );
         }
 
@@ -917,7 +923,15 @@ public class PostgresPlugin extends BasePlugin {
         config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
 
         // Now create the connection pool from the configuration
-        HikariDataSource datasource = new HikariDataSource(config);
+        HikariDataSource datasource = null;
+        try {
+            datasource = new HikariDataSource(config);
+        } catch (PoolInitializationException e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    e.getMessage()
+            );
+        }
 
         return datasource;
     }
@@ -929,7 +943,8 @@ public class PostgresPlugin extends BasePlugin {
      * @param connectionPool
      * @return SQL Connection
      */
-    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool, DatasourceConfiguration datasourceConfiguration) throws SQLException {
+    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
+                                                         DatasourceConfiguration datasourceConfiguration) throws SQLException {
 
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
             System.out.println(Thread.currentThread().getName() +

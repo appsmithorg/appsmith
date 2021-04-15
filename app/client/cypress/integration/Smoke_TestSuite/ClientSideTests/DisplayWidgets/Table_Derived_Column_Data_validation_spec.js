@@ -35,10 +35,12 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Table widget toggle test for background color", function() {
     cy.editColumn("id");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(widgetsPage.toggleJsBcgColor)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", "Green");
     cy.get(commonlocators.editPropCrossButton).click();

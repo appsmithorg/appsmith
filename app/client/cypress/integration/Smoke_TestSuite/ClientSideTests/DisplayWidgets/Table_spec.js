@@ -72,17 +72,20 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.searchInput)
         .first()
         .type(tabData);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("1", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
       cy.get(publish.downloadBtn).click();
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(5000);
       cy.get(publish.searchInput)
         .first()
         .clear()
         .type("7434532");
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000);
       cy.readTabledataPublish("3", "3").then((tabData) => {
         const tabValue = tabData;
@@ -95,6 +98,7 @@ describe("Table Widget Functionality", function() {
     cy.get(publish.searchInput)
       .first()
       .clear();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
@@ -111,6 +115,7 @@ describe("Table Widget Functionality", function() {
         .contains("is exactly")
         .click();
       cy.get(publish.inputValue).type(tabValue);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.get(publish.canvas)
         .first()
@@ -121,6 +126,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
@@ -148,6 +154,7 @@ describe("Table Widget Functionality", function() {
         .contains("contains")
         .click();
       cy.get(publish.inputValue).type("Lindsay");
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.get(publish.canvas)
         .first()
@@ -158,6 +165,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
@@ -185,6 +193,7 @@ describe("Table Widget Functionality", function() {
         .contains("starts with")
         .click();
       cy.get(publish.inputValue).type("Lindsay");
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.get(publish.canvas)
         .first()
@@ -195,6 +204,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
@@ -222,6 +232,7 @@ describe("Table Widget Functionality", function() {
         .contains("ends with")
         .click();
       cy.get(publish.inputValue).type("Ferguson");
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.get(publish.canvas)
         .first()
@@ -232,6 +243,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;

@@ -53,6 +53,7 @@ describe("Onboarding", function() {
         cy.dragAndDropToCanvas("tablewidget", { x: 30, y: -30 });
 
         // wait for animation duration
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000);
         // Click on "Show me how" and then click on cheat button
         cy.get(".t--onboarding-action")
@@ -63,6 +64,7 @@ describe("Onboarding", function() {
           .click();
 
         // wait for animation duration
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000);
         cy.contains(".t--onboarding-helper-title", "Capture Hero Updates");
         cy.get(".t--onboarding-cheat-action").click();

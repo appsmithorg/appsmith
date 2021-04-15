@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
@@ -38,6 +39,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -115,6 +118,22 @@ public class LayoutActionServiceTest {
             temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
             dsl.put("dynamicBindingPathList", temp);
             dsl.put("testField", "{{ query1.data }}");
+
+            JSONObject dsl2 = new JSONObject();
+            dsl2.put("widgetName", "Table1");
+            dsl2.put("type", "TABLE_WIDGET");
+            Map<String, Object> primaryColumns = new HashMap<>();
+            JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+            primaryColumns.put("_id", "{{ query1.data }}");
+            primaryColumns.put("_class", jsonObject);
+            dsl2.put("primaryColumns", primaryColumns);
+            final ArrayList<Object> objects = new ArrayList<>();
+            JSONArray temp2 = new JSONArray();
+            temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+            dsl2.put("dynamicBindingPathList", temp2);
+            objects.add(dsl2);
+            dsl.put("children", objects);
+
             layout.setDsl(dsl);
             layout.setPublishedDsl(dsl);
             layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
@@ -265,6 +284,7 @@ public class LayoutActionServiceTest {
 
         ActionDTO firstAction = newActionService.createAction(action).block();
 
+        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
         applicationPageService.publish(testPage.getApplicationId()).block();
@@ -434,13 +454,52 @@ public class LayoutActionServiceTest {
                 .assertNext(resultAction -> {
                     assertThat(resultAction.getDatasource().getMessages().size()).isNotZero();
 
-                    String expectedMessage = "You may not able to access your localhost if Appsmith is running inside" +
-                            " a docker container or on the cloud. Please check out Appsmith's documentation to " +
-                            "understand more.";
+                    String expectedMessage = "You may not be able to access your localhost if Appsmith is running " +
+                            "inside a docker container or on the cloud. To enable access to your localhost you may " +
+                            "use ngrok to expose your local endpoint to the internet. Please check out " +
+                            "Appsmith's documentation to understand more.";
                     assertThat(resultAction.getDatasource().getMessages().stream()
                             .anyMatch(message -> expectedMessage.equals(message))
                     ).isTrue();
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void tableWidgetKeyEscape() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "Table1");
+        dsl.put("type", "TABLE_WIDGET");
+        Map primaryColumns = new HashMap<String, Object>();
+        JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+        primaryColumns.put("_id", jsonObject);
+        primaryColumns.put("_class", jsonObject);
+        dsl.put("primaryColumns", primaryColumns);
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).cache();
+
+        Mono<PageDTO> pageFromRepoMono = updateLayoutMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+
+        StepVerifier
+                .create(Mono.zip(updateLayoutMono, pageFromRepoMono))
+                .assertNext(tuple -> {
+                    LayoutDTO updatedLayout = tuple.getT1();
+                    PageDTO pageFromRepo = tuple.getT2();
+
+                    Map primaryColumns1 = (Map) updatedLayout.getDsl().get("primaryColumns");
+                    assertThat(primaryColumns1.keySet()).containsAll(Set.of(FieldName.MONGO_UNESCAPED_ID, FieldName.MONGO_UNESCAPED_CLASS));
+
+                    Map primaryColumns2 = (Map) pageFromRepo.getLayouts().get(0).getDsl().get("primaryColumns");
+                    assertThat(primaryColumns2.keySet()).containsAll(Set.of(FieldName.MONGO_ESCAPE_ID, FieldName.MONGO_ESCAPE_CLASS));
+                })
+                .verifyComplete();
+
+
+    }
+
 }
