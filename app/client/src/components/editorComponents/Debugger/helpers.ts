@@ -37,9 +37,9 @@ export const useFilteredLogs = (query: string, filter?: any) => {
   return filteredLogs;
 };
 
-export const usePagination = (data: any, itemsPerPage = 50) => {
+export const usePagination = (data: Message[], itemsPerPage = 50) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedData, setPaginatedData] = useState([]);
+  const [paginatedData, setPaginatedData] = useState<Message[]>([]);
   const maxPage = Math.ceil(data.length / itemsPerPage);
 
   useEffect(() => {
@@ -53,7 +53,10 @@ export const usePagination = (data: any, itemsPerPage = 50) => {
   }
 
   function next() {
-    setCurrentPage((currentPage) => Math.min(currentPage + 1, maxPage));
+    setCurrentPage((currentPage) => {
+      const newCurrentPage = Math.min(currentPage + 1, maxPage);
+      return newCurrentPage <= 0 ? 1 : newCurrentPage;
+    });
   }
 
   return { next, paginatedData };

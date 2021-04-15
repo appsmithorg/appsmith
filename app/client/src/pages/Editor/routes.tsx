@@ -53,17 +53,17 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 
 const DrawerWrapper = styled.div<{
   isVisible: boolean;
-  isAPIPath: any;
+  isActionPath: any;
 }>`
   background-color: white;
   width: ${(props) =>
-    !props.isVisible ? "0px" : props.isAPIPath ? "100%" : "75%"};
+    !props.isVisible ? "0px" : props.isActionPath ? "100%" : "75%"};
   height: 100%;
 `;
 
 interface RouterState {
   isVisible: boolean;
-  isAPIPath: Record<any, any> | null;
+  isActionPath: Record<any, any> | null;
 }
 
 class EditorsRouter extends React.Component<
@@ -77,7 +77,7 @@ class EditorsRouter extends React.Component<
       isVisible:
         this.props.location.pathname !==
         BUILDER_PAGE_URL(applicationId, pageId),
-      isAPIPath: this.isMatchPath(),
+      isActionPath: this.isMatchPath(),
     };
   }
 
@@ -88,7 +88,7 @@ class EditorsRouter extends React.Component<
         isVisible:
           this.props.location.pathname !==
           BUILDER_PAGE_URL(applicationId, pageId),
-        isAPIPath: this.isMatchPath(),
+        isActionPath: this.isMatchPath(),
       });
     }
   }
@@ -99,6 +99,8 @@ class EditorsRouter extends React.Component<
         API_EDITOR_URL(),
         API_EDITOR_ID_URL(),
         API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
+        QUERIES_EDITOR_URL(),
+        QUERIES_EDITOR_ID_URL(),
       ],
       exact: true,
       strict: false,
@@ -127,7 +129,7 @@ class EditorsRouter extends React.Component<
       <Wrapper isVisible={this.state.isVisible} onClick={this.handleClose}>
         <PaneDrawer
           isVisible={this.state.isVisible}
-          isAPIPath={this.state.isAPIPath}
+          isActionPath={this.state.isActionPath}
           onClick={this.preventClose}
         >
           <Switch>
@@ -181,7 +183,7 @@ class EditorsRouter extends React.Component<
 }
 type PaneDrawerProps = {
   isVisible: boolean;
-  isAPIPath: Record<any, any> | null;
+  isActionPath: Record<any, any> | null;
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { RefObject, useRef } from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -44,6 +44,9 @@ import Button from "components/editorComponents/Button";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
+import Resizable, {
+  ResizerCSS,
+} from "components/editorComponents/Debugger/Resizer";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -82,6 +85,12 @@ const ErrorMessage = styled.p`
 `;
 
 const TabbedViewContainer = styled.div`
+  ${ResizerCSS}
+  flex: 1;
+  // Initial height of bottom tabs
+  height: 40%;
+  // Minimum height of bottom tabs as it can be resized
+  min-height: 40%;
   .react-tabs__tab-panel {
     overflow: hidden;
   }
@@ -98,8 +107,7 @@ const TabbedViewContainer = styled.div`
       height: calc(100% - 36px);
     }
   }
-  position: relative;
-  height: 50%;
+  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
   border-top: 2px solid #e8e8e8;
 `;
 
@@ -354,6 +362,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
+  const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
@@ -540,7 +549,8 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           />
         </TabContainerView>
 
-        <TabbedViewContainer>
+        <TabbedViewContainer ref={panelRef}>
+          <Resizable panelRef={panelRef} />
           {output && !!output.length && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
               <GenerateWidgetButton

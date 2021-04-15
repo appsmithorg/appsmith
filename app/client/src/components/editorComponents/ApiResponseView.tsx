@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, RefObject } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import { BaseText } from "components/designSystems/blueprint/TextComponent";
@@ -26,11 +26,15 @@ import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
+import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 
 const ResponseContainer = styled.div`
-  position: relative;
+  ${ResizerCSS}
   flex: 1;
-  height: 50%;
+  // Initial height of bottom tabs
+  height: 40%;
+  // Minimum height of bottom tabs as it can be resized
+  min-height: 40%;
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
 
   .react-tabs__tab-panel {
@@ -177,6 +181,7 @@ const ApiResponseView = (props: Props) => {
     isRunning = props.isRunning[apiId];
     hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
   }
+  const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
   const [requestDebugVisible, setRequestDebugVisible] = useLocalStorage(
     "requestDebugVisible",
@@ -246,7 +251,8 @@ const ApiResponseView = (props: Props) => {
   ];
 
   return (
-    <ResponseContainer>
+    <ResponseContainer ref={panelRef}>
+      <Resizer panelRef={panelRef} />
       <SectionDivider />
       {isRunning && (
         <LoadingOverlayScreen theme={props.theme}>

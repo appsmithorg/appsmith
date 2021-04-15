@@ -1,5 +1,13 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+import { Layers } from "constants/Layers";
+import React, { useState, useEffect, RefObject } from "react";
+import styled, { css } from "styled-components";
+
+export const ResizerCSS = css`
+  position: fixed;
+  bottom: 0;
+  width: calc(100vw - ${(props) => props.theme.sidebarWidth});
+  z-index: ${Layers.debugger};
+`;
 
 const Top = styled.div`
   position: absolute;
@@ -12,15 +20,40 @@ const Top = styled.div`
 `;
 
 type ResizerProps = {
-  onResize: (movementY: number) => void;
+  panelRef: RefObject<HTMLDivElement>;
 };
 
 const Resizer = (props: ResizerProps) => {
   const [mouseDown, setMouseDown] = useState(false);
 
+  const handleResize = (movementY: number) => {
+    const panel = props.panelRef.current;
+    if (!panel) return;
+
+    const { height } = panel.getBoundingClientRect();
+
+    const resizeTop = () => {
+      const updatedHeight = height - movementY;
+      const headerHeightNumber = 35;
+      const minHeight = parseInt(
+        window.getComputedStyle(panel).minHeight.replace("px", ""),
+      );
+
+      if (
+        updatedHeight < window.innerHeight - headerHeightNumber &&
+        updatedHeight > minHeight
+      ) {
+        panel.style.height = `${height - movementY}px`;
+      }
+    };
+
+    resizeTop();
+  };
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      props.onResize(e.movementY);
+      e.preventDefault();
+      handleResize(e.movementY);
     };
 
     if (mouseDown) {
@@ -30,7 +63,7 @@ const Resizer = (props: ResizerProps) => {
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [mouseDown, props.onResize]);
+  }, [mouseDown]);
 
   useEffect(() => {
     const handleMouseUp = () => setMouseDown(false);
