@@ -21,6 +21,7 @@ import {
   convertObjectToQueryParams,
   getQueryParams,
 } from "utils/AppsmithUtils";
+import { actionPathFromName } from "components/formControls/utils";
 
 const Wrapper = styled.div`
   .dynamic-text-field {
@@ -57,7 +58,14 @@ class DynamicTextControl extends BaseControl<
   }
 
   render() {
-    const { responseType, label, placeholderText } = this.props;
+    const {
+      responseType,
+      label,
+      placeholderText,
+      actionName,
+      configProperty,
+    } = this.props;
+    const dataTreePath = actionPathFromName(actionName, configProperty);
     const isNewQuery =
       new URLSearchParams(window.location.search).get("showTemplate") ===
       "true";
@@ -91,7 +99,7 @@ class DynamicTextControl extends BaseControl<
           <DynamicTextField
             size={EditorSize.EXTENDED}
             name={this.props.configProperty}
-            dataTreePath={`${this.props.actionName}.config.body`}
+            dataTreePath={dataTreePath}
             className="dynamic-text-field"
             mode={mode}
             tabBehaviour={TabBehaviour.INDENT}
