@@ -77,6 +77,7 @@ import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes
  */
 public class FirestorePlugin extends BasePlugin {
 
+    private static final int METHOD_PROPERTY_INDEX = 0;
     private static final int ORDER_PROPERTY_INDEX = 1;
     private static final int LIMIT_PROPERTY_INDEX = 2;
     private static final int QUERY_PROPERTY_INDEX = 3;
@@ -87,6 +88,18 @@ public class FirestorePlugin extends BasePlugin {
     private static final int FIELDVALUE_TIMESTAMP_PROPERTY_INDEX = 8;
     private static final int FIELDVALUE_DELETE_PROPERTY_INDEX = 9;
     private static final String FIELDVALUE_TIMESTAMP_METHOD_NAME = "serverTimestamp";
+    private static final String DEBUG_REQUEST_METHOD_LABEL = "METHOD";
+    private static final String DEBUG_REQUEST_PATH_LABEL = "DOCUMENT / COLLECTION PATH";
+    private static final String DEBUG_REQUEST_ORDER_BY_LABEL = "ORDER BY";
+    private static final String DEBUG_REQUEST_START_AFTER_LABEL = "START AFTER";
+    private static final String DEBUG_REQUEST_END_BEFORE_LABEL = "END BEFORE";
+    private static final String DEBUG_REQUEST_LIMIT_DOCUMENTS_LABEL = "LIMIT DOCUMENTS";
+    private static final String DEBUG_REQUEST_WHERE_CONDITION_FIELD_PATH_LABEL = "WHERE CONDITION: FIELD PATH";
+    private static final String DEBUG_REQUEST_WHERE_CONDITION_OPERATOR_LABEL = "WHERE CONDITION: OPERATOR";
+    private static final String DEBUG_REQUEST_WHERE_CONDITION_VALUE_LABEL = "WHERE CONDITION: VALUE";
+    private static final String DEBUG_REQUEST_TIMESTAMP_VALUE_PATH_LABEL = "TIMESTAMP VALUE PATH";
+    private static final String DEBUG_REQUEST_BODY_LABEL = "BODY";
+    private static final String DEBUG_REQUEST_DELETE_KEY_VALUE_PAIR_PATH = "DELETE KEY VALUE PAIR PATH";
 
     public FirestorePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -126,7 +139,7 @@ public class FirestorePlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             final com.external.plugins.Method method = CollectionUtils.isEmpty(properties)
                     ? null
-                    : com.external.plugins.Method.valueOf(properties.get(0).getValue());
+                    : com.external.plugins.Method.valueOf(properties.get(METHOD_PROPERTY_INDEX).getValue());
             requestData.put("method", method == null ? "" : method.toString());
 
             final PaginationField paginationField = executeActionDTO == null ? null : executeActionDTO.getPaginationField();
@@ -239,20 +252,124 @@ public class FirestorePlugin extends BasePlugin {
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
-                    .map(result -> {
+                    .flatMap(result -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
                         request.setQuery(query);
-                        setRequestDataTypes(request, actionConfiguration);
+                        try {
+                            setRequestDataTypes(request, actionConfiguration);
+                        } catch (AppsmithPluginException e) {
+                            return Mono.error(e);
+                        }
                         result.setRequest(request);
-                        return result;
+                        return Mono.just(result);
+                    })
+                    .onErrorResume(error  -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setErrorInfo(error);
+                        return Mono.just(result);
                     })
                     .subscribeOn(scheduler);
         }
 
-        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
+        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) throws AppsmithPluginException {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
-            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
+            List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+
+            if (properties.size() > METHOD_PROPERTY_INDEX) {
+                Method method = properties.get(METHOD_PROPERTY_INDEX) == null ? null :
+                        Method.valueOf(properties.get(METHOD_PROPERTY_INDEX).getValue());
+
+                addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_METHOD_LABEL, method);
+                addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_PATH_LABEL,
+                        actionConfiguration.getPath());
+
+                switch (method) {
+                    case GET_DOCUMENT:
+                    case DELETE_DOCUMENT:
+                        /* Do nothing as there are no more fields to add */
+                        break;
+                    case GET_COLLECTION:
+                        if (properties.size() > ORDER_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_ORDER_BY_LABEL,
+                                    properties.get(ORDER_PROPERTY_INDEX) == null ? null :
+                                            properties.get(ORDER_PROPERTY_INDEX).getValue());
+                        }
+
+                        if (properties.size() > START_AFTER_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_START_AFTER_LABEL,
+                                    properties.get(START_AFTER_PROPERTY_INDEX) == null ? null :
+                                            properties.get(START_AFTER_PROPERTY_INDEX).getValue());
+                        }
+
+                        if (properties.size() > END_BEFORE_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                DEBUG_REQUEST_END_BEFORE_LABEL,
+                                properties.get(END_BEFORE_PROPERTY_INDEX) == null ? null :
+                                        properties.get(END_BEFORE_PROPERTY_INDEX).getValue());
+                        }
+
+                        if (properties.size() > LIMIT_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_LIMIT_DOCUMENTS_LABEL,
+                                    properties.get(LIMIT_PROPERTY_INDEX) == null ? null :
+                                            properties.get(LIMIT_PROPERTY_INDEX).getValue());
+                        }
+
+                        if (properties.size() > QUERY_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_WHERE_CONDITION_FIELD_PATH_LABEL,
+                                    properties.get(QUERY_PROPERTY_INDEX) == null ? null :
+                                            properties.get(QUERY_PROPERTY_INDEX).getValue());
+                        }
+
+                        if (properties.size() > OPERATOR_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_WHERE_CONDITION_OPERATOR_LABEL,
+                                    properties.get(OPERATOR_PROPERTY_INDEX) == null ? null :
+                                            properties.get(OPERATOR_PROPERTY_INDEX).getValue());
+                        }
+
+                        if (properties.size() > QUERY_VALUE_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_WHERE_CONDITION_VALUE_LABEL,
+                                    properties.get(QUERY_VALUE_PROPERTY_INDEX) == null ? null :
+                                            properties.get(QUERY_VALUE_PROPERTY_INDEX).getValue());
+                        }
+
+                        break;
+                    case SET_DOCUMENT:
+                    case CREATE_DOCUMENT:
+                    case ADD_TO_COLLECTION:
+                    case UPDATE_DOCUMENT:
+                        if (properties.size() > FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_TIMESTAMP_VALUE_PATH_LABEL,
+                                    properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) == null ? null :
+                                            properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue());
+                        }
+
+                        if (properties.size() > FIELDVALUE_DELETE_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_DELETE_KEY_VALUE_PAIR_PATH,
+                                    properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX) == null ? null :
+                                            properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue());
+                        }
+
+                        addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_BODY_LABEL,
+                                actionConfiguration.getBody());
+                        break;
+                    default:
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server has encountered an unsupported method: " + method +
+                                        ". Please reach out to Appsmith customer support to resolve this."
+                        );
+                }
+            }
 
             request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }

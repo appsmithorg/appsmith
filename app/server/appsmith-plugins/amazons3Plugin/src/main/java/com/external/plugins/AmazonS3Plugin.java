@@ -56,6 +56,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.ActionConstants.KEY_ACTION;
+import static com.appsmith.external.constants.ActionConstants.KEY_BUCKET_NAME;
+import static com.appsmith.external.constants.ActionConstants.KEY_EXPIRY_DURATION_OF_SIGNED_URL;
+import static com.appsmith.external.constants.ActionConstants.KEY_GENERATE_SIGNED_URL;
+import static com.appsmith.external.constants.ActionConstants.KEY_PREFIX;
+import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
+import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
+
 public class AmazonS3Plugin extends BasePlugin {
 
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
@@ -75,6 +84,11 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final String YES = "YES";
     private static final String BASE64_DELIMITER = ";base64,";
     private static final String AMAZON_S3_SERVICE_PROVIDER = "amazon-s3";
+    private static final String DEBUG_REQUEST_LABEL_FILE_PATH = "FILE PATH";
+    private static final String DEBUG_REQUEST_LABEL_FILE_DATA_TYPE = "FILE DATA TYPE";
+    private static final String DEBUG_REQUEST_LABEL_EXPIRY_DURATION = "EXPIRY DURATION";
+    private static final String DEBUG_REQUEST_LABEL_CONTENT = "CONTENT";
+    private static final String DEBUG_REQUEST_BASE64_ENCODE_FILE_LABEL = "BASE64 ENCODE FILE";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -545,20 +559,102 @@ public class AmazonS3Plugin extends BasePlugin {
 
                     })
                     // Now set the request in the result to be returned back to the server
-                    .map(actionExecutionResult -> {
+                    .flatMap(actionExecutionResult -> {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setQuery(query[0]);
                         actionExecutionRequest.setProperties(requestProperties);
-                        setRequestDataTypes(actionExecutionRequest, actionConfiguration);
+                        try {
+                            setRequestDataTypes(actionExecutionRequest, actionConfiguration);
+                        } catch(AppsmithPluginException e) {
+                            return Mono.error(e);
+                        }
                         actionExecutionResult.setRequest(actionExecutionRequest);
-                        return actionExecutionResult;
+                        return Mono.just(actionExecutionResult);
+                    })
+                    .onErrorResume(e -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setErrorInfo(e);
+                        return Mono.just(result);
+
                     })
                     .subscribeOn(scheduler);
         }
 
-        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
+        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) throws AppsmithPluginException {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
-            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
+
+            List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            if (!CollectionUtils.isEmpty(properties) && properties.size() > ACTION_PROPERTY_INDEX && properties.get(ACTION_PROPERTY_INDEX) != null) {
+
+                addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_ACTION,
+                        properties.get(ACTION_PROPERTY_INDEX).getValue());
+                addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_BUCKET_NAME,
+                        properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue());
+
+                AmazonS3Action s3Action = AmazonS3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
+                switch (s3Action) {
+                    case LIST:
+                        if (properties.size() > PREFIX_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_PREFIX,
+                                    properties.get(PREFIX_PROPERTY_INDEX) == null ? null :
+                                            properties.get(PREFIX_PROPERTY_INDEX).getValue());
+                        }
+
+                        if (properties.size() > GET_SIGNED_URL_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_GENERATE_SIGNED_URL,
+                                    properties.get(GET_SIGNED_URL_PROPERTY_INDEX) == null ? null :
+                                            properties.get(GET_SIGNED_URL_PROPERTY_INDEX).getValue());
+                        }
+
+                        if (properties.size() > URL_EXPIRY_DURATION_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_EXPIRY_DURATION_OF_SIGNED_URL,
+                                    properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX) == null ? null :
+                                            properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue());
+                        }
+                        break;
+                    case UPLOAD_FILE_FROM_BODY:
+                        addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_LABEL_FILE_PATH,
+                                actionConfiguration.getPath());
+
+                        if (properties.size() > USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_LABEL_FILE_DATA_TYPE,
+                                    properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX) == null ? null : (
+                                            YES.equals(properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX).getValue()) ?
+                                            "Base64" : "Text / Binary" ));
+                        }
+
+                        if (properties.size() > URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_LABEL_EXPIRY_DURATION,
+                                    properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX) == null ? null :
+                                            properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX).getValue());
+                        }
+
+                        addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_LABEL_CONTENT
+                                , actionConfiguration.getBody());
+                        break;
+                    case READ_FILE:
+                        addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_LABEL_FILE_PATH,
+                                actionConfiguration.getPath());
+                        if (properties.size() > READ_WITH_BASE64_ENCODING_PROPERTY_INDEX) {
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_BASE64_ENCODE_FILE_LABEL,
+                                    properties.get(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX) == null ? null :
+                                            properties.get(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX).getValue());
+                        }
+                        break;
+                    case DELETE_FILE:
+                        addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_LABEL_FILE_PATH,
+                                actionConfiguration.getPath());
+                        break;
+                    default:
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "It seems that the query has requested an unsupported action: " + s3Action +
+                                        ". Please reach out to Appsmith customer support to resolve this."
+                        );
+                }
+
+            }
 
             request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
