@@ -415,7 +415,6 @@ export const TableHeaderWrapper = styled.div<{
 }>`
   position: relative;
   display: flex;
-  border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
   width: ${(props) => props.width - 8}px;
   .show-page-items {
     display: ${(props) => (props.width < 700 ? "none" : "flex")};
@@ -432,9 +431,6 @@ export const TableHeaderWrapper = styled.div<{
       height: 6px !important;
     }
   }
-  .thumb-vertical {
-    display: none;
-  }
 `;
 
 export const TableHeaderInnerWrapper = styled.div<{
@@ -447,6 +443,7 @@ export const TableHeaderInnerWrapper = styled.div<{
   display: flex;
   width: 100%;
   height: 100%;
+  border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div<{
@@ -477,7 +474,7 @@ export const TableIconWrapper = styled.div<{
   box-shadow: ${(props) =>
     props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
   width: 48px;
-  height: 42px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
