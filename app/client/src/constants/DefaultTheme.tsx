@@ -41,7 +41,7 @@ export enum Skin {
   DARK,
 }
 
-export const DisableNativeScrollbar = css`
+export const hideScrollbar = css`
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar {

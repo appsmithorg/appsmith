@@ -4,7 +4,7 @@ import { ComponentProps } from "./BaseComponent";
 import { TabsWidgetProps, TabContainerWidgetProps } from "widgets/TabsWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
-import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -140,10 +140,7 @@ const TabsComponent = (props: TabsComponentProps) => {
             </StyledText>
           ))}
           <StyledTab />
-          <VerticalScrollIndicator
-            containerRef={tabContainerRef}
-            mode="LIGHT"
-          />
+          <ScrollIndicator containerRef={tabContainerRef} mode="LIGHT" />
         </TabsContainer>
       ) : (
         undefined

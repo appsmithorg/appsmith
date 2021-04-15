@@ -21,7 +21,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
-import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -106,7 +106,7 @@ const EntityExplorer = (props: IPanelProps) => {
       )}
       <StyledDivider />
       <JSDependencies />
-      <VerticalScrollIndicator containerRef={explorerRef} />
+      <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
   );
 };

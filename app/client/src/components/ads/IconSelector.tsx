@@ -3,7 +3,7 @@ import styled from "styled-components";
 import AppIcon, { AppIconName, AppIconCollection } from "./AppIcon";
 import { Size } from "./Button";
 import { CommonComponentProps, Classes } from "./common";
-import VerticalScrollIndicator from "./VerticalScrollIndicator";
+import ScrollIndicator from "./ScrollIndicator";
 
 type IconSelectorProps = CommonComponentProps & {
   onSelect?: (icon: AppIconName) => void;
@@ -114,7 +114,7 @@ const IconSelector = (props: IconSelectorProps) => {
             </IconBox>
           );
         })}
-      <VerticalScrollIndicator containerRef={iconPaletteRef} mode="DARK" />
+      <ScrollIndicator containerRef={iconPaletteRef} mode="DARK" />
     </IconPalette>
   );
 };

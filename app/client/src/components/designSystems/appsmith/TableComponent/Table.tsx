@@ -23,7 +23,7 @@ import {
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors } from "constants/Colors";
 
-import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 
@@ -311,7 +311,7 @@ export const Table = (props: TableProps) => {
           </div>
         </Scrollbars>
       </div>
-      <VerticalScrollIndicator
+      <ScrollIndicator
         containerRef={tableBodyRef}
         mode="LIGHT"
         top={props.editMode ? "70px" : "73px"}

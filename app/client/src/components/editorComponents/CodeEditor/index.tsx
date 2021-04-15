@@ -41,7 +41,7 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -449,7 +449,7 @@ class CodeEditor extends Component<Props, State> {
               promptMessage={this.props.promptMessage}
               editorTheme={this.props.theme}
             />
-            <VerticalScrollIndicator containerRef={this.editorWrapperRef} />
+            <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>

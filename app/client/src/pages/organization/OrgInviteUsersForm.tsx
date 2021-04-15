@@ -38,7 +38,7 @@ import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
-import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -359,7 +359,7 @@ const OrgInviteUsersForm = (props: any) => {
                   );
                 },
               )}
-              <VerticalScrollIndicator containerRef={userRef} mode="DARK" />
+              <ScrollIndicator containerRef={userRef} mode="DARK" />
             </UserList>
           </React.Fragment>
         )}

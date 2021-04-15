@@ -18,7 +18,7 @@ import { ControlIcons } from "icons/ControlIcons";
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { EntityClassNames } from ".";
-import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const StyledValue = styled.pre<{ step: number }>`
   & {
@@ -208,10 +208,7 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
                 />
               )}
               {isString && <pre>{props.value}</pre>}
-              <VerticalScrollIndicator
-                containerRef={popoverContentRef}
-                mode="DARK"
-              />
+              <ScrollIndicator containerRef={popoverContentRef} mode="DARK" />
             </StyledPopoverContent>
           )}
         </Popover>

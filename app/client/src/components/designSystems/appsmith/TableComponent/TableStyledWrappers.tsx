@@ -5,7 +5,7 @@ import {
   CellAlignment,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors, Color } from "constants/Colors";
-import { DisableNativeScrollbar } from "constants/DefaultTheme";
+import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
 
 export const TableWrapper = styled.div<{
@@ -30,7 +30,7 @@ export const TableWrapper = styled.div<{
     position: relative;
     width: ${(props) => props.width - 8}px;
     overflow-x: auto;
-    ${DisableNativeScrollbar};
+    ${hideScrollbar};
     .thumb-horizontal {
       height: 4px !important;
       border-radius: ${(props) => props.theme.radii[3]}px;
@@ -47,7 +47,7 @@ export const TableWrapper = styled.div<{
     background: ${Colors.ATHENS_GRAY_DARKER};
     display: table;
     width: 100%;
-    ${DisableNativeScrollbar};
+    ${hideScrollbar};
     .tr {
       width: 100%;
     }
@@ -59,7 +59,7 @@ export const TableWrapper = styled.div<{
       height: ${(props) => props.height - 80}px;
       width: 100%;
       overflow-y: auto;
-      ${DisableNativeScrollbar};
+      ${hideScrollbar};
       .tr {
         width: 100%;
       }
@@ -423,7 +423,7 @@ export const TableHeaderWrapper = styled.div<{
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   overflow-x: auto;
-  ${DisableNativeScrollbar};
+  ${hideScrollbar};
   .thumb-horizontal {
     height: 4px !important;
     border-radius: ${(props) => props.theme.radii[3]}px;

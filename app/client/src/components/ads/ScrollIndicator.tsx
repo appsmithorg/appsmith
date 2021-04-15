@@ -52,7 +52,7 @@ interface Props {
   alwaysShowScrollbar?: boolean;
   mode?: "DARK" | "LIGHT";
 }
-const VerticalScrollIndicator = ({
+const ScrollIndicator = ({
   containerRef,
   top,
   bottom,
@@ -135,4 +135,4 @@ const VerticalScrollIndicator = ({
   );
 };
 
-export default VerticalScrollIndicator;
+export default ScrollIndicator;

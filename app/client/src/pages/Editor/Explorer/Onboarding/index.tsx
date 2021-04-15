@@ -10,7 +10,7 @@ import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import history from "utils/history";
-import VerticalScrollIndicator from "components/ads/VerticalScrollIndicator";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -38,7 +38,7 @@ const OnboardingExplorer = (props: IPanelProps) => {
   return (
     <Wrapper ref={wrapperRef}>
       {node}
-      <VerticalScrollIndicator containerRef={wrapperRef} mode="DARK" />
+      <ScrollIndicator containerRef={wrapperRef} mode="DARK" />
     </Wrapper>
   );
 };

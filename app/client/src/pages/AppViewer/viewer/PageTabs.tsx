@@ -8,17 +8,14 @@ import {
 import { getApplicationViewerPageURL } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
-import {
-  getTypographyByKey,
-  DisableNativeScrollbar,
-} from "constants/DefaultTheme";
+import { getTypographyByKey, hideScrollbar } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
 
 const TabsContainer = styled.div`
   width: 100%;
   display: flex;
   overflow: auto;
-  ${DisableNativeScrollbar}
+  ${hideScrollbar}
 `;
 
 const PageTab = styled(NavLink)`
