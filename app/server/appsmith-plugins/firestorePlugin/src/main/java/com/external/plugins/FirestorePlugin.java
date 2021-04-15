@@ -231,6 +231,7 @@ public class FirestorePlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
                         request.setQuery(query);
+                        request.setPluginSpecifiedTemplates(actionConfiguration.getPluginSpecifiedTemplates());
                         result.setRequest(request);
                         return result;
                     })

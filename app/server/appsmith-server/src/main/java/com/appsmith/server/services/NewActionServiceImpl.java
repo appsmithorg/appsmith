@@ -716,29 +716,48 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return result;
         }
 
-        HashMap<String, List<Object>> dataTypes = new HashMap<>();
+        List<Map<String, Object>> dataTypes = new ArrayList<>();
         
         if (result.getRequest().getBody() == null && result.getRequest().getQuery() == null) {
             /*
              * - Any data is by default categorized as raw.
              */
-            dataTypes.put(BODY_KEY, List.of(new ParsedDataType(ActionResultDataType.RAW)));
+            dataTypes.add(Map.of("label", BODY_KEY, "value",  null, "type", new ArrayList<>())); // TODO: remove magic
         }
         else {
             String body = result.getRequest().getBody() != null ? result.getRequest().getBody().toString() :
                     result.getRequest().getQuery();
-            dataTypes.put(BODY_KEY, new ArrayList<>(getActionResultDataTypes(body)));
+            dataTypes.add(Map.of("label", BODY_KEY, "value", body, "type",
+                    new ArrayList<>(getActionResultDataTypes(body))));
         }
 
-        if (!CollectionUtils.isEmpty(result.getRequest().getProperties())) {
-            dataTypes.put(
-                    PROPERTIES_KEY,
-                    result.getRequest().getProperties().entrySet().stream()
+        if (!CollectionUtils.isEmpty(result.getRequest().getPluginSpecifiedTemplates())) {
+            //TODO: fix label
+            /*dataTypes.add(Map.of(
+                    "label", PROPERTIES_KEY, "value", result.getRequest().getPluginSpecifiedTemplates(), "type",
+                    result.getRequest().getPluginSpecifiedTemplates().stream()
                             .map(property -> property.getValue() != null ?
-                                    getActionResultDataTypes(property.getValue().toString()) :
-                                    List.of(new ParsedDataType(ActionResultDataType.RAW)))
+                                    getActionResultDataTypes(property.getValue()) : new ArrayList<>())
                             .collect(Collectors.toList())
-            );
+            ));*/
+
+            dataTypes.add(Map.of(
+                    "pluginSpecifiedTemplates",
+                    result.getRequest().getPluginSpecifiedTemplates().stream()
+                            .map(property -> {
+                                //TODO: remove it.
+                                System.out.println("devtest: property: " + property);
+                                List<?> type = property.getValue() != null ?
+                                        getActionResultDataTypes(property.getValue()) : new ArrayList<>();
+                                //return Map.of("label", property.getKey(), "value", property.getValue(), "type", type);
+                                return new HashMap<String, Object>() {{
+                                    put("label", property.getKey());
+                                    put("value", property.getValue());
+                                    put("type", type);
+                                }};
+                            })
+                            .collect(Collectors.toList())
+            ));
         }
 
         result.getRequest().setDataTypes(dataTypes);
@@ -763,7 +782,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             /*
              * - Any data is by default categorized as raw.
              */
-            result.setDataTypes(List.of(new ParsedDataType(ActionResultDataType.RAW)));
+            result.setDataTypes(new ArrayList<>());
             return result;
         }
 
@@ -838,6 +857,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     actionExecutionRequest.getUrl(),
                     actionExecutionRequest.getProperties(),
                     actionExecutionRequest.getExecutionParameters(),
+                    null,   // pluginSpecifiedTemplates are not required for analytics
                     null    // data types are not required for analytics.
             );
         } else {
