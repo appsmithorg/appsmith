@@ -1,7 +1,6 @@
 import { Collapse } from "@blueprintjs/core";
 import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
-import copy from "copy-to-clipboard";
 import { Message, Severity, SourceEntity } from "entities/AppsmithConsole";
 import React, { useCallback, useState } from "react";
 import ReactJson from "react-json-view";
@@ -208,14 +207,6 @@ const LogItem = (props: LogItemProps) => {
             {props.message && (
               <div>
                 <span className="debugger-message">{props.message}</span>
-                <Icon
-                  name={"duplicate"}
-                  size={IconSize.SMALL}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    copy(props.message);
-                  }}
-                />
               </div>
             )}
             {props.state && (

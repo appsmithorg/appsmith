@@ -15,11 +15,11 @@ const StyledButton = styled(Button)`
   font-weight: normal;
 `;
 
-type DebugButton = {
+type DebugButtonProps = {
   className?: string;
 };
 
-const DebugButton = (props: DebugButton) => {
+const DebugButton = (props: DebugButtonProps) => {
   const dispatch = useDispatch();
   const appMode = useSelector(getAppMode);
 
