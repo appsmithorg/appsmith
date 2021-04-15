@@ -25,12 +25,22 @@ import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.util.SafeEncoder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
+import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
+import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
+import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
+import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
 
 public class RedisPlugin extends BasePlugin {
     private static final Integer DEFAULT_PORT = 6379;
@@ -96,11 +106,19 @@ public class RedisPlugin extends BasePlugin {
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
+                        setRequestDataTypes(request);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void setRequestDataTypes(ActionExecutionRequest request) {
+            List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
+
+            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         // This will be updated as we encounter different outputs.

@@ -75,6 +75,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -698,71 +699,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
                         result.setRequest(null);
                     }
-                    return addRequestDataTypes(result);
+                    return result;
                 })
                 .map(result -> addResultDataTypes(result));
-    }
-
-    /*
-     * - Return data types for query request body so that the request body can be displayed properly on the client
-     * side.
-     */
-    private ActionExecutionResult addRequestDataTypes(ActionExecutionResult result) {
-        /*
-         * - Under normal circumstances, this case is expected to occur in view mode, where request details are not
-         * returned.
-         */
-        if (result.getRequest() == null) {
-            return result;
-        }
-
-        List<Map<String, Object>> dataTypes = new ArrayList<>();
-        
-        if (result.getRequest().getBody() == null && result.getRequest().getQuery() == null) {
-            /*
-             * - Any data is by default categorized as raw.
-             */
-            dataTypes.add(Map.of("label", BODY_KEY, "value",  null, "type", new ArrayList<>())); // TODO: remove magic
-        }
-        else {
-            String body = result.getRequest().getBody() != null ? result.getRequest().getBody().toString() :
-                    result.getRequest().getQuery();
-            dataTypes.add(Map.of("label", BODY_KEY, "value", body, "type",
-                    new ArrayList<>(getActionResultDataTypes(body))));
-        }
-
-        if (!CollectionUtils.isEmpty(result.getRequest().getPluginSpecifiedTemplates())) {
-            //TODO: fix label
-            /*dataTypes.add(Map.of(
-                    "label", PROPERTIES_KEY, "value", result.getRequest().getPluginSpecifiedTemplates(), "type",
-                    result.getRequest().getPluginSpecifiedTemplates().stream()
-                            .map(property -> property.getValue() != null ?
-                                    getActionResultDataTypes(property.getValue()) : new ArrayList<>())
-                            .collect(Collectors.toList())
-            ));*/
-
-            dataTypes.add(Map.of(
-                    "pluginSpecifiedTemplates",
-                    result.getRequest().getPluginSpecifiedTemplates().stream()
-                            .map(property -> {
-                                //TODO: remove it.
-                                System.out.println("devtest: property: " + property);
-                                List<?> type = property.getValue() != null ?
-                                        getActionResultDataTypes(property.getValue()) : new ArrayList<>();
-                                //return Map.of("label", property.getKey(), "value", property.getValue(), "type", type);
-                                return new HashMap<String, Object>() {{
-                                    put("label", property.getKey());
-                                    put("value", property.getValue());
-                                    put("type", type);
-                                }};
-                            })
-                            .collect(Collectors.toList())
-            ));
-        }
-
-        result.getRequest().setDataTypes(dataTypes);
-
-        return result;
     }
 
     /*
@@ -789,45 +728,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         result.setDataTypes(getActionResultDataTypes(result.getBody().toString()));
 
         return result;
-    }
-
-    private List<ParsedDataType> getActionResultDataTypes(String body) {
-
-        if (StringUtils.isEmpty(body)) {
-            /*
-             * - Any data is by default categorized as raw.
-             */
-            return List.of(new ParsedDataType(ActionResultDataType.RAW));
-        }
-
-        List<ParsedDataType> dataTypes = new ArrayList<>();
-
-        /*
-         * - Check if the returned data is a valid table - i.e. an array of simple json objects.
-         */
-        try {
-            objectMapper.readValue(body, new TypeReference<ArrayList<HashMap<String, String>>>() {});
-            dataTypes.add(new ParsedDataType(ActionResultDataType.TABLE));
-        } catch (JsonProcessingException e) {
-            /* Do nothing */
-        }
-
-        /*
-         * - Check if the returned data is a valid json.
-         */
-        try {
-            objectMapper.readTree(body);
-            dataTypes.add(new ParsedDataType(ActionResultDataType.JSON));
-        } catch (JsonProcessingException e) {
-            /* Do nothing */
-        }
-
-        /*
-         * - All return data types can be categorized as raw by default.
-         */
-        dataTypes.add(new ParsedDataType(ActionResultDataType.RAW));
-
-        return dataTypes;
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
@@ -857,7 +757,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     actionExecutionRequest.getUrl(),
                     actionExecutionRequest.getProperties(),
                     actionExecutionRequest.getExecutionParameters(),
-                    null,   // pluginSpecifiedTemplates are not required for analytics
                     null    // data types are not required for analytics.
             );
         } else {

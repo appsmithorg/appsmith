@@ -45,6 +45,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.ActionConstants.KEY_BODY;
+import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
+import static com.appsmith.external.constants.ActionConstants.KEY_METHOD;
+import static com.appsmith.external.constants.ActionConstants.KEY_PATH;
+import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
+import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
+import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
+import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
+
 public class ElasticSearchPlugin extends BasePlugin {
 
     public ElasticSearchPlugin(PluginWrapper wrapper) {
@@ -131,11 +142,23 @@ public class ElasticSearchPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
                         request.setQuery(query);
+                        setRequestDataTypes(request, actionConfiguration);
                         ActionExecutionResult actionExecutionResult = result;
                         actionExecutionResult.setRequest(request);
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
+            List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
+
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_METHOD,
+                    actionConfiguration.getHttpMethod());
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_PATH, actionConfiguration.getPath());
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_BODY, request.getQuery());
+
+            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         private static boolean isBulkQuery(String path) {

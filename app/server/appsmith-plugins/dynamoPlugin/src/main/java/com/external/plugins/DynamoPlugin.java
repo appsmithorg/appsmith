@@ -52,6 +52,11 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.KEY_ACTION;
+import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
+import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
+
 public class DynamoPlugin extends BasePlugin {
 
     private static final String SCAN_ACTION_VALUE = "Scan";
@@ -348,10 +353,19 @@ public class DynamoPlugin extends BasePlugin {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setProperties(requestData);
                         actionExecutionRequest.setQuery(body);
+                        setRequestDataTypes(actionExecutionRequest, actionConfiguration);
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
+            List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_ACTION, actionConfiguration.getPath());
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
+
+            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         @Override

@@ -62,6 +62,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
+import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
+import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
+import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
+import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static java.lang.Boolean.FALSE;
@@ -396,12 +403,20 @@ public class PostgresPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
                         request.setProperties(requestData);
+                        setRequestDataTypes(request);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
                     })
                     .subscribeOn(scheduler);
 
+        }
+
+        private void setRequestDataTypes(ActionExecutionRequest request) {
+            List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
+
+            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         private Set<String> populateHintMessages(List<String> columnNames) {

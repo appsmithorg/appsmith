@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -11,9 +12,11 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -53,6 +56,15 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static com.appsmith.external.constants.ActionConstants.KEY_BODY;
+import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
+import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
+import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
+import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
+import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
 
 /**
  * Datasource properties:
@@ -231,11 +243,18 @@ public class FirestorePlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
                         request.setQuery(query);
-                        request.setPluginSpecifiedTemplates(actionConfiguration.getPluginSpecifiedTemplates());
+                        setRequestDataTypes(request, actionConfiguration);
                         result.setRequest(request);
                         return result;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
+            List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
+
+            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         /*

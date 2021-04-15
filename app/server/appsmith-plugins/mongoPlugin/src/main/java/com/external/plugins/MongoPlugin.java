@@ -63,6 +63,13 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
+import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
+import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
+import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
+import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -299,10 +306,26 @@ public class MongoPlugin extends BasePlugin {
                             requestData.put("smart-substitution-parameters", parameters);
                             request.setProperties(requestData);
                         }
+                        setRequestDataTypes(request);
                         actionExecutionResult.setRequest(request);
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void addToFieldsToBeProcessedForDataTypeDetection(List<Map<String, Object>> fieldsToBeProcessed,
+                                                                  String label, Object value) {
+            fieldsToBeProcessed.add(new HashMap<>(){{
+                put(KEY_LABEL, label);
+                put(KEY_VALUE, value);
+            }});
+        }
+
+        private void setRequestDataTypes(ActionExecutionRequest request) {
+            List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
+
+            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         private String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {

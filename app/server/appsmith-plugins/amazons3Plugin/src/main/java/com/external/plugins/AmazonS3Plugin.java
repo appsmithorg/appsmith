@@ -549,10 +549,18 @@ public class AmazonS3Plugin extends BasePlugin {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setQuery(query[0]);
                         actionExecutionRequest.setProperties(requestProperties);
+                        setRequestDataTypes(actionExecutionRequest, actionConfiguration);
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
+            List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
+
+            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         @Override
