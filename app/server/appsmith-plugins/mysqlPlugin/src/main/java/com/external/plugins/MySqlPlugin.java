@@ -58,12 +58,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
-import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
-import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
-import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
 import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
-import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
@@ -75,6 +70,7 @@ public class MySqlPlugin extends BasePlugin {
     private static final String DATE_COLUMN_TYPE_NAME = "date";
     private static final String DATETIME_COLUMN_TYPE_NAME = "datetime";
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
+    private static final String DEBUG_REQUEST_QUERY_LABEL = "QUERY";
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -309,8 +305,8 @@ public class MySqlPlugin extends BasePlugin {
 
         private void setRequestDataTypes(ActionExecutionRequest request) {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
-            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
-
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_QUERY_LABEL,
+                    request.getQuery());
             request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 

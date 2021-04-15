@@ -57,13 +57,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.appsmith.external.constants.ActionConstants.KEY_BODY;
-import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
-import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
-import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
-import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
 import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
-import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
 
 /**

@@ -27,23 +27,18 @@ import redis.clients.jedis.util.SafeEncoder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
-import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
-import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
-import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
 import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
-import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
 
 public class RedisPlugin extends BasePlugin {
     private static final Integer DEFAULT_PORT = 6379;
+    private static final String DEBUG_REQUEST_QUERY_LABEL = "QUERY";
 
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -116,8 +111,8 @@ public class RedisPlugin extends BasePlugin {
 
         private void setRequestDataTypes(ActionExecutionRequest request) {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
-            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
-
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_QUERY_LABEL,
+                    request.getQuery());
             request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 

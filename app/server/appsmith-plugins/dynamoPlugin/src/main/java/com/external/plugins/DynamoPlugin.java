@@ -52,8 +52,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.ActionConstants.KEY_ACTION;
-import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
 import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
 import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
 
@@ -80,6 +78,8 @@ public class DynamoPlugin extends BasePlugin {
     private static final String DYNAMO_TYPE_BINARY_SET_LABEL = "BS";
     private static final String DYNAMO_TYPE_MAP_LABEL = "M";
     private static final String DYNAMO_TYPE_LIST_LABEL = "L";
+    private static final String DEBUG_REQUEST_ACTION_LABEL = "ACTION";
+    private static final String DEBUG_REQUEST_QUERY_LABEL = "QUERY";
 
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -362,8 +362,8 @@ public class DynamoPlugin extends BasePlugin {
 
         private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
-            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_ACTION, actionConfiguration.getPath());
-            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_QUERY, request.getQuery());
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_ACTION_LABEL, actionConfiguration.getPath());
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_QUERY_LABEL, request.getQuery());
 
             request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }

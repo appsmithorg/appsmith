@@ -45,18 +45,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.constants.ActionConstants.KEY_BODY;
-import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
-import static com.appsmith.external.constants.ActionConstants.KEY_METHOD;
-import static com.appsmith.external.constants.ActionConstants.KEY_PATH;
-import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
-import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
-import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
 import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
-import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
 
 public class ElasticSearchPlugin extends BasePlugin {
+
+    private static final String DEBUG_REQUEST_BODY_LABEL = "BODY";
+    private static final String DEBUG_REQUEST_METHOD_LABEL = "METHOD";
+    private static final String DEBUG_REQUEST_PATH_LABEL = "PATH";
 
     public ElasticSearchPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -153,10 +149,10 @@ public class ElasticSearchPlugin extends BasePlugin {
         private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
 
-            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_METHOD,
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_METHOD_LABEL,
                     actionConfiguration.getHttpMethod());
-            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_PATH, actionConfiguration.getPath());
-            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_BODY, request.getQuery());
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_PATH_LABEL, actionConfiguration.getPath());
+            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_BODY_LABEL, request.getQuery());
 
             request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }

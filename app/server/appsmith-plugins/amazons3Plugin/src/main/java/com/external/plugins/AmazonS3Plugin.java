@@ -56,12 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.constants.ActionConstants.KEY_ACTION;
-import static com.appsmith.external.constants.ActionConstants.KEY_BUCKET_NAME;
-import static com.appsmith.external.constants.ActionConstants.KEY_EXPIRY_DURATION_OF_SIGNED_URL;
-import static com.appsmith.external.constants.ActionConstants.KEY_GENERATE_SIGNED_URL;
-import static com.appsmith.external.constants.ActionConstants.KEY_PREFIX;
-import static com.appsmith.external.constants.ActionConstants.KEY_QUERY;
 import static com.appsmith.external.helpers.PluginUtils.addToFieldsToBeProcessedForDataTypeDetection;
 import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypesForObjectsInList;
 
@@ -89,6 +83,11 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final String DEBUG_REQUEST_LABEL_EXPIRY_DURATION = "EXPIRY DURATION";
     private static final String DEBUG_REQUEST_LABEL_CONTENT = "CONTENT";
     private static final String DEBUG_REQUEST_BASE64_ENCODE_FILE_LABEL = "BASE64 ENCODE FILE";
+    private static final String DEBUG_REQUEST_ACTION_LABEL = "ACTION";
+    private static final String DEBUG_REQUEST_BUCKET_NAME_LABEL = "BUCKET NAME";
+    private static final String DEBUG_REQUEST_EXPIRY_DURATION_OF_SIGNED_URL_LABEL = "EXPIRY DURATION OF SIGNED URL";
+    private static final String DEBUG_REQUEST_GENERATE_SIGNED_URL_LABEL = "GENERATE_SIGNED_URL";
+    private static final String DEBUG_REQUEST_PREFIX_LABEL = "PREFIX";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -587,28 +586,31 @@ public class AmazonS3Plugin extends BasePlugin {
             List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (!CollectionUtils.isEmpty(properties) && properties.size() > ACTION_PROPERTY_INDEX && properties.get(ACTION_PROPERTY_INDEX) != null) {
 
-                addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_ACTION,
+                addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_ACTION_LABEL,
                         properties.get(ACTION_PROPERTY_INDEX).getValue());
-                addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_BUCKET_NAME,
+                addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_BUCKET_NAME_LABEL,
                         properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue());
 
                 AmazonS3Action s3Action = AmazonS3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
                 switch (s3Action) {
                     case LIST:
                         if (properties.size() > PREFIX_PROPERTY_INDEX) {
-                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_PREFIX,
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_PREFIX_LABEL,
                                     properties.get(PREFIX_PROPERTY_INDEX) == null ? null :
                                             properties.get(PREFIX_PROPERTY_INDEX).getValue());
                         }
 
                         if (properties.size() > GET_SIGNED_URL_PROPERTY_INDEX) {
-                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_GENERATE_SIGNED_URL,
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_GENERATE_SIGNED_URL_LABEL,
                                     properties.get(GET_SIGNED_URL_PROPERTY_INDEX) == null ? null :
                                             properties.get(GET_SIGNED_URL_PROPERTY_INDEX).getValue());
                         }
 
                         if (properties.size() > URL_EXPIRY_DURATION_PROPERTY_INDEX) {
-                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, KEY_EXPIRY_DURATION_OF_SIGNED_URL,
+                            addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed,
+                                    DEBUG_REQUEST_EXPIRY_DURATION_OF_SIGNED_URL_LABEL,
                                     properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX) == null ? null :
                                             properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue());
                         }
