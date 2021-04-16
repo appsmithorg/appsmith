@@ -30,6 +30,7 @@ public class MethodConfig {
     String rowIndex;
     String rowLimit;
     String sheetName;
+    String deleteFormat;
     String rowObject;
     String rowObjects;
     Object body;
@@ -72,6 +73,9 @@ public class MethodConfig {
                     break;
                 case "sheetName":
                     this.sheetName = property.getValue();
+                    break;
+                case "deleteFormat":
+                    this.deleteFormat = property.getValue();
                     break;
                 case "rowObject":
                     this.rowObject = property.getValue();
