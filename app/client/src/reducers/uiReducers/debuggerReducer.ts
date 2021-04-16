@@ -1,5 +1,5 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { Message, Severity } from "entities/AppsmithConsole";
+import { LOG_TYPE, Message, Severity } from "entities/AppsmithConsole";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { get, merge, isEmpty, omit } from "lodash";
 
@@ -41,13 +41,17 @@ const debuggerReducer = createReducer(initialState, {
     action: any,
   ) => {
     const entityId = action.payload.source.id;
-    const previousState = get(state.errors, entityId, {});
+    const id =
+      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR
+        ? `${entityId}-${action.payload.source.propertyPath}`
+        : entityId;
+    const previousState = get(state.errors, id, {});
 
     return {
       ...state,
       errors: {
         ...state.errors,
-        [entityId]: {
+        [id]: {
           ...merge(previousState, action.payload),
         },
       },
@@ -58,11 +62,15 @@ const debuggerReducer = createReducer(initialState, {
     action: any,
   ) => {
     const entityId = action.payload.source.id;
+    const id =
+      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR
+        ? `${entityId}-${action.payload.source.propertyPath}`
+        : entityId;
 
     if (isEmpty(action.payload.state)) {
       return {
         ...state,
-        errors: omit(state.errors, entityId),
+        errors: omit(state.errors, id),
       };
     }
 

@@ -28,7 +28,7 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
     const validationMessages = dataTree[payload.source.name].validationMessages;
     const validationMessage = validationMessages[propertyPath];
     const errors = yield select(getDebuggerErrors);
-    const widgetErrorLog = errors[source.id];
+    const widgetErrorLog = errors[`${source.id}-${propertyPath}`];
     if (!widgetErrorLog) return;
 
     const noError = isEmpty(validationMessage);
@@ -92,16 +92,14 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {
           const pattern = `${payload.source.propertyPath}: `;
+          const text = payload.text.replace(pattern, "");
 
           yield put(
             errorLog({
               ...payload,
-              text: "Widget properties have errors",
+              text,
               state: {
-                [payload.source.propertyPath]: payload.text.replace(
-                  pattern,
-                  "",
-                ),
+                [payload.source.propertyPath]: text,
               },
             }),
           );
