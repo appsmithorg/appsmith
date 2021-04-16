@@ -66,7 +66,6 @@ public class RowObject {
         } catch (NumberFormatException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to parse row index: " + this.rowIndex);
         }
-
         return this;
     }
 

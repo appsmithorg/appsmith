@@ -84,7 +84,7 @@
         {
           "label": "Spreadsheet Name Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "spreadsheetName"
         },
@@ -102,9 +102,37 @@
           "initialValue": ""
         },
         {
+          "label": "Delete Format Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[12].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "deleteFormat"
+        },
+        {
+          "label": "Select Entity",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[12].value",
+          "controlType": "DROP_DOWN",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "DELETE"
+          },
+          "initialValue": "SHEET",
+          "options": [
+            {
+              "label": "Single Sheet",
+              "value": "SHEET"
+            },
+            {
+              "label": "Entire Spreadsheet",
+              "value": "SPREADSHEET"
+            }
+          ]
+        },
+        {
           "label": "Sheet Name Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].key",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "sheetName"
         },
@@ -113,16 +141,36 @@
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "GET",
-              "UPDATE",
-              "BULK_UPDATE",
-              "DELETE",
-              "DELETE_ROW",
-              "APPEND",
-              "BULK_APPEND"
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": [
+                  "GET",
+                  "UPDATE",
+                  "BULK_UPDATE",
+                  "DELETE_ROW",
+                  "DELETE",
+                  "APPEND",
+                  "BULK_APPEND"
+                ]
+              },
+              {
+                "conditionType": "AND",
+                "conditions": [
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                    "comparison": "EQUALS",
+                    "value": "DELETE"
+                  },
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[12].value",
+                    "comparison": "EQUALS",
+                    "value": "SPREADSHEET"
+                  }
+                ]
+              }
             ]
           },
           "initialValue": ""
@@ -130,7 +178,7 @@
         {
           "label": "Table Header Index Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "tableHeaderIndex"
         },
@@ -155,7 +203,7 @@
         {
           "label": "Query Format Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "queryFormat"
         },
@@ -286,7 +334,7 @@
         {
           "label": "Row Limit Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "rowLimit"
         },
@@ -325,7 +373,7 @@
         {
           "label": "Row Object Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "rowObject"
         },
@@ -346,7 +394,7 @@
         {
           "label": "Row Objects Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].key",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "rowObjects"
         },

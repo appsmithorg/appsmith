@@ -125,6 +125,13 @@ public class BulkUpdateMethod implements Method {
                     final JsonNode jsonNode = getValuesMethod
                             .transformResponse(jsonNodeBody, methodConfig);
 
+                    if (jsonNode == null || jsonNode.isEmpty()) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "No data found at these row indices. Do you want to try inserting something first?"
+                        ));
+                    }
+
                     // This is the rowObject for original values
                     final List<RowObject> returnedRowObjects =
                             new ArrayList<>(this.getRowObjectMapFromBody(jsonNode).values());
