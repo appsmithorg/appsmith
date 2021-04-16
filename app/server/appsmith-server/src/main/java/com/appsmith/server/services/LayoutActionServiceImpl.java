@@ -786,10 +786,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     return isNameAllowed(page.getId(), layout.getId(), action.getName());
                 })
                 .flatMap(nameAllowed -> {
-                    if (!nameAllowed.equals(Boolean.TRUE)) {
-                        return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, action.getName(), FieldName.NAME));
+                    // If the name is allowed, return pageMono for further processing
+                    if (nameAllowed.equals(Boolean.TRUE)) {
+                        return pageMono;
                     }
-                    return pageMono;
+                    // Throw an error since the new action's name matches an existing action or widget name.
+                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, action.getName(), FieldName.NAME));
                 })
                 .flatMap(page -> {
                     // Inherit the action policies from the page.
