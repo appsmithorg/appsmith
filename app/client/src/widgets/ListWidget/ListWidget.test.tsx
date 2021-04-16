@@ -5,7 +5,6 @@ import configureStore from "redux-mock-store";
 import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { ThemeProvider, theme, dark } from "constants/DefaultTheme";
-import { useDrag } from "react-dnd";
 
 jest.mock("react-dnd", () => ({
   useDrag: jest.fn().mockReturnValue([{ isDragging: false }, jest.fn()]),

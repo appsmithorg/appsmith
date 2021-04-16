@@ -15,7 +15,7 @@ import {
 } from "./EditorConfig";
 
 describe("CodeEditor", () => {
-  it("should check EvaluatedValuePopup prop is false when EvaluatedValuePopup is passed false to codeditor", () => {
+  it("should check EvaluatedValuePopup's hideEvaluatedValue  is false when hideEvaluatedValue is passed as false to codeditor", () => {
     const finalTheme = { ...theme, colors: { ...theme.colors, ...light } };
 
     const testRenderer = TestRenderer.create(
@@ -24,9 +24,7 @@ describe("CodeEditor", () => {
           <CodeEditor
             input={{
               value: "",
-              onChange: (
-                event: React.ChangeEvent<HTMLTextAreaElement> | string,
-              ) => {
+              onChange: () => {
                 //
               },
             }}
@@ -47,7 +45,7 @@ describe("CodeEditor", () => {
     ).toBe(false);
   });
 
-  it("should check EvaluatedValuePopup is true when EvaluatedValuePopup is passed true to codeditor", () => {
+  it("should check EvaluatedValuePopup's hideEvaluatedValue is true when hideEvaluatedValue is passed as true to codeditor", () => {
     const finalTheme = { ...theme, colors: { ...theme.colors, ...light } };
 
     const testRenderer = TestRenderer.create(
@@ -56,9 +54,7 @@ describe("CodeEditor", () => {
           <CodeEditor
             input={{
               value: "",
-              onChange: (
-                event: React.ChangeEvent<HTMLTextAreaElement> | string,
-              ) => {
+              onChange: () => {
                 //
               },
             }}
