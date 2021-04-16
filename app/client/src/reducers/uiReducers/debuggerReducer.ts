@@ -8,6 +8,7 @@ const initialState: DebuggerReduxState = {
   errorCount: 0,
   isOpen: false,
   errors: {},
+  expandId: "",
 };
 
 const debuggerReducer = createReducer(initialState, {
@@ -55,6 +56,7 @@ const debuggerReducer = createReducer(initialState, {
           ...merge(previousState, action.payload),
         },
       },
+      expandId: id,
     };
   },
   [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG]: (
@@ -78,10 +80,11 @@ const debuggerReducer = createReducer(initialState, {
       ...state,
       errors: {
         ...state.errors,
-        [entityId]: {
+        [id]: {
           ...action.payload,
         },
       },
+      expandId: id,
     };
   },
 });
@@ -91,6 +94,7 @@ export interface DebuggerReduxState {
   errorCount: number;
   isOpen: boolean;
   errors: Record<string, Message>;
+  expandId: string;
 }
 
 export default debuggerReducer;

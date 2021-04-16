@@ -144,6 +144,7 @@ type LogItemProps = {
   state?: Record<string, any>;
   id?: string;
   source?: SourceEntity;
+  expand?: boolean;
 };
 
 const LogItem = (props: LogItemProps) => {
@@ -205,7 +206,7 @@ const LogItem = (props: LogItemProps) => {
           }}
         />
         {showToggleIcon && (
-          <StyledCollapse isOpen={isOpen} keepChildrenMounted>
+          <StyledCollapse isOpen={isOpen || !!props.expand} keepChildrenMounted>
             {props.message && (
               <div>
                 <span className="debugger-message">{props.message}</span>

@@ -16,14 +16,22 @@ const ListWrapper = styled.div`
 
 const Errors = () => {
   const errors = useSelector(getDebuggerErrors);
+  const expandId = useSelector((state: any) => state.ui.debugger.expandId);
 
   return (
     <ContainerWrapper>
       <ListWrapper className="debugger-list">
         {Object.values(errors).map((e, index) => {
           const logItemProps = getLogItemProps(e);
+          const id = Object.keys(errors)[index];
 
-          return <LogItem key={`debugger-${index}`} {...logItemProps} />;
+          return (
+            <LogItem
+              key={`debugger-${index}`}
+              {...logItemProps}
+              expand={id === expandId}
+            />
+          );
         })}
       </ListWrapper>
     </ContainerWrapper>

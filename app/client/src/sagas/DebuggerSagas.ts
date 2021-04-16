@@ -109,7 +109,13 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
       break;
     case LOG_TYPE.ACTION_EXECUTION_ERROR:
       yield fork(formatActionRequestSaga, payload);
-      yield put(errorLog(payload));
+      yield put(
+        errorLog({
+          ...payload,
+          text: payload.message ? payload.message : payload.text,
+          message: undefined,
+        }),
+      );
       break;
     case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
       yield fork(formatActionRequestSaga, payload);
