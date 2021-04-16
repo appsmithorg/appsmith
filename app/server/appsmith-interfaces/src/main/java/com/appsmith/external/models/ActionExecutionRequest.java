@@ -23,5 +23,5 @@ public class ActionExecutionRequest {
     String url;
     Map<String, ?> properties;
     List<String> executionParameters;
-    List<Map<String, Object>> dataTypes;
+    List<Map<String, Object>> requestParameters;
 }
