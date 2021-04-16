@@ -7,6 +7,7 @@ import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.http.HttpMethod;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
@@ -78,7 +80,6 @@ public class AppendMethod implements Method {
             // Should never enter here
         }
         assert rowObjectFromBody != null;
-//        final String row = String.valueOf(rowObjectFromBody.getCurrentRowIndex());
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
                 .queryFormat("ROWS")
@@ -96,7 +97,8 @@ public class AppendMethod implements Method {
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
                 .exchange()
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                .map(response -> {// Choose body depending on response status
+                .map(response -> {
+                    // Choose body depending on response status
                     byte[] responseBody = response.getBody();
 
                     if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
@@ -115,28 +117,35 @@ public class AppendMethod implements Method {
                                 e.getMessage()
                         ));
                     }
-                    // This is the object with the original values in the referred row
-                    final JsonNode jsonNode = getValuesMethod
-                            .transformResponse(jsonNodeBody, methodConfig);
+                    if (jsonNodeBody == null) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Expected to "));
+                    }
 
-                    // This is the rowObject for original values
-                    final RowObject returnedRowObject = this.getRowObjectFromBody(jsonNode.get(0));
+                    ArrayNode valueRanges = (ArrayNode) jsonNodeBody.get("valueRanges");
+                    ArrayNode headers = (ArrayNode) valueRanges.get(0).get("values");
 
                     // We replace these original values with new ones
-                    final Map<String, String> valueMap = new LinkedHashMap<>(returnedRowObject.getValueMap());
-                    valueMap.replaceAll((k, v) -> finalRowObjectFromBody.getValueMap().getOrDefault(k, null));
-                    finalRowObjectFromBody.setValueMap(valueMap);
-
-
-                    methodConfig.setBody(finalRowObjectFromBody);
-                    assert jsonNodeBody != null;
-                    methodConfig.setSpreadsheetRange(
-                            jsonNodeBody
-                                    .get("valueRanges")
-                                    .get(1)
-                                    .get("range")
-                                    .asText()
-                    );
+                    if (headers != null && !headers.isEmpty()) {
+                        final Map<String, String> valueMap = new LinkedHashMap<>();
+                        boolean validValues = false;
+                        for (JsonNode header : headers) {
+                            final String value = finalRowObjectFromBody.getValueMap().getOrDefault(header.asText(), null);
+                            if (value != null) {
+                                validValues = true;
+                            }
+                            valueMap.put(header.asText(), value);
+                        }
+                        if (Boolean.TRUE.equals(validValues)) {
+                            finalRowObjectFromBody.setValueMap(valueMap);
+                        }
+                        methodConfig.setBody(finalRowObjectFromBody);
+                    } else {
+                        final LinkedHashMap<String, String> headerMap = new LinkedHashMap<>(finalRowObjectFromBody.getValueMap());
+                        headerMap.replaceAll((k, v) -> k);
+                        methodConfig.setBody(List.of(new RowObject(headerMap), finalRowObjectFromBody));
+                    }
                     return methodConfig;
                 });
     }
@@ -144,22 +153,32 @@ public class AppendMethod implements Method {
     @Override
     public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
+        final String range = "'" + methodConfig.getSheetName() + "'!" +
+                methodConfig.getTableHeaderIndex() + ":" + methodConfig.getTableHeaderIndex();
+
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + methodConfig.getSheetName() /* spreadsheet Name */
+                        + range
                         + ":append");
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
         uriBuilder.queryParam("includeValuesInResponse", Boolean.FALSE);
 
-        final RowObject body1 = (RowObject) methodConfig.getBody();
-        List<Object> collect = body1.getAsSheetValues(body1.getValueMap().keySet().toArray(new String[0]));
-
+        List<List<Object>> collect;
+        if (methodConfig.getBody() instanceof RowObject) {
+            final RowObject body1 = (RowObject) methodConfig.getBody();
+            collect = List.of(body1.getAsSheetValues(body1.getValueMap().keySet().toArray(new String[0])));
+        } else {
+            final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
+            collect = body1.stream()
+                    .map(row -> row.getAsSheetValues(body1.get(0).getValueMap().keySet().toArray(new String[0])))
+                    .collect(Collectors.toList());
+        }
         final ValueRange valueRange = new ValueRange();
         valueRange.setMajorDimension("ROWS");
-        valueRange.setRange(methodConfig.getSheetName());
-        valueRange.setValues(List.of(collect));
+        valueRange.setRange(range);
+        valueRange.setValues(collect);
         return webClient.method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromValue(valueRange));
@@ -184,7 +203,6 @@ public class AppendMethod implements Method {
         }
         return new RowObject(this.objectMapper.convertValue(body, TypeFactory
                 .defaultInstance()
-                .constructMapType(LinkedHashMap.class, String.class, String.class)))
-                .initialize();
+                .constructMapType(LinkedHashMap.class, String.class, String.class)));
     }
 }
