@@ -533,37 +533,6 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   }
 }
 
-/**
- * this saga clears out the enhancementMap, template and dynamicBindingPathList when a child
- * is deleted in list widget
- *
- * @param widgets
- * @param widgetId
- * @param widgetName
- * @param parentId
- */
-export function* updateListWidgetPropertiesOnChildDelete(
-  widgets: CanvasWidgetsReduxState,
-  widgetId: string,
-  widgetName: string,
-  parentId: string,
-) {
-  const clone = JSON.parse(JSON.stringify(widgets));
-  const listWidget: WidgetProps = clone[parentId];
-
-  // delete widget in template of list
-  if (listWidget && widgetName in listWidget.template) {
-    listWidget.template[widgetName] = undefined;
-  }
-
-  // delete dynamic binding path if any
-  remove(listWidget?.dynamicBindingPathList || [], (path) =>
-    path.key.startsWith(`template.${widgetName}`),
-  );
-
-  return clone;
-}
-
 export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   // Get the list of widget and its children which were deleted
   const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
@@ -1014,7 +983,6 @@ function* batchUpdateWidgetPropertySaga(
         dynamicBindingPathList,
       } = getPropertiesToUpdate(widget, modify, triggerPaths);
 
-      console.log({ propertyUpdates });
       // We loop over all updates
       Object.entries(propertyUpdates).forEach(
         ([propertyPath, propertyValue]) => {
