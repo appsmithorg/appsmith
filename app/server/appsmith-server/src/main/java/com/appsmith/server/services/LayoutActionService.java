@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
@@ -22,4 +23,8 @@ public interface LayoutActionService {
     Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad);
 
     JSONObject unescapeMongoSpecialCharacters(Layout layout);
+
+    Mono<ActionDTO> createAction(ActionDTO action);
+
+    Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext);
 }

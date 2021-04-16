@@ -12,6 +12,7 @@ public enum AppsmithError {
     PLUGIN_ID_NOT_GIVEN(400, 4002, "Missing plugin id. Please enter one.", AppsmithErrorAction.DEFAULT, null),
     DATASOURCE_NOT_GIVEN(400, 4003, "Missing datasource. Add/enter/connect a datasource to create a valid action.", AppsmithErrorAction.DEFAULT, null),
     PAGE_ID_NOT_GIVEN(400, 4004, "Missing page id. Please enter one.", AppsmithErrorAction.DEFAULT, null),
+    DUPLICATE_KEY_USER_ERROR(400, 4005, "{0} already exists. Please use a different {1}", AppsmithErrorAction.DEFAULT, null),
     PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION(400, 4006, "Page {0} does not belong to the current user {1} " +
             "organization", AppsmithErrorAction.LOG_EXTERNALLY, null),
     UNSUPPORTED_OPERATION(400, 4007, "Unsupported operation", AppsmithErrorAction.DEFAULT, null),
