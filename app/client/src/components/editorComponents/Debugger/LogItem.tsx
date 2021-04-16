@@ -41,6 +41,7 @@ const Log = styled.div<{ collapsed: boolean }>`
     color: #4b4848;
     line-height: 17px;
     font-weight: 500;
+    margin-left: 10px;
   }
   .debugger-description {
     display: inline-block;
@@ -59,6 +60,7 @@ const Log = styled.div<{ collapsed: boolean }>`
       color: rgba(75, 72, 72, 0.7);
       font-weight: 500;
       font-size: 13px;
+      margin-left: 6px;
 
       & > span {
         cursor: pointer;

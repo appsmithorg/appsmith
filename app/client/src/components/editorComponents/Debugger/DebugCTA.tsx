@@ -15,20 +15,29 @@ const StyledButton = styled(Button)`
   font-weight: normal;
 `;
 
-type DebugButtonProps = {
+type DebugCTAProps = {
   className?: string;
 };
 
-const DebugButton = (props: DebugButtonProps) => {
+const DebugCTA = (props: DebugCTAProps) => {
   const dispatch = useDispatch();
   const appMode = useSelector(getAppMode);
 
   if (appMode === "PUBLISHED") return null;
 
   return (
-    <StyledButton
+    <DebugButton
       className={props.className}
       onClick={() => dispatch(showDebugger(true))}
+    />
+  );
+};
+
+export const DebugButton = (props: any) => {
+  return (
+    <StyledButton
+      className={props.className}
+      onClick={props.onClick}
       icon="bug"
       text="Debug"
       variant={Variant.danger}
@@ -36,4 +45,4 @@ const DebugButton = (props: DebugButtonProps) => {
   );
 };
 
-export default DebugButton;
+export default DebugCTA;

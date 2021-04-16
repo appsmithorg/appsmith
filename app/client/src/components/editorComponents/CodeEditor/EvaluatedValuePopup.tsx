@@ -7,7 +7,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import DebugButton from "components/editorComponents/Debugger/DebugButton";
+import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 const Wrapper = styled.div`
   position: relative;

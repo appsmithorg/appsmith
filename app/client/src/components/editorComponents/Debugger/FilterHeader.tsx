@@ -36,7 +36,7 @@ const Wrapper = styled.div`
     position: relative;
     .${Classes.ICON} {
       position: absolute;
-      right: 0;
+      right: 9px;
       top: 9px;
     }
   }

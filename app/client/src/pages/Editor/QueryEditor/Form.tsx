@@ -1,4 +1,4 @@
-import React, { RefObject, useRef } from "react";
+import React, { RefObject, useRef, useState } from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -47,6 +47,7 @@ import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
+import DebuggerMessage from "components/editorComponents/Debugger/DebuggerMessage";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -55,11 +56,6 @@ const QueryFormContainer = styled.form`
   padding: 20px 0px 0px 0px;
   width: 100%;
   height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
-  a {
-    font-size: 14px;
-    line-height: 20px;
-    margin-top: 15px;
-  }
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
@@ -185,7 +181,7 @@ const ErrorContainer = styled.div`
   align-items: center;
   padding-top: 10px;
   flex-direction: column;
-  .${Classes.ICON} {
+  & > .${Classes.ICON} {
     margin-right: 0px;
     svg {
       width: 75px;
@@ -293,6 +289,11 @@ const StyledOpenDocsIcon = styled(Icon)`
 `;
 
 const TabContainerView = styled.div`
+  a {
+    font-size: 14px;
+    line-height: 20px;
+    margin-top: 15px;
+  }
   .react-tabs__tab-panel {
     overflow: scroll;
   }
@@ -363,6 +364,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
@@ -564,6 +566,8 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           )}
 
           <TabComponent
+            selectedIndex={selectedIndex}
+            onSelect={setSelectedIndex}
             tabs={[
               {
                 key: "Response",
@@ -580,6 +584,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                         <ErrorDescriptionText type={TextType.P1}>
                           {error}
                         </ErrorDescriptionText>
+                        <DebuggerMessage onClick={() => setSelectedIndex(1)} />
                       </ErrorContainer>
                     )}
                     {output && (

@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
 import { Colors } from "constants/Colors";
-import DebugButton from "components/editorComponents/Debugger/DebugButton";
+import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
