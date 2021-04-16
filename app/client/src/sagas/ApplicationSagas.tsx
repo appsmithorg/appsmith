@@ -56,6 +56,7 @@ import {
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
 import { deleteRecentAppEntities } from "utils/storage";
+import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -438,6 +439,11 @@ export function* createApplicationSaga(
           application.defaultPageId,
         );
         history.push(pageURL);
+
+        // subscribe to newly created application
+        // users join rooms on connection, so reconnecting
+        // ensures user receives the updates in the app just created
+        yield put(reconnectWebsocketAction());
       }
     }
   } catch (error) {

@@ -19,6 +19,7 @@ import {
   ENTITY_EXPLORER_SEARCH_ID,
   WIDGETS_SEARCH_ID,
 } from "constants/Explorer";
+import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -26,6 +27,7 @@ type Props = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   toggleShowGlobalSearchModal: () => void;
+  resetCommentMode: () => void;
   selectedWidget?: string;
   children: React.ReactNode;
 };
@@ -130,6 +132,12 @@ class GlobalHotKeys extends React.Component<Props> {
             }
           }}
         />
+        <Hotkey
+          global={true}
+          combo="esc"
+          label="Escape"
+          onKeyDown={this.props.resetCommentMode}
+        />
       </Hotkeys>
     );
   }
@@ -150,6 +158,7 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
+    resetCommentMode: () => dispatch(setCommentModeAction(false)),
   };
 };
 

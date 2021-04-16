@@ -48,14 +48,6 @@ const StyledDropTarget = styled.div`
   user-select: none;
 `;
 
-const Onboarding = () => {
-  return (
-    <div style={{ position: "fixed", left: "50%", top: "50vh" }}>
-      <h2 style={{ color: "#ccc" }}>Drag and drop a widget here</h2>
-    </div>
-  );
-};
-
 /*
   This context will provide the function which will help the draglayer and resizablecomponents trigger
   an update of the main container's rows
@@ -100,6 +92,10 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
+
+  const isCommentMode = useSelector(
+    (state: AppState) => state.ui.comments.isCommentMode,
+  );
 
   useEffect(() => {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -244,7 +240,10 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
         focusWidget && focusWidget(props.parentId);
       }
     }
-    e.stopPropagation();
+
+    if (!isCommentMode) {
+      e.stopPropagation();
+    }
     e.preventDefault();
   };
   const height = canDropTargetExtend
@@ -272,9 +271,6 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
         className={"t--drop-target"}
       >
         {props.children}
-        {!(childWidgets && childWidgets.length) &&
-          !isDragging &&
-          !props.parentId && <Onboarding />}
         <DragLayerComponent
           parentWidgetId={props.widgetId}
           canDropTargetExtend={canDropTargetExtend}

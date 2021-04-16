@@ -22,6 +22,7 @@ const SidebarWrapper = styled.div`
       background: none;
     }
   }
+  flex-shrink: 0;
 `;
 
 const initialPanel = { component: ExplorerSidebar };
