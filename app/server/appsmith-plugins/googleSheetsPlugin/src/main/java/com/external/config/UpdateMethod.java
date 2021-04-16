@@ -48,6 +48,13 @@ public class UpdateMethod implements Method {
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
         }
+        final String body = methodConfig.getRowObject();
+        try {
+            this.getRowObjectFromBody(this.objectMapper.readTree(body));
+        } catch (JsonProcessingException e) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObject(),
+                    "Unable to parse request body. Expected a row object.");
+        }
         return true;
     }
 
@@ -120,10 +127,15 @@ public class UpdateMethod implements Method {
 
                     // This is the robObject for original values
                     final RowObject returnedRowObject = this.getRowObjectFromBody(jsonNode);
-
-
+                    final Map<String, String> valueMap = finalRowObjectFromBody.getValueMap();
                     // We replace these original values with new ones
-                    returnedRowObject.getValueMap().putAll(finalRowObjectFromBody.getValueMap());
+                    final Map<String, String> returnedRowObjectValueMap = returnedRowObject.getValueMap();
+                    for (Map.Entry<String, String> entry : returnedRowObjectValueMap.entrySet()) {
+                        String k = entry.getKey();
+                        if (valueMap.containsKey(k)) {
+                            returnedRowObjectValueMap.put(k, valueMap.get(k));
+                        }
+                    }
 
                     methodConfig.setBody(returnedRowObject);
                     assert jsonNodeBody != null;

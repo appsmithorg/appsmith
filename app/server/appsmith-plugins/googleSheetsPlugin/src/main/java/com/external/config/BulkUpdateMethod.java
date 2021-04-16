@@ -56,7 +56,7 @@ public class BulkUpdateMethod implements Method {
             bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
                     "Unable to parse request body. Expected a list of row objects.");
         }
 
@@ -125,6 +125,13 @@ public class BulkUpdateMethod implements Method {
                     final JsonNode jsonNode = getValuesMethod
                             .transformResponse(jsonNodeBody, methodConfig);
 
+                    if (jsonNode == null || jsonNode.isEmpty()) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "No data found at these row indices. Do you want to try inserting something first?"
+                        ));
+                    }
+
                     // This is the rowObject for original values
                     final List<RowObject> returnedRowObjects =
                             new ArrayList<>(this.getRowObjectMapFromBody(jsonNode).values());
@@ -132,9 +139,18 @@ public class BulkUpdateMethod implements Method {
                     // We replace these original values with new ones
                     returnedRowObjects.forEach(rowObject -> {
                         if (finalRowObjectMapFromBody.containsKey(rowObject.getCurrentRowIndex())) {
-                            rowObject
-                                    .getValueMap()
-                                    .putAll(finalRowObjectMapFromBody.get(rowObject.getCurrentRowIndex()).getValueMap());
+                            final Map<String, String> valueMap =
+                                    finalRowObjectMapFromBody
+                                            .get(rowObject.getCurrentRowIndex())
+                                            .getValueMap();
+                            // We replace these original values with new ones
+                            final Map<String, String> returnedRowObjectValueMap = rowObject.getValueMap();
+                            for (Map.Entry<String, String> entry : returnedRowObjectValueMap.entrySet()) {
+                                String k = entry.getKey();
+                                if (valueMap.containsKey(k)) {
+                                    returnedRowObjectValueMap.put(k, valueMap.get(k));
+                                }
+                            }
                         }
                     });
 

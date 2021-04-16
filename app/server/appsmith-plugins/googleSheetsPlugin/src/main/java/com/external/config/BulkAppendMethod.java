@@ -7,6 +7,7 @@ import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.http.HttpMethod;
@@ -55,7 +56,7 @@ public class BulkAppendMethod implements Method {
             bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
                     "Unable to parse request body. Expected a list of row objects.");
         }
 
@@ -124,34 +125,53 @@ public class BulkAppendMethod implements Method {
                                 e.getMessage()
                         ));
                     }
+                    if (jsonNodeBody == null) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Expected to receive a response of existing headers."));
+                    }
 
-                    // This is the object with the original values in the referred row
-                    final JsonNode jsonNode = getValuesMethod
-                            .transformResponse(jsonNodeBody, methodConfig);
-
-                    // This is the rowObject for original values
-                    final RowObject returnedRowObject = this.getRowObjectListFromBody(jsonNode).get(0);
+                    ArrayNode valueRanges = (ArrayNode) jsonNodeBody.get("valueRanges");
+                    ArrayNode values = (ArrayNode) valueRanges.get(0).get("values");
 
                     // We replace these original values with new ones
-                    finalRowObjectListFromBody.forEach(rowObject -> {
-                        final Map<String, String> valueMap = new LinkedHashMap<>(returnedRowObject.getValueMap());
-                        valueMap.replaceAll((k, v) ->
-                                rowObject
-                                        .getValueMap()
-                                        .getOrDefault(k, null));
-                        rowObject.setValueMap(valueMap);
-                    });
+                    if (values != null && !values.isEmpty()) {
+                        ArrayNode headers = (ArrayNode) values.get(0);
+                        if (headers != null && !headers.isEmpty()) {
+                            for (RowObject rowObject : finalRowObjectListFromBody) {
+                                final Map<String, String> valueMap = new LinkedHashMap<>();
+                                boolean validValues = false;
+                                final Map<String, String> inputValueMap = rowObject.getValueMap();
+                                for (JsonNode header : headers) {
+                                    final String value = inputValueMap.getOrDefault(header.asText(), null);
+                                    if (value != null) {
+                                        validValues = true;
+                                    }
+                                    valueMap.put(header.asText(), value);
+                                }
+                                if (Boolean.TRUE.equals(validValues)) {
+                                    rowObject.setValueMap(valueMap);
+                                } else {
+                                    throw Exceptions.propagate(new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            "Could not map values to existing data."));
+                                }
+                            }
 
+                            methodConfig.setBody(finalRowObjectListFromBody);
+                            return methodConfig;
+                        }
+                    }
+
+                    final LinkedHashMap<String, String> headerMap =
+                            finalRowObjectListFromBody
+                                    .stream()
+                                    .map(RowObject::getValueMap)
+                                    .flatMap(x -> x.keySet().stream())
+                                    .collect(Collectors.toMap(x -> x, x -> x, (a, b) -> a, LinkedHashMap::new));
+                    finalRowObjectListFromBody.add(0, new RowObject(headerMap));
 
                     methodConfig.setBody(finalRowObjectListFromBody);
-                    assert jsonNodeBody != null;
-                    methodConfig.setSpreadsheetRange(
-                            jsonNodeBody
-                                    .get("valueRanges")
-                                    .get(1)
-                                    .get("range")
-                                    .asText()
-                    );
                     return methodConfig;
                 });
     }
@@ -159,10 +179,13 @@ public class BulkAppendMethod implements Method {
     @Override
     public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
+        final String range = "'" + methodConfig.getSheetName() + "'!" +
+                methodConfig.getTableHeaderIndex() + ":" + methodConfig.getTableHeaderIndex();
+
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + methodConfig.getSheetName() /* spreadsheet Name */
+                        + range
                         + ":append");
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
@@ -175,7 +198,7 @@ public class BulkAppendMethod implements Method {
 
         final ValueRange valueRange = new ValueRange();
         valueRange.setMajorDimension("ROWS");
-        valueRange.setRange(methodConfig.getSheetName());
+        valueRange.setRange(range);
         valueRange.setValues(collect);
         return webClient.method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
@@ -206,8 +229,7 @@ public class BulkAppendMethod implements Method {
                                 rowJson,
                                 TypeFactory
                                         .defaultInstance()
-                                        .constructMapType(LinkedHashMap.class, String.class, String.class)))
-                        .initialize())
+                                        .constructMapType(LinkedHashMap.class, String.class, String.class))))
                 .collect(Collectors.toList());
 
     }
