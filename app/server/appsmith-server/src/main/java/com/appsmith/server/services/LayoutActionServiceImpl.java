@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -154,22 +155,23 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     @Override
-    public Mono<LayoutDTO> refactorActionName(RefactorNameDTO refactorNameDTO) {
-        String pageId = refactorNameDTO.getPageId();
-        String layoutId = refactorNameDTO.getLayoutId();
-        String oldName = refactorNameDTO.getOldName();
-        String newName = refactorNameDTO.getNewName();
+    public Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO) {
+        String pageId = refactorActionNameDTO.getPageId();
+        String layoutId = refactorActionNameDTO.getLayoutId();
+        String oldName = refactorActionNameDTO.getOldName();
+        String newName = refactorActionNameDTO.getNewName();
+        String actionId = refactorActionNameDTO.getActionId();
         return isNameAllowed(pageId, layoutId, newName)
                 .flatMap(allowed -> {
                     if (!allowed) {
                         return Mono.error(new AppsmithException(AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
                     }
                     return newActionService
-                            .findByUnpublishedNameAndPageId(oldName, pageId, MANAGE_ACTIONS);
+                            .findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS);
                 })
                 .flatMap(action -> {
                     action.setName(newName);
-                    return newActionService.updateUnpublishedAction(action.getId(), action);
+                    return newActionService.updateUnpublishedAction(actionId, action);
                 })
                 .then(refactorName(pageId, layoutId, oldName, newName));
     }

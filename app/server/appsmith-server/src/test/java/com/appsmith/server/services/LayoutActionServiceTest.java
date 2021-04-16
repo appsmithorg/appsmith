@@ -16,7 +16,7 @@ import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -242,13 +242,14 @@ public class LayoutActionServiceTest {
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
 
-        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
-        refactorNameDTO.setPageId(testPage.getId());
-        refactorNameDTO.setLayoutId(firstLayout.getId());
-        refactorNameDTO.setOldName("beforeNameChange");
-        refactorNameDTO.setNewName("PostNameChange");
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        refactorActionNameDTO.setPageId(testPage.getId());
+        refactorActionNameDTO.setLayoutId(firstLayout.getId());
+        refactorActionNameDTO.setOldName("beforeNameChange");
+        refactorActionNameDTO.setNewName("PostNameChange");
+        refactorActionNameDTO.setActionId(createdAction.getId());
 
-        LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorNameDTO).block();
+        LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorActionNameDTO).block();
 
         Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
 
@@ -295,13 +296,14 @@ public class LayoutActionServiceTest {
         action.setId(null);
         ActionDTO secondAction = newActionService.createAction(action).block();
 
-        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
-        refactorNameDTO.setPageId(testPage.getId());
-        refactorNameDTO.setLayoutId(firstLayout.getId());
-        refactorNameDTO.setOldName("Query1");
-        refactorNameDTO.setNewName("NewActionName");
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        refactorActionNameDTO.setPageId(testPage.getId());
+        refactorActionNameDTO.setLayoutId(firstLayout.getId());
+        refactorActionNameDTO.setOldName("Query1");
+        refactorActionNameDTO.setNewName("NewActionName");
+        refactorActionNameDTO.setActionId(firstAction.getId());
 
-        layoutActionService.refactorActionName(refactorNameDTO).block();
+        layoutActionService.refactorActionName(refactorActionNameDTO).block();
 
         Mono<NewAction> postNameChangeActionMono = newActionService.findById(secondAction.getId(), READ_ACTIONS);
 
@@ -498,8 +500,6 @@ public class LayoutActionServiceTest {
                     assertThat(primaryColumns2.keySet()).containsAll(Set.of(FieldName.MONGO_ESCAPE_ID, FieldName.MONGO_ESCAPE_CLASS));
                 })
                 .verifyComplete();
-
-
     }
 
 }

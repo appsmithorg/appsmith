@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
+import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import net.minidev.json.JSONObject;
@@ -15,7 +16,7 @@ public interface LayoutActionService {
 
     Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO);
 
-    Mono<LayoutDTO> refactorActionName(RefactorNameDTO refactorNameDTO);
+    Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO);
 
     Mono<ActionDTO> updateAction(String id, ActionDTO action);
 
