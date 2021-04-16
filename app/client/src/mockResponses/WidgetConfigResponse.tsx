@@ -4,7 +4,7 @@ import moment from "moment-timezone";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagas";
+import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";

@@ -13,6 +13,7 @@ import {
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { BlueprintOperationTypes } from "./WidgetBlueprintSagasEnums";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -77,12 +78,6 @@ export type BlueprintOperationFunction =
   | BlueprintOperationModifyPropsFn
   | BlueprintOperationAddActionFn
   | BlueprintOperationChildOperationsFn;
-
-export enum BlueprintOperationTypes {
-  MODIFY_PROPS = "MODIFY_PROPS",
-  ADD_ACTION = "ADD_ACTION",
-  CHILD_OPERATIONS = "CHILD_OPERATIONS",
-}
 
 export type BlueprintOperationType = keyof typeof BlueprintOperationTypes;
 
@@ -153,6 +148,7 @@ export function* executeWidgetBlueprintChildOperations(
       canvasWidgets[widgetId].type as WidgetType,
     ),
   };
+
   const {
     widgets,
     message,
@@ -171,6 +167,7 @@ export function* executeWidgetBlueprintChildOperations(
       variant: Variant.info,
     });
   }
+
   // Flow returns to the usual from here.
   return widgets;
 }
