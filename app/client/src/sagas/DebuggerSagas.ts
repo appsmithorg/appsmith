@@ -2,9 +2,9 @@ import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { LogActionPayload, LOG_TYPE } from "entities/AppsmithConsole";
-import { all, put, takeEvery, select, fork } from "redux-saga/effects";
+import { all, put, takeEvery, select, fork, join } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { isEmpty, get } from "lodash";
+import { isEmpty, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
@@ -41,42 +41,30 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
   }
 }
 
-function* formatActionRequestSaga(payload: LogActionPayload) {
-  if (!payload.source) return;
+function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
+  if (!payload.source || !payload.state || !request || !request.headers) {
+    return;
+  }
+
+  const headers = request.headers;
+
   const source = payload.source;
+  const action: Action = yield select(getAction, source.id);
+  if (action.pluginType === PluginType.API) {
+    let formattedHeaders = [];
 
-  if (payload.state) {
-    const action: Action = yield select(getAction, source.id);
-    if (action.pluginType === PluginType.API) {
-      let formattedHeaders = [];
+    // Convert headers from Record<string, array>[] to Record<string, string>[]
+    // for showing in the logs
+    formattedHeaders = Object.keys(headers).map((key: string) => {
+      const value = headers[key];
+      return {
+        [key]: value[0],
+      };
+    });
 
-      const headers = get(payload, "state.request.headers", {});
-      // Convert headers from Record<string, array>[] to Record<string, string>[]
-      // for showing in the logs
-      formattedHeaders = Object.keys(headers).map((key: string) => {
-        const value = headers[key];
-        return {
-          [key]: value[0],
-        };
-      });
-
-      yield put(
-        debuggerLog({
-          ...payload,
-          state: {
-            ...payload.state,
-            request: {
-              ...payload.state.request,
-              headers: formattedHeaders,
-            },
-          },
-        }),
-      );
-    } else {
-      yield put(debuggerLog(payload));
-    }
+    return formattedHeaders;
   } else {
-    yield put(debuggerLog(payload));
+    return;
   }
 }
 
@@ -108,23 +96,61 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
       yield put(debuggerLog(payload));
       break;
     case LOG_TYPE.ACTION_EXECUTION_ERROR:
-      yield fork(formatActionRequestSaga, payload);
-      yield put(
-        errorLog({
-          ...payload,
-          text: payload.message ? payload.message : payload.text,
-          message: undefined,
-        }),
-      );
+      {
+        const task = yield fork(
+          formatActionRequestSaga,
+          payload,
+          payload.state,
+        );
+        const res = yield join(task);
+
+        if (res) {
+          const log = { ...payload };
+          set(log, "state.headers", res);
+
+          yield put(
+            errorLog({
+              ...log,
+              text: payload.message ? payload.message : payload.text,
+              message: undefined,
+            }),
+          );
+          yield put(debuggerLog(log));
+        } else {
+          yield put(
+            errorLog({
+              ...payload,
+              text: payload.message ? payload.message : payload.text,
+              message: undefined,
+            }),
+          );
+          yield put(debuggerLog(payload));
+        }
+      }
       break;
     case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
-      yield fork(formatActionRequestSaga, payload);
-      yield put(
-        updateErrorLog({
-          ...payload,
-          state: {},
-        }),
-      );
+      {
+        const task = yield fork(
+          formatActionRequestSaga,
+          payload,
+          payload.state?.request ?? {},
+        );
+        const res = yield join(task);
+        yield put(
+          updateErrorLog({
+            ...payload,
+            state: {},
+          }),
+        );
+
+        if (res) {
+          const log = { ...payload };
+          set(log, "state.request.headers", res);
+          yield put(debuggerLog(log));
+        } else {
+          yield put(debuggerLog(payload));
+        }
+      }
       break;
     default:
       yield put(debuggerLog(payload));

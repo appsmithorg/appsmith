@@ -32,7 +32,7 @@ import {
   getCurrentPageId,
   getPageList,
 } from "selectors/editorSelectors";
-import _, { get } from "lodash";
+import _, { get, isString } from "lodash";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
@@ -822,7 +822,9 @@ function* runActionSaga(
             name: actionObject.name,
             id: actionId,
           },
-          message: payload.body as string,
+          message: !isString(payload.body)
+            ? JSON.stringify(payload.body)
+            : payload.body,
           state: response.data?.request ?? null,
         });
 
