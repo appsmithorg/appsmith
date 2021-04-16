@@ -50,9 +50,9 @@ import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes
 
 public class ElasticSearchPlugin extends BasePlugin {
 
-    private static final String DEBUG_REQUEST_BODY_LABEL = "BODY";
-    private static final String DEBUG_REQUEST_METHOD_LABEL = "METHOD";
-    private static final String DEBUG_REQUEST_PATH_LABEL = "PATH";
+    private static final String DEBUG_REQUEST_BODY_LABEL = "Body";
+    private static final String DEBUG_REQUEST_METHOD_LABEL = "Method";
+    private static final String DEBUG_REQUEST_PATH_LABEL = "Path";
 
     public ElasticSearchPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -138,7 +138,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
                         request.setQuery(query);
-                        setRequestDataTypes(request, actionConfiguration);
+                        setRequestAsParameters(request, actionConfiguration);
                         ActionExecutionResult actionExecutionResult = result;
                         actionExecutionResult.setRequest(request);
                         return actionExecutionResult;
@@ -146,7 +146,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
+        private void setRequestAsParameters(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
 
             addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_METHOD_LABEL,
@@ -154,7 +154,7 @@ public class ElasticSearchPlugin extends BasePlugin {
             addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_PATH_LABEL, actionConfiguration.getPath());
             addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_BODY_LABEL, request.getQuery());
 
-            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
+            request.setRequestParameters(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         private static boolean isBulkQuery(String path) {

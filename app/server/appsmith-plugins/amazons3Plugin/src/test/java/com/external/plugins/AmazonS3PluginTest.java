@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.Base64;
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -13,6 +14,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -26,6 +28,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -274,6 +277,27 @@ public class AmazonS3PluginTest {
                             },
                             resultFilenamesArray.toArray()
                     );
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "LIST");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Bucket Name");
+                        put("value", "bucket_name");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Generate Signed URL");
+                        put("value", "NO");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -321,6 +345,43 @@ public class AmazonS3PluginTest {
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
                     assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "UPLOAD_FILE_FROM_BODY");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Bucket Name");
+                        put("value", "bucket_name");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "File Path");
+                        put("value", "path");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "File Data Type");
+                        put("value", "Text / Binary");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Expiry Duration");
+                        put("value", "100000");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Content");
+                        put("value", "");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -368,6 +429,42 @@ public class AmazonS3PluginTest {
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
                     assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "UPLOAD_FILE_FROM_BODY");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Bucket Name");
+                        put("value", "bucket_name");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "File Path");
+                        put("value", "path");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "File Data Type");
+                        put("value", "Text / Binary");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Expiry Duration");
+                        put("value", null);
+                        put("type", new ArrayList<>());
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Content");
+                        put("value", "");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -409,6 +506,43 @@ public class AmazonS3PluginTest {
                     String message = (String) result.getBody();
                     assertTrue(message.contains("File content is not base64 encoded"));
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "UPLOAD_FILE_FROM_BODY");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Bucket Name");
+                        put("value", "bucket_name");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "File Path");
+                        put("value", "path");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "File Data Type");
+                        put("value", "Base64");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Expiry Duration");
+                        put("value", "1000000");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Content");
+                        put("value", dummyBody);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -452,6 +586,27 @@ public class AmazonS3PluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Map<String, Object> body = (Map<String, Object>) result.getBody();
                     assertEquals(dummyContent, body.get("fileData"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "READ_FILE");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Bucket Name");
+                        put("value", "bucket_name");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "File Path");
+                        put("value", "path");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -496,6 +651,32 @@ public class AmazonS3PluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Map<String, Object> body = (Map<String, Object>) result.getBody();
                     assertEquals(new String(Base64.encode(dummyContent.getBytes())), body.get("fileData"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "READ_FILE");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Bucket Name");
+                        put("value", "bucket_name");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "File Path");
+                        put("value", "path");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Base64 Encode File");
+                        put("value", "YES");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -530,6 +711,27 @@ public class AmazonS3PluginTest {
 
                     Map<String, String> node = (Map<String, String>) result.getBody();
                     assertEquals("File deleted successfully", node.get("status"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "DELETE_FILE");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Bucket Name");
+                        put("value", "bucket_name");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "File Path");
+                        put("value", "path");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -591,6 +793,37 @@ public class AmazonS3PluginTest {
                             },
                             resultFilenamesArray.toArray()
                     );
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "LIST");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Bucket Name");
+                        put("value", "bucket_name");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Prefix");
+                        put("value", "Hel");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Generate Signed URL");
+                        put("value", "NO");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Expiry Duration Of Signed URL");
+                        put("value", null);
+                        put("type", new ArrayList<>());
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -670,6 +903,38 @@ public class AmazonS3PluginTest {
 
                     assertNotNull(node.get(0).get("urlExpiryDate"));
                     assertNotNull(node.get(1).get("urlExpiryDate"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "LIST");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Bucket Name");
+                        put("value", "bucket_name");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Prefix");
+                        put("value", "");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Generate Signed URL");
+                        put("value", "YES");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Expiry Duration Of Signed URL");
+                        put("value", "1000");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -749,6 +1014,37 @@ public class AmazonS3PluginTest {
 
                     assertNotNull(node.get(0).get("urlExpiryDate"));
                     assertNotNull(node.get(1).get("urlExpiryDate"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "LIST");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Bucket Name");
+                        put("value", "bucket_name");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Prefix");
+                        put("value", "");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Generate Signed URL");
+                        put("value", "YES");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Expiry Duration Of Signed URL");
+                        put("value", null);
+                        put("type", new ArrayList<>());
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }

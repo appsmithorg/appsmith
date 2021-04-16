@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -145,6 +147,22 @@ public class FirestorePluginTest {
                     assertEquals(1L, first.remove("value"));
                     assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("_ref"));
                     assertEquals(Collections.emptyMap(), first);
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "GET_DOCUMENT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", "initial/one");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -172,6 +190,22 @@ public class FirestorePluginTest {
                     assertNull(doc.remove("null-ref"));
                     assertEquals(Map.of("id", "two", "path", "initial/two"), doc.remove("_ref"));
                     assertEquals(Collections.emptyMap(), doc);
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "GET_DOCUMENT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", "initial/two");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -201,6 +235,22 @@ public class FirestorePluginTest {
                     ), doc.remove("ref-list"));
                     assertEquals(Map.of("id", "inner-ref", "path", "initial/inner-ref"), doc.remove("_ref"));
                     assertEquals(Collections.emptyMap(), doc);
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "GET_DOCUMENT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", "initial/inner-ref");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -256,6 +306,22 @@ public class FirestorePluginTest {
                     ), third.remove("ref-list"));
                     assertEquals(Map.of("id", "inner-ref", "path", "initial/inner-ref"), third.remove("_ref"));
                     assertEquals(Collections.emptyMap(), third);
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "GET_COLLECTION");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", "initial");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -277,6 +343,28 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "SET_DOCUMENT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", actionConfiguration.getPath());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -298,6 +386,28 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "CREATE_DOCUMENT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", actionConfiguration.getPath());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -325,6 +435,28 @@ public class FirestorePluginTest {
                     } catch (NullPointerException | InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "UPDATE_DOCUMENT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", actionConfiguration.getPath());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -348,6 +480,22 @@ public class FirestorePluginTest {
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "DELETE_DOCUMENT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", actionConfiguration.getPath());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -371,6 +519,28 @@ public class FirestorePluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(firestoreConnection.document("changing/" + ((Map) result.getBody()).get("id")));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "ADD_TO_COLLECTION");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", actionConfiguration.getPath());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -485,6 +655,26 @@ public class FirestorePluginTest {
                             firstResultsAgain.stream().map(m -> m.get("n").toString()).collect(Collectors.toList()).toString()
                     );
 
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "SET_DOCUMENT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", actionConfiguration.getPath());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
                 })
                 .verifyComplete();
     }
@@ -557,6 +747,33 @@ public class FirestorePluginTest {
                             names
                     );
 
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "GET_COLLECTION");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", actionConfiguration.getPath());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Order By");
+                        put("value", "[\"firm\", \"name\"]");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Limit Documents");
+                        put("value", "15");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -603,6 +820,33 @@ public class FirestorePluginTest {
                             names
                     );
 
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "GET_COLLECTION");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", actionConfiguration.getPath());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Order By");
+                        put("value", "[\"firm\", \"-name\"]");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Limit Documents");
+                        put("value", "15");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -650,6 +894,34 @@ public class FirestorePluginTest {
                         e.printStackTrace();
                         throw new RuntimeException(e);
                     }
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "UPDATE_DOCUMENT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Document / Collection Path");
+                        put("value", actionConfiguration.getPath());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Timestamp Value Path");
+                        put("value", "[\"value\"]");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }

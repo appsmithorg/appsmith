@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +31,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -177,6 +180,17 @@ public class MssqlPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -219,6 +233,17 @@ public class MssqlPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -301,6 +326,17 @@ public class MssqlPluginTest {
                     assertEquals(parameterEntry.getKey(), "1");
                     assertEquals(parameterEntry.getValue(), "INTEGER");
 
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
+
                 })
                 .verifyComplete();
     }
@@ -357,6 +393,17 @@ public class MssqlPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
 
                 })
                 .verifyComplete();
@@ -415,6 +462,16 @@ public class MssqlPluginTest {
                                     .toArray()
                     );
 
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -465,6 +522,17 @@ public class MssqlPluginTest {
                     assertTrue(node.get("username").isNull());
                     assertTrue(node.get("password").isNull());
                     assertTrue(node.get("email").isNull());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -517,6 +585,17 @@ public class MssqlPluginTest {
                     assertTrue(node.get("username").isNull());
                     assertTrue(node.get("password").isNull());
                     assertTrue(node.get("email").isNull());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -556,6 +635,17 @@ public class MssqlPluginTest {
                                         .forEach(columnName -> foundColumnNames.add(columnName.trim()));
                             });
                     assertTrue(expectedColumnNames.equals(foundColumnNames));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }

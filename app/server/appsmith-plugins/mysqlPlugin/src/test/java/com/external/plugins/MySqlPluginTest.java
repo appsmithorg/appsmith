@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,7 +30,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -236,6 +240,17 @@ public class MySqlPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -257,6 +272,17 @@ public class MySqlPluginTest {
                     assertNotNull(result.getBody());
                     String expectedBody = "[{\"Database\":\"information_schema\"},{\"Database\":\"test_db\"}]";
                     assertEquals(expectedBody, result.getBody().toString());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -285,6 +311,17 @@ public class MySqlPluginTest {
                     assertEquals("jack@exemplars.com", node.get("email").asText());
                     assertEquals("18:32:45", node.get("time1").asText());
                     assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -381,6 +418,17 @@ public class MySqlPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
 
@@ -429,6 +477,17 @@ public class MySqlPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -520,6 +579,17 @@ public class MySqlPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -670,6 +740,17 @@ public class MySqlPluginTest {
                     Object body = result.getBody();
                     assertNotNull(body);
                     assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"\"}]", body.toString());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -694,6 +775,17 @@ public class MySqlPluginTest {
                     assertNotNull(body);
                     assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
                             body.toString());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -718,6 +810,17 @@ public class MySqlPluginTest {
                     assertNotNull(body);
                     assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
                             body.toString());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -742,10 +845,22 @@ public class MySqlPluginTest {
                     assertNotNull(body);
                     assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
                             body.toString());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
 
+    @Test
     public void testDuplicateColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -780,6 +895,17 @@ public class MySqlPluginTest {
                                         .forEach(columnName -> foundColumnNames.add(columnName.trim()));
                             });
                     assertTrue(expectedColumnNames.equals(foundColumnNames));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }

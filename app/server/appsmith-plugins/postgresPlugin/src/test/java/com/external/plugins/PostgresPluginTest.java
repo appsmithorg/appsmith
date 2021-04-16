@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -10,6 +11,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,6 +32,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -255,6 +258,17 @@ public class PostgresPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -311,6 +325,17 @@ public class PostgresPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -528,6 +553,17 @@ public class PostgresPluginTest {
                     assertEquals(parameterEntry.getKey(), "1");
                     assertEquals(parameterEntry.getValue(), "INTEGER");
 
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
+
                 })
                 .verifyComplete();
     }
@@ -592,6 +628,17 @@ public class PostgresPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
 
                 })
                 .verifyComplete();
@@ -658,6 +705,17 @@ public class PostgresPluginTest {
                                     .toArray()
                     );
 
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
+
                 })
                 .verifyComplete();
     }
@@ -722,6 +780,17 @@ public class PostgresPluginTest {
                     assertTrue(node.get("interval1").isNull());
                     assertTrue(node.get("spouse_dob").isNull());
                     assertTrue(node.get("username").isNull());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -786,6 +855,17 @@ public class PostgresPluginTest {
                     assertTrue(node.get("interval1").isNull());
                     assertTrue(node.get("spouse_dob").isNull());
                     assertTrue(node.get("username").isNull());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -826,6 +906,17 @@ public class PostgresPluginTest {
                 .assertNext(result -> {
                     String body = result.getBody().toString();
                     assertTrue(body.contains("\"ssl\":false"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -845,6 +936,17 @@ public class PostgresPluginTest {
                 .assertNext(result -> {
                     String body = result.getBody().toString();
                     assertTrue(body.contains("\"ssl\":false"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -889,6 +991,17 @@ public class PostgresPluginTest {
                      *   gets established without SSL layer.
                      */
                     assertTrue(body.contains("\"ssl\":false"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -912,10 +1025,22 @@ public class PostgresPluginTest {
                      *   gets established without SSL layer.
                      */
                     assertTrue(body.contains("\"ssl\":false"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
 
+    @Test
     public void testDuplicateColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -954,6 +1079,17 @@ public class PostgresPluginTest {
                                         .forEach(columnName -> foundColumnNames.add(columnName.trim()));
                             });
                     assertTrue(expectedColumnNames.equals(foundColumnNames));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -1000,6 +1136,17 @@ public class PostgresPluginTest {
 
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertEquals(node.get("created_on").asText(), "2021-03-24T14:05:34Z");
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -1031,6 +1178,17 @@ public class PostgresPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }

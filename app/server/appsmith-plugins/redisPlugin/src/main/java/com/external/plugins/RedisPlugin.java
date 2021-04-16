@@ -38,7 +38,7 @@ import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes
 
 public class RedisPlugin extends BasePlugin {
     private static final Integer DEFAULT_PORT = 6379;
-    private static final String DEBUG_REQUEST_QUERY_LABEL = "QUERY";
+    private static final String DEBUG_REQUEST_QUERY_LABEL = "Query";
 
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -101,7 +101,7 @@ public class RedisPlugin extends BasePlugin {
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
-                        setRequestDataTypes(request);
+                        setRequestAsParameters(request);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -109,11 +109,11 @@ public class RedisPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private void setRequestDataTypes(ActionExecutionRequest request) {
+        private void setRequestAsParameters(ActionExecutionRequest request) {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
             addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_QUERY_LABEL,
                     request.getQuery());
-            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
+            request.setRequestParameters(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         // This will be updated as we encounter different outputs.

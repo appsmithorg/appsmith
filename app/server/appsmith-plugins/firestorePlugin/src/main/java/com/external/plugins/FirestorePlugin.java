@@ -82,18 +82,18 @@ public class FirestorePlugin extends BasePlugin {
     private static final int FIELDVALUE_TIMESTAMP_PROPERTY_INDEX = 8;
     private static final int FIELDVALUE_DELETE_PROPERTY_INDEX = 9;
     private static final String FIELDVALUE_TIMESTAMP_METHOD_NAME = "serverTimestamp";
-    private static final String DEBUG_REQUEST_METHOD_LABEL = "METHOD";
-    private static final String DEBUG_REQUEST_PATH_LABEL = "DOCUMENT / COLLECTION PATH";
-    private static final String DEBUG_REQUEST_ORDER_BY_LABEL = "ORDER BY";
-    private static final String DEBUG_REQUEST_START_AFTER_LABEL = "START AFTER";
-    private static final String DEBUG_REQUEST_END_BEFORE_LABEL = "END BEFORE";
-    private static final String DEBUG_REQUEST_LIMIT_DOCUMENTS_LABEL = "LIMIT DOCUMENTS";
-    private static final String DEBUG_REQUEST_WHERE_CONDITION_FIELD_PATH_LABEL = "WHERE CONDITION: FIELD PATH";
-    private static final String DEBUG_REQUEST_WHERE_CONDITION_OPERATOR_LABEL = "WHERE CONDITION: OPERATOR";
-    private static final String DEBUG_REQUEST_WHERE_CONDITION_VALUE_LABEL = "WHERE CONDITION: VALUE";
-    private static final String DEBUG_REQUEST_TIMESTAMP_VALUE_PATH_LABEL = "TIMESTAMP VALUE PATH";
-    private static final String DEBUG_REQUEST_BODY_LABEL = "BODY";
-    private static final String DEBUG_REQUEST_DELETE_KEY_VALUE_PAIR_PATH = "DELETE KEY VALUE PAIR PATH";
+    private static final String DEBUG_REQUEST_METHOD_LABEL = "Method";
+    private static final String DEBUG_REQUEST_PATH_LABEL = "Document / Collection Path";
+    private static final String DEBUG_REQUEST_ORDER_BY_LABEL = "Order By";
+    private static final String DEBUG_REQUEST_START_AFTER_LABEL = "Start After";
+    private static final String DEBUG_REQUEST_END_BEFORE_LABEL = "End Before";
+    private static final String DEBUG_REQUEST_LIMIT_DOCUMENTS_LABEL = "Limit Documents";
+    private static final String DEBUG_REQUEST_WHERE_CONDITION_FIELD_PATH_LABEL = "Where Condition: Field Path";
+    private static final String DEBUG_REQUEST_WHERE_CONDITION_OPERATOR_LABEL = "Where Condition: Operator";
+    private static final String DEBUG_REQUEST_WHERE_CONDITION_VALUE_LABEL = "Where Condition: Value";
+    private static final String DEBUG_REQUEST_TIMESTAMP_VALUE_PATH_LABEL = "Timestamp Value Path";
+    private static final String DEBUG_REQUEST_BODY_LABEL = "Body";
+    private static final String DEBUG_REQUEST_DELETE_KEY_VALUE_PAIR_PATH = "Delete Key Value Pair Path";
 
     public FirestorePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -251,7 +251,7 @@ public class FirestorePlugin extends BasePlugin {
                         request.setProperties(requestData);
                         request.setQuery(query);
                         try {
-                            setRequestDataTypes(request, actionConfiguration);
+                            setRequestAsParameters(request, actionConfiguration);
                         } catch (AppsmithPluginException e) {
                             return Mono.error(e);
                         }
@@ -267,7 +267,7 @@ public class FirestorePlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+        private void setRequestAsParameters(ActionExecutionRequest request, ActionConfiguration actionConfiguration) throws AppsmithPluginException {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
             List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
 
@@ -365,7 +365,7 @@ public class FirestorePlugin extends BasePlugin {
                 }
             }
 
-            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
+            request.setRequestParameters(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         /*

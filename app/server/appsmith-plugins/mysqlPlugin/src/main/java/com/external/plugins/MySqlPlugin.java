@@ -70,7 +70,7 @@ public class MySqlPlugin extends BasePlugin {
     private static final String DATE_COLUMN_TYPE_NAME = "date";
     private static final String DATETIME_COLUMN_TYPE_NAME = "datetime";
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
-    private static final String DEBUG_REQUEST_QUERY_LABEL = "QUERY";
+    private static final String DEBUG_REQUEST_QUERY_LABEL = "Query";
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -294,7 +294,7 @@ public class MySqlPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
                         request.setProperties(requestData);
-                        setRequestDataTypes(request);
+                        setRequestAsParameters(request);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -303,11 +303,11 @@ public class MySqlPlugin extends BasePlugin {
 
         }
 
-        private void setRequestDataTypes(ActionExecutionRequest request) {
+        private void setRequestAsParameters(ActionExecutionRequest request) {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
             addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_QUERY_LABEL,
                     request.getQuery());
-            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
+            request.setRequestParameters(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         private Flux<Result> createAndExecuteQueryFromConnection(String query,

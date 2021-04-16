@@ -1,8 +1,12 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.ActionResultDataType;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ParsedDataType;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -114,13 +118,12 @@ public class PluginUtils {
         dataTypes.addAll(
                 fieldsToBeProcessed.stream()
                         .map(element -> new HashMap<String, Object>() {{
-                                    put(KEY_LABEL, element.get(KEY_LABEL));
-                                    put(KEY_VALUE, element.get(KEY_VALUE));
-                                    put(KEY_TYPE, element.get(KEY_VALUE) != null ?
-                                            getActionResultDataTypes(element.get(KEY_VALUE).toString()) :
-                                            new ArrayList<>());
-                                }}
-                        )
+                            put(KEY_LABEL, element.get(KEY_LABEL));
+                            put(KEY_VALUE, element.get(KEY_VALUE));
+                            put(KEY_TYPE, element.get(KEY_VALUE) != null ?
+                                    getActionResultDataTypes(element.get(KEY_VALUE).toString()) :
+                                    new ArrayList<>());
+                        }})
                         .collect(Collectors.toList())
         );
 

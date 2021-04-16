@@ -78,8 +78,8 @@ public class DynamoPlugin extends BasePlugin {
     private static final String DYNAMO_TYPE_BINARY_SET_LABEL = "BS";
     private static final String DYNAMO_TYPE_MAP_LABEL = "M";
     private static final String DYNAMO_TYPE_LIST_LABEL = "L";
-    private static final String DEBUG_REQUEST_ACTION_LABEL = "ACTION";
-    private static final String DEBUG_REQUEST_QUERY_LABEL = "QUERY";
+    private static final String DEBUG_REQUEST_ACTION_LABEL = "Action";
+    private static final String DEBUG_REQUEST_QUERY_LABEL = "Query";
 
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -353,19 +353,19 @@ public class DynamoPlugin extends BasePlugin {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setProperties(requestData);
                         actionExecutionRequest.setQuery(body);
-                        setRequestDataTypes(actionExecutionRequest, actionConfiguration);
+                        setRequestAsParameters(actionExecutionRequest, actionConfiguration);
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
         }
 
-        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
+        private void setRequestAsParameters(ActionExecutionRequest request, ActionConfiguration actionConfiguration) {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
             addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_ACTION_LABEL, actionConfiguration.getPath());
             addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_QUERY_LABEL, request.getQuery());
 
-            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
+            request.setRequestParameters(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         @Override

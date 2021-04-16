@@ -1,9 +1,11 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.ParsedDataType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
@@ -18,7 +20,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,6 +93,27 @@ public class ElasticSearchPluginTest {
                     assertNotNull(result.getBody());
                     final Map<String, Object> resultBody = (Map) result.getBody();
                     assertEquals("Mercury", ((Map<String, String>) resultBody.get("_source")).get("name"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "GET");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Path");
+                        put("value", "/planets/doc/id1");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", null);
+                        put("type", new ArrayList<>());
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -114,6 +139,28 @@ public class ElasticSearchPluginTest {
                     assertNotNull(result.getBody());
                     final List<Map> docs = ((Map<String, List<Map>>) result.getBody()).get("docs");
                     assertEquals(2, docs.size());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "GET");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Path");
+                        put("value", "/planets/_mget");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", contentJson);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -129,6 +176,28 @@ public class ElasticSearchPluginTest {
                     final Map<String, Object> resultBody = (Map) result.getBody();
                     assertEquals("created", resultBody.get("result"));
                     assertEquals("id9", resultBody.get("_id"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "PUT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Path");
+                        put("value", "/planets/doc/id9");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", contentJson);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -144,6 +213,28 @@ public class ElasticSearchPluginTest {
                     final Map<String, Object> resultBody = (Map) result.getBody();
                     assertEquals("updated", resultBody.get("result"));
                     assertEquals("id2", resultBody.get("_id"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "PUT");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Path");
+                        put("value", "/planets/doc/id2");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", contentJson);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -158,6 +249,27 @@ public class ElasticSearchPluginTest {
                     final Map<String, Object> resultBody = (Map) result.getBody();
                     assertEquals("deleted", resultBody.get("result"));
                     assertEquals("id3", resultBody.get("_id"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "DELETE");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Path");
+                        put("value", "/planets/doc/id3");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", null);
+                        put("type", new ArrayList<>());
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -182,6 +294,28 @@ public class ElasticSearchPluginTest {
                     final Map<String, Object> resultBody = (Map) result.getBody();
                     assertFalse((Boolean) resultBody.get("errors"));
                     assertEquals(4, ((List) resultBody.get("items")).size());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "POST");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Path");
+                        put("value", "/_bulk");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", contentJson);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -205,6 +339,28 @@ public class ElasticSearchPluginTest {
                     final Map<String, Object> resultBody = (Map) result.getBody();
                     assertFalse((Boolean) resultBody.get("errors"));
                     assertEquals(4, ((List) resultBody.get("items")).size());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Method");
+                        put("value", "POST");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Path");
+                        put("value", "/_bulk");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Body");
+                        put("value", contentJson);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }

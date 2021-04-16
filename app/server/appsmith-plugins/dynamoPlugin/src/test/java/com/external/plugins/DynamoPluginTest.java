@@ -1,11 +1,13 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.ParsedDataType;
 import lombok.extern.log4j.Log4j;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -29,6 +31,7 @@ import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
@@ -171,6 +174,22 @@ public class DynamoPluginTest {
 
                    assertTrue(expectedTables.equals(actualTables));
 
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "ListTables");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", null);
+                        put("type", new ArrayList<>());
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
+
                 })
                 .verifyComplete();
     }
@@ -188,6 +207,23 @@ public class DynamoPluginTest {
                     assertNotNull(result.getBody());
                     final Map<String, Object> table =  ((Map<String, Map<String, Object>>) result.getBody()).get("Table");
                     assertEquals("cities", table.get("TableName"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "DescribeTable");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", body);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -211,6 +247,23 @@ public class DynamoPluginTest {
                     Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
                     Map<String, String> transformedItem = (Map<String, String>) resultBody.get("Item");
                     assertEquals("New Delhi", transformedItem.get("City"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "GetItem");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", body);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -235,6 +288,23 @@ public class DynamoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertNotNull(((Map<String, List<String>>) result.getBody()).get("Attributes"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "PutItem");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", body);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -265,6 +335,23 @@ public class DynamoPluginTest {
                     Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
                     Map<String, String> transformedItem = (Map<String, String>) resultBody.get("Attributes");
                     assertEquals("Bengaluru", transformedItem.get("City"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "UpdateItem");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", body);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -284,6 +371,23 @@ public class DynamoPluginTest {
                     List<Map<String, Object>> items =
                             (List<Map<String, Object>>) ((Map<String, Object>) result.getBody()).get("Items");
                     assertEquals(2, items.size());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "Scan");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", body);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -325,6 +429,23 @@ public class DynamoPluginTest {
                     Map<String, Object> transformedResponse = (Map<String, Object>) response.get("Responses");
                     ArrayList<Map<String, Object>> transformedCitiesList = (ArrayList<Map<String, Object>>) transformedResponse.get("cities");
                     assertEquals("New Delhi", transformedCitiesList.get(0).get("City"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "BatchGetItem");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", body);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -359,6 +480,23 @@ public class DynamoPluginTest {
                     ArrayList<Map<String, Object>> transformedResponse = (ArrayList<Map<String, Object>>) response.get("Responses");
                     assertEquals("New Delhi",
                             ((Map<String, Object>)transformedResponse.get(0).get("Item")).get("City"));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "TransactGetItems");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", body);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
 
                 })
                 .verifyComplete();
@@ -427,6 +565,23 @@ public class DynamoPluginTest {
                             ((Map<String, Object>)transformedItemMap.get("MapType")).get("mapKey").toString());
                     assertEquals("listValue1", ((ArrayList<String>)transformedItemMap.get("ListType")).get(0));
                     assertEquals("listValue2", ((ArrayList<String>)transformedItemMap.get("ListType")).get(1));
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Action");
+                        put("value", "Scan");
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", body);
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.JSON),
+                                new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }

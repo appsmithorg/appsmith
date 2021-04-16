@@ -84,7 +84,7 @@ public class MongoPlugin extends BasePlugin {
     private static final String VALUE_STR = "value";
     private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
     private static final int SMART_BSON_SUBSTITUTION_INDEX = 0;
-    private static final String DEBUG_REQUEST_QUERY_LABEL = "QUERY";
+    private static final String DEBUG_REQUEST_QUERY_LABEL = "Query";
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -298,18 +298,18 @@ public class MongoPlugin extends BasePlugin {
                             requestData.put("smart-substitution-parameters", parameters);
                             request.setProperties(requestData);
                         }
-                        setRequestDataTypes(request);
+                        setRequestAsParameters(request);
                         actionExecutionResult.setRequest(request);
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
         }
 
-        private void setRequestDataTypes(ActionExecutionRequest request) {
+        private void setRequestAsParameters(ActionExecutionRequest request) {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
             addToFieldsToBeProcessedForDataTypeDetection(fieldsToBeProcessed, DEBUG_REQUEST_QUERY_LABEL,
                     request.getQuery());
-            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
+            request.setRequestParameters(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         private String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {

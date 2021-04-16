@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -7,6 +8,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.ParsedDataType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +22,14 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import redis.clients.jedis.Jedis;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 
 @Slf4j
 public class RedisPluginTest {
@@ -157,6 +165,17 @@ public class RedisPluginTest {
                     Assert.assertNotNull(result);
                     Assert.assertFalse(result.getIsExecutionSuccess());
                     Assert.assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", new ArrayList<>());
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -177,6 +196,17 @@ public class RedisPluginTest {
                     Assert.assertNotNull(result);
                     Assert.assertFalse(result.getIsExecutionSuccess());
                     Assert.assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(), result.getRequest().getRequestParameters().toString());
                 })
                 .verifyComplete();
     }
@@ -198,6 +228,18 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
                     Assert.assertEquals("PONG", node.get("result").asText());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", actionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(),
+                            actionExecutionResult.getRequest().getRequestParameters().toString());
                 }).verifyComplete();
     }
 
@@ -217,6 +259,18 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
                     Assert.assertEquals("null", node.get("result").asText());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", getActionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(),
+                            actionExecutionResult.getRequest().getRequestParameters().toString());
                 }).verifyComplete();
 
         // Setting a key
@@ -230,6 +284,18 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
                     Assert.assertEquals("OK", node.get("result").asText());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", setActionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(),
+                            actionExecutionResult.getRequest().getRequestParameters().toString());
                 }).verifyComplete();
 
         // Getting the key
@@ -241,6 +307,18 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
                     Assert.assertEquals("value", node.get("result").asText());
+
+                    /*
+                     * - Check request params
+                     */
+                    List<Map<String, Object>> expectedParams = new ArrayList<>();
+                    expectedParams.add(new HashMap<>(){{
+                        put("label", "Query");
+                        put("value", getActionConfiguration.getBody());
+                        put("type", List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                    }});
+                    assertEquals(expectedParams.toString(),
+                            actionExecutionResult.getRequest().getRequestParameters().toString());
                 }).verifyComplete();
     }
 }

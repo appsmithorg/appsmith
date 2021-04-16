@@ -78,16 +78,16 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final String YES = "YES";
     private static final String BASE64_DELIMITER = ";base64,";
     private static final String AMAZON_S3_SERVICE_PROVIDER = "amazon-s3";
-    private static final String DEBUG_REQUEST_LABEL_FILE_PATH = "FILE PATH";
-    private static final String DEBUG_REQUEST_LABEL_FILE_DATA_TYPE = "FILE DATA TYPE";
-    private static final String DEBUG_REQUEST_LABEL_EXPIRY_DURATION = "EXPIRY DURATION";
-    private static final String DEBUG_REQUEST_LABEL_CONTENT = "CONTENT";
-    private static final String DEBUG_REQUEST_BASE64_ENCODE_FILE_LABEL = "BASE64 ENCODE FILE";
-    private static final String DEBUG_REQUEST_ACTION_LABEL = "ACTION";
-    private static final String DEBUG_REQUEST_BUCKET_NAME_LABEL = "BUCKET NAME";
-    private static final String DEBUG_REQUEST_EXPIRY_DURATION_OF_SIGNED_URL_LABEL = "EXPIRY DURATION OF SIGNED URL";
-    private static final String DEBUG_REQUEST_GENERATE_SIGNED_URL_LABEL = "GENERATE_SIGNED_URL";
-    private static final String DEBUG_REQUEST_PREFIX_LABEL = "PREFIX";
+    private static final String DEBUG_REQUEST_LABEL_FILE_PATH = "File Path";
+    private static final String DEBUG_REQUEST_LABEL_FILE_DATA_TYPE = "File Data Type";
+    private static final String DEBUG_REQUEST_LABEL_EXPIRY_DURATION = "Expiry Duration";
+    private static final String DEBUG_REQUEST_LABEL_CONTENT = "Content";
+    private static final String DEBUG_REQUEST_BASE64_ENCODE_FILE_LABEL = "Base64 Encode File";
+    private static final String DEBUG_REQUEST_ACTION_LABEL = "Action";
+    private static final String DEBUG_REQUEST_BUCKET_NAME_LABEL = "Bucket Name";
+    private static final String DEBUG_REQUEST_EXPIRY_DURATION_OF_SIGNED_URL_LABEL = "Expiry Duration Of Signed URL";
+    private static final String DEBUG_REQUEST_GENERATE_SIGNED_URL_LABEL = "Generate Signed URL";
+    private static final String DEBUG_REQUEST_PREFIX_LABEL = "Prefix";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -571,16 +571,19 @@ public class AmazonS3Plugin extends BasePlugin {
                         return Mono.just(actionExecutionResult);
                     })
                     .onErrorResume(e -> {
+                        if (e instanceof StaleConnectionException) {
+                            return Mono.error(e);
+                        }
+
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         result.setErrorInfo(e);
                         return Mono.just(result);
-
                     })
                     .subscribeOn(scheduler);
         }
 
-        private void setRequestDataTypes(ActionExecutionRequest request, ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+        private void setRequestAsParameters(ActionExecutionRequest request, ActionConfiguration actionConfiguration) throws AppsmithPluginException {
             List<Map<String, Object>> fieldsToBeProcessed = new ArrayList<>();
 
             List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
@@ -658,7 +661,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
             }
 
-            request.setDataTypes(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
+            request.setRequestParameters(getActionResultDataTypesForObjectsInList(fieldsToBeProcessed));
         }
 
         @Override

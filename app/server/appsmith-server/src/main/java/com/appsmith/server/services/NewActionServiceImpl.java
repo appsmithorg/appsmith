@@ -74,6 +74,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -717,15 +718,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return result;
         }
 
-        if (result.getBody() == null) {
-            /*
-             * - Any data is by default categorized as raw.
-             */
-            result.setDataTypes(new ArrayList<>());
-            return result;
-        }
-
-        result.setDataTypes(getActionResultDataTypes(result.getBody().toString()));
+        String body = (result.getBody() == null) ? null : result.getBody().toString();
+        result.setDataTypes(getActionResultDataTypes(body));
 
         return result;
     }
