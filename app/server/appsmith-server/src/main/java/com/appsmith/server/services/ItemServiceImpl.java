@@ -23,16 +23,19 @@ public class ItemServiceImpl implements ItemService {
     private final PluginService pluginService;
     private final MarketplaceService marketplaceService;
     private final NewActionService newActionService;
+    private final LayoutActionService layoutActionService;
     private static final String RAPID_API_PLUGIN = "rapidapi-plugin";
 
     public ItemServiceImpl(ApiTemplateService apiTemplateService,
                            PluginService pluginService,
                            MarketplaceService marketplaceService,
-                           NewActionService newActionService) {
+                           NewActionService newActionService,
+                           LayoutActionService layoutActionService) {
         this.apiTemplateService = apiTemplateService;
         this.pluginService = pluginService;
         this.marketplaceService = marketplaceService;
         this.newActionService = newActionService;
+        this.layoutActionService = layoutActionService;
     }
 
     @Override
@@ -108,6 +111,6 @@ public class ItemServiceImpl implements ItemService {
                     action.setPluginType(plugin.getType());
                     return action;
                 })
-                .flatMap(newActionService::createAction);
+                .flatMap(layoutActionService::createAction);
     }
 }

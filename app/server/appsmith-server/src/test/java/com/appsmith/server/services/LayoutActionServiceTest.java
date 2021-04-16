@@ -17,6 +17,8 @@ import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -180,7 +182,7 @@ public class LayoutActionServiceTest {
         unreferencedAction.setActionConfiguration(actionConfiguration2);
         unreferencedAction.setDatasource(datasource);
 
-        Mono<PageDTO> resultMono = newActionService
+        Mono<PageDTO> resultMono = layoutActionService
                 .createAction(action)
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
@@ -190,7 +192,7 @@ public class LayoutActionServiceTest {
                     updates.setDatasource(datasource);
                     return layoutActionService.updateAction(savedAction.getId(), updates);
                 })
-                .flatMap(savedAction -> newActionService.createAction(unreferencedAction))
+                .flatMap(savedAction -> layoutActionService.createAction(unreferencedAction))
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
@@ -237,7 +239,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
@@ -282,7 +284,7 @@ public class LayoutActionServiceTest {
 
         Layout layout = testPage.getLayouts().get(0);
 
-        ActionDTO firstAction = newActionService.createAction(action).block();
+        ActionDTO firstAction = layoutActionService.createAction(action).block();
 
         layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
@@ -293,7 +295,7 @@ public class LayoutActionServiceTest {
 
         // Create another action with the same name as the erstwhile deleted action
         action.setId(null);
-        ActionDTO secondAction = newActionService.createAction(action).block();
+        ActionDTO secondAction = layoutActionService.createAction(action).block();
 
         RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
         refactorNameDTO.setPageId(testPage.getId());
@@ -346,8 +348,8 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        ActionDTO createdAction1 = newActionService.createAction(action1).block();
-        ActionDTO createdAction2 = newActionService.createAction(action2).block();
+        ActionDTO createdAction1 = layoutActionService.createAction(action1).block();
+        ActionDTO createdAction2 = layoutActionService.createAction(action2).block();
 
         Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
 
@@ -432,7 +434,7 @@ public class LayoutActionServiceTest {
         unreferencedAction.setActionConfiguration(actionConfiguration2);
         unreferencedAction.setDatasource(datasource);
 
-        Mono<ActionDTO> resultMono = newActionService
+        Mono<ActionDTO> resultMono = layoutActionService
                 .createAction(action)
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
@@ -498,8 +500,37 @@ public class LayoutActionServiceTest {
                     assertThat(primaryColumns2.keySet()).containsAll(Set.of(FieldName.MONGO_ESCAPE_ID, FieldName.MONGO_ESCAPE_CLASS));
                 })
                 .verifyComplete();
-
-
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void duplicateActionNameCreation() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String name = "query1";
+
+        ActionDTO action = new ActionDTO();
+        action.setName(name);
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        layoutActionService.createAction(action).block();
+
+        ActionDTO duplicateAction = new ActionDTO();
+        duplicateAction.setName(name);
+        duplicateAction.setPageId(testPage.getId());
+        duplicateAction.setActionConfiguration(actionConfiguration);
+        duplicateAction.setDatasource(datasource);
+
+        Mono<ActionDTO> duplicateActionMono = layoutActionService.createAction(duplicateAction);
+
+        StepVerifier
+                .create(duplicateActionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.DUPLICATE_KEY_USER_ERROR.getMessage(name, FieldName.NAME)))
+                .verify();
+    }
 }
