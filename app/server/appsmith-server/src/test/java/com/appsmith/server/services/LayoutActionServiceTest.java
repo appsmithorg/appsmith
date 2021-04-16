@@ -502,4 +502,79 @@ public class LayoutActionServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void refactorDuplicateActionName() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String name = "duplicateName";
+
+        ActionDTO action = new ActionDTO();
+        action.setName(name);
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "{{ duplicateName.data }}");
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+        layout.setPublishedDsl(dsl);
+
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        ActionDTO duplicateName = new ActionDTO();
+        duplicateName.setName(name);
+        duplicateName.setPageId(testPage.getId());
+        duplicateName.setActionConfiguration(actionConfiguration);
+        duplicateName.setDatasource(datasource);
+
+        NewAction duplicateNameCompleteAction = new NewAction();
+        duplicateNameCompleteAction.setUnpublishedAction(duplicateName);
+        duplicateNameCompleteAction.setPublishedAction(new ActionDTO());
+        duplicateNameCompleteAction.getPublishedAction().setDatasource(new Datasource());
+        duplicateNameCompleteAction.setOrganizationId(duplicateName.getOrganizationId());
+        duplicateNameCompleteAction.setPluginType(duplicateName.getPluginType());
+        duplicateNameCompleteAction.setPluginId(duplicateName.getPluginId());
+        duplicateNameCompleteAction.setTemplateId(duplicateName.getTemplateId());
+        duplicateNameCompleteAction.setProviderId(duplicateName.getProviderId());
+        duplicateNameCompleteAction.setDocumentation(duplicateName.getDocumentation());
+        duplicateNameCompleteAction.setApplicationId(duplicateName.getApplicationId());
+
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        refactorActionNameDTO.setPageId(testPage.getId());
+        refactorActionNameDTO.setLayoutId(firstLayout.getId());
+        refactorActionNameDTO.setOldName("beforeNameChange");
+        refactorActionNameDTO.setNewName("PostNameChange");
+        refactorActionNameDTO.setActionId(createdAction.getId());
+
+        LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorActionNameDTO).block();
+
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+
+        StepVerifier
+                .create(postNameChangeActionMono)
+                .assertNext(updatedAction -> {
+
+                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
+
+                    DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
+
+                    dsl.put("testField", "{{ PostNameChange.data }}");
+                    assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
+                })
+                .verifyComplete();
+    }
+
 }
