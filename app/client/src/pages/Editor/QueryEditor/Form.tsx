@@ -86,7 +86,7 @@ const TabbedViewContainer = styled.div`
   // Initial height of bottom tabs
   height: 40%;
   // Minimum height of bottom tabs as it can be resized
-  min-height: 40%;
+  min-height: 36px;
   .react-tabs__tab-panel {
     overflow: hidden;
   }

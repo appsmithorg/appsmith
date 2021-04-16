@@ -34,7 +34,7 @@ const ResponseContainer = styled.div`
   // Initial height of bottom tabs
   height: 40%;
   // Minimum height of bottom tabs as it can be resized
-  min-height: 40%;
+  min-height: 36px;
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
 
   .react-tabs__tab-panel {
