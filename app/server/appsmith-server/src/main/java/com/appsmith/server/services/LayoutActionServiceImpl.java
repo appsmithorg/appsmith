@@ -787,7 +787,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 })
                 .flatMap(nameAllowed -> {
                     // If the name is allowed, return pageMono for further processing
-                    if (nameAllowed.equals(Boolean.TRUE)) {
+                    if (Boolean.TRUE.equals(nameAllowed)) {
                         return pageMono;
                     }
                     // Throw an error since the new action's name matches an existing action or widget name.
