@@ -563,7 +563,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         actionExecutionRequest.setQuery(query[0]);
                         actionExecutionRequest.setProperties(requestProperties);
                         try {
-                            setRequestDataTypes(actionExecutionRequest, actionConfiguration);
+                            setRequestAsParameters(actionExecutionRequest, actionConfiguration);
                         } catch(AppsmithPluginException e) {
                             return Mono.error(e);
                         }
