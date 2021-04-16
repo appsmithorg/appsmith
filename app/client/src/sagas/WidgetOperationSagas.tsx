@@ -43,7 +43,6 @@ import {
 } from "actions/controlActions";
 import {
   DynamicPath,
-  getDynamicBindings,
   getEntityDynamicBindingPathList,
   getWidgetDynamicPropertyPathList,
   getWidgetDynamicTriggerPathList,
@@ -53,7 +52,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set, remove, get } from "lodash";
+import _, { cloneDeep, isString, set, remove } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
