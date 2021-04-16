@@ -82,3 +82,71 @@ export const handleIfParentIsListWidgetWhilePasting = (
 
   return widgets;
 };
+
+/**
+ * this saga handles special cases when pasting the widget
+ *
+ * for e.g - when the list widget is being copied, we want to update template of list widget
+ * with new widgets name
+ *
+ * @param widget
+ * @param widgets
+ * @param widgetNameMap
+ * @param newWidgetList
+ * @returns
+ */
+export const handleSpecificCasesWhilePasting = (
+  widget: FlattenedWidgetProps,
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+  widgetNameMap: Record<string, string>,
+  newWidgetList: FlattenedWidgetProps[],
+) => {
+  console.log({ widget, widgets, widgetNameMap, newWidgetList });
+  // this is the case when whole list widget is copied and pasted
+  if (widget.type === WidgetTypes.LIST_WIDGET) {
+    Object.keys(widget.template).map((widgetName) => {
+      const oldWidgetName = widgetName;
+      const newWidgetName = widgetNameMap[oldWidgetName];
+
+      const newWidget = newWidgetList.find(
+        (w: any) => w.widgetName === newWidgetName,
+      );
+
+      if (newWidget) {
+        newWidget.widgetName = newWidgetName;
+
+        if (widgetName === oldWidgetName) {
+          widget.template[newWidgetName] = {
+            ...widget.template[oldWidgetName],
+            widgetId: newWidget.widgetId,
+            widgetName: newWidget.widgetName,
+          };
+
+          delete widget.template[oldWidgetName];
+        }
+      }
+
+      // updating dynamicBindingPath in copied widget if the copied widge thas reference to oldWidgetNames
+      widget.dynamicBindingPathList = (widget.dynamicBindingPathList || []).map(
+        (path: any) => {
+          if (path.key.startsWith(`template.${oldWidgetName}`)) {
+            return {
+              key: path.key.replace(
+                `template.${oldWidgetName}`,
+                `template.${newWidgetName}`,
+              ),
+            };
+          }
+
+          return path;
+        },
+      );
+    });
+
+    widgets[widget.widgetId] = widget;
+  }
+
+  widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
+
+  return widgets;
+};
