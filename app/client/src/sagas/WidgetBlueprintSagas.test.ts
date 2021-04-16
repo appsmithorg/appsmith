@@ -4,14 +4,9 @@ import {
   BlueprintOperation,
   executeWidgetBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
+import { BlueprintOperationTypes } from "./WidgetBlueprintSagasEnums";
 
-export enum BlueprintOperationTypes {
-  MODIFY_PROPS = "MODIFY_PROPS",
-  ADD_ACTION = "ADD_ACTION",
-  CHILD_OPERATIONS = "CHILD_OPERATIONS",
-}
-
-describe("executeWidgetBlueprintChildOperations", () => {
+describe("WidgetBlueprintSagas", () => {
   it("should returns widgets after executing the child operation", async () => {
     const mockBlueprintChildOperation: BlueprintOperation = {
       type: BlueprintOperationTypes.CHILD_OPERATIONS,
