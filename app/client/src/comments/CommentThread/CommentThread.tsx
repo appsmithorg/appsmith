@@ -19,11 +19,12 @@ import styled from "styled-components";
 
 const ThreadContainer = styled.div`
   width: 400px;
+  max-width: 100%;
 `;
 
-const CommentsContainer = styled.div`
+const CommentsContainer = styled.div<{ inline?: boolean }>`
   position: relative;
-  max-height: 285px;
+  max-height: ${(props) => (!props.inline ? "unset" : "285px")};
   overflow: auto;
 `;
 
@@ -44,15 +45,16 @@ const ChildComments = styled.div`
   flex: 1;
 `;
 
-/**
- * Comment thread popover
- */
-const InlineCommentThreadContainer = ({
+const CommentThreadContainer = ({
   commentThread,
   isOpen,
+  hideInput,
+  inline,
 }: {
   commentThread: CommentThread;
-  isOpen: boolean;
+  isOpen?: boolean;
+  hideInput?: boolean;
+  inline?: boolean;
 }) => {
   const dispatch = useDispatch();
   const { comments } = commentThread;
@@ -60,7 +62,7 @@ const InlineCommentThreadContainer = ({
   const commentsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollToBottom();
+    if (inline) scrollToBottom();
   }, [isOpen]);
 
   // Check if the comments window is scrolled to the bottom
@@ -83,7 +85,10 @@ const InlineCommentThreadContainer = ({
   };
 
   const scrollToBottom = () => {
-    if (typeof messagesBottomRef.current?.scrollIntoView === "function")
+    if (
+      typeof messagesBottomRef.current?.scrollIntoView === "function" &&
+      inline
+    )
       messagesBottomRef.current?.scrollIntoView();
   };
 
@@ -102,7 +107,7 @@ const InlineCommentThreadContainer = ({
   return (
     <ThreadContainer tabIndex={0}>
       <div style={{ position: "relative" }}>
-        <CommentsContainer ref={commentsContainerRef}>
+        <CommentsContainer ref={commentsContainerRef} inline={inline}>
           {parentComment && (
             <CommentCard
               key={parentComment.id}
@@ -128,9 +133,9 @@ const InlineCommentThreadContainer = ({
           <ScrollToLatest scrollToBottom={scrollToBottom} />
         )}
       </div>
-      <AddCommentInput onSave={addComment} />
+      {!hideInput && <AddCommentInput onSave={addComment} />}
     </ThreadContainer>
   );
 };
 
-export default InlineCommentThreadContainer;
+export default CommentThreadContainer;

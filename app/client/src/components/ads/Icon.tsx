@@ -158,6 +158,7 @@ export const IconCollection = [
   "trash",
   "pin-2",
   "link-2",
+  "close-x",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -299,6 +300,7 @@ const Icon = forwardRef(
         returnIcon = <HelpIcon />;
         break;
       case "close-modal":
+      case "close-x":
         returnIcon = <CloseModalIcon />;
         break;
       case "no-response":

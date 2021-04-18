@@ -1,51 +1,30 @@
-import React, { useMemo } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import AppCommentsList from "./AppCommentsList";
-import styled from "styled-components";
-import {
-  commentModeSelector,
-  applicationCommentsSelector,
-} from "../../selectors/commentsSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-
-const Container = styled.div`
-  width: ${(props) => props.theme.appComments.width};
-  height: 100%;
-`;
-
-/**
- * Comments are stored as a map of refs (for example widgetIds)
- * Flatten to fetch all application comment threads
- */
-const getCommentThreads = (threadsByRefMap: Record<string, Array<string>>) => {
-  if (!threadsByRefMap) return;
-  return Object.entries(threadsByRefMap).reduce(
-    (res: Array<string>, [, threadIds]) => {
-      return [...res, ...threadIds];
-    },
-    [],
-  );
-};
+import { commentModeSelector } from "selectors/commentsSelectors";
+import AppCommentsHeader from "./AppCommentsHeader";
+import AppCommentThreads from "./AppCommentThreadsContainer";
+import Container from "./Container";
+import { useCallback } from "react";
 
 const AppComments = () => {
-  const applicationId = useSelector(getCurrentApplicationId) as string;
+  const [isOpen, setIsOpen] = useState(false);
   const isCommentMode = useSelector(commentModeSelector);
-  const appCommentThreadsByRefMap = useSelector(
-    applicationCommentsSelector(applicationId),
-  );
+  const onClose = useCallback(() => {
+    setIsOpen(!isOpen);
+  }, [isOpen]);
 
-  const commentThreadIds = useMemo(
-    () => getCommentThreads(appCommentThreadsByRefMap),
-    [appCommentThreadsByRefMap],
-  );
+  if (!isCommentMode) return null;
 
-  if (!commentThreadIds) return null;
-
-  return isCommentMode ? (
+  return (
     <Container>
-      <AppCommentsList commentThreadIds={commentThreadIds} />
+      <AppCommentsHeader
+        onClose={onClose}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+      />
+      <AppCommentThreads isOpen={isOpen} />
     </Container>
-  ) : null;
+  );
 };
 
 export default AppComments;

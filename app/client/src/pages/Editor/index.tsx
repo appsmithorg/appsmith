@@ -30,6 +30,7 @@ import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { handlePathUpdated } from "actions/recentEntityActions";
+import AppComments from "comments/AppComments/AppComments";
 
 import history from "utils/history";
 
@@ -123,6 +124,7 @@ class Editor extends Component<Props> {
             </Helmet>
             <GlobalHotKeys>
               <MainContainer />
+              <AppComments />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />

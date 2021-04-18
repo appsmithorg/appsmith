@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import Icon, { IconSize, IconName } from "components/ads/Icon";
 import styled from "styled-components";
-import { Popover, PopoverPosition } from "@blueprintjs/core";
 import {
   PIN_COMMENT,
   COPY_LINK,
@@ -10,7 +9,14 @@ import {
 } from "constants/messages";
 import { noop } from "lodash";
 
-const Container = styled.div``;
+import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+
+import { Popover2 } from "@blueprintjs/popover2";
+
+// render over popover portals
+const Container = styled.div`
+  z-index: 11;
+`;
 
 const MenuItem = styled.div`
   display: flex;
@@ -79,28 +85,26 @@ const CommentContextMenu = ({
   );
 
   return (
-    <Popover
+    <Popover2
       minimal
-      boundary="viewport"
-      popoverClassName="comment-thread"
-      position={PopoverPosition.BOTTOM_RIGHT}
+      placement={"bottom-end"}
+      portalClassName="comment-context-menu"
+      boundary="clippingParents"
+      content={
+        <Container>
+          {options.map((option) => (
+            <MenuItem key={option.icon}>
+              <MenuIcon>
+                <StyledIcon name={option.icon as IconName} size={IconSize.XL} />
+              </MenuIcon>
+              <MenuTitle>{option.display}</MenuTitle>
+            </MenuItem>
+          ))}
+        </Container>
+      }
     >
       <StyledIcon name="context-menu" size={IconSize.LARGE} />
-      <Container>
-        {options.map((option) => (
-          <MenuItem key={option.icon}>
-            <MenuIcon>
-              <StyledIcon
-                name={option.icon as IconName}
-                // fillColor={theme.colors.comments.sendButton}
-                size={IconSize.XL}
-              />
-            </MenuIcon>
-            <MenuTitle>{option.display}</MenuTitle>
-          </MenuItem>
-        ))}
-      </Container>
-    </Popover>
+    </Popover2>
   );
 };
 
