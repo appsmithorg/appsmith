@@ -163,4 +163,18 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 });
     }
 
+    /**
+     * This function performs a soft delete for the comment.
+     *
+     * @param id The comment id to be deleted
+     * @return The modified comment object with the deleted flag set
+     */
+    @Override
+    public Mono<Comment> deleteComment(String id) {
+        log.debug("Archiving comment with id: {}", id);
+        return repository.findById(id, AclPermission.MANAGE_COMMENT)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.COMMENT, id)))
+                .flatMap(comment -> repository.archive(comment));
+    }
+
 }

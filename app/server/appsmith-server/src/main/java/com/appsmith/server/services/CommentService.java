@@ -15,4 +15,7 @@ public interface CommentService extends CrudService<Comment, String> {
     Mono<CommentThread> updateThread(String threadId, CommentThread commentThread);
 
     Mono<List<CommentThread>> getThreadsByApplicationId(String applicationId);
+
+    Mono<Comment> deleteComment(String id);
+
 }

@@ -8,6 +8,7 @@ import com.appsmith.server.services.CommentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,6 +68,13 @@ public class CommentController extends BaseController<CommentService, Comment, S
         log.debug("Going to update resource {}", resource.getClass().getName());
         return service.updateThread(threadId, resource)
                 .map(updated -> new ResponseDTO<>(HttpStatus.CREATED.value(), updated, null));
+    }
+
+    @DeleteMapping("/comment/{id}")
+    public Mono<ResponseDTO<Comment>> delete(@PathVariable String id) {
+        log.debug("Going to delete comment with id: {}", id);
+        return service.deleteComment(id)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
 }
