@@ -2089,21 +2089,20 @@ public class DatabaseChangelog {
                 .forEach(datasource -> {
                     long count = 1;
                     String datasourceCnt = datasource.getName().replaceAll("[^\\d]", "").trim();
-                    if(datasourceCnt.length() != 0) {
-                        count = Integer.parseInt(datasourceCnt);
+                    if (!datasourceCnt.isEmpty()) {
+                        count = Long.parseLong(datasourceCnt);
                     }
 
-                    if(maxDatasourceCount.containsKey(datasource.getOrganizationId())){
-                        if(count < maxDatasourceCount.get(datasource.getOrganizationId())) {
-                            return;
-                        }
+                    if (maxDatasourceCount.containsKey(datasource.getOrganizationId())
+                            && (count < maxDatasourceCount.get(datasource.getOrganizationId()))) {
+                        return;
                     }
                     maxDatasourceCount.put(datasource.getOrganizationId(), count);
                 });
         maxDatasourceCount.forEach((key, val) -> {
             Sequence sequence = new Sequence();
             sequence.setName("datasource for organization with _id : " + key);
-            sequence.setNextNumber(val+1);
+            sequence.setNextNumber(val + 1);
             mongoTemplate.save(sequence);
         });
     }
