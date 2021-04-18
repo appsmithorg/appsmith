@@ -12,13 +12,19 @@ describe("Pages", function() {
       .last()
       .click({ force: true });
     cy.get(pages.clonePage).click({ force: true });
+    //cy.wait("@clonePage").its('response.statusCode').should('be.oneOf', [201, 202])
 
+    cy.intercept("POST", "/api/v1/pages/clone/*", (req) => {
+      expect(req.body).to.include("");
+    });
+
+    /*
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-
+    */
     // to check if apis are cloned
     cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Page1)").click({
       multiple: true,
