@@ -152,7 +152,7 @@ export function* fetchPageListSaga(
   }
 }
 
-const getCanvasWidgetsPayload = (
+export const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
 ): UpdateCanvasPayload => {
   const normalizedResponse = CanvasWidgetsNormalizer.normalize(
