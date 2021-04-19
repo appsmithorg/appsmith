@@ -146,8 +146,6 @@ export const Table = (props: TableProps) => {
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
-  console.log({ tableHeaderWrapperRef: tableHeaderWrapperRef?.current });
-  /* Subtracting 9px to handling widget padding */
   return (
     <TableWrapper
       width={props.width}
@@ -211,7 +209,7 @@ export const Table = (props: TableProps) => {
         ref={tableWrapperRef}
       >
         <Scrollbars
-          style={{ width: props.width - 6, height: props.height - 48 }}
+          style={{ width: props.width, height: props.height - 48 }}
           renderThumbHorizontal={(props) => (
             <div {...props} className="thumb-horizontal" />
           )}
