@@ -1,10 +1,9 @@
-import { showDebugger } from "actions/debuggerActions";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { ENTITY_TYPE, SourceEntity } from "entities/AppsmithConsole";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
