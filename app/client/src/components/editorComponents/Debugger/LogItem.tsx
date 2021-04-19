@@ -148,7 +148,7 @@ type LogItemProps = {
 };
 
 const LogItem = (props: LogItemProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(!!props.expand);
   const reactJsonProps = {
     name: null,
     enableClipboard: false,
@@ -206,7 +206,7 @@ const LogItem = (props: LogItemProps) => {
           }}
         />
         {showToggleIcon && (
-          <StyledCollapse isOpen={isOpen || !!props.expand} keepChildrenMounted>
+          <StyledCollapse isOpen={isOpen} keepChildrenMounted>
             {props.message && (
               <div>
                 <span className="debugger-message">{props.message}</span>

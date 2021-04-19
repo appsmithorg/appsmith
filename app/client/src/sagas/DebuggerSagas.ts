@@ -91,9 +91,17 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
               },
             }),
           );
+          yield put(
+            debuggerLog({
+              ...payload,
+              text,
+              state: {
+                [payload.source.propertyPath]: text,
+              },
+            }),
+          );
         }
       }
-      yield put(debuggerLog(payload));
       break;
     case LOG_TYPE.ACTION_EXECUTION_ERROR:
       {
