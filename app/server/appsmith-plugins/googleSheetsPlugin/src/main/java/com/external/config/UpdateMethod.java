@@ -125,16 +125,26 @@ public class UpdateMethod implements Method {
                         ));
                     }
 
-                    // This is the robObject for original values
+                    // This is the rowObject for original values
                     final RowObject returnedRowObject = this.getRowObjectFromBody(jsonNode);
                     final Map<String, String> valueMap = finalRowObjectFromBody.getValueMap();
                     // We replace these original values with new ones
                     final Map<String, String> returnedRowObjectValueMap = returnedRowObject.getValueMap();
+                    boolean updatable = false;
+
                     for (Map.Entry<String, String> entry : returnedRowObjectValueMap.entrySet()) {
                         String k = entry.getKey();
                         if (valueMap.containsKey(k)) {
                             returnedRowObjectValueMap.put(k, valueMap.get(k));
+                            updatable = true;
                         }
+                    }
+
+                    if (Boolean.FALSE.equals(updatable)) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Could not map to existing data. Nothing to update."
+                        ));
                     }
 
                     methodConfig.setBody(returnedRowObject);
