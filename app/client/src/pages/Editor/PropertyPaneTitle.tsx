@@ -166,7 +166,9 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
             )}
 
             <EditableText
-              valueTransform={removeSpecialChars}
+              valueTransform={
+                !props.isPanelTitle ? removeSpecialChars : undefined
+              }
               defaultValue={name}
               placeholder={props.title}
               editInteractionKind={EditInteractionKind.SINGLE}
