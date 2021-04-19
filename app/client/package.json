@@ -11,6 +11,7 @@
     "@blueprintjs/core": "^3.36.0",
     "@blueprintjs/datetime": "^3.14.0",
     "@blueprintjs/icons": "^3.10.0",
+    "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
     "@blueprintjs/timezone": "^3.6.0",
     "@craco/craco": "^5.7.0",

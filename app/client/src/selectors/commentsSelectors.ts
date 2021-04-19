@@ -36,3 +36,19 @@ export const areCommentsEnabledForUser = (state: AppState) => {
   const isAppsmithEmail = email.toLowerCase().indexOf("@appsmith.com") !== -1;
   return isAppsmithEmail;
 };
+
+/**
+ * Comments are stored as a map of refs (for example widgetIds)
+ * Flatten to fetch all application comment threads
+ */
+export const getAppCommentThreads = (
+  threadsByRefMap: Record<string, Array<string>>,
+) => {
+  if (!threadsByRefMap) return;
+  return Object.entries(threadsByRefMap).reduce(
+    (res: Array<string>, [, threadIds]) => {
+      return [...res, ...threadIds];
+    },
+    [],
+  );
+};

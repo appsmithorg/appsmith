@@ -3,7 +3,6 @@ import EditorsRouter from "./routes";
 import WidgetsEditor from "./WidgetsEditor";
 import styled from "styled-components";
 import Sidebar from "components/editorComponents/Sidebar";
-// import AppComments from "components/ads/Comments/AppComments/AppComments";
 import { Route, Switch } from "react-router";
 import { BUILDER_URL } from "constants/routes";
 
@@ -17,9 +16,8 @@ const Container = styled.div`
 `;
 
 const EditorContainer = styled.div`
-  flex: 1;
   position: relative;
-  overflow: auto;
+  width: calc(100vw - ${(props) => props.theme.sidebarWidth});
 `;
 
 const MainContainer = () => {
@@ -32,7 +30,6 @@ const MainContainer = () => {
           <SentryRoute component={EditorsRouter} />
         </Switch>
       </EditorContainer>
-      {/* <AppComments /> */}
     </Container>
   );
 };

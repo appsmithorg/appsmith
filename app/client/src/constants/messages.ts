@@ -288,3 +288,4 @@ export const ADD_COMMENT_PLACEHOLDER = () => "Add a comment. Use @ to mention";
 export const PIN_COMMENT = () => "Pin Comment";
 export const COPY_LINK = () => "Copy Link";
 export const DELETE_COMMENT = () => "Delete Comment";
+export const COMMENTS = () => "Comments";

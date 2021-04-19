@@ -401,9 +401,6 @@ export type Theme = {
     };
   };
   iconSizes: IconSizeType;
-  appComments: {
-    width: string;
-  };
 };
 
 type IconSizeType = {
@@ -916,6 +913,8 @@ type ColorType = {
     contextMenuIconStrokeHover: ShadeColor;
     contextMenuTitle: ShadeColor;
     contextMenuTitleHover: ShadeColor;
+    appCommentsHeaderTitle: ShadeColor;
+    appCommentsClose: ShadeColor;
   };
   treeDropdown: {
     targetBg: string;
@@ -987,6 +986,8 @@ const comments = {
   contextMenuIconStrokeHover: darkShades[11],
   contextMenuTitle: lightShades[8],
   contextMenuTitleHover: darkShades[11],
+  appCommentsHeaderTitle: darkShades[11],
+  appCommentsClose: lightShades[15],
 };
 
 const auth: any = {
@@ -2237,9 +2238,6 @@ export const theme: Theme = {
         background: "transparent",
       },
     },
-  },
-  appComments: {
-    width: "250px",
   },
 };
 

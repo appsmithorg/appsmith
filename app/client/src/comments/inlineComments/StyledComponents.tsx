@@ -5,6 +5,7 @@ export const ThreadContainer = styled.div`
   border: 1px solid
     ${(props) => props.theme.colors.comments.threadContainerBorder};
   width: 400px;
+  max-width: 100%;
 `;
 
 export const ThreadHeader = styled.div`

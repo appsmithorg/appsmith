@@ -36,9 +36,10 @@ const handleNewCommentThreadEvent = (
   if (!state.applicationCommentThreadsByRef[thread.applicationId]) {
     state.applicationCommentThreadsByRef[thread.applicationId] = {};
   }
-  state.applicationCommentThreadsByRef[thread.applicationId][
-    thread.refId
-  ] = Array.from(new Set([...threadsForRefId, thread._id]));
+  state.applicationCommentThreadsByRef[thread.applicationId] = {
+    ...state.applicationCommentThreadsByRef[thread.applicationId],
+    [thread.refId]: Array.from(new Set([...threadsForRefId, thread._id])),
+  };
 
   return {
     ...state,

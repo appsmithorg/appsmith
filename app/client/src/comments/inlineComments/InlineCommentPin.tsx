@@ -69,6 +69,7 @@ const InlineCommentPin = withTheme(
           <CommentThread
             isOpen={!!commentThread.isVisible}
             commentThread={commentThread}
+            inline
           />
         </Popover>
       </CommentTriggerContainer>
