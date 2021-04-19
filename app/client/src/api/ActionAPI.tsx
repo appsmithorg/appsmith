@@ -97,6 +97,7 @@ export interface CopyActionRequest {
 
 export interface UpdateActionNameRequest {
   pageId: string;
+  actionId: string;
   layoutId: string;
   newName: string;
   oldName: string;
