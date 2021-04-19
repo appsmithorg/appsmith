@@ -21,6 +21,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +89,9 @@ public class LayoutActionServiceTest {
 
     @Autowired
     NewPageService newPageService;
+
+    @Autowired
+    NewActionRepository actionRepository;
 
     Application testApp = null;
 
@@ -550,8 +554,10 @@ public class LayoutActionServiceTest {
         duplicateNameCompleteAction.setDocumentation(duplicateName.getDocumentation());
         duplicateNameCompleteAction.setApplicationId(duplicateName.getApplicationId());
 
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        // Now save this action directly in the repo to create a duplicate action name scenario
+        actionRepository.save(duplicateNameCompleteAction).block();
 
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
         refactorActionNameDTO.setPageId(testPage.getId());
