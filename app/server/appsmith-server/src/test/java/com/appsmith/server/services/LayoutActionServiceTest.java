@@ -534,7 +534,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO createdAction = layoutActionService.createAction(action).block();
+        ActionDTO firstAction = layoutActionService.createAction(action).block();
 
         ActionDTO duplicateName = new ActionDTO();
         duplicateName.setName(name);
@@ -562,24 +562,24 @@ public class LayoutActionServiceTest {
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
         refactorActionNameDTO.setPageId(testPage.getId());
         refactorActionNameDTO.setLayoutId(firstLayout.getId());
-        refactorActionNameDTO.setOldName("beforeNameChange");
-        refactorActionNameDTO.setNewName("PostNameChange");
-        refactorActionNameDTO.setActionId(createdAction.getId());
+        refactorActionNameDTO.setOldName("duplicateName");
+        refactorActionNameDTO.setNewName("newName");
+        refactorActionNameDTO.setActionId(firstAction.getId());
 
         LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorActionNameDTO).block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(firstAction.getId(), READ_ACTIONS);
 
         StepVerifier
                 .create(postNameChangeActionMono)
                 .assertNext(updatedAction -> {
 
-                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
+                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("newName");
 
                     DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
-                    assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
+                    assertThat(actionDTO.getName()).isEqualTo("newName");
 
-                    dsl.put("testField", "{{ PostNameChange.data }}");
+                    dsl.put("testField", "{{ newName.data }}");
                     assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
                 })
                 .verifyComplete();
