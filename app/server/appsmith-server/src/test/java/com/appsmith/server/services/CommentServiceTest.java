@@ -14,6 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +37,7 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void setup() {
-        final Mono<CommentThread> resultMono = applicationService
+        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = applicationService
                 .findByName("TestApplications", AclPermission.READ_APPLICATIONS)
                 .flatMap(application -> {
                     final CommentThread thread = new CommentThread();
@@ -45,10 +46,14 @@ public class CommentServiceTest {
                             makePlainTextComment("comment one")
                     ));
                     return commentService.createThread(thread);
-                });
+                })
+                .zipWhen(thread -> commentService.getThreadsByApplicationId(thread.getApplicationId()));
 
         StepVerifier.create(resultMono)
-                .assertNext(thread -> {
+                .assertNext(tuple -> {
+                    final CommentThread thread = tuple.getT1();
+                    final List<CommentThread> threadsInApp = tuple.getT2();
+
                     assertThat(thread.getId()).isNotEmpty();
                     assertThat(thread.getResolved()).isNull();
                     assertThat(thread.getPolicies()).containsExactlyInAnyOrder(
@@ -57,6 +62,13 @@ public class CommentServiceTest {
                             Policy.builder().permission(AclPermission.COMMENT_ON_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
                     );
                     assertThat(thread.getComments()).hasSize(1);
+                    assertThat(thread.getComments().get(0).getBody()).isEqualTo(makePlainTextComment("comment one").getBody());
+                    assertThat(thread.getComments().get(0).getPolicies()).containsExactlyInAnyOrder(
+                            Policy.builder().permission(AclPermission.MANAGE_COMMENT.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(AclPermission.READ_COMMENT.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
+                    );
+
+                    assertThat(threadsInApp).hasSize(1);
                 })
                 .verifyComplete();
     }
