@@ -59,6 +59,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Input",
       version: 1,
       resetOnSubmit: true,
+      isRequired: false,
+      isDisabled: false,
     },
     SWITCH_WIDGET: {
       label: "Label",
@@ -68,6 +70,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Switch",
       alignWidget: "LEFT",
       version: 1,
+      isDisabled: false,
     },
     ICON_WIDGET: {
       widgetName: "Icon",
@@ -119,6 +122,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(),
       version: 2,
+      isRequired: false,
     },
     VIDEO_WIDGET: {
       rows: 7,
@@ -177,6 +181,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Dropdown",
       defaultOptionValue: "VEG",
       version: 1,
+      isRequired: false,
+      isDisabled: false,
     },
     CHECKBOX_WIDGET: {
       rows: 1,
@@ -186,6 +192,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Checkbox",
       version: 1,
       alignWidget: "LEFT",
+      isDisabled: false,
+      isRequired: false,
     },
     RADIO_GROUP_WIDGET: {
       rows: 2,
@@ -198,6 +206,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       defaultOptionValue: "M",
       widgetName: "RadioGroup",
       version: 1,
+      isRequired: false,
+      isDisabled: false,
     },
     ALERT_WIDGET: {
       alertType: "NOTIFICATION",
@@ -220,6 +230,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
       version: 1,
+      isRequired: false,
+      isDisabled: false,
     },
     TABS_WIDGET: {
       rows: 7,
