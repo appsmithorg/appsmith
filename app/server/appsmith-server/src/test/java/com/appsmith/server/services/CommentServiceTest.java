@@ -78,4 +78,30 @@ public class CommentServiceTest {
         return comment;
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteValidComment() {
+        final Mono<Comment> beforeDeletion = applicationService
+                .findByName("TestApplications", AclPermission.READ_APPLICATIONS)
+                .flatMap(application -> {
+                    final CommentThread thread = new CommentThread();
+                    thread.setApplicationId(application.getId());
+                    thread.setComments(List.of(
+                            makePlainTextComment("Test Comment")
+                    ));
+                    return commentService.createThread(thread);
+                })
+                .flatMap(commentThread -> Mono.just(commentThread.getComments().get(0)));
+
+        Mono<Comment> afterDeletion = beforeDeletion
+                .flatMap(comment -> commentService.deleteComment(comment.getId()));
+
+        StepVerifier
+                .create(Mono.zip(beforeDeletion, afterDeletion))
+                .assertNext(object -> {
+                    assertThat(object.getT1().isDeleted()).isFalse();
+                    assertThat(object.getT2().isDeleted()).isTrue();
+                })
+                .verifyComplete();
+    }
 }
