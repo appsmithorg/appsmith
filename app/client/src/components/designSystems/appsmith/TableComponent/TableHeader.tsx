@@ -32,6 +32,7 @@ const PageNumberInputWrapper = styled(NumericInput)`
     border-radius: 4px;
     width: 24px;
     height: 24px;
+    line-height: 24px;
     padding: 0 !important;
     text-align: center;
     font-size: 12px;
