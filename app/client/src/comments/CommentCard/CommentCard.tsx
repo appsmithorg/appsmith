@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import Editor from "@draft-js-plugins/editor";
 import {
   CompositeDecorator,
@@ -16,6 +16,7 @@ import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
 
 import createMentionPlugin from "@draft-js-plugins/mention";
 import { flattenDeep, noop } from "lodash";
+import copy from "copy-to-clipboard";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -71,29 +72,56 @@ const decorator = new CompositeDecorator(
   decorators.filter((_decorator, index) => index !== 1) as DraftDecorator[],
 );
 
+const useSelectCommentUsingQuery = (commentId: string) => {
+  useEffect(() => {
+    const searchParams = new URL(window.location.href).searchParams;
+    const commentIdInUrl = searchParams.get("commentId");
+    if (commentIdInUrl && commentIdInUrl === commentId) {
+      const commentCard = document.getElementById(`comment-card-${commentId}`);
+      commentCard?.scrollIntoView();
+    }
+  }, []);
+};
+
 const CommentCard = ({
   comment,
   isParentComment,
   toggleResolved,
   resolved,
+  commentThreadId,
 }: {
   comment: Comment;
   isParentComment?: boolean;
   resolved?: boolean;
   toggleResolved?: () => void;
+  commentThreadId: string;
 }) => {
-  const { authorName, body } = comment;
+  const { authorName, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
+
+  const copyCommentLink = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("commentId", commentId);
+    url.searchParams.set("commentThreadId", commentThreadId);
+    url.searchParams.set("isCommentMode", "true");
+    copy(url.toString());
+  }, []);
+
   const contextMenuProps = {
     pinComment: noop,
-    copyComment: noop,
+    copyCommentLink,
     deleteComment: noop,
   };
 
+  useSelectCommentUsingQuery(comment.id);
+
   return (
     <>
-      <StyledContainer data-cy={`t--comment-card-${comment.id}`}>
+      <StyledContainer
+        id={`comment-card-${comment.id}`}
+        data-cy={`t--comment-card-${comment.id}`}
+      >
         <CommentHeader>
           <HeaderSection>
             <ProfileImage userName={authorName || ""} side={30} />
