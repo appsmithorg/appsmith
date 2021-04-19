@@ -213,7 +213,7 @@ const ApiResponseView = (props: Props) => {
                   </ShowRequestText>
                 </FailedMessage>
               }
-              variant={Variant.warning}
+              variant={Variant.danger}
               fill
               closeButton
               onClose={() => setRequestDebugVisible(false)}
