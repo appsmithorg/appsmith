@@ -123,8 +123,6 @@ public class AppendMethod implements Method {
                                 "Expected to receive a response of existing headers."));
                     }
 
-                    System.out.println("JsonNode " + jsonNodeBody.toPrettyString());
-
                     ArrayNode valueRanges = (ArrayNode) jsonNodeBody.get("valueRanges");
                     ArrayNode values = (ArrayNode) valueRanges.get(0).get("values");
 
@@ -136,11 +134,8 @@ public class AppendMethod implements Method {
                             boolean validValues = false;
                             final Map<String, String> inputValueMap = finalRowObjectFromBody.getValueMap();
 
-                            System.out.println("Headers: " + headers.toPrettyString());
                             for (JsonNode header : headers) {
                                 final String value = inputValueMap.getOrDefault(header.asText(), null);
-                                System.out.println("Value " + value);
-                                System.out.println("Header " + header.toPrettyString());
                                 if (value != null) {
                                     validValues = true;
                                 }

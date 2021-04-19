@@ -414,8 +414,8 @@ public class AuthenticationService {
                                     return response.bodyToMono(AuthenticationResponse.class);
                                 } else {
                                     log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR,
-                                            "Unable to retrieve appsmith token with error " + response.statusCode()));
+                                    return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE,
+                                            response.statusCode()));
                                 }
                             })
                             .flatMap(authenticationResponse -> {

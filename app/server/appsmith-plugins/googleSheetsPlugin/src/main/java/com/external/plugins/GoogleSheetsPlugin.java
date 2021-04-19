@@ -13,10 +13,8 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.Method;
 import com.external.config.MethodConfig;
-import com.external.utils.JSONUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -76,26 +74,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // Initializing webClient to be used for http call
             WebClient.Builder webClientBuilder = WebClient.builder();
-
-            // Adding request body
-            final String rowObjectBody = actionConfiguration.getPluginSpecifiedTemplates().get(8).getValue();
-            String requestBodyAsString = (rowObjectBody == null || rowObjectBody.isEmpty()) ? "" : rowObjectBody;
-
-            if ("".equals(requestBodyAsString)) {
-                final String rowObjectsBody = actionConfiguration.getPluginSpecifiedTemplates().get(9).getValue();
-                requestBodyAsString = (rowObjectsBody == null || rowObjectBody.isEmpty()) ? "" : rowObjectsBody;
-            }
-
-            // Validating request body
-            try {
-                JSONUtils.objectFromJson(requestBodyAsString);
-            } catch (JsonSyntaxException e) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                        requestBodyAsString,
-                        "Malformed JSON: " + e.getMessage()
-                ));
-            }
 
             method.validateMethodRequest(methodConfig);
 
