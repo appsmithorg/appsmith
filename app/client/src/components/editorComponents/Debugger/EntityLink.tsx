@@ -102,11 +102,8 @@ const Link = (props: {
   entityType: ENTITY_TYPE;
   uiComponent: DebuggerLinkUI;
 }) => {
-  const dispatch = useDispatch();
-
   const onClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
-    dispatch(showDebugger(false));
     props.onClick();
   };
 
