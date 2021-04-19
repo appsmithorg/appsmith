@@ -7,6 +7,7 @@ import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
 import { AppState } from "reducers";
 import { showDebugger as showDebuggerAction } from "actions/debuggerActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div<{ errorCount: number }>`
   background-color: #2b2b2b;
@@ -55,6 +56,9 @@ const Debugger = () => {
   );
 
   const onClick = () => {
+    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+      source: "CANVAS",
+    });
     dispatch(showDebuggerAction(true));
   };
 

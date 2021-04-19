@@ -27,6 +27,7 @@ import Callout from "components/ads/Callout";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -203,6 +204,9 @@ const ApiResponseView = (props: Props) => {
                   <ShowRequestText
                     href={"#!"}
                     onClick={() => {
+                      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+                        source: "API",
+                      });
                       setSelectedIndex(1);
                     }}
                   >

@@ -1,4 +1,5 @@
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import { PluginType } from "entities/Action";
 import { ENTITY_TYPE, SourceEntity } from "entities/AppsmithConsole";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
@@ -15,6 +16,7 @@ import {
   getDatasource,
 } from "selectors/entitiesSelector";
 import { getSelectedWidget } from "selectors/ui";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 
 const ActionLink = (props: EntityLinkProps) => {
@@ -30,6 +32,12 @@ const ActionLink = (props: EntityLinkProps) => {
 
       if (url) {
         history.push(url);
+        const actionType =
+          action.pluginType === PluginType.API ? "API" : "QUERY";
+
+        AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+          entityType: actionType,
+        });
       }
     }
   }, []);
@@ -60,6 +68,9 @@ const WidgetLink = (props: EntityLinkProps) => {
       props.id === selectedWidgetId,
       widget.parentModalId,
     );
+    AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+      entityType: "WIDGET",
+    });
   }, []);
 
   return (
@@ -82,6 +93,9 @@ const DatasourceLink = (props: EntityLinkProps) => {
   const onClick = useCallback(() => {
     if (datasource) {
       history.push(DATA_SOURCES_EDITOR_ID_URL(appId, pageId, datasource.id));
+      AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+        entityType: "DATASOURCE",
+      });
     }
   }, []);
 

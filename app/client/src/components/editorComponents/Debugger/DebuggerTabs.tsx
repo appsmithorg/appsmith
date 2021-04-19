@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { showDebugger } from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -39,25 +40,32 @@ const DebuggerTabs = (props: DebuggerTabsProps) => {
   const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
+  const tabs = [
+    {
+      key: "ERROR",
+      title: "Errors",
+      panelComponent: <Errors />,
+    },
+    {
+      key: "LOGS",
+      title: "Logs",
+      panelComponent: <DebuggerLogs />,
+    },
+  ];
 
   return (
     <Container ref={panelRef}>
       <Resizer panelRef={panelRef} />
       <TabComponent
         selectedIndex={selectedIndex}
-        onSelect={(index) => setSelectedIndex(index)}
-        tabs={[
-          {
-            key: "errors",
-            title: "Errors",
-            panelComponent: <Errors />,
-          },
-          {
-            key: "logs",
-            title: "Logs",
-            panelComponent: <DebuggerLogs />,
-          },
-        ]}
+        onSelect={(index) => {
+          AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
+            tabName: tabs[index].key,
+          });
+
+          setSelectedIndex(index);
+        }}
+        tabs={tabs}
       />
       <Icon
         className="close-debugger"

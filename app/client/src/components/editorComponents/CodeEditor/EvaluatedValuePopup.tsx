@@ -195,7 +195,10 @@ const PopoverContent = (props: PopoverContentProps) => {
           {props.useValidationMessage && props.error
             ? props.error
             : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
-          <StyledDebugButton className="evaluated-value" />
+          <StyledDebugButton
+            className="evaluated-value"
+            source={"EVALUATED_VALUE"}
+          />
         </ErrorText>
       )}
       {!props.hasError && props.expected && (

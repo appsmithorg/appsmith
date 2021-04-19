@@ -5,6 +5,7 @@ import { showDebugger } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Variant } from "components/ads/common";
 import { getAppMode } from "selectors/applicationSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledButton = styled(Button)`
   width: fit-content;
@@ -17,6 +18,8 @@ const StyledButton = styled(Button)`
 
 type DebugCTAProps = {
   className?: string;
+  // For Analytics
+  source?: string;
 };
 
 const DebugCTA = (props: DebugCTAProps) => {
@@ -28,7 +31,13 @@ const DebugCTA = (props: DebugCTAProps) => {
   return (
     <DebugButton
       className={props.className}
-      onClick={() => dispatch(showDebugger(true))}
+      onClick={() => {
+        props.source &&
+          AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+            source: props.source,
+          });
+        dispatch(showDebugger(true));
+      }}
     />
   );
 };

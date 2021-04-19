@@ -48,6 +48,7 @@ import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import DebuggerMessage from "components/editorComponents/Debugger/DebuggerMessage";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -584,7 +585,14 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                         <ErrorDescriptionText type={TextType.P1}>
                           {error}
                         </ErrorDescriptionText>
-                        <DebuggerMessage onClick={() => setSelectedIndex(1)} />
+                        <DebuggerMessage
+                          onClick={() => {
+                            AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+                              source: "QUERY",
+                            });
+                            setSelectedIndex(1);
+                          }}
+                        />
                       </ErrorContainer>
                     )}
                     {output && (

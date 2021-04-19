@@ -111,7 +111,10 @@ export type EventName =
   | "CLOSE_OMNIBAR"
   | "NAVIGATE_TO_ENTITY_FROM_OMNIBAR"
   | "PAGE_SAVE"
-  | "CORRECT_BAD_BINDING";
+  | "CORRECT_BAD_BINDING"
+  | "OPEN_DEBUGGER"
+  | "DEBUGGER_TAB_SWITCH"
+  | "DEBUGGER_ENTITY_NAVIGATION";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -228,6 +231,7 @@ class AnalyticsUtil {
       };
     }
 
+    log.debug("Event fired", eventName, finalEventData);
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);

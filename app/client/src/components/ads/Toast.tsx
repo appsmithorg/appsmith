@@ -131,7 +131,9 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
         ) : null}
         <div>
           <Text type={TextType.P1}>{props.text}</Text>
-          {props.variant === Variant.danger ? <StyledDebugButton /> : null}
+          {props.variant === Variant.danger ? (
+            <StyledDebugButton source={"TOAST"} />
+          ) : null}
         </div>
       </FlexContainer>
       <div className="undo-section">
