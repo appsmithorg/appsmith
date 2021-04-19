@@ -486,6 +486,7 @@ export function* refactorActionName(
     // call to refactor action
     const refactorResponse = yield ActionAPI.updateActionName({
       layoutId,
+      actionId: id,
       pageId: pageId,
       oldName: oldName,
       newName: newName,

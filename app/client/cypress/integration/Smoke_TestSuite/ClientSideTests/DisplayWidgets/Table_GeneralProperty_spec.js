@@ -12,6 +12,12 @@ describe("Table Widget property pane feature validation", function() {
     cy.addDsl(dsl);
   });
 
+  it("Test to validate table pagination is disabled", function() {
+    cy.get(".t--table-widget-prev-page").should("have.attr", "disabled");
+    cy.get(".t--table-widget-next-page").should("have.attr", "disabled");
+    cy.get(".t--table-widget-page-input input").should("have.attr", "disabled");
+  });
+
   it("Test to validate text allignment", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.centerAlign)
@@ -26,6 +32,28 @@ describe("Table Widget property pane feature validation", function() {
       .first()
       .click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-start");
+  });
+
+  it("Test to validate column heading allignment", function() {
+    // cy.openPropertyPane("tablewidget");
+    cy.get(widgetsPage.centerAlign)
+      .first()
+      .click({ force: true });
+    cy.get(".draggable-header")
+      .first()
+      .should("have.css", "text-align", "center");
+    cy.get(widgetsPage.rightAlign)
+      .first()
+      .click({ force: true });
+    cy.get(".draggable-header")
+      .first()
+      .should("have.css", "text-align", "right");
+    cy.get(widgetsPage.leftAlign)
+      .first()
+      .click({ force: true });
+    cy.get(".draggable-header")
+      .first()
+      .should("have.css", "text-align", "left");
   });
 
   it("Test to validate text format", function() {
@@ -95,6 +123,14 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(
       `.t--widget-tablewidget .tbody .td[data-rowindex=1][data-colindex=1] .hidden-icon`,
     ).should("be.visible");
+    cy.get(commonlocators.editPropCrossButton).click();
+  });
+
+  it("Edit column name and test for table header changes", function() {
+    cy.openPropertyPane("tablewidget");
+    cy.editColumn("email");
+    cy.editColName("Email Address");
+    cy.get(".draggable-header:contains('Email Address')").should("be.visible");
     cy.get(commonlocators.editPropCrossButton).click();
   });
 

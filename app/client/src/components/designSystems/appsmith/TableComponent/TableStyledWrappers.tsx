@@ -2,6 +2,7 @@ import styled, { css } from "styled-components";
 import {
   TableSizes,
   CellLayoutProperties,
+  CellAlignment,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors, Color } from "constants/Colors";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
@@ -119,7 +120,7 @@ export const TableWrapper = styled.div<{
   .draggable-header {
     cursor: pointer;
     display: inline-block;
-    width: calc(100% - 20px);
+    width: 100%;
     height: 38px;
     &.reorder-line {
       width: 1px;
@@ -270,6 +271,12 @@ const JUSTIFY_CONTENT = {
   RIGHT: "flex-end",
 };
 
+const TEXT_ALIGN = {
+  LEFT: "left",
+  CENTER: "center",
+  RIGHT: "right",
+};
+
 const ALIGN_ITEMS = {
   TOP: "flex-start",
   CENTER: "center",
@@ -300,6 +307,13 @@ export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
   font-size: ${(props) =>
     props?.cellProperties?.textSize &&
     TEXT_SIZES[props?.cellProperties?.textSize]};
+`;
+
+export const DraggableHeaderWrapper = styled.div<{
+  horizontalAlignment?: CellAlignment;
+}>`
+  text-align: ${(props) =>
+    props?.horizontalAlignment && TEXT_ALIGN[props?.horizontalAlignment]};
 `;
 
 export const CellWrapper = styled.div<{
