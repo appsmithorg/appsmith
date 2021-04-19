@@ -1,12 +1,12 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
@@ -19,11 +19,13 @@ import java.util.Set;
 
 public interface NewActionService extends CrudService<NewAction, String> {
 
+    void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction);
+
     Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode);
 
-    Mono<ActionDTO> createAction(ActionDTO action);
+    void generateAndSetActionPolicies(NewPage page, NewAction action);
 
-    Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext appsmithEventContext);
+    Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction);
 
     NewAction extractAndSetJsonPathKeys(NewAction newAction);
 
