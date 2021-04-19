@@ -4,11 +4,12 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
-const pageid = "MyPage";
-let updatedName;
-let datasourceName;
-
 describe("Entity explorer tests related to copy query", function() {
+  const pageid = "MyPage";
+  let updatedName;
+  let datasourceName;
+  let newDsName;
+
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
@@ -21,24 +22,26 @@ describe("Entity explorer tests related to copy query", function() {
 
     cy.fillPostgresDatasourceForm();
 
-    cy.testSaveDatasource();
+    cy.testDatasource();
 
-    cy.NavigateToQueryEditor();
+    cy.get(".t--save-datasource").click();
 
-    cy.get("@createDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-
-      cy.contains(".t--datasource-name", datasourceName)
-        .find(queryLocators.createQuery)
-        .click();
-    });
-
-    cy.get("@getPluginForm").should(
+    cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
+    cy.get("@saveDatasource").then((httpResponse) => {
+      datasourceName = httpResponse.response.body.data.name;
+      newDsName = datasourceName;
+      cy.log(datasourceName);
+      cy.NavigateToQueryEditor();
+      cy.get(".t--datasource-name:contains(".concat(datasourceName).concat(")"))
+        .find(queryLocators.createQuery)
+        .click({ force: true });
+    });
 
+    cy.get("@getPluginForm").should("not.be.null");
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
@@ -85,10 +88,11 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("Delete query and rename datasource in explorer", function() {
+    cy.log(newDsName);
     cy.get(commonlocators.entityExplorersearch).clear();
     cy.NavigateToDatasourceEditor();
-    cy.GlobalSearchEntity(`${datasourceName}`);
-    cy.get(`.t--entity-name:contains(${datasourceName})`)
+    cy.GlobalSearchEntity(newDsName);
+    cy.get(`.t--entity-name:contains(${newDsName})`)
       .last()
       .click();
     cy.generateUUID().then((uid) => {
@@ -96,7 +100,7 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("complete uid :" + updatedName);
       updatedName = uid.replace(/-/g, "_").slice(1, 15);
       cy.log("sliced id :" + updatedName);
-      cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
+      cy.EditEntityNameByDoubleClick(newDsName, updatedName);
       cy.SearchEntityandOpen(updatedName);
       cy.testSaveDatasource();
       cy.hoverAndClick();
