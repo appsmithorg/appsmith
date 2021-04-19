@@ -129,7 +129,7 @@ public class MongoPlugin extends BasePlugin {
 
                 // Since properties is not empty, we are guaranteed to find the first property.
             } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null){
-                smartBsonSubstitution = Boolean.parseBoolean(properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue());
+                smartBsonSubstitution = (Boolean) properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue();
             } else {
                 smartBsonSubstitution = false;
             }

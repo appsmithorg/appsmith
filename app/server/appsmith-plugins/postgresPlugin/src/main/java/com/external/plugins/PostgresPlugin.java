@@ -172,7 +172,7 @@ public class PostgresPlugin extends BasePlugin {
                  */
                 isPreparedStatement = false;
             } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
-                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+                isPreparedStatement = (Boolean) properties.get(PREPARED_STATEMENT_INDEX).getValue();
             } else {
                 isPreparedStatement = false;
             }
