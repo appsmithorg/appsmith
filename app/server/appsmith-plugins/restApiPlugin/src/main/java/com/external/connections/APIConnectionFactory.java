@@ -1,8 +1,8 @@
 package com.external.connections;
 
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.external.services.SharedConfig;
 import reactor.core.publisher.Mono;
 
 
@@ -17,6 +17,8 @@ public class APIConnectionFactory {
             } else {
                 return Mono.empty();
             }
+        } else if (authenticationType instanceof BasicAuth) {
+            return Mono.from(BasicAuthentication.create((BasicAuth) authenticationType));
         } else {
             return Mono.empty();
         }

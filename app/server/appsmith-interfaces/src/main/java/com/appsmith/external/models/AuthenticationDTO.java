@@ -1,6 +1,5 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -24,7 +23,8 @@ import java.util.Set;
         defaultImpl = DBAuth.class)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = DBAuth.class, name = Authentication.DB_AUTH),
-        @JsonSubTypes.Type(value = OAuth2.class, name = Authentication.OAUTH2)
+        @JsonSubTypes.Type(value = OAuth2.class, name = Authentication.OAUTH2),
+        @JsonSubTypes.Type(value = BasicAuth.class, name = Authentication.BASIC)
 })
 public class AuthenticationDTO implements AppsmithDomain {
     // In principle, this class should've been abstract. However, when this class is abstract, Spring's deserialization
