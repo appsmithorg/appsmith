@@ -8,7 +8,13 @@ import React, {
 } from "react";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled, { withTheme } from "styled-components";
-import { EditorState, convertToRaw, Modifier } from "draft-js";
+import {
+  EditorState,
+  convertToRaw,
+  Modifier,
+  ContentState,
+  SelectionState,
+} from "draft-js";
 import EmojiPicker from "components/ads/EmojiPicker";
 import MentionsInput from "components/ads/MentionsInput";
 import useOrgUsers from "./useOrgUsers";
@@ -73,6 +79,28 @@ const insertCharacter = (
   );
 };
 
+// Ref: https://github.com/facebook/draft-js/issues/445#issuecomment-223860229
+const resetEditorState = (editorState: EditorState) => {
+  let contentState = editorState.getCurrentContent();
+  const firstBlock = contentState.getFirstBlock();
+  const lastBlock = contentState.getLastBlock();
+  const allSelected = new SelectionState({
+    anchorKey: firstBlock.getKey(),
+    anchorOffset: 0,
+    focusKey: lastBlock.getKey(),
+    focusOffset: lastBlock.getLength(),
+    hasFocus: true,
+  });
+  contentState = Modifier.removeRange(contentState, allSelected, "backward");
+  editorState = EditorState.push(editorState, contentState, "remove-range");
+  editorState = EditorState.forceSelection(
+    editorState,
+    contentState.getSelectionAfter(),
+  );
+
+  return editorState;
+};
+
 const useUserSuggestions = (
   users: Array<OrgUser>,
   setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
@@ -95,7 +123,7 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
       const contentState = latestEditorState.getCurrentContent();
       const rawContent = convertToRaw(contentState);
       onSave(rawContent);
-      setEditorState(EditorState.createEmpty());
+      setEditorState(resetEditorState(latestEditorState));
     },
     [editorState],
   );
