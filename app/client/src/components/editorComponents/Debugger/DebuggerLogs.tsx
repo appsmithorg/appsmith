@@ -73,7 +73,13 @@ const DebbuggerLogs = (props: Props) => {
         {paginatedData.map((e: any, index: number) => {
           const logItemProps = getLogItemProps(e);
 
-          return <LogItem key={`debugger-${index}`} {...logItemProps} />;
+          return (
+            <LogItem
+              key={`debugger-${index}`}
+              {...logItemProps}
+              expand={index === paginatedData.length - 1}
+            />
+          );
         })}
       </ListWrapper>
     </ContainerWrapper>
