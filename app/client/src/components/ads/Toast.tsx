@@ -106,6 +106,10 @@ const FlexContainer = styled.div`
   align-items: flex-start;
 `;
 
+const StyledDebugButton = styled(DebugButton)`
+  margin-left: auto;
+`;
+
 const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
   const dispatch = useDispatch();
 
@@ -127,7 +131,7 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
         ) : null}
         <div>
           <Text type={TextType.P1}>{props.text}</Text>
-          {props.variant === Variant.danger ? <DebugButton /> : null}
+          {props.variant === Variant.danger ? <StyledDebugButton /> : null}
         </div>
       </FlexContainer>
       <div className="undo-section">
