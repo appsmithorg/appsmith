@@ -45,14 +45,16 @@ public class DeleteRowMethod implements Method {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unexpected value for row index. Please use a number starting from 0");
             }
-
         } catch (NumberFormatException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                     "Unexpected format for row index. Please use a number starting from 0");
         }
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
-                Integer.parseInt(methodConfig.getTableHeaderIndex());
+                if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                            "Unexpected value for table header index. Please use a number starting from 1");
+                }
             } catch (NumberFormatException e) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
@@ -118,7 +120,7 @@ public class DeleteRowMethod implements Method {
                         + ":batchUpdate");
 
         final int rowIndex = Integer.parseInt(methodConfig.getTableHeaderIndex()) +
-                Integer.parseInt(methodConfig.getRowIndex()) - 1;
+                Integer.parseInt(methodConfig.getRowIndex());
         return webClient.method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromValue(

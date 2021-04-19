@@ -42,7 +42,10 @@ public class UpdateMethod implements Method {
         }
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
-                Integer.parseInt(methodConfig.getTableHeaderIndex());
+                if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                            "Unexpected value for table header index. Please use a number starting from 1");
+                }
             } catch (NumberFormatException e) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
