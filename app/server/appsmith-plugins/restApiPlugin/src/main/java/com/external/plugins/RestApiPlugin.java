@@ -135,7 +135,14 @@ public class RestApiPlugin extends BasePlugin {
 
                 // Since properties is not empty, we are guaranteed to find the first property.
             } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null){
-                smartJsonSubstitution = (Boolean) properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
+                Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
+                if (ssubValue instanceof  Boolean) {
+                    smartJsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartJsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartJsonSubstitution = false;
+                }
             } else {
                 smartJsonSubstitution = false;
             }
