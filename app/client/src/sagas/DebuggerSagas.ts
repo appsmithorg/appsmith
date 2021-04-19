@@ -2,7 +2,15 @@ import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { LogActionPayload, LOG_TYPE } from "entities/AppsmithConsole";
-import { all, put, takeEvery, select, fork, join } from "redux-saga/effects";
+import {
+  all,
+  put,
+  takeEvery,
+  select,
+  fork,
+  join,
+  delay,
+} from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isEmpty, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
@@ -12,6 +20,8 @@ import { Action, PluginType } from "entities/Action";
 function* onWidgetUpdateSaga(payload: LogActionPayload) {
   if (!payload.source) return;
 
+  // Wait for data tree update
+  yield delay(1000);
   const dataTree = yield select(getDataTree);
   const widget = dataTree[payload.source.name];
 

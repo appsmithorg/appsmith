@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { isUndefined } from "lodash";
 import { Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
-import { useFilteredLogs, usePagination } from "./helpers";
+import { BlankState, useFilteredLogs, usePagination } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
 
 const LIST_HEADER_HEIGHT = "38px";
@@ -20,6 +20,7 @@ const ListWrapper = styled.div`
 
 type Props = {
   searchQuery: string;
+  hasShortCut?: boolean;
 };
 
 const DebbuggerLogs = (props: Props) => {
@@ -69,18 +70,23 @@ const DebbuggerLogs = (props: Props) => {
         defaultValue={props.searchQuery}
         searchQuery={searchQuery}
       />
-      <ListWrapper className="debugger-list" ref={listRef}>
-        {paginatedData.map((e: any, index: number) => {
-          const logItemProps = getLogItemProps(e);
 
-          return (
-            <LogItem
-              key={`debugger-${index}`}
-              {...logItemProps}
-              expand={index === paginatedData.length - 1}
-            />
-          );
-        })}
+      <ListWrapper className="debugger-list" ref={listRef}>
+        {!paginatedData.length ? (
+          <BlankState hasShortCut={!!props.hasShortCut} />
+        ) : (
+          paginatedData.map((e: any, index: number) => {
+            const logItemProps = getLogItemProps(e);
+
+            return (
+              <LogItem
+                key={`debugger-${index}`}
+                {...logItemProps}
+                expand={index === paginatedData.length - 1}
+              />
+            );
+          })
+        )}
       </ListWrapper>
     </ContainerWrapper>
   );

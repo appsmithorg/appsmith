@@ -1,7 +1,37 @@
 import { Message, Severity } from "entities/AppsmithConsole";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
+import styled from "styled-components";
+
+const BlankStateWrapper = styled.div`
+  overflow: auto;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #716e6e;
+
+  .debugger-shortcut {
+    font-weight: 700;
+    color: black;
+  }
+`;
+
+export const BlankState = (props: { hasShortCut?: boolean }) => {
+  return (
+    <BlankStateWrapper>
+      {!!props.hasShortCut ? (
+        <span>
+          🎉 Press <span className="debugger-shortcut">Cmd + D</span> to open
+          the debugger
+        </span>
+      ) : (
+        <span>No logs to show</span>
+      )}
+    </BlankStateWrapper>
+  );
+};
 
 export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",

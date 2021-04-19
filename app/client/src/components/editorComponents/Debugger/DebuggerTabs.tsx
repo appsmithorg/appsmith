@@ -44,12 +44,12 @@ const DebuggerTabs = (props: DebuggerTabsProps) => {
     {
       key: "ERROR",
       title: "Errors",
-      panelComponent: <Errors />,
+      panelComponent: <Errors hasShortCut />,
     },
     {
       key: "LOGS",
       title: "Logs",
-      panelComponent: <DebuggerLogs />,
+      panelComponent: <DebuggerLogs hasShortCut />,
     },
   ];
 
