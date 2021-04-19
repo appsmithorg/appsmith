@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import Icon, { IconSize, IconName } from "components/ads/Icon";
 import styled from "styled-components";
 import {
@@ -54,15 +54,17 @@ const MenuTitle = styled.div`
 
 type Props = {
   pinComment: typeof noop;
-  copyComment: typeof noop;
+  copyCommentLink: typeof noop;
   deleteComment: typeof noop;
 };
 
 const CommentContextMenu = ({
   pinComment,
-  copyComment,
+  copyCommentLink,
   deleteComment,
 }: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const options = useMemo(
     () => [
       {
@@ -73,7 +75,7 @@ const CommentContextMenu = ({
       {
         icon: "link-2",
         display: createMessage(COPY_LINK),
-        onClick: copyComment,
+        onClick: copyCommentLink,
       },
       {
         icon: "trash",
@@ -84,16 +86,26 @@ const CommentContextMenu = ({
     [],
   );
 
+  const handleInteraction = useCallback((isOpen) => {
+    setIsOpen(isOpen);
+  }, []);
+
+  const handleClick = useCallback((option) => {
+    setIsOpen(false);
+    option.onClick();
+  }, []);
+
   return (
     <Popover2
+      isOpen={isOpen}
       minimal
       placement={"bottom-end"}
       portalClassName="comment-context-menu"
-      boundary="clippingParents"
+      onInteraction={handleInteraction}
       content={
         <Container>
           {options.map((option) => (
-            <MenuItem key={option.icon}>
+            <MenuItem key={option.icon} onClick={() => handleClick(option)}>
               <MenuIcon>
                 <StyledIcon name={option.icon as IconName} size={IconSize.XL} />
               </MenuIcon>

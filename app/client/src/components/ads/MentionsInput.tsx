@@ -56,19 +56,19 @@ const MentionsInput = ({
     [open],
   );
 
-  const setRef = useCallback((editorRef) => {
-    ref.current = editorRef;
+  const focusInput = useCallback(() => {
     // Forcing focus breaks plugins
     // Ref: https://github.com/draft-js-plugins/draft-js-plugins/issues/800
-    if (autoFocus) setTimeout(() => editorRef?.focus());
+    setTimeout(() => ref.current?.focus());
+  }, []);
+
+  const setRef = useCallback((editorRef) => {
+    ref.current = editorRef;
+    if (autoFocus) focusInput();
   }, []);
 
   return (
-    <StyledContainer
-      onClick={() => {
-        ref.current?.focus();
-      }}
-    >
+    <StyledContainer onClick={focusInput}>
       <Editor
         ref={setRef}
         editorKey={"editor"}

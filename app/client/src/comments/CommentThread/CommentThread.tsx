@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 
 import CommentCard from "comments/CommentCard/CommentCard";
@@ -47,7 +47,6 @@ const ChildComments = styled.div`
 
 const CommentThreadContainer = ({
   commentThread,
-  isOpen,
   hideInput,
   inline,
 }: {
@@ -57,13 +56,9 @@ const CommentThreadContainer = ({
   inline?: boolean;
 }) => {
   const dispatch = useDispatch();
-  const { comments } = commentThread;
+  const { comments, id: commentThreadId } = commentThread;
   const messagesBottomRef = useRef<HTMLDivElement>(null);
   const commentsContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (inline) scrollToBottom();
-  }, [isOpen]);
 
   // Check if the comments window is scrolled to the bottom
   // We don't autoscroll for the user receiving the updates
@@ -110,6 +105,7 @@ const CommentThreadContainer = ({
         <CommentsContainer ref={commentsContainerRef} inline={inline}>
           {parentComment && (
             <CommentCard
+              commentThreadId={commentThreadId}
               key={parentComment.id}
               comment={parentComment}
               resolved={!!commentThread.resolved}
@@ -122,7 +118,11 @@ const CommentThreadContainer = ({
               <ChildCommentIndent />
               <ChildComments>
                 {childComments.map((comment) => (
-                  <CommentCard key={comment.id} comment={comment} />
+                  <CommentCard
+                    commentThreadId={commentThreadId}
+                    key={comment.id}
+                    comment={comment}
+                  />
                 ))}
               </ChildComments>
             </ChildCommentsContainer>
