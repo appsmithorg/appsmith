@@ -101,7 +101,8 @@ public class BulkUpdateMethod implements Method {
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
                 .exchange()
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                .map(response -> {// Choose body depending on response status
+                .map(response -> {
+                    // Choose body depending on response status
                     byte[] responseBody = response.getBody();
 
                     if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
@@ -136,8 +137,10 @@ public class BulkUpdateMethod implements Method {
                     final List<RowObject> returnedRowObjects =
                             new ArrayList<>(this.getRowObjectMapFromBody(jsonNode).values());
 
+                    boolean updatable = false;
+
                     // We replace these original values with new ones
-                    returnedRowObjects.forEach(rowObject -> {
+                    for (RowObject rowObject : returnedRowObjects) {
                         if (finalRowObjectMapFromBody.containsKey(rowObject.getCurrentRowIndex())) {
                             final Map<String, String> valueMap =
                                     finalRowObjectMapFromBody
@@ -148,11 +151,19 @@ public class BulkUpdateMethod implements Method {
                             for (Map.Entry<String, String> entry : returnedRowObjectValueMap.entrySet()) {
                                 String k = entry.getKey();
                                 if (valueMap.containsKey(k)) {
+                                    updatable = true;
                                     returnedRowObjectValueMap.put(k, valueMap.get(k));
                                 }
                             }
                         }
-                    });
+                    }
+
+                    if (Boolean.FALSE.equals(updatable)) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Could not map to existing data. Nothing to update."
+                        ));
+                    }
 
                     methodConfig.setBody(returnedRowObjects);
                     assert jsonNodeBody != null;
