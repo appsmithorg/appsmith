@@ -10,8 +10,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 public interface Method {
 
@@ -25,11 +29,27 @@ public interface Method {
             .build();
 
     default UriComponentsBuilder getBaseUriBuilder(String baseUri, String path) {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        try {
-            return uriBuilder.uri(new URI(baseUri + path));
-        } catch (URISyntaxException e) {
-            throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create URI"));
+        return getBaseUriBuilder(baseUri, path, false);
+    }
+
+    default UriComponentsBuilder getBaseUriBuilder(String baseUri, String path, boolean isEncoded) {
+        if (!isEncoded) {
+            try {
+                String decodedURL = URLDecoder.decode(baseUri + path, StandardCharsets.UTF_8);
+                URL url = new URL(decodedURL);
+                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+                UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+                return uriBuilder.uri(uri);
+            } catch (URISyntaxException | MalformedURLException e) {
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create URI"));
+            }
+        } else {
+            try {
+                UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+                return uriBuilder.uri(new URI(baseUri + path));
+            } catch (URISyntaxException e) {
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create URI"));
+            }
         }
     }
 
