@@ -171,7 +171,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
      */
     @Override
     public Mono<Comment> deleteComment(String id) {
-        log.debug("Archiving comment with id: {}", id);
+
         return repository.findById(id, AclPermission.MANAGE_COMMENT)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.COMMENT, id)))
                 .flatMap(comment -> repository.archive(comment));

@@ -70,7 +70,8 @@ public class CommentController extends BaseController<CommentService, Comment, S
                 .map(updated -> new ResponseDTO<>(HttpStatus.CREATED.value(), updated, null));
     }
 
-    @DeleteMapping("/comment/{id}")
+    @Override
+    @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Comment>> delete(@PathVariable String id) {
         log.debug("Going to delete comment with id: {}", id);
         return service.deleteComment(id)
