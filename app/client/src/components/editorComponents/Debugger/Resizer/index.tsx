@@ -3,10 +3,9 @@ import React, { useState, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
 
 export const ResizerCSS = css`
-  position: fixed;
-  bottom: 0;
   width: calc(100vw - ${(props) => props.theme.sidebarWidth});
   z-index: ${Layers.debugger};
+  position: relative;
 `;
 
 const Top = styled.div`

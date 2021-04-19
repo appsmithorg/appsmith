@@ -92,8 +92,9 @@ const SecondaryWrapper = styled.div`
 `;
 
 const TabbedViewContainer = styled.div`
+  flex: 1;
+  overflow: auto;
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  height: 50%;
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;

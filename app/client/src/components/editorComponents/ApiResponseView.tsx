@@ -31,9 +31,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
-  flex: 1;
   // Initial height of bottom tabs
-  height: 40%;
+  height: 60%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};

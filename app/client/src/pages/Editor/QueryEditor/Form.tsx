@@ -83,9 +83,7 @@ const ErrorMessage = styled.p`
 
 const TabbedViewContainer = styled.div`
   ${ResizerCSS}
-  flex: 1;
-  // Initial height of bottom tabs
-  height: 40%;
+  height: 50%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   .react-tabs__tab-panel {
@@ -290,6 +288,8 @@ const StyledOpenDocsIcon = styled(Icon)`
 `;
 
 const TabContainerView = styled.div`
+  flex: 1;
+  overflow: auto;
   a {
     font-size: 14px;
     line-height: 20px;
@@ -307,7 +307,6 @@ const TabContainerView = styled.div`
     }
   }
   position: relative;
-  height: 50%;
 `;
 
 type QueryFormProps = {
