@@ -2,8 +2,10 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.Organization;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +35,12 @@ public class CommentServiceTest {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPageService applicationPageService;
+
+    @Autowired
+    OrganizationService organizationService;
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -93,8 +101,17 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteValidComment() {
-        final Mono<Comment> beforeDeletion = applicationService
-                .findByName("TestApplications", AclPermission.READ_APPLICATIONS)
+
+        Organization organization = new Organization();
+        organization.setName("CommentDeleteTestOrg");
+        Mono<Comment> beforeDeletionMono = organizationService
+                .create(organization)
+                .flatMap(org -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("CommentDeleteApp");
+                    return applicationPageService
+                        .createApplication(testApplication, org.getId());
+                })
                 .flatMap(application -> {
                     final CommentThread thread = new CommentThread();
                     thread.setApplicationId(application.getId());
@@ -103,16 +120,18 @@ public class CommentServiceTest {
                     ));
                     return commentService.createThread(thread);
                 })
-                .flatMap(commentThread -> Mono.just(commentThread.getComments().get(0)));
+                .flatMap(commentThread -> Mono.just(commentThread.getComments().get(0)))
+                .cache();
 
-        Mono<Comment> afterDeletion = beforeDeletion
+        Mono<Comment> afterDeletionMono = beforeDeletionMono
                 .flatMap(comment -> commentService.deleteComment(comment.getId()));
 
         StepVerifier
-                .create(Mono.zip(beforeDeletion, afterDeletion))
+                .create(Mono.zip(beforeDeletionMono, afterDeletionMono))
                 .assertNext(object -> {
                     assertThat(object.getT1().isDeleted()).isFalse();
                     assertThat(object.getT2().isDeleted()).isTrue();
+                    assertThat(object.getT1().getId()).isEqualTo(object.getT2().getId());
                 })
                 .verifyComplete();
     }
