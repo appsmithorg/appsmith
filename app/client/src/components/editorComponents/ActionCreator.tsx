@@ -1063,7 +1063,7 @@ function Fields(props: {
         });
       }
     });
-    return <>{ui}</>;
+    return ui;
   }
 }
 

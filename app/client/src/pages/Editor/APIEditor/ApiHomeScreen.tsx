@@ -679,74 +679,69 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                 <LoadingContainer>
                   <Spinner size={30} />
                 </LoadingContainer>
+              ) : fetchProvidersError ? (
+                <div>
+                  <p className="fontSize16">No providers found.</p>
+                </div>
               ) : (
-                <>
-                  {fetchProvidersError ? (
-                    <div>
-                      <p className="fontSize16">No providers found.</p>
-                    </div>
-                  ) : (
-                    <div>
-                      <ApiCard>
-                        {providers.map((provider, index) => (
-                          <CardList
-                            key={index}
-                            onClick={() => {
-                              AnalyticsUtil.logEvent("3P_PROVIDER_CLICK", {
-                                providerName: provider.name,
-                              });
-                              history.push(
-                                getProviderTemplatesURL(
-                                  applicationId,
-                                  pageId,
-                                  provider.id +
-                                    `/?importTo=${destinationPageId}`,
-                                ),
-                              );
-                            }}
-                          >
-                            <Card
-                              className="eachProviderCard t--eachProviderCard"
-                              interactive={false}
+                <div>
+                  <ApiCard>
+                    {providers.map((provider, index) => (
+                      <CardList
+                        key={index}
+                        onClick={() => {
+                          AnalyticsUtil.logEvent("3P_PROVIDER_CLICK", {
+                            providerName: provider.name,
+                          });
+                          history.push(
+                            getProviderTemplatesURL(
+                              applicationId,
+                              pageId,
+                              provider.id + `/?importTo=${destinationPageId}`,
+                            ),
+                          );
+                        }}
+                      >
+                        <Card
+                          className="eachProviderCard t--eachProviderCard"
+                          interactive={false}
+                        >
+                          {provider.imageUrl ? (
+                            <img
+                              alt="Provider"
+                              className="apiImage"
+                              src={provider.imageUrl}
+                            />
+                          ) : (
+                            <div
+                              className="providerInitials"
+                              style={{
+                                backgroundColor: getInitialsAndColorCode(
+                                  provider.name,
+                                  this.props.colorPalette,
+                                )[1],
+                              }}
                             >
-                              {provider.imageUrl ? (
-                                <img
-                                  alt="Provider"
-                                  className="apiImage"
-                                  src={provider.imageUrl}
-                                />
-                              ) : (
-                                <div
-                                  className="providerInitials"
-                                  style={{
-                                    backgroundColor: getInitialsAndColorCode(
-                                      provider.name,
-                                      this.props.colorPalette,
-                                    )[1],
-                                  }}
-                                >
-                                  <span>
-                                    {
-                                      getInitialsAndColorCode(
-                                        provider.name,
-                                        this.props.colorPalette,
-                                      )[0]
-                                    }
-                                  </span>
-                                </div>
-                              )}
-                              {provider.name && (
-                                <p className="textBtn" title={provider.name}>
-                                  {provider.name}
-                                </p>
-                              )}
-                            </Card>
-                          </CardList>
-                        ))}
-                      </ApiCard>
-                    </div>
-                  )}
-                </>
+                              <span>
+                                {
+                                  getInitialsAndColorCode(
+                                    provider.name,
+                                    this.props.colorPalette,
+                                  )[0]
+                                }
+                              </span>
+                            </div>
+                          )}
+                          {provider.name && (
+                            <p className="textBtn" title={provider.name}>
+                              {provider.name}
+                            </p>
+                          )}
+                        </Card>
+                      </CardList>
+                    ))}
+                  </ApiCard>
+                </div>
               )}
             </StyledContainer>
             {/* Marketplace APIs section end */}

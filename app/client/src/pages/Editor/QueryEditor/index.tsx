@@ -141,35 +141,31 @@ class QueryEditor extends React.Component<Props> {
       value: dataSource.id,
       image: pluginImages[dataSource.pluginId],
     }));
-    return (
-      <>
-        {queryId ? (
-          <QueryEditorForm
-            DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
-            applicationId={applicationId}
-            dataSources={dataSources}
-            editorConfig={editorConfig}
-            executedQueryData={responses[queryId]}
-            isDeleting={isDeleting}
-            isRunning={isRunning}
-            location={this.props.location}
-            onDeleteClick={this.handleDeleteClick}
-            onRunClick={this.handleRunClick}
-            pageId={pageId}
-            runErrorMessage={runErrorMessage[queryId]}
-            settingConfig={settingConfig}
-          />
-        ) : (
-          <QueryHomeScreen
-            applicationId={applicationId}
-            dataSources={dataSources}
-            history={this.props.history}
-            isCreating={isCreating}
-            location={this.props.location}
-            pageId={pageId}
-          />
-        )}
-      </>
+    return queryId ? (
+      <QueryEditorForm
+        DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
+        applicationId={applicationId}
+        dataSources={dataSources}
+        editorConfig={editorConfig}
+        executedQueryData={responses[queryId]}
+        isDeleting={isDeleting}
+        isRunning={isRunning}
+        location={this.props.location}
+        onDeleteClick={this.handleDeleteClick}
+        onRunClick={this.handleRunClick}
+        pageId={pageId}
+        runErrorMessage={runErrorMessage[queryId]}
+        settingConfig={settingConfig}
+      />
+    ) : (
+      <QueryHomeScreen
+        applicationId={applicationId}
+        dataSources={dataSources}
+        history={this.props.history}
+        isCreating={isCreating}
+        location={this.props.location}
+        pageId={pageId}
+      />
     );
   }
 }

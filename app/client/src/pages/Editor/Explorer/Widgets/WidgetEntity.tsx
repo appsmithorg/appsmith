@@ -140,7 +140,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     return widgetType === "MODAL_WIDGET" ? widgetId : parentModalId;
   }, [widgetType, widgetId, parentModalId]);
 
-  if (UNREGISTERED_WIDGETS.indexOf(props.widgetType) > -1) return <></>;
+  if (UNREGISTERED_WIDGETS.indexOf(props.widgetType) > -1) return null;
 
   const contextMenu = (
     <WidgetContextMenu

@@ -30,7 +30,7 @@ interface Props {
   flushErrorsAndRedirect?: any;
 }
 
-const PageNotFound: React.FC<Props> = (props: Props) => {
+function PageNotFound(props: Props) {
   const { flushErrorsAndRedirect } = props;
 
   return (
@@ -60,7 +60,7 @@ const PageNotFound: React.FC<Props> = (props: Props) => {
       </div>
     </Wrapper>
   );
-};
+}
 
 export default connect(null, {
   flushErrorsAndRedirect,

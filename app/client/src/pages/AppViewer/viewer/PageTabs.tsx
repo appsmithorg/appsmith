@@ -76,7 +76,7 @@ const CenterTabNameContainer = styled.div`
   align-items: center;
 `;
 
-const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
+function PageTabName({ name }: { name: string }) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
@@ -106,7 +106,7 @@ const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
   ) : (
     tabNameText
   );
-};
+}
 
 function PageTabContainer({
   children,

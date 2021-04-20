@@ -310,171 +310,160 @@ class EditorSidebar extends React.Component<Props, State> {
       "importTo",
     );
 
-    return (
-      <>
-        {isLoading ? (
-          <LoadingContainer>
-            <Spinner size={30} />
-          </LoadingContainer>
-        ) : (
-          <Wrapper>
-            <ItemsWrapper>
-              <Controls>
-                <SearchBar
-                  icon="search"
-                  input={{
-                    value: search,
-                    onChange: this.handleSearchChange,
-                  }}
-                  placeholder="Search"
-                />
-              </Controls>
-              <DragDropContext
-                onDragEnd={this.onDragEnd}
-                onDragStart={this.onDragStart}
-              >
-                <>
-                  {pageWiseList.map((page, i) => {
-                    return (
-                      <PageContainer key={page.id}>
-                        <PageName isMain={i === 0}>{page.name}</PageName>
-                        <Droppable
-                          droppableId={page.id}
-                          isDropDisabled={
-                            page.id === this.state.itemDraggingFrom
-                          }
-                          type="API"
+    return isLoading ? (
+      <LoadingContainer>
+        <Spinner size={30} />
+      </LoadingContainer>
+    ) : (
+      <Wrapper>
+        <ItemsWrapper>
+          <Controls>
+            <SearchBar
+              icon="search"
+              input={{
+                value: search,
+                onChange: this.handleSearchChange,
+              }}
+              placeholder="Search"
+            />
+          </Controls>
+          <DragDropContext
+            onDragEnd={this.onDragEnd}
+            onDragStart={this.onDragStart}
+          >
+            <>
+              {pageWiseList.map((page, i) => {
+                return (
+                  <PageContainer key={page.id}>
+                    <PageName isMain={i === 0}>{page.name}</PageName>
+                    <Droppable
+                      droppableId={page.id}
+                      isDropDisabled={page.id === this.state.itemDraggingFrom}
+                      type="API"
+                    >
+                      {(provided, snapshot) => (
+                        <PageDropContainer
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
                         >
-                          {(provided, snapshot) => (
-                            <PageDropContainer
-                              ref={provided.innerRef}
-                              {...provided.droppableProps}
-                            >
-                              {provided.placeholder}
-                              <div>
-                                <StyledAddButton
-                                  className={
-                                    destinationPageId === page.id
-                                      ? "highlightButton"
-                                      : "createBtn"
-                                  }
-                                  fluid
-                                  icon="plus"
-                                  onClick={() => this.handleCreateNew(page.id)}
-                                  style={{ padding: "10px" }}
-                                  text={createButtonTitle}
-                                />
-                                {page.items.length === 0 && (
-                                  <NoItemMessage>
-                                    {"No APIs on this page yet"}
-                                  </NoItemMessage>
-                                )}
-                                {page.items.map((item: Item, index) => (
-                                  <Draggable
-                                    draggableId={item.id}
-                                    index={index}
-                                    key={item.id}
+                          {provided.placeholder}
+                          <div>
+                            <StyledAddButton
+                              className={
+                                destinationPageId === page.id
+                                  ? "highlightButton"
+                                  : "createBtn"
+                              }
+                              fluid
+                              icon="plus"
+                              onClick={() => this.handleCreateNew(page.id)}
+                              style={{ padding: "10px" }}
+                              text={createButtonTitle}
+                            />
+                            {page.items.length === 0 && (
+                              <NoItemMessage>
+                                {"No APIs on this page yet"}
+                              </NoItemMessage>
+                            )}
+                            {page.items.map((item: Item, index) => (
+                              <Draggable
+                                draggableId={item.id}
+                                index={index}
+                                key={item.id}
+                              >
+                                {(provided) => (
+                                  <ItemContainer
+                                    isBeingDragged={
+                                      this.state.itemDragging === item.id
+                                    }
+                                    isDraggingOver={snapshot.isDraggingOver}
+                                    isSelected={item.id === selectedItemId}
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    onClick={() =>
+                                      this.handleItemSelect(
+                                        item.id,
+                                        item.pageId,
+                                      )
+                                    }
                                   >
-                                    {(provided) => (
-                                      <ItemContainer
-                                        isBeingDragged={
-                                          this.state.itemDragging === item.id
-                                        }
-                                        isDraggingOver={snapshot.isDraggingOver}
-                                        isSelected={item.id === selectedItemId}
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        onClick={() =>
-                                          this.handleItemSelect(
-                                            item.id,
-                                            item.pageId,
-                                          )
-                                        }
-                                      >
-                                        {itemRender(item)}
-                                        {this.state.itemDragging !==
-                                          item.id && (
-                                          <TreeDropdown
-                                            defaultText=""
-                                            onSelect={() => {
-                                              return null;
-                                            }}
-                                            optionTree={[
-                                              {
-                                                value: "copy",
-                                                onSelect: () => null,
-                                                label: "Copy to",
-                                                children: pageWiseList.map(
-                                                  (p) => ({
-                                                    label: p.name,
-                                                    id: p.id,
-                                                    value: p.name,
-                                                    onSelect: () =>
-                                                      this.props.copyItem(
-                                                        item.id,
-                                                        p.id,
-                                                      ),
-                                                  }),
+                                    {itemRender(item)}
+                                    {this.state.itemDragging !== item.id && (
+                                      <TreeDropdown
+                                        defaultText=""
+                                        onSelect={() => {
+                                          return null;
+                                        }}
+                                        optionTree={[
+                                          {
+                                            value: "copy",
+                                            onSelect: () => null,
+                                            label: "Copy to",
+                                            children: pageWiseList.map((p) => ({
+                                              label: p.name,
+                                              id: p.id,
+                                              value: p.name,
+                                              onSelect: () =>
+                                                this.props.copyItem(
+                                                  item.id,
+                                                  p.id,
                                                 ),
-                                              },
-                                              {
-                                                value: "move",
-                                                onSelect: () => null,
-                                                label: "Move to",
-                                                children: pageWiseList
-                                                  .filter(
-                                                    (p) => p.id !== page.id,
-                                                  )
-                                                  .map((p) => ({
-                                                    label: p.name,
-                                                    id: p.id,
-                                                    value: p.name,
-                                                    onSelect: () =>
-                                                      this.props.moveItem(
-                                                        item.id,
-                                                        p.id,
-                                                      ),
-                                                  })),
-                                              },
-                                              {
-                                                value: "delete",
+                                            })),
+                                          },
+                                          {
+                                            value: "move",
+                                            onSelect: () => null,
+                                            label: "Move to",
+                                            children: pageWiseList
+                                              .filter((p) => p.id !== page.id)
+                                              .map((p) => ({
+                                                label: p.name,
+                                                id: p.id,
+                                                value: p.name,
                                                 onSelect: () =>
-                                                  this.props.deleteItem(
+                                                  this.props.moveItem(
                                                     item.id,
-                                                    item.name,
-                                                    page.name,
+                                                    p.id,
                                                   ),
-                                                label: "Delete",
-                                                intent: "danger",
-                                              },
-                                            ]}
-                                            selectedValue=""
-                                            toggle={
-                                              <ControlIcons.MORE_HORIZONTAL_CONTROL
-                                                height={theme.fontSizes[4]}
-                                                width={theme.fontSizes[4]}
-                                              />
-                                            }
+                                              })),
+                                          },
+                                          {
+                                            value: "delete",
+                                            onSelect: () =>
+                                              this.props.deleteItem(
+                                                item.id,
+                                                item.name,
+                                                page.name,
+                                              ),
+                                            label: "Delete",
+                                            intent: "danger",
+                                          },
+                                        ]}
+                                        selectedValue=""
+                                        toggle={
+                                          <ControlIcons.MORE_HORIZONTAL_CONTROL
+                                            height={theme.fontSizes[4]}
+                                            width={theme.fontSizes[4]}
                                           />
-                                        )}
-                                      </ItemContainer>
+                                        }
+                                      />
                                     )}
-                                  </Draggable>
-                                ))}
-                              </div>
-                            </PageDropContainer>
-                          )}
-                        </Droppable>
-                      </PageContainer>
-                    );
-                  })}
-                </>
-              </DragDropContext>
-            </ItemsWrapper>
-          </Wrapper>
-        )}
-      </>
+                                  </ItemContainer>
+                                )}
+                              </Draggable>
+                            ))}
+                          </div>
+                        </PageDropContainer>
+                      )}
+                    </Droppable>
+                  </PageContainer>
+                );
+              })}
+            </>
+          </DragDropContext>
+        </ItemsWrapper>
+      </Wrapper>
     );
   }
 }

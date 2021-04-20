@@ -243,7 +243,7 @@ abstract class BaseWidget<
           }
           return content;
         }
-        return <></>;
+        return null;
       default:
         throw Error("RenderMode not defined");
     }

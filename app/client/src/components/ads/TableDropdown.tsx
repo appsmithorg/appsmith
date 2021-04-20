@@ -1,14 +1,14 @@
-import React, { Fragment, useState } from "react";
-import { CommonComponentProps, Classes } from "./common";
-import Text, { TextType } from "./Text";
-import styled from "styled-components";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import {
   Popover,
   PopoverInteractionKind,
 } from "@blueprintjs/core/lib/esm/components/popover/popover";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import React, { useState } from "react";
+import styled from "styled-components";
+import { Classes, CommonComponentProps } from "./common";
 import Icon, { IconSize } from "./Icon";
 import Spinner from "./Spinner";
+import Text, { TextType } from "./Text";
 
 type DropdownOption = {
   name: string;
@@ -93,40 +93,36 @@ function TableDropdown(props: DropdownProps) {
     setIsDropdownOpen(false);
   };
 
-  return (
-    <>
-      {props.isLoading ? (
-        <Spinner size={IconSize.LARGE} />
-      ) : (
-        <Popover
-          data-cy={props.cypressSelector}
-          interactionKind={PopoverInteractionKind.CLICK}
-          isOpen={isDropdownOpen}
-          onInteraction={(state) => setIsDropdownOpen(state)}
-          position={props.position || Position.BOTTOM_LEFT}
-          usePortal={false}
-        >
-          <Content isLoading={props.isLoading}>
-            <SelectedItem className="selected-item">
-              <Text type={TextType.P1}>{selectedOption.name}</Text>
-              <Icon name="downArrow" size={IconSize.XXS} />
-            </SelectedItem>
-          </Content>
-          <OptionsWrapper>
-            {props.options.map((el: DropdownOption, index: number) => (
-              <DropdownOption
-                isSelected={selectedIndex === index}
-                key={index}
-                onClick={() => optionSelector(index)}
-              >
-                <Text type={TextType.H5}>{el.name}</Text>
-                <Text type={TextType.P3}>{el.desc}</Text>
-              </DropdownOption>
-            ))}
-          </OptionsWrapper>
-        </Popover>
-      )}
-    </>
+  return props.isLoading ? (
+    <Spinner size={IconSize.LARGE} />
+  ) : (
+    <Popover
+      data-cy={props.cypressSelector}
+      interactionKind={PopoverInteractionKind.CLICK}
+      isOpen={isDropdownOpen}
+      onInteraction={(state) => setIsDropdownOpen(state)}
+      position={props.position || Position.BOTTOM_LEFT}
+      usePortal={false}
+    >
+      <Content isLoading={props.isLoading}>
+        <SelectedItem className="selected-item">
+          <Text type={TextType.P1}>{selectedOption.name}</Text>
+          <Icon name="downArrow" size={IconSize.XXS} />
+        </SelectedItem>
+      </Content>
+      <OptionsWrapper>
+        {props.options.map((el: DropdownOption, index: number) => (
+          <DropdownOption
+            isSelected={selectedIndex === index}
+            key={index}
+            onClick={() => optionSelector(index)}
+          >
+            <Text type={TextType.H5}>{el.name}</Text>
+            <Text type={TextType.P3}>{el.desc}</Text>
+          </DropdownOption>
+        ))}
+      </OptionsWrapper>
+    </Popover>
   );
 }
 

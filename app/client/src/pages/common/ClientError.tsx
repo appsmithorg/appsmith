@@ -24,7 +24,7 @@ interface Props {
   flushErrors?: any;
 }
 
-const ClientError: React.FC<Props> = (props: Props) => {
+function ClientError(props: Props) {
   const { flushErrors } = props;
 
   return (
@@ -53,7 +53,7 @@ const ClientError: React.FC<Props> = (props: Props) => {
       </div>
     </Wrapper>
   );
-};
+}
 
 export default connect(null, {
   flushErrors,

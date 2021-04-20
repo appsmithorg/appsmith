@@ -288,7 +288,7 @@ export type StateAndRouteProps = QueryFormProps & ReduxProps;
 
 type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
 
-const QueryEditorForm: React.FC<Props> = (props: Props) => {
+function QueryEditorForm(props: Props) {
   const {
     handleSubmit,
     isDeleting,
@@ -572,7 +572,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       </TabContainerView>
     </QueryFormContainer>
   );
-};
+}
 
 const renderEachConfig = (section: any): any => {
   return section.children.map((formControlOrSection: ControlProps) => {

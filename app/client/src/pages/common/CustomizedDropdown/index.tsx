@@ -79,30 +79,27 @@ const getContentSection = (
   skin: Skin,
 ) => {
   return (
-    <>
-      {section.options &&
-        section.options.map((option, index) => {
-          const shouldClose =
-            option.shouldCloseDropdown === undefined ||
-            option.shouldCloseDropdown;
-          return (
-            <Option
-              active={!!option.active}
-              className={
-                shouldClose
-                  ? `${Classes.POPOVER_DISMISS} t--dropdown-option`
-                  : "t--dropdown-option"
-              }
-              disabled={!!option.disabled}
-              key={index}
-              onClick={option.onSelect}
-              skin={skin}
-            >
-              {option.content}
-            </Option>
-          );
-        })}
-    </>
+    section.options &&
+    section.options.map((option, index) => {
+      const shouldClose =
+        option.shouldCloseDropdown === undefined || option.shouldCloseDropdown;
+      return (
+        <Option
+          active={!!option.active}
+          className={
+            shouldClose
+              ? `${Classes.POPOVER_DISMISS} t--dropdown-option`
+              : "t--dropdown-option"
+          }
+          disabled={!!option.disabled}
+          key={index}
+          onClick={option.onSelect}
+          skin={skin}
+        >
+          {option.content}
+        </Option>
+      );
+    })
   );
 };
 
