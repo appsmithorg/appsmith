@@ -15,7 +15,7 @@ class LocalStorageNotSupportedError extends Error {
   }
 }
 
-const getLocalStorage = () => {
+export const getLocalStorage = () => {
   const storage = window.localStorage;
 
   // ref: https://github.com/Modernizr/Modernizr/blob/94592f279a410436530c7c06acc42a6e90c20150/feature-detects/storage/localstorage.js
