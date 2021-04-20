@@ -14,6 +14,10 @@ public class DatasourceStructure {
 
     List<Table> tables;
 
+    public DatasourceStructure(List<Table> tables) {
+        this.tables = tables;
+    }
+
     public enum TableType {
         TABLE,
         VIEW,
