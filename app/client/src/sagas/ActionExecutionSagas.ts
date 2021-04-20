@@ -351,8 +351,8 @@ function* showAlertSaga(
   });
   AppsmithConsole.info({
     text: payload.style
-      ? `showAlert(${payload.message}, ${payload.style}) was triggered`
-      : `showAlert(${payload.message}) was triggered`,
+      ? `showAlert('${payload.message}', '${payload.style}') was triggered`
+      : `showAlert('${payload.message}') was triggered`,
   });
   if (event.callback) event.callback({ success: true });
 }
