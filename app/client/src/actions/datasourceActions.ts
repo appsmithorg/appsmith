@@ -26,6 +26,21 @@ export const updateDatasource = (
   };
 };
 
+export type UpdateDatasourceSuccessAction = {
+  type: string;
+  payload: Datasource;
+  redirect: boolean;
+};
+
+export const updateDatasourceSuccess = (
+  payload: Datasource,
+  redirect = true,
+): UpdateDatasourceSuccessAction => ({
+  type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
+  payload,
+  redirect,
+});
+
 export const redirectAuthorizationCode = (
   pageId: string,
   datasourceId: string,

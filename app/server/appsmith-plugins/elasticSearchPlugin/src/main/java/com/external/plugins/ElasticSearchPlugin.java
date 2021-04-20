@@ -187,7 +187,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                     clientBuilder.setDefaultHeaders(
                             (Header[]) datasourceConfiguration.getHeaders()
                                     .stream()
-                                    .map(h -> new BasicHeader(h.getKey(), h.getValue()))
+                                    .map(h -> new BasicHeader(h.getKey(), (String) h.getValue()))
                                     .toArray()
                     );
                 }
