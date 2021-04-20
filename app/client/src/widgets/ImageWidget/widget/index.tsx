@@ -8,6 +8,7 @@ import {
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
@@ -105,12 +106,25 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
       maxZoomLevel: VALIDATION_TYPES.NUMBER,
     };
   }
-  getPageView() {
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {};
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+  // TODO Find a way to enforce this, (dont let it be set)
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
+
+  render() {
     const { maxZoomLevel } = this.props;
     return (
       <ImageComponent
         disableDrag={(disable: boolean) => {
-          this.disableDrag(disable);
+          this.props.disableDrag(disable);
         }}
         maxZoomLevel={maxZoomLevel}
         widgetId={this.props.widgetId}
@@ -125,7 +139,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
 
   onImageClick() {
     if (this.props.onClick) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,

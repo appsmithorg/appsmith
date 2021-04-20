@@ -129,7 +129,7 @@ class RichTextEditorWidget extends BaseWidget<
     });
   };
 
-  getPageView() {
+  render() {
     let defaultValue = this.props.text || "";
     if (this.props.inputType === RTEFormats.MARKDOWN) {
       const converter = new showdown.Converter();

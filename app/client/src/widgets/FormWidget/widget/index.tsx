@@ -55,16 +55,14 @@ class FormWidget extends ContainerWidget {
   };
 
   handleResetInputs = () => {
-    super.resetChildrenMetaProperty(this.props.widgetId);
+    this.props.resetChildrenMetaProperty(this.props.widgetId);
   };
 
   componentDidMount() {
-    super.componentDidMount();
     this.updateFormData();
   }
 
-  componentDidUpdate(prevProps: ContainerWidgetProps<any>) {
-    super.componentDidUpdate(prevProps);
+  componentDidUpdate() {
     this.updateFormData();
   }
 

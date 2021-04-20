@@ -3,7 +3,7 @@ import React from "react";
 import * as Sentry from "@sentry/react";
 import store from "store";
 
-import { WidgetProps } from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, withWidgetAPI } from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WidgetPropertyValidationType } from "./WidgetValidation";
@@ -27,12 +27,19 @@ export interface WidgetConfiguration {
   };
 }
 
-export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
+export const registerWidget = (
+  Widget: typeof BaseWidget,
+  config: WidgetConfiguration,
+) => {
   WidgetFactory.registerWidgetBuilder(
     config.type,
     {
       buildWidget(widgetData: any): JSX.Element {
-        const ProfiledWidget = Sentry.withProfiler(withMeta(Widget));
+        const ProfiledWidget = Sentry.withProfiler(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          withMeta(withWidgetAPI(Widget)),
+        );
         return <ProfiledWidget {...widgetData} />;
       },
     },

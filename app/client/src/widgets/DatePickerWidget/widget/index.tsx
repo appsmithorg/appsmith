@@ -9,8 +9,6 @@ import {
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import * as Sentry from "@sentry/react";
-import withMeta, { WithMeta } from "../../MetaHOC";
 import moment from "moment";
 import { DatePickerType } from "../constants";
 
@@ -168,18 +166,18 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
           this.props.dateFormat,
         );
         if (!defaultDate.isValid()) {
-          super.updateWidgetProperty("defaultDate", "");
+          this.props.updateWidgetProperty("defaultDate", "");
         } else {
           if (this.props.minDate) {
             const minDate = moment(this.props.minDate, this.props.dateFormat);
             if (!minDate.isValid() || defaultDate.isBefore(minDate)) {
-              super.updateWidgetProperty("defaultDate", "");
+              this.props.updateWidgetProperty("defaultDate", "");
             }
           }
           if (this.props.maxDate) {
             const maxDate = moment(this.props.maxDate, this.props.dateFormat);
             if (!maxDate.isValid() || defaultDate.isAfter(maxDate)) {
-              super.updateWidgetProperty("defaultDate", "");
+              this.props.updateWidgetProperty("defaultDate", "");
             }
           }
         }
@@ -187,7 +185,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     }
   }
 
-  getPageView() {
+  render() {
     return (
       <DatePickerComponent
         label={`${this.props.label}`}
@@ -218,7 +216,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   }
 }
 
-export interface DatePickerWidgetProps extends WidgetProps, WithMeta {
+export interface DatePickerWidgetProps extends WidgetProps {
   defaultDate: string;
   selectedDate: string;
   isDisabled: boolean;
@@ -233,6 +231,3 @@ export interface DatePickerWidgetProps extends WidgetProps, WithMeta {
 }
 
 export default DatePickerWidget;
-export const ProfiledDatePickerWidget = Sentry.withProfiler(
-  withMeta(DatePickerWidget),
-);

@@ -10,6 +10,7 @@ import {
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { DropdownOption, SelectionType } from "../constants";
+import { getWidgetDimensions } from "widgets/WidgetUtils";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -150,7 +151,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       : [];
   }
 
-  getPageView() {
+  render() {
     const options = this.props.options || [];
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
@@ -162,7 +163,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         }),
       )
       .filter((i: number) => i > -1);
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
     return (
       <DropDownComponent
         onOptionSelected={this.onOptionSelected}

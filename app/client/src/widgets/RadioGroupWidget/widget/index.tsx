@@ -113,7 +113,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  render() {
     return (
       <RadioGroupComponent
         widgetId={this.props.widgetId}

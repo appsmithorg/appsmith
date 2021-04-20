@@ -1,9 +1,8 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetSkeleton } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 
@@ -15,10 +14,11 @@ const PageView = styled.div<{ width: number }>`
 `;
 
 type AppPageProps = {
-  dsl: ContainerWidgetProps<WidgetProps>;
+  dsl: WidgetSkeleton;
   pageName?: string;
   pageId?: string;
   appName?: string;
+  width: number;
 };
 
 export const AppPage = (props: AppPageProps) => {
@@ -32,7 +32,7 @@ export const AppPage = (props: AppPageProps) => {
     });
   }, [props.pageId, props.pageName]);
   return (
-    <PageView width={props.dsl.rightColumn}>
+    <PageView width={props.width}>
       {props.dsl.widgetId &&
         WidgetFactory.createWidget(props.dsl, RenderModes.PAGE)}
     </PageView>

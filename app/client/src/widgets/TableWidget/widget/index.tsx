@@ -35,6 +35,7 @@ import {
 } from "../component/Constants";
 import tablePropertyPaneConfig from "./propertyConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { getWidgetDimensions } from "widgets/WidgetUtils";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -145,7 +146,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
     const { columnSizeMap } = this.props;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = getWidgetDimensions(this.props);
 
     let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
@@ -499,7 +500,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToUpdate.remove = pathsToDelete;
         }
 
-        super.batchUpdateWidgetProperty(propertiesToUpdate);
+        this.props.batchUpdateWidgetProperty(propertiesToUpdate);
       }
     }
   };
@@ -584,7 +585,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (this.props.pageSize !== prevProps.pageSize) {
       if (this.props.onPageSizeChange) {
-        super.executeAction({
+        this.props.executeAction({
           dynamicString: this.props.onPageSizeChange,
           event: {
             type: EventType.ON_PAGE_SIZE_CHANGE,
@@ -625,11 +626,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return selectedRowIndices;
   };
 
-  getPageView() {
+  render() {
     const { pageSize, filteredTableData = [] } = this.props;
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
 
     return (
       <Suspense fallback={<Skeleton />}>
@@ -662,9 +663,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleResizeColumn={this.handleResizeColumn}
           updatePageNo={this.updatePageNumber}
           handleReorderColumn={this.handleReorderColumn}
-          disableDrag={(disable: boolean) => {
-            this.disableDrag(disable);
-          }}
+          disableDrag={this.props.disableDrag}
           searchTableData={this.handleSearchTable}
           filters={this.props.filters}
           applyFilter={(filters: ReactTableFilter[]) => {
@@ -681,7 +680,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleCompactModeChange = (compactMode: CompactMode) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("compactMode", compactMode);
+      this.props.updateWidgetProperty("compactMode", compactMode);
     } else {
       this.props.updateWidgetMetaProperty("compactMode", compactMode);
     }
@@ -689,7 +688,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleReorderColumn = (columnOrder: string[]) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("columnOrder", columnOrder);
+      this.props.updateWidgetProperty("columnOrder", columnOrder);
     } else this.props.updateWidgetMetaProperty("columnOrder", columnOrder);
   };
 
@@ -707,7 +706,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleResizeColumn = (columnSizeMap: { [key: string]: number }) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+      this.props.updateWidgetProperty("columnSizeMap", columnSizeMap);
     } else {
       this.props.updateWidgetMetaProperty("columnSizeMap", columnSizeMap);
     }
@@ -737,7 +736,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         return prev + `{{(currentRow) => { ${next} }}} `;
       }, "");
 
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: modifiedAction,
         event: {
           type: EventType.ON_CLICK,
@@ -751,7 +750,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   onItemSelect = (action: string) => {
-    super.executeAction({
+    this.props.executeAction({
       dynamicString: action,
       event: {
         type: EventType.ON_OPTION_CHANGE,

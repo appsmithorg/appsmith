@@ -2,8 +2,7 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WIDGET_STATIC_PROPS, WidgetProps } from "widgets/BaseWidget";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { WidgetSkeleton } from "widgets/BaseWidget";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -11,14 +10,7 @@ import {
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
-import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
-import _ from "lodash";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "selectors/entitiesSelector";
-
-import { getCanvasWidgets } from "./entitiesSelector";
-import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -141,35 +133,32 @@ export const getWidgetCards = createSelector(
   },
 );
 
+function getChildren(
+  widgets: CanvasWidgetsReduxState,
+  children?: string[],
+): WidgetSkeleton[] | undefined {
+  if (!children) return undefined;
+  return children.map((child: string) => {
+    const childProps: FlattenedWidgetProps = widgets[child];
+    return {
+      widgetId: child,
+      type: childProps.type,
+      children: getChildren(widgets, childProps.children),
+    };
+  });
+}
 export const getCanvasWidgetDsl = createSelector(
-  getCanvasWidgets,
-  getDataTree,
-  getLoadingEntities,
-  (
-    canvasWidgets: CanvasWidgetsReduxState,
-    evaluatedDataTree,
-    loadingEntities,
-  ): ContainerWidgetProps<WidgetProps> => {
-    console.log("Calling for rerender");
-    const widgets: Record<string, DataTreeWidget> = {};
-    Object.keys(canvasWidgets).forEach((widgetKey) => {
-      const canvasWidget = canvasWidgets[widgetKey];
-      const evaluatedWidget = _.find(evaluatedDataTree, {
-        widgetId: widgetKey,
-      }) as DataTreeWidget;
-      if (evaluatedWidget) {
-        widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
-      } else {
-        widgets[widgetKey] = createLoadingWidget(canvasWidget);
-      }
-      widgets[widgetKey].isLoading = loadingEntities.has(
-        canvasWidget.widgetName,
-      );
-    });
-
-    return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: widgets,
-    });
+  getWidgets,
+  (widgets: CanvasWidgetsReduxState): WidgetSkeleton => {
+    const maincanvas: FlattenedWidgetProps = widgets["0"];
+    console.log("Connected Widgets Widget Tree", { maincanvas });
+    const tree = {
+      widgetId: maincanvas.widgetId,
+      type: maincanvas.type,
+      children: getChildren(widgets, maincanvas.children),
+    };
+    console.log("Connected Widgets Widget Tree", { tree });
+    return tree;
   },
 );
 
@@ -238,34 +227,3 @@ export const getActionById = createSelector(
     }
   },
 );
-
-const createCanvasWidget = (
-  canvasWidget: FlattenedWidgetProps,
-  evaluatedWidget: DataTreeWidget,
-) => {
-  const widgetStaticProps = _.pick(
-    canvasWidget,
-    Object.keys(WIDGET_STATIC_PROPS),
-  );
-  return {
-    ...evaluatedWidget,
-    ...widgetStaticProps,
-  };
-};
-
-const createLoadingWidget = (
-  canvasWidget: FlattenedWidgetProps,
-): DataTreeWidget => {
-  const widgetStaticProps = _.pick(
-    canvasWidget,
-    Object.keys(WIDGET_STATIC_PROPS),
-  ) as WidgetProps;
-  return {
-    ...widgetStaticProps,
-    type: SKELETON_WIDGET_TYPE,
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    bindingPaths: {},
-    triggerPaths: {},
-    isLoading: true,
-  };
-};

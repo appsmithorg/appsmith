@@ -128,7 +128,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  render() {
     return (
       <CheckboxComponent
         isRequired={this.props.isRequired}

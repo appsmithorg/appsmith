@@ -153,7 +153,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  render() {
     return (
       <TextComponent
         widgetId={this.props.widgetId}

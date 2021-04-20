@@ -149,7 +149,7 @@
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
-    "generate": "plop --plopfile generators/index.js"
+    "generate:widget": "plop --plopfile generators/index.js"
   },
   "resolution": {
     "jest": "24.8.0"

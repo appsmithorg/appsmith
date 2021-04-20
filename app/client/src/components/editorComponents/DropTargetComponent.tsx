@@ -32,11 +32,10 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import WidgetFactory from "utils/WidgetFactory";
+import { getSnapSpaces } from "widgets/WidgetUtils";
 const WidgetTypes = WidgetFactory.widgetTypes;
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
-  snapColumnSpace: number;
-  snapRowSpace: number;
   minHeight: number;
 };
 
@@ -66,6 +65,8 @@ export const DropTargetContext: Context<{
 }> = createContext({});
 
 export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
+  console.log("Connected Widgets DropTarget", { props });
+  const { snapColumnSpace, snapRowSpace } = getSnapSpaces(props);
   const canDropTargetExtend = props.canExtend;
 
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -157,15 +158,21 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       },
     },
     drop(widget: WidgetProps & Partial<WidgetConfigProps>, monitor) {
+      const start = performance.now();
       // Make sure we're dropping in this container.
       if (isExactlyOver) {
         const updateWidgetParams = widgetOperationParams(
           widget,
           monitor.getSourceClientOffset() as XYCoord,
           dropTargetOffset,
-          props.snapColumnSpace,
-          props.snapRowSpace,
+          snapColumnSpace,
+          snapRowSpace,
           widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : props.widgetId,
+        );
+        console.log(
+          "Drop: Widget operation params",
+          performance.now() - start,
+          "ms",
         );
 
         // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);
@@ -173,6 +180,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
           updateWidgetParams.payload.topRow +
           (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
 
+        console.log("Drop: Widget bottom row", performance.now() - start, "ms");
         // Only show propertypane if this is a new widget.
         // If it is not a new widget, then let the DraggableComponent handle it.
         // Give evaluations a second to complete.
@@ -187,6 +195,11 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
         selectWidget && selectWidget(widget.widgetId);
         persistDropTargetRows(widget.widgetId, widgetBottomRow);
 
+        console.log(
+          "Drop: select and persist",
+          performance.now() - start,
+          "ms",
+        );
         /* Finally update the widget */
         updateWidget &&
           updateWidget(
@@ -194,7 +207,9 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
             updateWidgetParams.widgetId,
             updateWidgetParams.payload,
           );
+        console.log("Drop: update widget", performance.now() - start, "ms");
       }
+      console.log("Drop calculations took:", performance.now() - start, "ms");
       return undefined;
     },
     // Collect isOver for ui transforms when hovering over this component
@@ -210,8 +225,8 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       if (isExactlyOver) {
         const hasCollision = !noCollision(
           monitor.getSourceClientOffset() as XYCoord,
-          props.snapColumnSpace,
-          props.snapRowSpace,
+          snapColumnSpace,
+          snapRowSpace,
           widget,
           dropTargetOffset,
           spacesOccupiedBySiblingWidgets,
@@ -248,7 +263,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
     e.preventDefault();
   };
   const height = canDropTargetExtend
-    ? `${Math.max(rows * props.snapRowSpace, props.minHeight)}px`
+    ? `${Math.max(rows * snapRowSpace, props.minHeight)}px`
     : "100%";
 
   const border =
@@ -278,8 +293,8 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
         <DragLayerComponent
           parentWidgetId={props.widgetId}
           canDropTargetExtend={canDropTargetExtend}
-          parentRowHeight={props.snapRowSpace}
-          parentColumnWidth={props.snapColumnSpace}
+          parentRowHeight={snapRowSpace}
+          parentColumnWidth={snapColumnSpace}
           visible={isExactlyOver || isChildResizing}
           isOver={isExactlyOver}
           occupiedSpaces={spacesOccupiedBySiblingWidgets}
@@ -293,5 +308,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
     </DropTargetContext.Provider>
   );
 });
-
+(DropTargetComponent as any).whyDidYouRender = {
+  logOnDifferentValues: true,
+};
 export default DropTargetComponent;

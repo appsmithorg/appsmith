@@ -1,18 +1,14 @@
 import React, { ReactNode } from "react";
 
-import { connect } from "react-redux";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "../component";
 import {
   RenderMode,
   GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
-import { AppState } from "reducers";
-import { getWidget } from "sagas/selectors";
 
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {
@@ -73,7 +69,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   getModalWidth() {
-    const widthFromOverlay = this.props.mainContainer.rightColumn * 0.95;
+    const widthFromOverlay = this.props.canvasWidth * 0.95;
     const defaultModalWidth = MODAL_SIZE[this.props.size].width;
     return widthFromOverlay < defaultModalWidth
       ? widthFromOverlay
@@ -131,13 +127,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     );
   }
 
-  getCanvasView() {
-    let children = this.getChildren();
-    children = this.showWidgetName(children, true);
-    return this.makeModalComponent(children);
-  }
-
-  getPageView() {
+  render() {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      let children = this.getChildren();
+      children = this.props.showWidgetName(children, true);
+      return this.makeModalComponent(children);
+    }
     const children = this.getChildren();
     return this.makeModalComponent(children);
   }
@@ -158,31 +153,7 @@ export interface ModalWidgetProps extends WidgetProps {
   canEscapeKeyClose?: boolean;
   shouldScrollContents?: boolean;
   size: string;
-  mainContainer: WidgetProps;
+  canvasWidth: number;
 }
 
-const mapDispatchToProps = (dispatch: any) => ({
-  // TODO(abhinav): This is also available in dragResizeHooks
-  // DRY this. Maybe leverage, CanvasWidget by making it a CanvasComponent?
-  showPropertyPane: (
-    widgetId?: string,
-    callForDragOrResize?: boolean,
-    force = false,
-  ) => {
-    dispatch({
-      type:
-        widgetId || callForDragOrResize
-          ? ReduxActionTypes.SHOW_PROPERTY_PANE
-          : ReduxActionTypes.HIDE_PROPERTY_PANE,
-      payload: { widgetId, callForDragOrResize, force },
-    });
-  },
-});
-
-const mapStateToProps = (state: AppState) => {
-  const props = {
-    mainContainer: getWidget(state, MAIN_CONTAINER_WIDGET_ID),
-  };
-  return props;
-};
-export default connect(mapStateToProps, mapDispatchToProps)(ModalWidget);
+export default ModalWidget;

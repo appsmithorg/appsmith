@@ -11,7 +11,7 @@ class SkeletonWidget extends BaseWidget<SkeletonWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [];
   }
-  getPageView() {
+  render() {
     return <SkeletonWrapper className="bp3-skeleton" />;
   }
 

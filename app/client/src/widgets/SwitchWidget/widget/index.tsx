@@ -90,7 +90,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
       },
     ];
   }
-  getPageView() {
+  render() {
     return (
       <SwitchComponent
         isSwitchedOn={!!this.props.isSwitchedOn}

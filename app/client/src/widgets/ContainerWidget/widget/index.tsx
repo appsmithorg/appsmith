@@ -2,15 +2,14 @@ import React from "react";
 import _ from "lodash";
 
 import ContainerComponent, { ContainerStyle } from "../component";
-import WidgetFactory from "utils/WidgetFactory";
-import {
-  GridDefaults,
-  CONTAINER_GRID_PADDING,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import * as Sentry from "@sentry/react";
+import {
+  BASE_WIDGET_VALIDATION,
+  WidgetPropertyValidationType,
+} from "utils/WidgetValidation";
+import { getSnapSpaces, getWidgetDimensions } from "widgets/WidgetUtils";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -56,16 +55,18 @@ class ContainerWidget extends BaseWidget<
     ];
   }
 
-  getSnapSpaces = () => {
-    const { componentWidth } = this.getComponentDimensions();
-    return {
-      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      snapColumnSpace: componentWidth
-        ? (componentWidth - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2) /
-          GridDefaults.DEFAULT_GRID_COLUMNS
-        : 0,
-    };
-  };
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return BASE_WIDGET_VALIDATION;
+  }
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {};
+  }
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     // For now, isVisible prop defines whether to render a detached widget
@@ -73,8 +74,8 @@ class ContainerWidget extends BaseWidget<
       return null;
     }
 
-    const snapSpaces = this.getSnapSpaces();
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const snapSpaces = getSnapSpaces(this.props);
+    const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
 
     if (childWidgetData.type !== "CANVAS_WIDGET") {
       childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
@@ -115,7 +116,7 @@ class ContainerWidget extends BaseWidget<
     );
   }
 
-  getPageView() {
+  render() {
     return this.renderAsContainerComponent(this.props);
   }
 
@@ -132,4 +133,3 @@ export interface ContainerWidgetProps<T extends WidgetProps>
 }
 
 export default ContainerWidget;
-export const ProfiledContainerWidget = Sentry.withProfiler(ContainerWidget);

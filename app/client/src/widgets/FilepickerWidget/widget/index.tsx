@@ -218,6 +218,9 @@ class FilePickerWidget extends BaseWidget<
       uploadedFileData: {},
     };
   }
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
 
   /**
    * if uppy is not initialized before, initialize it
@@ -388,7 +391,7 @@ class FilePickerWidget extends BaseWidget<
    */
   onFilesSelected = () => {
     if (this.props.onFilesSelected) {
-      this.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onFilesSelected,
         event: {
           type: EventType.ON_FILES_SELECTED,
@@ -417,7 +420,6 @@ class FilePickerWidget extends BaseWidget<
   };
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
-    super.componentDidUpdate(prevProps);
     if (
       prevProps.selectedFiles &&
       prevProps.selectedFiles.length > 0 &&
@@ -434,8 +436,6 @@ class FilePickerWidget extends BaseWidget<
   }
 
   componentDidMount() {
-    super.componentDidMount();
-
     this.initializeUppyEventListeners();
   }
 
@@ -443,7 +443,7 @@ class FilePickerWidget extends BaseWidget<
     this.state.uppy.close();
   }
 
-  getPageView() {
+  render() {
     return (
       <FilePickerComponent
         uppy={this.state.uppy}

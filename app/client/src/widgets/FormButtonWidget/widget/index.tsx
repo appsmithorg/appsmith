@@ -13,6 +13,7 @@ import {
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import ButtonComponent, { ButtonType } from "widgets/ButtonWidget/component";
 import { ButtonStyle } from "widgets/ButtonWidget/constants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class FormButtonWidget extends BaseWidget<
   FormButtonWidgetProps,
@@ -138,6 +139,14 @@ class FormButtonWidget extends BaseWidget<
     };
   }
 
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {};
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+
   clickWithRecaptcha(token: string) {
     if (this.props.onClick) {
       this.setState({
@@ -158,7 +167,7 @@ class FormButtonWidget extends BaseWidget<
       this.setState({
         isLoading: true,
       });
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -180,7 +189,7 @@ class FormButtonWidget extends BaseWidget<
     }
   };
 
-  getPageView() {
+  render() {
     const disabled =
       this.props.disabledWhenInvalid &&
       "isFormValid" in this.props &&

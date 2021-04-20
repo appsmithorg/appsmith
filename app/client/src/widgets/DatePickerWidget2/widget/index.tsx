@@ -9,8 +9,7 @@ import {
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import * as Sentry from "@sentry/react";
-import withMeta, { WithMeta } from "../../MetaHOC";
+
 import moment from "moment";
 import { DatePickerType } from "../constants";
 
@@ -226,7 +225,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
     };
   }
 
-  getPageView() {
+  render() {
     return (
       <DatePickerComponent
         label={`${this.props.label}`}
@@ -257,7 +256,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   }
 }
 
-export interface DatePickerWidget2Props extends WidgetProps, WithMeta {
+export interface DatePickerWidget2Props extends WidgetProps {
   defaultDate: string;
   selectedDate: string;
   formattedDate: string;
@@ -273,6 +272,3 @@ export interface DatePickerWidget2Props extends WidgetProps, WithMeta {
 }
 
 export default DatePickerWidget;
-export const ProfiledDatePickerWidget2 = Sentry.withProfiler(
-  withMeta(DatePickerWidget),
-);

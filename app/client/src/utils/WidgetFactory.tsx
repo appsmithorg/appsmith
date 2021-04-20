@@ -2,8 +2,8 @@ import { RenderMode } from "constants/WidgetConstants";
 import {
   WidgetBuilder,
   WidgetProps,
-  WidgetDataProps,
-  WidgetState,
+  WidgetSkeleton,
+  WidgetBuilderProps,
 } from "widgets/BaseWidget";
 import {
   WidgetPropertyValidationType,
@@ -52,7 +52,7 @@ class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
     WidgetType,
-    WidgetBuilder<WidgetProps, WidgetState>
+    WidgetBuilder<WidgetBuilderProps>
   > = new Map();
   static widgetPropValidationMap: Map<
     WidgetType,
@@ -83,7 +83,7 @@ class WidgetFactory {
 
   static registerWidgetBuilder(
     widgetType: string,
-    widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
+    widgetBuilder: WidgetBuilder<WidgetBuilderProps>,
     widgetPropertyValidation: WidgetPropertyValidationType,
     derivedPropertiesMap: DerivedPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
@@ -116,14 +116,16 @@ class WidgetFactory {
   }
 
   static createWidget(
-    widgetData: WidgetDataProps,
+    widgetData: WidgetSkeleton,
     renderMode: RenderMode,
   ): React.ReactNode {
-    const widgetProps: WidgetProps = {
+    const widgetProps = {
       key: widgetData.widgetId,
+      widgetId: widgetData.widgetId,
+      type: widgetData.type,
       isVisible: true,
-      ...widgetData,
       renderMode: renderMode,
+      children: widgetData.children,
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {

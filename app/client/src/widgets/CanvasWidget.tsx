@@ -3,11 +3,15 @@ import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
-import * as Sentry from "@sentry/react";
+import {
+  BASE_WIDGET_VALIDATION,
+  WidgetPropertyValidationType,
+} from "utils/WidgetValidation";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -30,10 +34,10 @@ class CanvasWidget extends ContainerWidget {
 
   renderAsDropTarget() {
     const canvasProps = this.getCanvasProps();
+    console.log("Connected Widgets Canvas Widget", { canvasProps });
     return (
       <DropTargetComponent
         {...canvasProps}
-        {...this.getSnapSpaces()}
         minHeight={this.props.minHeight || 380}
       >
         {this.renderAsContainerComponent(canvasProps)}
@@ -41,7 +45,10 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  getPageView() {
+  render() {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      return this.renderAsDropTarget();
+    }
     const snapRows = getCanvasSnapRows(
       this.props.bottomRow,
       this.props.canExtend,
@@ -62,8 +69,20 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  getCanvasView() {
-    return this.renderAsDropTarget();
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return BASE_WIDGET_VALIDATION;
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {};
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+  // TODO Find a way to enforce this, (dont let it be set)
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {};
   }
 }
 
@@ -88,4 +107,3 @@ export const CONFIG = {
 };
 
 export default CanvasWidget;
-export const ProfiledCanvasWidget = Sentry.withProfiler(CanvasWidget);

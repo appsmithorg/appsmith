@@ -290,7 +290,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
     if (isEnterKey && onSubmit && isValid) {
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: onSubmit,
         event: {
           type: EventType.ON_SUBMIT,
@@ -300,7 +300,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     }
   };
 
-  getPageView() {
+  render() {
     const value = this.props.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;

@@ -9,6 +9,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetOperations } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
+import { getWidgetDimensions } from "widgets/WidgetUtils";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -112,7 +113,7 @@ class TabsWidget extends BaseWidget<
     return {};
   }
 
-  getPageView() {
+  render() {
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
@@ -136,7 +137,7 @@ class TabsWidget extends BaseWidget<
     }
     childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.bottomRow = this.props.shouldScrollContents
@@ -179,7 +180,7 @@ class TabsWidget extends BaseWidget<
             children: [],
           },
         };
-        this.updateWidget(
+        this.props.updateWidget(
           WidgetOperations.ADD_CHILD,
           this.props.widgetId,
           config,
@@ -190,7 +191,7 @@ class TabsWidget extends BaseWidget<
 
   removeTabContainer = (widgetIds: string[]) => {
     widgetIds.forEach((widgetIdToRemove: string) => {
-      this.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
+      this.props.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
         parentId: this.props.widgetId,
       });
     });
@@ -228,7 +229,7 @@ class TabsWidget extends BaseWidget<
           const tabs = [
             { id: "tab1", widgetId: newTabContainerWidgetId, label: "Tab 1" },
           ];
-          this.updateWidgetProperty("tabs", tabs);
+          this.props.updateWidgetProperty("tabs", tabs);
         }
       }
     }
@@ -308,7 +309,7 @@ class TabsWidget extends BaseWidget<
         (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace,
       isLoading: false,
     }));
-    this.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
+    this.props.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
       children: tabContainers,
     });
   };

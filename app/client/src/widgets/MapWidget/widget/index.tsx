@@ -10,6 +10,7 @@ import styled from "styled-components";
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { MarkerProps } from "../constants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 const { google } = getAppsmithConfigs();
 
@@ -157,6 +158,9 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       selectedMarker: undefined,
     };
   }
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {};
+  }
 
   updateCenter = (lat: number, long: number) => {
     this.props.updateWidgetMetaProperty("center", { lat, long });
@@ -171,12 +175,12 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         return marker;
       },
     );
-    this.disableDrag(false);
+    this.props.disableDrag(false);
     this.props.updateWidgetMetaProperty("markers", markers);
   };
 
   onCreateMarker = (lat: number, long: number) => {
-    this.disableDrag(true);
+    this.props.disableDrag(true);
     const marker = { lat, long, title: "" };
 
     const markers = [];
@@ -198,7 +202,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   };
 
   onMarkerClick = (lat: number, long: number, title: string) => {
-    this.disableDrag(true);
+    this.props.disableDrag(true);
     const selectedMarker = {
       lat: lat,
       long: long,
@@ -226,7 +230,11 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     }
   }
 
-  getPageView() {
+  enableDrag = () => {
+    this.props.disableDrag(false);
+  };
+
+  render() {
     return (
       <>
         {!google.enabled && (
@@ -265,9 +273,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             selectMarker={this.onMarkerClick}
             unselectMarker={this.unselectMarker}
             markers={this.props.markers}
-            enableDrag={() => {
-              this.disableDrag(false);
-            }}
+            enableDrag={this.enableDrag}
           />
         )}
       </>

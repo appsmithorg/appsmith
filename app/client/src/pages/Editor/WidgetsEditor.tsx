@@ -24,6 +24,8 @@ import PerformanceTracker, {
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
+import { AppState } from "reducers";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -61,6 +63,10 @@ const WidgetsEditor = () => {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
+  const canvasWidth = useSelector(
+    (state: AppState) =>
+      state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn,
+  );
   console.log(
     "Widgets",
     "CanvasWidgets",
@@ -121,7 +127,7 @@ const WidgetsEditor = () => {
   }
 
   if (!isFetchingPage && widgets) {
-    node = <Canvas dsl={widgets} />;
+    node = <Canvas dsl={widgets} width={canvasWidth} />;
   }
 
   log.debug("Canvas rendered");

@@ -9,6 +9,7 @@ import {
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { ButtonStyle } from "../constants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -118,12 +119,20 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     };
   }
 
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {};
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+
   onButtonClick() {
     if (this.props.onClick) {
       this.setState({
         isLoading: true,
       });
-      super.executeAction({
+      this.props.executeAction({
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -154,7 +163,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     });
   };
 
-  getPageView() {
+  render() {
     return (
       <ButtonComponent
         buttonStyle={this.props.buttonStyle}
