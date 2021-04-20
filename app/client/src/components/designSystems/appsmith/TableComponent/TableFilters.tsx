@@ -102,7 +102,7 @@ interface TableFilterProps {
   editMode: boolean;
 }
 
-const TableFilters = (props: TableFilterProps) => {
+function TableFilters(props: TableFilterProps) {
   const [selected, selectMenu] = React.useState(false);
   const [filters, updateFilters] = React.useState(
     new Array<ReactTableFilter>(),
@@ -138,7 +138,7 @@ const TableFilters = (props: TableFilterProps) => {
   if (props.columns.length === 0) {
     return (
       <TableIconWrapper disabled>
-        <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
+        <IconWrapper color={Colors.CADET_BLUE} height={20} width={20}>
           <FilterIcon />
         </IconWrapper>
       </TableIconWrapper>
@@ -163,20 +163,18 @@ const TableFilters = (props: TableFilterProps) => {
   );
   return (
     <Popover
-      minimal
-      usePortal
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
-      position={Position.BOTTOM}
+      isOpen={selected}
+      minimal
       onClose={() => {
         selectMenu(false);
       }}
-      isOpen={selected}
+      position={Position.BOTTOM}
+      usePortal
     >
       <TableActionIcon
-        tooltip="Filters"
         className="t--table-filter-toggle-btn"
-        selected={selected}
         icon={
           hasAnyFilters ? (
             <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
@@ -185,6 +183,8 @@ const TableFilters = (props: TableFilterProps) => {
         selectMenu={(selected: boolean) => {
           selectMenu(selected);
         }}
+        selected={selected}
+        tooltip="Filters"
       >
         <FilterIcon />
       </TableActionIcon>
@@ -193,16 +193,6 @@ const TableFilters = (props: TableFilterProps) => {
           {filters.map((filter: ReactTableFilter, index: number) => {
             return (
               <CascadeFields
-                key={index}
-                index={index}
-                operator={
-                  filters.length >= 2 ? filters[1].operator : filter.operator
-                }
-                column={filter.column}
-                condition={filter.condition}
-                value={filter.value}
-                columns={columns}
-                hasAnyFilters={hasAnyFilters}
                 applyFilter={(filter: ReactTableFilter, index: number) => {
                   const updatedFilters = props.filters
                     ? [...props.filters]
@@ -210,6 +200,15 @@ const TableFilters = (props: TableFilterProps) => {
                   updatedFilters[index] = filter;
                   props.applyFilter(updatedFilters);
                 }}
+                column={filter.column}
+                columns={columns}
+                condition={filter.condition}
+                hasAnyFilters={hasAnyFilters}
+                index={index}
+                key={index}
+                operator={
+                  filters.length >= 2 ? filters[1].operator : filter.operator
+                }
                 removeFilter={(index: number) => {
                   const filters: ReactTableFilter[] = props.filters || [];
                   if (index === 1 && filters.length > 2) {
@@ -221,18 +220,19 @@ const TableFilters = (props: TableFilterProps) => {
                   ];
                   props.applyFilter(newFilters);
                 }}
+                value={filter.value}
               />
             );
           })}
           {hasAnyFilters ? (
             <ButtonWrapper className={Classes.POPOVER_DISMISS}>
               <Button
-                intent="primary"
-                text="Add Filter"
-                size="small"
-                onClick={addFilter}
-                icon="plus"
                 className="t--add-filter-btn"
+                icon="plus"
+                intent="primary"
+                onClick={addFilter}
+                size="small"
+                text="Add Filter"
               />
             </ButtonWrapper>
           ) : null}
@@ -245,6 +245,6 @@ const TableFilters = (props: TableFilterProps) => {
       </TableFilterOuterWrapper>
     </Popover>
   );
-};
+}
 
 export default TableFilters;

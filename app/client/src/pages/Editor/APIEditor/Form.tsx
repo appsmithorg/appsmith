@@ -263,20 +263,20 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         <FormRow className="form-row-header">
           <NameWrapper className="t--nameOfApi">
             <TooltipComponent
-              minimal
-              position={Position.BOTTOM}
               content={
-                <Text type={TextType.P3} style={{ color: "#ffffff" }}>
+                <Text style={{ color: "#ffffff" }} type={TextType.P3}>
                   Close
                 </Text>
               }
               minWidth="auto !important"
+              minimal
+              position={Position.BOTTOM}
             >
               <IconContainer onClick={handleClose}>
                 <Icon
+                  className="close-modal-icon"
                   name="close-modal"
                   size={IconSize.LARGE}
-                  className="close-modal-icon"
                 />
               </IconContainer>
             </TooltipComponent>
@@ -284,39 +284,39 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
             <MoreActionsMenu
+              className="t--more-action-menu"
               id={currentActionConfig ? currentActionConfig.id : ""}
               name={currentActionConfig ? currentActionConfig.name : ""}
-              className="t--more-action-menu"
               pageId={pageId}
             />
             <Button
-              text="Run"
-              tag="button"
-              size={Size.medium}
-              type="button"
+              className="t--apiFormRunBtn"
+              isLoading={isRunning}
               onClick={() => {
                 onRunClick();
               }}
-              isLoading={isRunning}
-              className="t--apiFormRunBtn"
+              size={Size.medium}
+              tag="button"
+              text="Run"
+              type="button"
             />
           </ActionButtons>
         </FormRow>
         <FormRow className="api-info-row">
           <RequestDropdownField
-            placeholder="Method"
-            name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"
-            options={HTTP_METHOD_OPTIONS}
-            width={"100px"}
-            optionWidth={"100px"}
             height={"35px"}
+            name="actionConfiguration.httpMethod"
+            optionWidth={"100px"}
+            options={HTTP_METHOD_OPTIONS}
+            placeholder="Method"
+            width={"100px"}
           />
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField
               name="actionConfiguration.path"
-              pluginId={pluginId}
               placeholder="https://mock-api.appsmith.com/users"
+              pluginId={pluginId}
               theme={theme}
             />
           </DatasourceWrapper>
@@ -325,6 +325,8 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
       <SecondaryWrapper>
         <TabbedViewContainer>
           <TabComponent
+            onSelect={setSelectedIndex}
+            selectedIndex={selectedIndex}
             tabs={[
               {
                 key: "headers",
@@ -335,35 +337,35 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                     {apiBindHelpSectionVisible && (
                       <HelpSection>
                         <Callout
-                          text={createMessage(WIDGET_BIND_HELP)}
+                          closeButton
+                          fill
                           label={
                             <CalloutContent>
                               <Link
                                 href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
-                                target="_blank"
                                 rel="noopener noreferrer"
+                                target="_blank"
                               >
-                                <Text type={TextType.H6} case={Case.UPPERCASE}>
+                                <Text case={Case.UPPERCASE} type={TextType.H6}>
                                   Learn How
                                 </Text>
                                 <Icon name="right-arrow" />
                               </Link>
                             </CalloutContent>
                           }
-                          variant={Variant.warning}
-                          fill
-                          closeButton
                           onClose={() => setApiBindHelpSectionVisible(false)}
+                          text={createMessage(WIDGET_BIND_HELP)}
+                          variant={Variant.warning}
                         />
                       </HelpSection>
                     )}
                     <KeyValueFieldArray
-                      theme={theme}
-                      name="actionConfiguration.headers"
-                      label="Headers"
                       actionConfig={actionConfigurationHeaders}
-                      placeholder="Value"
                       dataTreePath={`${actionName}.config.headers`}
+                      label="Headers"
+                      name="actionConfiguration.headers"
+                      placeholder="Value"
+                      theme={theme}
                     />
                   </TabSection>
                 ),
@@ -375,10 +377,10 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 panelComponent: (
                   <TabSection>
                     <KeyValueFieldArray
-                      theme={theme}
-                      name="actionConfiguration.queryParameters"
-                      label="Params"
                       dataTreePath={`${actionName}.config.queryParameters`}
+                      label="Params"
+                      name="actionConfiguration.queryParameters"
+                      theme={theme}
                     />
                   </TabSection>
                 ),
@@ -428,8 +430,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 ),
               },
             ]}
-            selectedIndex={selectedIndex}
-            onSelect={setSelectedIndex}
           />
         </TabbedViewContainer>
 

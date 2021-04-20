@@ -30,13 +30,13 @@ export const DatasourceStructureContainer = memo((props: Props) => {
           return (
             <Boxed
               key={`${props.datasourceId}${structure.name}`}
-              step={OnboardingStep.DEPLOY}
               show={structure.name === "public.standup_updates"}
+              step={OnboardingStep.DEPLOY}
             >
               <DatasourceStructure
+                datasourceId={props.datasourceId}
                 dbStructure={structure}
                 step={props.step + 1}
-                datasourceId={props.datasourceId}
               />
             </Boxed>
           );

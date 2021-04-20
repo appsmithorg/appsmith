@@ -20,14 +20,10 @@ interface RequestDropdownProps {
 const renderComponent = (
   componentProps: WrappedFieldProps & RequestDropdownProps,
 ) => {
-  return (
-    <React.Fragment>
-      <DropdownFieldWrapper {...componentProps} />
-    </React.Fragment>
-  );
+  return <DropdownFieldWrapper {...componentProps} />;
 };
 
-const RequestDropdownField = (props: RequestDropdownProps) => {
+function RequestDropdownField(props: RequestDropdownProps) {
   return (
     <Field
       component={renderComponent}
@@ -36,6 +32,6 @@ const RequestDropdownField = (props: RequestDropdownProps) => {
       {...props}
     />
   );
-};
+}
 
 export default RequestDropdownField;

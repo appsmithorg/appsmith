@@ -158,7 +158,7 @@ const StatusCodeText = styled(BaseText)<{ code: string }>`
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
 `;
 
-const ApiResponseView = (props: Props) => {
+function ApiResponseView(props: Props) {
   const {
     match: {
       params: { apiId },
@@ -188,7 +188,8 @@ const ApiResponseView = (props: Props) => {
         <ResponseTabWrapper>
           {hasFailed && !isRunning && requestDebugVisible && (
             <Callout
-              text={createMessage(CHECK_REQUEST_BODY)}
+              closeButton
+              fill
               label={
                 <FailedMessage>
                   <ShowRequestText
@@ -197,17 +198,16 @@ const ApiResponseView = (props: Props) => {
                       setSelectedIndex(1);
                     }}
                   >
-                    <Text type={TextType.H6} case={Case.UPPERCASE}>
+                    <Text case={Case.UPPERCASE} type={TextType.H6}>
                       {createMessage(SHOW_REQUEST)}
                     </Text>
                     <Icon name="right-arrow" />
                   </ShowRequestText>
                 </FailedMessage>
               }
-              variant={Variant.warning}
-              fill
-              closeButton
               onClose={() => setRequestDebugVisible(false)}
+              text={createMessage(CHECK_REQUEST_BODY)}
+              variant={Variant.warning}
             />
           )}
           {_.isEmpty(response.statusCode) ? (
@@ -217,13 +217,13 @@ const ApiResponseView = (props: Props) => {
             </NoResponseContainer>
           ) : (
             <ReadOnlyEditor
+              folding
+              height={"100%"}
               input={{
                 value: response.body
                   ? JSON.stringify(response.body, null, 2)
                   : "",
               }}
-              height={"100%"}
-              folding={true}
             />
           )}
         </ResponseTabWrapper>
@@ -234,14 +234,14 @@ const ApiResponseView = (props: Props) => {
       title: "Request",
       panelComponent: (
         <RequestView
-          requestURL={response.request?.url || ""}
-          requestHeaders={response.request?.headers || {}}
-          requestMethod={response.request?.httpMethod || ""}
           requestBody={
             _.isObject(response.request?.body)
               ? JSON.stringify(response.request?.body, null, 2)
               : response.request?.body || ""
           }
+          requestHeaders={response.request?.headers || {}}
+          requestMethod={response.request?.httpMethod || ""}
+          requestURL={response.request?.url || ""}
         />
       ),
     },
@@ -290,14 +290,14 @@ const ApiResponseView = (props: Props) => {
           </ResponseMetaWrapper>
         )}
         <TabComponent
-          tabs={tabs}
-          selectedIndex={selectedIndex}
           onSelect={setSelectedIndex}
+          selectedIndex={selectedIndex}
+          tabs={tabs}
         />
       </TabbedViewWrapper>
     </ResponseContainer>
   );
-};
+}
 
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {

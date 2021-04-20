@@ -10,13 +10,13 @@ class MultiSwitchControl extends BaseControl<MultiSwitchControlProps> {
       !!option.icon && iconNames.indexOf(option.icon) > -1;
     return (
       <Button
-        key={option.label || option.icon}
-        icon={isIcon ? (option.icon as IconName) : undefined}
-        text={!isIcon && option.label}
         active={this.props.propertyValue === option.value}
+        icon={isIcon ? (option.icon as IconName) : undefined}
+        key={option.label || option.icon}
         onClick={() =>
           this.updateProperty(this.props.propertyName, option.value)
         }
+        text={!isIcon && option.label}
       />
     );
   };

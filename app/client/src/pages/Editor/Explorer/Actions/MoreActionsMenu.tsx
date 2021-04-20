@@ -60,7 +60,7 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
   }
 `;
 
-export const MoreActionsMenu = (props: EntityContextMenuProps) => {
+export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const nextEntityName = useNewActionName();
 
@@ -107,8 +107,8 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
       className={props.className}
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
+      onMenuToggle={(isOpen: boolean) => setIsMenuOpen(isOpen)}
       onSelect={noop}
-      selectedValue=""
       optionTree={[
         {
           icon: "duplicate",
@@ -149,17 +149,17 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
           className: "t--apiFormDeleteBtn",
         },
       ]}
+      selectedValue=""
       toggle={
         <MoreActionablesContainer
           className={props.className}
           isOpen={isMenuOpen}
         >
-          <Icon name="context-menu" size={IconSize.XXXL}></Icon>
+          <Icon name="context-menu" size={IconSize.XXXL} />
         </MoreActionablesContainer>
       }
-      onMenuToggle={(isOpen: boolean) => setIsMenuOpen(isOpen)}
     />
   );
-};
+}
 
 export default MoreActionsMenu;

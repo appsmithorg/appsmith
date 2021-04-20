@@ -186,16 +186,16 @@ abstract class BaseWidget<
   }
   showWidgetName(content: ReactNode, showControls = false) {
     return (
-      <React.Fragment>
+      <>
         <WidgetNameComponent
-          widgetName={this.props.widgetName}
-          widgetId={this.props.widgetId}
           parentId={this.props.parentId}
-          type={this.props.type}
           showControls={showControls}
+          type={this.props.type}
+          widgetId={this.props.widgetId}
+          widgetName={this.props.widgetName}
         />
         {content}
-      </React.Fragment>
+      </>
     );
   }
 
@@ -207,9 +207,9 @@ abstract class BaseWidget<
     const style = this.getPositionStyle();
     return (
       <PositionedContainer
+        style={style}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
-        style={style}
       >
         {content}
       </PositionedContainer>
@@ -243,7 +243,7 @@ abstract class BaseWidget<
           }
           return content;
         }
-        return <React.Fragment />;
+        return <></>;
       default:
         throw Error("RenderMode not defined");
     }

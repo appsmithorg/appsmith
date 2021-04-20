@@ -14,11 +14,11 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
 
     return (
       <ActionCreator
-        value={propertyValue}
-        isValid={this.props.isValid}
-        validationMessage={this.props.errorMessage}
-        onValueChange={this.handleValueUpdate}
         additionalAutoComplete={this.props.additionalAutoComplete}
+        isValid={this.props.isValid}
+        onValueChange={this.handleValueUpdate}
+        validationMessage={this.props.errorMessage}
+        value={propertyValue}
       />
     );
   }

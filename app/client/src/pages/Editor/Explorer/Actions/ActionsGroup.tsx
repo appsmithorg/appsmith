@@ -31,14 +31,14 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
     );
     return (
       <ExplorerActionEntity
-        key={action.config.id}
         action={action}
-        url={url}
         active={active}
         icon={icon}
-        step={props.step + 1}
-        searchKeyword={props.searchKeyword}
+        key={action.config.id}
         pageId={props.page.pageId}
+        searchKeyword={props.searchKeyword}
+        step={props.step + 1}
+        url={url}
       />
     );
   });

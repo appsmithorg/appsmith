@@ -36,7 +36,7 @@ const Wrapper = styled.div`
   padding-top: 25px;
 `;
 
-const DBQueryGroup = (props: any) => {
+function DBQueryGroup(props: any) {
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
   });
@@ -101,6 +101,6 @@ const DBQueryGroup = (props: any) => {
       )}
     </Wrapper>
   );
-};
+}
 
 export default DBQueryGroup;

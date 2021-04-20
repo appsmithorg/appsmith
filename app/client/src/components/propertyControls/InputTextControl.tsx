@@ -36,23 +36,23 @@ export function InputText(props: {
   return (
     <StyledDynamicInput>
       <CodeEditor
+        additionalDynamicData={props.additionalAutocomplete}
+        dataTreePath={dataTreePath}
+        evaluatedValue={evaluatedValue}
+        expected={expected}
         input={{
           value: value,
           onChange: onChange,
         }}
-        evaluatedValue={evaluatedValue}
-        expected={expected}
-        dataTreePath={dataTreePath}
         meta={{
           error: isValid ? "" : errorMessage,
           touched: true,
         }}
-        theme={props.theme || EditorTheme.LIGHT}
         mode={EditorModes.TEXT_WITH_BINDING}
-        tabBehaviour={TabBehaviour.INDENT}
-        size={EditorSize.EXTENDED}
         placeholder={placeholder}
-        additionalDynamicData={props.additionalAutocomplete}
+        size={EditorSize.EXTENDED}
+        tabBehaviour={TabBehaviour.INDENT}
+        theme={props.theme || EditorTheme.LIGHT}
       />
     </StyledDynamicInput>
   );
@@ -72,15 +72,15 @@ class InputTextControl extends BaseControl<InputControlProps> {
     } = this.props;
     return (
       <InputText
-        label={label}
-        value={propertyValue ? propertyValue : defaultValue}
-        onChange={this.onTextChange}
-        isValid={isValid}
+        dataTreePath={dataTreePath}
         errorMessage={validationMessage}
         expected={expected}
-        dataTreePath={dataTreePath}
+        isValid={isValid}
+        label={label}
+        onChange={this.onTextChange}
         placeholder={placeholderText}
         theme={this.props.theme}
+        value={propertyValue ? propertyValue : defaultValue}
       />
     );
   }

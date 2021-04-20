@@ -41,8 +41,7 @@ export const SwitchComponent: React.FC<SwitchComponentProps> = ({
     <SwitchComponentContainer className={switchAlignClass}>
       <Switch
         alignIndicator={switchAlignClass}
-        label={label}
-        disabled={isDisabled}
+        checked={isSwitchedOn}
         className={
           isLoading
             ? `${Classes.SKELETON} t--switch-widget-loading`
@@ -52,7 +51,8 @@ export const SwitchComponent: React.FC<SwitchComponentProps> = ({
                   : "t--switch-widget-inactive"
               }`
         }
-        checked={isSwitchedOn}
+        disabled={isDisabled}
+        label={label}
         onChange={() => onChange(!isSwitchedOn)}
       />
     </SwitchComponentContainer>

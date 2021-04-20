@@ -52,8 +52,8 @@ export class SwitchField extends React.Component<Props, any> {
           </StyledFormLabel>
           <StyledSwitch
             checked={this.value}
-            onChange={(value) => input.onChange(value)}
             large
+            onChange={(value) => input.onChange(value)}
           />
         </SwitchWrapped>
         {info && <Info>{info}</Info>}
@@ -67,15 +67,13 @@ class SwitchControl extends BaseControl<SwitchControlProps> {
     const { configProperty, label, isRequired, info } = this.props;
 
     return (
-      <React.Fragment>
-        <Field
-          name={configProperty}
-          component={SwitchField}
-          label={label}
-          isRequired={isRequired}
-          info={info}
-        />
-      </React.Fragment>
+      <Field
+        component={SwitchField}
+        info={info}
+        isRequired={isRequired}
+        label={label}
+        name={configProperty}
+      />
     );
   }
 

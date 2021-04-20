@@ -29,7 +29,7 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
+function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
   const { extraData = [] } = props;
   const keyName = getFieldName(extraData[0].configProperty);
   const valueName = getFieldName(extraData[1].configProperty);
@@ -75,9 +75,9 @@ const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
   }
 
   return (
-    <React.Fragment>
+    <>
       {typeof props.fields.getAll() === "object" && (
-        <React.Fragment>
+        <>
           {props.fields.map((field: any, index: number) => {
             const otherProps: Record<string, any> = {};
             if (
@@ -102,11 +102,11 @@ const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
                   </FormLabel>
                   <TextField
                     name={`${field}.${keyName[1]}`}
-                    showError
-                    validate={keyFieldValidate}
                     placeholder={
                       (extraData && extraData[0].placeholderText) || ""
                     }
+                    showError
+                    validate={keyFieldValidate}
                   />
                 </div>
                 {!props.actionConfig && (
@@ -118,29 +118,29 @@ const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
                       <div style={{ marginRight: 14, width: 72 }}>
                         <StyledTextField
                           name={`${field}.${valueName[1]}`}
-                          type={valueDataType}
                           placeholder={
                             (extraData && extraData[1].placeholderText) || ""
                           }
+                          type={valueDataType}
                         />
                       </div>
                       {index === props.fields.length - 1 ? (
                         <Icon
+                          color={Colors["CADET_BLUE"]}
                           icon="plus"
                           iconSize={20}
                           onClick={() =>
                             props.fields.push({ key: "", value: "" })
                           }
-                          color={Colors["CADET_BLUE"]}
                           style={{ alignSelf: "center" }}
                         />
                       ) : (
                         <FormIcons.DELETE_ICON
-                          height={20}
-                          width={20}
                           color={Colors["CADET_BLUE"]}
+                          height={20}
                           onClick={() => props.fields.remove(index)}
                           style={{ alignSelf: "center" }}
+                          width={20}
                         />
                       )}
                     </div>
@@ -162,11 +162,11 @@ const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
               </FormRowWithLabel>
             );
           })}
-        </React.Fragment>
+        </>
       )}
-    </React.Fragment>
+    </>
   );
-};
+}
 
 class KeyValueFieldArray extends BaseControl<KeyValueArrayProps> {
   render() {

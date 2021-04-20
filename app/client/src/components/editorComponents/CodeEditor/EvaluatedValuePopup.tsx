@@ -119,11 +119,11 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
 }
 
-export const CurrentValueViewer = (props: {
+export function CurrentValueViewer(props: {
   theme: EditorTheme;
   evaluatedValue: any;
   hideLabel?: boolean;
-}) => {
+}) {
   const currentValueWrapperRef = React.createRef<HTMLDivElement>();
   const codeWrapperRef = React.createRef<HTMLPreElement>();
 
@@ -163,7 +163,7 @@ export const CurrentValueViewer = (props: {
     }
   }
   return (
-    <React.Fragment>
+    <>
       {!props.hideLabel && <StyledTitle>Evaluated Value</StyledTitle>}
       <CurrentValueWrapper colorTheme={props.theme}>
         <>
@@ -171,18 +171,18 @@ export const CurrentValueViewer = (props: {
           <ScrollIndicator containerRef={currentValueWrapperRef} />
         </>
       </CurrentValueWrapper>
-    </React.Fragment>
+    </>
   );
-};
+}
 
-const PopoverContent = (props: PopoverContentProps) => {
+function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
   return (
     <ContentWrapper
+      className="t--CodeEditor-evaluatedValue"
+      colorTheme={props.theme}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
-      colorTheme={props.theme}
-      className="t--CodeEditor-evaluatedValue"
     >
       {props.hasError && (
         <ErrorText>
@@ -192,23 +192,23 @@ const PopoverContent = (props: PopoverContentProps) => {
         </ErrorText>
       )}
       {!props.hasError && props.expected && (
-        <React.Fragment>
+        <>
           <StyledTitle>Expected Data Type</StyledTitle>
           <TypeText colorTheme={props.theme} ref={typeTextRef}>
             {props.expected}
             <ScrollIndicator containerRef={typeTextRef} />
           </TypeText>
-        </React.Fragment>
+        </>
       )}
       <CurrentValueViewer
-        theme={props.theme}
         evaluatedValue={props.evaluatedValue}
+        theme={props.theme}
       />
     </ContentWrapper>
   );
-};
+}
 
-const EvaluatedValuePopup = (props: Props) => {
+function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -224,36 +224,36 @@ const EvaluatedValuePopup = (props: Props) => {
     <Wrapper ref={wrapperRef}>
       {(props.isOpen || contentHovered) && (
         <Popper
-          targetNode={wrapperRef.current || undefined}
           isOpen
-          zIndex={15}
-          placement={placement}
           modifiers={{
             offset: {
               enabled: true,
               offset: "0, 15",
             },
           }}
+          placement={placement}
+          targetNode={wrapperRef.current || undefined}
+          zIndex={15}
         >
           <PopoverContent
-            expected={props.expected}
-            evaluatedValue={props.evaluatedValue}
             error={props.error}
-            useValidationMessage={props.useValidationMessage}
+            evaluatedValue={props.evaluatedValue}
+            expected={props.expected}
             hasError={props.hasError}
-            theme={props.theme}
-            onMouseLeave={() => {
-              setContentHovered(false);
-            }}
             onMouseEnter={() => {
               setContentHovered(true);
             }}
+            onMouseLeave={() => {
+              setContentHovered(false);
+            }}
+            theme={props.theme}
+            useValidationMessage={props.useValidationMessage}
           />
         </Popper>
       )}
       {props.children}
     </Wrapper>
   );
-};
+}
 
 export default EvaluatedValuePopup;

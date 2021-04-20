@@ -20,11 +20,13 @@ const Container = styled.div`
   }
 `;
 
-const ResultsNotFound = () => (
-  <Container>
-    <img alt="No data" src={NoSearchDataImage} />
-    <div className="no-data-title">{NO_SEARCH_DATA_TEXT}</div>
-  </Container>
-);
+function ResultsNotFound() {
+  return (
+    <Container>
+      <img alt="No data" src={NoSearchDataImage} />
+      <div className="no-data-title">{NO_SEARCH_DATA_TEXT}</div>
+    </Container>
+  );
+}
 
 export default ResultsNotFound;

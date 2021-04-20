@@ -74,42 +74,42 @@ function TabControlComponent(props: RenderComponentProps) {
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        placeholder="Tab Title"
+        defaultValue={item.label}
         onChange={(value: string) => {
           debouncedUpdate(index, value);
         }}
-        defaultValue={item.label}
+        placeholder="Tab Title"
       />
       <StyledDeleteIcon
         className="t--delete-tab-btn"
         height={20}
-        width={20}
         marginRight={12}
         onClick={() => {
           deleteOption(index);
         }}
+        width={20}
       />
       {visibility || visibility === undefined ? (
         <StyledVisibleIcon
           className="t--show-tab-btn"
           height={20}
-          width={20}
           marginRight={36}
           onClick={() => {
             setVisibility(!visibility);
             toggleVisibility && toggleVisibility(index);
           }}
+          width={20}
         />
       ) : (
         <StyledHiddenIcon
           className="t--show-tab-btn"
           height={20}
-          width={20}
           marginRight={36}
           onClick={() => {
             setVisibility(!visibility);
             toggleVisibility && toggleVisibility(index);
           }}
+          width={20}
         />
       )}
     </ItemWrapper>
@@ -160,23 +160,23 @@ class TabControl extends BaseControl<ControlProps> {
     return (
       <TabsWrapper>
         <DroppableComponent
-          items={tabs}
-          itemHeight={45}
-          renderComponent={TabControlComponent}
           deleteOption={this.deleteOption}
-          updateOption={this.updateOption}
-          updateItems={this.updateItems}
+          itemHeight={45}
+          items={tabs}
+          renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
+          updateItems={this.updateItems}
+          updateOption={this.updateOption}
         />
         <StyledPropertyPaneButtonWrapper>
           <StyledPropertyPaneButton
+            category={Category.tertiary}
             icon="plus"
-            tag="button"
-            type="button"
-            text="Add a Tab"
             onClick={this.addOption}
             size={Size.medium}
-            category={Category.tertiary}
+            tag="button"
+            text="Add a Tab"
+            type="button"
           />
         </StyledPropertyPaneButtonWrapper>
       </TabsWrapper>

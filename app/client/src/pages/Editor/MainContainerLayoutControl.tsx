@@ -105,7 +105,6 @@ export const MainContainerLayoutControl: React.FC<any> = () => {
     <LayoutControlWrapper>
       <div className="layout-control t--layout-control-wrapper">
         <Dropdown
-          width={"30px"}
           SelectedValueNode={({ selected }) => {
             return (
               <Icon
@@ -116,10 +115,11 @@ export const MainContainerLayoutControl: React.FC<any> = () => {
             );
           }}
           className="layout-control"
-          showDropIcon={false}
+          onSelect={noop}
           options={layoutOptions}
           selected={selectedLayout || layoutOptions[0]}
-          onSelect={noop}
+          showDropIcon={false}
+          width={"30px"}
         />
       </div>
     </LayoutControlWrapper>

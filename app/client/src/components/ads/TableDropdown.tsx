@@ -79,7 +79,7 @@ const Content = styled.div<{ isLoading?: boolean }>`
   }
 `;
 
-const TableDropdown = (props: DropdownProps) => {
+function TableDropdown(props: DropdownProps) {
   const [selectedIndex, setSelectedIndex] = useState(props.selectedIndex);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(
@@ -94,17 +94,17 @@ const TableDropdown = (props: DropdownProps) => {
   };
 
   return (
-    <Fragment>
+    <>
       {props.isLoading ? (
         <Spinner size={IconSize.LARGE} />
       ) : (
         <Popover
           data-cy={props.cypressSelector}
-          usePortal={false}
-          position={props.position || Position.BOTTOM_LEFT}
+          interactionKind={PopoverInteractionKind.CLICK}
           isOpen={isDropdownOpen}
           onInteraction={(state) => setIsDropdownOpen(state)}
-          interactionKind={PopoverInteractionKind.CLICK}
+          position={props.position || Position.BOTTOM_LEFT}
+          usePortal={false}
         >
           <Content isLoading={props.isLoading}>
             <SelectedItem className="selected-item">
@@ -115,8 +115,8 @@ const TableDropdown = (props: DropdownProps) => {
           <OptionsWrapper>
             {props.options.map((el: DropdownOption, index: number) => (
               <DropdownOption
-                key={index}
                 isSelected={selectedIndex === index}
+                key={index}
                 onClick={() => optionSelector(index)}
               >
                 <Text type={TextType.H5}>{el.name}</Text>
@@ -126,8 +126,8 @@ const TableDropdown = (props: DropdownProps) => {
           </OptionsWrapper>
         </Popover>
       )}
-    </Fragment>
+    </>
   );
-};
+}
 
 export default TableDropdown;

@@ -110,15 +110,16 @@ function DataControlComponent(props: RenderComponentProps) {
         {length > 1 && (
           <StyledDeleteIcon
             height={20}
-            width={20}
             onClick={() => {
               deleteOption(index);
             }}
+            width={20}
           />
         )}
       </ActionHolder>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
         <CodeEditor
+          evaluatedValue={evaluated?.seriesName}
           expected={"string"}
           input={{
             value: item.seriesName,
@@ -132,12 +133,11 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "seriesName", value);
             },
           }}
-          evaluatedValue={evaluated?.seriesName}
-          theme={props.theme}
-          size={EditorSize.EXTENDED}
           mode={EditorModes.TEXT_WITH_BINDING}
-          tabBehaviour={TabBehaviour.INPUT}
           placeholder="Series Name"
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={props.theme}
         />
       </StyledOptionControlWrapper>
       <StyledLabel>Series Data</StyledLabel>
@@ -145,6 +145,7 @@ function DataControlComponent(props: RenderComponentProps) {
         className={"t--property-control-chart-series-data-control"}
       >
         <CodeEditor
+          evaluatedValue={evaluated?.data}
           expected={`Array<x:string, y:number>`}
           input={{
             value: item.data,
@@ -158,19 +159,18 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "data", value);
             },
           }}
-          evaluatedValue={evaluated?.data}
           meta={{
             error: isValid ? "" : "There is an error",
             touched: true,
           }}
-          theme={props.theme}
-          size={EditorSize.EXTENDED}
           mode={EditorModes.JSON_WITH_BINDING}
-          tabBehaviour={TabBehaviour.INPUT}
           placeholder=""
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={props.theme}
         />
       </StyledDynamicInput>
-      <Box></Box>
+      <Box />
     </StyledOptionControlWrapper>
   );
 }
@@ -238,49 +238,49 @@ class ChartDataControl extends BaseControl<ControlProps> {
           };
       return (
         <DataControlComponent
+          deleteOption={this.deleteOption}
+          evaluated={evaluatedValue[0]}
           index={0}
+          isValid={validations[0].isValid}
           item={data}
           length={1}
-          deleteOption={this.deleteOption}
-          updateOption={this.updateOption}
-          isValid={validations[0].isValid}
-          validationMessage={validations[0].validationMessage}
-          evaluated={evaluatedValue[0]}
           theme={this.props.theme}
+          updateOption={this.updateOption}
+          validationMessage={validations[0].validationMessage}
         />
       );
     }
     return (
-      <React.Fragment>
+      <>
         <Wrapper>
           {chartData.map((data, index) => {
             return (
               <DataControlComponent
-                key={index}
-                index={index}
-                item={data}
-                length={dataLength}
                 deleteOption={this.deleteOption}
-                updateOption={this.updateOption}
-                isValid={validations[index].isValid}
-                validationMessage={validations[index].validationMessage}
                 evaluated={evaluatedValue[index]}
+                index={index}
+                isValid={validations[index].isValid}
+                item={data}
+                key={index}
+                length={dataLength}
                 theme={this.props.theme}
+                updateOption={this.updateOption}
+                validationMessage={validations[index].validationMessage}
               />
             );
           })}
         </Wrapper>
 
         <StyledPropertyPaneButton
+          category={Category.tertiary}
           icon="plus"
-          tag="button"
-          type="button"
-          text="Add Series"
           onClick={this.addOption}
           size={Size.medium}
-          category={Category.tertiary}
+          tag="button"
+          text="Add Series"
+          type="button"
         />
-      </React.Fragment>
+      </>
     );
   }
 
