@@ -194,7 +194,7 @@ public class EncryptionHandler {
         return finalCandidateFields;
     }
 
-    boolean convertEncryption(Object source, Function<String, String> transformer) {
+    synchronized boolean convertEncryption(Object source, Function<String, String> transformer) {
         if (source == null) {
             return false;
         }
