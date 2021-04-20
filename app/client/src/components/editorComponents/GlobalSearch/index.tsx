@@ -50,7 +50,7 @@ import RecentIcon from "assets/icons/ads/recent.svg";
 
 const StyledContainer = styled.div`
   width: 750px;
-  height: 45vh;
+  height: 60vh;
   background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
   display: flex;

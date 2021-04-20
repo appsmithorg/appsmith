@@ -42,6 +42,9 @@ import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import log from "loglevel";
 
+// testing
+import { omnibarDocumentationHelper } from "./OmnibarDocumentationHelper";
+
 const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
@@ -378,8 +381,18 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    dispatch(setGlobalSearchQuery("Connect to Databases"));
-    dispatch(toggleShowGlobalSearchModal());
+    if (props?.documentationLink) {
+      const {
+        hasSpecificDocumentation,
+        specificDocumentationText,
+      } = omnibarDocumentationHelper(props.documentationLink);
+      if (hasSpecificDocumentation) {
+        dispatch(setGlobalSearchQuery(specificDocumentationText));
+      } else {
+        dispatch(setGlobalSearchQuery("Connect to Databases"));
+      }
+      dispatch(toggleShowGlobalSearchModal());
+    }
   };
 
   const CustomOption = (props: OptionProps<OptionTypeBase>) => {
@@ -483,7 +496,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       <TabContainerView>
         {documentationLink && (
           <DocumentationLink
-            onClick={handleDocumentationClick}
+            onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
             rel="noopener noreferrer"
             className="t--datasource-documentation-link"
           >

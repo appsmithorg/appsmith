@@ -41,6 +41,7 @@ import { useLocalStorage } from "utils/hooks/localstorage";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Form = styled.form`
   display: flex;
@@ -253,6 +254,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     e.stopPropagation();
     dispatch(setGlobalSearchQuery("capturing data"));
     dispatch(toggleShowGlobalSearchModal());
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
   };
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
