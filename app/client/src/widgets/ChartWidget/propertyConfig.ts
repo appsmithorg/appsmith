@@ -63,9 +63,7 @@ export default [
     ],
   },
   {
-    sectionName: "Custom Chart Data",
-    hidden: (props: ChartWidgetProps) =>
-      props.chartType !== "CUSTOM_FUSION_CHART",
+    sectionName: "Chart Data",
     children: [
       {
         helpText:
@@ -80,13 +78,6 @@ export default [
         hidden: (props: ChartWidgetProps) =>
           props.chartType !== "CUSTOM_FUSION_CHART",
       },
-    ],
-  },
-  {
-    sectionName: "Chart Data",
-    hidden: (props: ChartWidgetProps) =>
-      props.chartType === "CUSTOM_FUSION_CHART",
-    children: [
       {
         helpText: "Populates the chart with the data",
         propertyName: "chartData",
@@ -95,6 +86,8 @@ export default [
         controlType: "CHART_DATA",
         isBindProperty: false,
         isTriggerProperty: false,
+        hidden: (props: ChartWidgetProps) =>
+          props.chartType === "CUSTOM_FUSION_CHART",
         children: [
           {
             helpText: "Series Name",
