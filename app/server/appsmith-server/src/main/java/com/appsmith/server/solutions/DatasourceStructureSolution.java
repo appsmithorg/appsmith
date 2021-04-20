@@ -59,6 +59,11 @@ public class DatasourceStructureSolution {
                     }
 
                     return e;
+                })
+                .onErrorResume(error -> {
+                    DatasourceStructure dsStructure = new DatasourceStructure();
+                    dsStructure.setErrorInfo(error);
+                    return Mono.just(dsStructure);
                 });
     }
 
@@ -119,11 +124,6 @@ public class DatasourceStructureSolution {
                     }
 
                     return e;
-                })
-                .onErrorResume(error -> {
-                    DatasourceStructure dsStructure = new DatasourceStructure();
-                    dsStructure.setErrorInfo(error);
-                    return Mono.just(dsStructure);
                 })
                 .flatMap(structure -> datasource.getId() == null
                         ? Mono.empty()
