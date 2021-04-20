@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.exceptions.BaseException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -100,4 +101,14 @@ public class DatasourceStructure {
         String body;
     }
 
+    String errorMessage;
+    String errorStatusCode;
+
+    public void setErrorInfo(Throwable error) {
+        this.errorMessage = error.getMessage();
+
+        if (error instanceof BaseException) {
+            this.errorStatusCode = ((BaseException)error).getAppErrorCode().toString();
+        }
+    }
 }
