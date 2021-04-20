@@ -213,7 +213,10 @@ const LogItem = (props: LogItemProps) => {
               </div>
             )}
             {props.state && (
-              <JsonWrapper onClick={(e) => e.stopPropagation()}>
+              <JsonWrapper
+                onClick={(e) => e.stopPropagation()}
+                className="t--debugger-log-state"
+              >
                 <ReactJson src={props.state} {...reactJsonProps} />
               </JsonWrapper>
             )}

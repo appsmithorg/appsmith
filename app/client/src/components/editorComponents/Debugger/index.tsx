@@ -64,7 +64,11 @@ const Debugger = () => {
 
   if (!showDebugger)
     return (
-      <Container onClick={onClick} errorCount={errorCount}>
+      <Container
+        onClick={onClick}
+        errorCount={errorCount}
+        className="t--debugger"
+      >
         <Icon name="bug" size={IconSize.XXXL} />
         <div className="debugger-count">{errorCount}</div>
       </Container>
