@@ -141,7 +141,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
         </SearchBox>
       )}
       {Array.isArray(props.markers) &&
-        props.markers.map((marker: any, index: number) => (
+        props.markers.map((marker: MarkerProps, index: number) => (
           <Marker
             key={index}
             title={marker.title}
