@@ -599,6 +599,14 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .collectList()
                     .thenReturn(structure)
+                    .onErrorMap(
+                            MongoCommandException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                    "Appsmith has failed to get database structure. Please provide read permission on" +
+                                            " the database to fix this."
+                            )
+                    )
                     .subscribeOn(scheduler);
         }
 
