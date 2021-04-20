@@ -1,6 +1,5 @@
 import {
   DependencyMap,
-  EntityWithBindings,
   EvalError,
   EvalErrorTypes,
   getDynamicBindings,
@@ -694,6 +693,7 @@ export default class DataTreeEvaluator {
     differences
       .map(translateDiffEventToDataTreeDiffEvent)
       .forEach((dataTreeDiff) => {
+        debugger;
         const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
         let entity = unEvalDataTree[entityName];
         if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
@@ -792,22 +792,19 @@ export default class DataTreeEvaluator {
             }
 
             case DataTreeDiffEvent.EDIT: {
-              // We only care about dependencies for a widget. This is because in case a dependency of an action changes,
-              // that shouldn't trigger an evaluation.
-              // Also for a widget, we only care if the difference is in dynamic bindings since static values do not need
+              // We only care if the difference is in dynamic bindings since static values do not need
               // an evaluation.
               if (
                 (isWidget(entity) || isAction(entity)) &&
                 typeof dataTreeDiff.payload.value === "string"
               ) {
-                const entity: EntityWithBindings = unEvalDataTree[
+                const entity: DataTreeAction | DataTreeWidget = unEvalDataTree[
                   entityName
-                ] as EntityWithBindings;
+                ] as DataTreeAction | DataTreeWidget;
+                const fullPropertyPath = dataTreeDiff.payload.propertyPath;
                 const isABindingPath = isPathADynamicBinding(
                   entity,
-                  dataTreeDiff.payload.propertyPath.substring(
-                    dataTreeDiff.payload.propertyPath.indexOf(".") + 1,
-                  ),
+                  fullPropertyPath.substring(fullPropertyPath.indexOf(".") + 1),
                 );
                 if (isABindingPath) {
                   didUpdateDependencyMap = true;
@@ -821,15 +818,30 @@ export default class DataTreeEvaluator {
                   // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
                   // dependencies for this property path with the newly found dependencies
                   if (correctSnippets.length) {
-                    this.dependencyMap[
-                      dataTreeDiff.payload.propertyPath
-                    ] = correctSnippets;
+                    this.dependencyMap[fullPropertyPath] = correctSnippets;
                   } else {
                     // The dependency on this property path has been removed. Delete this property path from the global
                     // dependency map
-                    delete this.dependencyMap[
-                      dataTreeDiff.payload.propertyPath
-                    ];
+                    delete this.dependencyMap[fullPropertyPath];
+                  }
+                  if (isAction(entity)) {
+                    // Actions have a defined dependency map that should always be maintained
+                    if (fullPropertyPath in entity.dependencyMap) {
+                      const entityDependenciesName = entity.dependencyMap[
+                        fullPropertyPath
+                      ].map((dep) => `${entityName}.${dep}`);
+                      if (fullPropertyPath in this.dependencyMap) {
+                        this.dependencyMap[
+                          fullPropertyPath
+                        ] = this.dependencyMap[fullPropertyPath].concat(
+                          entityDependenciesName,
+                        );
+                      } else {
+                        this.dependencyMap[
+                          fullPropertyPath
+                        ] = entityDependenciesName;
+                      }
+                    }
                   }
                 }
               }

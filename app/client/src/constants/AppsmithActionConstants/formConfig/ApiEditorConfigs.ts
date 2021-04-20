@@ -16,7 +16,7 @@ export default [
         hidden: {
           path: "actionConfiguration.pluginSpecifiedTemplates[0].value",
           comparison: "EQUALS",
-          value: "false",
+          value: false,
         },
       },
       {
@@ -27,7 +27,7 @@ export default [
         hidden: {
           path: "actionConfiguration.pluginSpecifiedTemplates[0].value",
           comparison: "EQUALS",
-          value: "true",
+          value: true,
         },
       },
       {
