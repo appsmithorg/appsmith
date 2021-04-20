@@ -32,6 +32,8 @@ import {
   expandDatasourceEntity,
   fetchDatasourceStructure,
   setDatsourceEditorMode,
+  updateDatasourceSuccess,
+  UpdateDatasourceSuccessAction,
 } from "actions/datasourceActions";
 import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
@@ -177,10 +179,10 @@ function* updateDatasourceSaga(
       const datasourceStructure =
         state.entities.datasources.structure[response.data.id];
 
-      yield put({
-        type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
-        payload: response.data,
-      });
+      // Dont redirect if action payload has an onSuccess
+      yield put(
+        updateDatasourceSuccess(response.data, !actionPayload.onSuccess),
+      );
       if (actionPayload.onSuccess) {
         yield put(actionPayload.onSuccess);
       }
@@ -532,14 +534,15 @@ function* storeAsDatasourceSaga() {
   yield put(changeDatasource(createdDatasource));
 }
 
-function* updateDatasourceSuccessSaga(action: ReduxAction<Datasource>) {
+function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const state = yield select();
   const actionRouteInfo = _.get(state, "ui.datasourcePane.actionRouteInfo");
   const updatedDatasource = action.payload;
 
   if (
     actionRouteInfo &&
-    updatedDatasource.id === actionRouteInfo.datasourceId
+    updatedDatasource.id === actionRouteInfo.datasourceId &&
+    action.redirect
   ) {
     history.push(
       API_EDITOR_ID_URL(

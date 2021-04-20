@@ -287,7 +287,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         if (datasource.getDatasourceConfiguration() != null
                 && !CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
             for (final Endpoint endpoint : datasource.getDatasourceConfiguration().getEndpoints()) {
-                endpoint.setHost(endpoint.getHost().trim());
+                if (endpoint != null && endpoint.getHost() != null) {
+                    endpoint.setHost(endpoint.getHost().trim());
+                }
             }
         }
 
