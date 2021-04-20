@@ -11,6 +11,7 @@ import {
 } from "react-select";
 import { isString, isArray } from "lodash";
 import history from "utils/history";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import FormRow from "components/editorComponents/FormRow";
@@ -23,6 +24,7 @@ import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
 import Table from "./Table";
+import { omnibarDocumentationHelper } from "./OmnibarDocumentationHelper";
 import { Action } from "entities/Action";
 import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
@@ -41,9 +43,6 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import log from "loglevel";
-
-// testing
-import { omnibarDocumentationHelper } from "./OmnibarDocumentationHelper";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -392,6 +391,9 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         dispatch(setGlobalSearchQuery("Connect to Databases"));
       }
       dispatch(toggleShowGlobalSearchModal());
+      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+        source: "DATASOURCE_DOCUMENTATION_CLICK",
+      });
     }
   };
 

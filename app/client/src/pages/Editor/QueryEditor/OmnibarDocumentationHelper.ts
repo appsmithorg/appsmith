@@ -30,6 +30,18 @@ const omnibarDocumentationHelper = (linkURL: string) => {
       text: "querying-mssql",
       query: "Mssql",
     },
+    {
+      text: "querying-elasticsearch",
+      query: "elasticsearch",
+    },
+    {
+      text: "querying-postgres",
+      query: "postgres",
+    },
+    {
+      text: "querying-dynamodb",
+      query: "dynamodb",
+    },
   ];
   console.log("linkURL: ", linkURL);
   for (const headerItem of documentationHeaders) {

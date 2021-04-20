@@ -3,7 +3,10 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Text, { TextType } from "components/ads/Text";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import {
+  setGlobalSearchQuery,
+  toggleShowGlobalSearchModal,
+} from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isMac } from "utils/helpers";
@@ -52,6 +55,9 @@ const HelpBar = ({ toggleShowModal }: Props) => {
 const mapDispatchToProps = (dispatch: any) => ({
   toggleShowModal: () => {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });
+    // set global search query to empty when
+    // opening directly from nav bar
+    dispatch(setGlobalSearchQuery(""));
     dispatch(toggleShowGlobalSearchModal());
   },
 });
