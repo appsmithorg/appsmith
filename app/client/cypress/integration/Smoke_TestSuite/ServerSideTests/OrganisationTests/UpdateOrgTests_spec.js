@@ -60,13 +60,19 @@ describe("Update Organization", function() {
   });
 
   it("Upload logo / delete logo and validate", function() {
+    cy.intercept("POST", "/api/v1/organizations/*/logo").as("updateLogo");
     const fixturePath = "appsmithlogo.png";
     cy.xpath(homePage.uploadLogo).attachFile(fixturePath);
-    cy.wait("@updateLogo").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@updateLogo").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    });
+    /*
+      cy.wait("@updateLogo").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      */
     cy.xpath(homePage.membersTab).click({ force: true });
     cy.xpath(homePage.generalTab).click({ force: true });
     cy.get(homePage.removeLogo)

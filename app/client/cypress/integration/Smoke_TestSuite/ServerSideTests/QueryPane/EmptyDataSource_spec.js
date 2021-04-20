@@ -11,19 +11,29 @@ describe("Create a query with a empty datasource, run, save the query", function
   it("Create a empty datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.testSaveDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.testDatasource();
+
+    cy.get(".t--save-datasource").click();
+
+    cy.wait("@saveDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
+      cy.log(datasourceName);
+      cy.NavigateToQueryEditor();
+      cy.get(".t--datasource-name:contains(".concat(datasourceName).concat(")"))
+        .find(queryLocators.createQuery)
+        .click({ force: true });
     });
   });
 
   it("Create a query for empty/incorrect datasource and validate", () => {
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
+    cy.get(queryLocators.templateMenu)
+      .first()
       .click();
-
-    cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()

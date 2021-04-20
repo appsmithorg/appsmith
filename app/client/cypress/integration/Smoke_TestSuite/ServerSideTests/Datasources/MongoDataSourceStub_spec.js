@@ -34,13 +34,9 @@ describe("Create, test, save then delete a mongo datasource", function() {
         .click();
     });
 
-    cy.get("@getPluginForm").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-
-    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.templateMenu)
+      .first()
+      .click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()

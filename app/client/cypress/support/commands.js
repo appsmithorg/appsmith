@@ -58,11 +58,14 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
+  cy.wait("@getRoles");
+  /*
   cy.wait("@getRoles").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+  */
   cy.get(homePage.inviteUserMembersPage).should("be.visible");
 });
 
@@ -152,11 +155,7 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
-  cy.wait("@getRoles").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@getRoles");
   cy.get(homePage.DeleteBtn).click({ force: true });
   cy.xpath(homePage.appHome)
     .first()
@@ -179,11 +178,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
     .first()
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
-  cy.wait("@getRoles").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@getRoles");
   cy.get(homePage.inviteUserMembersPage).click({ force: true });
   cy.xpath(homePage.email)
     .click({ force: true })
@@ -341,11 +336,16 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@getUser").should(
+  cy.wait("@getUser").should((interception) => {
+    expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+  });
+  /*
+  cy.wait("@getUser").then((interception).should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+  */
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
@@ -1958,12 +1958,16 @@ Cypress.Commands.add("deleteDataSource", () => {
 
 Cypress.Commands.add("runAndDeleteQuery", () => {
   cy.get(queryEditor.runQuery).click();
+  cy.wait("@postExecute").should((interception) => {
+    expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+  });
+  /*
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
-
+*/
   cy.get(queryEditor.deleteQuery).click();
   cy.wait("@deleteAction").should(
     "have.nested.property",
@@ -2107,7 +2111,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   //To update route with intercept after working on alias wrt wait and alias
   cy.server();
   cy.intercept("GET", "/api/v1/applications/new").as("applications");
-  cy.intercept("GET", "/api/v1/users/profile").as("getUser");
+  //cy.intercept("GET", "/api/v1/users/profile").as("getUser");
   cy.intercept("GET", "/api/v1/plugins").as("getPlugins");
   cy.intercept("POST", "/api/v1/logout").as("postLogout");
 
@@ -2124,7 +2128,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "api/v1/import/templateCollections").as(
     "getTemplateCollections",
   );
-  cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAPI");
   cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApp");
   cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
   cy.intercept("DELETE", "/api/v1/pages/*").as("deletePage");
@@ -2137,7 +2140,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/organizations").as("organizations");
   cy.intercept("GET", "/api/v1/organizations/*").as("getOrganisation");
 
-  cy.intercept("POST", "/api/v1/actions/execute").as("executeAction");
   cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
@@ -2199,7 +2201,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("PUT", "/api/v1/organizations/*").as("updateOrganization");
   cy.intercept("GET", "/api/v1/pages/view/application/*").as("viewApp");
-  cy.intercept("POST", "/api/v1/organizations/*/logo").as("updateLogo");
+  //cy.intercept("POST", "/api/v1/organizations/*/logo").as("updateLogo");
   cy.intercept("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
 });
 
