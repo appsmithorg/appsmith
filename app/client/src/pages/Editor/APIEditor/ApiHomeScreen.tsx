@@ -47,6 +47,7 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
+import CloseEditor from "components/editorComponents/CloseEditor";
 const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
@@ -632,6 +633,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
           style={{ overflow: showSearchResults ? "hidden" : "auto" }}
           className="t--apiHomePage"
         >
+          <CloseEditor />
           {isSwitchingCategory || !enableRapidAPI ? (
             <>
               {ApiHomepageTopSection}
