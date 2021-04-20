@@ -48,7 +48,7 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
                 .flatMap(action -> {
                     if (action.getId() == null) {
                         //Action doesn't exist. Create now.
-                        return newActionService.createAction(action.getUnpublishedAction());
+                        return layoutActionService.createAction(action.getUnpublishedAction());
                     }
                     return Mono.just(action.getUnpublishedAction());
                 })
@@ -77,11 +77,11 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action) {
         if (action.getCollectionId() == null) {
-            return newActionService.createAction(action);
+            return layoutActionService.createAction(action);
         }
 
         ActionDTO finalAction = action;
-        return newActionService.createAction(action)
+        return layoutActionService.createAction(action)
                 .flatMap(savedAction -> collectionService.addSingleActionToCollection(finalAction.getCollectionId(), savedAction));
     }
 
