@@ -64,7 +64,7 @@ import {
   DATASOURCE_VALID,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, LOG_TYPE } from "entities/AppsmithConsole";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 
 function* fetchDatasourcesSaga() {
@@ -129,6 +129,7 @@ export function* deleteDatasourceSaga(
         },
       });
       AppsmithConsole.info({
+        logType: LOG_TYPE.ENTITY_DELETED,
         text: "Datasource deleted",
         source: {
           id: response.data.id,

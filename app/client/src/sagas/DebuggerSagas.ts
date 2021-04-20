@@ -78,6 +78,33 @@ function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   }
 }
 
+function* onEntityDeleteSaga(payload: LogActionPayload) {
+  const source = payload.source;
+
+  if (!source) {
+    yield put(debuggerLog(payload));
+    return;
+  }
+
+  const errors = yield select(getDebuggerErrors);
+  const errorIds = Object.keys(errors);
+  const updatedErrors: any = {};
+
+  errorIds.map((e) => {
+    const includes = e.includes(source.id);
+
+    if (!includes) {
+      updatedErrors[e] = errors[e];
+    }
+  });
+
+  yield put({
+    type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
+    payload: updatedErrors,
+  });
+  yield put(debuggerLog(payload));
+}
+
 function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
   const { payload } = action;
 
@@ -169,6 +196,9 @@ function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
           yield put(debuggerLog(payload));
         }
       }
+      break;
+    case LOG_TYPE.ENTITY_DELETED:
+      yield fork(onEntityDeleteSaga, payload);
       break;
     default:
       yield put(debuggerLog(payload));

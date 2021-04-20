@@ -87,6 +87,15 @@ const debuggerReducer = createReducer(initialState, {
       expandId: id,
     };
   },
+  [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS]: (
+    state: DebuggerReduxState,
+    action: any,
+  ) => {
+    return {
+      ...state,
+      errors: action.payload,
+    };
+  },
 });
 
 export interface DebuggerReduxState {

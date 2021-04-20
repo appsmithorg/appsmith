@@ -81,7 +81,7 @@ import {
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, LOG_TYPE } from "entities/AppsmithConsole";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -361,6 +361,7 @@ export function* deleteActionSaga(
       }
 
       AppsmithConsole.info({
+        logType: LOG_TYPE.ENTITY_DELETED,
         text: "Action was deleted",
         source: {
           type: ENTITY_TYPE.ACTION,

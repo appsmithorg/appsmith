@@ -112,7 +112,7 @@ import {
   WIDGET_DELETE,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, LOG_TYPE } from "entities/AppsmithConsole";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -476,6 +476,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           if (widgetId) {
             flushDeletedWidgets(widgetId);
             AppsmithConsole.info({
+              logType: LOG_TYPE.ENTITY_DELETED,
               text: "Widget was deleted",
               source: {
                 name: widgetName,

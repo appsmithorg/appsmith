@@ -17,6 +17,7 @@ export enum LOG_TYPE {
   WIDGET_UPDATE,
   ACTION_EXECUTION_ERROR,
   ACTION_EXECUTION_SUCCESS,
+  ENTITY_DELETED,
 }
 
 export enum Severity {
