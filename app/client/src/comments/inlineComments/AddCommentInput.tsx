@@ -120,6 +120,9 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
   const onSaveComment = useCallback(
     (editorStateArg?: EditorState) => {
       const latestEditorState = editorStateArg || editorState;
+
+      if (!latestEditorState.getCurrentContent().hasText()) return;
+
       const contentState = latestEditorState.getCurrentContent();
       const rawContent = convertToRaw(contentState);
       onSave(rawContent);
