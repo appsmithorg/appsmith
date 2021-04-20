@@ -82,7 +82,7 @@ class DatePickerControl extends BaseControl<
           parseDate={this.parseDate}
           maxDate={this.maxDate}
           minDate={this.minDate}
-          placeholder="DD/MM/YYYY HH:mm"
+          placeholder="YYYY-MM-DD HH:mm"
           timePrecision={TimePrecision.MINUTE}
           closeOnSelection={true}
           onChange={this.onDateSelected}
