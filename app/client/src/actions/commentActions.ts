@@ -129,3 +129,16 @@ export const updateCommentThreadEvent = (payload: Partial<CommentThread>) => ({
   type: ReduxActionTypes.UPDATE_COMMENT_THREAD_EVENT,
   payload,
 });
+
+export const pinCommentThreadRequest = (payload: { threadId: string }) => ({
+  type: ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST,
+  payload,
+});
+
+export const pinCommentThreadSuccess = (payload: {
+  threadId: string;
+  applicationId: string;
+}) => ({
+  type: ReduxActionTypes.PIN_COMMENT_THREAD_SUCCESS,
+  payload,
+});

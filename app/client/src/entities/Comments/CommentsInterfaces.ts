@@ -24,6 +24,7 @@ export type CreateCommentThreadRequest = {
   position: { top: number; left: number }; // used as a percentage value
   comments: Array<CreateCommentRequest>;
   resolved?: boolean;
+  isPinned?: boolean;
 };
 
 export type Comment = CreateCommentRequest & {

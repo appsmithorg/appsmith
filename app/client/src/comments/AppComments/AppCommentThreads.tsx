@@ -1,7 +1,10 @@
 import React, { useMemo } from "react";
-import { getAppCommentThreads } from "selectors/commentsSelectors";
-
-import { applicationCommentsSelector } from "../../selectors/commentsSelectors";
+import {
+  getSortedAppCommentThreadIds,
+  applicationCommentsSelector,
+  allCommentThreadsMap,
+  getAppCommentThreads,
+} from "selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 
@@ -12,10 +15,12 @@ const AppCommentThreads = () => {
   const appCommentThreadsByRefMap = useSelector(
     applicationCommentsSelector(applicationId),
   );
+  const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
+  const commentThreadsMap = useSelector(allCommentThreadsMap);
 
   const commentThreadIds = useMemo(
-    () => getAppCommentThreads(appCommentThreadsByRefMap),
-    [appCommentThreadsByRefMap],
+    () => getSortedAppCommentThreadIds(appCommentThreadIds, commentThreadsMap),
+    [appCommentThreadIds, commentThreadsMap],
   );
 
   return (

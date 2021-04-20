@@ -8,13 +8,7 @@ import React, {
 } from "react";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled, { withTheme } from "styled-components";
-import {
-  EditorState,
-  convertToRaw,
-  Modifier,
-  ContentState,
-  SelectionState,
-} from "draft-js";
+import { EditorState, convertToRaw, Modifier, SelectionState } from "draft-js";
 import EmojiPicker from "components/ads/EmojiPicker";
 import MentionsInput from "components/ads/MentionsInput";
 import useOrgUsers from "./useOrgUsers";

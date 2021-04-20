@@ -41,6 +41,11 @@ class CommentsApi extends Api {
       updateCommentRequest,
     );
   }
+
+  static pinCommentThread(threadId: string) {
+    console.log(threadId);
+    return Promise.resolve();
+  }
 }
 
 export default CommentsApi;

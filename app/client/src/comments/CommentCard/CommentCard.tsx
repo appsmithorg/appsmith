@@ -18,6 +18,9 @@ import createMentionPlugin from "@draft-js-plugins/mention";
 import { flattenDeep, noop } from "lodash";
 import copy from "copy-to-clipboard";
 
+import { pinCommentThreadRequest } from "actions/commentActions";
+import { useDispatch } from "react-redux";
+
 const StyledContainer = styled.div`
   width: 100%;
   padding: ${(props) =>
@@ -96,6 +99,7 @@ const CommentCard = ({
   toggleResolved?: () => void;
   commentThreadId: string;
 }) => {
+  const dispatch = useDispatch();
   const { authorName, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
@@ -108,8 +112,12 @@ const CommentCard = ({
     copy(url.toString());
   }, []);
 
+  const pin = useCallback(() => {
+    dispatch(pinCommentThreadRequest({ threadId: commentThreadId }));
+  }, []);
+
   const contextMenuProps = {
-    pinComment: noop,
+    pin,
     copyCommentLink,
     deleteComment: noop,
   };

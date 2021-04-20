@@ -53,16 +53,12 @@ const MenuTitle = styled.div`
 `;
 
 type Props = {
-  pinComment: typeof noop;
+  pin: typeof noop;
   copyCommentLink: typeof noop;
   deleteComment: typeof noop;
 };
 
-const CommentContextMenu = ({
-  pinComment,
-  copyCommentLink,
-  deleteComment,
-}: Props) => {
+const CommentContextMenu = ({ pin, copyCommentLink, deleteComment }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const options = useMemo(
@@ -70,7 +66,7 @@ const CommentContextMenu = ({
       {
         icon: "pin-2",
         display: createMessage(PIN_COMMENT),
-        onClick: pinComment,
+        onClick: pin,
       },
       {
         icon: "link-2",

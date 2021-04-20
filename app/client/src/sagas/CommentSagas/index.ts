@@ -24,6 +24,7 @@ import {
   addCommentToThreadSuccess,
   fetchApplicationCommentsSuccess,
   updateCommentThreadSuccess,
+  pinCommentThreadSuccess,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -46,6 +47,7 @@ import {
   CreateCommentThreadPayload,
   CreateCommentThreadRequest,
 } from "entities/Comments/CommentsInterfaces";
+import Comments from "comments/inlineComments/Comments";
 
 const { commentsTestModeEnabled } = getAppsmithConfigs();
 
@@ -183,6 +185,21 @@ function* setCommentResolution(
   }
 }
 
+function* pinCommentThread(action: ReduxAction<{ threadId: string }>) {
+  try {
+    const { threadId } = action.payload;
+    const response = yield CommentsApi.pinCommentThread(threadId);
+    // TODO: uncomment this
+    // const isValidResponse = yield validateResponse(response);
+    // if (isValidResponse) {
+    const applicationId = yield select(getCurrentApplicationId);
+    yield put(pinCommentThreadSuccess({ threadId, applicationId }));
+    // }
+  } catch (e) {
+    console.log(e, "handle error");
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
@@ -207,5 +224,6 @@ export default function* commentSagas() {
       setCommentResolution,
     ),
     call(watchCommentEvents),
+    takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
   ]);
 }
