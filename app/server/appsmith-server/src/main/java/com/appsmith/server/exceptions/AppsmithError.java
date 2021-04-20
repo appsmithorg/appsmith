@@ -87,8 +87,8 @@ public enum AppsmithError {
             "Please contact Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null),
     INVALID_CURL_HEADER(400, 4036, "Invalid header in cURL command: {0}.", AppsmithErrorAction.DEFAULT, null),
     AUTHENTICATION_FAILURE(500, 5010, "Authentication failed with error: {0}", AppsmithErrorAction.DEFAULT, null),
+    INSTANCE_REGISTRATION_FAILURE(500, 5011, "Registration for instance failed with error: {0}", AppsmithErrorAction.LOG_EXTERNALLY, null),
     ;
-
 
     private final Integer httpErrorCode;
     private final Integer appErrorCode;
