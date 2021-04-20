@@ -36,9 +36,8 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         configService.getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(registerInstance())
-//                .subscribe();
                 .subscribe(null, e -> {
-                    log.debug("Error was {} ", e.getMessage());
+                    log.debug(e.getMessage());
                     Sentry.captureException(e);
                 });
     }
