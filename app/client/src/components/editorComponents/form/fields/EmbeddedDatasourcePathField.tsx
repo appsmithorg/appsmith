@@ -239,6 +239,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (
           <DatasourceIcon
+            enable={true}
             onClick={() =>
               history.push(
                 DATA_SOURCES_EDITOR_ID_URL(
