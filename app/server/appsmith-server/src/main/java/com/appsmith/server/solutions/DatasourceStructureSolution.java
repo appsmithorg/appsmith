@@ -97,7 +97,7 @@ public class DatasourceStructureSolution {
                 .onErrorMap(
                         StaleConnectionException.class,
                         error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                AppsmithPluginError.PLUGIN_ERROR,
                                 "Secondary stale connection error."
                         )
                 )
