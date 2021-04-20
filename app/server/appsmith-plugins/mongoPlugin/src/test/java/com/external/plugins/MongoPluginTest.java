@@ -682,6 +682,7 @@ public class MongoPluginTest {
 
         MongoCommandException mockMongoCmdException = mock(MongoCommandException.class);
         when(mockDatabase.listCollectionNames()).thenReturn(Mono.error(mockMongoCmdException));
+        when(mockMongoCmdException.getErrorCode()).thenReturn(13);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
