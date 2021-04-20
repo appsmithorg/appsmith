@@ -508,12 +508,12 @@ function* handleApiNameChangeSuccessSaga(
   if (!actionObj) {
     // Error case, log to sentry
     Toaster.show({
-      text: createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name),
+      text: createMessage(ERROR_ACTION_RENAME_FAIL, ""),
       variant: Variant.danger,
     });
 
     Sentry.captureException(
-      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name)),
+      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, "")),
       {
         extra: {
           actionId: actionId,
