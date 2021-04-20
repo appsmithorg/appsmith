@@ -16,6 +16,7 @@ export const getAllPathsFromPropertyConfig = (
   const bindingPaths: Record<string, true> = derivedProperties;
   const triggerPaths: Record<string, true> = {};
   const validationPaths: Record<any, VALIDATION_TYPES> = {};
+
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {
@@ -24,6 +25,7 @@ export const getAllPathsFromPropertyConfig = (
         if ("hidden" in controlConfig) {
           isHidden = controlConfig.hidden(widget, basePath);
         }
+
         if (!isHidden) {
           if (
             controlConfig.isBindProperty &&

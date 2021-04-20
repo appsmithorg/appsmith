@@ -151,6 +151,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     Object.keys(chartData).forEach((key: string) => {
       const data: ChartDataPoint[] = get(chartData, `${key}`).data;
 
+      console.log({ data });
       for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
         const category = data[dataIndex].x;
         if (!categories.includes(category)) {

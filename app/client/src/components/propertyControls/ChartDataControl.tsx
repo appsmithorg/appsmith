@@ -1,5 +1,5 @@
 import React from "react";
-import _, { get, isString, set } from "lodash";
+import { get, has, isString, set } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
@@ -88,8 +88,10 @@ type RenderComponentProps = {
   index: string;
   item: ChartData;
   length: number;
-  isValid: boolean;
-  validationMessage: string;
+  validationMessage: {
+    data: string;
+    seriesName: string;
+  };
   deleteOption: (index: string) => void;
   updateOption: (index: string, key: string, value: string) => void;
   evaluated: {
@@ -106,9 +108,10 @@ function DataControlComponent(props: RenderComponentProps) {
     item,
     index,
     length,
-    isValid,
     evaluated,
+    validationMessage,
   } = props;
+
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <ActionHolder>
@@ -166,7 +169,9 @@ function DataControlComponent(props: RenderComponentProps) {
           }}
           evaluatedValue={evaluated?.data}
           meta={{
-            error: isValid ? "" : "There is an error",
+            error: has(validationMessage, "data")
+              ? get(validationMessage, "data")
+              : "",
             touched: true,
           }}
           theme={props.theme}
@@ -225,7 +230,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
   };
 
   render() {
-    const chartData: AllChartData = _.isString(this.props.propertyValue)
+    const chartData: AllChartData = isString(this.props.propertyValue)
       ? {}
       : this.props.propertyValue;
 
@@ -256,13 +261,13 @@ class ChartDataControl extends BaseControl<ControlProps> {
           length={1}
           deleteOption={this.deleteOption}
           updateOption={this.updateOption}
-          isValid={get(validations, `${firstKey}`).isValid}
-          validationMessage={get(validations, `${firstKey}`).validationMessage}
+          validationMessage={get(validationMessage, `${firstKey}`)}
           evaluated={get(evaluatedValue, `${firstKey}`)}
           theme={this.props.theme}
         />
       );
     }
+
     return (
       <React.Fragment>
         <Wrapper>
@@ -277,8 +282,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
                 length={dataLength}
                 deleteOption={this.deleteOption}
                 updateOption={this.updateOption}
-                isValid={get(validations, `${key}`).isValid}
-                validationMessage={get(validations, `${key}`).validationMessage}
+                validationMessage={get(validationMessage, `${key}`)}
                 evaluated={get(evaluatedValue, `${key}`)}
                 theme={this.props.theme}
               />
