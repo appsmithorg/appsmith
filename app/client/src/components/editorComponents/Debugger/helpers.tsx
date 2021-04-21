@@ -58,9 +58,9 @@ export const useFilteredLogs = (query: string, filter?: any) => {
   if (query) {
     filteredLogs = filteredLogs.filter((log: Message) => {
       if (log.source?.name)
-        return log.source?.name.toUpperCase().indexOf(query.toUpperCase()) < 0
-          ? false
-          : true;
+        return (
+          log.source?.name.toUpperCase().indexOf(query.toUpperCase()) !== -1
+        );
     });
   }
 
