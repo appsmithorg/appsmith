@@ -927,6 +927,23 @@ type ColorType = {
   debugger: {
     background: string;
     messageTextColor: string;
+    time: string;
+    label: string;
+    entity: string;
+    entityLink: string;
+    info: {
+      borderBottom: string;
+    };
+    warning: {
+      borderBottom: string;
+      backgroundColor: string;
+    };
+    error: {
+      borderBottom: string;
+      backgroundColor: string;
+    };
+    jsonIcon: string;
+    message: string;
   };
   helpModal: {
     itemHighlight: string;
@@ -1404,6 +1421,23 @@ export const dark: ColorType = {
   debugger: {
     background: darkShades[11],
     messageTextColor: "#D4D4D4",
+    time: "#D4D4D4",
+    label: "#D4D4D4",
+    entity: "rgba(212, 212, 212, 0.5)",
+    entityLink: "#D4D4D4",
+    jsonIcon: "#9F9F9F",
+    message: "#D4D4D4",
+    info: {
+      borderBottom: "black",
+    },
+    warning: {
+      borderBottom: "black",
+      backgroundColor: "#29251A",
+    },
+    error: {
+      borderBottom: "black",
+      backgroundColor: "#291B1D",
+    },
   },
 };
 
@@ -1820,6 +1854,23 @@ export const light: ColorType = {
   debugger: {
     background: "#FFFFFF",
     messageTextColor: "#716e6e",
+    time: "#4b4848",
+    label: "#4b4848",
+    entity: "rgba(75, 72, 72, 0.7)",
+    entityLink: "#6d6d6d",
+    jsonIcon: "#a9a7a7",
+    message: "#4b4848",
+    info: {
+      borderBottom: "rgba(0, 0, 0, 0.05)",
+    },
+    warning: {
+      borderBottom: "white",
+      backgroundColor: "rgba(254, 184, 17, 0.1)",
+    },
+    error: {
+      borderBottom: "white",
+      backgroundColor: "rgba(242, 43, 43, 0.08)",
+    },
   },
 };
 

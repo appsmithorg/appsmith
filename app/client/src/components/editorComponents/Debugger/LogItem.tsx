@@ -13,23 +13,29 @@ import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const Log = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
   display: flex;
 
   &.${Severity.INFO} {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid
+      ${(props) => props.theme.colors.debugger.info.borderBottom};
   }
 
   &.${Severity.ERROR} {
-    background-color: rgba(242, 43, 43, 0.08);
-    border-bottom: 1px solid white;
+    background-color: ${(props) =>
+      props.theme.colors.debugger.error.backgroundColor};
+    border-bottom: 1px solid
+      ${(props) => props.theme.colors.debugger.error.borderBottom};
   }
 
   &.${Severity.WARNING} {
-    background-color: rgba(254, 184, 17, 0.1);
-    border-bottom: 1px solid white;
+    background-color: ${(props) =>
+      props.theme.colors.debugger.warning.backgroundColor};
+    border-bottom: 1px solid
+      ${(props) => props.theme.colors.debugger.warning.borderBottom};
   }
 
   .${Classes.ICON} {
@@ -37,10 +43,9 @@ const Log = styled.div<{ collapsed: boolean }>`
   }
 
   .debugger-time {
-    font-size: 12px;
-    color: #4b4848;
+    ${(props) => getTypographyByKey(props, "h6")}
     line-height: 17px;
-    font-weight: 500;
+    color: ${(props) => props.theme.colors.debugger.time};
     margin-left: 10px;
   }
   .debugger-description {
@@ -52,14 +57,13 @@ const Log = styled.div<{ collapsed: boolean }>`
     }
 
     .debugger-label {
-      color: #4b4848;
+      color: ${(props) => props.theme.colors.debugger.label};
       margin-left: 5px;
-      font-size: 13px;
+      ${(props) => getTypographyByKey(props, "p2")}
     }
     .debugger-entity {
-      color: rgba(75, 72, 72, 0.7);
-      font-weight: 500;
-      font-size: 13px;
+      color: ${(props) => props.theme.colors.debugger.entity};
+      ${(props) => getTypographyByKey(props, "h6")}
       margin-left: 6px;
 
       & > span {
@@ -67,15 +71,16 @@ const Log = styled.div<{ collapsed: boolean }>`
 
         &:hover {
           text-decoration: underline;
-          text-decoration-color: rgba(75, 72, 72, 0.7);
+          text-decoration-color: ${(props) =>
+            props.theme.colors.debugger.entity};
         }
       }
     }
   }
   .debugger-timetaken {
-    color: rgba(75, 72, 72, 0.7);
+    color: ${(props) => props.theme.colors.debugger.entity};
     margin-left: 5px;
-    font-size: 13px;
+    ${(props) => getTypographyByKey(props, "p2")}
     line-height: 19px;
   }
 
@@ -86,8 +91,8 @@ const Log = styled.div<{ collapsed: boolean }>`
 
   .debugger-entity-link {
     margin-left: auto;
-    font-size: 13px;
-    color: #6d6d6d;
+    ${(props) => getTypographyByKey(props, "p2")}
+    color: ${(props) => props.theme.colors.debugger.entityLink};
     text-decoration-line: underline;
     cursor: pointer;
   }
@@ -96,7 +101,7 @@ const Log = styled.div<{ collapsed: boolean }>`
 const JsonWrapper = styled.div`
   padding-top: 4px;
   svg {
-    color: #a9a7a7 !important;
+    color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
     height: 12px !important;
     width: 12px !important;
     vertical-align: baseline !important;
@@ -107,8 +112,8 @@ const StyledCollapse = styled(Collapse)`
   margin-top: 4px;
 
   .debugger-message {
-    font-size: 13px;
-    color: #4b4848;
+    ${(props) => getTypographyByKey(props, "p2")}
+    color: ${(props) => props.theme.colors.debugger.message};
   }
 
   .${Classes.ICON} {
