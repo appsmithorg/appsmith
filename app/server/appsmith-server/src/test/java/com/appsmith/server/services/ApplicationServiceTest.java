@@ -105,6 +105,9 @@ public class ApplicationServiceTest {
     @Autowired
     ApplicationRepository applicationRepository;
 
+    @Autowired
+    LayoutActionService layoutActionService;
+
     @MockBean
     ReleaseNotesService releaseNotesService;
 
@@ -553,7 +556,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction = newActionService.createAction(action).block();
+        ActionDTO savedAction = layoutActionService.createAction(action).block();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -908,7 +911,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action1.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction1 = newActionService.createAction(action1).block();
+        ActionDTO savedAction1 = layoutActionService.createAction(action1).block();
 
         ActionDTO action2 = new ActionDTO();
         action2.setName("Clone App Test action2");
@@ -916,7 +919,7 @@ public class ApplicationServiceTest {
         action2.setDatasource(savedDatasource);
         action2.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction2 = newActionService.createAction(action2).block();
+        ActionDTO savedAction2 = layoutActionService.createAction(action2).block();
 
         ActionDTO action3 = new ActionDTO();
         action3.setName("Clone App Test action3");
@@ -924,8 +927,7 @@ public class ApplicationServiceTest {
         action3.setDatasource(savedDatasource);
         action3.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction3 = newActionService.createAction(action3).block();
-
+        ActionDTO savedAction3 = layoutActionService.createAction(action3).block();
 
         // Trigger the clone of application now.
         applicationPageService.cloneApplication(originalApplication.getId())
