@@ -21,19 +21,13 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
     cy.NavigateToQueryEditor();
 
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.contains(".t--datasource-name", datasourceName)
         .find(queryLocators.createQuery)
         .click();
     });
-
-    cy.get("@getPluginForm").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
 
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
