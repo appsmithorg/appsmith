@@ -1,6 +1,6 @@
 import { Classes } from "components/ads/common";
 import Icon, { IconSize } from "components/ads/Icon";
-import React from "react";
+import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import styled from "styled-components";
@@ -61,12 +61,12 @@ const Debugger = () => {
     (state: AppState) => state.ui.debugger.isOpen,
   );
 
-  const onClick = () => {
+  const onClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "CANVAS",
     });
     dispatch(showDebuggerAction(true));
-  };
+  }, []);
 
   if (!showDebugger)
     return (
