@@ -79,7 +79,7 @@ describe("List Widget test ideas ", function() {
   }
   )
 
-  it("Adding sutiable widget into the List widget", function(){
+  it("Adding apt widget into the List widget", function(){
     //Drag and Drop List widget 
     //Expand the section 1 size in the list widget 
     //Ensure by exapdning section inside list widget the page size gets increased
@@ -92,7 +92,7 @@ describe("List Widget test ideas ", function() {
  }
  )
 
- it("Add Button and Image Widget inside List Widget", function(){
+ it("Adding unapt widget to identify the error message", function(){
     //Drag and Drop List widget 
     //Expand the section 1 size in the list widget 
     //Drag and Drop widgets ie: Chart ,Date Picker radio button etc
