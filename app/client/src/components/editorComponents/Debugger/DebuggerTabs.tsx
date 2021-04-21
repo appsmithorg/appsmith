@@ -38,22 +38,23 @@ type DebuggerTabsProps = {
   defaultIndex: number;
 };
 
+const DEBUGGER_TABS = [
+  {
+    key: "ERROR",
+    title: "Errors",
+    panelComponent: <Errors hasShortCut />,
+  },
+  {
+    key: "LOGS",
+    title: "Logs",
+    panelComponent: <DebuggerLogs hasShortCut />,
+  },
+];
+
 const DebuggerTabs = (props: DebuggerTabsProps) => {
   const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const tabs = [
-    {
-      key: "ERROR",
-      title: "Errors",
-      panelComponent: <Errors hasShortCut />,
-    },
-    {
-      key: "LOGS",
-      title: "Logs",
-      panelComponent: <DebuggerLogs hasShortCut />,
-    },
-  ];
 
   return (
     <Container ref={panelRef}>
@@ -62,12 +63,12 @@ const DebuggerTabs = (props: DebuggerTabsProps) => {
         selectedIndex={selectedIndex}
         onSelect={(index) => {
           AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-            tabName: tabs[index].key,
+            tabName: DEBUGGER_TABS[index].key,
           });
 
           setSelectedIndex(index);
         }}
-        tabs={tabs}
+        tabs={DEBUGGER_TABS}
       />
       <Icon
         className="close-debugger"
