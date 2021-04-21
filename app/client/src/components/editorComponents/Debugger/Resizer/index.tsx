@@ -30,23 +30,18 @@ const Resizer = (props: ResizerProps) => {
     if (!panel) return;
 
     const { height } = panel.getBoundingClientRect();
+    const updatedHeight = height - movementY;
+    const headerHeightNumber = 35;
+    const minHeight = parseInt(
+      window.getComputedStyle(panel).minHeight.replace("px", ""),
+    );
 
-    const resizeTop = () => {
-      const updatedHeight = height - movementY;
-      const headerHeightNumber = 35;
-      const minHeight = parseInt(
-        window.getComputedStyle(panel).minHeight.replace("px", ""),
-      );
-
-      if (
-        updatedHeight < window.innerHeight - headerHeightNumber &&
-        updatedHeight > minHeight
-      ) {
-        panel.style.height = `${height - movementY}px`;
-      }
-    };
-
-    resizeTop();
+    if (
+      updatedHeight < window.innerHeight - headerHeightNumber &&
+      updatedHeight > minHeight
+    ) {
+      panel.style.height = `${height - movementY}px`;
+    }
   };
 
   useEffect(() => {
