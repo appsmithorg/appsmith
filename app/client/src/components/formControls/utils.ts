@@ -104,7 +104,7 @@ export const getConfigInitialValues = (config: Record<string, any>[]) => {
         return parseConfig(subSection);
       }
 
-      if (subSection.initialValue) {
+      if ("initialValue" in subSection) {
         if (subSection.controlType === "KEYVALUE_ARRAY") {
           subSection.initialValue.forEach(
             (initialValue: string | number, index: number) => {

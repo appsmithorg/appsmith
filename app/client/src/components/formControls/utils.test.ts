@@ -245,6 +245,26 @@ describe("getConfigInitialValues test", () => {
           },
         },
       },
+      {
+        input: [
+          {
+            sectionName: "Settings",
+            children: [
+              {
+                label: "Smart substitution",
+                configProperty: "datasourceConfiguration.isSmart",
+                controlType: "SWITCH",
+                initialValue: false,
+              },
+            ],
+          },
+        ],
+        output: {
+          datasourceConfiguration: {
+            isSmart: false,
+          },
+        },
+      },
     ];
 
     testCases.forEach((testCase) => {
