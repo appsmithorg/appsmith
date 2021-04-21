@@ -139,16 +139,13 @@ const Link = (props: {
 };
 
 const EntityLink = (props: EntityLinkProps) => {
-  switch (props.type) {
-    case ENTITY_TYPE.WIDGET:
-      return <WidgetLink {...props} />;
-    case ENTITY_TYPE.ACTION:
-      return <ActionLink {...props} />;
-    case ENTITY_TYPE.DATASOURCE:
-      return <DatasourceLink {...props} />;
-    default:
-      return null;
-  }
+  const entityTypeLinkMap = {
+    [ENTITY_TYPE.WIDGET]: <WidgetLink {...props} />,
+    [ENTITY_TYPE.ACTION]: <ActionLink {...props} />,
+    [ENTITY_TYPE.DATASOURCE]: <DatasourceLink {...props} />,
+  };
+
+  return entityTypeLinkMap[props.type];
 };
 
 type EntityLinkProps = {
