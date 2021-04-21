@@ -50,7 +50,7 @@ public class MySqlPluginTest {
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
-    public static MySQLContainer mySQLContainer = new MySQLContainer("mysql:5.7.33")
+    public static MySQLContainer mySQLContainer = new MySQLContainer("mysql:5.7.30")
             .withUsername("mysql")
             .withPassword("password")
             .withDatabaseName("test_db");
