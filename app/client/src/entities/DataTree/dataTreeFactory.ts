@@ -12,6 +12,7 @@ import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 export type ActionDescription<T> = {
   type: string;
@@ -52,6 +53,7 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, boolean>;
   triggerPaths: Record<string, boolean>;
+  validationPaths: Record<string, VALIDATION_TYPES>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
 
