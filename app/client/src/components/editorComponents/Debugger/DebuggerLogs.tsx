@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from "react";
 import styled from "styled-components";
 import { isUndefined } from "lodash";
 import { Severity } from "entities/AppsmithConsole";
@@ -39,8 +45,9 @@ const DebbuggerLogs = (props: Props) => {
   const filteredLogs = useFilteredLogs(searchQuery, filter);
   const { paginatedData, next } = usePagination(filteredLogs);
   const listRef = useRef<HTMLDivElement>(null);
-  const selectedFilter = LOGS_FILTER_OPTIONS.find(
-    (option) => option.value === filter,
+  const selectedFilter = useMemo(
+    () => LOGS_FILTER_OPTIONS.find((option) => option.value === filter),
+    [filter],
   );
 
   const handleScroll = useCallback((e) => {
