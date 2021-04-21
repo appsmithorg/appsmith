@@ -38,52 +38,54 @@ public class MethodConfig {
 
     public MethodConfig(List<Property> propertyList) {
         propertyList.stream().parallel().forEach(property -> {
-            String propertyValue = String.valueOf(property.getValue());
-            switch (property.getKey()) {
-                case "sheetUrl":
-                    this.spreadsheetUrl = propertyValue;
-                    if (this.spreadsheetUrl != null && !this.spreadsheetUrl.isBlank()) {
-                        final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
-                        if (matcher.find()) {
-                            this.spreadsheetId = matcher.group(1);
-                        } else {
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Cannot read spreadsheet URL.");
+            if (property.getValue() != null) {
+                String propertyValue = String.valueOf(property.getValue());
+                switch (property.getKey()) {
+                    case "sheetUrl":
+                        this.spreadsheetUrl = propertyValue;
+                        if (this.spreadsheetUrl != null && !this.spreadsheetUrl.isBlank()) {
+                            final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
+                            if (matcher.find()) {
+                                this.spreadsheetId = matcher.group(1);
+                            } else {
+                                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Cannot read spreadsheet URL.");
+                            }
                         }
-                    }
-                    break;
-                case "range":
-                    this.spreadsheetRange = propertyValue;
-                    break;
-                case "spreadsheetName":
-                    this.spreadsheetName = propertyValue;
-                    break;
-                case "tableHeaderIndex":
-                    this.tableHeaderIndex = propertyValue;
-                    break;
-                case "queryFormat":
-                    this.queryFormat = propertyValue;
-                    break;
-                case "rowLimit":
-                    this.rowLimit = propertyValue;
-                    break;
-                case "rowOffset":
-                    this.rowOffset = propertyValue;
-                    break;
-                case "rowIndex":
-                    this.rowIndex = propertyValue;
-                    break;
-                case "sheetName":
-                    this.sheetName = propertyValue;
-                    break;
-                case "deleteFormat":
-                    this.deleteFormat = propertyValue;
-                    break;
-                case "rowObject":
-                    this.rowObject = propertyValue;
-                    break;
-                case "rowObjects":
-                    this.rowObjects = propertyValue;
-                    break;
+                        break;
+                    case "range":
+                        this.spreadsheetRange = propertyValue;
+                        break;
+                    case "spreadsheetName":
+                        this.spreadsheetName = propertyValue;
+                        break;
+                    case "tableHeaderIndex":
+                        this.tableHeaderIndex = propertyValue;
+                        break;
+                    case "queryFormat":
+                        this.queryFormat = propertyValue;
+                        break;
+                    case "rowLimit":
+                        this.rowLimit = propertyValue;
+                        break;
+                    case "rowOffset":
+                        this.rowOffset = propertyValue;
+                        break;
+                    case "rowIndex":
+                        this.rowIndex = propertyValue;
+                        break;
+                    case "sheetName":
+                        this.sheetName = propertyValue;
+                        break;
+                    case "deleteFormat":
+                        this.deleteFormat = propertyValue;
+                        break;
+                    case "rowObject":
+                        this.rowObject = propertyValue;
+                        break;
+                    case "rowObjects":
+                        this.rowObjects = propertyValue;
+                        break;
+                }
             }
         });
     }
