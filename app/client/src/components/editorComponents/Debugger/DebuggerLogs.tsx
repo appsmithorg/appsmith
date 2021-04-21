@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { isUndefined } from "lodash";
 import { Severity } from "entities/AppsmithConsole";
@@ -38,19 +38,19 @@ const DebbuggerLogs = (props: Props) => {
   const [searchQuery, setSearchQuery] = useState(props.searchQuery);
   const filteredLogs = useFilteredLogs(searchQuery, filter);
   const { paginatedData, next } = usePagination(filteredLogs);
-  const listRef = useRef(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const selectedFilter = LOGS_FILTER_OPTIONS.find(
     (option) => option.value === filter,
   );
 
-  function handleScroll(e: any) {
+  const handleScroll = useCallback((e) => {
     if (e.target.scrollTop === 0) {
       next();
     }
-  }
+  }, []);
 
   useEffect(() => {
-    const list: any = listRef.current;
+    const list = listRef.current;
     if (!list) return;
     list.addEventListener("scroll", handleScroll);
     return () => list.removeEventListener("scroll", handleScroll);
