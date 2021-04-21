@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
@@ -2078,5 +2079,68 @@ public class DatabaseChangelog {
                         mongoTemplate.save(datasource);
                     }
                 });
+    }
+
+    @ChangeSet(order = "061", id = "migrate-smartSubstitution-dataType", author = "")
+    public void migrateSmartSubstitutionDataTypeBoolean(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
+        Set<String> smartSubTurnedOn = new HashSet<>();
+        Set<String> smartSubTurnedOff = new HashSet<>();
+
+        Set<String> pluginPackages = new HashSet<>();
+        pluginPackages.add("mysql-plugin");
+        pluginPackages.add("restapi-plugin");
+        pluginPackages.add("postgres-plugin");
+        pluginPackages.add("mongo-plugin");
+        pluginPackages.add("mssql-plugin");
+
+        Set<String> smartSubPlugins = mongoTemplate
+                .find(query(where("packageName").in(pluginPackages)), Plugin.class)
+                .stream()
+                .map(plugin -> plugin.getId())
+                .collect(Collectors.toSet());
+
+        // Find all the action ids where the data migration needs to happen.
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+            ActionDTO unpublishedAction = action.getUnpublishedAction();
+            if (unpublishedAction != null) {
+                Datasource datasource = unpublishedAction.getDatasource();
+                if (datasource != null) {
+                    String pluginId = datasource.getPluginId();
+                    // First check if the action belongs to one of the plugins which support smart substitution
+                    if (pluginId != null && smartSubPlugins.contains(pluginId)) {
+                        ActionConfiguration actionConfiguration = unpublishedAction.getActionConfiguration();
+                        if (actionConfiguration != null) {
+                            List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+                            if (!isNullOrEmpty(pluginSpecifiedTemplates)) {
+                                Property smartSubstitutionProperty = pluginSpecifiedTemplates.get(0);
+                                if (smartSubstitutionProperty != null) {
+                                    Object value = smartSubstitutionProperty.getValue();
+                                    if (value != null) {
+                                        if (value instanceof String) {
+                                            boolean parsedValue = Boolean.parseBoolean((String) value);
+                                            if (TRUE.equals(parsedValue)) {
+                                                smartSubTurnedOn.add(action.getId());
+                                            } else if (FALSE.equals(parsedValue)) {
+                                                smartSubTurnedOff.add(action.getId());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Migrate actions where smart substitution is turned on
+        mongoOperations.updateMulti(
+                query(where("_id").in(smartSubTurnedOn)),
+                new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates[0].value", true),
+                NewAction.class
+        );
+
+        // Migrate actions where smart substitution is turned off
+
     }
 }
