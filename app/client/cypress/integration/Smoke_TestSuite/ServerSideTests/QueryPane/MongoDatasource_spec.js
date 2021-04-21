@@ -40,7 +40,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.EvaluateCurrentValue(`{"find": "listingsAndReviews","limit": 10}`);
     cy.runAndDeleteQuery();
 
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.deleteDatasource(datasourceName);

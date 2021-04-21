@@ -31,9 +31,7 @@ describe("Create a query with a empty datasource, run, save the query", function
   });
 
   it("Create a query for empty/incorrect datasource and validate", () => {
-    cy.get(queryLocators.templateMenu)
-      .first()
-      .click();
+    cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()

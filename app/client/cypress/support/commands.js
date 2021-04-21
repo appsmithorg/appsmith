@@ -880,11 +880,16 @@ Cypress.Commands.add("MoveAPIToPage", (pageName) => {
   cy.get(apiwidget.page)
     .contains(pageName)
     .click();
+  cy.wait("@moveAction").should((interception) => {
+    expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+  });
+  /*
   cy.wait("@moveAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+  */
 });
 
 Cypress.Commands.add("copyEntityToPage", (pageName) => {
@@ -2136,7 +2141,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "api/v1/import/templateCollections").as(
     "getTemplateCollections",
   );
-  cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApp");
   cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
   cy.intercept("DELETE", "/api/v1/pages/*").as("deletePage");
   cy.intercept("POST", "/api/v1/datasources").as("createDatasource");
