@@ -29,6 +29,7 @@ const PostBodyContainer = styled.div`
 
 const JSONEditorFieldWrapper = styled.div`
   margin: 0 30px;
+  width: 65%;
   .CodeMirror {
     height: auto;
     min-height: 250px;
