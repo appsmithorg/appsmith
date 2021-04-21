@@ -9,7 +9,7 @@ import {
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 
-import { AsyncControllableInput } from "@blueprintjs/core/lib/esnext/components/forms/asyncControllableInput";
+import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 
 export type Validator = (
   value: string,
