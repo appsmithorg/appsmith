@@ -693,7 +693,6 @@ export default class DataTreeEvaluator {
     differences
       .map(translateDiffEventToDataTreeDiffEvent)
       .forEach((dataTreeDiff) => {
-        debugger;
         const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
         let entity = unEvalDataTree[entityName];
         if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
@@ -704,7 +703,7 @@ export default class DataTreeEvaluator {
         if (entityType !== "noop") {
           switch (dataTreeDiff.event) {
             case DataTreeDiffEvent.NEW: {
-              // If a new widget was added, add all the internal bindings for this widget to the global dependency map
+              // If a new entity/property was added, add all the internal bindings for this entity to the global dependency map
               if (
                 (isWidget(entity) || isAction(entity)) &&
                 !this.isDynamicLeaf(
@@ -718,7 +717,23 @@ export default class DataTreeEvaluator {
                 );
                 if (Object.keys(entityDependencyMap).length) {
                   didUpdateDependencyMap = true;
-                  Object.assign(this.dependencyMap, entityDependencyMap);
+                  // The entity might already have some dependencies,
+                  // so we just want to update those
+                  Object.entries(entityDependencyMap).forEach(
+                    ([entityDependent, entityDependencies]) => {
+                      if (this.dependencyMap[entityDependent]) {
+                        this.dependencyMap[
+                          entityDependent
+                        ] = this.dependencyMap[entityDependent].concat(
+                          entityDependencies,
+                        );
+                      } else {
+                        this.dependencyMap[
+                          entityDependent
+                        ] = entityDependencies;
+                      }
+                    },
+                  );
                 }
               }
               // Either a new entity or a new property path has been added. Go through existing dynamic bindings and
@@ -802,9 +817,12 @@ export default class DataTreeEvaluator {
                   entityName
                 ] as DataTreeAction | DataTreeWidget;
                 const fullPropertyPath = dataTreeDiff.payload.propertyPath;
+                const entityPropertyPath = fullPropertyPath.substring(
+                  fullPropertyPath.indexOf(".") + 1,
+                );
                 const isABindingPath = isPathADynamicBinding(
                   entity,
-                  fullPropertyPath.substring(fullPropertyPath.indexOf(".") + 1),
+                  entityPropertyPath,
                 );
                 if (isABindingPath) {
                   didUpdateDependencyMap = true;
@@ -826,9 +844,9 @@ export default class DataTreeEvaluator {
                   }
                   if (isAction(entity)) {
                     // Actions have a defined dependency map that should always be maintained
-                    if (fullPropertyPath in entity.dependencyMap) {
+                    if (entityPropertyPath in entity.dependencyMap) {
                       const entityDependenciesName = entity.dependencyMap[
-                        fullPropertyPath
+                        entityPropertyPath
                       ].map((dep) => `${entityName}.${dep}`);
                       if (fullPropertyPath in this.dependencyMap) {
                         this.dependencyMap[
@@ -858,9 +876,11 @@ export default class DataTreeEvaluator {
     if (didUpdateDependencyMap) {
       // TODO Optimise
       Object.keys(this.dependencyMap).forEach((key) => {
-        this.dependencyMap[key] = _.flatten(
-          this.dependencyMap[key].map((path) =>
-            extractReferencesFromBinding(path, this.allKeys),
+        this.dependencyMap[key] = _.uniq(
+          _.flatten(
+            this.dependencyMap[key].map((path) =>
+              extractReferencesFromBinding(path, this.allKeys),
+            ),
           ),
         );
       });

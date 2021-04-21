@@ -436,6 +436,7 @@ const BASE_ACTION: DataTreeAction = {
     isLoading: EvaluationSubstitutionType.TEMPLATE,
     data: EvaluationSubstitutionType.TEMPLATE,
   },
+  dependencyMap: {},
 };
 
 describe("DataTreeEvaluator", () => {
@@ -786,5 +787,87 @@ describe("DataTreeEvaluator", () => {
       "Table1.selectedRowIndices": [],
       "Text4.text": ["Table1.selectedRow.test"],
     });
+  });
+
+  it("Honors predefined action dependencyMap", () => {
+    const updatedTree1 = {
+      ...unEvalTree,
+      Text1: {
+        ...BASE_WIDGET,
+        text: "Test",
+      },
+      Api2: {
+        ...BASE_ACTION,
+        dependencyMap: {
+          "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+        },
+        bindingPaths: {
+          ...BASE_ACTION.bindingPaths,
+          "config.body": EvaluationSubstitutionType.TEMPLATE,
+        },
+        config: {
+          ...BASE_ACTION.config,
+          body: "",
+          pluginSpecifiedTemplates: [
+            {
+              value: false,
+            },
+          ],
+        },
+      },
+    };
+    evaluator.updateDataTree(updatedTree1);
+    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+      "Api2.config.pluginSpecifiedTemplates[0].value",
+    ]);
+    const updatedTree2 = {
+      ...updatedTree1,
+      Api2: {
+        ...updatedTree1.Api2,
+        dynamicBindingPathList: [
+          {
+            key: "config.body",
+          },
+        ],
+        config: {
+          ...updatedTree1.Api2.config,
+          body: "{ 'name': {{ Text1.text }} }",
+        },
+      },
+    };
+    const evaluatedDataTree2 = evaluator.updateDataTree(updatedTree2);
+    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+      "Text1.text",
+      "Api2.config.pluginSpecifiedTemplates[0].value",
+    ]);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    expect(evaluatedDataTree2.Api2.config.body).toBe("{ 'name': Test }");
+    const updatedTree3 = {
+      ...updatedTree2,
+      Api2: {
+        ...updatedTree2.Api2,
+        bindingPaths: {
+          ...updatedTree2.Api2.bindingPaths,
+          "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        },
+        config: {
+          ...updatedTree2.Api2.config,
+          pluginSpecifiedTemplates: [
+            {
+              value: true,
+            },
+          ],
+        },
+      },
+    };
+    const evaluatedDataTree3 = evaluator.updateDataTree(updatedTree3);
+    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+      "Text1.text",
+      "Api2.config.pluginSpecifiedTemplates[0].value",
+    ]);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    expect(evaluatedDataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
   });
 });
