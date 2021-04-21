@@ -122,6 +122,46 @@ describe("Validate Validators", () => {
       expect(response).toStrictEqual(testCase.output);
     }
   });
+
+  it("correctly validates chart series data ", () => {
+    const cases = [
+      {
+        input: [{ x: "Jan", y: 1000 }],
+        output: {
+          isValid: true,
+          parsed: [{ x: "Jan", y: 1000 }],
+          transformed: [{ x: "Jan", y: 1000 }],
+        },
+      },
+      {
+        input: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
+        output: {
+          isValid: false,
+          message: 'Value does not match type: [{ "x": "val", "y": "val" }]',
+          parsed: [],
+          transformed: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
+        },
+      },
+      {
+        input: undefined,
+        output: {
+          isValid: false,
+          message: 'Value does not match type: [{ "x": "val", "y": "val" }]',
+          parsed: [],
+          transformed: undefined,
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = VALIDATORS.CHART_SERIES_DATA(
+        testCase.input,
+        DUMMY_WIDGET,
+        {},
+      );
+      expect(response).toStrictEqual(testCase.output);
+    }
+  });
+
   it("Correctly validates page number", () => {
     const input = [0, -1, undefined, null, 2, "abcd", [], ""];
     const expected = [1, 1, 1, 1, 2, 1, 1, 1];
