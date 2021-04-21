@@ -110,7 +110,7 @@ export function* createActionSaga(
       payload = merge(initialValues, actionPayload.payload);
     }
 
-    const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
+    const response: ActionCreateUpdateResponse = yield ActionAPI.createAction(
       payload,
     );
     const isValidResponse = yield validateResponse(response);
@@ -267,7 +267,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       action = transformRestAction(action);
     }
 
-    const response: GenericApiResponse<Action> = yield ActionAPI.updateAPI(
+    const response: GenericApiResponse<Action> = yield ActionAPI.updateAction(
       action,
     );
     const isValidResponse = yield validateResponse(response);
@@ -424,7 +424,7 @@ function* copyActionSaga(
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
     delete copyAction.id;
-    const response = yield ActionAPI.createAPI(copyAction);
+    const response = yield ActionAPI.createAction(copyAction);
     const datasources = yield select(getDataSources);
 
     const isValidResponse = yield validateResponse(response);
