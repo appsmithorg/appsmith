@@ -8,17 +8,20 @@ import DebuggerTabs from "./DebuggerTabs";
 import { AppState } from "reducers";
 import { showDebugger as showDebuggerAction } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Colors } from "constants/Colors";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const Container = styled.div<{ errorCount: number }>`
-  background-color: #2b2b2b;
+  background-color: ${(props) =>
+    props.theme.colors.debugger.floatingButton.background};
   position: fixed;
   right: 20px;
   bottom: 20px;
   cursor: pointer;
   padding: 19px;
-  color: #d4d4d4;
+  color: ${(props) => props.theme.colors.debugger.floatingButton.color};
   border-radius: 50px;
-  box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+  box-shadow: ${(props) => props.theme.colors.debugger.floatingButton.shadow};
 
   .${Classes.ICON} {
     &:hover {
@@ -29,13 +32,16 @@ const Container = styled.div<{ errorCount: number }>`
   }
 
   .debugger-count {
-    color: white;
+    color: ${Colors.WHITE};
     font-size: 14px;
     font-weight: 500;
+    ${(props) => getTypographyByKey(props, "h6")}
     height: 20px;
     padding: 6px;
     background-color: ${(props) =>
-      !!props.errorCount ? "#F22B2B" : "#03B365"};
+      !!props.errorCount
+        ? props.theme.colors.debugger.floatingButton.errorCount
+        : props.theme.colors.debugger.floatingButton.noErrorCount};
     border-radius: 10px;
     position: absolute;
     display: flex;

@@ -931,6 +931,13 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    floatingButton: {
+      background: string;
+      color: string;
+      shadow: string;
+      errorCount: string;
+      noErrorCount: string;
+    };
     blankState: {
       shortcut: string;
       color: string;
@@ -1431,6 +1438,13 @@ export const dark: ColorType = {
     entityLink: "#D4D4D4",
     jsonIcon: "#9F9F9F",
     message: "#D4D4D4",
+    floatingButton: {
+      background: "#2b2b2b",
+      color: "#d4d4d4",
+      shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
+      errorCount: "#F22B2B",
+      noErrorCount: "#03B365",
+    },
     blankState: {
       color: "#D4D4D4",
       shortcut: "#D4D4D4",
@@ -1868,6 +1882,13 @@ export const light: ColorType = {
     entityLink: "#6d6d6d",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
+    floatingButton: {
+      background: "#2b2b2b",
+      color: "#d4d4d4",
+      shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
+      errorCount: "#F22B2B",
+      noErrorCount: "#03B365",
+    },
     blankState: {
       color: "#716e6e",
       shortcut: "black",
