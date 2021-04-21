@@ -522,17 +522,28 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
+        Mono<Map> editorConfigLabelMap = datasourceMono
+                .flatMap(datasource -> {
+                    if (datasource.getId() != null) {
+                        return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
+                    }
+
+                    return Mono.just(new HashMap());
+                });
+
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = Mono
                 .zip(
                         actionDTOMono,
                         datasourceMono,
-                        pluginExecutorMono
+                        pluginExecutorMono,
+                        editorConfigLabelMap
                 )
                 .flatMap(tuple -> {
                     final ActionDTO action = tuple.getT1();
                     final Datasource datasource = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
+                    final Map labelMap = tuple.getT4();
 
                     // Set the action name
                     actionName.set(action.getName());

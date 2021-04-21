@@ -63,6 +63,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
     private final Map<String, Mono<Map>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
+    private final Map<String, Mono<Map>> labelCache = new HashMap<>();
 
     private static final int CONNECTION_TIMEOUT = 10000;
     private static final int READ_TIMEOUT = 10000;
@@ -346,6 +347,16 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         }
 
         return formCache.get(pluginId);
+    }
+
+    @Override
+    public Mono<Map> getEditorConfigLabelMap(String pluginId) {
+        Mono<Map> formConfig = getFormConfig(pluginId);
+
+        formConfig
+                .flatMap(formMap -> {})
+
+        return Mono.empty();
     }
 
     private Mono<Map<String, String>> getTemplates(Plugin plugin) {
