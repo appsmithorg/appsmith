@@ -1,4 +1,4 @@
-import React, { createRef } from "react";
+import React, { MutableRefObject, useRef } from "react";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import TextInput from "components/ads/TextInput";
 import styled from "styled-components";
@@ -53,7 +53,7 @@ type FilterHeaderProps = {
 
 const FilterHeader = (props: FilterHeaderProps) => {
   const dispatch = useDispatch();
-  const searchRef = createRef<HTMLInputElement>();
+  const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
 
   return (
     <Wrapper>
