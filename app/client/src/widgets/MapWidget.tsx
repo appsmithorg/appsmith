@@ -2,7 +2,6 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import MapComponent from "components/designSystems/appsmith/MapComponent";
-import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getAppsmithConfigs } from "configs";
@@ -52,6 +51,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             controlType: "LOCATION_SEARCH",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.LAT_LONG,
           },
           {
             propertyName: "defaultMarkers",
@@ -62,6 +62,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             placeholderText: 'Enter [{ "lat": "val1", "long": "val2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.MARKERS,
           },
           {
             propertyName: "enableSearch",
@@ -104,6 +105,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -129,19 +131,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         ],
       },
     ];
-  }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      defaultMarkers: VALIDATION_TYPES.MARKERS,
-      isDisabled: VALIDATION_TYPES.BOOLEAN,
-      isVisible: VALIDATION_TYPES.BOOLEAN,
-      enableSearch: VALIDATION_TYPES.BOOLEAN,
-      enablePickLocation: VALIDATION_TYPES.BOOLEAN,
-      enableCreateMarker: VALIDATION_TYPES.BOOLEAN,
-      allowZoom: VALIDATION_TYPES.BOOLEAN,
-      zoomLevel: VALIDATION_TYPES.NUMBER,
-      mapCenter: VALIDATION_TYPES.LAT_LONG,
-    };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {

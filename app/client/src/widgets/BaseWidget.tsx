@@ -24,10 +24,6 @@ import shallowequal from "shallowequal";
 import { PositionTypes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   WidgetDynamicPathListProps,
@@ -56,11 +52,6 @@ abstract class BaseWidget<
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
-  }
-  // Needed to send a default no validation option. In case a widget needs
-  // validation implement this in the widget class again
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return BASE_WIDGET_VALIDATION;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

@@ -4,10 +4,6 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
@@ -48,6 +44,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             placeholderText: 'Enter [{label: "label1", value: "value2"}]',
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.OPTIONS_DATA,
           },
           {
             helpText: "Selects the option with value by default",
@@ -57,6 +54,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             placeholderText: "Enter option value",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
           },
           {
             propertyName: "isRequired",
@@ -66,6 +64,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -75,6 +74,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isDisabled",
@@ -84,6 +84,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -102,21 +103,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         ],
       },
     ];
-  }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      placeholderText: VALIDATION_TYPES.TEXT,
-      label: VALIDATION_TYPES.TEXT,
-      options: VALIDATION_TYPES.OPTIONS_DATA,
-      selectionType: VALIDATION_TYPES.TEXT,
-      isRequired: VALIDATION_TYPES.BOOLEAN,
-      // onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
-      selectedOptionValues: VALIDATION_TYPES.ARRAY,
-      selectedOptionLabels: VALIDATION_TYPES.ARRAY,
-      selectedOptionLabel: VALIDATION_TYPES.TEXT,
-      defaultOptionValue: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
-    };
   }
 
   static getDerivedPropertiesMap() {

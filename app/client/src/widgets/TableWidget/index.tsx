@@ -10,11 +10,6 @@ import {
   renderActions,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
@@ -45,22 +40,6 @@ const ReactTableComponent = lazy(() =>
 );
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      tableData: VALIDATION_TYPES.TABLE_DATA,
-      nextPageKey: VALIDATION_TYPES.TEXT,
-      prevPageKey: VALIDATION_TYPES.TEXT,
-      label: VALIDATION_TYPES.TEXT,
-      searchText: VALIDATION_TYPES.TEXT,
-      defaultSearchText: VALIDATION_TYPES.TEXT,
-      defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
-      pageSize: VALIDATION_TYPES.NUMBER,
-      selectedRowIndices: VALIDATION_TYPES.ROW_INDICES,
-      pageNo: VALIDATION_TYPES.TABLE_PAGE_NO,
-    };
-  }
-
   static getPropertyPaneConfig() {
     return tablePropertyPaneConfig;
   }
