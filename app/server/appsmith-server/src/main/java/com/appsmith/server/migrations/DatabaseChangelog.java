@@ -7,8 +7,9 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -43,7 +44,6 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -2006,29 +2006,6 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "061", id = "add-commenting-permissions", author = "")
-    public void addCommentingPermissions(MongoTemplate mongoTemplate) {
-        final List<Application> applications = mongoTemplate.findAll(Application.class);
-
-        for (final Application application : applications) {
-            application.getPolicies()
-                    .stream()
-                    .filter(policy -> AclPermission.READ_APPLICATIONS.getValue().equals(policy.getPermission()))
-                    .findFirst()
-                    .ifPresent(readAppPolicy -> {
-                        final Policy.PolicyBuilder newPolicy = Policy.builder()
-                                .permission(AclPermission.COMMENT_ON_APPLICATIONS.getValue())
-                                .users(readAppPolicy.getUsers())
-                                .groups(readAppPolicy.getGroups());
-                        mongoTemplate.updateFirst(
-                                query(where(fieldName(QApplication.application.id)).is(application.getId())),
-                                new Update().push(fieldName(QApplication.application.policies), newPolicy),
-                                Application.class
-                        );
-                    });
-        }
-    }
-
     @ChangeSet(order = "061", id = "update-mysql-postgres-mongo-ssl-mode", author = "")
     public void updateMysqlPostgresMongoSslMode(MongoTemplate mongoTemplate) {
         Plugin mysqlPlugin = mongoTemplate
@@ -2098,9 +2075,33 @@ public class DatabaseChangelog {
                                 && !SSLDetails.AuthType.DISABLE.equals(authType))) {
                             datasource.getDatasourceConfiguration().getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
                         }
-                      
+
                         mongoTemplate.save(datasource);
                     }
                 });
     }
+
+    @ChangeSet(order = "062", id = "add-commenting-permissions", author = "")
+    public void addCommentingPermissions(MongoTemplate mongoTemplate) {
+        final List<Application> applications = mongoTemplate.findAll(Application.class);
+
+        for (final Application application : applications) {
+            application.getPolicies()
+                    .stream()
+                    .filter(policy -> AclPermission.READ_APPLICATIONS.getValue().equals(policy.getPermission()))
+                    .findFirst()
+                    .ifPresent(readAppPolicy -> {
+                        final Policy.PolicyBuilder newPolicy = Policy.builder()
+                                .permission(AclPermission.COMMENT_ON_APPLICATIONS.getValue())
+                                .users(readAppPolicy.getUsers())
+                                .groups(readAppPolicy.getGroups());
+                        mongoTemplate.updateFirst(
+                                query(where(fieldName(QApplication.application.id)).is(application.getId())),
+                                new Update().push(fieldName(QApplication.application.policies), newPolicy),
+                                Application.class
+                        );
+                    });
+        }
+    }
+
 }
