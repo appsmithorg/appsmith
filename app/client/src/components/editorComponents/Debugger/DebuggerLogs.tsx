@@ -23,22 +23,23 @@ type Props = {
   hasShortCut?: boolean;
 };
 
+const LOGS_FILTER_OPTIONS = [
+  {
+    label: "All",
+    value: "",
+  },
+  { label: "Success", value: Severity.INFO },
+  { label: "Warnings", value: Severity.WARNING },
+  { label: "Errors", value: Severity.ERROR },
+];
+
 const DebbuggerLogs = (props: Props) => {
   const [filter, setFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState(props.searchQuery);
   const filteredLogs = useFilteredLogs(searchQuery, filter);
   const { paginatedData, next } = usePagination(filteredLogs);
   const listRef = useRef(null);
-  const filterOptions = [
-    {
-      label: "All",
-      value: "",
-    },
-    { label: "Success", value: Severity.INFO },
-    { label: "Warnings", value: Severity.WARNING },
-    { label: "Errors", value: Severity.ERROR },
-  ];
-  const selectedFilter = filterOptions.find(
+  const selectedFilter = LOGS_FILTER_OPTIONS.find(
     (option) => option.value === filter,
   );
 
@@ -67,8 +68,8 @@ const DebbuggerLogs = (props: Props) => {
   return (
     <ContainerWrapper>
       <FilterHeader
-        options={filterOptions}
-        selected={selectedFilter || filterOptions[0]}
+        options={LOGS_FILTER_OPTIONS}
+        selected={selectedFilter || LOGS_FILTER_OPTIONS[0]}
         onChange={setSearchQuery}
         onSelect={(value) => !isUndefined(value) && setFilter(value)}
         defaultValue={props.searchQuery}
