@@ -1,7 +1,7 @@
 import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { LogActionPayload, LOG_TYPE } from "entities/AppsmithConsole";
+import { LogActionPayload, LOG_TYPE, Message } from "entities/AppsmithConsole";
 import {
   all,
   put,
@@ -78,7 +78,7 @@ function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   }
 }
 
-function* onEntityDeleteSaga(payload: LogActionPayload) {
+function* onEntityDeleteSaga(payload: Message) {
   const source = payload.source;
 
   if (!source) {
@@ -105,7 +105,7 @@ function* onEntityDeleteSaga(payload: LogActionPayload) {
   yield put(debuggerLog(payload));
 }
 
-function* debuggerLogSaga(action: ReduxAction<LogActionPayload>) {
+function* debuggerLogSaga(action: ReduxAction<Message>) {
   const { payload } = action;
 
   switch (payload.logType) {

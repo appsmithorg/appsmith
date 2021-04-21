@@ -1,12 +1,12 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { LogActionPayload } from "entities/AppsmithConsole";
+import { Message } from "entities/AppsmithConsole";
 
-export const debuggerLogInit = (payload: LogActionPayload) => ({
+export const debuggerLogInit = (payload: Message) => ({
   type: ReduxActionTypes.DEBUGGER_LOG_INIT,
   payload,
 });
 
-export const debuggerLog = (payload: LogActionPayload) => ({
+export const debuggerLog = (payload: Message) => ({
   type: ReduxActionTypes.DEBUGGER_LOG,
   payload,
 });
@@ -20,12 +20,12 @@ export const showDebugger = (payload: boolean) => ({
   payload,
 });
 
-export const errorLog = (payload: LogActionPayload) => ({
+export const errorLog = (payload: Message) => ({
   type: ReduxActionTypes.DEBUGGER_ERROR_LOG,
   payload,
 });
 
-export const updateErrorLog = (payload: LogActionPayload) => ({
+export const updateErrorLog = (payload: Message) => ({
   type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG,
   payload,
 });

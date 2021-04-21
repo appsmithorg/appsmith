@@ -12,7 +12,10 @@ const initialState: DebuggerReduxState = {
 };
 
 const debuggerReducer = createReducer(initialState, {
-  [ReduxActionTypes.DEBUGGER_LOG]: (state: any, action: any) => {
+  [ReduxActionTypes.DEBUGGER_LOG]: (
+    state: DebuggerReduxState,
+    action: ReduxAction<Message>,
+  ) => {
     const isError = action.payload.severity === Severity.ERROR;
 
     return {
@@ -39,8 +42,10 @@ const debuggerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DEBUGGER_ERROR_LOG]: (
     state: DebuggerReduxState,
-    action: any,
+    action: ReduxAction<Message>,
   ) => {
+    if (!action.payload.source) return state;
+
     const entityId = action.payload.source.id;
     const id =
       action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR
@@ -61,8 +66,10 @@ const debuggerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG]: (
     state: DebuggerReduxState,
-    action: any,
+    action: ReduxAction<Message>,
   ) => {
+    if (!action.payload.source) return state;
+
     const entityId = action.payload.source.id;
     const id =
       action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR
@@ -89,7 +96,7 @@ const debuggerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS]: (
     state: DebuggerReduxState,
-    action: any,
+    action: ReduxAction<Message>,
   ) => {
     return {
       ...state,
