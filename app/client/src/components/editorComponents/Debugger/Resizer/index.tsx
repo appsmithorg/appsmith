@@ -74,11 +74,11 @@ const Resizer = (props: ResizerProps) => {
     };
   }, []);
 
-  const handleMouseDown = () => () => {
+  const handleMouseDown = () => {
     setMouseDown(true);
   };
 
-  return <Top onMouseDown={handleMouseDown()} />;
+  return <Top onMouseDown={handleMouseDown} />;
 };
 
 export default Resizer;
