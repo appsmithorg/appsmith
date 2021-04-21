@@ -7,7 +7,6 @@ import * as Sentry from "@sentry/react";
 import { migrateTabsData } from "utils/WidgetPropsUtils";
 import { cloneDeep } from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { updateAndSaveLayout } from "actions/pageActions";
 
 class TabsMigratorWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,

@@ -9,7 +9,7 @@ import { ContainerFactory } from "./ContainerFactory";
 import { DropdownFactory } from "./DropdownFactory";
 import { CheckboxFactory } from "./CheckboxFactory";
 import { RadiogroupFactory } from "./RadiogroupFactory";
-import { TabsFactory } from "./TabsFactory";
+import { OldTabsFactory, TabsFactory } from "./TabsFactory";
 import { ModalFactory } from "./ModalFactory";
 import { RichTextFactory } from "./RichTextFactory";
 import { ChartFactory } from "./ChartFactory";
@@ -36,6 +36,7 @@ export const WidgetTypeFactories = {
   CHECKBOX_WIDGET: CheckboxFactory,
   RADIO_GROUP_WIDGET: RadiogroupFactory,
   TABS_WIDGET: TabsFactory,
+  TABS_MIGRATOR_WIDGET: OldTabsFactory,
   MODAL_WIDGET: ModalFactory,
   RICH_TEXT_EDITOR_WIDGET: RichTextFactory,
   CHART_WIDGET: ChartFactory,
