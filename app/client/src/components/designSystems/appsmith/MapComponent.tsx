@@ -140,29 +140,30 @@ const MyMapComponent = withGoogleMap((props: any) => {
           <StyledInput placeholder="Enter location to search" type="text" />
         </SearchBox>
       )}
-      {props.markers.map((marker: any, index: number) => (
-        <Marker
-          clickable
-          draggable={
-            props.selectedMarker &&
-            props.selectedMarker.lat === marker.lat &&
-            props.selectedMarker.long === marker.long
-          }
-          key={index}
-          onClick={() => {
-            setMapCenter({
-              ...marker,
-              lng: marker.long,
-            });
-            props.selectMarker(marker.lat, marker.long, marker.title);
-          }}
-          onDragEnd={(de) => {
-            props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
-          }}
-          position={{ lat: marker.lat, lng: marker.long }}
-          title={marker.title}
-        />
-      ))}
+      {Array.isArray(props.markers) &&
+        props.markers.map((marker: MarkerProps, index: number) => (
+          <Marker
+            clickable
+            draggable={
+              props.selectedMarker &&
+              props.selectedMarker.lat === marker.lat &&
+              props.selectedMarker.long === marker.long
+            }
+            key={index}
+            onClick={() => {
+              setMapCenter({
+                ...marker,
+                lng: marker.long,
+              });
+              props.selectMarker(marker.lat, marker.long, marker.title);
+            }}
+            onDragEnd={(de) => {
+              props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
+            }}
+            position={{ lat: marker.lat, lng: marker.long }}
+            title={marker.title}
+          />
+        ))}
       {props.enablePickLocation && (
         <PickMyLocationWrapper
           allowZoom={props.allowZoom}
