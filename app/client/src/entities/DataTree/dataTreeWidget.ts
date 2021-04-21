@@ -45,16 +45,16 @@ export const generateDataTreeWidget = (
       unInitializedDefaultProps[propertyName] = undefined;
     }
   });
-  const { bindingPaths, triggerPaths } = getAllPathsFromPropertyConfig(
-    widget,
-    propertyPaneConfigs,
-    {
-      ...derivedPropertyMap,
-      ...defaultMetaProps,
-      ...unInitializedDefaultProps,
-      ..._.keyBy(dynamicBindingPathList, "key"),
-    },
-  );
+  const {
+    bindingPaths,
+    triggerPaths,
+    validationPaths,
+  } = getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {
+    ...derivedPropertyMap,
+    ...defaultMetaProps,
+    ...unInitializedDefaultProps,
+    ..._.keyBy(dynamicBindingPathList, "key"),
+  });
   return {
     ...widget,
     ...defaultMetaProps,
@@ -64,6 +64,7 @@ export const generateDataTreeWidget = (
     dynamicBindingPathList,
     bindingPaths,
     triggerPaths,
+    validationPaths,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   };
 };

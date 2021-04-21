@@ -2,6 +2,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { get } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 export const getAllPathsFromPropertyConfig = (
@@ -11,6 +12,7 @@ export const getAllPathsFromPropertyConfig = (
 ): {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, true>;
+  validationPaths: Record<string, VALIDATION_TYPES>;
 } => {
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
   Object.keys(defaultProperties).forEach(
@@ -18,6 +20,7 @@ export const getAllPathsFromPropertyConfig = (
       (bindingPaths[property] = EvaluationSubstitutionType.TEMPLATE),
   );
   const triggerPaths: Record<string, true> = {};
+  const validationPaths: Record<any, VALIDATION_TYPES> = {};
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {
@@ -33,6 +36,10 @@ export const getAllPathsFromPropertyConfig = (
           ) {
             bindingPaths[controlConfig.propertyName] =
               EvaluationSubstitutionType.TEMPLATE;
+            if (controlConfig.validation) {
+              validationPaths[controlConfig.propertyName] =
+                controlConfig.validation;
+            }
           } else if (
             controlConfig.isBindProperty &&
             controlConfig.isTriggerProperty
@@ -73,6 +80,10 @@ export const getAllPathsFromPropertyConfig = (
                             ) {
                               bindingPaths[panelPropertyPath] =
                                 EvaluationSubstitutionType.TEMPLATE;
+                              if (panelColumnControlConfig.validation) {
+                                validationPaths[panelPropertyPath] =
+                                  panelColumnControlConfig.validation;
+                              }
                             } else if (
                               panelColumnControlConfig.isBindProperty &&
                               panelColumnControlConfig.isTriggerProperty
@@ -105,6 +116,10 @@ export const getAllPathsFromPropertyConfig = (
                   ) {
                     bindingPaths[childArrayPropertyPath] =
                       EvaluationSubstitutionType.TEMPLATE;
+                    if (childPropertyConfig.validation) {
+                      validationPaths[childArrayPropertyPath] =
+                        childPropertyConfig.validation;
+                    }
                   } else if (
                     childPropertyConfig.isBindProperty &&
                     childPropertyConfig.isTriggerProperty
@@ -120,7 +135,7 @@ export const getAllPathsFromPropertyConfig = (
     }
   });
 
-  return { bindingPaths, triggerPaths };
+  return { bindingPaths, triggerPaths, validationPaths };
 };
 
 export const nextAvailableRowInContainer = (

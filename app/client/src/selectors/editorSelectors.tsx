@@ -265,6 +265,7 @@ const createLoadingWidget = (
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
     triggerPaths: {},
+    validationPaths: {},
     isLoading: true,
   };
 };

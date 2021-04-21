@@ -76,7 +76,7 @@ ctx.addEventListener(
             });
             console.error(e);
           }
-          dataTree = getValidatedTree(widgetTypeConfigMap, unevalTree);
+          dataTree = getValidatedTree(unevalTree);
           dataTreeEvaluator = undefined;
         }
         return {
@@ -152,21 +152,9 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const {
-          widgetType,
-          widgetTypeConfigMap,
-          property,
-          value,
-          props,
-        } = requestData;
+        const { property, value, props, validation } = requestData;
         return removeFunctions(
-          validateWidgetProperty(
-            widgetTypeConfigMap,
-            widgetType,
-            property,
-            value,
-            props,
-          ),
+          validateWidgetProperty(property, value, props, validation),
         );
       }
       default: {
