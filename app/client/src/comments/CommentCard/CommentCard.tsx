@@ -18,7 +18,10 @@ import createMentionPlugin from "@draft-js-plugins/mention";
 import { flattenDeep, noop } from "lodash";
 import copy from "copy-to-clipboard";
 
-import { pinCommentThreadRequest } from "actions/commentActions";
+import {
+  deleteCommentRequest,
+  pinCommentThreadRequest,
+} from "actions/commentActions";
 import { useDispatch } from "react-redux";
 
 const StyledContainer = styled.div`
@@ -116,10 +119,14 @@ const CommentCard = ({
     dispatch(pinCommentThreadRequest({ threadId: commentThreadId }));
   }, []);
 
+  const deleteComment = useCallback(() => {
+    dispatch(deleteCommentRequest({ threadId: commentThreadId, commentId }));
+  }, []);
+
   const contextMenuProps = {
     pin,
     copyCommentLink,
-    deleteComment: noop,
+    deleteComment,
   };
 
   useSelectCommentUsingQuery(comment.id);
