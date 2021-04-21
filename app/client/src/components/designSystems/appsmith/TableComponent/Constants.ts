@@ -103,7 +103,7 @@ export interface TableColumnMetaProps {
   type: string;
 }
 
-export interface ReactTableColumnProps {
+export interface TableColumnProps {
   Header: string;
   accessor: string;
   width?: number;
@@ -114,6 +114,8 @@ export interface ReactTableColumnProps {
   metaProperties?: TableColumnMetaProps;
   isDerived?: boolean;
   columnProperties: ColumnProperties;
+}
+export interface ReactTableColumnProps extends TableColumnProps {
   Cell: (props: any) => JSX.Element;
 }
 

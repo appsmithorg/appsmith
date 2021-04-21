@@ -11,8 +11,11 @@
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "EQUALS",
-            "value": "false"
+            "comparison": "IN",
+            "value": [
+              "false",
+              false
+            ]
           }
         },
         {
@@ -22,8 +25,11 @@
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "EQUALS",
-            "value": "true"
+            "comparison": "IN",
+            "value": [
+              "true",
+              true
+            ]
           }
         }
       ]
