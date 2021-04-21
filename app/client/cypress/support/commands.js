@@ -1409,6 +1409,14 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("readTextDataValidateCSS", (cssProperty, cssValue) => {
+  cy.get(commonlocators.headingTextStyle).should(
+    "have.css",
+    cssProperty,
+    cssValue,
+  );
+});
+
 Cypress.Commands.add("evaluateErrorMessage", (value) => {
   cy.get(commonlocators.evaluateMsg)
     .first()
