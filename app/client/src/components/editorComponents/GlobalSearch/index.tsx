@@ -24,7 +24,6 @@ import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity"
 import {
   toggleShowGlobalSearchModal,
   setGlobalSearchQuery,
-  updateRecentEntity,
 } from "actions/globalSearchActions";
 import {
   getItemType,
@@ -305,13 +304,6 @@ const GlobalSearch = () => {
       selectedWidgetId === activeItem.widgetId,
       activeItem.parentModalId,
     );
-    selectedWidgetId &&
-      dispatch(
-        updateRecentEntity({
-          type: "widget",
-          id: selectedWidgetId,
-        }),
-      );
     setQuery("");
   };
 

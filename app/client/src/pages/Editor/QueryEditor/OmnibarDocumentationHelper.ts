@@ -43,7 +43,6 @@ const omnibarDocumentationHelper = (linkURL: string) => {
       query: "dynamodb",
     },
   ];
-  console.log("linkURL: ", linkURL);
   for (const headerItem of documentationHeaders) {
     if (includes(linkURL, headerItem.text)) {
       return {
