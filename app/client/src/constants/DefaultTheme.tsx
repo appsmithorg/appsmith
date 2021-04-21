@@ -926,6 +926,7 @@ type ColorType = {
   scrollbarBG: string;
   debugger: {
     background: string;
+    messageTextColor: string;
   };
   helpModal: {
     itemHighlight: string;
@@ -1402,6 +1403,7 @@ export const dark: ColorType = {
   scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
   debugger: {
     background: darkShades[11],
+    messageTextColor: "#D4D4D4",
   },
 };
 
@@ -1817,6 +1819,7 @@ export const light: ColorType = {
   scrollbarBG: "transparent",
   debugger: {
     background: "#FFFFFF",
+    messageTextColor: "#716e6e",
   },
 };
 

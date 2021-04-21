@@ -8,9 +8,7 @@ const StyledButton = styled(DebugButton)`
 
 const Container = styled.div`
   padding: 15px 0px;
-  color: #716e6e;
-  font-size: 14px;
-  font-weight: normal;
+  color: ${(props) => props.theme.colors.debugger.messageTextColor};
 `;
 
 const DebuggerMessage = (props: any) => {

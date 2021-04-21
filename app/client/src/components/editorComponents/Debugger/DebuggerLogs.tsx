@@ -80,7 +80,7 @@ const DebbuggerLogs = (props: Props) => {
         {!paginatedData.length ? (
           <BlankState hasShortCut={!!props.hasShortCut} />
         ) : (
-          paginatedData.map((e: any, index: number) => {
+          paginatedData.map((e, index: number) => {
             const logItemProps = getLogItemProps(e);
 
             return (
