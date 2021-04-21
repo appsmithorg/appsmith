@@ -13,6 +13,7 @@ const FIELD_VALUES: Record<
   CANVAS_WIDGET: {},
   ICON_WIDGET: {},
   SKELETON_WIDGET: {},
+  TABS_MIGRATOR_WIDGET: {},
   CONTAINER_WIDGET: {
     backgroundColor: "string",
     isVisible: "boolean",

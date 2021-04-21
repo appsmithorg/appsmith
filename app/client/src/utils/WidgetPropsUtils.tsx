@@ -334,9 +334,35 @@ const rteDefaultValueMigration = (
   return currentDSL;
 };
 
-function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
+function migrateTabsDataUsingMigrator(
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) {
   if (currentDSL.type === WidgetTypes.TABS_WIDGET && currentDSL.version === 1) {
     try {
+      currentDSL.type = WidgetTypes.TABS_MIGRATOR_WIDGET;
+      currentDSL.version = 1;
+    } catch (error) {
+      Sentry.captureException({
+        message: "Tabs Migration Failed",
+        oldData: currentDSL.tabs,
+      });
+      currentDSL.tabsObj = {};
+      delete currentDSL.tabs;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(migrateTabsDataUsingMigrator);
+  }
+  return currentDSL;
+}
+
+export function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
+  if (
+    currentDSL.type === WidgetTypes.TABS_MIGRATOR_WIDGET &&
+    currentDSL.version === 1
+  ) {
+    try {
+      currentDSL.type = WidgetTypes.TABS_WIDGET;
       const isTabsDataBinded = isString(currentDSL.tabs);
       currentDSL.dynamicPropertyPathList =
         currentDSL.dynamicPropertyPathList || [];
@@ -382,6 +408,7 @@ function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
             ...obj,
             [tab.id]: {
               ...tab,
+              isVisible: tab.isVisible === undefined ? true : tab.isVisible,
               index,
             },
           };
@@ -555,9 +582,9 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 16;
   }
 
-  if (currentDSL.version === 16) {
-    currentDSL = migrateTabsData(currentDSL);
-    currentDSL.version = 17;
+  if (currentDSL.version) {
+    currentDSL = migrateTabsDataUsingMigrator(currentDSL);
+    currentDSL.version = 18;
   }
 
   return currentDSL;

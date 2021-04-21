@@ -756,11 +756,52 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       message: message,
     };
   },
+  [VALIDATION_TYPES.TABS_DATA]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+      props,
+      dataTree,
+    );
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
+      };
+    } else if (
+      !every(
+        parsed,
+        (datum: {
+          id: string;
+          label: string;
+          widgetId: string;
+          isVisible?: boolean;
+        }) =>
+          isObject(datum) &&
+          !isUndefined(datum.id) &&
+          !isUndefined(datum.label) &&
+          !isUndefined(datum.widgetId),
+      )
+    ) {
+      return {
+        isValid: false,
+        parsed: [],
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
+      };
+    }
+    return { isValid, parsed };
+  },
   [VALIDATION_TYPES.SELECTED_TAB]: (
     value: any,
     props: WidgetProps,
   ): ValidationResponse => {
-    const tabs: any = Object.values(props.tabsObj);
+    const tabs: any = props.tabsObj
+      ? Object.values(props.tabsObj)
+      : props.tabs || [];
     const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
     const isValidTabName = tabNames.includes(value);
     return {

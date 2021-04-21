@@ -29,6 +29,7 @@ export enum VALIDATION_TYPES {
   LAT_LONG = "LAT_LONG",
   TABLE_PAGE_NO = "TABLE_PAGE_NO",
   ROW_INDICES = "ROW_INDICES",
+  TABS_DATA = "TABS_DATA",
 }
 
 export type ValidationResponse = {

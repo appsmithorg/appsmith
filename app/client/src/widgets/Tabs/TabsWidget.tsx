@@ -1,7 +1,7 @@
 import React from "react";
 import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
@@ -9,7 +9,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetOperations } from "widgets/BaseWidget";
 import * as Sentry from "@sentry/react";
 import { generateReactKey } from "utils/generators";
-import withMeta, { WithMeta } from "./MetaHOC";
+import withMeta, { WithMeta } from "../MetaHOC";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -314,7 +314,7 @@ class TabsWidget extends BaseWidget<
 
   generateTabContainers = () => {
     const { tabsObj, widgetId } = this.props;
-    const tabs = Object.values(tabsObj);
+    const tabs = Object.values(tabsObj || {});
     const childWidgetIds = this.props.children
       ?.filter(Boolean)
       .map((child) => child.widgetId);
@@ -350,7 +350,7 @@ class TabsWidget extends BaseWidget<
   };
 
   getVisibleTabs = () => {
-    const tabs = Object.values(this.props.tabsObj);
+    const tabs = Object.values(this.props.tabsObj || {});
     if (tabs.length) {
       return tabs
         .filter((tab) => tab.isVisible === undefined || tab.isVisible === true)
@@ -362,7 +362,7 @@ class TabsWidget extends BaseWidget<
   componentDidMount() {
     const visibleTabs = this.getVisibleTabs();
     // If we have a defaultTab
-    if (this.props.defaultTab && Object.keys(this.props.tabsObj).length) {
+    if (this.props.defaultTab && Object.keys(this.props.tabsObj || {}).length) {
       // Find the default Tab object
       const selectedTab = _.find(visibleTabs, {
         label: this.props.defaultTab,
@@ -386,7 +386,7 @@ class TabsWidget extends BaseWidget<
       }
     } else if (
       !this.props.selectedTabWidgetId &&
-      Object.keys(this.props.tabsObj).length
+      Object.keys(this.props.tabsObj || {}).length
     ) {
       // If no tab is selected
       // Select the first tab in the tabs list.
