@@ -57,7 +57,11 @@ const DebbuggerLogs = (props: Props) => {
 
   useEffect(() => {
     const div = document.getElementsByClassName("debugger-list")[0];
-    if (div) div.scrollTop = div.scrollHeight - div.clientHeight;
+    if (div) {
+      setTimeout(() => {
+        div.scrollTop = div.scrollHeight - div.clientHeight;
+      }, 0);
+    }
   }, [paginatedData.length]);
 
   return (
