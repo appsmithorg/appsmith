@@ -24,6 +24,7 @@ import {
   CrashingError,
   DataTreeDiffEvent,
   getAllPaths,
+  getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
   getValidatedTree,
   makeParentsDependOnChildren,
@@ -86,7 +87,7 @@ export default class DataTreeEvaluator {
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    this.evalTree = getValidatedTree(this.widgetConfigMap, evaluatedTree);
+    this.evalTree = getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
     this.oldUnEvalTree = unEvalTree;
@@ -350,24 +351,25 @@ export default class DataTreeEvaluator {
     const tree = _.cloneDeep(oldUnevalTree);
     try {
       return sortedDependencies.reduce(
-        (currentTree: DataTree, propertyPath: string) => {
-          this.logs.push(`evaluating ${propertyPath}`);
-          const entityName = propertyPath.split(".")[0];
+        (currentTree: DataTree, fullPropertyPath: string) => {
+          this.logs.push(`evaluating ${fullPropertyPath}`);
+          const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+            fullPropertyPath,
+          );
           const entity: DataTreeEntity = currentTree[entityName];
-          const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
+          const unEvalPropertyValue = _.get(
+            currentTree as any,
+            fullPropertyPath,
+          );
           const isABindingPath =
             (isAction(entity) || isWidget(entity)) &&
-            isPathADynamicBinding(
-              entity,
-              propertyPath.substring(propertyPath.indexOf(".") + 1),
-            );
+            isPathADynamicBinding(entity, propertyPath);
           let evalPropertyValue;
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
           if (requiresEval) {
             try {
               evalPropertyValue = this.evaluateDynamicProperty(
-                propertyPath,
                 currentTree,
                 unEvalPropertyValue,
               );
@@ -376,7 +378,7 @@ export default class DataTreeEvaluator {
                 type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
                 message: e.message,
                 context: {
-                  propertyPath,
+                  propertyPath: fullPropertyPath,
                 },
               });
               evalPropertyValue = undefined;
@@ -386,42 +388,37 @@ export default class DataTreeEvaluator {
           }
           if (isWidget(entity)) {
             const widgetEntity = entity;
-            // TODO fix for nested properties
-            // For nested properties like Table1.selectedRow.email
-            // The following line will calculated the property name to be selectedRow
-            // instead of selectedRow.email
-            const propertyName = propertyPath.split(".")[1];
             const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
               .defaultProperties;
             const isDefaultProperty = !!Object.values(
               defaultPropertyMap,
             ).filter(
-              (defaultPropertyName) => propertyName === defaultPropertyName,
+              (defaultPropertyName) => propertyPath === defaultPropertyName,
             ).length;
-            if (propertyName) {
+            if (propertyPath) {
               let parsedValue = this.validateAndParseWidgetProperty(
-                propertyPath,
+                fullPropertyPath,
                 widgetEntity,
                 currentTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
                 isDefaultProperty,
               );
-              const hasDefaultProperty = propertyName in defaultPropertyMap;
+              const hasDefaultProperty = propertyPath in defaultPropertyMap;
               if (hasDefaultProperty) {
-                const defaultProperty = defaultPropertyMap[propertyName];
+                const defaultProperty = defaultPropertyMap[propertyPath];
                 parsedValue = this.overwriteDefaultDependentProps(
                   defaultProperty,
                   parsedValue,
-                  propertyPath,
+                  fullPropertyPath,
                   widgetEntity,
                 );
               }
-              return _.set(currentTree, propertyPath, parsedValue);
+              return _.set(currentTree, fullPropertyPath, parsedValue);
             }
-            return _.set(currentTree, propertyPath, evalPropertyValue);
+            return _.set(currentTree, fullPropertyPath, evalPropertyValue);
           } else {
-            return _.set(currentTree, propertyPath, evalPropertyValue);
+            return _.set(currentTree, fullPropertyPath, evalPropertyValue);
           }
         },
         tree,
@@ -573,7 +570,6 @@ export default class DataTreeEvaluator {
   }
 
   evaluateDynamicProperty(
-    propertyPath: string,
     currentTree: DataTree,
     unEvalPropertyValue: any,
   ): any {
@@ -581,14 +577,14 @@ export default class DataTreeEvaluator {
   }
 
   validateAndParseWidgetProperty(
-    propertyPath: string,
+    fullPropertyPath: string,
     widget: DataTreeWidget,
     currentTree: DataTree,
     evalPropertyValue: any,
     unEvalPropertyValue: string,
     isDefaultProperty: boolean,
   ): any {
-    const entityPropertyName = _.drop(propertyPath.split(".")).join(".");
+    const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
     let valueToValidate = evalPropertyValue;
     if (isPathADynamicTrigger(widget, propertyPath)) {
       const { triggers } = this.getDynamicValue(
@@ -599,12 +595,12 @@ export default class DataTreeEvaluator {
       );
       valueToValidate = triggers;
     }
+    const validation = widget.validationPaths[propertyPath];
     const { parsed, isValid, message, transformed } = validateWidgetProperty(
-      this.widgetConfigMap,
-      widget.type,
-      entityPropertyName,
+      propertyPath,
       valueToValidate,
       widget,
+      validation,
       currentTree,
     );
     const evaluatedValue = isValid
@@ -613,23 +609,23 @@ export default class DataTreeEvaluator {
       ? evalPropertyValue
       : transformed;
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
-    _.set(widget, `evaluatedValues.${entityPropertyName}`, safeEvaluatedValue);
+    _.set(widget, `evaluatedValues.${propertyPath}`, safeEvaluatedValue);
     if (!isValid) {
-      _.set(widget, `invalidProps.${entityPropertyName}`, true);
-      _.set(widget, `validationMessages.${entityPropertyName}`, message);
+      _.set(widget, `invalidProps.${propertyPath}`, true);
+      _.set(widget, `validationMessages.${propertyPath}`, message);
     } else {
-      _.set(widget, `invalidProps.${entityPropertyName}`, false);
-      _.set(widget, `validationMessages.${entityPropertyName}`, "");
+      _.set(widget, `invalidProps.${propertyPath}`, false);
+      _.set(widget, `validationMessages.${propertyPath}`, "");
     }
 
-    if (isPathADynamicTrigger(widget, entityPropertyName)) {
+    if (isPathADynamicTrigger(widget, propertyPath)) {
       return unEvalPropertyValue;
     } else {
-      const parsedCache = this.getParsedValueCache(propertyPath);
+      const parsedCache = this.getParsedValueCache(fullPropertyPath);
       // In case this is a default property, always set the cache even if the value remains the same so that the version
       // in cache gets updated and the property dependent on default property updates accordingly.
       if (!equal(parsedCache.value, parsed) || isDefaultProperty) {
-        this.parsedValueCache.set(propertyPath, {
+        this.parsedValueCache.set(fullPropertyPath, {
           value: parsed,
           version: Date.now(),
         });

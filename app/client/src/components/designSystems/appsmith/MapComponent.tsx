@@ -140,29 +140,30 @@ const MyMapComponent = withGoogleMap((props: any) => {
           <StyledInput type="text" placeholder="Enter location to search" />
         </SearchBox>
       )}
-      {props.markers.map((marker: any, index: number) => (
-        <Marker
-          key={index}
-          title={marker.title}
-          position={{ lat: marker.lat, lng: marker.long }}
-          clickable
-          draggable={
-            props.selectedMarker &&
-            props.selectedMarker.lat === marker.lat &&
-            props.selectedMarker.long === marker.long
-          }
-          onClick={() => {
-            setMapCenter({
-              ...marker,
-              lng: marker.long,
-            });
-            props.selectMarker(marker.lat, marker.long, marker.title);
-          }}
-          onDragEnd={(de) => {
-            props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
-          }}
-        />
-      ))}
+      {Array.isArray(props.markers) &&
+        props.markers.map((marker: MarkerProps, index: number) => (
+          <Marker
+            key={index}
+            title={marker.title}
+            position={{ lat: marker.lat, lng: marker.long }}
+            clickable
+            draggable={
+              props.selectedMarker &&
+              props.selectedMarker.lat === marker.lat &&
+              props.selectedMarker.long === marker.long
+            }
+            onClick={() => {
+              setMapCenter({
+                ...marker,
+                lng: marker.long,
+              });
+              props.selectMarker(marker.lat, marker.long, marker.title);
+            }}
+            onDragEnd={(de) => {
+              props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
+            }}
+          />
+        ))}
       {props.enablePickLocation && (
         <PickMyLocationWrapper
           title="Pick My Location"

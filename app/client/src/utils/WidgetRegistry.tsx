@@ -105,7 +105,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledContainerWidget {...widgetData} />;
         },
       },
-      ContainerWidget.getPropertyValidationMap(),
       ContainerWidget.getDerivedPropertiesMap(),
       ContainerWidget.getDefaultPropertiesMap(),
       ContainerWidget.getMetaPropertiesMap(),
@@ -119,7 +118,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledTextWidget {...widgetData} />;
         },
       },
-      TextWidget.getPropertyValidationMap(),
       TextWidget.getDerivedPropertiesMap(),
       TextWidget.getDefaultPropertiesMap(),
       TextWidget.getMetaPropertiesMap(),
@@ -133,7 +131,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledButtonWidget {...widgetData} />;
         },
       },
-      ButtonWidget.getPropertyValidationMap(),
       ButtonWidget.getDerivedPropertiesMap(),
       ButtonWidget.getDefaultPropertiesMap(),
       ButtonWidget.getMetaPropertiesMap(),
@@ -147,7 +144,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledInputWidget {...widgetData} />;
         },
       },
-      InputWidget.getPropertyValidationMap(),
       InputWidget.getDerivedPropertiesMap(),
       InputWidget.getDefaultPropertiesMap(),
       InputWidget.getMetaPropertiesMap(),
@@ -161,7 +157,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledCheckboxWidget {...widgetData} />;
         },
       },
-      CheckboxWidget.getPropertyValidationMap(),
       CheckboxWidget.getDerivedPropertiesMap(),
       CheckboxWidget.getDefaultPropertiesMap(),
       CheckboxWidget.getMetaPropertiesMap(),
@@ -175,7 +170,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledSwitchWidget {...widgetData} />;
         },
       },
-      SwitchWidget.getPropertyValidationMap(),
       SwitchWidget.getDerivedPropertiesMap(),
       SwitchWidget.getDefaultPropertiesMap(),
       SwitchWidget.getMetaPropertiesMap(),
@@ -189,7 +183,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledDropDownWidget {...widgetData} />;
         },
       },
-      DropdownWidget.getPropertyValidationMap(),
       DropdownWidget.getDerivedPropertiesMap(),
       DropdownWidget.getDefaultPropertiesMap(),
       DropdownWidget.getMetaPropertiesMap(),
@@ -203,7 +196,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledRadioGroupWidget {...widgetData} />;
         },
       },
-      RadioGroupWidget.getPropertyValidationMap(),
       RadioGroupWidget.getDerivedPropertiesMap(),
       RadioGroupWidget.getDefaultPropertiesMap(),
       RadioGroupWidget.getMetaPropertiesMap(),
@@ -217,7 +209,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledImageWidget {...widgetData} />;
         },
       },
-      ImageWidget.getPropertyValidationMap(),
       ImageWidget.getDerivedPropertiesMap(),
       ImageWidget.getDefaultPropertiesMap(),
       ImageWidget.getMetaPropertiesMap(),
@@ -230,7 +221,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledTableWidget {...widgetData} />;
         },
       },
-      TableWidget.getPropertyValidationMap(),
       TableWidget.getDerivedPropertiesMap(),
       TableWidget.getDefaultPropertiesMap(),
       TableWidget.getMetaPropertiesMap(),
@@ -244,7 +234,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledVideoWidget {...widgetData} />;
         },
       },
-      VideoWidget.getPropertyValidationMap(),
       VideoWidget.getDerivedPropertiesMap(),
       VideoWidget.getDefaultPropertiesMap(),
       VideoWidget.getMetaPropertiesMap(),
@@ -258,7 +247,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledFilePickerWidget {...widgetData} />;
         },
       },
-      FilePickerWidget.getPropertyValidationMap(),
       FilePickerWidget.getDerivedPropertiesMap(),
       FilePickerWidget.getDefaultPropertiesMap(),
       FilePickerWidget.getMetaPropertiesMap(),
@@ -271,7 +259,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledDatePickerWidget {...widgetData} />;
         },
       },
-      DatePickerWidget.getPropertyValidationMap(),
       DatePickerWidget.getDerivedPropertiesMap(),
       DatePickerWidget.getDefaultPropertiesMap(),
       DatePickerWidget.getMetaPropertiesMap(),
@@ -284,7 +271,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledDatePickerWidget2 {...widgetData} />;
         },
       },
-      DatePickerWidget2.getPropertyValidationMap(),
       DatePickerWidget2.getDerivedPropertiesMap(),
       DatePickerWidget2.getDefaultPropertiesMap(),
       DatePickerWidget2.getMetaPropertiesMap(),
@@ -299,7 +285,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledTabsWidget {...widgetProps} />;
         },
       },
-      TabsWidget.getPropertyValidationMap(),
       TabsWidget.getDerivedPropertiesMap(),
       TabsWidget.getDefaultPropertiesMap(),
       TabsWidget.getMetaPropertiesMap(),
@@ -312,7 +297,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledModalWidget {...widgetProps} />;
         },
       },
-      BaseWidget.getPropertyValidationMap(),
       BaseWidget.getDerivedPropertiesMap(),
       BaseWidget.getDefaultPropertiesMap(),
       BaseWidget.getMetaPropertiesMap(),
@@ -325,7 +309,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledRichTextEditorWidget {...widgetData} />;
         },
       },
-      RichTextEditorWidget.getPropertyValidationMap(),
       RichTextEditorWidget.getDerivedPropertiesMap(),
       RichTextEditorWidget.getDefaultPropertiesMap(),
       RichTextEditorWidget.getMetaPropertiesMap(),
@@ -338,7 +321,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledChartWidget {...widgetData} />;
         },
       },
-      ChartWidget.getPropertyValidationMap(),
       ChartWidget.getDerivedPropertiesMap(),
       ChartWidget.getDefaultPropertiesMap(),
       ChartWidget.getMetaPropertiesMap(),
@@ -353,7 +335,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledFormWidget {...widgetProps} />;
         },
       },
-      FormWidget.getPropertyValidationMap(),
       FormWidget.getDerivedPropertiesMap(),
       FormWidget.getDefaultPropertiesMap(),
       FormWidget.getMetaPropertiesMap(),
@@ -367,7 +348,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledFormButtonWidget {...widgetProps} />;
         },
       },
-      FormButtonWidget.getPropertyValidationMap(),
       FormButtonWidget.getDerivedPropertiesMap(),
       FormButtonWidget.getDefaultPropertiesMap(),
       FormButtonWidget.getMetaPropertiesMap(),
@@ -381,7 +361,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledMapWidget {...widgetProps} />;
         },
       },
-      MapWidget.getPropertyValidationMap(),
       MapWidget.getDerivedPropertiesMap(),
       MapWidget.getDefaultPropertiesMap(),
       MapWidget.getMetaPropertiesMap(),
@@ -397,7 +376,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledCanvasWidget {...widgetData} />;
         },
       },
-      CanvasWidget.getPropertyValidationMap(),
       CanvasWidget.getDerivedPropertiesMap(),
       CanvasWidget.getDefaultPropertiesMap(),
       CanvasWidget.getMetaPropertiesMap(),
@@ -411,7 +389,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledIconWidget {...widgetProps} />;
         },
       },
-      IconWidget.getPropertyValidationMap(),
       IconWidget.getDerivedPropertiesMap(),
       IconWidget.getDefaultPropertiesMap(),
       IconWidget.getMetaPropertiesMap(),
@@ -425,7 +402,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledSkeletonWidget {...widgetProps} />;
         },
       },
-      SkeletonWidget.getPropertyValidationMap(),
       SkeletonWidget.getDerivedPropertiesMap(),
       SkeletonWidget.getDefaultPropertiesMap(),
       SkeletonWidget.getMetaPropertiesMap(),
@@ -439,7 +415,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledModalWidget {...widgetData} />;
         },
       },
-      ModalWidget.getPropertyValidationMap(),
       ModalWidget.getDerivedPropertiesMap(),
       ModalWidget.getDefaultPropertiesMap(),
       ModalWidget.getMetaPropertiesMap(),
