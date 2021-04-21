@@ -23,7 +23,6 @@ import {
   EvalErrorTypes,
 } from "utils/DynamicBindingUtils";
 import log from "loglevel";
-import { WidgetType } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -209,17 +208,17 @@ export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
 }
 
 export function* validateProperty(
-  widgetType: WidgetType,
   property: string,
   value: any,
   props: WidgetProps,
 ) {
+  const unevalTree = yield select(getUnevaluatedDataTree);
+  const validation = unevalTree[props.widgetName].validationPaths[property];
   return yield call(worker.request, EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY, {
-    widgetTypeConfigMap,
-    widgetType,
     property,
     value,
     props,
+    validation,
   });
 }
 
