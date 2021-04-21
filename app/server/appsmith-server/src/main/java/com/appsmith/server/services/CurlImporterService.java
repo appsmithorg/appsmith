@@ -43,10 +43,14 @@ public class CurlImporterService extends BaseApiImporter {
 
     private final NewActionService newActionService;
     private final PluginService pluginService;
+    private final LayoutActionService layoutActionService;
 
-    public CurlImporterService(NewActionService newActionService, PluginService pluginService) {
+    public CurlImporterService(NewActionService newActionService,
+                               PluginService pluginService,
+                               LayoutActionService layoutActionService) {
         this.newActionService = newActionService;
         this.pluginService = pluginService;
+        this.layoutActionService = layoutActionService;
     }
 
     @Override
@@ -79,7 +83,7 @@ public class CurlImporterService extends BaseApiImporter {
                     datasource.setOrganizationId(orgId);
                     return Mono.just(action1);
                 })
-                .flatMap(newActionService::createAction);
+                .flatMap(layoutActionService::createAction);
     }
 
     public ActionDTO curlToAction(String command, String pageId, String name) throws AppsmithException {
@@ -290,6 +294,9 @@ public class CurlImporterService extends BaseApiImporter {
             } else if (ARG_HEADER.equals(state)) {
                 // The `token` is next to `--header`.
                 final String[] parts = token.split(":\\s*", 2);
+                if (parts.length != 2) {
+                    throw new AppsmithException(AppsmithError.INVALID_CURL_HEADER, token);
+                }
                 if ("content-type".equalsIgnoreCase(parts[0])) {
                     contentType = parts[1];
                 }

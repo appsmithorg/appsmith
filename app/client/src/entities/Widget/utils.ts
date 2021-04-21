@@ -2,6 +2,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { get } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 export const getAllPathsFromPropertyConfig = (
   widget: WidgetProps,
@@ -10,9 +11,11 @@ export const getAllPathsFromPropertyConfig = (
 ): {
   bindingPaths: Record<string, true>;
   triggerPaths: Record<string, true>;
+  validationPaths: Record<string, VALIDATION_TYPES>;
 } => {
   const bindingPaths: Record<string, true> = derivedProperties;
   const triggerPaths: Record<string, true> = {};
+  const validationPaths: Record<any, VALIDATION_TYPES> = {};
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {
@@ -27,6 +30,10 @@ export const getAllPathsFromPropertyConfig = (
             !controlConfig.isTriggerProperty
           ) {
             bindingPaths[controlConfig.propertyName] = true;
+            if (controlConfig.validation) {
+              validationPaths[controlConfig.propertyName] =
+                controlConfig.validation;
+            }
           } else if (
             controlConfig.isBindProperty &&
             controlConfig.isTriggerProperty
@@ -66,6 +73,10 @@ export const getAllPathsFromPropertyConfig = (
                               !panelColumnControlConfig.isTriggerProperty
                             ) {
                               bindingPaths[panelPropertyPath] = true;
+                              if (panelColumnControlConfig.validation) {
+                                validationPaths[panelPropertyPath] =
+                                  panelColumnControlConfig.validation;
+                              }
                             } else if (
                               panelColumnControlConfig.isBindProperty &&
                               panelColumnControlConfig.isTriggerProperty
@@ -97,6 +108,10 @@ export const getAllPathsFromPropertyConfig = (
                     !childPropertyConfig.isTriggerProperty
                   ) {
                     bindingPaths[childArrayPropertyPath] = true;
+                    if (childPropertyConfig.validation) {
+                      validationPaths[childArrayPropertyPath] =
+                        childPropertyConfig.validation;
+                    }
                   } else if (
                     childPropertyConfig.isBindProperty &&
                     childPropertyConfig.isTriggerProperty
@@ -112,7 +127,7 @@ export const getAllPathsFromPropertyConfig = (
     }
   });
 
-  return { bindingPaths, triggerPaths };
+  return { bindingPaths, triggerPaths, validationPaths };
 };
 
 export const nextAvailableRowInContainer = (

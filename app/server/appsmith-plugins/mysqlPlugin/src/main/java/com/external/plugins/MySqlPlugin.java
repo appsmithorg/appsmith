@@ -166,7 +166,14 @@ public class MySqlPlugin extends BasePlugin {
                  */
                 isPreparedStatement = false;
             } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
-                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
+                if (psValue instanceof  Boolean) {
+                    isPreparedStatement = (Boolean) psValue;
+                } else if (psValue instanceof String) {
+                    isPreparedStatement = Boolean.parseBoolean((String) psValue);
+                } else {
+                    isPreparedStatement = false;
+                }
             } else {
                 isPreparedStatement = false;
             }
