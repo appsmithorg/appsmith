@@ -931,6 +931,10 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    blankState: {
+      shortcut: string;
+      color: string;
+    };
     info: {
       borderBottom: string;
     };
@@ -1427,6 +1431,10 @@ export const dark: ColorType = {
     entityLink: "#D4D4D4",
     jsonIcon: "#9F9F9F",
     message: "#D4D4D4",
+    blankState: {
+      color: "#D4D4D4",
+      shortcut: "#D4D4D4",
+    },
     info: {
       borderBottom: "black",
     },
@@ -1860,6 +1868,10 @@ export const light: ColorType = {
     entityLink: "#6d6d6d",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
+    blankState: {
+      color: "#716e6e",
+      shortcut: "black",
+    },
     info: {
       borderBottom: "rgba(0, 0, 0, 0.05)",
     },

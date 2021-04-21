@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -10,11 +11,12 @@ const BlankStateWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #716e6e;
+  color: ${(props) => props.theme.colors.debugger.blankState.color};
+  ${(props) => getTypographyByKey(props, "p1")}
 
   .debugger-shortcut {
-    font-weight: 700;
-    color: black;
+    color: ${(props) => props.theme.colors.debugger.blankState.shortcut};
+    ${(props) => getTypographyByKey(props, "h5")}
   }
 `;
 
