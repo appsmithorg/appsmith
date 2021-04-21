@@ -102,6 +102,7 @@
   "AlertModalName": "Alert_Modal",
   "FormModalName": "Form_Modal",
   "TextLabelValue": "Test Text Label",
+  "TextLabelValueScrollable": "Test Text Label to check scroll feature",
   "TextName": "TestTextBox",
   "TextLabel": "Paragraph",
   "TextBody": "Heading 2",

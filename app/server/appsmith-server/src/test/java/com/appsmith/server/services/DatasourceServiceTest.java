@@ -74,6 +74,9 @@ public class DatasourceServiceTest {
     @Autowired
     EncryptionService encryptionService;
 
+    @Autowired
+    LayoutActionService layoutActionService;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -529,7 +532,7 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return newActionService.createAction(action).thenReturn(datasource);
+                    return layoutActionService.createAction(action).thenReturn(datasource);
                 })
                 .flatMap(datasource -> datasourceService.delete(datasource.getId()));
 

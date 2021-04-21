@@ -1,16 +1,14 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.AppsmithEventContext;
-import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
@@ -81,7 +79,6 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -155,7 +152,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         action.setPolicies(newAction.getPolicies());
     }
 
-    private void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction) {
+    @Override
+    public void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction) {
         // Set the fields from NewAction into Action
         newAction.setOrganizationId(action.getOrganizationId());
         newAction.setPluginType(action.getPluginType());
@@ -189,69 +187,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return Mono.just(action);
     }
 
-    private void generateAndSetActionPolicies(NewPage page, NewAction action) {
+    @Override
+    public void generateAndSetActionPolicies(NewPage page, NewAction action) {
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
         action.setPolicies(documentPolicies);
     }
 
     @Override
-    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext) {
-        if (action.getId() != null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
-        }
-
-        if (action.getPageId() == null || action.getPageId().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
-        }
-
-        NewAction newAction = new NewAction();
-        newAction.setPublishedAction(new ActionDTO());
-        newAction.getPublishedAction().setDatasource(new Datasource());
-
-        return newPageService
-                .findById(action.getPageId(), READ_PAGES)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
-                .flatMap(page -> {
-
-                    // Inherit the action policies from the page.
-                    generateAndSetActionPolicies(page, newAction);
-
-                    setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
-
-                    // Set the application id in the main domain
-                    newAction.setApplicationId(page.getApplicationId());
-
-                    // If the datasource is embedded, check for organizationId and set it in action
-                    if (action.getDatasource() != null &&
-                            action.getDatasource().getId() == null) {
-                        Datasource datasource = action.getDatasource();
-                        if (datasource.getOrganizationId() == null) {
-                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
-                        }
-                        newAction.setOrganizationId(datasource.getOrganizationId());
-                    }
-
-                    // New actions will never be set to auto-magical execution, unless it is triggered via a
-                    // page or application clone event.
-                    if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
-                        action.setExecuteOnLoad(false);
-                    }
-
-                    newAction.setUnpublishedAction(action);
-
-                    return Mono.just(newAction);
-                })
-                .flatMap(this::validateAndSaveActionToRepository);
-    }
-
-    @Override
-    public Mono<ActionDTO> createAction(ActionDTO action) {
-        AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
-        return createAction(action, eventContext);
-    }
-
-    private Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
+    public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
 
         //Default the validity to true and invalids to be an empty set.
@@ -658,17 +601,17 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             .elapsed()
                             // Now send the analytics event for this execution
                             .flatMap(tuple1 -> {
-                                Long timeElapsed = tuple1.getT1();
-                                ActionExecutionResult result = tuple1.getT2();
+                                        Long timeElapsed = tuple1.getT1();
+                                        ActionExecutionResult result = tuple1.getT2();
 
-                                log.debug("{}: Action {} with id {} execution time : {} ms",
-                                        Thread.currentThread().getName(),
-                                        actionName.get(),
-                                        actionId,
-                                        timeElapsed
-                                );
+                                        log.debug("{}: Action {} with id {} execution time : {} ms",
+                                                Thread.currentThread().getName(),
+                                                actionName.get(),
+                                                actionId,
+                                                timeElapsed
+                                        );
 
-                                return Mono.zip(actionMono, actionDTOMono, datasourceMono)
+                                        return Mono.zip(actionMono, actionDTOMono, datasourceMono)
                                                 .flatMap(tuple2 -> {
                                                     ActionExecutionResult actionExecutionResult = result;
                                                     NewAction actionFromDb = tuple2.getT1();
@@ -706,7 +649,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
-        if(!CollectionUtils.isEmpty(result.getDataTypes())) {
+        if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
 
@@ -741,7 +684,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     /*
                      * - Check and return if the returned data is a valid table - i.e. an array of simple json objects.
                      */
-                    objectMapper.readValue(body, new TypeReference<ArrayList<HashMap<String, String>>>() {});
+                    objectMapper.readValue(body, new TypeReference<ArrayList<HashMap<String, String>>>() {
+                    });
                     return new ParsedDataType(ActionResultDataType.TABLE);
                 } catch (JsonProcessingException e) {
                     return null;
@@ -765,7 +709,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 return new ParsedDataType(ActionResultDataType.RAW);
             default:
                 throw new AppsmithException(
-                    AppsmithError.UNKNOWN_ACTION_RESULT_DATA_TYPE,
+                        AppsmithError.UNKNOWN_ACTION_RESULT_DATA_TYPE,
                         expectedType.toString()
                 );
         }
@@ -905,6 +849,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     public Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission) {
         return repository.findByUnpublishedNameAndPageId(name, pageId, permission)
                 .flatMap(action -> generateActionByViewMode(action, false));
+    }
+
+    @Override
+    public Mono<ActionDTO> findActionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission) {
+        return this.findById(id, permission)
+                .flatMap(action -> generateActionByViewMode(action, viewMode));
     }
 
     @Override
