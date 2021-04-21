@@ -23,7 +23,7 @@ const BlankStateWrapper = styled.div`
 export const BlankState = (props: { hasShortCut?: boolean }) => {
   return (
     <BlankStateWrapper>
-      {!!props.hasShortCut ? (
+      {props.hasShortCut ? (
         <span>
           🎉 Press <span className="debugger-shortcut">Cmd + D</span> to open
           the debugger
