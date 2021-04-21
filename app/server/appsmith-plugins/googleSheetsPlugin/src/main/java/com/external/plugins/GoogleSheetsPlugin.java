@@ -60,7 +60,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             final Method method = CollectionUtils.isEmpty(properties)
                     ? null
-                    : GoogleSheetsMethodStrategy.getMethod(properties.get(0).getValue(), objectMapper);
+                    : GoogleSheetsMethodStrategy.getMethod((String) properties.get(0).getValue(), objectMapper);
 
             if (method == null) {
                 return Mono.error(new AppsmithPluginException(

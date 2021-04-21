@@ -38,9 +38,10 @@ public class MethodConfig {
 
     public MethodConfig(List<Property> propertyList) {
         propertyList.stream().parallel().forEach(property -> {
+            String propertyValue = String.valueOf(property.getValue());
             switch (property.getKey()) {
                 case "sheetUrl":
-                    this.spreadsheetUrl = property.getValue();
+                    this.spreadsheetUrl = propertyValue;
                     if (this.spreadsheetUrl != null && !this.spreadsheetUrl.isBlank()) {
                         final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
                         if (matcher.find()) {
@@ -51,37 +52,37 @@ public class MethodConfig {
                     }
                     break;
                 case "range":
-                    this.spreadsheetRange = property.getValue();
+                    this.spreadsheetRange = propertyValue;
                     break;
                 case "spreadsheetName":
-                    this.spreadsheetName = property.getValue();
+                    this.spreadsheetName = propertyValue;
                     break;
                 case "tableHeaderIndex":
-                    this.tableHeaderIndex = property.getValue();
+                    this.tableHeaderIndex = propertyValue;
                     break;
                 case "queryFormat":
-                    this.queryFormat = property.getValue();
+                    this.queryFormat = propertyValue;
                     break;
                 case "rowLimit":
-                    this.rowLimit = property.getValue();
+                    this.rowLimit = propertyValue;
                     break;
                 case "rowOffset":
-                    this.rowOffset = property.getValue();
+                    this.rowOffset = propertyValue;
                     break;
                 case "rowIndex":
-                    this.rowIndex = property.getValue();
+                    this.rowIndex = propertyValue;
                     break;
                 case "sheetName":
-                    this.sheetName = property.getValue();
+                    this.sheetName = propertyValue;
                     break;
                 case "deleteFormat":
-                    this.deleteFormat = property.getValue();
+                    this.deleteFormat = propertyValue;
                     break;
                 case "rowObject":
-                    this.rowObject = property.getValue();
+                    this.rowObject = propertyValue;
                     break;
                 case "rowObjects":
-                    this.rowObjects = property.getValue();
+                    this.rowObjects = propertyValue;
                     break;
             }
         });
