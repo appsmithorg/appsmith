@@ -106,9 +106,10 @@ public class DatasourceStructure {
         String body;
     }
 
-    ErrorDTO error = new ErrorDTO();
+    ErrorDTO error;
 
     public void setErrorInfo(Throwable error) {
+        this.error = new ErrorDTO();
         this.error.setMessage(error.getMessage());
 
         if (error instanceof BaseException) {
