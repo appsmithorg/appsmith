@@ -48,17 +48,14 @@ export const SeverityIconColor: Record<Severity, string> = {
 };
 
 export const useFilteredLogs = (query: string, filter?: any) => {
-  const logs = useSelector((state: AppState) => state.ui.debugger.logs);
-  let filteredLogs = [...logs];
+  let logs = useSelector((state: AppState) => state.ui.debugger.logs);
 
   if (filter) {
-    filteredLogs = filteredLogs.filter(
-      (log: Message) => log.severity === filter,
-    );
+    logs = logs.filter((log: Message) => log.severity === filter);
   }
 
   if (query) {
-    filteredLogs = filteredLogs.filter((log: Message) => {
+    logs = logs.filter((log: Message) => {
       if (log.source?.name)
         return (
           log.source?.name.toUpperCase().indexOf(query.toUpperCase()) !== -1
@@ -66,7 +63,7 @@ export const useFilteredLogs = (query: string, filter?: any) => {
     });
   }
 
-  return filteredLogs;
+  return logs;
 };
 
 export const usePagination = (data: Message[], itemsPerPage = 50) => {
