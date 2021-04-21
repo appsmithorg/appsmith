@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
+import com.appsmith.external.exceptions.ErrorDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -105,14 +106,13 @@ public class DatasourceStructure {
         String body;
     }
 
-    String errorMessage;
-    String errorStatusCode;
+    ErrorDTO error = new ErrorDTO();
 
     public void setErrorInfo(Throwable error) {
-        this.errorMessage = error.getMessage();
+        this.error.setMessage(error.getMessage());
 
         if (error instanceof BaseException) {
-            this.errorStatusCode = ((BaseException)error).getAppErrorCode().toString();
+            this.error.setCode(((BaseException)error).getAppErrorCode());
         }
     }
 }
