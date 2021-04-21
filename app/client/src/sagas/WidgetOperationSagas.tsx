@@ -113,7 +113,10 @@ import {
   WIDGET_DELETE,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
 } from "constants/messages";
-import { handleSpecificCasesWhilePasting } from "./WidgetOperationUtils";
+import {
+  doesTriggerPathsContainPropertyPath,
+  handleSpecificCasesWhilePasting,
+} from "./WidgetOperationUtils";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -919,15 +922,11 @@ function getPropertiesToUpdate(
       propertyPath,
     );
 
-    if (!isTriggerProperty) {
-      if (
-        triggerPaths &&
-        triggerPaths.length &&
-        triggerPaths.includes(propertyPath)
-      ) {
-        isTriggerProperty = true;
-      }
-    }
+    isTriggerProperty = doesTriggerPathsContainPropertyPath(
+      isTriggerProperty,
+      propertyPath,
+      triggerPaths,
+    );
 
     // If it is a trigger property, it will go in a different list than the general
     // dynamicBindingPathList.

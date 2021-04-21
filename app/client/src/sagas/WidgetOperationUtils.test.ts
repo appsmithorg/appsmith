@@ -2,9 +2,30 @@ import { get } from "lodash";
 import {
   handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
+  doesTriggerPathsContainPropertyPath,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {
+  it("should returns widgets after executing handleIfParentIsListWidgetWhilePasting", async () => {
+    expect(
+      doesTriggerPathsContainPropertyPath(false, "trigger-path-1", [
+        "trigger-path-1",
+      ]),
+    ).toBe(true);
+
+    expect(
+      doesTriggerPathsContainPropertyPath(false, "trigger-path-1", [
+        "trigger-path-2",
+      ]),
+    ).toBe(false);
+
+    expect(
+      doesTriggerPathsContainPropertyPath(true, "trigger-path-1", [
+        "trigger-path-2",
+      ]),
+    ).toBe(true);
+  });
+
   it("should returns widgets after executing handleIfParentIsListWidgetWhilePasting", async () => {
     const result = handleIfParentIsListWidgetWhilePasting(
       {

@@ -7,6 +7,32 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
 /**
+ * checks if triggerpaths contains property path passed
+ *
+ * @param isTriggerProperty
+ * @param propertyPath
+ * @param triggerPaths
+ * @returns
+ */
+export const doesTriggerPathsContainPropertyPath = (
+  isTriggerProperty: boolean,
+  propertyPath: string,
+  triggerPaths?: string[],
+) => {
+  if (!isTriggerProperty) {
+    if (
+      triggerPaths &&
+      triggerPaths.length &&
+      triggerPaths.includes(propertyPath)
+    ) {
+      return true;
+    }
+  }
+
+  return isTriggerProperty;
+};
+
+/**
  *
  * check if copied widget is being pasted in list widget,
  * if yes, change all keys in template of list widget and
