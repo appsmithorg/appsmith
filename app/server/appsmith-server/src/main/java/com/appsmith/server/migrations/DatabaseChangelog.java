@@ -2136,11 +2136,16 @@ public class DatabaseChangelog {
         // Migrate actions where smart substitution is turned on
         mongoOperations.updateMulti(
                 query(where("_id").in(smartSubTurnedOn)),
-                new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates[0].value", true),
+                new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", true),
                 NewAction.class
         );
 
         // Migrate actions where smart substitution is turned off
+        mongoOperations.updateMulti(
+                query(where("_id").in(smartSubTurnedOff)),
+                new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", false),
+                NewAction.class
+        );
 
     }
 }
