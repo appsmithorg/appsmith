@@ -41,6 +41,16 @@ class TabsMigratorWidget extends BaseWidget<
             isTriggerProperty: false,
           },
           {
+            propertyName: "defaultTab",
+            helpText: "Selects a tab name specified by default",
+            placeholderText: "Enter tab name",
+            label: "Default Tab",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.SELECTED_TAB,
+          },
+          {
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
             controlType: "SWITCH",
@@ -76,18 +86,20 @@ class TabsMigratorWidget extends BaseWidget<
     ];
   }
   componentDidMount() {
-    const tabsDsl = cloneDeep(this.props);
-    const migratedTabsDsl = migrateTabsData(tabsDsl);
-    this.batchUpdateWidgetProperty({
-      modify: {
-        tabsObj: migratedTabsDsl.tabsObj,
-        type: WidgetTypes.TABS_WIDGET,
-        version: 2,
-        dynamicPropertyPathList: migratedTabsDsl.dynamicPropertyPathList,
-        dynamicBindingPathList: migratedTabsDsl.dynamicBindingPathList,
-      },
-      remove: ["tabs"],
-    });
+    if (this.props.evaluatedValues) {
+      const tabsDsl = cloneDeep(this.props);
+      const migratedTabsDsl = migrateTabsData(tabsDsl);
+      this.batchUpdateWidgetProperty({
+        modify: {
+          tabsObj: migratedTabsDsl.tabsObj,
+          type: WidgetTypes.TABS_WIDGET,
+          version: 2,
+          dynamicPropertyPathList: migratedTabsDsl.dynamicPropertyPathList,
+          dynamicBindingPathList: migratedTabsDsl.dynamicBindingPathList,
+        },
+        remove: ["tabs"],
+      });
+    }
   }
   getWidgetType(): WidgetType {
     return "TABS_MIGRATOR_WIDGET";

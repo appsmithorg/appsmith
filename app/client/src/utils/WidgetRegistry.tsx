@@ -100,7 +100,9 @@ import SwitchWidget, {
   ProfiledSwitchWidget,
   SwitchWidgetProps,
 } from "widgets/SwitchWidget";
-import { ProfiledTabsMigratorWidget } from "widgets/Tabs/TabsMigrator";
+import TabsMigratorWidget, {
+  ProfiledTabsMigratorWidget,
+} from "widgets/Tabs/TabsMigrator";
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -306,10 +308,10 @@ export default class WidgetBuilderRegistry {
           return <ProfiledTabsMigratorWidget {...widgetProps} />;
         },
       },
-      TabsWidget.getDerivedPropertiesMap(),
-      TabsWidget.getDefaultPropertiesMap(),
-      TabsWidget.getMetaPropertiesMap(),
-      TabsWidget.getPropertyPaneConfig(),
+      TabsMigratorWidget.getDerivedPropertiesMap(),
+      TabsMigratorWidget.getDefaultPropertiesMap(),
+      TabsMigratorWidget.getMetaPropertiesMap(),
+      TabsMigratorWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.MODAL_WIDGET,
