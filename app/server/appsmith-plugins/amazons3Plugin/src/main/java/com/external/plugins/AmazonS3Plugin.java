@@ -56,6 +56,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
+
 public class AmazonS3Plugin extends BasePlugin {
 
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
@@ -256,6 +258,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
             final String[] query = new String[1];
             Map<String, Object> requestProperties = new HashMap<>();
+            List<HashMap> requestParams = new ArrayList<>();
 
 
             return Mono.fromCallable(() -> {
@@ -318,6 +321,13 @@ public class AmazonS3Plugin extends BasePlugin {
                 AmazonS3Action s3Action = AmazonS3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
                 query[0] = s3Action.name();
 
+                requestParams.add(
+                        new HashMap() {{
+                            put("configProperty", "actionConfiguration.pluginSpecifiedTemplates[0].value");
+                            put(KEY_VALUE, properties.get(ACTION_PROPERTY_INDEX).getValue());
+                        }}
+                );
+
                 if (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
                         || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
                     return Mono.error(
@@ -331,6 +341,12 @@ public class AmazonS3Plugin extends BasePlugin {
 
                 final String bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
                 requestProperties.put("bucket", bucketName == null ? "" : bucketName);
+                requestParams.add(
+                        new HashMap() {{
+                            put("configProperty", "actionConfiguration.pluginSpecifiedTemplates[1].value");
+                            put(KEY_VALUE, bucketName);
+                        }}
+                );
 
                 if (StringUtils.isEmpty(bucketName)) {
                     return Mono.error(
@@ -549,6 +565,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setQuery(query[0]);
                         actionExecutionRequest.setProperties(requestProperties);
+                        actionExecutionRequest.setRequestParams(requestParams);
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         return actionExecutionResult;
                     })

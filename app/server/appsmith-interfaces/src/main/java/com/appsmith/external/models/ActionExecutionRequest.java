@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.http.HttpMethod;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,4 +24,5 @@ public class ActionExecutionRequest {
     String url;
     Map<String, ?> properties;
     List<String> executionParameters;
+    List<HashMap> requestParams;
 }

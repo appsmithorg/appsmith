@@ -350,13 +350,35 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<Map> getEditorConfigLabelMap(String pluginId) {
+    public Mono<HashMap> getEditorConfigLabelMap(String pluginId) {
         Mono<Map> formConfig = getFormConfig(pluginId);
 
-        formConfig
-                .flatMap(formMap -> {})
+        if (formConfig == null) {
+            return Mono.just(new HashMap());
+        }
 
-        return Mono.empty();
+        return formConfig
+                .flatMap(formMap -> {
+                    if (formMap == null) {
+                        return Mono.just(new HashMap<>());
+                    }
+
+                    HashMap labelMap = new HashMap();
+                    ArrayList editorMap = (ArrayList) formMap.get("editor");
+                    editorMap.stream()
+                            .map(item -> ((Map) item).get("children"))
+                            .forEach(item ->
+                                ((ArrayList) item).stream()
+                                        .forEach(queryField -> labelMap.putAll(
+                                                Map.of(
+                                                        ((Map) queryField).get("configProperty"),
+                                                        ((Map) queryField).get("label"))
+                                                )
+                                        )
+                            );
+
+                    return Mono.just(labelMap);
+                });
     }
 
     private Mono<Map<String, String>> getTemplates(Plugin plugin) {

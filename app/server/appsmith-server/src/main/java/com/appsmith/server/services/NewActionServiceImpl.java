@@ -73,7 +73,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
+import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
+import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -522,7 +526,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
-        Mono<Map> editorConfigLabelMap = datasourceMono
+        Mono<HashMap> editorConfigLabelMap = datasourceMono
                 .flatMap(datasource -> {
                     if (datasource.getId() != null) {
                         return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
@@ -536,17 +540,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .zip(
                         actionDTOMono,
                         datasourceMono,
-                        pluginExecutorMono,
-                        editorConfigLabelMap
+                        pluginExecutorMono
                 )
                 .flatMap(tuple -> {
                     final ActionDTO action = tuple.getT1();
                     final Datasource datasource = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
-                    final Map labelMap = tuple.getT4();
-
-                    // Set the action name
-                    actionName.set(action.getName());
 
                     DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
@@ -637,7 +636,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 });
 
         return actionExecutionResultMono
-                .onErrorResume(AppsmithException.class, error -> {
+               .onErrorResume(AppsmithException.class, error -> {
                     ActionExecutionResult result = new ActionExecutionResult();
                     result.setIsExecutionSuccess(false);
                     result.setStatusCode(error.getAppErrorCode().toString());
@@ -645,12 +644,26 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setTitle(error.getTitle());
                     return Mono.just(result);
                 })
-                .map(result -> {
+                .flatMap(result -> Mono.zip(Mono.just(result), editorConfigLabelMap))
+                .flatMap(tuple -> {
+                    ActionExecutionResult result = tuple.getT1();
                     // In case the action was executed in view mode, do not return the request object
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
                         result.setRequest(null);
+                        return Mono.just(result);
                     }
-                    return result;
+
+                    HashMap labelMap = tuple.getT2();
+                    result.getRequest().getRequestParams().stream()
+                            .forEach(item -> {
+                                item.put(KEY_TYPE, item.get(KEY_VALUE) != null ?
+                                        getActionResultDataTypes(item.get(KEY_VALUE).toString()) :
+                                        new ArrayList<>());
+                                item.put(KEY_LABEL, labelMap.get(item.get("configProperty")));
+                                item.remove("configProperty");
+                            });
+
+                    return Mono.just(result);
                 })
                 .map(result -> addDataTypes(result));
     }
@@ -752,7 +765,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     actionExecutionRequest.getHttpMethod(),
                     actionExecutionRequest.getUrl(),
                     actionExecutionRequest.getProperties(),
-                    actionExecutionRequest.getExecutionParameters()
+                    actionExecutionRequest.getExecutionParameters(),
+                    null
             );
         } else {
             request = new ActionExecutionRequest();

@@ -7,6 +7,7 @@ import com.appsmith.server.dtos.PluginOrgDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public interface PluginService extends CrudService<Plugin, String> {
@@ -29,5 +30,5 @@ public interface PluginService extends CrudService<Plugin, String> {
 
     Mono<Map> loadPluginResource(String pluginId, String resourcePath);
 
-    Mono<Map> getEditorConfigLabelMap(String pluginId);
+    Mono<HashMap> getEditorConfigLabelMap(String pluginId);
 }
