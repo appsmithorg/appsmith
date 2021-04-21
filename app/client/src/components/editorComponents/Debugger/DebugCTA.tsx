@@ -6,14 +6,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { Variant } from "components/ads/common";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const StyledButton = styled(Button)`
   width: fit-content;
   margin-top: 4px;
   text-transform: none;
-  font-size: 13px;
   height: 22px;
-  font-weight: normal;
+  ${(props) => getTypographyByKey(props, "p2")}
 `;
 
 type DebugCTAProps = {
@@ -28,18 +28,15 @@ const DebugCTA = (props: DebugCTAProps) => {
 
   if (appMode === "PUBLISHED") return null;
 
-  return (
-    <DebugButton
-      className={props.className}
-      onClick={() => {
-        props.source &&
-          AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-            source: props.source,
-          });
-        dispatch(showDebugger(true));
-      }}
-    />
-  );
+  const onClick = () => {
+    props.source &&
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: props.source,
+      });
+    dispatch(showDebugger(true));
+  };
+
+  return <DebugButton className={props.className} onClick={onClick} />;
 };
 
 type DebugButtonProps = {
