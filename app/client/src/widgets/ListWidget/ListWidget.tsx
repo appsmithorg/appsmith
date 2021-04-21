@@ -16,7 +16,7 @@ import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
-import ListComponent from "./ListComponent";
+import ListComponent, { ListComponentEmpty } from "./ListComponent";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 import { ContainerWidgetProps } from "../ContainerWidget";
 import propertyPaneConfig from "./ListPropertyPaneConfig";
@@ -548,7 +548,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     if (Array.isArray(this.props.items) && this.props.items.length === 0) {
-      return <>Nothing to display</>;
+      return <ListComponentEmpty>No data to display</ListComponentEmpty>;
     }
 
     return (
