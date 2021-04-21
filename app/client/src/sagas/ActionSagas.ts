@@ -441,7 +441,7 @@ function* copyActionSaga(
     }) as Partial<Action>;
     delete copyAction.id;
     const response = yield ActionAPI.createAction(copyAction);
-    const datasources = yield select(getDataSources);
+    const datasources = yield select(getDatasources);
 
     const isValidResponse = yield validateResponse(response);
     const pageName = yield select(getPageNameByPageId, response.data.pageId);
