@@ -123,11 +123,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * @param action
    * @param onComplete
    */
-  onItemClick = (
-    rowIndex: number,
-    action: string | undefined,
-    onComplete: () => void,
-  ) => {
+  onItemClick = (rowIndex: number, action: string | undefined) => {
     // setting selectedItemIndex on click of container
     const selectedItemIndex = isNumber(this.props.selectedItemIndex)
       ? this.props.selectedItemIndex
@@ -155,7 +151,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         dynamicString: modifiedAction,
         event: {
           type: EventType.ON_CLICK,
-          callback: onComplete,
         },
         responseData: rowData,
       });
@@ -320,7 +315,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
         if (this.props.renderMode === RenderModes.CANVAS) {
           set(widget, `resizeDisabled`, true);
-          set(widget, `settingsControlDisabled`, true);
+          set(widget, `disablePropertyPane`, true);
           set(widget, `dragDisabled`, true);
           set(widget, `dropDisabled`, true);
         }
@@ -406,10 +401,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
       return {
         ...child,
-        onClick: () =>
-          this.onItemClick(index, this.props.onListItemClick, () => {
-            //
-          }),
+        onClick: () => this.onItemClick(index, this.props.onListItemClick),
       };
     });
   };

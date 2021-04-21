@@ -1,32 +1,18 @@
 import React from "react";
-import { map, sortBy, compact, get } from "lodash";
-import {
-  ListChildComponentProps,
-  VariableSizeList as List,
-} from "react-window";
+import * as Sentry from "@sentry/react";
+import { map, sortBy, compact } from "lodash";
 
-import ContainerComponent, {
-  ContainerStyle,
-} from "components/designSystems/appsmith/ContainerComponent";
-import {
-  RenderModes,
-  WidgetType,
-  WidgetTypes,
-} from "constants/WidgetConstants";
-import WidgetFactory from "utils/WidgetFactory";
 import {
   GridDefaults,
   CONTAINER_GRID_PADDING,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-
+import WidgetFactory from "utils/WidgetFactory";
+import ContainerComponent, {
+  ContainerStyle,
+} from "components/designSystems/appsmith/ContainerComponent";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import * as Sentry from "@sentry/react";
-
-export interface StickyListContextInterface {
-  stickyIndices: number[];
-  ItemRenderer: any;
-}
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -110,17 +96,6 @@ class ContainerWidget extends BaseWidget<
   }
 
   renderChildren = () => {
-    const isVirtualized = this.props.virtualizedEnabled;
-
-    // if container is virtualized, render a virtualized list
-    if (isVirtualized && false) {
-      if (this.props.renderMode !== RenderModes.CANVAS) {
-        return this.renderVirtualizedContainer();
-      } else {
-        return this.renderVirtualizedTemplate();
-      }
-    }
-
     return map(
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
@@ -128,56 +103,6 @@ class ContainerWidget extends BaseWidget<
       sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
     );
-  };
-
-  renderVirtualizedTemplate = () => {
-    const firstChild = get(this.props, "children[0]");
-    return this.renderChildWidget(firstChild);
-  };
-
-  /**
-   * creates a virtualized list component using react-window's VariableList
-   *
-   * @param props
-   */
-  renderVirtualizedContainer = () => {
-    const { componentWidth } = this.getComponentDimensions();
-    const snapSpaces = this.getSnapSpaces();
-    const children = get(this.props, "children", []);
-
-    const Row = (childProps: ListChildComponentProps) => {
-      const row = this.renderChildWidget(children[childProps.index]);
-
-      return <>{row}</>;
-    };
-
-    const virtualizedContainerHeight =
-      this.props.componentHeight || this.props.minHeight;
-
-    const getItemSize = (index: number) => {
-      const child = children[index];
-      const isLast = children.length === index + 1;
-
-      const itemSize =
-        (child.bottomRow - child.topRow + (isLast ? 0 : parseInt(child.gap))) *
-        snapSpaces.snapRowSpace;
-
-      return itemSize;
-    };
-
-    const VirtualizedList = () => (
-      <List
-        height={virtualizedContainerHeight}
-        itemCount={children.length}
-        itemSize={getItemSize}
-        width={componentWidth - 20}
-        className="appsmith-virtualized-container"
-      >
-        {Row}
-      </List>
-    );
-
-    return <VirtualizedList />;
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {

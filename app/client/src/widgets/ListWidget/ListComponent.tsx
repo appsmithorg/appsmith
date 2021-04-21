@@ -1,6 +1,6 @@
 import { Color } from "constants/Colors";
 import styled from "styled-components";
-import React, { RefObject, ReactNode } from "react";
+import React, { RefObject, ReactNode, useMemo } from "react";
 
 import { ListWidgetProps } from "./ListWidget";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -33,15 +33,16 @@ const ScrollableCanvasWrapper = styled.div<
 `;
 
 const ListComponent = (props: GridComponentProps) => {
-  const { ...remainingProps } = props;
+  // using memoized class name
+  const scrollableCanvasClassName = useMemo(() => {
+    return `${
+      props.shouldScrollContents ? `${getCanvasClassName()}` : ""
+    } ${generateClassName(props.widgetId)}`;
+  }, [props.widgetId]);
 
   return (
-    <GridContainer {...remainingProps}>
-      <ScrollableCanvasWrapper
-        className={`${
-          props.shouldScrollContents ? `${getCanvasClassName()}` : ""
-        } ${generateClassName(props.widgetId)}`}
-      >
+    <GridContainer {...props}>
+      <ScrollableCanvasWrapper className={scrollableCanvasClassName}>
         {props.children}
       </ScrollableCanvasWrapper>
     </GridContainer>

@@ -251,7 +251,7 @@ export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
 export const ERROR_WIDGET_COPY_NOT_ALLOWED = () =>
-  `The selected widget is not allowed for copy.`;
+  `This selected widget cannot be copied.`;
 export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName}`;
 export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;

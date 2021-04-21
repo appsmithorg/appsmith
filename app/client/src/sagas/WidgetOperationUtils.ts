@@ -101,7 +101,6 @@ export const handleSpecificCasesWhilePasting = (
   widgetNameMap: Record<string, string>,
   newWidgetList: FlattenedWidgetProps[],
 ) => {
-  console.log({ widget, widgets, widgetNameMap, newWidgetList });
   // this is the case when whole list widget is copied and pasted
   if (widget.type === WidgetTypes.LIST_WIDGET) {
     Object.keys(widget.template).map((widgetName) => {

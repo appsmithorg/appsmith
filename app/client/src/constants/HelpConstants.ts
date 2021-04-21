@@ -104,8 +104,8 @@ export const HelpMap = {
     searchKey: "Connecting to databases",
   },
   LIST_WIDGET: {
-    path: "",
-    searchKey: "",
+    path: "/widget-reference/list",
+    searchKey: "List",
   },
   SWITCH_WIDGET: {
     path: "/widget-reference/switch",

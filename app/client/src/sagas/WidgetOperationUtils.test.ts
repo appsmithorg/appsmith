@@ -23,7 +23,7 @@ describe("WidgetOperationSaga", () => {
         items: [],
         text: "{{currentItem.text}}",
         version: 16,
-        settingsControlDisabled: false,
+        disablePropertyPane: false,
       },
       {
         list1: {
@@ -41,7 +41,7 @@ describe("WidgetOperationSaga", () => {
           isLoading: false,
           items: [],
           version: 16,
-          settingsControlDisabled: false,
+          disablePropertyPane: false,
           template: {},
         },
         0: {
@@ -60,7 +60,7 @@ describe("WidgetOperationSaga", () => {
           isLoading: false,
           items: [],
           version: 16,
-          settingsControlDisabled: false,
+          disablePropertyPane: false,
           template: {},
         },
       },
@@ -92,7 +92,7 @@ describe("WidgetOperationSaga", () => {
         items: [],
         text: "{{currentItem.text}}",
         version: 16,
-        settingsControlDisabled: false,
+        disablePropertyPane: false,
       },
       {
         list1: {
@@ -110,7 +110,7 @@ describe("WidgetOperationSaga", () => {
           isLoading: false,
           items: [],
           version: 16,
-          settingsControlDisabled: false,
+          disablePropertyPane: false,
           template: {},
         },
         0: {
@@ -129,7 +129,7 @@ describe("WidgetOperationSaga", () => {
           isLoading: false,
           items: [],
           version: 16,
-          settingsControlDisabled: false,
+          disablePropertyPane: false,
           template: {},
         },
         list2: {
@@ -147,7 +147,7 @@ describe("WidgetOperationSaga", () => {
           isLoading: false,
           items: [],
           version: 16,
-          settingsControlDisabled: false,
+          disablePropertyPane: false,
           template: {},
         },
       },
@@ -170,7 +170,7 @@ describe("WidgetOperationSaga", () => {
           isLoading: false,
           items: [],
           version: 16,
-          settingsControlDisabled: false,
+          disablePropertyPane: false,
           template: {},
         },
       ],

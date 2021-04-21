@@ -32,9 +32,8 @@ import Indicator from "components/editorComponents/Onboarding/Indicator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 import {
-  useChildWidgetEnhancementFn,
+  useChildWidgetEnhancementFns,
   useParentWithEnhancementFn,
-  WidgetEnhancementType,
 } from "sagas/WidgetEnhancementHelpers";
 
 type Props = PropertyPaneControlConfig & {
@@ -50,22 +49,12 @@ const PropertyControl = memo((props: Props) => {
   );
 
   /** get all child enhancments functions */
-  const childWidgetPropertyUpdateEnhancementFn = useChildWidgetEnhancementFn(
-    widgetProperties.widgetId,
-    WidgetEnhancementType.PROPERTY_UPDATE,
-  );
-  const childWidgetAutoCompleteEnhancementFn = useChildWidgetEnhancementFn(
-    widgetProperties.widgetId,
-    WidgetEnhancementType.AUTOCOMPLETE,
-  );
-  const childWidgetCustomJSControlEnhancementFn = useChildWidgetEnhancementFn(
-    widgetProperties.widgetId,
-    WidgetEnhancementType.CUSTOM_CONTROL,
-  );
-  const childWidgetHideEvaluatedValueEnhancementFn = useChildWidgetEnhancementFn(
-    widgetProperties.widgetId,
-    WidgetEnhancementType.HIDE_EVALUATED_VALUE,
-  );
+  const {
+    propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
+    autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
+    customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
+    hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
+  } = useChildWidgetEnhancementFns(widgetProperties.widgetId);
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
@@ -154,7 +143,6 @@ const PropertyControl = memo((props: Props) => {
       // enhancements are basically group of functions that are called before widget propety
       // is changed on propertypane. For e.g - set/update parent property
       if (childWidgetPropertyUpdateEnhancementFn) {
-        // TODO: Concat if exists, else replace
         const hookPropertiesUpdates = childWidgetPropertyUpdateEnhancementFn(
           widgetProperties.widgetName,
           propertyName,

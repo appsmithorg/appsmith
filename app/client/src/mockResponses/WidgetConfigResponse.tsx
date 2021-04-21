@@ -536,7 +536,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             const modifiedAction = jsSnippets.reduce(
               (prev: string, next: string) => {
-                return prev + `${next}`;
+                return `${prev}${next}`;
               },
               "",
             );
@@ -606,7 +606,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canExtend: false,
               detachFromLayout: true,
               dropDisabled: true,
-              virtualizedEnabled: true,
               noPad: true,
               children: [],
               blueprint: {
@@ -621,8 +620,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       dragDisabled: true,
                       isDeletable: false,
                       disallowCopy: true,
-                      paddingEnabled: false,
-                      settingsControlDisabled: true,
+                      disablePropertyPane: true,
                       children: [],
                       blueprint: {
                         view: [
@@ -657,7 +655,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                   },
                                   {
                                     type: "TEXT_WIDGET",
-                                    size: { rows: 1, cols: 12 },
+                                    size: { rows: 1, cols: 6 },
                                     position: { top: 0, left: 4 },
                                     props: {
                                       text: "{{currentItem.name}}",
@@ -673,7 +671,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                   },
                                   {
                                     type: "TEXT_WIDGET",
-                                    size: { rows: 1, cols: 12 },
+                                    size: { rows: 1, cols: 6 },
                                     position: { top: 1, left: 4 },
                                     props: {
                                       text: "{{currentItem.num}}",

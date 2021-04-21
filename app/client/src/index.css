@@ -102,28 +102,3 @@ div.bp3-popover-arrow {
   background: white !important;
   border-bottom: 1px solid #E7E7E7 !important;
 }
-
-.sticky {
-  position: sticky !important;
-  position: -webkit-sticky;
-  z-index: 2;
-  width: 100%;
-  top: 0;
-}
-
-.appsmith-virtualized-container::-webkit-scrollbar {
-  width: 5px;
-  height: 0px;
-  border-radius: 10px;
-  background-color: #e1e1e1; /* or add it to the track */
-}
-
-.appsmith-virtualized-container::-webkit-scrollbar-thumb {
-  background: #b2b2b2;
-  border-radius: 10px;
-}
-
-.appsmith-virtualized-container {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: 5px;  /* Firefox */
-}

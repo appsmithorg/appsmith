@@ -42,7 +42,7 @@ describe("<ListWidget />", () => {
       isLoading: false,
       items: [],
       version: 16,
-      settingsControlDisabled: false,
+      disablePropertyPane: false,
       ...props,
     };
     // Mock store to bypass the error of react-redux

@@ -2,7 +2,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetType,
 } from "constants/WidgetConstants";
-import { get } from "lodash";
+import { get, set } from "lodash";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -157,4 +157,65 @@ export function useChildWidgetEnhancementFn(
         enhancementFn(parentDataFromDataTree, ...args);
     }
   }
+}
+
+type EnhancmentFns = {
+  propertyPaneEnhancmentFn: any;
+  autoCompleteEnhancementFn: any;
+  customJSControlEnhancementFn: any;
+  hideEvaluatedValueEnhancementFn: any;
+};
+
+export function useChildWidgetEnhancementFns(widgetId: string): EnhancmentFns {
+  const enhancmentFns = {
+    propertyPaneEnhancmentFn: undefined,
+    autoCompleteEnhancementFn: undefined,
+    customJSControlEnhancementFn: undefined,
+    hideEvaluatedValueEnhancementFn: undefined,
+  };
+
+  // Get all widgets from the canvas
+  const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
+  // Get the parent which wants to enhance this widget
+  const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, widgets);
+  // If such a parent is found
+  // Get the parent's evaluated data from the evaluatedTree
+  const parentDataFromDataTree: unknown = useSelector((state: AppState) =>
+    getPropsFromTree(state, parentWithEnhancementFn?.widgetName),
+  );
+
+  if (parentWithEnhancementFn) {
+    // Get the enhancement function based on the enhancementType
+    // from the configs
+    const widgetEnhancmentFns = {
+      propertyPaneEnhancmentFn: getWidgetEnhancementFn(
+        parentWithEnhancementFn.type,
+        WidgetEnhancementType.PROPERTY_UPDATE,
+      ),
+      autoCompleteEnhancementFn: getWidgetEnhancementFn(
+        parentWithEnhancementFn.type,
+        WidgetEnhancementType.AUTOCOMPLETE,
+      ),
+      customJSControlEnhancementFn: getWidgetEnhancementFn(
+        parentWithEnhancementFn.type,
+        WidgetEnhancementType.CUSTOM_CONTROL,
+      ),
+      hideEvaluatedValueEnhancementFn: getWidgetEnhancementFn(
+        parentWithEnhancementFn.type,
+        WidgetEnhancementType.HIDE_EVALUATED_VALUE,
+      ),
+    };
+
+    Object.keys(widgetEnhancmentFns).map((key: string) => {
+      const enhancementFn = get(widgetEnhancmentFns, `${key}`);
+
+      if (parentDataFromDataTree && enhancementFn) {
+        set(enhancmentFns, `${key}`, (...args: unknown[]) =>
+          enhancementFn(parentDataFromDataTree, ...args),
+        );
+      }
+    });
+  }
+
+  return enhancmentFns;
 }

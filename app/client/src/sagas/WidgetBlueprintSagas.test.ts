@@ -39,7 +39,7 @@ describe("WidgetBlueprintSagas", () => {
           isLoading: false,
           items: [],
           version: 16,
-          settingsControlDisabled: false,
+          disablePropertyPane: false,
         },
       },
       "widgetId",

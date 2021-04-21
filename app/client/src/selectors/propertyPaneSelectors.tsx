@@ -3,6 +3,7 @@ import { AppState } from "reducers";
 import { createSelector } from "reselect";
 
 import { WidgetProps } from "widgets/BaseWidget";
+import { getCanvasWidgets } from "./entitiesSelector";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
@@ -10,9 +11,6 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
-
-export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
-  state.entities.canvasWidgets;
 
 export const getCurrentWidgetId = createSelector(
   getPropertyPaneState,

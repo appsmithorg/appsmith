@@ -179,7 +179,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   }
 
   render() {
-    if (get(this.props, "widgetProperties.settingsControlDisabled")) {
+    if (get(this.props, "widgetProperties.disablePropertyPane")) {
       return null;
     }
 
@@ -224,7 +224,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
     // if settings control is disabled, don't render anything
     // for e.g - this will be true for list widget tempalte container widget
-    if (widgetProperties?.settingsControlDisabled) return <></>;
+    if (widgetProperties?.disablePropertyPane) return <></>;
 
     return (
       <PropertyPaneWrapper
