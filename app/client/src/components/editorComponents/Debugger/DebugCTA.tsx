@@ -42,7 +42,12 @@ const DebugCTA = (props: DebugCTAProps) => {
   );
 };
 
-export const DebugButton = (props: any) => {
+type DebugButtonProps = {
+  className?: string;
+  onClick: () => void;
+};
+
+export const DebugButton = (props: DebugButtonProps) => {
   return (
     <StyledButton
       className={props.className}
