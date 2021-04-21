@@ -149,9 +149,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     const categories: string[] = [];
 
     Object.keys(chartData).forEach((key: string) => {
-      const data: ChartDataPoint[] = get(chartData, `${key}`).data;
+      let data = get(chartData, `${key}.data`, []) as ChartDataPoint[];
 
-      console.log({ data });
+      if (!Array.isArray(data)) {
+        data = [];
+      }
+
       for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
         const category = data[dataIndex].x;
         if (!categories.includes(category)) {
@@ -165,6 +168,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartCategories = (chartData: AllChartData) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
+
     if (categories.length === 0) {
       return [
         {

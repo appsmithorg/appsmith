@@ -1,5 +1,5 @@
 import React from "react";
-import { get, has, isString, set } from "lodash";
+import { get, has, isString } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
@@ -76,13 +76,6 @@ const StyledLabel = styled.label`
 const Box = styled.div`
   height: 16px;
 `;
-
-type ControlValidations = {
-  [key: string]: {
-    isValid: boolean;
-    validationMessage: string;
-  };
-};
 
 type RenderComponentProps = {
   index: string;
@@ -187,61 +180,13 @@ function DataControlComponent(props: RenderComponentProps) {
 }
 
 class ChartDataControl extends BaseControl<ControlProps> {
-  /**
-   * creating objects of validations
-   * {
-   *  'some-random-string':  {
-   *      isValid: false | true,
-   *      validationMessage: messageValue,
-   *    }
-   * }
-   * @param message
-   * @param isValid
-   * @param keys
-   * @returns
-   */
-  getValidations = (message: string, isValid: boolean, keys: string[]) => {
-    const validations: ControlValidations = {};
-    const messages = message.split("##").filter(Boolean);
-
-    // setting error validation message for existing error validations
-    messages.map((key: string) => {
-      const messageSplit = key.split("==");
-      const messageKey = messageSplit[0];
-      const messageValue = messageSplit[1];
-
-      set(validations, `${messageKey}`, {
-        isValid: false,
-        validationMessage: messageValue,
-      });
-    });
-
-    // setting validation message for right values
-    keys
-      .filter((key) => key in validations === false)
-      .map((key: string) => {
-        set(validations, `${key}`, {
-          isValid: true,
-          validationMessage: "",
-        });
-      });
-
-    return validations;
-  };
-
   render() {
     const chartData: AllChartData = isString(this.props.propertyValue)
       ? {}
       : this.props.propertyValue;
 
     const dataLength = Object.keys(chartData).length;
-    const { validationMessage, isValid } = this.props;
-
-    const validations: ControlValidations = this.getValidations(
-      isString(validationMessage) ? validationMessage : "",
-      isValid,
-      Object.keys(chartData),
-    );
+    const { validationMessage } = this.props;
 
     const evaluatedValue = this.props.evaluatedValue;
     const firstKey = Object.keys(chartData)[0] as string;
