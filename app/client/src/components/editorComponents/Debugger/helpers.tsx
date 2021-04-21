@@ -1,5 +1,5 @@
 import { Message, Severity } from "entities/AppsmithConsole";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
@@ -77,17 +77,17 @@ export const usePagination = (data: Message[], itemsPerPage = 50) => {
     setPaginatedData(data);
   }, [currentPage, data.length]);
 
-  function currentData() {
+  const currentData = useCallback(() => {
     const end = currentPage * itemsPerPage;
     return data.slice(0, end);
-  }
+  }, [data]);
 
-  function next() {
+  const next = useCallback(() => {
     setCurrentPage((currentPage) => {
       const newCurrentPage = Math.min(currentPage + 1, maxPage);
       return newCurrentPage <= 0 ? 1 : newCurrentPage;
     });
-  }
+  }, []);
 
   return { next, paginatedData };
 };
