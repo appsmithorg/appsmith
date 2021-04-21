@@ -209,7 +209,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         onDataPointClick: true,
       },
       validationPaths: {
-        "chartData.0.data": "ARRAY",
+        "chartData.0.data": "CHART_SERIES_DATA",
         "chartData.0.seriesName": "TEXT",
         chartName: "TEXT",
         isVisible: "BOOLEAN",
