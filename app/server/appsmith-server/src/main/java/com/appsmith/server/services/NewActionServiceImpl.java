@@ -526,14 +526,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
-        Mono<HashMap> editorConfigLabelMap = datasourceMono
-                .flatMap(datasource -> {
-                    if (datasource.getId() != null) {
-                        return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
-                    }
-
-                    return Mono.just(new HashMap());
-                });
 
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = Mono
@@ -635,6 +627,15 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             );
                 });
 
+        Mono<HashMap> editorConfigLabelMapMono = datasourceMono
+                .flatMap(datasource -> {
+                    if (datasource.getId() != null) {
+                        return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
+                    }
+
+                    return Mono.just(new HashMap());
+                });
+
         return actionExecutionResultMono
                .onErrorResume(AppsmithException.class, error -> {
                     ActionExecutionResult result = new ActionExecutionResult();
@@ -644,7 +645,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setTitle(error.getTitle());
                     return Mono.just(result);
                 })
-                .flatMap(result -> Mono.zip(Mono.just(result), editorConfigLabelMap))
+                .flatMap(result -> Mono.zip(Mono.just(result), editorConfigLabelMapMono))
                 .flatMap(tuple -> {
                     ActionExecutionResult result = tuple.getT1();
                     // In case the action was executed in view mode, do not return the request object
