@@ -320,14 +320,25 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     )
                     .onErrorReturn(new HashMap())
                     .cache();
+            final Mono<Map> dependencyMono = loadPluginResource(pluginId, "dependency.json")
+                    .doOnError(throwable ->
+                            // Remove this pluginId from the cache so it is tried again next time.
+                            formCache.remove(pluginId)
+                    )
+                    .onErrorReturn(new HashMap())
+                    .cache();
 
-            Mono<Map> resourceMono = Mono.zip(formMono, editorMono, settingMono)
+            Mono<Map> resourceMono = Mono.zip(formMono, editorMono, settingMono, dependencyMono)
                     .map(tuple -> {
                         Map formMap = tuple.getT1();
                         Map editorMap = tuple.getT2();
                         Map settingMap = tuple.getT3();
+                        Map dependencyMap = tuple.getT4();
+
                         formMap.putAll(editorMap);
                         formMap.putAll(settingMap);
+                        formMap.putAll(dependencyMap);
+
                         return formMap;
                     });
 

@@ -385,7 +385,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                  *   being set to off by default.
                                  */
                                 AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
-                                return newActionService.createAction(
+                                return layoutActionService.createAction(
                                         action.getUnpublishedAction(),
                                         eventContext
                                 );

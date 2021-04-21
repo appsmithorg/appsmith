@@ -24,6 +24,7 @@ describe("evaluate", () => {
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
     triggerPaths: {},
+    validationPaths: {},
   };
   const dataTree: DataTree = {
     Input1: widget,
