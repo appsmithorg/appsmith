@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.constants.ActionResultDataType;
+import com.appsmith.external.constants.ActionRequestResponseDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -77,7 +77,7 @@ import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
 import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
 import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.external.helpers.PluginUtils.getActionResultDataTypes;
+import static com.appsmith.external.helpers.DataTypeStringUtils.getActionRequestResponseDataTypes;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -627,7 +627,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             );
                 });
 
-        Mono<HashMap> editorConfigLabelMapMono = datasourceMono
+        Mono<Map> editorConfigLabelMapMono = datasourceMono
                 .flatMap(datasource -> {
                     if (datasource.getId() != null) {
                         return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
@@ -645,6 +645,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setTitle(error.getTitle());
                     return Mono.just(result);
                 })
+                // Processing editorConfigLabelMap here because in case execution result returns an error, we
+                // still should be able to return the request params.
                 .flatMap(result -> Mono.zip(Mono.just(result), editorConfigLabelMapMono))
                 .flatMap(tuple -> {
                     ActionExecutionResult result = tuple.getT1();
@@ -654,14 +656,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         return Mono.just(result);
                     }
 
-                    HashMap labelMap = tuple.getT2();
+                    Map labelMap = tuple.getT2();
                     result.getRequest().getRequestParams().stream()
-                            .forEach(item -> {
-                                item.put(KEY_TYPE, item.get(KEY_VALUE) != null ?
-                                        getActionResultDataTypes(item.get(KEY_VALUE).toString()) :
-                                        new ArrayList<>());
-                                item.put(KEY_LABEL, labelMap.get(item.get("configProperty")));
-                                item.remove("configProperty");
+                            .forEach(param -> {
+                                param.setType(param.getValue() != null ?
+                                        getActionRequestResponseDataTypes(param.getValue()) : new ArrayList<>());
+                                param.setLabel((String)labelMap.get(param.getConfigProperty()));
+                                param.setConfigProperty(null);
                             });
 
                     return Mono.just(result);
@@ -684,7 +685,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         List<ParsedDataType> parsedDataTypeList = new ArrayList<>();
-        Stream.of(ActionResultDataType.values())
+        Stream.of(ActionRequestResponseDataType.values())
                 .parallel()
                 .map(type -> {
                     try {
@@ -701,7 +702,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return result;
     }
 
-    private ParsedDataType parseActionResultDataType(String body, ActionResultDataType expectedType) throws AppsmithException {
+    private ParsedDataType parseActionResultDataType(String body, ActionRequestResponseDataType expectedType) throws AppsmithException {
 
         switch (expectedType) {
             case TABLE:
@@ -711,7 +712,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                      */
                     objectMapper.readValue(body, new TypeReference<ArrayList<HashMap<String, String>>>() {
                     });
-                    return new ParsedDataType(ActionResultDataType.TABLE);
+                    return new ParsedDataType(ActionRequestResponseDataType.TABLE);
                 } catch (JsonProcessingException e) {
                     return null;
                 }
@@ -722,7 +723,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                      * - Check and return if the returned data is a valid json.
                      */
                     objectMapper.readTree(body);
-                    return new ParsedDataType(ActionResultDataType.JSON);
+                    return new ParsedDataType(ActionRequestResponseDataType.JSON);
                 } catch (JsonProcessingException e) {
                     return null;
                 }
@@ -731,7 +732,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 /*
                  * - Any data is by default categorized as raw.
                  */
-                return new ParsedDataType(ActionResultDataType.RAW);
+                return new ParsedDataType(ActionRequestResponseDataType.RAW);
             default:
                 throw new AppsmithException(
                         AppsmithError.UNKNOWN_ACTION_RESULT_DATA_TYPE,

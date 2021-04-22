@@ -28,6 +28,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -258,7 +259,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
             final String[] query = new String[1];
             Map<String, Object> requestProperties = new HashMap<>();
-            List<HashMap> requestParams = new ArrayList<>();
+            List<RequestParamDTO> requestParams = new ArrayList<>();
 
 
             return Mono.fromCallable(() -> {
@@ -317,16 +318,11 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-
                 AmazonS3Action s3Action = AmazonS3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
                 query[0] = s3Action.name();
 
-                requestParams.add(
-                        new HashMap() {{
-                            put("configProperty", "actionConfiguration.pluginSpecifiedTemplates[0].value");
-                            put(KEY_VALUE, properties.get(ACTION_PROPERTY_INDEX).getValue());
-                        }}
-                );
+                requestParams.add(new RequestParamDTO("actionConfiguration.pluginSpecifiedTemplates[0].value",
+                        properties.get(ACTION_PROPERTY_INDEX).getValue(), null, null));
 
                 if (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
                         || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
@@ -341,12 +337,8 @@ public class AmazonS3Plugin extends BasePlugin {
 
                 final String bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
                 requestProperties.put("bucket", bucketName == null ? "" : bucketName);
-                requestParams.add(
-                        new HashMap() {{
-                            put("configProperty", "actionConfiguration.pluginSpecifiedTemplates[1].value");
-                            put(KEY_VALUE, bucketName);
-                        }}
-                );
+                requestParams.add(new RequestParamDTO("actionConfiguration.pluginSpecifiedTemplates[1].value",
+                        bucketName, null, null));
 
                 if (StringUtils.isEmpty(bucketName)) {
                     return Mono.error(
@@ -374,7 +366,6 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-
                 if ((s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY || s3Action == AmazonS3Action.READ_FILE ||
                         s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isBlank(path)) {
                     return Mono.error(
@@ -385,7 +376,6 @@ public class AmazonS3Plugin extends BasePlugin {
                             )
                     );
                 }
-
 
                 Object actionResult;
                 switch (s3Action) {

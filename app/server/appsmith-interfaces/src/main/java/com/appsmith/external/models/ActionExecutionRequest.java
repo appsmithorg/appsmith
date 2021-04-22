@@ -24,5 +24,5 @@ public class ActionExecutionRequest {
     String url;
     Map<String, ?> properties;
     List<String> executionParameters;
-    List<HashMap> requestParams;
+    List<RequestParamDTO> requestParams;
 }

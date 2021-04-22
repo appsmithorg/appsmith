@@ -350,35 +350,39 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<HashMap> getEditorConfigLabelMap(String pluginId) {
+    public Mono<Map> getEditorConfigLabelMap(String pluginId) {
+        if (labelCache.containsKey(pluginId)) {
+            return labelCache.get(pluginId);
+        }
+
         Mono<Map> formConfig = getFormConfig(pluginId);
 
         if (formConfig == null) {
             return Mono.just(new HashMap());
         }
 
-        return formConfig
+        Mono<Map> labelMapMono = formConfig
                 .flatMap(formMap -> {
-                    if (formMap == null) {
-                        return Mono.just(new HashMap<>());
-                    }
-
-                    HashMap labelMap = new HashMap();
-                    ArrayList editorMap = (ArrayList) formMap.get("editor");
+                    Map labelMap = new HashMap();
+                    List editorMap = (List) formMap.get("editor"); // TODO: remove magic string
                     editorMap.stream()
                             .map(item -> ((Map) item).get("children"))
                             .forEach(item ->
-                                ((ArrayList) item).stream()
-                                        .forEach(queryField -> labelMap.putAll(
-                                                Map.of(
-                                                        ((Map) queryField).get("configProperty"),
-                                                        ((Map) queryField).get("label"))
-                                                )
-                                        )
+                                    ((List) item).stream()
+                                            .forEach(queryField -> labelMap.putAll(
+                                                    Map.of(
+                                                            ((Map) queryField).get("configProperty"),
+                                                            ((Map) queryField).get("label"))
+                                                    )
+                                            )
                             );
 
                     return Mono.just(labelMap);
                 });
+
+        labelCache.put(pluginId, labelMapMono);
+
+        return labelMapMono;
     }
 
     private Mono<Map<String, String>> getTemplates(Plugin plugin) {
