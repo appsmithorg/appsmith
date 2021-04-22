@@ -582,9 +582,9 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 16;
   }
 
-  if (currentDSL.version) {
+  if (currentDSL.version === 16) {
     currentDSL = migrateTabsDataUsingMigrator(currentDSL);
-    currentDSL.version = 18;
+    currentDSL.version = 17;
   }
 
   return currentDSL;
