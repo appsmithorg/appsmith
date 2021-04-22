@@ -67,6 +67,14 @@ const defaultColumn = {
   width: 150,
 };
 
+const ScrollbarVerticalThumb = (props: any) => (
+  <div {...props} className="thumb-vertical" />
+);
+
+const ScrollbarHorizontalThumb = (props: any) => (
+  <div {...props} className="thumb-horizontal" />
+);
+
 export const Table = (props: TableProps) => {
   const isResizingColumn = React.useRef(false);
 
@@ -93,6 +101,13 @@ export const Table = (props: TableProps) => {
     columnSizeMap: props.columnSizeMap,
   });
   const columns = React.useMemo(() => props.columns, [columnString]);
+  const tableHeadercolumns = React.useMemo(
+    () =>
+      props.columns.filter((column: ReactTableColumnProps) => {
+        return column.accessor !== "actions";
+      }),
+    [columnString],
+  );
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
@@ -164,12 +179,8 @@ export const Table = (props: TableProps) => {
       >
         <Scrollbars
           style={{ width: props.width, height: 38 }}
-          renderThumbHorizontal={(props) => (
-            <div {...props} className="thumb-horizontal" />
-          )}
-          renderThumbVertical={(props) => (
-            <div {...props} className="thumb-vertical" />
-          )}
+          renderThumbHorizontal={ScrollbarHorizontalThumb}
+          renderThumbVertical={ScrollbarVerticalThumb}
         >
           <TableHeaderInnerWrapper
             serverSidePaginationEnabled={props.serverSidePaginationEnabled}
@@ -179,7 +190,7 @@ export const Table = (props: TableProps) => {
           >
             <TableHeader
               tableData={props.data}
-              tableColumns={props.columns}
+              tableColumns={columns}
               searchTableData={props.searchTableData}
               searchKey={props.searchKey}
               updatePageNo={props.updatePageNo}
@@ -191,9 +202,7 @@ export const Table = (props: TableProps) => {
               pageOptions={pageOptions}
               widgetName={props.widgetName}
               serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-              columns={props.columns.filter((column: ReactTableColumnProps) => {
-                return column.accessor !== "actions";
-              })}
+              columns={tableHeadercolumns}
               filters={props.filters}
               applyFilter={props.applyFilter}
               editMode={props.editMode}
@@ -210,9 +219,7 @@ export const Table = (props: TableProps) => {
       >
         <Scrollbars
           style={{ width: props.width, height: props.height - 48 }}
-          renderThumbHorizontal={(props) => (
-            <div {...props} className="thumb-horizontal" />
-          )}
+          renderThumbHorizontal={ScrollbarHorizontalThumb}
         >
           <div {...getTableProps()} className="table">
             <div
