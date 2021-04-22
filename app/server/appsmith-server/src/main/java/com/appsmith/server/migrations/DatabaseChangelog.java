@@ -2134,8 +2134,6 @@ public class DatabaseChangelog {
         List<NewAction> actions = mongoTemplate
                 .find(query(where("pluginId").in(smartSubPlugins)), NewAction.class);
 
-        System.out.println("Number of actions fetched : " + actions.size());
-
         // Find all the action ids where the data migration needs to happen.
         for (NewAction action : actions) {
             ActionDTO unpublishedAction = action.getUnpublishedAction();
