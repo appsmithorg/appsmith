@@ -43,7 +43,6 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -135,7 +134,14 @@ public class RestApiPlugin extends BasePlugin {
 
                 // Since properties is not empty, we are guaranteed to find the first property.
             } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null){
-                smartJsonSubstitution = Boolean.parseBoolean(properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue());
+                Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
+                if (ssubValue instanceof  Boolean) {
+                    smartJsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartJsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartJsonSubstitution = false;
+                }
             } else {
                 smartJsonSubstitution = false;
             }
@@ -300,9 +306,7 @@ public class RestApiPlugin extends BasePlugin {
                 webClientBuilder.filter(apiConnection);
             }
 
-            WebClient client = webClientBuilder
-                    .exchangeStrategies(EXCHANGE_STRATEGIES)
-                    .filter(logRequest()).build();
+            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
             // Triggering the actual REST API call
             return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
@@ -383,14 +387,6 @@ public class RestApiPlugin extends BasePlugin {
                     });
         }
 
-        private static ExchangeFilterFunction logRequest() {
-            return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                log.info("Request: {} {}", clientRequest.method(), clientRequest.url());
-                clientRequest.headers().forEach((name, values) -> values.forEach(value -> System.out.println(name + "=" + value)));
-                return Mono.just(clientRequest);
-            });
-        }
-
         private String getSignatureKey(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
             if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
                 boolean isSendSessionEnabled = false;
@@ -400,7 +396,7 @@ public class RestApiPlugin extends BasePlugin {
                     if (IS_SEND_SESSION_ENABLED_KEY.equals(property.getKey())) {
                         isSendSessionEnabled = "Y".equals(property.getValue());
                     } else if (SESSION_SIGNATURE_KEY_KEY.equals(property.getKey())) {
-                        secretKey = property.getValue();
+                        secretKey = (String) property.getValue();
                     }
                 }
 
@@ -429,7 +425,7 @@ public class RestApiPlugin extends BasePlugin {
             String reqBody = bodyFormData.stream()
                     .map(property -> {
                         String key = property.getKey();
-                        String value = property.getValue();
+                        String value = (String) property.getValue();
 
                         if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                                 && encodeParamsToggle == true) {
@@ -462,7 +458,7 @@ public class RestApiPlugin extends BasePlugin {
             for (Property header : headers) {
                 if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
                     try {
-                        MediaType.valueOf(header.getValue());
+                        MediaType.valueOf((String) header.getValue());
                     } catch (InvalidMediaTypeException e) {
                         return e.getMessage();
                     }
@@ -609,7 +605,7 @@ public class RestApiPlugin extends BasePlugin {
                     if ("isSendSessionEnabled".equals(property.getKey())) {
                         isSendSessionEnabled = "Y".equals(property.getValue());
                     } else if ("sessionSignatureKey".equals(property.getKey())) {
-                        secretKey = property.getValue();
+                        secretKey = (String) property.getValue();
                     }
                 }
 
@@ -647,7 +643,7 @@ public class RestApiPlugin extends BasePlugin {
             for (Property header : headers) {
                 String key = header.getKey();
                 if (StringUtils.isNotEmpty(key)) {
-                    String value = header.getValue();
+                    String value = (String) header.getValue();
                     webClientBuilder.defaultHeader(key, value);
 
                     if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(key)) {
@@ -678,7 +674,7 @@ public class RestApiPlugin extends BasePlugin {
                         if (encodeParamsToggle == true) {
                             uriBuilder.queryParam(
                                     URLEncoder.encode(key, StandardCharsets.UTF_8),
-                                    URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8)
+                                    URLEncoder.encode((String) queryParam.getValue(), StandardCharsets.UTF_8)
                             );
                         } else {
                             uriBuilder.queryParam(
@@ -708,7 +704,7 @@ public class RestApiPlugin extends BasePlugin {
                 MultiValueMap<String, String> reqMultiMap = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
 
                 actionConfiguration.getHeaders().stream()
-                        .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList(header.getValue())));
+                        .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList((String) header.getValue())));
                 actionExecutionRequest.setHeaders(objectMapper.valueToTree(reqMultiMap));
             }
 

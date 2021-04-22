@@ -1409,6 +1409,14 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("readTextDataValidateCSS", (cssProperty, cssValue) => {
+  cy.get(commonlocators.headingTextStyle).should(
+    "have.css",
+    cssProperty,
+    cssValue,
+  );
+});
+
 Cypress.Commands.add("evaluateErrorMessage", (value) => {
   cy.get(commonlocators.evaluateMsg)
     .first()
@@ -1921,7 +1929,7 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
 });
 
 Cypress.Commands.add("runQuery", () => {
-  cy.get(queryEditor.runQuery).click();
+  cy.get(queryEditor.runQuery).click({ force: true });
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.responseMeta.status",
