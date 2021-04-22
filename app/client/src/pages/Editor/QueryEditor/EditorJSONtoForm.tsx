@@ -566,7 +566,10 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
                           An error occurred
                         </Text>
 
-                        <ErrorDescriptionText type={TextType.P1}>
+                        <ErrorDescriptionText
+                          className="t--query-error"
+                          type={TextType.P1}
+                        >
                           {error}
                         </ErrorDescriptionText>
                         <DebuggerMessage
