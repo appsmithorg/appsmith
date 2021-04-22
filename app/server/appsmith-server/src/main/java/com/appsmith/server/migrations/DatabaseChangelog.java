@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
@@ -1768,7 +1769,7 @@ public class DatabaseChangelog {
             mongoTemplate.save(action);
         }
     }
-    
+
     @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
     public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
 
@@ -1897,7 +1898,7 @@ public class DatabaseChangelog {
                 updateTimeout = true;
             }
 
-            if(updateTimeout) {
+            if (updateTimeout) {
                 mongoTemplate.save(action);
             }
         }
@@ -1997,7 +1998,7 @@ public class DatabaseChangelog {
 
         }
     }
-  
+
     @ChangeSet(order = "060", id = "clear-example-apps", author = "")
     public void clearExampleApps(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
@@ -2031,12 +2032,12 @@ public class DatabaseChangelog {
         mysqlAndMongoDatasources
                 .stream()
                 .forEach(datasource -> {
-                    if(datasource.getDatasourceConfiguration() != null) {
-                        if(datasource.getDatasourceConfiguration().getConnection() == null) {
+                    if (datasource.getDatasourceConfiguration() != null) {
+                        if (datasource.getDatasourceConfiguration().getConnection() == null) {
                             datasource.getDatasourceConfiguration().setConnection(new Connection());
                         }
 
-                        if(datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
+                        if (datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
                             datasource.getDatasourceConfiguration().getConnection().setSsl(new SSLDetails());
                         }
 
@@ -2059,31 +2060,31 @@ public class DatabaseChangelog {
         postgresDatasources
                 .stream()
                 .forEach(datasource -> {
-                    if(datasource.getDatasourceConfiguration() != null) {
-                        if(datasource.getDatasourceConfiguration().getConnection() == null) {
+                    if (datasource.getDatasourceConfiguration() != null) {
+                        if (datasource.getDatasourceConfiguration().getConnection() == null) {
                             datasource.getDatasourceConfiguration().setConnection(new Connection());
                         }
 
-                        if(datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
+                        if (datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
                             datasource.getDatasourceConfiguration().getConnection().setSsl(new SSLDetails());
                         }
 
                         SSLDetails.AuthType authType = datasource.getDatasourceConfiguration().getConnection().getSsl().getAuthType();
-                        if(authType == null
+                        if (authType == null
                                 || (!SSLDetails.AuthType.ALLOW.equals(authType)
                                 && !SSLDetails.AuthType.PREFER.equals(authType)
                                 && !SSLDetails.AuthType.REQUIRE.equals(authType)
                                 && !SSLDetails.AuthType.DISABLE.equals(authType))) {
                             datasource.getDatasourceConfiguration().getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
                         }
-                      
+
                         mongoTemplate.save(datasource);
                     }
                 });
     }
 
     @ChangeSet(order = "062", id = "add-google-sheets-plugin", author = "")
-    public void addGoogleSheetsPlugin (MongoTemplate mongoTemplate) {
+    public void addGoogleSheetsPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Google Sheets");
         plugin.setType(PluginType.SAAS);
@@ -2109,5 +2110,82 @@ public class DatabaseChangelog {
                 new JSONObject(Map.of("value", false)),
                 Appsmith.APPSMITH_REGISTERED
         ));
+    }
+
+    @ChangeSet(order = "064", id = "migrate-smartSubstitution-dataType", author = "")
+    public void migrateSmartSubstitutionDataTypeBoolean(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
+        Set<String> smartSubTurnedOn = new HashSet<>();
+        Set<String> smartSubTurnedOff = new HashSet<>();
+        Set<String> noSmartSubConfig = new HashSet<>();
+
+        Set<String> pluginPackages = new HashSet<>();
+        pluginPackages.add("mysql-plugin");
+        pluginPackages.add("restapi-plugin");
+        pluginPackages.add("postgres-plugin");
+        pluginPackages.add("mongo-plugin");
+        pluginPackages.add("mssql-plugin");
+
+        Set<String> smartSubPlugins = mongoTemplate
+                .find(query(where("packageName").in(pluginPackages)), Plugin.class)
+                .stream()
+                .map(plugin -> plugin.getId())
+                .collect(Collectors.toSet());
+
+        List<NewAction> actions = mongoTemplate
+                .find(query(where("pluginId").in(smartSubPlugins)), NewAction.class);
+
+        // Find all the action ids where the data migration needs to happen.
+        for (NewAction action : actions) {
+            ActionDTO unpublishedAction = action.getUnpublishedAction();
+            if (unpublishedAction != null) {
+                Datasource datasource = unpublishedAction.getDatasource();
+                if (datasource != null) {
+                    ActionConfiguration actionConfiguration = unpublishedAction.getActionConfiguration();
+                    if (actionConfiguration != null) {
+                        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+                        if (!isNullOrEmpty(pluginSpecifiedTemplates)) {
+                            Property smartSubstitutionProperty = pluginSpecifiedTemplates.get(0);
+                            if (smartSubstitutionProperty != null) {
+                                Object value = smartSubstitutionProperty.getValue();
+                                if (value != null) {
+                                    if (value instanceof String) {
+                                        boolean parsedValue = Boolean.parseBoolean((String) value);
+                                        if (TRUE.equals(parsedValue)) {
+                                            smartSubTurnedOn.add(action.getId());
+                                        } else if (FALSE.equals(parsedValue)) {
+                                            smartSubTurnedOff.add(action.getId());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // If the current action id exists in either smartSubTurnedOn or smartSubTurnedOff, then these
+                        // actions would get the required correct values. If in none of the above two, then add this action
+                        // for default configuring
+                        if (!smartSubTurnedOn.contains(action.getId()) && !smartSubTurnedOff.contains(action.getId())) {
+                            noSmartSubConfig.add(action.getId());
+                        }
+                    }
+                }
+            }
+        }
+
+        // Migrate actions where smart substitution is turned on
+        mongoOperations.updateMulti(
+                query(where("_id").in(smartSubTurnedOn)),
+                new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", true),
+                NewAction.class
+        );
+
+        // Default for no valid smart substitution configuration to be false aka smart substitution turned off.
+        smartSubTurnedOff.addAll(noSmartSubConfig);
+
+        // Migrate actions where smart substitution is turned off
+        mongoOperations.updateMulti(
+                query(where("_id").in(smartSubTurnedOff)),
+                new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", false),
+                NewAction.class
+        );
     }
 }
