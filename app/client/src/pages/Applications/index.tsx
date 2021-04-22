@@ -79,6 +79,7 @@ import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import ForkApplicationAcrossOrganisationsModal from "pages/Applications/ForkApplicationAcrossOrganisationsModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -535,12 +536,6 @@ const ApplicationsSection = (props: any) => {
     dispatch(duplicateApplication(applicationId));
   };
 
-  const forkApplicationInitiate = (applicationId: string) => {
-    // open fork application modal
-    // on click on an organisation, create app and take to app
-    console.log("open modal here", applicationId);
-  };
-
   const forkApplicationDispatch = (
     applicationId: string,
     organisationId: string,
@@ -548,6 +543,7 @@ const ApplicationsSection = (props: any) => {
     dispatch(forkApplication(applicationId, organisationId));
   };
 
+  // const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
@@ -798,7 +794,7 @@ const ApplicationsSection = (props: any) => {
                       delete={deleteApplication}
                       update={updateApplicationDispatch}
                       duplicate={duplicateApplicationDispatch}
-                      fork={forkApplicationInitiate}
+                      fork={forkApplicationDispatch}
                     />
                   </PaddingWrapper>
                 );

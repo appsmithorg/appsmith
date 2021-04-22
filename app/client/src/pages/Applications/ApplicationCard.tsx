@@ -45,6 +45,8 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
+import ForkApplicationModal from "./ForkApplicationModal";
+import ForkApplicationAcrossOrganisationsModal from "pages/Applications/ForkApplicationAcrossOrganisationsModal";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -219,7 +221,7 @@ type ApplicationCardProps = {
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
-  fork?: (applicationId: string) => void;
+  fork?: (applicationId: string, organisationId: string) => void;
 };
 
 const EditButton = styled(Button)`
@@ -256,6 +258,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isForkApplicationModalopen, setForkApplicationModalOpen] = useState(
+    false,
+  );
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -287,7 +292,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     }
     if (props.fork && hasEditPermission) {
       moreActionItems.push({
-        onSelect: forkApp,
+        onSelect: forkApplicationInitiate,
         text: "Fork",
         icon: "fork",
       });
@@ -326,8 +331,14 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const shareApp = () => {
     props.share && props.share(props.application.id);
   };
-  const forkApp = () => {
-    props.fork && props.fork(props.application.id);
+  // const forkApp = () => {
+  //   props.fork && props.fork(props.application.id);
+  // };
+  const forkApplicationInitiate = () => {
+    // open fork application modal
+    // on click on an organisation, create app and take to app
+    console.log("open modal here", props.application.id);
+    setForkApplicationModalOpen(true);
   };
   const deleteApp = () => {
     setShowOverlay(false);
@@ -457,6 +468,10 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         {moreActionItems.map((item: MenuItemProps) => {
           return <MenuItem key={item.text} {...item} />;
         })}
+        <ForkApplicationAcrossOrganisationsModal
+          isModalOpen={isForkApplicationModalopen}
+          applicationId={props.application.id}
+        />
       </Menu>
     </ContextDropdownWrapper>
   );

@@ -80,9 +80,9 @@ type DialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
   title?: string;
-  trigger: ReactNode;
+  trigger?: ReactNode;
   setMaxWidth?: boolean;
-  children: ReactNode;
+  children?: ReactNode;
   width?: string;
   maxHeight?: string;
   onOpening?: () => void;
@@ -108,15 +108,17 @@ export const DialogComponent = (props: DialogComponentProps) => {
 
   return (
     <React.Fragment>
-      <TriggerWrapper
-        className="ads-dialog-trigger"
-        onClick={() => {
-          setIsOpen(true);
-        }}
-        style={{ zIndex: props.triggerZIndex }}
-      >
-        {props.trigger}
-      </TriggerWrapper>
+      {props.trigger && (
+        <TriggerWrapper
+          className="ads-dialog-trigger"
+          onClick={() => {
+            setIsOpen(true);
+          }}
+          style={{ zIndex: props.triggerZIndex }}
+        >
+          {props.trigger}
+        </TriggerWrapper>
+      )}
       <StyledDialog
         canOutsideClickClose={!!props.canOutsideClickClose}
         canEscapeKeyClose={!!props.canEscapeKeyClose}
@@ -131,7 +133,9 @@ export const DialogComponent = (props: DialogComponentProps) => {
         className={props.className}
       >
         {getHeader && getHeader()}
-        <div className={Classes.DIALOG_BODY}>{props.children}</div>
+        {props.children && (
+          <div className={Classes.DIALOG_BODY}>{props.children}</div>
+        )}
       </StyledDialog>
     </React.Fragment>
   );
