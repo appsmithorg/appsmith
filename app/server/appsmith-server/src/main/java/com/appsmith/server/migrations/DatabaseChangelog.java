@@ -2180,7 +2180,7 @@ public class DatabaseChangelog {
                 NewAction.class
         );
 
-        // default for no valid smart substitution configuration to turned be false
+        // Default for no valid smart substitution configuration to be false aka smart substitution turned off.
         smartSubTurnedOff.addAll(noSmartSubConfig);
 
         // Migrate actions where smart substitution is turned off
