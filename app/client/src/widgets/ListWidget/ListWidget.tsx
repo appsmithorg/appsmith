@@ -5,17 +5,12 @@ import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import {
   RenderModes,
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import ListComponent, { ListComponentEmpty } from "./ListComponent";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 import { ContainerWidgetProps } from "../ContainerWidget";
@@ -27,13 +22,6 @@ import withMeta from "./../MetaHOC";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      items: VALIDATION_TYPES.LIST_DATA,
-    };
-  }
-
   state = {
     page: 1,
   };

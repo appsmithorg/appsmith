@@ -420,7 +420,6 @@ export default class WidgetBuilderRegistry {
           return <ProfiledListWidget {...widgetProps} />;
         },
       },
-      ListWidget.getPropertyValidationMap(),
       ListWidget.getDerivedPropertiesMap(),
       ListWidget.getDefaultPropertiesMap(),
       ListWidget.getMetaPropertiesMap(),

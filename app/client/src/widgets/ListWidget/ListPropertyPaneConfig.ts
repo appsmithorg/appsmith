@@ -1,6 +1,7 @@
 import { get } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from "./ListWidget";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 const PropertyPaneConfig = [
   {
@@ -15,6 +16,7 @@ const PropertyPaneConfig = [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.LIST_DATA,
       },
       {
         propertyName: "backgroundColor",
