@@ -1769,7 +1769,7 @@ public class DatabaseChangelog {
             mongoTemplate.save(action);
         }
     }
-    
+
     @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
     public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
 
@@ -1998,7 +1998,7 @@ public class DatabaseChangelog {
 
         }
     }
-  
+
     @ChangeSet(order = "060", id = "clear-example-apps", author = "")
     public void clearExampleApps(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
@@ -2084,7 +2084,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "062", id = "add-google-sheets-plugin", author = "")
-    public void addGoogleSheetsPlugin (MongoTemplate mongoTemplate) {
+    public void addGoogleSheetsPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Google Sheets");
         plugin.setType(PluginType.SAAS);
