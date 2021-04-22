@@ -207,7 +207,7 @@ const LogItem = (props: LogItemProps) => {
           size={IconSize.MEDIUM}
           onClick={(e) => {
             e.stopPropagation();
-            openHelpModal(props.text);
+            openHelpModal(props.message ? props.message : props.text);
           }}
         />
         {showToggleIcon && (

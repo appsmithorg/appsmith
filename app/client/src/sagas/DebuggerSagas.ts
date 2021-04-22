@@ -146,13 +146,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
         const res = yield call(formatActionRequestSaga, payload, payload.state);
         const log = { ...payload };
         res && set(log, "state.headers", res);
-        yield put(
-          errorLog({
-            ...log,
-            text: payload.message ? payload.message : payload.text,
-            message: undefined,
-          }),
-        );
+        yield put(errorLog(log));
         yield put(debuggerLog(log));
       }
       break;
