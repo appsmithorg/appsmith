@@ -41,6 +41,7 @@ import Resizable, {
 } from "components/editorComponents/Debugger/Resizer";
 import DebuggerMessage from "components/editorComponents/Debugger/DebuggerMessage";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -196,6 +197,7 @@ const StyledFormRow = styled(FormRow)`
 const NameWrapper = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   input {
     margin: 0;
     box-sizing: border-box;
@@ -423,6 +425,7 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
     <QueryFormContainer onSubmit={handleSubmit}>
       <StyledFormRow>
         <NameWrapper>
+          <CloseEditor />
           <ActionNameEditor />
         </NameWrapper>
         <ActionsWrapper>
