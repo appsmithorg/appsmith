@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -43,7 +44,6 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -1896,7 +1896,7 @@ public class DatabaseChangelog {
                 updateTimeout = true;
             }
 
-            if(updateTimeout) {
+            if (updateTimeout) {
                 mongoTemplate.save(action);
             }
         }
@@ -2030,12 +2030,12 @@ public class DatabaseChangelog {
         mysqlAndMongoDatasources
                 .stream()
                 .forEach(datasource -> {
-                    if(datasource.getDatasourceConfiguration() != null) {
-                        if(datasource.getDatasourceConfiguration().getConnection() == null) {
+                    if (datasource.getDatasourceConfiguration() != null) {
+                        if (datasource.getDatasourceConfiguration().getConnection() == null) {
                             datasource.getDatasourceConfiguration().setConnection(new Connection());
                         }
 
-                        if(datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
+                        if (datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
                             datasource.getDatasourceConfiguration().getConnection().setSsl(new SSLDetails());
                         }
 
@@ -2058,24 +2058,24 @@ public class DatabaseChangelog {
         postgresDatasources
                 .stream()
                 .forEach(datasource -> {
-                    if(datasource.getDatasourceConfiguration() != null) {
-                        if(datasource.getDatasourceConfiguration().getConnection() == null) {
+                    if (datasource.getDatasourceConfiguration() != null) {
+                        if (datasource.getDatasourceConfiguration().getConnection() == null) {
                             datasource.getDatasourceConfiguration().setConnection(new Connection());
                         }
 
-                        if(datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
+                        if (datasource.getDatasourceConfiguration().getConnection().getSsl() == null) {
                             datasource.getDatasourceConfiguration().getConnection().setSsl(new SSLDetails());
                         }
 
                         SSLDetails.AuthType authType = datasource.getDatasourceConfiguration().getConnection().getSsl().getAuthType();
-                        if(authType == null
+                        if (authType == null
                                 || (!SSLDetails.AuthType.ALLOW.equals(authType)
                                 && !SSLDetails.AuthType.PREFER.equals(authType)
                                 && !SSLDetails.AuthType.REQUIRE.equals(authType)
                                 && !SSLDetails.AuthType.DISABLE.equals(authType))) {
                             datasource.getDatasourceConfiguration().getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
                         }
-                      
+
                         mongoTemplate.save(datasource);
                     }
                 });
@@ -2099,30 +2099,31 @@ public class DatabaseChangelog {
                 .map(plugin -> plugin.getId())
                 .collect(Collectors.toSet());
 
+        List<NewAction> actions = mongoTemplate
+                .find(query(where("pluginId").in(smartSubPlugins)), NewAction.class);
+
+        System.out.println("Number of actions fetched : " + actions.size());
+
         // Find all the action ids where the data migration needs to happen.
-        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+        for (NewAction action : actions) {
             ActionDTO unpublishedAction = action.getUnpublishedAction();
             if (unpublishedAction != null) {
                 Datasource datasource = unpublishedAction.getDatasource();
                 if (datasource != null) {
-                    String pluginId = datasource.getPluginId();
-                    // First check if the action belongs to one of the plugins which support smart substitution
-                    if (pluginId != null && smartSubPlugins.contains(pluginId)) {
-                        ActionConfiguration actionConfiguration = unpublishedAction.getActionConfiguration();
-                        if (actionConfiguration != null) {
-                            List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
-                            if (!isNullOrEmpty(pluginSpecifiedTemplates)) {
-                                Property smartSubstitutionProperty = pluginSpecifiedTemplates.get(0);
-                                if (smartSubstitutionProperty != null) {
-                                    Object value = smartSubstitutionProperty.getValue();
-                                    if (value != null) {
-                                        if (value instanceof String) {
-                                            boolean parsedValue = Boolean.parseBoolean((String) value);
-                                            if (TRUE.equals(parsedValue)) {
-                                                smartSubTurnedOn.add(action.getId());
-                                            } else if (FALSE.equals(parsedValue)) {
-                                                smartSubTurnedOff.add(action.getId());
-                                            }
+                    ActionConfiguration actionConfiguration = unpublishedAction.getActionConfiguration();
+                    if (actionConfiguration != null) {
+                        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+                        if (!isNullOrEmpty(pluginSpecifiedTemplates)) {
+                            Property smartSubstitutionProperty = pluginSpecifiedTemplates.get(0);
+                            if (smartSubstitutionProperty != null) {
+                                Object value = smartSubstitutionProperty.getValue();
+                                if (value != null) {
+                                    if (value instanceof String) {
+                                        boolean parsedValue = Boolean.parseBoolean((String) value);
+                                        if (TRUE.equals(parsedValue)) {
+                                            smartSubTurnedOn.add(action.getId());
+                                        } else if (FALSE.equals(parsedValue)) {
+                                            smartSubTurnedOff.add(action.getId());
                                         }
                                     }
                                 }
