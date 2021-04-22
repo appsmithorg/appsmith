@@ -27,7 +27,7 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import log from "loglevel";
 import Text, { TextType } from "components/ads/Text";
-import styled from "constants/DefaultTheme";
+import styled, { getTypographyByKey } from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
 import AdsIcon from "components/ads/Icon";
 import { Classes } from "components/ads/common";
@@ -110,10 +110,7 @@ const GenerateWidgetButton = styled.a`
   position: absolute;
   right: 30px;
   top: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 17px;
-  letter-spacing: 0.6px;
+  ${(props) => getTypographyByKey(props, "h5")}
   color: #716e6e;
   && {
     margin: 0;
