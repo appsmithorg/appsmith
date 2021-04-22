@@ -72,6 +72,11 @@ describe("API Panel Test Functionality", function() {
       .click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     // Assert statically bound "users" data
     cy.readTabledataPublish("1", "1").then((cellData) => {
       expect(cellData).to.be.equal("Ervin Howell");
@@ -83,6 +88,11 @@ describe("API Panel Test Functionality", function() {
       .click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     // Assert dynamically bound "todos" data
     cy.readTabledataPublish("0", "2").then((cellData) => {
       expect(cellData).to.be.equal("delectus aut autem");
