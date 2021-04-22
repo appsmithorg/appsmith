@@ -2085,6 +2085,7 @@ public class DatabaseChangelog {
     public void migrateSmartSubstitutionDataTypeBoolean(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
         Set<String> smartSubTurnedOn = new HashSet<>();
         Set<String> smartSubTurnedOff = new HashSet<>();
+        Set<String> noSmartSubConfig = new HashSet<>();
 
         Set<String> pluginPackages = new HashSet<>();
         pluginPackages.add("mysql-plugin");
@@ -2129,6 +2130,13 @@ public class DatabaseChangelog {
                                 }
                             }
                         }
+
+                        // If the current action id exists in either smartSubTurnedOn or smartSubTurnedOff, then these
+                        // actions would get the required correct values. If in none of the above two, then add this action
+                        // for default configuring
+                        if (!smartSubTurnedOn.contains(action.getId()) && !smartSubTurnedOff.contains(action.getId())) {
+                            noSmartSubConfig.add(action.getId());
+                        }
                     }
                 }
             }
@@ -2140,6 +2148,9 @@ public class DatabaseChangelog {
                 new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", true),
                 NewAction.class
         );
+
+        // default for no valid smart substitution configuration to turned be false
+        smartSubTurnedOff.addAll(noSmartSubConfig);
 
         // Migrate actions where smart substitution is turned off
         mongoOperations.updateMulti(
