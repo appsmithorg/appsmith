@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
@@ -253,6 +254,14 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
+    public Mono<String> getPluginName(Mono<Datasource> datasourceMono) {
+        return
+                datasourceMono
+                        .flatMap(datasource -> this.findById(datasource.getPluginId())
+                                .map(Plugin::getPackageName));
+    }
+
+    @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
         Mono<Plugin> pluginMono = repository.findById(installPluginRedisDTO.getPluginOrgDTO().getPluginId());
         return pluginMono
@@ -320,14 +329,25 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     )
                     .onErrorReturn(new HashMap())
                     .cache();
+            final Mono<Map> dependencyMono = loadPluginResource(pluginId, "dependency.json")
+                    .doOnError(throwable ->
+                            // Remove this pluginId from the cache so it is tried again next time.
+                            formCache.remove(pluginId)
+                    )
+                    .onErrorReturn(new HashMap())
+                    .cache();
 
-            Mono<Map> resourceMono = Mono.zip(formMono, editorMono, settingMono)
+            Mono<Map> resourceMono = Mono.zip(formMono, editorMono, settingMono, dependencyMono)
                     .map(tuple -> {
                         Map formMap = tuple.getT1();
                         Map editorMap = tuple.getT2();
                         Map settingMap = tuple.getT3();
+                        Map dependencyMap = tuple.getT4();
+
                         formMap.putAll(editorMap);
                         formMap.putAll(settingMap);
+                        formMap.putAll(dependencyMap);
+
                         return formMap;
                     });
 

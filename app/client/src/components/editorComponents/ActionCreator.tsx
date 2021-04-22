@@ -29,6 +29,7 @@ import { NavigationTargetType } from "sagas/ActionExecutionSagas";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getWidgets } from "sagas/selectors";
+import { PluginType } from "entities/Action";
 import { Skin } from "constants/DefaultTheme";
 
 /* eslint-disable @typescript-eslint/ban-types */
@@ -1102,7 +1103,9 @@ function useApiOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
 
   const actions = useSelector(getActionsForCurrentPage).filter(
-    (action) => action.config.pluginType === "API",
+    (action) =>
+      action.config.pluginType === PluginType.API ||
+      action.config.pluginType === PluginType.SAAS,
   );
   let filteredBaseOptions = baseOptions;
 
@@ -1173,7 +1176,7 @@ function useQueryOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
 
   const queries = useSelector(getActionsForCurrentPage).filter(
-    (action) => action.config.pluginType === "DB",
+    (action) => action.config.pluginType === PluginType.DB,
   );
   const queryOptionTree = getQueryOptionsWithChildren(baseOptions, queries, {
     label: "Create Query",

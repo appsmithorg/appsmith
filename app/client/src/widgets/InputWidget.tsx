@@ -8,10 +8,6 @@ import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -65,6 +61,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter default text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText: "Sets a placeholder text for the input",
@@ -74,6 +71,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter placeholder text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText:
@@ -85,6 +83,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.REGEX,
           },
           {
             helpText:
@@ -96,6 +95,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "isRequired",
@@ -105,6 +105,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -114,6 +115,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Disables input to this widget",
@@ -123,6 +125,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Clears the input value after submit",
@@ -132,6 +135,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -160,29 +164,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         ],
       },
     ];
-  }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      inputType: VALIDATION_TYPES.TEXT,
-      defaultText: VALIDATION_TYPES.TEXT,
-      isDisabled: VALIDATION_TYPES.BOOLEAN,
-      text: VALIDATION_TYPES.TEXT,
-      regex: VALIDATION_TYPES.REGEX,
-      errorMessage: VALIDATION_TYPES.TEXT,
-      placeholderText: VALIDATION_TYPES.TEXT,
-      maxChars: VALIDATION_TYPES.NUMBER,
-      minNum: VALIDATION_TYPES.NUMBER,
-      maxNum: VALIDATION_TYPES.NUMBER,
-      label: VALIDATION_TYPES.TEXT,
-      inputValidators: VALIDATION_TYPES.ARRAY,
-      focusIndex: VALIDATION_TYPES.NUMBER,
-      isAutoFocusEnabled: VALIDATION_TYPES.BOOLEAN,
-      // onTextChanged: VALIDATION_TYPES.ACTION_SELECTOR,
-      isRequired: VALIDATION_TYPES.BOOLEAN,
-      isValid: VALIDATION_TYPES.BOOLEAN,
-      resetOnSubmit: VALIDATION_TYPES.BOOLEAN,
-    };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

@@ -126,6 +126,14 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(commonlocators.editPropCrossButton).click();
   });
 
+  it("Edit column name and test for table header changes", function() {
+    cy.openPropertyPane("tablewidget");
+    cy.editColumn("email");
+    cy.editColName("Email Address");
+    cy.get(".draggable-header:contains('Email Address')").should("be.visible");
+    cy.get(commonlocators.editPropCrossButton).click();
+  });
+
   it("Test to validate text color and text background", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.textColor)

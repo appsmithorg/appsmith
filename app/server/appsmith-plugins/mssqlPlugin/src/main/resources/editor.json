@@ -12,7 +12,7 @@
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "EQUALS",
-            "value": "false"
+            "value": false
           }
         },
         {
@@ -23,7 +23,7 @@
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "EQUALS",
-            "value": "true"
+            "value": true
           }
         }
       ]

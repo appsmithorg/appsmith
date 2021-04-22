@@ -121,7 +121,11 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const { title, updatePropertyTitle } = props;
   const updateNewTitle = useCallback(
     (value: string) => {
-      if (value && value.trim().length > 0 && value.trim() !== title.trim()) {
+      if (
+        value &&
+        value.trim().length > 0 &&
+        value.trim() !== (title && title.trim())
+      ) {
         updatePropertyTitle && updatePropertyTitle(value.trim());
       }
     },
@@ -166,7 +170,9 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
             )}
 
             <EditableText
-              valueTransform={removeSpecialChars}
+              valueTransform={
+                !props.isPanelTitle ? removeSpecialChars : undefined
+              }
               defaultValue={name}
               placeholder={props.title}
               editInteractionKind={EditInteractionKind.SINGLE}
