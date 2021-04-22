@@ -70,7 +70,7 @@ type LightningMenuProps = {
 
 export const LightningMenu = (props: LightningMenuProps) => {
   const widgets = useWidgets();
-  const { apis, queries } = useActions();
+  const { apis, queries, saas } = useActions();
   const pageId = usePageId();
   const dispatch = useDispatch();
 
@@ -78,7 +78,7 @@ export const LightningMenu = (props: LightningMenuProps) => {
     <CustomizedDropdown
       {...lightningMenuOptions(
         props.skin,
-        apis,
+        [...apis, ...saas],
         queries,
         widgets,
         pageId,

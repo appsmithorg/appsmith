@@ -33,9 +33,6 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    public GlobalExceptionHandler() {
-    }
-
     private void doLog(Throwable error) {
         log.error("", error);
 
@@ -52,6 +49,7 @@ public class GlobalExceptionHandler {
                      * */
                     scope.setExtra("Stack Trace", stringStackTrace);
                     scope.setLevel(SentryLevel.ERROR);
+                    scope.setTag("source", "appsmith-internal-server");
                 }
         );
 

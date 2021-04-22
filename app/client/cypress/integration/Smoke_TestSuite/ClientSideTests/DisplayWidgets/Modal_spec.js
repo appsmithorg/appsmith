@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/ModalDsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Modal Widget Functionality", function() {

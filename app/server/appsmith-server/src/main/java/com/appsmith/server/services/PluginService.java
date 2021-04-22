@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
@@ -22,6 +23,8 @@ public interface PluginService extends CrudService<Plugin, String> {
     Mono<Plugin> findByPackageName(String packageName);
 
     Mono<Plugin> findById(String id);
+
+    Mono<String> getPluginName(Mono<Datasource> datasourceMono);
 
     Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO);
 

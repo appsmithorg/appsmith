@@ -13,6 +13,7 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class ErrorDTO implements Serializable {
 
     private int code;

@@ -5,6 +5,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
+import { PluginType } from "entities/Action";
 
 export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
   return {
@@ -44,12 +45,14 @@ export const updateDatasourceSuccess = (
 export const redirectAuthorizationCode = (
   pageId: string,
   datasourceId: string,
+  pluginType: PluginType,
 ) => {
   return {
     type: ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
     payload: {
       pageId,
       datasourceId,
+      pluginType,
     },
   };
 };
@@ -105,10 +108,16 @@ export const testDatasource = (payload: Partial<Datasource>) => {
   };
 };
 
-export const deleteDatasource = (payload: Partial<Datasource>) => {
+export const deleteDatasource = (
+  payload: Partial<Datasource>,
+  onSuccess?: ReduxAction<unknown>,
+  onError?: ReduxAction<unknown>,
+): ReduxActionWithCallbacks<Partial<Datasource>, unknown, unknown> => {
   return {
     type: ReduxActionTypes.DELETE_DATASOURCE_INIT,
     payload,
+    onSuccess,
+    onError,
   };
 };
 
@@ -128,15 +137,6 @@ export const fetchDatasources = () => {
   };
 };
 
-export const selectPlugin = (pluginId: string) => {
-  return {
-    type: ReduxActionTypes.SELECT_PLUGIN,
-    payload: {
-      pluginId,
-    },
-  };
-};
-
 export const initDatasourcePane = (
   pluginType: string,
   urlId?: string,
@@ -153,8 +153,14 @@ export const storeAsDatasource = () => {
   };
 };
 
+export const getOAuthAccessToken = (datasourceId: string) => {
+  return {
+    type: ReduxActionTypes.SAAS_GET_OAUTH_ACCESS_TOKEN,
+    payload: { datasourceId },
+  };
+};
+
 export default {
   fetchDatasources,
   initDatasourcePane,
-  selectPlugin,
 };
