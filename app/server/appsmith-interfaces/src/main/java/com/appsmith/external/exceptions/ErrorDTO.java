@@ -11,7 +11,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErrorDTO implements Serializable {
