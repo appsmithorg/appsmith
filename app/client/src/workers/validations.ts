@@ -7,7 +7,6 @@ import {
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import _, {
   every,
-  get,
   isBoolean,
   isNil,
   isNumber,
@@ -15,13 +14,11 @@ import _, {
   isPlainObject,
   isString,
   isUndefined,
-  set,
   toNumber,
   toString,
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
-import { AllChartData } from "widgets/ChartWidget";
 
 export function validateDateString(
   dateString: string,
@@ -298,101 +295,6 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       };
     }
     return { isValid, parsed };
-  },
-  [VALIDATION_TYPES.CHART_DATA]: (
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.OBJECT](
-      value,
-      props,
-      dataTree,
-    );
-
-    if (!isValid) {
-      return {
-        isValid,
-        parsed,
-        transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
-      };
-    }
-
-    let validationMessage = "";
-
-    // here we are two chart objects because we still want to show the correct evaluated values for
-    // correct data
-    const parsedChartData: AllChartData = {};
-    const transformedChartData: any = {};
-    let isValidChart = true;
-
-    // iterating over the objects of chart data and validating data for every datum
-    Object.keys(parsed).forEach((key: string) => {
-      const seriesData = get(parsed, `${key}`);
-
-      let isValidSeries = false;
-      try {
-        const validatedResponse: ValidationResponse = VALIDATORS[
-          VALIDATION_TYPES.ARRAY
-        ](seriesData.data, props, dataTree);
-
-        if (validatedResponse.isValid) {
-          isValidSeries = every(
-            validatedResponse.parsed,
-            (chartPoint: { x: string; y: any }) => {
-              return (
-                isObject(chartPoint) &&
-                isString(chartPoint.x) &&
-                !isUndefined(chartPoint.y)
-              );
-            },
-          );
-        }
-
-        if (!isValidSeries) {
-          isValidChart = false;
-
-          set(parsedChartData, `${key}`, {
-            ...seriesData,
-            data: [],
-          });
-
-          set(transformedChartData, `${key}`, {
-            ...seriesData,
-            data: validatedResponse.transformed,
-          });
-
-          validationMessage =
-            validationMessage +
-            "##" +
-            `${key}==${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
-        } else {
-          set(parsedChartData, `${key}`, {
-            ...seriesData,
-            data: validatedResponse.parsed,
-          });
-
-          set(transformedChartData, `${key}`, {
-            ...seriesData,
-            data: validatedResponse.parsed,
-          });
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    });
-
-    if (!isValidChart) {
-      return {
-        isValid: false,
-        parsed: parsedChartData,
-        transformed: transformedChartData,
-        message: validationMessage,
-      };
-    }
-
-    return { isValid, parsed: parsedChartData, transformed: parsedChartData };
   },
   [VALIDATION_TYPES.CHART_SERIES_DATA]: (
     value: any,
