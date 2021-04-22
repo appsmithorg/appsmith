@@ -42,6 +42,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.get('.tr .td:contains("3")').should("be.visible");
     cy.get(".t--add-widget").click();
     cy.SearchEntityandOpen("Table1");
     cy.isSelectRow(1);
