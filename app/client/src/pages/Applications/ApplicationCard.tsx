@@ -219,6 +219,7 @@ type ApplicationCardProps = {
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
+  fork?: (applicationId: string) => void;
 };
 
 const EditButton = styled(Button)`
@@ -284,6 +285,13 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         cypressSelector: "t--duplicate",
       });
     }
+    if (props.fork && hasEditPermission) {
+      moreActionItems.push({
+        onSelect: forkApp,
+        text: "Fork",
+        icon: "fork",
+      });
+    }
     setMoreActionItems(moreActionItems);
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -317,6 +325,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   };
   const shareApp = () => {
     props.share && props.share(props.application.id);
+  };
+  const forkApp = () => {
+    props.fork && props.fork(props.application.id);
   };
   const deleteApp = () => {
     setShowOverlay(false);

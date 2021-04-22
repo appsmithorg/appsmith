@@ -77,6 +77,19 @@ export const duplicateApplication = (applicationId: string) => {
   };
 };
 
+export const forkApplication = (
+  applicationId: string,
+  organisationId: string,
+) => {
+  return {
+    type: ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
+    payload: {
+      applicationId,
+      organisationId,
+    },
+  };
+};
+
 export const getAllApplications = () => {
   return {
     type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,

@@ -51,6 +51,7 @@ import MenuItem from "components/ads/MenuItem";
 import {
   duplicateApplication,
   updateApplication,
+  forkApplication,
 } from "actions/applicationActions";
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
@@ -534,6 +535,19 @@ const ApplicationsSection = (props: any) => {
     dispatch(duplicateApplication(applicationId));
   };
 
+  const forkApplicationInitiate = (applicationId: string) => {
+    // open fork application modal
+    // on click on an organisation, create app and take to app
+    console.log("open modal here", applicationId);
+  };
+
+  const forkApplicationDispatch = (
+    applicationId: string,
+    organisationId: string,
+  ) => {
+    dispatch(forkApplication(applicationId, organisationId));
+  };
+
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
@@ -784,6 +798,7 @@ const ApplicationsSection = (props: any) => {
                       delete={deleteApplication}
                       update={updateApplicationDispatch}
                       duplicate={duplicateApplicationDispatch}
+                      fork={forkApplicationInitiate}
                     />
                   </PaddingWrapper>
                 );
