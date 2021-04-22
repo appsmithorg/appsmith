@@ -6,10 +6,9 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 
 import { AppState } from "reducers";
-import { getDatasource } from "selectors/entitiesSelector";
+import { getDatasource, getDatasources } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "entities/Datasource";
-import { getDataSources } from "selectors/editorSelectors";
 import { isNameValid } from "utils/helpers";
 import { saveDatasourceName } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
@@ -37,8 +36,7 @@ const FormTitle = (props: FormTitleProps) => {
     | undefined = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
-
-  const datasources: Datasource[] = useSelector(getDataSources);
+  const datasources: Datasource[] = useSelector(getDatasources);
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   const saveStatus: {

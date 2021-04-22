@@ -28,8 +28,6 @@ import { WidgetTypes } from "../constants/WidgetConstants";
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 const getPageListState = (state: AppState) => state.entities.pageList;
-export const getDataSources = (state: AppState) =>
-  state.entities.datasources.list;
 
 export const getProviderCategories = (state: AppState) =>
   state.ui.providers.providerCategories;

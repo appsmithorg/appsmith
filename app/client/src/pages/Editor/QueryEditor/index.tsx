@@ -3,7 +3,11 @@ import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
-import { QueryEditorRouteParams } from "constants/routes";
+import {
+  DATA_SOURCES_EDITOR_URL,
+  QueryEditorRouteParams,
+} from "constants/routes";
+import history from "utils/history";
 import QueryEditorForm from "./Form";
 import QueryHomeScreen from "./QueryHomeScreen";
 import { deleteAction, runActionInit } from "actions/actionActions";
@@ -141,13 +145,15 @@ class QueryEditor extends React.Component<Props> {
       value: dataSource.id,
       image: pluginImages[dataSource.pluginId],
     }));
+
+    const onCreateDatasourceClick = () => {
+      history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+    };
     return (
       <React.Fragment>
         {queryId ? (
           <QueryEditorForm
             location={this.props.location}
-            applicationId={applicationId}
-            pageId={pageId}
             isRunning={isRunning}
             isDeleting={isDeleting}
             onDeleteClick={this.handleDeleteClick}
@@ -158,6 +164,7 @@ class QueryEditor extends React.Component<Props> {
             DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
             executedQueryData={responses[queryId]}
             runErrorMessage={runErrorMessage[queryId]}
+            onCreateDatasourceClick={onCreateDatasourceClick}
           />
         ) : (
           <QueryHomeScreen

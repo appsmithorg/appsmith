@@ -1,12 +1,13 @@
 import Api from "api/Api";
 import { AxiosPromise } from "axios";
 import { GenericApiResponse } from "api/ApiResponses";
+import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export interface Plugin {
   id: string;
   name: string;
-  type: "API" | "DB";
+  type: PluginType;
   packageName: string;
   iconLocation?: string;
   uiComponent: "ApiEditorForm" | "RapidApiEditorForm" | "DbEditorForm";
