@@ -469,6 +469,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           return <MenuItem key={item.text} {...item} />;
         })}
         <ForkApplicationAcrossOrganisationsModal
+          setModalClose={setForkApplicationModalOpen}
           isModalOpen={isForkApplicationModalopen}
           applicationId={props.application.id}
         />

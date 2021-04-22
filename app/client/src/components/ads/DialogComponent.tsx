@@ -86,6 +86,7 @@ type DialogComponentProps = {
   width?: string;
   maxHeight?: string;
   onOpening?: () => void;
+  setModalClose?: (close: boolean) => void;
   triggerZIndex?: number;
   showHeaderUnderline?: boolean;
   getHeader?: () => ReactNode;
@@ -96,11 +97,14 @@ type DialogComponentProps = {
 export const DialogComponent = (props: DialogComponentProps) => {
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
+  const { setModalClose } = props;
   const onClose = () => {
+    setModalClose ? setModalClose(false) : null;
     setIsOpen(false);
   };
 
   useEffect(() => {
+    // setModalClose ? setModalClose(false) : null;
     setIsOpen(!!props.isOpen);
   }, [props.isOpen]);
 

@@ -7,15 +7,10 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import { AppState } from "reducers";
 import { useLocation } from "react-router";
-import { getAllApplications } from "actions/applicationActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Classes } from "@blueprintjs/core";
-import {
-  getIsFetchingApplications,
-  getUserApplicationsOrgs,
-} from "selectors/applicationSelectors";
+import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
-// import { getApplicationDashboardPageURLWithAppId } from "constants/routes";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_BODY} {
@@ -50,14 +45,10 @@ const ButtonWrapper = styled.div`
 const ForkApplicationAcrossOrganisationsModal = (props: any) => {
   const [organizationId, selectOrganizationId] = useState("");
   const dispatch = useDispatch();
-  // useEffect(() => {
-  //   dispatch(getAllApplications());
-  // }, [dispatch, getAllApplications]);
   const userOrgs = useSelector(getUserApplicationsOrgs);
   const forkingApplication = useSelector(
     (state: AppState) => state.ui.applications.forkingApplication,
   );
-  const { pathname } = useLocation();
   const forkApplication = () => {
     dispatch({
       type: ReduxActionTypes.FORK_APPLICATION_INIT,
@@ -99,6 +90,7 @@ const ForkApplicationAcrossOrganisationsModal = (props: any) => {
       className={"fork-modal"}
       canOutsideClickClose={true}
       isOpen={showForkModal}
+      setModalClose={props.setModalClose}
     >
       {organizationList.length && (
         <OrganizationList>
