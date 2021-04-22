@@ -1,3 +1,4 @@
+import { APIResponseError } from "api/ApiResponses";
 import { Property } from "entities/Action";
 import _ from "lodash";
 export interface DatasourceAuthentication {
@@ -18,6 +19,7 @@ export interface DatasourceKeys {
 
 export interface DatasourceStructure {
   tables?: DatasourceTable[];
+  error?: APIResponseError;
 }
 
 export interface QueryTemplate {
