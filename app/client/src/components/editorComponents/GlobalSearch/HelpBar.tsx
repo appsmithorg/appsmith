@@ -25,6 +25,7 @@ const StyledHelpBar = styled.div`
   height: 28px;
   flex: 1;
   max-width: 350px;
+  border: 1.5px solid transparent;
   &:hover {
     border: 1.5px solid ${(props) => props.theme.colors.tertiary.light};
   }
