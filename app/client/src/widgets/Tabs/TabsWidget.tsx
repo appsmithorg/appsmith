@@ -186,9 +186,11 @@ class TabsWidget extends BaseWidget<
   }
 
   addTabContainer = (widgetIds: string[]) => {
+    const tabs = Object.values(this.props.tabsObj || {});
     widgetIds.forEach((newWidgetId: string) => {
-      const tab = this.props.tabsObj[newWidgetId];
-      // const tab = this.props.tabs.find((tab) => tab.widgetId === newWidgetId);
+      const tab = _.find(tabs, {
+        widgetId: newWidgetId,
+      });
       if (tab) {
         const columns =
           (this.props.rightColumn - this.props.leftColumn) *

@@ -210,6 +210,7 @@ class TabControl extends BaseControl<ControlProps> {
 
   deleteOption = (index: number) => {
     const tabsArray: any = Object.values(this.props.propertyValue);
+    if (tabsArray && tabsArray.length === 1) return;
     const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
       return i !== index;
     });

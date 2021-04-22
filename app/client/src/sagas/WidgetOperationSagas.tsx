@@ -571,20 +571,22 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
           widget.type === WidgetTypes.CANVAS_WIDGET &&
           widget.parentId
         ) {
-          const parent = { ...widgets[widget.parentId] };
-          if (parent.tabs) {
-            parent.tabs = parent.tabs.slice();
+          const parent = cloneDeep(widgets[widget.parentId]);
+          if (parent.tabsObj) {
             try {
-              parent.tabs.push({
+              const tabs = Object.values(parent.tabsObj);
+              parent.tabsObj[widget.tabId] = {
                 id: widget.tabId,
                 widgetId: widget.widgetId,
                 label: widget.tabName || widget.widgetName,
-              });
+                isVisible:
+                  widget.isVisible === undefined ? true : widget.isVisible,
+              };
               widgets = {
                 ...widgets,
                 [widget.parentId]: {
                   ...widgets[widget.parentId],
-                  tabs: parent.tabs,
+                  tabsObj: parent.tabsObj,
                 },
               };
             } catch (error) {
