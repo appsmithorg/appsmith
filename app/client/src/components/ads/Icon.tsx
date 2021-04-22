@@ -15,6 +15,7 @@ import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
+import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import { ReactComponent as ShareIcon } from "assets/icons/ads/share.svg";
 import { ReactComponent as RocketIcon } from "assets/icons/ads/launch.svg";
@@ -122,6 +123,7 @@ export const IconCollection = [
   "view-all",
   "view-less",
   "warning",
+  "warning-triangle",
   "downArrow",
   "context-menu",
   "duplicate",
@@ -162,20 +164,29 @@ export const IconWrapper = styled.span<IconProps>`
   svg {
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
+    ${(props) =>
+      !props.keepColors
+        ? `
     path {
-      fill: ${(props) => props.fillColor || props.theme.colors.icon.normal};
+      fill: ${props.fillColor || props.theme.colors.icon.normal};
     }
     circle {
-      fill: ${(props) => props.fillColor || props.theme.colors.icon.normal};
+      fill: ${props.fillColor || props.theme.colors.icon.normal};
     }
-  }
+    `
+        : ""}
   ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
   &:hover {
     cursor: pointer;
+    ${(props) =>
+      !props.keepColors
+        ? `
     path {
-      fill: ${(props) => props.theme.colors.icon.hover};
+      fill: ${props.theme.colors.icon.hover};
     }
+    `
+        : ""}
   }
 
   &:active {
@@ -193,6 +204,7 @@ export type IconProps = {
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
   fillColor?: string;
+  keepColors?: boolean;
 };
 
 const Icon = forwardRef(
@@ -285,6 +297,9 @@ const Icon = forwardRef(
         break;
       case "warning":
         returnIcon = <WarningIcon />;
+        break;
+      case "warning-triangle":
+        returnIcon = <WarningTriangleIcon />;
         break;
       case "arrow-left":
         returnIcon = <ArrowLeft />;

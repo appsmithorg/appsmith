@@ -561,7 +561,7 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
                   <ResponseContentWrapper>
                     {error && (
                       <ErrorContainer>
-                        <AdsIcon name="error" />
+                        <AdsIcon name="warning-triangle" keepColors />
                         <Text type={TextType.H3} style={{ color: "#F22B2B" }}>
                           An error occurred
                         </Text>

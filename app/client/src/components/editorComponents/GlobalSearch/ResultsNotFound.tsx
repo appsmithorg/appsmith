@@ -41,7 +41,7 @@ const StyledDiscordIcon = styled(DiscordIcon)`
 const ResultsNotFound = () => (
   <Container>
     <img alt="No data" src={NoSearchDataImage} />
-    <div className="no-data-title">{NO_SEARCH_DATA_TEXT}</div>
+    <div className="no-data-title">{NO_SEARCH_DATA_TEXT()}</div>
     <span className="discord">
       🤖 Join our{"  "}
       <span

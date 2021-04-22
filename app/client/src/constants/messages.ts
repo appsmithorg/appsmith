@@ -278,7 +278,7 @@ export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
 export const OMNIBAR_PLACEHOLDER = () =>
   "Search Widgets, Queries, Documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
-export const NO_SEARCH_DATA_TEXT = () => "Search you must meaningful but";
+export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
 export const WIDGET_BIND_HELP = () =>
   "Having trouble taking inputs from widgets?";
