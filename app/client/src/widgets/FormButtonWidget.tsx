@@ -8,10 +8,6 @@ import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -45,6 +41,7 @@ class FormButtonWidget extends BaseWidget<
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "buttonStyle",
@@ -86,6 +83,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isVisible",
@@ -95,6 +93,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "googleRecaptchaKey",
@@ -104,6 +103,7 @@ class FormButtonWidget extends BaseWidget<
             placeholderText: "Enter google recaptcha key",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
         ],
       },
@@ -127,16 +127,6 @@ class FormButtonWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       recaptchaToken: undefined,
-    };
-  }
-
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      text: VALIDATION_TYPES.TEXT,
-      disabledWhenInvalid: VALIDATION_TYPES.BOOLEAN,
-      buttonStyle: VALIDATION_TYPES.TEXT,
-      buttonType: VALIDATION_TYPES.TEXT,
     };
   }
 

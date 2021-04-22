@@ -13,6 +13,8 @@ import ContainerComponent, {
 } from "components/designSystems/appsmith/ContainerComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import * as Sentry from "@sentry/react";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -36,6 +38,7 @@ class ContainerWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -45,6 +48,7 @@ class ContainerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "shouldScrollContents",

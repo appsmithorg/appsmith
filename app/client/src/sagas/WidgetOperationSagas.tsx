@@ -863,7 +863,6 @@ function* setWidgetDynamicPropertySaga(
     });
     const { parsed } = yield call(
       validateProperty,
-      widget.type,
       propertyPath,
       propertyValue,
       widget,
