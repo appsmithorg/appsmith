@@ -3,6 +3,7 @@ import {
   getConfigInitialValues,
   caculateIsHidden,
   evaluateCondtionWithType,
+  actionPathFromName,
 } from "./utils";
 import { HiddenType } from "./BaseControl";
 
@@ -302,5 +303,15 @@ describe("evaluateCondtionWithType test", () => {
     expect(
       evaluateCondtionWithType(booleanArray, orConditionType),
     ).toBeTruthy();
+  });
+});
+
+describe("actionPathFromName test", () => {
+  it("creates path from name", () => {
+    const actionName = "Api5";
+    const name = "actionConfiguration.pluginSpecifiedTemplates[7].value";
+    const pathName = "Api5.config.pluginSpecifiedTemplates[7].value";
+
+    expect(actionPathFromName(actionName, name)).toEqual(pathName);
   });
 });
