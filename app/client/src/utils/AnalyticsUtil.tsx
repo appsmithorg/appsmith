@@ -234,7 +234,6 @@ class AnalyticsUtil {
       };
     }
 
-    log.debug("Event fired", eventName, finalEventData);
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
