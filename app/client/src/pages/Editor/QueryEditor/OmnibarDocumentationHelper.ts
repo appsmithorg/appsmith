@@ -43,18 +43,14 @@ const omnibarDocumentationHelper = (linkURL: string) => {
       query: "dynamodb",
     },
   ];
-  for (const headerItem of documentationHeaders) {
-    if (includes(linkURL, headerItem.text)) {
-      return {
-        hasSpecificDocumentation: true,
-        specificDocumentationText: headerItem.query,
-      };
-    }
+  const doc = documentationHeaders.find((headerItem) =>
+    includes(linkURL, headerItem.text),
+  );
+  if (doc) {
+    return doc.query;
+  } else {
+    return "";
   }
-  return {
-    hasSpecificDocumentation: false,
-    specificDocumentationText: "",
-  };
 };
 
 export { omnibarDocumentationHelper };

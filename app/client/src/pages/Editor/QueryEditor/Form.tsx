@@ -381,12 +381,9 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (props?.documentationLink) {
-      const {
-        hasSpecificDocumentation,
-        specificDocumentationText,
-      } = omnibarDocumentationHelper(props.documentationLink);
-      if (hasSpecificDocumentation) {
-        dispatch(setGlobalSearchQuery(specificDocumentationText));
+      const query = omnibarDocumentationHelper(props.documentationLink);
+      if (query !== "") {
+        dispatch(setGlobalSearchQuery(query));
       } else {
         dispatch(setGlobalSearchQuery("Connect to Databases"));
       }
