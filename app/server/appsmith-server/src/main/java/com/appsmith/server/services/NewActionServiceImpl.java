@@ -9,7 +9,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Policy;
@@ -98,6 +98,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final SessionUserService sessionUserService;
     private final PolicyUtils policyUtils;
     private final ObjectMapper objectMapper;
+    private final AuthenticationValidator authenticationValidator;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -114,7 +115,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 NewPageService newPageService,
                                 ApplicationService applicationService,
                                 SessionUserService sessionUserService,
-                                PolicyUtils policyUtils) {
+                                PolicyUtils policyUtils, AuthenticationValidator authenticationValidator) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -127,6 +128,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.applicationService = applicationService;
         this.sessionUserService = sessionUserService;
         this.policyUtils = policyUtils;
+        this.authenticationValidator = authenticationValidator;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -537,7 +539,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // Set the action name
                     actionName.set(action.getName());
 
-                    DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
+                    // If authentication exists for the datasource, decrypt the fields
+                    if (datasource.getDatasourceConfiguration() != null &&
+                            datasource.getDatasourceConfiguration().getAuthentication() != null) {
+                        AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
+                        datasource.getDatasourceConfiguration().setAuthentication(datasourceContextService.decryptSensitiveFields(authentication));
+                    }
+
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
 
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
@@ -546,16 +554,26 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             Thread.currentThread().getName(),
                             action.getPageId(), actionId, action.getName());
 
-                    Mono<ActionExecutionResult> executionMono = Mono.just(datasource)
+                    Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource).cache();
+
+
+                    Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
                             .flatMap(datasourceContextService::getDatasourceContext)
                             // Now that we have the context (connection details), execute the action.
-                            .flatMap(
-                                    resourceContext -> (Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
-                                            resourceContext.getConnection(),
-                                            executeActionDTO,
-                                            datasourceConfiguration,
-                                            actionConfiguration
-                                    )
+                            .flatMap(resourceContext -> validatedDatasourceMono.flatMap(datasource1 -> {
+                                        // Check encryption again
+                                        if (datasource1.getDatasourceConfiguration() != null &&
+                                                datasource1.getDatasourceConfiguration().getAuthentication() != null) {
+                                            AuthenticationDTO authentication = datasource1.getDatasourceConfiguration().getAuthentication();
+                                            datasource1.getDatasourceConfiguration().setAuthentication(datasourceContextService.decryptSensitiveFields(authentication));
+                                        }
+                                        return (Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
+                                                resourceContext.getConnection(),
+                                                executeActionDTO,
+                                                datasource1.getDatasourceConfiguration(),
+                                                actionConfiguration
+                                        );
+                                    })
                             );
 
                     return executionMono
@@ -601,26 +619,26 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             .elapsed()
                             // Now send the analytics event for this execution
                             .flatMap(tuple1 -> {
-                                        Long timeElapsed = tuple1.getT1();
-                                        ActionExecutionResult result = tuple1.getT2();
+                                Long timeElapsed = tuple1.getT1();
+                                ActionExecutionResult result = tuple1.getT2();
 
-                                        log.debug("{}: Action {} with id {} execution time : {} ms",
-                                                Thread.currentThread().getName(),
-                                                actionName.get(),
-                                                actionId,
-                                                timeElapsed
-                                        );
+                                log.debug("{}: Action {} with id {} execution time : {} ms",
+                                        Thread.currentThread().getName(),
+                                        actionName.get(),
+                                        actionId,
+                                        timeElapsed
+                                );
 
-                                        return Mono.zip(actionMono, actionDTOMono, datasourceMono)
-                                                .flatMap(tuple2 -> {
-                                                    ActionExecutionResult actionExecutionResult = result;
-                                                    NewAction actionFromDb = tuple2.getT1();
-                                                    ActionDTO actionDTO = tuple2.getT2();
-                                                    Datasource datasourceFromDb = tuple2.getT3();
+                                return Mono.zip(actionMono, actionDTOMono, datasourceMono)
+                                        .flatMap(tuple2 -> {
+                                            ActionExecutionResult actionExecutionResult = result;
+                                            NewAction actionFromDb = tuple2.getT1();
+                                            ActionDTO actionDTO = tuple2.getT2();
+                                            Datasource datasourceFromDb = tuple2.getT3();
 
-                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult, timeElapsed))
-                                                            .thenReturn(result);
-                                                });
+                                            return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult, timeElapsed))
+                                                    .thenReturn(result);
+                                        });
                                     }
                             );
                 });
