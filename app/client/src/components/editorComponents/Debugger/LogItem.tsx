@@ -14,6 +14,7 @@ import {
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Log = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
@@ -168,6 +169,10 @@ const LogItem = (props: LogItemProps) => {
   const dispatch = useDispatch();
 
   const openHelpModal = useCallback((text: string) => {
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+      source: "DEBUGGER",
+      searchTerm: text,
+    });
     dispatch(setGlobalSearchQuery(text || ""));
     dispatch(toggleShowGlobalSearchModal());
   }, []);
