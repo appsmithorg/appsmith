@@ -201,8 +201,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             if (parsedRegex) {
               return parsedRegex.test(this.text);
             }
+            if (this.isRequired) {
+              return !(this.text === '' || isNaN(this.text));
+            }
 
-            return !isNaN(this.text);
+            return (this.text === '' || !isNaN(this.text || ''));
           }
           else if (this.isRequired) {
             if(this.text && this.text.length) {
