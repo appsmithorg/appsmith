@@ -13,7 +13,6 @@ import ContainerComponent, {
 } from "components/designSystems/appsmith/ContainerComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import * as Sentry from "@sentry/react";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class ContainerWidget extends BaseWidget<
