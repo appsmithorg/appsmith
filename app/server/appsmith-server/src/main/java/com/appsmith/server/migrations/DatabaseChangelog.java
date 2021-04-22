@@ -2088,7 +2088,7 @@ public class DatabaseChangelog {
                 .find(query(where("name").regex("^Untitled Datasource \\d+$")), Datasource.class)
                 .forEach(datasource -> {
                     long count = 1;
-                    String datasourceCnt = datasource.getName().replaceAll("[^\\d]", "").trim();
+                    String datasourceCnt = datasource.getName().substring("Untitled Datasource ".length()).trim();
                     if (!datasourceCnt.isEmpty()) {
                         count = Long.parseLong(datasourceCnt);
                     }
