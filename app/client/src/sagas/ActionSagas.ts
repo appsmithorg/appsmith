@@ -1,4 +1,5 @@
 import {
+  EvaluationReduxAction,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -147,7 +148,9 @@ export function* createActionSaga(
   }
 }
 
-export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
+export function* fetchActionsSaga(
+  action: EvaluationReduxAction<FetchActionsPayload>,
+) {
   const { applicationId } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
@@ -162,6 +165,7 @@ export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
       yield put({
         type: ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
         payload: response.data,
+        postEvalActions: action.postEvalActions,
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_ACTIONS_API,

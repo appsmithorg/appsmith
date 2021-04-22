@@ -132,14 +132,12 @@ function* initializeEditorSaga(
     if (!pluginFormCall) return;
 
     const actionsCall = yield failFastApiCalls(
-      [fetchActions(applicationId)],
+      [fetchActions(applicationId, [executePageLoadActions()])],
       [ReduxActionTypes.FETCH_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR],
     );
 
     if (!actionsCall) return;
-
-    yield put(executePageLoadActions());
 
     const currentApplication = yield select(getCurrentApplication);
 
