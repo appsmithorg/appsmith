@@ -3,17 +3,26 @@ import styled from "styled-components";
 import Button from "components/ads/Button";
 import { showDebugger } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
-import { Variant } from "components/ads/common";
+import { Classes, Variant } from "components/ads/common";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 const StyledButton = styled(Button)`
+ && {
   width: fit-content;
   margin-top: 4px;
   text-transform: none;
-  height: 22px;
   ${(props) => getTypographyByKey(props, "p2")}
+  .${Classes.ICON} {
+    margin-right: 5px;
+  }
+  &:hover {
+    .${Classes.ICON} {
+      margin-right: 5px;
+    }
+  }
+ }
 `;
 
 type DebugCTAProps = {
@@ -51,6 +60,7 @@ export const DebugButton = (props: DebugButtonProps) => {
       onClick={props.onClick}
       icon="bug"
       text="Debug"
+      tag="button"
       variant={Variant.danger}
     />
   );
