@@ -38,7 +38,7 @@ import {
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { LOG_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 

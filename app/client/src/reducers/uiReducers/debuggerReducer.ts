@@ -1,7 +1,8 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { LOG_TYPE, Message, Severity } from "entities/AppsmithConsole";
+import { Message, Severity } from "entities/AppsmithConsole";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { get, merge, isEmpty, omit } from "lodash";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 const initialState: DebuggerReduxState = {
   logs: [],

@@ -80,8 +80,9 @@ import {
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE, LOG_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<

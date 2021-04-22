@@ -69,12 +69,13 @@ import {
   SAAS_AUTHORIZATION_SUCCESSFUL,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE, LOG_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { PluginType } from "entities/Action";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 function* fetchDatasourcesSaga() {
   try {

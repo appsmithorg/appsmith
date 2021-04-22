@@ -3,6 +3,7 @@ import { BindingError } from "entities/AppsmithConsole/binding";
 import { ActionError } from "entities/AppsmithConsole/action";
 import { WidgetError } from "entities/AppsmithConsole/widget";
 import { EvalError } from "entities/AppsmithConsole/eval";
+import LOG_TYPE from "./logtype";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -11,14 +12,6 @@ export enum ENTITY_TYPE {
 }
 
 export type ErrorType = BindingError | ActionError | WidgetError | EvalError;
-
-export enum LOG_TYPE {
-  WIDGET_PROPERTY_VALIDATION_ERROR,
-  WIDGET_UPDATE,
-  ACTION_EXECUTION_ERROR,
-  ACTION_EXECUTION_SUCCESS,
-  ENTITY_DELETED,
-}
 
 export enum Severity {
   // Everything, irrespective of what the user should see or not

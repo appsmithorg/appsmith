@@ -1,7 +1,7 @@
 import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { LogActionPayload, LOG_TYPE, Message } from "entities/AppsmithConsole";
+import { LogActionPayload, Message } from "entities/AppsmithConsole";
 import {
   all,
   put,
@@ -16,6 +16,7 @@ import { isEmpty, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 function* onWidgetUpdateSaga(payload: LogActionPayload) {
   if (!payload.source) return;
