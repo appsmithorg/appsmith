@@ -74,6 +74,7 @@ describe("WidgetProps tests", () => {
           isLoading: false,
           renderMode: RenderModes.CANVAS,
           type: WidgetTypes.CHART_WIDGET,
+          dynamicBindingPathList: [],
           chartData: {
             "some-random-key": {
               seriesName: "seris1",
