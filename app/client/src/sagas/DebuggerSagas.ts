@@ -7,9 +7,10 @@ import {
   put,
   takeEvery,
   select,
+  take,
   fork,
   join,
-  delay,
+  call,
 } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isEmpty, set } from "lodash";
@@ -21,7 +22,7 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
   if (!payload.source) return;
 
   // Wait for data tree update
-  yield delay(1000);
+  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
   const dataTree = yield select(getDataTree);
   const widget = dataTree[payload.source.name];
 
@@ -110,7 +111,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:
-      yield fork(onWidgetUpdateSaga, payload);
+      yield call(onWidgetUpdateSaga, payload);
       yield put(debuggerLog(payload));
       return;
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
