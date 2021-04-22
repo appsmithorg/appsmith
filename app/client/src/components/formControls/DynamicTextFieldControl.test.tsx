@@ -6,6 +6,7 @@ import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import { PluginType } from "entities/Action";
 import { waitFor } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const TestForm = (props: any) => <div>{props.children}</div>;
 
@@ -33,6 +34,7 @@ describe("DynamicTextFieldControl", () => {
           id={"test"}
           isValid={true}
           pluginId="123"
+          evaluationSubstitutionType={EvaluationSubstitutionType.TEMPLATE}
         />
       </ReduxFormDecorator>,
       {

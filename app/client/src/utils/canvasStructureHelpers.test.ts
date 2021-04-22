@@ -356,15 +356,6 @@ describe("Immutable Canvas structures", () => {
 
     expect(nextState).toBe(canvasStructure);
   });
-  it("calculates 100 simple diffs in less than 30ms", () => {
-    const start = performance.now();
-    for (let i = 0; i < 100; i++) {
-      compareAndGenerateImmutableCanvasStructure(canvasStructure, newDSL);
-    }
-    console.log("Time taken for 100 runs: ", performance.now() - start, "ms");
-    const timeTaken = performance.now() - start;
-    expect(timeTaken).toBeLessThanOrEqual(100);
-  });
   it("updates the diff appropriately", () => {
     const dsl: any = {
       widgetId: "x",

@@ -27,7 +27,7 @@ import {
   getPluginTemplates,
   getPlugin,
 } from "selectors/entitiesSelector";
-import { QueryAction } from "entities/Action";
+import { PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { isEmpty, merge } from "lodash";

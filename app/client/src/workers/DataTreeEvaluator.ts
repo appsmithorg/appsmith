@@ -380,10 +380,10 @@ export default class DataTreeEvaluator {
           let evalPropertyValue;
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
-          const evaluationSubstitutionType =
-            entity.bindingPaths[propertyPath] ||
-            EvaluationSubstitutionType.TEMPLATE;
           if (requiresEval) {
+            const evaluationSubstitutionType =
+              entity.bindingPaths[propertyPath] ||
+              EvaluationSubstitutionType.TEMPLATE;
             try {
               evalPropertyValue = this.getDynamicValue(
                 unEvalPropertyValue,

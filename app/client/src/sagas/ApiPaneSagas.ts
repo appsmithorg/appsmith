@@ -54,7 +54,7 @@ import { createActionRequest, setActionProperty } from "actions/actionActions";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import { Action, ApiAction } from "entities/Action";
+import { Action, ApiAction, PluginType } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import log from "loglevel";
 import PerformanceTracker, {

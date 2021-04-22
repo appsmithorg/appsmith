@@ -255,6 +255,9 @@ describe("DataTreeEvaluator", () => {
       bindingPaths: {
         text: EvaluationSubstitutionType.TEMPLATE,
       },
+      validationPaths: {
+        text: VALIDATION_TYPES.TEXT,
+      },
     },
     Text2: {
       ...BASE_WIDGET,
