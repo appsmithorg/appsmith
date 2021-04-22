@@ -143,12 +143,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
       break;
     case LOG_TYPE.ACTION_EXECUTION_ERROR:
       {
-        const task = yield fork(
-          formatActionRequestSaga,
-          payload,
-          payload.state,
-        );
-        const res = yield join(task);
+        const res = yield call(formatActionRequestSaga, payload, payload.state);
 
         if (res) {
           const log = { ...payload };
@@ -176,12 +171,12 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
       break;
     case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
       {
-        const task = yield fork(
+        const res = yield call(
           formatActionRequestSaga,
           payload,
           payload.state?.request ?? {},
         );
-        const res = yield join(task);
+
         yield put(
           updateErrorLog({
             ...payload,
