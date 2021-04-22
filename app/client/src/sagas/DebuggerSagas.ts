@@ -172,7 +172,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
         );
 
         const log = { ...payload };
-        res && set(log, "state.headers", res);
+        res && set(log, "state.request.headers", res);
         yield put(debuggerLog(log));
       }
       break;
