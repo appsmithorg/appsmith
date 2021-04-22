@@ -3,10 +3,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
@@ -40,6 +36,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "autoPlay",
@@ -49,6 +46,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -58,6 +56,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -96,12 +95,6 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     ];
   }
   private _player = React.createRef<ReactPlayer>();
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      url: VALIDATION_TYPES.TEXT,
-    };
-  }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {

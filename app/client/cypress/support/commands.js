@@ -1929,7 +1929,7 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
 });
 
 Cypress.Commands.add("runQuery", () => {
-  cy.get(queryEditor.runQuery).click();
+  cy.get(queryEditor.runQuery).click({ force: true });
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.responseMeta.status",

@@ -1,33 +1,39 @@
-import React, { FC, ReactElement } from "react";
+import React, { ReactElement } from "react";
 import { render, RenderOptions, queries } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "../src/constants/DefaultTheme";
-import store from "../src/store";
+import store, { testStore } from "../src/store";
 import { getCurrentThemeDetails } from "../src/selectors/themeSelectors";
 import * as customQueries from "./customQueries";
-import { MemoryRouter } from "react-router-dom";
-
-const AllTheProviders: FC = ({ children }) => {
-  const defaultTheme = getCurrentThemeDetails(store.getState());
-
-  return (
-    <MemoryRouter>
-      <Provider store={store}>
-        <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
-      </Provider>
-    </MemoryRouter>
-  );
-};
+import { BrowserRouter } from "react-router-dom";
+import { AppState } from "reducers";
 
 const customRender = (
   ui: ReactElement,
+  state?: {
+    url?: string;
+    initialState?: Partial<AppState>;
+  },
   options?: Omit<RenderOptions, "queries">,
-) =>
-  render(ui, {
-    wrapper: AllTheProviders,
-    queries: { ...queries, ...customQueries },
-    ...options,
-  });
+) => {
+  let reduxStore = store;
+  window.history.pushState({}, "Appsmith", state?.url || "/");
+  if (state && state.initialState) {
+    reduxStore = testStore(state.initialState || {});
+  }
+  const defaultTheme = getCurrentThemeDetails(reduxStore.getState());
+  return render(
+    <BrowserRouter>
+      <Provider store={reduxStore}>
+        <ThemeProvider theme={defaultTheme}>{ui}</ThemeProvider>
+      </Provider>
+    </BrowserRouter>,
+    {
+      queries: { ...queries, ...customQueries },
+      ...options,
+    },
+  );
+};
 
 export * from "@testing-library/react";
 
