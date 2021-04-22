@@ -9,7 +9,6 @@ import {
   select,
   take,
   fork,
-  join,
   call,
 } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -144,29 +143,16 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
     case LOG_TYPE.ACTION_EXECUTION_ERROR:
       {
         const res = yield call(formatActionRequestSaga, payload, payload.state);
-
-        if (res) {
-          const log = { ...payload };
-          set(log, "state.headers", res);
-
-          yield put(
-            errorLog({
-              ...log,
-              text: payload.message ? payload.message : payload.text,
-              message: undefined,
-            }),
-          );
-          yield put(debuggerLog(log));
-        } else {
-          yield put(
-            errorLog({
-              ...payload,
-              text: payload.message ? payload.message : payload.text,
-              message: undefined,
-            }),
-          );
-          yield put(debuggerLog(payload));
-        }
+        const log = { ...payload };
+        res && set(log, "state.headers", res);
+        yield put(
+          errorLog({
+            ...log,
+            text: payload.message ? payload.message : payload.text,
+            message: undefined,
+          }),
+        );
+        yield put(debuggerLog(log));
       }
       break;
     case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
@@ -184,13 +170,9 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
           }),
         );
 
-        if (res) {
-          const log = { ...payload };
-          set(log, "state.request.headers", res);
-          yield put(debuggerLog(log));
-        } else {
-          yield put(debuggerLog(payload));
-        }
+        const log = { ...payload };
+        res && set(log, "state.headers", res);
+        yield put(debuggerLog(log));
       }
       break;
     case LOG_TYPE.ENTITY_DELETED:
