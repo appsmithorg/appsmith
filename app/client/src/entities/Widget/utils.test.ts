@@ -170,7 +170,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       allowHorizontalScroll: false,
       version: 1,
       chartData: {
-        0: {
+        "random-id": {
           seriesName: "",
           data: "{{Api1.data}}",
         },
@@ -189,7 +189,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       widgetId: "x1naz9is2b",
       dynamicBindingPathList: [
         {
-          key: "chartData.0.data",
+          key: "chartData.random-id.data",
         },
       ],
     };
@@ -199,8 +199,8 @@ describe("getAllPathsFromPropertyConfig", () => {
       bindingPaths: {
         chartType: true,
         chartName: true,
-        "chartData.0.seriesName": true,
-        "chartData.0.data": true,
+        "chartData.random-id.seriesName": true,
+        "chartData.random-id.data": true,
         xAxisName: true,
         yAxisName: true,
         isVisible: true,
@@ -209,8 +209,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         onDataPointClick: true,
       },
       validationPaths: {
-        "chartData.0.data": "CHART_SERIES_DATA",
-        "chartData.0.seriesName": "TEXT",
+        "chartData.random-id.data": "CHART_SERIES_DATA",
+        "chartData.random-id.seriesName": "TEXT",
         chartName: "TEXT",
         isVisible: "BOOLEAN",
         xAxisName: "TEXT",

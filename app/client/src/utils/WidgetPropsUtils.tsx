@@ -368,11 +368,31 @@ export function migrateChartDataFromArrayToObject(
     if (children.type === WidgetTypes.CHART_WIDGET) {
       if (Array.isArray(children.chartData)) {
         const newChartData = {};
+        const dynamicBindingPathList = children?.dynamicBindingPathList
+          ? children?.dynamicBindingPathList.slice()
+          : [];
 
-        children.chartData.map((datum: any) => {
-          set(newChartData, `${generateReactKey()}`, datum);
+        children.chartData.map((datum: any, index: number) => {
+          const generatedKey = generateReactKey();
+          set(newChartData, `${generatedKey}`, datum);
+
+          if (
+            Array.isArray(children.dynamicBindingPathList) &&
+            children.dynamicBindingPathList?.findIndex(
+              (path) => (path.key = `chartData[${index}].data`),
+            ) > -1
+          ) {
+            const foundIndex = children.dynamicBindingPathList.findIndex(
+              (path) => (path.key = `chartData[${index}].data`),
+            );
+
+            dynamicBindingPathList[foundIndex] = {
+              key: `chartData.${generatedKey}.data`,
+            };
+          }
         });
 
+        children.dynamicBindingPathList = dynamicBindingPathList;
         children.chartData = newChartData;
       }
     } else if (
