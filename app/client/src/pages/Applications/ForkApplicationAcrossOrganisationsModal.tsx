@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import Dialog from "components/ads/DialogComponent";
+import Button, { Size } from "components/ads/Button";
+import RadioComponent from "components/ads/Radio";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import { AppState } from "reducers";
@@ -19,6 +21,30 @@ const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_BODY} {
     padding-top: 0px;
   }
+`;
+
+const OrganizationList = styled.div`
+  overflow: auto;
+  max-height: 250px;
+  margin-bottom: 10px;
+  margin-top: 20px;
+`;
+
+const StyledRadioComponent = styled(RadioComponent)`
+  label {
+    font-size: 16px;
+    margin-bottom: 32px;
+  }
+`;
+
+const ForkButton = styled(Button)`
+  height: 38px;
+  width: 203px;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
 `;
 
 const ForkApplicationAcrossOrganisationsModal = (props: any) => {
@@ -73,7 +99,28 @@ const ForkApplicationAcrossOrganisationsModal = (props: any) => {
       className={"fork-modal"}
       canOutsideClickClose={true}
       isOpen={showForkModal}
-    ></StyledDialog>
+    >
+      {organizationList.length && (
+        <OrganizationList>
+          <StyledRadioComponent
+            className={"radio-group"}
+            columns={1}
+            defaultValue={organizationList[0].value}
+            options={organizationList}
+            onSelect={(value) => selectOrganizationId(value)}
+          />
+        </OrganizationList>
+      )}
+      <ButtonWrapper>
+        <ForkButton
+          isLoading={forkingApplication}
+          disabled={!organizationId}
+          text={"FORK"}
+          onClick={forkApplication}
+          size={Size.large}
+        />
+      </ButtonWrapper>
+    </StyledDialog>
   );
 };
 
