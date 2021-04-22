@@ -33,14 +33,21 @@ public class GetValuesMethod implements Method {
         this.objectMapper = objectMapper;
     }
 
+    // Used to capture the range of columns in this request. The handling for this regex makes sure that
+    // all possible combinations of A1 notation for a range map to a common format
     Pattern findAllRowsPattern = Pattern.compile("([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
+
+    // The starting row for a range is captured using this pattern to find its relative index from table heading
     Pattern findOffsetRowPattern = Pattern.compile("(\\d+):");
+
+    // Since the value for this pattern is coming from an API response, it also contains the sheet name
+    // We use this pattern to retrieve only range information
     Pattern sheetRangePattern = Pattern.compile(".*!([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
 
     @Override
     public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Url");
         }
         if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet name");
