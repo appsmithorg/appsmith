@@ -95,34 +95,8 @@ export const getAllPathsFromPropertyConfig = (
           }
         }
         if (controlConfig.children) {
-          // Property in array structure
           const basePropertyPath = controlConfig.propertyName;
           const widgetPropertyValue = get(widget, basePropertyPath, []);
-          if (Array.isArray(widgetPropertyValue)) {
-            widgetPropertyValue.forEach(
-              (arrayPropertyValue: any, index: number) => {
-                const arrayIndexPropertyPath = `${basePropertyPath}[${index}]`;
-                controlConfig.children.forEach((childPropertyConfig: any) => {
-                  const childArrayPropertyPath = `${arrayIndexPropertyPath}.${childPropertyConfig.propertyName}`;
-                  if (
-                    childPropertyConfig.isBindProperty &&
-                    !childPropertyConfig.isTriggerProperty
-                  ) {
-                    bindingPaths[childArrayPropertyPath] = true;
-                    if (childPropertyConfig.validation) {
-                      validationPaths[childArrayPropertyPath] =
-                        childPropertyConfig.validation;
-                    }
-                  } else if (
-                    childPropertyConfig.isBindProperty &&
-                    childPropertyConfig.isTriggerProperty
-                  ) {
-                    triggerPaths[childArrayPropertyPath] = true;
-                  }
-                });
-              },
-            );
-          }
 
           // Property in object structure
           if (
