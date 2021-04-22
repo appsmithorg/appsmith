@@ -11,6 +11,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -1768,7 +1769,7 @@ public class DatabaseChangelog {
             mongoTemplate.save(action);
         }
     }
-
+    
     @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
     public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
 
@@ -1871,6 +1872,7 @@ public class DatabaseChangelog {
                     mongoTemplate.save(action);
                 }
             }
+
         }
     }
 
@@ -1996,7 +1998,7 @@ public class DatabaseChangelog {
 
         }
     }
-
+  
     @ChangeSet(order = "060", id = "clear-example-apps", author = "")
     public void clearExampleApps(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
@@ -2081,7 +2083,36 @@ public class DatabaseChangelog {
                 });
     }
 
-    @ChangeSet(order = "061", id = "migrate-smartSubstitution-dataType", author = "")
+    @ChangeSet(order = "062", id = "add-google-sheets-plugin", author = "")
+    public void addGoogleSheetsPlugin (MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Google Sheets");
+        plugin.setType(PluginType.SAAS);
+        plugin.setPackageName("google-sheets-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("OAuth2DatasourceForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-google-sheets");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "063", id = "mark-instance-unregistered", author = "")
+    public void markInstanceAsUnregistered(MongoTemplate mongoTemplate) {
+        mongoTemplate.insert(new Config(
+                new JSONObject(Map.of("value", false)),
+                Appsmith.APPSMITH_REGISTERED
+        ));
+    }
+
+    @ChangeSet(order = "064", id = "migrate-smartSubstitution-dataType", author = "")
     public void migrateSmartSubstitutionDataTypeBoolean(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
         Set<String> smartSubTurnedOn = new HashSet<>();
         Set<String> smartSubTurnedOff = new HashSet<>();
@@ -2158,6 +2189,5 @@ public class DatabaseChangelog {
                 new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", false),
                 NewAction.class
         );
-
     }
 }

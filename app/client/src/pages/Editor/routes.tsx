@@ -40,6 +40,8 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
+import { SaaSEditorRoutes } from "./SaaSEditor/routes";
+
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
   top: 0;
@@ -158,6 +160,9 @@ class EditorsRouter extends React.Component<
               path={getCurlImportPageURL()}
               component={CurlImportForm}
             />
+            {SaaSEditorRoutes.map((props) => (
+              <SentryRoute exact key={props.path} {...props} />
+            ))}
             <SentryRoute
               exact
               path={DATA_SOURCES_EDITOR_URL()}
