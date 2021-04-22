@@ -1,5 +1,5 @@
 import React from "react";
-import _ from "lodash";
+import { map, sortBy, compact } from "lodash";
 
 import ContainerComponent, { ContainerStyle } from "../component";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -10,6 +10,7 @@ import {
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
 import { getSnapSpaces, getWidgetDimensions } from "widgets/WidgetUtils";
+import produce from "immer";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -68,42 +69,45 @@ class ContainerWidget extends BaseWidget<
     return {};
   }
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+  renderChildWidget(props: WidgetProps): React.ReactNode {
     // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
+    if (props.detachFromLayout && !props.isVisible) {
       return null;
     }
 
     const snapSpaces = getSnapSpaces(this.props);
     const { componentWidth, componentHeight } = getWidgetDimensions(this.props);
 
-    if (childWidgetData.type !== "CANVAS_WIDGET") {
-      childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-      childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    } else {
-      // This is for the detached child like the default CANVAS_WIDGET child
+    const childWidgetProps = produce(props, (childWidgetData) => {
+      if (childWidgetData.type !== "CANVAS_WIDGET") {
+        childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
+        childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
+      } else {
+        // This is for the detached child like the default CANVAS_WIDGET child
 
-      childWidgetData.rightColumn = componentWidth;
-      childWidgetData.bottomRow = this.props.shouldScrollContents
-        ? childWidgetData.bottomRow
-        : componentHeight;
-      childWidgetData.minHeight = componentHeight;
-      childWidgetData.isVisible = this.props.isVisible;
-      childWidgetData.shouldScrollContents = false;
-      childWidgetData.canExtend = this.props.shouldScrollContents;
-    }
+        childWidgetData.rightColumn = componentWidth;
+        childWidgetData.bottomRow = this.props.shouldScrollContents
+          ? childWidgetData.bottomRow
+          : componentHeight;
+        childWidgetData.minHeight = componentHeight;
+        childWidgetData.isVisible = this.props.isVisible;
+        childWidgetData.shouldScrollContents = false;
+        childWidgetData.canExtend = this.props.shouldScrollContents;
+      }
+    });
 
-    childWidgetData.parentId = this.props.widgetId;
+    // childWidgetData.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childWidgetProps);
   }
 
   renderChildren = () => {
-    return _.map(
+    console.log("Connected Widgets, Rendering Children", this.props.children);
+    return map(
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      _.sortBy(_.compact(this.props.children), (child) => child.topRow),
+      sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
     );
   };

@@ -8,7 +8,6 @@ import {
   RenderMode,
   RenderModes,
   CSSUnits,
-  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
 import {
@@ -21,7 +20,6 @@ import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
-import shallowequal from "shallowequal";
 import { PositionTypes } from "constants/WidgetConstants";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import {
@@ -41,13 +39,12 @@ import {
 } from "actions/controlActions";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { findKey } from "lodash";
 import { disableDragAction, executeAction } from "actions/widgetActions";
 import { updateWidget } from "actions/pageActions";
 import { resetChildrenMetaProperty } from "actions/metaActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getWidget } from "sagas/selectors";
 import { getDisplayName } from "./WidgetUtils";
+import { makeGetWidgetProps } from "selectors/editorSelectors";
 
 abstract class BaseWidget<
   T extends WidgetProps,
@@ -111,6 +108,7 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
     static displayName: string;
 
     render() {
+      console.log("Connected Widget, Rendering Widget......");
       return this.getWidgetView(<Widget {...this.props} />);
     }
 
@@ -197,6 +195,10 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
     //     "Connected Widgets prop diff calculations took",
     //     performance.now() - start,
     //     "ms",
+    //     "widget",
+    //     this.props,
+    //     "are they different",
+    //     isDifferent,
     //   );
     //   return isDifferent;
     //   // return (
@@ -237,7 +239,7 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
   (WidgetWrapper as any).whyDidYouRender = {
     logOnDifferentValues: false,
   };
-  return connect(mapStateToProps, mapDispatchToProps)(WidgetWrapper);
+  return connect(makeMapStateToProps, mapDispatchToProps)(WidgetWrapper);
 }
 
 export interface BaseStyle {
@@ -253,12 +255,8 @@ export interface BaseStyle {
 }
 
 export type WidgetState = Record<string, unknown>;
-export interface WidgetBuilderProps extends WidgetSkeleton {
-  isVisible: boolean;
-  renderMode: RenderMode;
-}
-export interface WidgetBuilder<WidgetBuilderProps> {
-  buildWidget(widgetProps: WidgetBuilderProps): JSX.Element;
+export interface WidgetBuilder<WidgetSkeleton> {
+  buildWidget(widgetProps: WidgetSkeleton): JSX.Element;
 }
 
 export interface WidgetBaseProps {
@@ -347,36 +345,18 @@ export const WidgetOperations = {
 export type WidgetSkeleton = {
   widgetId: string;
   type: WidgetType;
+  parentId?: string;
   children?: Array<WidgetSkeleton>;
 };
 
 export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
-const mapStateToProps = (
-  state: AppState,
-  ownProps: { widgetId: string; children?: Array<{ widgetId: string }> },
-) => {
-  console.log("Connected Widgets Base Widget", { ownProps });
-  const widgetName = findKey(state.evaluations.tree, {
-    widgetId: ownProps.widgetId,
-  });
-  if (widgetName)
-    return {
-      ...(state.evaluations.tree[widgetName] as WidgetProps),
-      canvasWidth:
-        state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn,
-      ...ownProps,
-    };
-  else
-    return {
-      parentRowSpace: 1,
-      parentColumnSpace: 1,
-      topRow: 0,
-      leftColumn: 0,
-      isLoading: false,
-      renderMode: RenderModes.CANVAS,
-      type: "SKELETON_WIDGET",
-      mainContainer: getWidget(state, MAIN_CONTAINER_WIDGET_ID),
-    };
+// const mapStateToProps = getWidgetProps;
+const makeMapStateToProps = () => {
+  const getWidgetProps = makeGetWidgetProps();
+  const mapStateToProps = (state: AppState, props: { widgetId: string }) => {
+    return getWidgetProps(state, props);
+  };
+  return mapStateToProps;
 };
 
 const mapDispatchToProps = (dispatch: any, ownProps: { widgetId: string }) => ({

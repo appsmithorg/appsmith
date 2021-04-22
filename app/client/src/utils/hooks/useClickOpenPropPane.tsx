@@ -9,13 +9,10 @@ import { AppState } from "reducers";
 import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppMode } from "selectors/applicationSelectors";
 
-export const useClickOpenPropPane = () => {
+export const useClickOpenPropPane = (widgetId: string) => {
   const showPropertyPane = useShowPropertyPane();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const selectedWidgetId = useSelector(getCurrentWidgetId);
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -30,11 +27,11 @@ export const useClickOpenPropPane = () => {
     // ignore click captures if the component was resizing or dragging coz it is handled internally in draggable component
     if (isResizing || isDragging || appMode !== APP_MODE.EDIT) return;
     if (
-      (!isPropPaneVisible && selectedWidgetId === focusedWidget) ||
-      selectedWidgetId !== focusedWidget
+      (!isPropPaneVisible && selectedWidgetId === widgetId) ||
+      selectedWidgetId !== widgetId
     ) {
-      selectWidget(focusedWidget);
-      showPropertyPane(focusedWidget, undefined, true);
+      selectWidget(widgetId);
+      showPropertyPane(widgetId, undefined, true);
     }
   };
   return openPropertyPane;

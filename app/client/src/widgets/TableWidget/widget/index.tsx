@@ -511,7 +511,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // When we have tableData, the primaryColumns order is unlikely to change
     // When we don't have tableData primaryColumns will not be available, so let's let it be.
 
-    if (sanitizedTableData.length > 0) {
+    if (sanitizedTableData && sanitizedTableData.length > 0) {
       newPrimaryColumns = this.createTablePrimaryColumns();
       console.log("Calling from Table Widget:", { newPrimaryColumns });
       if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);

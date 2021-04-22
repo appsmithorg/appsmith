@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   forwardRef,
+  memo,
 } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -227,5 +228,8 @@ export const EntityName = forwardRef(
 );
 
 EntityName.displayName = "EntityName";
+(EntityName as any).whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
-export default EntityName;
+export default memo(EntityName);

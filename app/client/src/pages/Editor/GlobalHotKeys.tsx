@@ -4,10 +4,13 @@ import { AppState } from "reducers";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import {
+  closePropertyPane,
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
+  focusWidget,
   pasteWidget,
+  selectWidget,
 } from "actions/widgetActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
@@ -26,6 +29,9 @@ type Props = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   toggleShowGlobalSearchModal: () => void;
+  unselectWidgets: () => void;
+  unfocusWidgets: () => void;
+  closePropertyPane: () => void;
   selectedWidget?: string;
   children: React.ReactNode;
 };
@@ -130,6 +136,17 @@ class GlobalHotKeys extends React.Component<Props> {
             }
           }}
         />
+        <Hotkey
+          global={true}
+          combo="Esc"
+          label="Un-select widgets"
+          group="Canvas"
+          onKeyDown={() => {
+            this.props.unselectWidgets();
+            this.props.closePropertyPane();
+            this.props.unfocusWidgets();
+          }}
+        />
       </Hotkeys>
     );
   }
@@ -150,6 +167,9 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
+    unselectWidgets: () => dispatch(selectWidget()),
+    closePropertyPane: () => dispatch(closePropertyPane()),
+    unfocusWidgets: () => dispatch(focusWidget()),
   };
 };
 

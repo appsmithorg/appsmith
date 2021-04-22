@@ -9,7 +9,6 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { Spinner } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -134,14 +133,12 @@ const WidgetsEditor = () => {
 
   PerformanceTracker.stopTracking();
   return (
-    <EditorContextProvider>
-      <EditorWrapper onClick={handleWrapperClick}>
-        <MainContainerLayoutControl />
-        <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
-          {node}
-        </CanvasContainer>
-      </EditorWrapper>
-    </EditorContextProvider>
+    <EditorWrapper onClick={handleWrapperClick}>
+      <MainContainerLayoutControl />
+      <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
+        {node}
+      </CanvasContainer>
+    </EditorWrapper>
   );
 };
 

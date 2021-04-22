@@ -146,7 +146,7 @@ class TabsWidget extends BaseWidget<
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.minHeight = componentHeight;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childWidgetData);
   };
 
   static getWidgetType(): string {

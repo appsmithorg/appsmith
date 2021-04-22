@@ -49,7 +49,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { getTheme, getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -140,7 +140,6 @@ type EditorHeaderProps = {
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
-  darkTheme: any;
 };
 
 export const EditorHeader = (props: EditorHeaderProps) => {
@@ -205,7 +204,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   };
 
   return (
-    <ThemeProvider theme={props.darkTheme}>
+    <ThemeProvider theme={theme}>
       <HeaderWrapper>
         <HeaderSection>
           <Link to={APPLICATIONS_URL} style={{ height: 24 }}>
@@ -313,6 +312,8 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   );
 };
 
+const theme = getTheme(ThemeMode.DARK);
+
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
   isSaving: getIsPageSaving(state),
@@ -322,7 +323,6 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
-  darkTheme: getThemeDetails(state, ThemeMode.DARK),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

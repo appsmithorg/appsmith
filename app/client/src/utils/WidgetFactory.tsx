@@ -1,10 +1,5 @@
 import { RenderMode } from "constants/WidgetConstants";
-import {
-  WidgetBuilder,
-  WidgetProps,
-  WidgetSkeleton,
-  WidgetBuilderProps,
-} from "widgets/BaseWidget";
+import { WidgetBuilder, WidgetProps, WidgetSkeleton } from "widgets/BaseWidget";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
@@ -50,10 +45,7 @@ export type WidgetType = typeof WidgetFactory.widgetTypes[number];
 
 class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
-  static widgetMap: Map<
-    WidgetType,
-    WidgetBuilder<WidgetBuilderProps>
-  > = new Map();
+  static widgetMap: Map<WidgetType, WidgetBuilder<WidgetSkeleton>> = new Map();
   static widgetPropValidationMap: Map<
     WidgetType,
     WidgetPropertyValidationType
@@ -83,7 +75,7 @@ class WidgetFactory {
 
   static registerWidgetBuilder(
     widgetType: string,
-    widgetBuilder: WidgetBuilder<WidgetBuilderProps>,
+    widgetBuilder: WidgetBuilder<WidgetSkeleton>,
     widgetPropertyValidation: WidgetPropertyValidationType,
     derivedPropertiesMap: DerivedPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
@@ -115,22 +107,11 @@ class WidgetFactory {
     this.widgetConfigMap.set(widgetType, Object.freeze(config));
   }
 
-  static createWidget(
-    widgetData: WidgetSkeleton,
-    renderMode: RenderMode,
-  ): React.ReactNode {
-    const widgetProps = {
-      key: widgetData.widgetId,
-      widgetId: widgetData.widgetId,
-      type: widgetData.type,
-      isVisible: true,
-      renderMode: renderMode,
-      children: widgetData.children,
-    };
+  static createWidget(widgetData: WidgetSkeleton): React.ReactNode {
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       // TODO validate props here
-      const widget = widgetBuilder.buildWidget(widgetProps);
+      const widget = widgetBuilder.buildWidget(widgetData);
       return widget;
     } else {
       const ex: WidgetCreationException = {

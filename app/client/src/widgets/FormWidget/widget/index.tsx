@@ -6,6 +6,7 @@ import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
 import { ContainerComponentProps } from "widgets/ContainerWidget/component";
+import produce from "immer";
 
 class FormWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -88,12 +89,14 @@ class FormWidget extends ContainerWidget {
   }
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+    console.log("Form Widget", { childWidgetData });
     if (childWidgetData.children) {
       const isInvalid = this.checkInvalidChildren(childWidgetData.children);
-      childWidgetData.children.forEach((grandChild: WidgetProps) => {
-        if (isInvalid) grandChild.isFormValid = false;
-        // Add submit and reset handlers
-        grandChild.onReset = this.handleResetInputs;
+      childWidgetData = produce(childWidgetData, (draft: WidgetProps) => {
+        draft.children.forEach((grandChild: WidgetProps, index: number) => {
+          if (isInvalid) draft[index].isFormInvalid = false;
+          draft.children[index].onReset = this.handleResetInputs;
+        });
       });
     }
     return super.renderChildWidget(childWidgetData);

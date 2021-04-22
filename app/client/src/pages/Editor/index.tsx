@@ -25,7 +25,7 @@ import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import * as Sentry from "@sentry/react";
 import { getSelectedWidget } from "selectors/ui";
 import Welcome from "./Welcome";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { getTheme, getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
@@ -44,7 +44,6 @@ type EditorProps = {
   errorPublishing: boolean;
   creatingOnboardingDatabase: boolean;
   user?: User;
-  selectedWidget?: string;
   lightTheme: Theme;
   resetEditorRequest: () => void;
   handlePathUpdated: (pathName: string) => void;
@@ -109,7 +108,7 @@ class Editor extends Component<Props> {
       );
     }
     return (
-      <ThemeProvider theme={this.props.lightTheme}>
+      <ThemeProvider theme={theme}>
         <DndProvider
           backend={TouchBackend}
           options={{
@@ -132,6 +131,8 @@ class Editor extends Component<Props> {
   }
 }
 
+const theme = getTheme(ThemeMode.LIGHT);
+
 const mapStateToProps = (state: AppState) => ({
   currentApplicationId: getCurrentApplicationId(state),
   currentPageId: getCurrentPageId(state),
@@ -140,9 +141,7 @@ const mapStateToProps = (state: AppState) => ({
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
-  selectedWidget: getSelectedWidget(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
-  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

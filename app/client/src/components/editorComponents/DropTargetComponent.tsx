@@ -6,8 +6,9 @@ import React, {
   createContext,
   useEffect,
   memo,
+  useMemo,
 } from "react";
-import styled from "styled-components";
+import styled, { CSSProperties } from "styled-components";
 import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
@@ -47,13 +48,24 @@ const StyledDropTarget = styled.div`
   user-select: none;
 `;
 
-const Onboarding = () => {
+const StyledOnboardingWrapper = styled.div`
+  position: fixed;
+  left: 50%;
+  top: 50vh;
+`;
+const StyledOnboardingMessage = styled.h2`
+  color: #ccc;
+`;
+
+function Onboarding() {
   return (
-    <div style={{ position: "fixed", left: "50%", top: "50vh" }}>
-      <h2 style={{ color: "#ccc" }}>Drag and drop a widget here</h2>
-    </div>
+    <StyledOnboardingWrapper>
+      <StyledOnboardingMessage>
+        Drag and drop a widget here
+      </StyledOnboardingMessage>
+    </StyledOnboardingWrapper>
   );
-};
+}
 
 /*
   This context will provide the function which will help the draglayer and resizablecomponents trigger
@@ -161,69 +173,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       const start = performance.now();
       // Make sure we're dropping in this container.
       if (isExactlyOver) {
-        const updateWidgetParams = widgetOperationParams(
-          widget,
-          monitor.getSourceClientOffset() as XYCoord,
-          dropTargetOffset,
-          snapColumnSpace,
-          snapRowSpace,
-          widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : props.widgetId,
-        );
-        console.log(
-          "Drop: Widget operation params",
-          performance.now() - start,
-          "ms",
-        );
-
-        // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);
-        const widgetBottomRow =
-          updateWidgetParams.payload.topRow +
-          (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
-
-        console.log("Drop: Widget bottom row", performance.now() - start, "ms");
-        // Only show propertypane if this is a new widget.
-        // If it is not a new widget, then let the DraggableComponent handle it.
-        // Give evaluations a second to complete.
-        setTimeout(() => {
-          if (showPropertyPane && updateWidgetParams.payload.newWidgetId) {
-            showPropertyPane(updateWidgetParams.payload.newWidgetId);
-            // toggleEditWidgetName(updateWidgetParams.payload.newWidgetId, true);
-          }
-        }, 100);
-
-        // Select the widget if it is a new widget
-        selectWidget && selectWidget(widget.widgetId);
-        persistDropTargetRows(widget.widgetId, widgetBottomRow);
-
-        console.log(
-          "Drop: select and persist",
-          performance.now() - start,
-          "ms",
-        );
-        /* Finally update the widget */
-        updateWidget &&
-          updateWidget(
-            updateWidgetParams.operation,
-            updateWidgetParams.widgetId,
-            updateWidgetParams.payload,
-          );
-        console.log("Drop: update widget", performance.now() - start, "ms");
-      }
-      console.log("Drop calculations took:", performance.now() - start, "ms");
-      return undefined;
-    },
-    // Collect isOver for ui transforms when hovering over this component
-    collect: (monitor: DropTargetMonitor) => ({
-      isExactlyOver: monitor.isOver({ shallow: true }),
-      isOver: monitor.isOver(),
-    }),
-    // Only allow drop if the drag object is directly over this component
-    // As opposed to the drag object being over a child component, or outside the component bounds
-    // Also only if the dropzone does not overlap any existing children
-    canDrop: (widget, monitor) => {
-      // Check if the draggable is the same as the dropTarget
-      if (isExactlyOver) {
-        const hasCollision = !noCollision(
+        const canDrop = noCollision(
           monitor.getSourceClientOffset() as XYCoord,
           snapColumnSpace,
           snapRowSpace,
@@ -233,10 +183,90 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
           rows,
           GridDefaults.DEFAULT_GRID_COLUMNS,
         );
-        return !hasCollision;
+        console.log("Connected ============", { canDrop });
+        if (canDrop) {
+          const updateWidgetParams = widgetOperationParams(
+            widget,
+            monitor.getSourceClientOffset() as XYCoord,
+            dropTargetOffset,
+            snapColumnSpace,
+            snapRowSpace,
+            widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : props.widgetId,
+          );
+          console.log(
+            "Drop: Widget operation params",
+            performance.now() - start,
+            "ms",
+          );
+
+          // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);
+          const widgetBottomRow =
+            updateWidgetParams.payload.topRow +
+            (updateWidgetParams.payload.rows ||
+              widget.bottomRow - widget.topRow);
+
+          console.log(
+            "Drop: Widget bottom row",
+            performance.now() - start,
+            "ms",
+          );
+          // Only show propertypane if this is a new widget.
+          // If it is not a new widget, then let the DraggableComponent handle it.
+          // Give evaluations a second to complete.
+          setTimeout(() => {
+            if (showPropertyPane && updateWidgetParams.payload.newWidgetId) {
+              showPropertyPane(updateWidgetParams.payload.newWidgetId);
+              // toggleEditWidgetName(updateWidgetParams.payload.newWidgetId, true);
+            }
+          }, 100);
+
+          // Select the widget if it is a new widget
+          selectWidget && selectWidget(widget.widgetId);
+          persistDropTargetRows(widget.widgetId, widgetBottomRow);
+
+          console.log(
+            "Drop: select and persist",
+            performance.now() - start,
+            "ms",
+          );
+          /* Finally update the widget */
+          updateWidget &&
+            updateWidget(
+              updateWidgetParams.operation,
+              updateWidgetParams.widgetId,
+              updateWidgetParams.payload,
+            );
+          console.log("Drop: update widget", performance.now() - start, "ms");
+        }
       }
-      return false;
+      console.log("Drop calculations took:", performance.now() - start, "ms");
+      return undefined;
     },
+    // Collect isOver for ui transforms when hovering over this component
+    collect: (monitor: DropTargetMonitor) => ({
+      isExactlyOver: monitor.isOver({ shallow: true }),
+      isOver: monitor.isOver(),
+    }),
+    // // Only allow drop if the drag object is directly over this component
+    // // As opposed to the drag object being over a child component, or outside the component bounds
+    // // Also only if the dropzone does not overlap any existing children
+    // canDrop: (widget, monitor) => {
+    //   // Check if the draggable is the same as the dropTarget
+    //   if (isExactlyOver) {
+    //     const hasCollision = !noCollision(
+    //       monitor.getSourceClientOffset() as XYCoord,
+    //       snapColumnSpace,
+    //       snapRowSpace,
+    //       widget,
+    //       dropTargetOffset,
+    //       spacesOccupiedBySiblingWidgets,
+    //       rows,
+    //       GridDefaults.DEFAULT_GRID_COLUMNS,
+    //     );
+    //     return !hasCollision;
+    //   }
+    //   return false;
+    // },
   });
 
   const handleBoundsUpdate = (rect: DOMRect) => {
@@ -249,29 +279,27 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   };
 
   const handleFocus = (e: any) => {
-    if (!isResizing && !isDragging) {
-      if (!props.parentId) {
-        selectWidget && selectWidget(props.widgetId);
-        focusWidget && focusWidget(props.widgetId);
-        showPropertyPane && showPropertyPane();
-      } else {
-        selectWidget && selectWidget(props.parentId);
-        focusWidget && focusWidget(props.parentId);
-      }
+    if (!isResizing && !isDragging && props.parentId) {
+      selectWidget && selectWidget(props.widgetId);
+      focusWidget && focusWidget(props.widgetId);
     }
     e.stopPropagation();
     e.preventDefault();
   };
-  const height = canDropTargetExtend
-    ? `${Math.max(rows * snapRowSpace, props.minHeight)}px`
-    : "100%";
 
-  const border =
-    (isResizing || isDragging) &&
-    isExactlyOver &&
-    props.widgetId === MAIN_CONTAINER_WIDGET_ID
-      ? "1px solid #DDDDDD"
-      : "1px solid transparent";
+  const styles: CSSProperties = useMemo(() => {
+    return {
+      height: canDropTargetExtend
+        ? `${Math.max(rows * snapRowSpace, props.minHeight)}px`
+        : "100%",
+      width:
+        (isResizing || isDragging) &&
+        isExactlyOver &&
+        props.widgetId === MAIN_CONTAINER_WIDGET_ID
+          ? "1px solid #DDDDDD"
+          : "1px solid transparent",
+    };
+  }, [props.widgetId, props.minHeight]);
 
   return (
     <DropTargetContext.Provider
@@ -280,10 +308,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       <StyledDropTarget
         onClick={handleFocus}
         ref={drop}
-        style={{
-          height,
-          border,
-        }}
+        style={styles}
         className={"t--drop-target"}
       >
         {props.children}

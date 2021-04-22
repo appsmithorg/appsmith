@@ -33,8 +33,7 @@ export const AppPage = (props: AppPageProps) => {
   }, [props.pageId, props.pageName]);
   return (
     <PageView width={props.width}>
-      {props.dsl.widgetId &&
-        WidgetFactory.createWidget(props.dsl, RenderModes.PAGE)}
+      {props.dsl.widgetId && WidgetFactory.createWidget(props.dsl)}
     </PageView>
   );
 };

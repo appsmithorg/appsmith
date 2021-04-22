@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, memo } from "react";
+import React, { ReactNode, useCallback, memo, useMemo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history from "utils/history";
@@ -27,6 +27,20 @@ type ExplorerActionEntityProps = {
   pageId: string;
 };
 
+const CreateContextMenu = (props: {
+  action: { config: { name: string; id: string } };
+  pageId: string;
+}) => {
+  return (
+    <ActionEntityContextMenu
+      id={props.action.config.id}
+      name={props.action.config.name}
+      className={EntityClassNames.CONTEXT_MENU}
+      pageId={props.pageId}
+    />
+  );
+};
+
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const { pageId } = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
@@ -41,14 +55,27 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     }
   }, [props.url, pageId, props.pageId]);
 
-  const contextMenu = (
-    <ActionEntityContextMenu
-      id={props.action.config.id}
-      name={props.action.config.name}
-      className={EntityClassNames.CONTEXT_MENU}
-      pageId={props.pageId}
-    />
-  );
+  // const contextMenu = (
+  //   <ActionEntityContextMenu
+  //     id={props.action.config.id}
+  //     name={props.action.config.name}
+  //     className={EntityClassNames.CONTEXT_MENU}
+  //     pageId={props.pageId}
+  //   />
+  // );
+  const contextMenuProps = useMemo(() => {
+    console.log("Generating new props");
+    return {
+      action: {
+        config: {
+          name: props.action.config.name,
+          id: props.action.config.id,
+        },
+      },
+      pageId: props.pageId,
+    };
+  }, [props.action.config.name, props.action.config.id, props.pageId]);
+
   return (
     <Entity
       key={props.action.config.id}
@@ -60,7 +87,12 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       step={props.step}
       updateEntityName={getUpdateActionNameReduxAction}
       searchKeyword={props.searchKeyword}
-      contextMenu={contextMenu}
+      contextMenu={
+        <CreateContextMenu
+          action={contextMenuProps.action}
+          pageId={contextMenuProps.pageId}
+        />
+      }
       className="action"
     >
       <EntityProperties

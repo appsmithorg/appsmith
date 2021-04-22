@@ -25,7 +25,7 @@ import { Plugin } from "api/PluginApi";
 import { Action, PaginationType, RapidApiAction } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import styled from "styled-components";
+import styled, { CSSProperties } from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";
 import PerformanceTracker, {
@@ -34,7 +34,7 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { getTheme, getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { Theme } from "constants/DefaultTheme";
 import { getPluginSettingConfigs } from "selectors/entitiesSelector";
 
@@ -57,7 +57,6 @@ interface ReduxStateProps {
   apiAction: Action | ActionData | RapidApiAction | undefined;
   paginationType: PaginationType;
   isEditorInitialized: boolean;
-  lightTheme: Theme;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -180,12 +179,7 @@ class ApiEditor extends React.Component<Props> {
       />
     );
     return (
-      <div
-        style={{
-          position: "relative",
-          height: "100%",
-        }}
-      >
+      <div style={formStyles}>
         {apiId ? (
           <>
             {formUiComponent === "ApiEditorForm" && (
@@ -232,6 +226,11 @@ class ApiEditor extends React.Component<Props> {
   }
 }
 
+const formStyles: CSSProperties = {
+  position: "relative",
+  height: "100%",
+};
+
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
@@ -253,7 +252,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDeleting: isDeleting[props.match.params.apiId],
     isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
-    lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
   };
 };
 

@@ -9,6 +9,7 @@ import {
   RenderModes,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
+import produce from "immer";
 
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {
@@ -76,18 +77,21 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       : defaultModalWidth;
   }
 
-  renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
-    childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
-      : MODAL_SIZE[this.props.size].height;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.containerStyle = "none";
-    childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
-    childWidgetData.rightColumn = this.getModalWidth();
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+  renderChildWidget = (props: WidgetProps): ReactNode => {
+    const childWidgetProps = produce(props, (childWidgetData) => {
+      childWidgetData.parentId = this.props.widgetId;
+      childWidgetData.shouldScrollContents = false;
+      childWidgetData.canExtend = this.props.shouldScrollContents;
+      childWidgetData.bottomRow = this.props.shouldScrollContents
+        ? childWidgetData.bottomRow
+        : MODAL_SIZE[this.props.size].height;
+      childWidgetData.isVisible = this.props.isVisible;
+      childWidgetData.containerStyle = "none";
+      childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
+      childWidgetData.rightColumn = this.getModalWidth();
+    });
+
+    return WidgetFactory.createWidget(childWidgetProps);
   };
 
   closeModal = (e: any) => {
