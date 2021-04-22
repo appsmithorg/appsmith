@@ -7,6 +7,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "constants/ReduxActionConstants";
 import { getActions } from "../selectors/entitiesSelector";
+import { useSelector } from "react-redux";
 
 export const getWidgets = (
   state: AppState,
@@ -127,3 +128,23 @@ export const getSelectedWidget = (state: AppState) => {
   if (!selectedWidgetId) return;
   return state.entities.canvasWidgets[selectedWidgetId];
 };
+
+export const getWidgetChildren = createSelector(
+  getWidget,
+  (widget: WidgetProps) => {
+    const childrenIds: string[] = [];
+    if (widget === undefined) {
+      return [];
+    }
+    const { children = [] } = widget;
+    if (children && children.length) {
+      for (const childIndex in children) {
+        if (children.hasOwnProperty(childIndex)) {
+          const child = children[childIndex];
+          childrenIds.push(child);
+        }
+      }
+    }
+    return childrenIds;
+  },
+);

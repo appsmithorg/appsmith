@@ -12,6 +12,7 @@ import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getWidgetChildren } from "sagas/selectors";
 
 export const executeAction = (
   payload: ExecuteActionPayload,
@@ -69,6 +70,22 @@ export const selectWidget = (
   type: ReduxActionTypes.SELECT_WIDGET,
   payload: { widgetId },
 });
+
+export const selectWidgets = (
+  widgetId?: string[],
+): ReduxAction<{ widgetId?: string[] }> => ({
+  type: ReduxActionTypes.SELECT_WIDGETS,
+  payload: { widgetId },
+});
+
+export const selectAllWidgets = (
+  widgetIds?: string[],
+): ReduxAction<{ widgetIds?: string[] }> => {
+  return {
+    type: ReduxActionTypes.SELECT_WIDGETS,
+    payload: { widgetIds: widgetIds?.slice(0, widgetIds.length - 1) },
+  };
+};
 
 export const showModal = (id: string) => {
   return {

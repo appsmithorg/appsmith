@@ -8,6 +8,8 @@ import {
   cutWidget,
   deleteSelectedWidget,
   pasteWidget,
+  selectAllWidgets,
+  selectWidgets,
 } from "actions/widgetActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
@@ -21,6 +23,7 @@ import {
 } from "constants/Explorer";
 import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 import { showDebugger } from "actions/debuggerActions";
+import { getWidgetChildren } from "sagas/selectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -30,6 +33,8 @@ type Props = {
   toggleShowGlobalSearchModal: () => void;
   resetCommentMode: () => void;
   openDebugger: () => void;
+  selectAllWidgets: (widgetIds: string[]) => void;
+  widgetIds: string[];
   selectedWidget?: string;
   children: React.ReactNode;
 };
@@ -145,10 +150,14 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
-          combo="esc"
-          global
-          label="Escape"
-          onKeyDown={this.props.resetCommentMode}
+          global={true}
+          combo="mod + a"
+          label="Select all Widget"
+          group="Canvas"
+          onKeyDown={(e: any) => {
+            this.props.selectAllWidgets(this.props.widgetIds);
+            e.preventDefault();
+          }}
         />
       </Hotkeys>
     );
@@ -161,6 +170,7 @@ class GlobalHotKeys extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState) => ({
   selectedWidget: getSelectedWidget(state),
+  widgetIds: getWidgetChildren(state, MAIN_CONTAINER_WIDGET_ID),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -172,6 +182,8 @@ const mapDispatchToProps = (dispatch: any) => {
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
+    selectAllWidgets: (widgetIds: string[]) =>
+      dispatch(selectAllWidgets(widgetIds)),
   };
 };
 

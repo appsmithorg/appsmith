@@ -58,6 +58,9 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
+  const selectedWidgets = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
+  );
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
@@ -71,7 +74,8 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
-    focusedWidget === props.widgetId || selectedWidget === props.widgetId;
+    focusedWidget === props.widgetId ||
+    selectedWidgets.includes(props.widgetId);
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
