@@ -28,17 +28,27 @@ import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  DATA_SOURCES_EDITOR_ID_URL,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getDataSources,
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
+import {
+  createNewApiName,
+  getNextEntityName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getActions,
+  getPlugins,
+  getDatasources,
+  getPlugin,
+} from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest, setActionProperty } from "actions/actionActions";
 import { Datasource } from "entities/Datasource";
@@ -381,7 +391,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const action = yield select(getAction, id);
   const data = { ...action };
 
-  if (pluginType === "API") {
+  if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
@@ -391,6 +401,19 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
       }),
     );
   }
+}
+
+function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
+  const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  // Only look at API plugins
+  if (plugin.type !== PluginType.API) return;
+
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
+
+  history.push(
+    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, actionPayload.payload.id),
+  );
 }
 
 function* handleCreateNewApiActionSaga(
@@ -439,7 +462,7 @@ function* handleCreateNewQueryActionSaga(
   const { pageId } = action.payload;
   const applicationId = yield select(getCurrentApplicationId);
   const actions = yield select(getActions);
-  const dataSources = yield select(getDataSources);
+  const dataSources = yield select(getDatasources);
   const plugins = yield select(getPlugins);
   const pluginIds = plugins
     .filter((plugin: Plugin) => PLUGIN_PACKAGE_DBS.includes(plugin.packageName))
@@ -522,6 +545,15 @@ function* handleApiNameChangeSuccessSaga(
     );
     return;
   }
+  if (actionObj.pluginType === PluginType.API) {
+    const params = getQueryParams();
+    if (params.editName) {
+      params.editName = "false";
+    }
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
+  }
 }
 
 function* handleApiNameChangeFailureSaga(
@@ -540,6 +572,10 @@ export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
+    takeEvery(
+      ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+      handleDatasourceCreatedSaga,
+    ),
     takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleApiNameChangeSaga),
     takeEvery(
       ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,

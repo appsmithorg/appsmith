@@ -33,7 +33,7 @@ import {
   getPageList,
 } from "selectors/editorSelectors";
 import _ from "lodash";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
   BUILDER_PAGE_URL,
@@ -46,7 +46,7 @@ import {
   showRunActionConfirmModal,
   updateAction,
 } from "actions/actionActions";
-import { Action } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 import ActionAPI, {
   ActionExecutionResponse,
   ActionResponse,
@@ -65,7 +65,6 @@ import { AppState } from "reducers";
 import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
 import { TypeOptions } from "react-toastify";
-import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import {
   updateAppPersistentStore,
@@ -687,8 +686,13 @@ function* runActionSaga(
       const payload = createActionExecutionResponse(response);
 
       const pageName = yield select(getCurrentPageNameByActionId, actionId);
-      const eventName =
-        actionObject.pluginType === PLUGIN_TYPE_API ? "RUN_API" : "RUN_QUERY";
+      let eventName: EventName = "RUN_API";
+      if (actionObject.pluginType === PluginType.DB) {
+        eventName = "RUN_QUERY";
+      }
+      if (actionObject.pluginType === PluginType.SAAS) {
+        eventName = "RUN_SAAS_API";
+      }
 
       AnalyticsUtil.logEvent(eventName, {
         actionId,

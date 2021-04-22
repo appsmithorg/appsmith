@@ -21,6 +21,8 @@ import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 import evaluationsSaga from "./EvaluationsSaga";
 import onboardingSaga from "./OnboardingSagas";
+import utilSagas from "./UtilSagas";
+import saaSPaneSagas from "./SaaSPaneSagas";
 import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
 import recentEntitiesSagas from "./RecentEntitiesSagas";
@@ -52,8 +54,12 @@ export function* rootSaga() {
     evaluationsSaga,
     onboardingSaga,
     actionExecutionChangeListeners,
+    utilSagas,
+    saaSPaneSagas,
     globalSearchSagas,
     recentEntitiesSagas,
+    utilSagas,
+    saaSPaneSagas,
   ];
   yield all(
     sagas.map((saga) =>

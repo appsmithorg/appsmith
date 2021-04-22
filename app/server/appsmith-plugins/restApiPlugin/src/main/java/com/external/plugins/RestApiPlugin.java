@@ -43,7 +43,6 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -307,9 +306,7 @@ public class RestApiPlugin extends BasePlugin {
                 webClientBuilder.filter(apiConnection);
             }
 
-            WebClient client = webClientBuilder
-                    .exchangeStrategies(EXCHANGE_STRATEGIES)
-                    .filter(logRequest()).build();
+            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
             // Triggering the actual REST API call
             return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
@@ -388,14 +385,6 @@ public class RestApiPlugin extends BasePlugin {
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
-        }
-
-        private static ExchangeFilterFunction logRequest() {
-            return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                log.info("Request: {} {}", clientRequest.method(), clientRequest.url());
-                clientRequest.headers().forEach((name, values) -> values.forEach(value -> System.out.println(name + "=" + value)));
-                return Mono.just(clientRequest);
-            });
         }
 
         private String getSignatureKey(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
