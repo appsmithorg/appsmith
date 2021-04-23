@@ -111,6 +111,7 @@ interface Props {
   children: JSX.Element;
   error?: string;
   useValidationMessage?: boolean;
+  hideEvaluatedValue?: boolean;
 }
 
 interface PopoverContentProps {
@@ -122,6 +123,7 @@ interface PopoverContentProps {
   theme: EditorTheme;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  hideEvaluatedValue?: boolean;
 }
 
 export const CurrentValueViewer = (props: {
@@ -169,7 +171,11 @@ export const CurrentValueViewer = (props: {
   }
   return (
     <React.Fragment>
-      {!props.hideLabel && <StyledTitle>Evaluated Value</StyledTitle>}
+      {!props.hideLabel && (
+        <StyledTitle data-testid="evaluated-value-popup-title">
+          Evaluated Value
+        </StyledTitle>
+      )}
       <CurrentValueWrapper colorTheme={props.theme}>
         <>
           {content}
@@ -212,10 +218,12 @@ const PopoverContent = (props: PopoverContentProps) => {
           </TypeText>
         </React.Fragment>
       )}
-      <CurrentValueViewer
-        theme={props.theme}
-        evaluatedValue={props.evaluatedValue}
-      />
+      {!props.hideEvaluatedValue && (
+        <CurrentValueViewer
+          theme={props.theme}
+          evaluatedValue={props.evaluatedValue}
+        />
+      )}
     </ContentWrapper>
   );
 };
@@ -254,6 +262,7 @@ const EvaluatedValuePopup = (props: Props) => {
             useValidationMessage={props.useValidationMessage}
             hasError={props.hasError}
             theme={props.theme}
+            hideEvaluatedValue={props.hideEvaluatedValue}
             onMouseLeave={() => {
               setContentHovered(false);
             }}

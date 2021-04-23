@@ -265,7 +265,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       onStart={handleResizeStart}
       onStop={updateSize}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
-      enable={!isDragging && isWidgetFocused}
+      enable={!isDragging && isWidgetFocused && !props.resizeDisabled}
       isColliding={isColliding}
     >
       <VisibilityContainer

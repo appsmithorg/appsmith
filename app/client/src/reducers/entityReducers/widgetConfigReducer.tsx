@@ -28,6 +28,7 @@ import { IconWidgetProps } from "widgets/IconWidget";
 import { VideoWidgetProps } from "widgets/VideoWidget";
 import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
 import { SwitchWidgetProps } from "widgets/SwitchWidget";
+import { ListWidgetProps } from "../../widgets/ListWidget/ListWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -78,6 +79,7 @@ export interface WidgetConfigReducerState {
       WidgetConfigProps;
     ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
     SKELETON_WIDGET: Partial<SkeletonWidgetProps> & WidgetConfigProps;
+    LIST_WIDGET: Partial<ListWidgetProps<WidgetProps>> & WidgetConfigProps;
   };
   configVersion: number;
 }

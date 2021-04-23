@@ -58,4 +58,5 @@ const uiReducer = combineReducers({
   releases: releasesReducer,
   debugger: debuggerReducer,
 });
+
 export default uiReducer;

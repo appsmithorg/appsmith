@@ -113,7 +113,9 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     };
   }
 
-  onButtonClick() {
+  onButtonClick(e: React.MouseEvent<HTMLElement>) {
+    e.stopPropagation();
+
     if (this.props.onClick) {
       this.setState({
         isLoading: true,

@@ -166,6 +166,11 @@ const FIELD_VALUES: Record<
     shouldScroll: "boolean",
     isVisible: "boolean",
   },
+  LIST_WIDGET: {
+    items: "Array<Object>",
+    isVisible: "boolean",
+    gridGap: "number",
+  },
 };
 
 export default FIELD_VALUES;
