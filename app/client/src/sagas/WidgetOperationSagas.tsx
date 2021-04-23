@@ -57,6 +57,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
   executeWidgetBlueprintOperations,
+  traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import {
@@ -110,7 +111,12 @@ import {
   WIDGET_COPY,
   WIDGET_CUT,
   WIDGET_DELETE,
+  ERROR_WIDGET_COPY_NOT_ALLOWED,
 } from "constants/messages";
+import {
+  doesTriggerPathsContainPropertyPath,
+  handleSpecificCasesWhilePasting,
+} from "./WidgetOperationUtils";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -243,25 +249,43 @@ function* generateChildWidgets(
       widget.widgetId,
     );
   }
+
   // Add the parentId prop to this widget
   widget.parentId = parent.widgetId;
   // Remove the blueprint from the widget (if any)
   // as blueprints are not useful beyond this point.
   delete widget.blueprint;
+
+  // deleting propertyPaneEnchancements too as it shouldn't go in dsl because
+  // function can't be cloned into dsl
+
+  // instead of passing whole enhancments function in widget props, we are just setting
+  // enhancments as true so that we know this widget contains enhancments
+  if ("enhancements" in widget) {
+    widget.enhancements = true;
+  }
+
   return { widgetId: widget.widgetId, widgets };
 }
 
+/**
+ * this saga is called when we drop a widget on the canvas.
+ *
+ * @param addChildAction
+ */
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
     Toaster.clear();
+
+    // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
     const { widgetId } = addChildAction.payload;
     // Get the current parent widget whose child will be the new widget.
     const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
     // const parent = Object.assign({}, stateParent);
     // Get all the widgets from the canvasWidgetsReducer
     const stateWidgets = yield select(getWidgets);
-    const widgets = Object.assign({}, stateWidgets);
+    let widgets = Object.assign({}, stateWidgets);
     // Generate the full WidgetProps of the widget to be added.
     const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
       stateParent,
@@ -278,6 +302,21 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
 
     widgets[parent.widgetId] = parent;
     log.debug("add child computations took", performance.now() - start, "ms");
+
+    // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
+    // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
+    // while travesring, if we find any widget which has CHILD_OPERATION, we will call the fn in it
+    const updatedWidgets: {
+      [widgetId: string]: FlattenedWidgetProps;
+    } = yield call(
+      traverseTreeAndExecuteBlueprintChildOperations,
+      parent,
+      addChildAction.payload.newWidgetId,
+      widgets,
+    );
+
+    widgets = updatedWidgets;
+
     yield put({
       type: ReduxActionTypes.WIDGET_CHILD_ADDED,
       payload: {
@@ -286,6 +325,9 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       },
     });
     yield put(updateAndSaveLayout(widgets));
+
+    // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
+    // call execute
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -402,6 +444,10 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (!widgetId) {
       const selectedWidget = yield select(getSelectedWidget);
       if (!selectedWidget) return;
+
+      // if widget is not deletable, don't don anything
+      if (selectedWidget.isDeletable === false) return false;
+
       widgetId = selectedWidget.widgetId;
       parentId = selectedWidget.parentId;
     }
@@ -835,6 +881,7 @@ function* setWidgetDynamicPropertySaga(
 function getPropertiesToUpdate(
   widget: WidgetProps,
   updates: Record<string, unknown>,
+  triggerPaths?: string[],
 ): {
   propertyUpdates: Record<string, unknown>;
   dynamicTriggerPathList: DynamicPath[];
@@ -869,9 +916,15 @@ function getPropertiesToUpdate(
     }
 
     // Check if the path is a of a dynamic trigger property
-    const isTriggerProperty = isPropertyATriggerPath(
+    let isTriggerProperty = isPropertyATriggerPath(
       widgetWithUpdates,
       propertyPath,
+    );
+
+    isTriggerProperty = doesTriggerPathsContainPropertyPath(
+      isTriggerProperty,
+      propertyPath,
+      triggerPaths,
     );
 
     // If it is a trigger property, it will go in a different list than the general
@@ -912,7 +965,7 @@ function* batchUpdateWidgetPropertySaga(
     // Handling the case where sometimes widget id is not passed through here
     return;
   }
-  const { modify = {}, remove = [] } = updates;
+  const { modify = {}, remove = [], triggerPaths } = updates;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
 
@@ -926,7 +979,7 @@ function* batchUpdateWidgetPropertySaga(
         propertyUpdates,
         dynamicTriggerPathList,
         dynamicBindingPathList,
-      } = getPropertiesToUpdate(widget, modify);
+      } = getPropertiesToUpdate(widget, modify, triggerPaths);
 
       // We loop over all updates
       Object.entries(propertyUpdates).forEach(
@@ -1091,6 +1144,13 @@ function* createWidgetCopy() {
   );
 }
 
+/**
+ * copy here actually means saving a JSON in local storage
+ * so when a user hits copy on a selected widget, we save widget in localStorage
+ *
+ * @param action
+ * @returns
+ */
 function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   const selectedWidget = yield select(getSelectedWidget);
   if (!selectedWidget) {
@@ -1098,6 +1158,15 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
       text: createMessage(ERROR_WIDGET_COPY_NO_WIDGET_SELECTED),
       variant: Variant.info,
     });
+    return;
+  }
+
+  if (selectedWidget.disallowCopy === true) {
+    Toaster.show({
+      text: createMessage(ERROR_WIDGET_COPY_NOT_ALLOWED),
+      variant: Variant.info,
+    });
+
     return;
   }
 
@@ -1157,6 +1226,9 @@ function getNextWidgetName(
   ]);
 }
 
+/**
+ * this saga create a new widget from the copied one to store
+ */
 function* pasteWidgetSaga() {
   const copiedWidgets: {
     widgetId: string;
@@ -1178,7 +1250,20 @@ function* pasteWidgetSaga() {
     const stateWidgets = yield select(getWidgets);
     let widgets = { ...stateWidgets };
 
-    const selectedWidget = yield select(getSelectedWidget);
+    let selectedWidget = yield select(getSelectedWidget);
+
+    // when list widget is selected, if the user is pasting, we want it to be pasted in the template
+    // which is first children of list widget
+    if (selectedWidget?.type === WidgetTypes.LIST_WIDGET) {
+      const childrenIds: string[] = yield call(
+        getWidgetChildren,
+        selectedWidget.children[0],
+      );
+      const firstChildId = childrenIds[0];
+
+      selectedWidget = yield select(getWidget, firstChildId);
+    }
+
     let newWidgetParentId = MAIN_CONTAINER_WIDGET_ID;
     let parentWidget = widgets[MAIN_CONTAINER_WIDGET_ID];
 
@@ -1251,6 +1336,7 @@ function* pasteWidgetSaga() {
     // Get a flat list of all the widgets to be updated
     const widgetList = copiedWidgets.list;
     const widgetIdMap: Record<string, string> = {};
+    const widgetNameMap: Record<string, string> = {};
     const newWidgetList: FlattenedWidgetProps[] = [];
     let newWidgetId: string = copiedWidget.widgetId;
     // Generate new widgetIds for the flat list of all the widgets to be updated
@@ -1260,12 +1346,16 @@ function* pasteWidgetSaga() {
       newWidget.widgetId = generateReactKey();
       // Add the new widget id so that it maps the previous widget id
       widgetIdMap[widget.widgetId] = newWidget.widgetId;
+
       // Add the new widget to the list
       newWidgetList.push(newWidget);
     });
 
     // For each of the new widgets generated
-    newWidgetList.forEach((widget) => {
+    for (let i = 0; i < newWidgetList.length; i++) {
+      const widget = newWidgetList[i];
+      const oldWidgetName = widget.widgetName;
+
       // Update the children widgetIds if it has children
       if (widget.children && widget.children.length > 0) {
         widget.children.forEach((childWidgetId: string, index: number) => {
@@ -1327,6 +1417,8 @@ function* pasteWidgetSaga() {
         widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
       }
 
+      widgetNameMap[oldWidgetName] = widget.widgetName;
+
       // If it is the copied widget, update position properties
       if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
         newWidgetId = widget.widgetId;
@@ -1385,10 +1477,26 @@ function* pasteWidgetSaga() {
       widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
       // Add the new widget to the canvas widgets
       widgets[widget.widgetId] = widget;
-    });
+    }
+
+    // 1. updating template in the copied widget and deleting old template associations
+    // 2. updating dynamicBindingPathList in the copied grid widget
+    for (let i = 0; i < newWidgetList.length; i++) {
+      const widget = newWidgetList[i];
+
+      widgets = handleSpecificCasesWhilePasting(
+        widget,
+        widgets,
+        widgetNameMap,
+        newWidgetList,
+      );
+    }
 
     // save the new DSL
     yield put(updateAndSaveLayout(widgets));
+
+    // hydrating enhancements map after save layout so that enhancement map
+    // for newly copied widget is hydrated
 
     // Flash the newly pasted widget once the DSL is re-rendered
     setTimeout(() => flashElementById(newWidgetId), 100);

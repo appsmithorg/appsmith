@@ -213,7 +213,6 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
 
       return { isValid: true, parsed, transformed: parsed };
     } catch (e) {
-      console.error(e);
       return {
         isValid: false,
         parsed: [],
@@ -257,6 +256,44 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: [],
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
+      };
+    }
+    return { isValid, parsed };
+  },
+  [VALIDATION_TYPES.LIST_DATA]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const { isValid, transformed, parsed } = VALIDATORS.ARRAY(
+      value,
+      props,
+      dataTree,
+    );
+
+    if (!isValid) {
+      return {
+        isValid,
+        parsed: [],
+        transformed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "key1" : "val1", "key2" : "val2" }]`,
+      };
+    }
+
+    const isValidListData = every(parsed, (datum) => {
+      return (
+        isObject(datum) &&
+        Object.keys(datum).filter((key) => isString(key) && key.length === 0)
+          .length === 0
+      );
+    });
+
+    if (!isValidListData) {
+      return {
+        isValid: false,
+        parsed: [],
+        transformed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "key1" : "val1", "key2" : "val2" }]`,
       };
     }
     return { isValid, parsed };
@@ -447,7 +484,6 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       }
       return { isValid, parsed };
     } catch (e) {
-      console.error(e);
       return {
         isValid: false,
         parsed: [],

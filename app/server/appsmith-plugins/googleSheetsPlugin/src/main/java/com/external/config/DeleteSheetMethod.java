@@ -32,18 +32,19 @@ public class DeleteSheetMethod implements Method {
     @Override
     public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Id");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Url");
         }
-        if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet Name");
+        if (GoogleSheets.SHEET.equalsIgnoreCase(methodConfig.getDeleteFormat())) {
+            if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet Name");
+            }
         }
         return true;
     }
 
     @Override
     public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
-        if ("All".equalsIgnoreCase(methodConfig.getSheetName())) {
-            methodConfig.setSheetId("All");
+        if (GoogleSheets.SPREADSHEET.equalsIgnoreCase(methodConfig.getDeleteFormat())) {
             return Mono.just(true);
         }
 

@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import _ from "lodash";
+import _, { get } from "lodash";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
@@ -31,6 +31,11 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
+import {
+  useChildWidgetEnhancementFns,
+  useParentWithEnhancementFn,
+} from "sagas/WidgetEnhancementHelpers";
+
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
@@ -39,6 +44,17 @@ type Props = PropertyPaneControlConfig & {
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const parentWithEnhancement = useParentWithEnhancementFn(
+    widgetProperties.widgetId,
+  );
+
+  /** get all child enhancments functions */
+  const {
+    propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
+    autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
+    customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
+    hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
+  } = useChildWidgetEnhancementFns(widgetProperties.widgetId);
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
@@ -79,7 +95,28 @@ const PropertyControl = memo((props: Props) => {
       ),
     [widgetProperties.widgetId, dispatch],
   );
+  // this function updates the properties of widget passed
+  const onBatchUpdatePropertiesOfWidget = useCallback(
+    (
+      allUpdates: Record<string, unknown>,
+      widgetId: string,
+      triggerPaths: string[],
+    ) => {
+      dispatch(
+        batchUpdateWidgetProperty(widgetId, {
+          modify: allUpdates,
+          triggerPaths,
+        }),
+      );
+    },
+    [dispatch],
+  );
 
+  /**
+   * this function is called whenever we change any property in the property pane
+   * it updates the widget property by updateWidgetPropertyRequest
+   * It also calls the beforeChildPropertyUpdate hook
+   */
   const onPropertyChange = useCallback(
     (propertyName: string, propertyValue: any) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
@@ -88,7 +125,6 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
       });
-
       let propertiesToUpdate:
         | Array<{
             propertyPath: string;
@@ -102,6 +138,39 @@ const PropertyControl = memo((props: Props) => {
           propertyValue,
         );
       }
+
+      // if there are enhancements related to the widget, calling them here
+      // enhancements are basically group of functions that are called before widget propety
+      // is changed on propertypane. For e.g - set/update parent property
+      if (childWidgetPropertyUpdateEnhancementFn) {
+        const hookPropertiesUpdates = childWidgetPropertyUpdateEnhancementFn(
+          widgetProperties.widgetName,
+          propertyName,
+          propertyValue,
+          props.isTriggerProperty,
+        );
+
+        if (
+          Array.isArray(hookPropertiesUpdates) &&
+          hookPropertiesUpdates.length > 0
+        ) {
+          const allUpdates: Record<string, unknown> = {};
+          const triggerPaths: string[] = [];
+          hookPropertiesUpdates.forEach(
+            ({ propertyPath, propertyValue, isDynamicTrigger }) => {
+              allUpdates[propertyPath] = propertyValue;
+              if (isDynamicTrigger) triggerPaths.push(propertyPath);
+            },
+          );
+
+          onBatchUpdatePropertiesOfWidget(
+            allUpdates,
+            get(parentWithEnhancement, "widgetId", ""),
+            triggerPaths,
+          );
+        }
+      }
+
       if (propertiesToUpdate) {
         const allUpdates: Record<string, unknown> = {};
         propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
@@ -190,6 +259,7 @@ const PropertyControl = memo((props: Props) => {
       expected: FIELD_EXPECTED_VALUE[widgetProperties.type as WidgetType][
         propertyName
       ] as any,
+      additionalDynamicData: {},
     };
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
       config.isValid = true;
@@ -208,6 +278,36 @@ const PropertyControl = memo((props: Props) => {
       .split(" ")
       .join("")
       .toLowerCase();
+
+    let additionAutocomplete = undefined;
+    if (additionalAutoComplete) {
+      additionAutocomplete = additionalAutoComplete(widgetProperties);
+    } else if (childWidgetAutoCompleteEnhancementFn) {
+      additionAutocomplete = childWidgetAutoCompleteEnhancementFn();
+    }
+
+    /**
+     * if the current widget requires a customJSControl, use that.
+     */
+    const getCustomJSControl = () => {
+      if (childWidgetCustomJSControlEnhancementFn) {
+        return childWidgetCustomJSControlEnhancementFn();
+      }
+
+      return props.customJSControl;
+    };
+
+    /**
+     * should the property control hide evaluated popover
+     * @returns
+     */
+    const hideEvaluatedValue = () => {
+      if (childWidgetHideEvaluatedValueEnhancementFn) {
+        return childWidgetHideEvaluatedValueEnhancementFn();
+      }
+
+      return false;
+    };
 
     try {
       return (
@@ -255,10 +355,9 @@ const PropertyControl = memo((props: Props) => {
                   theme: props.theme,
                 },
                 isDynamic,
-                props.customJSControl,
-                additionalAutoComplete
-                  ? additionalAutoComplete(widgetProperties)
-                  : undefined,
+                getCustomJSControl(),
+                additionAutocomplete,
+                hideEvaluatedValue(),
               )}
             </Indicator>
           </Boxed>

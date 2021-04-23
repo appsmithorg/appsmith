@@ -704,6 +704,7 @@ export const widgetOperationParams = (
     columns: widget.columns,
     rows: widget.rows,
   };
+
   return {
     operation: WidgetOperations.ADD_CHILD,
     widgetId: parentWidgetId,
