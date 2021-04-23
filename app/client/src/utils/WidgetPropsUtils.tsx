@@ -358,7 +358,9 @@ function migrateTabsDataUsingMigrator(
 
 export function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
   if (
-    currentDSL.type === WidgetTypes.TABS_MIGRATOR_WIDGET &&
+    [WidgetTypes.TABS_WIDGET, WidgetTypes.TABS_MIGRATOR_WIDGET].includes(
+      currentDSL.type as any,
+    ) &&
     currentDSL.version === 1
   ) {
     try {
@@ -374,7 +376,11 @@ export function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
           DATA_BIND_REGEX_GLOBAL,
           (word: any) => `"${word}"`,
         );
-        currentDSL.tabs = JSON.parse(tabsString);
+        try {
+          currentDSL.tabs = JSON.parse(tabsString);
+        } catch (error) {
+          return migrateTabsDataUsingMigrator(currentDSL);
+        }
         const dynamicPropsList = currentDSL.tabs
           .filter((each: any) => DATA_BIND_REGEX_GLOBAL.test(each.isVisible))
           .map((each: any) => {
@@ -583,7 +589,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 16) {
-    currentDSL = migrateTabsDataUsingMigrator(currentDSL);
+    currentDSL = migrateTabsData(currentDSL);
     currentDSL.version = 17;
   }
 
