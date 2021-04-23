@@ -72,10 +72,11 @@ const debuggerReducer = createReducer(initialState, {
     if (!action.payload.source) return state;
 
     const entityId = action.payload.source.id;
-    const id =
-      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR
-        ? `${entityId}-${action.payload.source.propertyPath}`
-        : entityId;
+    const isWidgetErrorLog =
+      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR;
+    const id = isWidgetErrorLog
+      ? `${entityId}-${action.payload.source.propertyPath}`
+      : entityId;
 
     if (isEmpty(action.payload.state)) {
       return {
@@ -101,7 +102,7 @@ const debuggerReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      errors: action.payload,
+      errors: { ...action.payload },
     };
   },
 });

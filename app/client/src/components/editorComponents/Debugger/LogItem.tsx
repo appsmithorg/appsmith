@@ -117,6 +117,8 @@ const StyledCollapse = styled(Collapse)`
   .debugger-message {
     ${(props) => getTypographyByKey(props, "p2")}
     color: ${(props) => props.theme.colors.debugger.message};
+    text-decoration-line: underline;
+    cursor: pointer;
   }
 
   .${Classes.ICON} {
@@ -183,7 +185,10 @@ const LogItem = (props: LogItemProps) => {
   const showToggleIcon = props.state || props.message;
   const dispatch = useDispatch();
 
-  const openHelpModal = useCallback((text: string) => {
+  const openHelpModal = useCallback((e) => {
+    e.stopPropagation();
+    const text = props.message || props.text;
+
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "DEBUGGER",
       searchTerm: text,
@@ -235,10 +240,7 @@ const LogItem = (props: LogItemProps) => {
             name={"wand"}
             size={IconSize.MEDIUM}
             fillColor={props.iconColor}
-            onClick={(e) => {
-              e.stopPropagation();
-              openHelpModal(props.message ? props.message : props.text);
-            }}
+            onClick={openHelpModal}
           />
         </TooltipComponent>
 
@@ -246,7 +248,9 @@ const LogItem = (props: LogItemProps) => {
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
             {props.message && (
               <div>
-                <span className="debugger-message">{props.message}</span>
+                <span className="debugger-message" onClick={openHelpModal}>
+                  {props.message}
+                </span>
               </div>
             )}
             {props.state && (

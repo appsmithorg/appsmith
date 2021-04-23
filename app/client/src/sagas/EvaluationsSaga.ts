@@ -95,7 +95,8 @@ const evalErrorHandler = (errors: EvalError[]) => {
       case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
         AppsmithConsole.error({
           logType: LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR,
-          text: error.message,
+          text: `The value at ${error.context?.source.propertyPath} is invalid`,
+          message: error.message,
           source: error.context?.source,
         });
         break;

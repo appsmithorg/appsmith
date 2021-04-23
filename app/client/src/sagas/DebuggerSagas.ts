@@ -20,7 +20,6 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 function* onWidgetUpdateSaga(payload: LogActionPayload) {
   if (!payload.source) return;
-
   // Wait for data tree update
   yield take(ReduxActionTypes.SET_EVALUATED_TREE);
   const dataTree = yield select(getDataTree);
@@ -39,15 +38,19 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
     const validationMessages = dataTree[payload.source.name].validationMessages;
     const validationMessage = validationMessages[propertyPath];
     const errors = yield select(getDebuggerErrors);
-    const widgetErrorLog = errors[`${source.id}-${propertyPath}`];
+    const errorId = `${source.id}-${propertyPath}`;
+    const widgetErrorLog = errors[errorId];
     if (!widgetErrorLog) return;
 
     const noError = isEmpty(validationMessage);
 
-    if (noError && widgetErrorLog.state[propertyPath]) {
-      delete widgetErrorLog.state[propertyPath];
+    if (noError) {
+      delete errors[errorId];
 
-      yield put(updateErrorLog(widgetErrorLog));
+      yield put({
+        type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
+        payload: errors,
+      });
     }
   }
 }
@@ -117,27 +120,8 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {
-          const pattern = `${payload.source.propertyPath}: `;
-          const text = payload.text.replace(pattern, "");
-
-          yield put(
-            errorLog({
-              ...payload,
-              text,
-              state: {
-                [payload.source.propertyPath]: text,
-              },
-            }),
-          );
-          yield put(
-            debuggerLog({
-              ...payload,
-              text,
-              state: {
-                [payload.source.propertyPath]: text,
-              },
-            }),
-          );
+          yield put(errorLog(payload));
+          yield put(debuggerLog(payload));
         }
       }
       break;

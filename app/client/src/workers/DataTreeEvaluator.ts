@@ -613,7 +613,7 @@ export default class DataTreeEvaluator {
     if (!isValid) {
       this.errors.push({
         type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
-        message: `${propertyPath}: ${message}`,
+        message: message || "",
         context: {
           source: {
             id: widget.widgetId,
