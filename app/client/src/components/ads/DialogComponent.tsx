@@ -82,7 +82,7 @@ type DialogComponentProps = {
   title?: string;
   trigger?: ReactNode;
   setMaxWidth?: boolean;
-  children?: ReactNode;
+  children: ReactNode;
   width?: string;
   maxHeight?: string;
   onOpening?: () => void;
@@ -104,7 +104,6 @@ export const DialogComponent = (props: DialogComponentProps) => {
   };
 
   useEffect(() => {
-    // setModalClose ? setModalClose(false) : null;
     setIsOpen(!!props.isOpen);
   }, [props.isOpen]);
 
@@ -137,9 +136,7 @@ export const DialogComponent = (props: DialogComponentProps) => {
         className={props.className}
       >
         {getHeader && getHeader()}
-        {props.children && (
-          <div className={Classes.DIALOG_BODY}>{props.children}</div>
-        )}
+        <div className={Classes.DIALOG_BODY}>{props.children}</div>
       </StyledDialog>
     </React.Fragment>
   );
