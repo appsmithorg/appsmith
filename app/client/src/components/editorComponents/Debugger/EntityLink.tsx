@@ -138,14 +138,15 @@ const Link = (props: {
   }
 };
 
-const EntityLink = (props: EntityLinkProps) => {
-  const entityTypeLinkMap = {
-    [ENTITY_TYPE.WIDGET]: <WidgetLink {...props} />,
-    [ENTITY_TYPE.ACTION]: <ActionLink {...props} />,
-    [ENTITY_TYPE.DATASOURCE]: <DatasourceLink {...props} />,
-  };
+const entityTypeLinkMap = {
+  [ENTITY_TYPE.WIDGET]: WidgetLink,
+  [ENTITY_TYPE.ACTION]: ActionLink,
+  [ENTITY_TYPE.DATASOURCE]: DatasourceLink,
+};
 
-  return entityTypeLinkMap[props.type];
+const EntityLink = (props: EntityLinkProps) => {
+  const Component = entityTypeLinkMap[props.type];
+  return <Component {...props} />;
 };
 
 type EntityLinkProps = {
