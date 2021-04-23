@@ -157,8 +157,6 @@ public class OrganizationServiceTest {
                 .verifyComplete();
     }
 
-
-
     @Test
     @WithUserDetails(value = "api_user")
     public void nullCreateOrganization() {
