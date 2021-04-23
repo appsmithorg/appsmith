@@ -13,7 +13,10 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import {
+  getDataTree,
+  getUnevaluatedDataTree,
+} from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
@@ -37,6 +40,7 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -104,6 +108,41 @@ function* postEvalActionDispatcher(actions: ReduxAction<unknown>[]) {
   }
 }
 
+function* selectiveUpdateToDataTree(
+  dataTree: DataTree,
+  updatedEntities: string[],
+) {
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.SET_EVALUATED_TREE,
+  );
+  if (!updatedEntities.length) {
+    yield put({
+      type: ReduxActionTypes.SET_EVALUATED_TREE,
+      payload: dataTree,
+    });
+  } else {
+    const oldEvalTree = yield select(getDataTree);
+    const newEvalTree: DataTree = {};
+    const updatedParts = _.pick(dataTree, updatedEntities);
+    Object.keys(dataTree).forEach((entityName) => {
+      if (entityName in updatedParts) {
+        newEvalTree[entityName] = updatedParts[entityName];
+      } else {
+        newEvalTree[entityName] = oldEvalTree[entityName];
+      }
+    });
+
+    // const newEvalTree = Object.assign(oldEvalTree, updatedParts);
+    yield put({
+      type: ReduxActionTypes.SET_EVALUATED_TREE,
+      payload: newEvalTree,
+    });
+  }
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.SET_EVALUATED_TREE,
+  );
+}
+
 function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
@@ -118,23 +157,20 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
       widgetTypeConfigMap,
     },
   );
-  const { errors, dataTree, dependencies, logs } = workerResponse;
+  const {
+    errors,
+    dataTree,
+    dependencies,
+    logs,
+    changedEntities,
+  } = workerResponse;
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   evalErrorHandler(errors);
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.SET_EVALUATED_TREE,
-  );
-  yield put({
-    type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: dataTree,
-  });
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.SET_EVALUATED_TREE,
-  );
+  yield call(selectiveUpdateToDataTree, dataTree, changedEntities);
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap: dependencies },

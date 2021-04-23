@@ -44,13 +44,16 @@ ctx.addEventListener(
         let errors: EvalError[] = [];
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
+        let changedEntities: string[] = [];
         try {
           if (!dataTreeEvaluator) {
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTreeEvaluator.createFirstTree(unevalTree);
             dataTree = dataTreeEvaluator.evalTree;
           } else {
-            dataTree = dataTreeEvaluator.updateDataTree(unevalTree);
+            const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
+            dataTree = updateResponse.dataTree;
+            changedEntities = updateResponse.changedEntities;
           }
 
           // We need to clean it to remove any possible functions inside the tree.
@@ -81,6 +84,7 @@ ctx.addEventListener(
           dependencies,
           errors,
           logs,
+          changedEntities,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
@@ -105,7 +109,9 @@ ctx.addEventListener(
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
-        const evalTree = dataTreeEvaluator.updateDataTree(dataTree);
+        const { dataTree: evalTree } = dataTreeEvaluator.updateDataTree(
+          dataTree,
+        );
         const triggers = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,

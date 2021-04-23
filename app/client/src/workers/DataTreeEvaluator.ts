@@ -124,7 +124,9 @@ export default class DataTreeEvaluator {
     return relativePropertyPath in entity.bindingPaths;
   }
 
-  updateDataTree(unEvalTree: DataTree) {
+  updateDataTree(
+    unEvalTree: DataTree,
+  ): { dataTree: DataTree; changedEntities: string[] } {
     const totalStart = performance.now();
     // Calculate diff
     const diffCheckTimeStart = performance.now();
@@ -132,7 +134,7 @@ export default class DataTreeEvaluator {
     // Since eval tree is listening to possible events that dont cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
-      return this.evalTree;
+      return { dataTree: this.evalTree, changedEntities: [] };
     }
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
@@ -203,7 +205,16 @@ export default class DataTreeEvaluator {
       evaluate: (evalStop - evalStart).toFixed(2),
     };
     this.logs.push({ timeTakenForSubTreeEval });
-    return this.evalTree;
+    return {
+      dataTree: this.evalTree,
+      changedEntities: Array.from(
+        new Set(
+          evaluationOrder.map((propertyPath) =>
+            propertyPath.substring(0, propertyPath.indexOf(".")),
+          ),
+        ),
+      ),
+    };
   }
 
   getCompleteSortOrder(
