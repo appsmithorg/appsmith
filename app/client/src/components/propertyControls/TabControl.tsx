@@ -213,6 +213,7 @@ class TabControl extends BaseControl<ControlProps> {
 
   deleteOption = (index: number) => {
     const tabsArray: any = Object.values(this.props.propertyValue);
+    const itemId = tabsArray[index].id;
     if (tabsArray && tabsArray.length === 1) return;
     const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
       return i !== index;
@@ -227,6 +228,7 @@ class TabControl extends BaseControl<ControlProps> {
       },
       {},
     );
+    this.deleteProperties([`${this.props.propertyName}.${itemId}.isVisible`]);
     this.updateProperty(this.props.propertyName, updatedObj);
   };
 

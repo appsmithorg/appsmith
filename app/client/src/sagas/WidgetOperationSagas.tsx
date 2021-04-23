@@ -1019,6 +1019,9 @@ function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
     let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
       widget,
     );
+    let dynamicPropertyPathList: DynamicPath[] = getWidgetDynamicPropertyPathList(
+      widget,
+    );
 
     paths.forEach((propertyPath) => {
       dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
@@ -1028,10 +1031,18 @@ function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
       dynamicBindingPathList = dynamicBindingPathList.filter((dynamicPath) => {
         return !isChildPropertyPath(propertyPath, dynamicPath.key);
       });
+
+      dynamicPropertyPathList = dynamicPropertyPathList.filter(
+        (dynamicPath) => {
+          return !isChildPropertyPath(propertyPath, dynamicPath.key);
+        },
+      );
     });
 
     widget.dynamicBindingPathList = dynamicBindingPathList;
     widget.dynamicTriggerPathList = dynamicTriggerPathList;
+    widget.dynamicPropertyPathList = dynamicPropertyPathList;
+
     paths.forEach((propertyPath) => {
       widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
     });

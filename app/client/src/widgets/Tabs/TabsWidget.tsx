@@ -265,8 +265,12 @@ class TabsWidget extends BaseWidget<
           tabWidgetIds,
           ...childWidgetIds,
         );
-        this.addTabContainer(widgetIdsToCreate);
-        this.removeTabContainer(widgetIdsToRemove);
+        if (widgetIdsToCreate && widgetIdsToCreate.length) {
+          this.addTabContainer(widgetIdsToCreate);
+        }
+        if (widgetIdsToRemove && widgetIdsToRemove.length) {
+          this.removeTabContainer(widgetIdsToRemove);
+        }
       }
       this.updateTabContainerNames();
 
