@@ -2195,7 +2195,6 @@ public class DatabaseChangelog {
             }
         }
 
-        System.out.println("Update true : " + smartSubTurnedOn);
         // Migrate actions where smart substitution is turned on
         mongoOperations.updateMulti(
                 query(where("_id").in(smartSubTurnedOn)),
@@ -2203,15 +2202,13 @@ public class DatabaseChangelog {
                 NewAction.class
         );
 
-        System.out.println("Update false : " + smartSubTurnedOff);
         // Migrate actions where smart substitution is turned off
         mongoOperations.updateMulti(
                 query(where("_id").in(smartSubTurnedOff)),
                 new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", false),
                 NewAction.class
         );
-
-        System.out.println("Updating new actions : " + noSmartSubConfig);
+        
         Property property = new Property();
         property.setValue(false);
         // Migrate actions where there is no configuration for smart substitution
