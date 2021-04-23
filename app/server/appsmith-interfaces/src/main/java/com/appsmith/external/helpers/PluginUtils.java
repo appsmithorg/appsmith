@@ -1,7 +1,5 @@
 package com.appsmith.external.helpers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
