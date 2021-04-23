@@ -1,7 +1,6 @@
 const dsl = require("../../../../fixtures/executionParamsDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const testdata = require("../../../../fixtures/testdata.json");
 
 describe("API Panel Test Functionality", function() {
   before(() => {
@@ -12,8 +11,8 @@ describe("API Panel Test Functionality", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("MultiApi");
     cy.enterDatasourceAndPath(
-      testdata.baseUrl,
-      "{{this.params.endpoint || 'users'}}",
+      "https://jsonplaceholder.typicode.com/",
+      "{{this.params.endpoint || 'posts'}}",
     );
     cy.WaitAutoSave();
     // Run it
@@ -21,10 +20,12 @@ describe("API Panel Test Functionality", function() {
 
     // Bind the table
     cy.SearchEntityandOpen("Table1");
-    cy.testJsontext("tabledata", "{{MultiApi.data.users", false);
+    cy.testJsontext("tabledata", "{{MultiApi.data", false);
     // Assert 'posts' data (default)
     cy.readTabledataPublish("0", "2").then((cellData) => {
-      expect(cellData).to.be.equal("APPROVED");
+      expect(cellData).to.be.equal(
+        "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+      );
     });
 
     // Choose static button
@@ -60,7 +61,9 @@ describe("API Panel Test Functionality", function() {
 
     // Assert on load data in table
     cy.readTabledataPublish("0", "2").then((cellData) => {
-      expect(cellData).to.be.equal("APPROVED");
+      expect(cellData).to.be.equal(
+        "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+      );
     });
 
     // Click Static button
@@ -71,7 +74,7 @@ describe("API Panel Test Functionality", function() {
     cy.wait(2000);
     // Assert statically bound "users" data
     cy.readTabledataPublish("1", "1").then((cellData) => {
-      expect(cellData).to.be.equal("Jenelle Kibbys");
+      expect(cellData).to.be.equal("Ervin Howell");
     });
 
     // Click dynamic button
@@ -82,7 +85,7 @@ describe("API Panel Test Functionality", function() {
     cy.wait(2000);
     // Assert dynamically bound "todos" data
     cy.readTabledataPublish("0", "2").then((cellData) => {
-      expect(cellData).to.be.equal("APPROVED");
+      expect(cellData).to.be.equal("delectus aut autem");
     });
   });
 });
