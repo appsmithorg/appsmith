@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -68,6 +68,9 @@ type RenderComponentProps = {
 function TabControlComponent(props: RenderComponentProps) {
   const { deleteOption, updateOption, item, index } = props;
   const debouncedUpdate = debounce(updateOption, 1000);
+  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
+    index,
+  ]);
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
@@ -92,7 +95,7 @@ function TabControlComponent(props: RenderComponentProps) {
         className="t--edit-column-btn"
         height={20}
         width={20}
-        onClick={() => props.onEdit && props.onEdit(index)}
+        onClick={handleChange}
       />
     </ItemWrapper>
   );

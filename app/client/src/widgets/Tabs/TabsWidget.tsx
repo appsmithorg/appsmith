@@ -223,6 +223,18 @@ class TabsWidget extends BaseWidget<
     });
   };
 
+  updateTabContainerNames = () => {
+    this.props.children.forEach((each) => {
+      const tab = this.props.tabsObj[each.tabId];
+      if (tab && each.tabName !== tab.label) {
+        this.updateWidget(WidgetOperations.UPDATE_PROPERTY, each.widgetId, {
+          propertyPath: "tabName",
+          propertyValue: tab.label,
+        });
+      }
+    });
+  };
+
   removeTabContainer = (widgetIds: string[]) => {
     widgetIds.forEach((widgetIdToRemove: string) => {
       this.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
@@ -256,6 +268,7 @@ class TabsWidget extends BaseWidget<
         this.addTabContainer(widgetIdsToCreate);
         this.removeTabContainer(widgetIdsToRemove);
       }
+      this.updateTabContainerNames();
 
       // If all tabs were removed.
       if (tabWidgetIds.length === 0) {

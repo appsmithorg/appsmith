@@ -1673,6 +1673,10 @@ export default function* widgetOperationSagas() {
       updateWidgetPropertySaga,
     ),
     takeEvery(
+      ReduxActionTypes.WIDGET_UPDATE_PROPERTY,
+      updateWidgetPropertySaga,
+    ),
+    takeEvery(
       ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
       setWidgetDynamicPropertySaga,
     ),
