@@ -53,6 +53,7 @@ class TabsWidget extends BaseWidget<
                       label: "Visible",
                       helpText: "Controls the visibility of the widget",
                       controlType: "SWITCH",
+                      useValidationMessage: true,
                       isJSConvertible: true,
                       isBindProperty: true,
                       isTriggerProperty: false,
