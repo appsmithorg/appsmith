@@ -1,4 +1,4 @@
-import { Collapse } from "@blueprintjs/core";
+import { Collapse, Position } from "@blueprintjs/core";
 import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Message, Severity, SourceEntity } from "entities/AppsmithConsole";
@@ -13,8 +13,11 @@ import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
+import Text, { TextType } from "components/ads/Text";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import TooltipComponent from "components/ads/Tooltip";
+import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
 
 const Log = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
@@ -37,6 +40,10 @@ const Log = styled.div<{ collapsed: boolean }>`
       props.theme.colors.debugger.warning.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.warning.borderBottom};
+  }
+
+  .bp3-popover-target {
+    display: inline;
   }
 
   .${Classes.ICON} {
@@ -85,11 +92,6 @@ const Log = styled.div<{ collapsed: boolean }>`
     line-height: 19px;
   }
 
-  .debugger-copy-text {
-    margin-left: 10px;
-    vertical-align: middle;
-  }
-
   .debugger-entity-link {
     margin-left: auto;
     ${(props) => getTypographyByKey(props, "p2")}
@@ -119,6 +121,19 @@ const StyledCollapse = styled(Collapse)`
 
   .${Classes.ICON} {
     margin-left: 10px;
+  }
+`;
+
+const StyledSearchIcon = styled(Icon)`
+  && {
+    margin-left: 10px;
+    vertical-align: middle;
+
+    &:hover {
+      path {
+        fill: ${(props) => props.fillColor};
+      }
+    }
   }
 `;
 
@@ -183,7 +198,7 @@ const LogItem = (props: LogItemProps) => {
       collapsed={!isOpen}
       onClick={() => setIsOpen(!isOpen)}
     >
-      <Icon name={props.icon} size={IconSize.XL} fillColor={props.iconColor} />
+      <Icon name={props.icon} size={IconSize.XL} keepColors />
       <span className="debugger-time">{props.timestamp}</span>
       <div className="debugger-description">
         {showToggleIcon && (
@@ -206,15 +221,27 @@ const LogItem = (props: LogItemProps) => {
         {props.timeTaken && (
           <span className="debugger-timetaken">{props.timeTaken}</span>
         )}
-        <Icon
-          className={`${Classes.ICON} debugger-copy-text`}
-          name={"open"}
-          size={IconSize.MEDIUM}
-          onClick={(e) => {
-            e.stopPropagation();
-            openHelpModal(props.message ? props.message : props.text);
-          }}
-        />
+        <TooltipComponent
+          minimal
+          position={Position.BOTTOM_LEFT}
+          content={
+            <Text type={TextType.P3} style={{ color: "#ffffff" }}>
+              {createMessage(TROUBLESHOOT_ISSUE)}
+            </Text>
+          }
+        >
+          <StyledSearchIcon
+            className={Classes.ICON}
+            name={"wand"}
+            size={IconSize.MEDIUM}
+            fillColor={props.iconColor}
+            onClick={(e) => {
+              e.stopPropagation();
+              openHelpModal(props.message ? props.message : props.text);
+            }}
+          />
+        </TooltipComponent>
+
         {showToggleIcon && (
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
             {props.message && (

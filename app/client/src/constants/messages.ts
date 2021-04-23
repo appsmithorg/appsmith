@@ -293,3 +293,5 @@ export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to open the issue in debugger";
 export const NO_LOGS = () => "No logs to show";
+
+export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";

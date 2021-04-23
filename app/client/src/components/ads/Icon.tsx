@@ -42,6 +42,7 @@ import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.s
 import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
 import { ReactComponent as PlayIcon } from "assets/icons/ads/play.svg";
 import { ReactComponent as DesktopIcon } from "assets/icons/ads/desktop.svg";
+import { ReactComponent as WandIcon } from "assets/icons/ads/wand.svg";
 import { ReactComponent as MobileIcon } from "assets/icons/ads/mobile.svg";
 import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
@@ -143,6 +144,7 @@ export const IconCollection = [
   "datasource",
   "play",
   "desktop",
+  "wand",
   "mobile",
   "tablet",
   "fluid",
@@ -267,6 +269,9 @@ const Icon = forwardRef(
         break;
       case "rocket":
         returnIcon = <RocketIcon />;
+        break;
+      case "wand":
+        returnIcon = <WandIcon />;
         break;
       case "workspace":
         returnIcon = <WorkspaceIcon />;
