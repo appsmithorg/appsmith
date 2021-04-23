@@ -538,3 +538,66 @@ describe("validateDateString test", () => {
     });
   });
 });
+
+describe("List data validator", () => {
+  const validator = VALIDATORS.LIST_DATA;
+  it("correctly validates ", () => {
+    const cases = [
+      {
+        input: [],
+        output: {
+          isValid: true,
+          parsed: [],
+        },
+      },
+      {
+        input: [{ a: 1 }],
+        output: {
+          isValid: true,
+          parsed: [{ a: 1 }],
+        },
+      },
+      {
+        input: "sting text",
+        output: {
+          isValid: false,
+          message:
+            'Value does not match type: [{ "key1" : "val1", "key2" : "val2" }]',
+          parsed: [],
+          transformed: "sting text",
+        },
+      },
+      {
+        input: undefined,
+        output: {
+          isValid: false,
+          message:
+            'Value does not match type: [{ "key1" : "val1", "key2" : "val2" }]',
+          parsed: [],
+          transformed: undefined,
+        },
+      },
+      {
+        input: {},
+        output: {
+          isValid: false,
+          message:
+            'Value does not match type: [{ "key1" : "val1", "key2" : "val2" }]',
+          parsed: [],
+          transformed: {},
+        },
+      },
+      {
+        input: `[{ "b": 1 }]`,
+        output: {
+          isValid: true,
+          parsed: JSON.parse(`[{ "b": 1 }]`),
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = validator(testCase.input, DUMMY_WIDGET, {});
+      expect(response).toStrictEqual(testCase.output);
+    }
+  });
+});

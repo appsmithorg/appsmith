@@ -90,6 +90,12 @@ import SkeletonWidget, {
   ProfiledSkeletonWidget,
   SkeletonWidgetProps,
 } from "../widgets/SkeletonWidget";
+
+import ListWidget, {
+  ListWidgetProps,
+  ProfiledListWidget,
+} from "widgets/ListWidget/ListWidget";
+
 import SwitchWidget, {
   ProfiledSwitchWidget,
   SwitchWidgetProps,
@@ -407,7 +413,18 @@ export default class WidgetBuilderRegistry {
       SkeletonWidget.getMetaPropertiesMap(),
       SkeletonWidget.getPropertyPaneConfig(),
     );
-
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.LIST_WIDGET,
+      {
+        buildWidget(widgetProps: ListWidgetProps<WidgetProps>): JSX.Element {
+          return <ProfiledListWidget {...widgetProps} />;
+        },
+      },
+      ListWidget.getDerivedPropertiesMap(),
+      ListWidget.getDefaultPropertiesMap(),
+      ListWidget.getMetaPropertiesMap(),
+      ListWidget.getPropertyPaneConfig(),
+    );
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.MODAL_WIDGET,
       {
