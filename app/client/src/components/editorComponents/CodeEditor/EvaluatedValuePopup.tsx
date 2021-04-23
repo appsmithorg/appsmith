@@ -7,6 +7,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 const Wrapper = styled.div`
   position: relative;
@@ -97,6 +98,10 @@ const StyledTitle = styled.p`
   margin: 8px 0;
 `;
 
+const StyledDebugButton = styled(DebugButton)`
+  margin-left: auto;
+`;
+
 interface Props {
   theme: EditorTheme;
   isOpen: boolean;
@@ -183,6 +188,7 @@ export const CurrentValueViewer = (props: {
 
 const PopoverContent = (props: PopoverContentProps) => {
   const typeTextRef = React.createRef<HTMLPreElement>();
+
   return (
     <ContentWrapper
       onMouseEnter={props.onMouseEnter}
@@ -192,9 +198,15 @@ const PopoverContent = (props: PopoverContentProps) => {
     >
       {props.hasError && (
         <ErrorText>
-          {props.useValidationMessage && props.error
-            ? props.error
-            : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+          <span className="t--evaluatedPopup-error">
+            {props.useValidationMessage && props.error
+              ? props.error
+              : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+          </span>
+          <StyledDebugButton
+            className="evaluated-value"
+            source={"EVALUATED_VALUE"}
+          />
         </ErrorText>
       )}
       {!props.hasError && props.expected && (

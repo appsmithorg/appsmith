@@ -79,7 +79,10 @@ import {
 } from "constants/messages";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -135,8 +138,16 @@ export function* createActionSaga(
         ...actionPayload.payload.eventData,
       });
 
-      const newAction = response.data;
+      AppsmithConsole.info({
+        text: `Action created`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          id: response.data.id,
+          name: response.data.name,
+        },
+      });
 
+      const newAction = response.data;
       yield put(createActionSuccess(newAction));
     }
   } catch (error) {
@@ -366,6 +377,15 @@ export function* deleteActionSaga(
         history.push(QUERIES_EDITOR_URL(applicationId, pageId));
       }
 
+      AppsmithConsole.info({
+        logType: LOG_TYPE.ENTITY_DELETED,
+        text: "Action was deleted",
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: response.data.name,
+          id: response.data.id,
+        },
+      });
       yield put(deleteActionSuccess({ id }));
     }
   } catch (error) {
@@ -600,6 +620,18 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
   if (propertyName === "name") return;
 
   const actionObj = yield select(getAction, actionId);
+  AppsmithConsole.info({
+    text: "Configuration updated",
+    source: {
+      type: ENTITY_TYPE.ACTION,
+      name: actionObj.name,
+      id: actionId,
+    },
+    state: {
+      [propertyName]: value,
+    },
+  });
+
   const effects: Record<string, any> = {};
   // Value change effect
   effects[propertyName] = value;

@@ -14,12 +14,15 @@ const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
 const mapStateToProps = (state: AppState) => {
   const actionName = valueSelector(state, "name");
   const pluginId = valueSelector(state, "datasource.pluginId");
+  const selectedDbId = valueSelector(state, "datasource.id");
+
   const responseTypes = getPluginResponseTypes(state);
   const documentationLinks = getPluginDocumentationLinks(state);
 
   return {
     actionName,
     pluginId,
+    selectedDbId,
     responseType: responseTypes[pluginId],
     documentationLink: documentationLinks[pluginId],
     formName: QUERY_EDITOR_FORM_NAME,

@@ -611,6 +611,18 @@ export default class DataTreeEvaluator {
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
     _.set(widget, `evaluatedValues.${propertyPath}`, safeEvaluatedValue);
     if (!isValid) {
+      this.errors.push({
+        type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
+        message: message || "",
+        context: {
+          source: {
+            id: widget.widgetId,
+            name: widget.widgetName,
+            type: ENTITY_TYPE.WIDGET,
+            propertyPath: propertyPath,
+          },
+        },
+      });
       _.set(widget, `invalidProps.${propertyPath}`, true);
       _.set(widget, `validationMessages.${propertyPath}`, message);
     } else {

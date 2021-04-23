@@ -94,10 +94,9 @@ const PropertyPaneView = (
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
   const dispatch = useDispatch();
-  const handleDelete = useCallback(
-    () => dispatch(deleteSelectedWidget(false)),
-    [dispatch],
-  );
+  const handleDelete = useCallback(() => {
+    dispatch(deleteSelectedWidget(false));
+  }, [dispatch]);
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
   return (

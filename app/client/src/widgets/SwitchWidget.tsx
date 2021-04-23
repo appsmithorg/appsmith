@@ -130,6 +130,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
 
   onChange = (isSwitchedOn: boolean) => {
     this.props.updateWidgetMetaProperty("isSwitchedOn", isSwitchedOn, {
+      triggerPropertyName: "onChange",
       dynamicString: this.props.onChange,
       event: {
         type: EventType.ON_SWITCH_CHANGE,
