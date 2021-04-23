@@ -1,7 +1,7 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { Message, Severity } from "entities/AppsmithConsole";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { get, merge, isEmpty, omit } from "lodash";
+import { get, merge, isEmpty, omit, isUndefined } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 const initialState: DebuggerReduxState = {
@@ -34,11 +34,11 @@ const debuggerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SHOW_DEBUGGER]: (
     state: DebuggerReduxState,
-    action: ReduxAction<boolean>,
+    action: ReduxAction<boolean | undefined>,
   ) => {
     return {
       ...state,
-      isOpen: action.payload,
+      isOpen: isUndefined(action.payload) ? !state.isOpen : action.payload,
     };
   },
   [ReduxActionTypes.DEBUGGER_ERROR_LOG]: (
