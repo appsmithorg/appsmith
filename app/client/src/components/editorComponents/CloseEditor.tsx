@@ -46,7 +46,7 @@ const CloseEditor = () => {
       { path: location.pathname },
     );
     e.stopPropagation();
-    history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+    history.push(BUILDER_PAGE_URL(applicationId, pageId));
   };
 
   return (
