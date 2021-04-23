@@ -114,7 +114,7 @@
                 "inputType": "TEXT",
                 "label": "Endpoint",
                 "widgetName": "EndpointInput",
-                "defaultText": "users",
+                "defaultText": "todos",
                 "type": "INPUT_WIDGET",
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
