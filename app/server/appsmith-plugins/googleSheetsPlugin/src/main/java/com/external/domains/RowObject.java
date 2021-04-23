@@ -53,7 +53,7 @@ public class RowObject {
             valueMap.put(headerValues[i], rowValues[i]);
         }
         while (i < headerValues.length) {
-            valueMap.put(headerValues[i++], null);
+            valueMap.put(headerValues[i++], "");
         }
 
         this.currentRowIndex = rowIndex;
