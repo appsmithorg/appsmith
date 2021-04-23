@@ -21,6 +21,7 @@ import { IconFactory } from "./IconFactory";
 import { FilepickerFactory } from "./FilepickerFactory";
 import { VideoFactory } from "./VideoFactory";
 import { SkeletonFactory } from "./SkeletonFactory";
+import { ListFactory } from "./ListFactory";
 
 export const WidgetTypeFactories = {
   SWITCH_WIDGET: SwitchFactory,
@@ -48,4 +49,5 @@ export const WidgetTypeFactories = {
   FILE_PICKER_WIDGET: FilepickerFactory,
   VIDEO_WIDGET: VideoFactory,
   SKELETON_WIDGET: SkeletonFactory,
+  LIST_WIDGET: ListFactory,
 };

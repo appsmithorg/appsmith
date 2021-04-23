@@ -579,8 +579,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
                 id: widget.tabId,
                 widgetId: widget.widgetId,
                 label: widget.tabName || widget.widgetName,
-                isVisible:
-                  widget.isVisible === undefined ? true : widget.isVisible,
+                isVisible: true,
               };
               widgets = {
                 ...widgets,
