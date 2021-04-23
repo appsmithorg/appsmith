@@ -96,6 +96,7 @@ export type EditorProps = EditorStyleProps &
   } & {
     additionalDynamicData?: Record<string, Record<string, unknown>>;
     promptMessage?: React.ReactNode | string;
+    hideEvaluatedValue?: boolean;
   };
 
 type Props = ReduxStateProps & EditorProps;
@@ -354,6 +355,7 @@ class CodeEditor extends Component<Props, State> {
       hoverInteraction,
       fill,
       useValidationMessage,
+      hideEvaluatedValue,
       evaluationSubstitutionType,
     } = this.props;
     const hasError = !!(meta && meta.error);
@@ -400,6 +402,7 @@ class CodeEditor extends Component<Props, State> {
           hasError={hasError}
           error={meta?.error}
           useValidationMessage={useValidationMessage}
+          hideEvaluatedValue={hideEvaluatedValue}
           evaluationSubstitutionType={evaluationSubstitutionType}
         >
           <EditorWrapper

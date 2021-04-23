@@ -109,6 +109,7 @@ interface Props {
   children: JSX.Element;
   error?: string;
   useValidationMessage?: boolean;
+  hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
 }
 
@@ -121,6 +122,7 @@ interface PopoverContentProps {
   theme: EditorTheme;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
 }
 
@@ -224,7 +226,11 @@ export const CurrentValueViewer = (props: {
   }
   return (
     <React.Fragment>
-      {!props.hideLabel && <StyledTitle>Evaluated Value</StyledTitle>}
+      {!props.hideLabel && (
+        <StyledTitle data-testid="evaluated-value-popup-title">
+          Evaluated Value
+        </StyledTitle>
+      )}
       <CurrentValueWrapper colorTheme={props.theme}>
         <>
           {content}
@@ -260,11 +266,13 @@ const PopoverContent = (props: PopoverContentProps) => {
           </TypeText>
         </React.Fragment>
       )}
-      <CurrentValueViewer
-        theme={props.theme}
-        evaluatedValue={props.evaluatedValue}
-        preparedStatementViewer={props.preparedStatementViewer}
-      />
+      {!props.hideEvaluatedValue && (
+        <CurrentValueViewer
+          theme={props.theme}
+          evaluatedValue={props.evaluatedValue}
+          preparedStatementViewer={props.preparedStatementViewer}
+        />
+      )}
     </ContentWrapper>
   );
 };
@@ -303,6 +311,7 @@ const EvaluatedValuePopup = (props: Props) => {
             useValidationMessage={props.useValidationMessage}
             hasError={props.hasError}
             theme={props.theme}
+            hideEvaluatedValue={props.hideEvaluatedValue}
             preparedStatementViewer={
               props.evaluationSubstitutionType
                 ? props.evaluationSubstitutionType ===
