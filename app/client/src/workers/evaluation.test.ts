@@ -7,27 +7,15 @@ import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
 import { PluginType } from "../entities/Action";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   TEXT_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      text: "TEXT",
-      textStyle: "TEXT",
-      shouldScroll: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {
       value: "{{ this.text }}",
@@ -35,38 +23,11 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   BUTTON_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      text: "TEXT",
-      buttonStyle: "TEXT",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   INPUT_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      inputType: "TEXT",
-      defaultText: "TEXT",
-      text: "TEXT",
-      regex: "REGEX",
-      errorMessage: "TEXT",
-      placeholderText: "TEXT",
-      maxChars: "NUMBER",
-      minNum: "NUMBER",
-      maxNum: "NUMBER",
-      label: "TEXT",
-      inputValidators: "ARRAY",
-      focusIndex: "NUMBER",
-      isAutoFocusEnabled: "BOOLEAN",
-      isRequired: "BOOLEAN",
-      isValid: "BOOLEAN",
-    },
     defaultProperties: {
       text: "defaultText",
     },
@@ -81,13 +42,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
   },
   CHECKBOX_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      label: "TEXT",
-      defaultCheckedState: "BOOLEAN",
-    },
     defaultProperties: {
       isChecked: "defaultCheckedState",
     },
@@ -97,18 +51,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   DROP_DOWN_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      placeholderText: "TEXT",
-      label: "TEXT",
-      options: "OPTIONS_DATA",
-      selectionType: "TEXT",
-      isRequired: "BOOLEAN",
-      selectedOptionValues: "ARRAY",
-      defaultOptionValue: "DEFAULT_OPTION_VALUE",
-    },
     defaultProperties: {
       selectedOptionValue: "defaultOptionValue",
       selectedOptionValueArr: "defaultOptionValue",
@@ -131,16 +73,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   RADIO_GROUP_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      label: "TEXT",
-      options: "OPTIONS_DATA",
-      selectedOptionValue: "TEXT",
-      defaultOptionValue: "TEXT",
-      isRequired: "BOOLEAN",
-    },
     defaultProperties: {
       selectedOptionValue: "defaultOptionValue",
     },
@@ -153,32 +85,11 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   IMAGE_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      image: "TEXT",
-      imageShape: "TEXT",
-      defaultImage: "TEXT",
-      maxZoomLevel: "NUMBER",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   TABLE_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      tableData: "TABLE_DATA",
-      nextPageKey: "TEXT",
-      prevPageKey: "TEXT",
-      label: "TEXT",
-      searchText: "TEXT",
-      defaultSearchText: "TEXT",
-      defaultSelectedRow: "DEFAULT_SELECTED_ROW",
-    },
     defaultProperties: {
       searchText: "defaultSearchText",
       selectedRowIndex: "defaultSelectedRow",
@@ -195,12 +106,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
   },
   VIDEO_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      url: "TEXT",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {
@@ -208,16 +113,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
   },
   FILE_PICKER_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      label: "TEXT",
-      maxNumFiles: "NUMBER",
-      allowedFileTypes: "ARRAY",
-      files: "ARRAY",
-      isRequired: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {
       isValid: "{{ this.isRequired ? this.files.length > 0 : true }}",
@@ -229,20 +124,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
   },
   DATE_PICKER_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      defaultDate: "DATE",
-      timezone: "TEXT",
-      enableTimePicker: "BOOLEAN",
-      dateFormat: "TEXT",
-      label: "TEXT",
-      datePickerType: "TEXT",
-      maxDate: "DATE",
-      minDate: "DATE",
-      isRequired: "BOOLEAN",
-    },
     defaultProperties: {
       selectedDate: "defaultDate",
     },
@@ -253,20 +134,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   DATE_PICKER_WIDGET2: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      defaultDate: "DATE",
-      timezone: "TEXT",
-      enableTimePicker: "BOOLEAN",
-      dateFormat: "TEXT",
-      label: "TEXT",
-      datePickerType: "TEXT",
-      maxDate: "DATE",
-      minDate: "DATE",
-      isRequired: "BOOLEAN",
-    },
     defaultProperties: {
       selectedDate: "defaultDate",
     },
@@ -277,10 +144,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   TABS_WIDGET: {
-    validations: {
-      tabs: "TABS_DATA",
-      defaultTab: "SELECTED_TAB",
-    },
     defaultProperties: {},
     derivedProperties: {
       selectedTab:
@@ -289,23 +152,11 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   MODAL_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   RICH_TEXT_EDITOR_WIDGET: {
-    validations: {
-      text: "TEXT",
-      placeholder: "TEXT",
-      defaultValue: "TEXT",
-      isDisabled: "BOOLEAN",
-      isVisible: "BOOLEAN",
-    },
     defaultProperties: {
       text: "defaultText",
     },
@@ -315,52 +166,21 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   CHART_WIDGET: {
-    validations: {
-      xAxisName: "TEXT",
-      yAxisName: "TEXT",
-      chartName: "TEXT",
-      isVisible: "BOOLEAN",
-      chartData: "CHART_DATA",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   FORM_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   FORM_BUTTON_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-      text: "TEXT",
-      disabledWhenInvalid: "BOOLEAN",
-      buttonStyle: "TEXT",
-      buttonType: "TEXT",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   MAP_WIDGET: {
-    validations: {
-      defaultMarkers: "MARKERS",
-      isDisabled: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      enableSearch: "BOOLEAN",
-      enablePickLocation: "BOOLEAN",
-      allowZoom: "BOOLEAN",
-      zoomLevel: "NUMBER",
-      mapCenter: "OBJECT",
-    },
     defaultProperties: {
       markers: "defaultMarkers",
       center: "mapCenter",
@@ -369,31 +189,16 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   CANVAS_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   ICON_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
   },
   SKELETON_WIDGET: {
-    validations: {
-      isLoading: "BOOLEAN",
-      isVisible: "BOOLEAN",
-      isDisabled: "BOOLEAN",
-    },
     defaultProperties: {},
     derivedProperties: {},
     metaProperties: {},
@@ -416,6 +221,7 @@ const BASE_WIDGET: DataTreeWidget = {
   version: 1,
   bindingPaths: {},
   triggerPaths: {},
+  validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
 };
 
@@ -457,6 +263,9 @@ describe("DataTreeEvaluator", () => {
       bindingPaths: {
         text: true,
       },
+      validationPaths: {
+        text: VALIDATION_TYPES.TEXT,
+      },
     },
     Text3: {
       ...BASE_WIDGET,
@@ -466,6 +275,9 @@ describe("DataTreeEvaluator", () => {
       type: WidgetTypes.TEXT_WIDGET,
       bindingPaths: {
         text: true,
+      },
+      validationPaths: {
+        text: VALIDATION_TYPES.TEXT,
       },
     },
     Dropdown1: {
@@ -506,6 +318,9 @@ describe("DataTreeEvaluator", () => {
         selectedRow: true,
         selectedRows: true,
       },
+      validationPaths: {
+        tableData: VALIDATION_TYPES.TABLE_DATA,
+      },
     },
     Text4: {
       ...BASE_WIDGET,
@@ -514,6 +329,9 @@ describe("DataTreeEvaluator", () => {
       type: WidgetTypes.TEXT_WIDGET,
       bindingPaths: {
         text: true,
+      },
+      validationPaths: {
+        text: VALIDATION_TYPES.TEXT,
       },
     },
   };

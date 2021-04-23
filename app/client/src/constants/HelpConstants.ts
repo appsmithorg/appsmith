@@ -103,6 +103,10 @@ export const HelpMap = {
     path: "/core-concepts/connecting-to-data-sources/connecting-to-databases",
     searchKey: "Connecting to databases",
   },
+  LIST_WIDGET: {
+    path: "/widget-reference/list",
+    searchKey: "List",
+  },
   SWITCH_WIDGET: {
     path: "/widget-reference/switch",
     searchKey: "Switch",

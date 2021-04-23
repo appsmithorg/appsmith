@@ -4,7 +4,6 @@ import { getFormValues, submit } from "redux-form";
 import { AppState } from "reducers";
 import _ from "lodash";
 import {
-  getPluginPackageFromId,
   getPluginImages,
   getDatasource,
   getPlugin,
@@ -23,10 +22,11 @@ import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { ReduxAction } from "constants/ReduxActionConstants";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 
 interface ReduxStateProps {
   formData: Datasource;
-  selectedPluginPackage: string;
   isSaving: boolean;
   isTesting: boolean;
   formConfig: any[];
@@ -37,6 +37,7 @@ interface ReduxStateProps {
   viewMode: boolean;
   pluginType: string;
   pluginDatasourceForm: string;
+  pluginPackageName: string;
 }
 
 type Props = ReduxStateProps &
@@ -75,7 +76,6 @@ class DataSourceEditor extends React.Component<Props> {
       match: {
         params: { datasourceId },
       },
-      selectedPluginPackage,
       isSaving,
       formData,
       isTesting,
@@ -102,7 +102,6 @@ class DataSourceEditor extends React.Component<Props> {
         onSubmit={this.handleSubmit}
         onSave={this.handleSave}
         onTest={this.props.testDatasource}
-        selectedPluginPackage={selectedPluginPackage}
         datasourceId={datasourceId}
         formData={formData}
         formConfig={formConfig}
@@ -110,6 +109,7 @@ class DataSourceEditor extends React.Component<Props> {
         viewMode={viewMode}
         setDatasourceEditorMode={setDatasourceEditorMode}
         pluginType={pluginType}
+        formName={DATASOURCE_DB_FORM}
       />
     );
   }
@@ -127,10 +127,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginImages: getPluginImages(state),
     formData,
     pluginId,
-    selectedPluginPackage: getPluginPackageFromId(
-      state,
-      datasourcePane.selectedPlugin,
-    ),
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
     isTesting: datasources.isTesting,
@@ -140,13 +136,14 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
     pluginType: plugin?.type ?? "",
     pluginDatasourceForm: plugin?.datasourceComponent ?? "AutoForm",
+    pluginPackageName: plugin?.packageName ?? "",
   };
 };
 
 const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
   submitForm: (name: string) => dispatch(submit(name)),
-  updateDatasource: (formData: any) => {
-    dispatch(updateDatasource(formData));
+  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => {
+    dispatch(updateDatasource(formData, onSuccess));
   },
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
   deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
@@ -157,7 +154,7 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
 
 export interface DatasourcePaneFunctions {
   submitForm: (name: string) => void;
-  updateDatasource: (data: Datasource) => void;
+  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => void;
   testDatasource: (data: Datasource) => void;
   deleteDatasource: (id: string) => void;
   switchDatasource: (id: string) => void;
@@ -178,6 +175,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
       pluginImages,
       pluginId,
       pluginDatasourceForm,
+      pluginPackageName,
     } = this.props;
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
@@ -208,6 +206,17 @@ class DatasourceEditorRouter extends React.Component<Props> {
           location={location}
         />
       );
+    }
+    if (pluginDatasourceForm === "SaaSDatasourceForm") {
+      history.push(
+        SAAS_EDITOR_DATASOURCE_ID_URL(
+          applicationId,
+          pageId,
+          pluginPackageName,
+          datasourceId,
+        ),
+      );
+      return;
     }
 
     // Default to old flow

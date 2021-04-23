@@ -195,6 +195,16 @@ export const isNameValid = (
   );
 };
 
+/*
+ * Filter out empty items from an array
+ * for e.g - ['Pawan', undefined, 'Hetu'] --> ['Pawan', 'Hetu']
+ *
+ * @param array any[]
+ */
+export const removeFalsyEntries = (arr: any[]): any[] => {
+  return arr.filter(Boolean);
+};
+
 /**
  * checks if variable passed is of type string or not
  *

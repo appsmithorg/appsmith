@@ -56,4 +56,5 @@ const uiReducer = combineReducers({
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
 });
+
 export default uiReducer;
