@@ -176,6 +176,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     markers.push(marker);
     this.props.updateWidgetMetaProperty("markers", markers);
     this.props.updateWidgetMetaProperty("selectedMarker", marker, {
+      triggerPropertyName: "onCreateMarker",
       dynamicString: this.props.onCreateMarker,
       event: {
         type: EventType.ON_CREATE_MARKER,
@@ -195,6 +196,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       title: title,
     };
     this.props.updateWidgetMetaProperty("selectedMarker", selectedMarker, {
+      triggerPropertyName: "onMarkerClick",
       dynamicString: this.props.onMarkerClick,
       event: {
         type: EventType.ON_MARKER_CLICK,

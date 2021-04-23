@@ -230,6 +230,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
 
   onDateSelected = (selectedDate: string) => {
     this.props.updateWidgetMetaProperty("value", selectedDate, {
+      triggerPropertyName: "onDateSelected",
       dynamicString: this.props.onDateSelected,
       event: {
         type: EventType.ON_DATE_SELECTED,

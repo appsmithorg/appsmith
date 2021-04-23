@@ -37,6 +37,8 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
+import AppsmithConsole from "utils/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -88,6 +90,15 @@ const evalErrorHandler = (errors: EvalError[]) => {
       }
       case EvalErrorTypes.EVAL_ERROR: {
         log.debug(error);
+        break;
+      }
+      case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
+        AppsmithConsole.error({
+          logType: LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR,
+          text: `The value at ${error.context?.source.propertyPath} is invalid`,
+          message: error.message,
+          source: error.context?.source,
+        });
         break;
       }
       default: {
