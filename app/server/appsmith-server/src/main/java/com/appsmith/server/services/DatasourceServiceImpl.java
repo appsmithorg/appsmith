@@ -297,8 +297,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
+            
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
-        
+
         return Mono.just(datasource)
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
