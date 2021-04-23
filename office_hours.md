@@ -28,6 +28,16 @@ You can find the archives of the calls below with a brief summary of each sessio
 
 ## Archives
 
+<strong>Appsmith Live Demo, 22nd April 2021: Build an app using Google Sheets </strong>
+
+<a href = "https://youtu.be/j6B2T-c-zOc">Video Link</a>
+
+#### Summary
+
+Nikhil shows the community how to build a CRM dashboard on top of Google Sheets using the new Google Sheet integration on Appsmith. Questions from members of our community was also discussed.
+
+------------------
+
 <strong>15th April 2021: Bug fixes, Fusion charts demo</strong>
 
 <a href = "https://youtu.be/99qQzen8D9w">Video Link</a>
