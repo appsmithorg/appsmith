@@ -511,6 +511,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Skeleton",
       version: 1,
     },
+    TABS_MIGRATOR_WIDGET: {
+      isLoading: true,
+      rows: 1,
+      columns: 1,
+      widgetName: "Skeleton",
+      version: 1,
+    },
     [WidgetTypes.LIST_WIDGET]: {
       backgroundColor: "",
       itemBackgroundColor: "white",
