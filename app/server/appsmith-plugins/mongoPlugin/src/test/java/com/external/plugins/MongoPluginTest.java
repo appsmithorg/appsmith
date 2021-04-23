@@ -440,13 +440,51 @@ public class MongoPluginTest {
     public void testErrorMessageOnSrvUrl() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("mongodb+srv:://url.net");
+        dsConfig.setProperties(List.of(new Property("Import from Srv Url", "No")));
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("MongoDb SRV URLs are not yet supported")));
+                            .anyMatch(error -> error.contains("Please use import from srv url option from the " +
+                                    "dropdown to connect via srv url.")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidsOnMissingSrvUrl() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("mongodb+srv:://url.net");
+        dsConfig.setProperties(List.of(new Property("Import from Srv Url", "Yes")));
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> error.contains("'Srv Url' field is empty. Please edit the 'Srv Url' " +
+                                    "field to provide an srv url to connect with.")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidsOnBadSrvUrlFormat() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("Import from Srv Url", "Yes"));
+        properties.add(new Property("Srv Url", "mongodb+srv::username:password//url.net"));
+        dsConfig.setProperties(properties);
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> error.contains("Srv url does not seem to be in the correct format. " +
+                                    "Please check the srv url once.")));
                 })
                 .verifyComplete();
     }

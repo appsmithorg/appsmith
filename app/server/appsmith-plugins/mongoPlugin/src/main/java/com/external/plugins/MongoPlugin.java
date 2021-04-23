@@ -61,6 +61,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -86,6 +88,24 @@ public class MongoPlugin extends BasePlugin {
     private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
     private static final int SMART_BSON_SUBSTITUTION_INDEX = 0;
+
+    private static final String SRV_URL_REGEX = "^(mongodb\\+srv:\\/\\/)((.+):(.+))?(@.+\\/.+)$";
+
+    private static final int REGEX_GROUP_HEAD = 1;
+
+    private static final int REGEX_GROUP_USERNAME = 3;
+
+    private static final int REGEX_GROUP_PASSWORD = 4;
+
+    private static final int REGEX_GROUP_TAIL = 5;
+
+    private static final String YES = "Yes";
+
+    private static final int DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX = 0;
+
+    private static final int DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX = 1;
+
+
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -361,8 +381,51 @@ public class MongoPlugin extends BasePlugin {
         }
 
         public static String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
-            StringBuilder builder = new StringBuilder();
+            List<Property> properties = datasourceConfiguration.getProperties();
+            if (properties != null && properties.size() > DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX
+                    && properties.get(DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX) != null
+                    && YES.equals(properties.get(DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX).getValue())) {
+                if (properties.size() > DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX
+                        && properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX) != null
+                        && !StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue())) {
+                    String srvUrlWithHiddenPassword = (String)properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue();
+                    if (srvUrlWithHiddenPassword.matches(SRV_URL_REGEX)) {
+                        Pattern pattern = Pattern.compile(SRV_URL_REGEX);
+                        Matcher matcher = pattern.matcher(srvUrlWithHiddenPassword);
+                        if (matcher.find()) {
+                            String urlHead = matcher.group(REGEX_GROUP_HEAD);
+                            String username = matcher.group(REGEX_GROUP_USERNAME);
+                            String password = ((DBAuth)datasourceConfiguration.getAuthentication()).getPassword();
+                            String urlTail = matcher.group(REGEX_GROUP_TAIL);
+                            return urlHead + (username == null ? "" : username + ":") +
+                                    (password == null ? "" : password) + urlTail;
+                        }
+                        else {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                    "Appsmith server has failed to parse the mongo srv url. Please check if the srv " +
+                                            "url has the correct format."
+                            );
+                        }
+                    }
+                    else {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                "Appsmith server has failed to parse the mongo srv url. Please check if the srv " +
+                                        "url has the correct format."
+                        );
+                    }
+                }
+                else {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            "Could not find any srv url. Please edit the 'Srv Url' field to provide the srv url to " +
+                                    "connect to."
+                    );
+                }
+            }
 
+            StringBuilder builder = new StringBuilder();
             final Connection connection = datasourceConfiguration.getConnection();
             final List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
 
@@ -475,52 +538,92 @@ public class MongoPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
-
-            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
-            if (CollectionUtils.isEmpty(endpoints)) {
-                invalids.add("Missing endpoint(s).");
-
-            } else if (Connection.Type.REPLICA_SET.equals(datasourceConfiguration.getConnection().getType())) {
-                if (endpoints.size() == 1 && endpoints.get(0).getPort() != null) {
-                    invalids.add("REPLICA_SET connections should not be given a port." +
-                            " If you are trying to specify all the shards, please add more than one.");
+            List<Property> properties = datasourceConfiguration.getProperties();
+            if (properties != null && properties.size() > DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX
+                    && properties.get(DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX) != null
+                    && YES.equals(properties.get(DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX).getValue())) {
+                if (properties.size() <= DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX
+                        || properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX) == null
+                        || StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue())) {
+                    invalids.add("'Srv Url' field is empty. Please edit the 'Srv Url' field to provide an srv url to " +
+                            "connect with.");
                 }
+                else {
+                    String srvUrl = (String)properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue();
+                    if (!srvUrl.matches(SRV_URL_REGEX)) {
+                        invalids.add("Srv url does not seem to be in the correct format. Please check the " +
+                                "srv url once.");
+                    }
+                    else {
+                        Pattern pattern = Pattern.compile(SRV_URL_REGEX);
+                        Matcher matcher = pattern.matcher(srvUrl);
 
+                        if (!matcher.find()) {
+                            invalids.add("Srv url does not seem to be in the correct format. Please check the " +
+                                    "srv url once.");
+                        }
+                        else {
+                            String urlHead = matcher.group(REGEX_GROUP_HEAD);
+                            String username = matcher.group(REGEX_GROUP_USERNAME);
+                            String password = matcher.group(REGEX_GROUP_PASSWORD);
+                            String urlTail = matcher.group(REGEX_GROUP_TAIL);
+                            String srvUrlWithHiddenPassword = urlHead + (username == null ? "" : username + ":") +
+                                    (password == null ? "" : "****") + urlTail;
+                            properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).setValue(srvUrlWithHiddenPassword);
+                            DBAuth authentication = new DBAuth();
+                            authentication.setUsername(username);
+                            authentication.setPassword(password);
+                            datasourceConfiguration.setAuthentication(authentication);
+                        }
+                    }
+                }
             }
+            else {
+                List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+                if (CollectionUtils.isEmpty(endpoints)) {
+                    invalids.add("Missing endpoint(s).");
 
-            if (!CollectionUtils.isEmpty(endpoints)) {
-                boolean usingSrvUrl = endpoints
-                        .stream()
-                        .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
+                } else if (Connection.Type.REPLICA_SET.equals(datasourceConfiguration.getConnection().getType())) {
+                    if (endpoints.size() == 1 && endpoints.get(0).getPort() != null) {
+                        invalids.add("REPLICA_SET connections should not be given a port." +
+                                " If you are trying to specify all the shards, please add more than one.");
+                    }
 
-                if (usingSrvUrl) {
-                    invalids.add("MongoDb SRV URLs are not yet supported. Please extract the individual fields from " +
-                            "the SRV URL into the datasource configuration form.");
-                }
-            }
-
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication != null) {
-                DBAuth.Type authType = authentication.getAuthType();
-
-                if (authType == null || !VALID_AUTH_TYPES.contains(authType)) {
-                    invalids.add("Invalid authType. Must be one of " + VALID_AUTH_TYPES_STR);
                 }
 
-                if (StringUtils.isEmpty(authentication.getDatabaseName())) {
-                    invalids.add("Missing database name.");
+                if (!CollectionUtils.isEmpty(endpoints)) {
+                    boolean usingSrvUrl = endpoints
+                            .stream()
+                            .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
+
+                    if (usingSrvUrl) {
+                        invalids.add("Please use import from srv url option from the dropdown to connect via srv url.");
+                    }
                 }
 
-            }
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (authentication != null) {
+                    DBAuth.Type authType = authentication.getAuthType();
 
-            /*
-             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
-             */
-            if (datasourceConfiguration.getConnection() == null
-                    || datasourceConfiguration.getConnection().getSsl() == null
-                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-                invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration " +
-                        "form. Please reach out to Appsmith customer support to resolve this.");
+                    if (authType == null || !VALID_AUTH_TYPES.contains(authType)) {
+                        invalids.add("Invalid authType. Must be one of " + VALID_AUTH_TYPES_STR);
+                    }
+
+                    if (StringUtils.isEmpty(authentication.getDatabaseName())) {
+                        invalids.add("Missing database name.");
+                    }
+
+                }
+
+                /*
+                 * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+                 */
+                if (datasourceConfiguration.getConnection() == null
+                        || datasourceConfiguration.getConnection().getSsl() == null
+                        || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                    invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration " +
+                            "form. Please reach out to Appsmith customer support to resolve this.");
+                }
             }
 
             return invalids;

@@ -2079,4 +2079,19 @@ public class DatabaseChangelog {
                     }
                 });
     }
+
+    @ChangeSet(order = "062", id = "update-mongo-import-from-srv-field", author = "")
+    public void updateMongoImportFromSrvField(MongoTemplate mongoTemplate) {
+        Plugin mongoPlugin = mongoTemplate
+                .findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        List<Datasource> mongoDatasources = mongoTemplate
+                .find(query(where("pluginId").is(mongoPlugin.getId())), Datasource.class);
+
+        mongoDatasources.stream()
+                .forEach(datasource -> {
+                    datasource.getDatasourceConfiguration().setProperties(List.of(new Property("Import from Srv Url", "No")));
+                    mongoTemplate.save(datasource);
+                });
+    }
 }

@@ -159,9 +159,4 @@ public interface PluginExecutor<C> extends ExtensionPoint {
             MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);
         }
     }
-
-    default void sanitizeDatasourceConfiguration(DatasourceConfiguration datasourceConfiguration) {
-        /* Override this method for specific datasource */
-        return;
-    }
 }

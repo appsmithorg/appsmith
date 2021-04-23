@@ -284,6 +284,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     private Datasource sanitizeDatasource(Datasource datasource) {
+        // Plugin agnostic sanitization
         if (datasource.getDatasourceConfiguration() != null
                 && !CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
             for (final Endpoint endpoint : datasource.getDatasourceConfiguration().getEndpoints()) {
@@ -297,7 +298,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
-
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         return Mono.just(datasource)
