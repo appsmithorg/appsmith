@@ -4,6 +4,12 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import {
+  createMessage,
+  NO_LOGS,
+  OPEN_THE_DEBUGGER,
+  PRESS,
+} from "constants/messages";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -25,11 +31,12 @@ export const BlankState = (props: { hasShortCut?: boolean }) => {
     <BlankStateWrapper>
       {props.hasShortCut ? (
         <span>
-          🎉 Press <span className="debugger-shortcut">Cmd + D</span> to open
-          the debugger
+          {createMessage(PRESS)}
+          <span className="debugger-shortcut">Cmd + D</span>
+          {createMessage(OPEN_THE_DEBUGGER)}
         </span>
       ) : (
-        <span>No logs to show</span>
+        <span>{createMessage(NO_LOGS)}</span>
       )}
     </BlankStateWrapper>
   );

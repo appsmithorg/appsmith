@@ -286,3 +286,8 @@ export const WIDGET_BIND_HELP = () =>
 export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
 export const PAGE_NOT_FOUND = () => "Page not found";
+
+export const CLICK_ON = () => "🙌 Click on ";
+export const PRESS = () => "🎉 Press ";
+export const OPEN_THE_DEBUGGER = () => " to open the issue in debugger";
+export const NO_LOGS = () => "No logs to show";

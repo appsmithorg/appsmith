@@ -1,3 +1,4 @@
+import { CLICK_ON, createMessage, OPEN_THE_DEBUGGER } from "constants/messages";
 import React from "react";
 import styled from "styled-components";
 import { DebugButton } from "./DebugCTA";
@@ -14,8 +15,9 @@ const Container = styled.div`
 const DebuggerMessage = (props: any) => {
   return (
     <Container>
-      🙌 Click on <StyledButton className="message" onClick={props.onClick} />{" "}
-      to open the issue in debugger
+      {createMessage(CLICK_ON)}
+      <StyledButton className="message" onClick={props.onClick} />
+      {createMessage(OPEN_THE_DEBUGGER)}
     </Container>
   );
 };
