@@ -226,23 +226,25 @@ const LogItem = (props: LogItemProps) => {
         {props.timeTaken && (
           <span className="debugger-timetaken">{props.timeTaken}</span>
         )}
-        <TooltipComponent
-          minimal
-          position={Position.BOTTOM_LEFT}
-          content={
-            <Text type={TextType.P3} style={{ color: "#ffffff" }}>
-              {createMessage(TROUBLESHOOT_ISSUE)}
-            </Text>
-          }
-        >
-          <StyledSearchIcon
-            className={Classes.ICON}
-            name={"wand"}
-            size={IconSize.MEDIUM}
-            fillColor={props.iconColor}
-            onClick={openHelpModal}
-          />
-        </TooltipComponent>
+        {props.severity !== Severity.INFO && (
+          <TooltipComponent
+            minimal
+            position={Position.BOTTOM_LEFT}
+            content={
+              <Text type={TextType.P3} style={{ color: "#ffffff" }}>
+                {createMessage(TROUBLESHOOT_ISSUE)}
+              </Text>
+            }
+          >
+            <StyledSearchIcon
+              className={Classes.ICON}
+              name={"wand"}
+              size={IconSize.MEDIUM}
+              fillColor={props.iconColor}
+              onClick={openHelpModal}
+            />
+          </TooltipComponent>
+        )}
 
         {showToggleIcon && (
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
