@@ -64,10 +64,10 @@ const DebbuggerLogs = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    const div = document.getElementsByClassName("debugger-list")[0];
-    if (div) {
+    const list = listRef.current;
+    if (list) {
       setTimeout(() => {
-        div.scrollTop = div.scrollHeight - div.clientHeight;
+        list.scrollTop = list.scrollHeight - list.clientHeight;
       }, 0);
     }
   }, [paginatedData.length]);
