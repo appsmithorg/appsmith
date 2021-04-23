@@ -200,8 +200,8 @@ const PopoverContent = (props: PopoverContentProps) => {
         <ErrorText>
           <span className="t--evaluatedPopup-error">
             {props.useValidationMessage && props.error
-              ? props.error
-              : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+              ? `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{}}'`
+              : props.error}
           </span>
           <StyledDebugButton
             className="evaluated-value"

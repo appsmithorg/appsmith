@@ -100,6 +100,14 @@ const evalErrorHandler = (errors: EvalError[]) => {
         });
         break;
       }
+      case EvalErrorTypes.JS_ERROR: {
+        AppsmithConsole.error({
+          logType: LOG_TYPE.JS_ERROR,
+          text: error.message,
+          source: error.context?.source,
+        });
+        break;
+      }
       default: {
         Sentry.captureException(error);
         log.debug(error);

@@ -114,6 +114,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
       yield call(onWidgetUpdateSaga, payload);
       yield put(debuggerLog(payload));
       return;
+    case LOG_TYPE.JS_ERROR:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {

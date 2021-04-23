@@ -10,6 +10,7 @@ import unescapeJS from "unescape-js";
 export type EvalResult = {
   result: any;
   triggers?: ActionDescription<any>[];
+  error?: string;
 };
 
 export default function evaluate(
