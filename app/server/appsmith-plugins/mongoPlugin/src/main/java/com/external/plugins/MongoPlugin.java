@@ -18,6 +18,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -63,6 +64,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_BODY;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -193,6 +195,8 @@ public class MongoPlugin extends BasePlugin {
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+                    , null));
 
             return mongoOutputMono
                     .onErrorMap(
@@ -299,6 +303,7 @@ public class MongoPlugin extends BasePlugin {
                             requestData.put("smart-substitution-parameters", parameters);
                             request.setProperties(requestData);
                         }
+                        request.setRequestParams(requestParams);
                         actionExecutionResult.setRequest(request);
                         return actionExecutionResult;
                     })

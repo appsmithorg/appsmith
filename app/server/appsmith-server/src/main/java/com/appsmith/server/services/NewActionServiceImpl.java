@@ -656,6 +656,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         return Mono.just(result);
                     }
 
+                    if (result.getRequest() == null || result.getRequest().getRequestParams() == null) {
+                        return Mono.just(result);
+                    }
+
                     Map labelMap = tuple.getT2();
                     result.getRequest().getRequestParams().stream()
                             .forEach(param -> {

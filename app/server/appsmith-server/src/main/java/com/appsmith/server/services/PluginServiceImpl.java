@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
+import org.w3c.dom.ls.LSOutput;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -368,13 +369,14 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     editorMap.stream()
                             .map(item -> ((Map) item).get("children"))
                             .forEach(item ->
-                                    ((List) item).stream()
-                                            .forEach(queryField -> labelMap.putAll(
-                                                    Map.of(
-                                                            ((Map) queryField).get("configProperty"),
-                                                            ((Map) queryField).get("label"))
-                                                    )
-                                            )
+                                    ((List<Map>) item).stream()
+                                            .forEach(queryField -> {
+                                                labelMap.put(
+                                                        queryField.get("configProperty"),
+                                                        (StringUtils.isEmpty(queryField.get("label")) ? "" :
+                                                                queryField.get("label"))
+                                                );
+                                            })
                             );
 
                     return Mono.just(labelMap);

@@ -14,6 +14,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -39,6 +40,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static com.appsmith.external.constants.ActionRequestResponseDataType.JSON;
+import static com.appsmith.external.constants.ActionRequestResponseDataType.RAW;
+import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_BODY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -207,9 +211,19 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionRequestResponseDataType.JSON), new ParsedDataType(ActionRequestResponseDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
+
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -237,6 +251,15 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals("unknown top level operator: $is", result.getBody());
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -267,7 +290,7 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionRequestResponseDataType.JSON), new ParsedDataType(ActionRequestResponseDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })
@@ -302,7 +325,7 @@ public class MongoPluginTest {
                     assertEquals("Alden Cantrell", value.get("name").asText());
                     assertEquals(30, value.get("age").asInt());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionRequestResponseDataType.JSON), new ParsedDataType(ActionRequestResponseDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })
@@ -336,7 +359,7 @@ public class MongoPluginTest {
                     assertEquals("2018-12-31T00:00:00Z", node.get("dob").asText());
                     assertEquals("123456.789012", node.get("netWorth").toString());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionRequestResponseDataType.JSON), new ParsedDataType(ActionRequestResponseDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })
@@ -522,7 +545,7 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionRequestResponseDataType.JSON), new ParsedDataType(ActionRequestResponseDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })
@@ -556,7 +579,7 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionRequestResponseDataType.JSON), new ParsedDataType(ActionRequestResponseDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })
@@ -665,7 +688,7 @@ public class MongoPluginTest {
                     assertEquals(parameterEntry.getValue(), "INTEGER");
 
                     assertEquals(
-                            List.of(new ParsedDataType(ActionRequestResponseDataType.JSON), new ParsedDataType(ActionRequestResponseDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })

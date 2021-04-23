@@ -11,7 +11,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PluginUtils {
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    public static final String ACTION_CONFIGURATION_BODY = "actionConfiguration.body";
+    public static final String ACTION_CONFIGURATION_PATH = "actionConfiguration.path";
 
     public static List<String> getColumnsListForJdbcPlugin(ResultSetMetaData metaData) throws SQLException {
         List<String> columnsList = IntStream
@@ -48,5 +49,9 @@ public class PluginUtils {
                 .collect(Collectors.toList());
 
         return identicalColumns;
+    }
+
+    public static String getActionConfigurationPropertyPath(int index) {
+        return "actionConfiguration.pluginSpecifiedTemplates[" + index + "].value";
     }
 }
