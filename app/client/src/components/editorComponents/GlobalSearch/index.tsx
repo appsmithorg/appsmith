@@ -97,7 +97,12 @@ const GlobalSearch = () => {
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
-  const toggleShow = () => dispatch(toggleShowGlobalSearchModal());
+  const toggleShow = () => {
+    if (modalOpen) {
+      setQuery("");
+    }
+    dispatch(toggleShowGlobalSearchModal());
+  };
   const [query, setQueryInState] = useState("");
   const setQuery = useCallback((query: string) => {
     setQueryInState(query);
