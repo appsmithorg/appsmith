@@ -378,7 +378,8 @@ describe("DataTreeEvaluator", () => {
         text: "Hey there",
       },
     };
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree)
+      .dataTree;
     expect(updatedEvalTree).toHaveProperty("Text2.text", "Hey there");
     expect(updatedEvalTree).toHaveProperty("Text3.text", "Hey there");
   });
@@ -391,7 +392,8 @@ describe("DataTreeEvaluator", () => {
         text: "Label 3",
       },
     };
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree)
+      .dataTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(updatedEvalTree).toHaveProperty("Text2.text", "Label");
     expect(updatedEvalTree).toHaveProperty("Text3.text", "Label 3");
@@ -439,7 +441,8 @@ describe("DataTreeEvaluator", () => {
       },
     };
 
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree)
+      .dataTree;
     expect(updatedEvalTree).toHaveProperty("Input1.text", "Default value");
   });
 
@@ -475,7 +478,8 @@ describe("DataTreeEvaluator", () => {
         },
       },
     };
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree)
+      .dataTree;
     expect(updatedEvalTree).toHaveProperty(
       "Dropdown2.options.0.label",
       "newValue",
@@ -498,7 +502,8 @@ describe("DataTreeEvaluator", () => {
         ],
       },
     };
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree)
+      .dataTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(updatedEvalTree).toHaveProperty("Table1.tableData", [
       {
@@ -562,7 +567,8 @@ describe("DataTreeEvaluator", () => {
         ],
       },
     };
-    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree)
+      .dataTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(updatedEvalTree).toHaveProperty("Table1.tableData", [
       {
