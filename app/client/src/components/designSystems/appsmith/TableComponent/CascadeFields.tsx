@@ -568,7 +568,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
         <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
             label=""
-            dateFormat="DD/MM/YYYY"
+            dateFormat="YYYY-MM-DD HH:mm"
             datePickerType="DATE_PICKER"
             onDateSelected={onDateSelected}
             selectedDate={value}
