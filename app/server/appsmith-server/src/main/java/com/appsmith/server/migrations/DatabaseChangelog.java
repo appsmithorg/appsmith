@@ -2208,11 +2208,10 @@ public class DatabaseChangelog {
                 new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", false),
                 NewAction.class
         );
-        
+
         Property property = new Property();
         property.setValue(false);
-        // Migrate actions where there is no configuration for smart substitution
-        // Migrate actions where smart substitution is turned off
+        // Migrate actions where there is no configuration for smart substitution, aka add the array.
         mongoOperations.updateMulti(
                 query(where("_id").in(noSmartSubConfig)),
                 new Update().addToSet("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates", property),
