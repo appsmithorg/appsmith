@@ -11,14 +11,6 @@
     "html": true,
     "json": false
   },
-  "env": { 
-    "USERNAME": "testowner@appsmith.com", 
-    "PASSWORD": "own3rT3st1ng", 
-    "TESTUSERNAME1": "viewerappsmith@mailinator.com", 
-    "TESTPASSWORD1": "Test@123", 
-    "TESTUSERNAME2": "developerappsmith@mailinator.com", 
-    "TESTPASSWORD2": "Test@123" 
-  },
   "chromeWebSecurity": false,
   "viewportHeight": 900,
   "viewportWidth": 1400,
