@@ -68,6 +68,10 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
     private static final int CONNECTION_TIMEOUT = 10000;
     private static final int READ_TIMEOUT = 10000;
+    private static final String KEY_EDITOR = "editor";
+    private static final String KEY_CONFIG_PROPERTY = "configProperty";
+    private static final String KEY_LABEL = "label";
+    private static final String KEY_CHILDREN = "children";
 
     @Autowired
     public PluginServiceImpl(Scheduler scheduler,
@@ -365,16 +369,16 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         Mono<Map> labelMapMono = formConfig
                 .flatMap(formMap -> {
                     Map labelMap = new HashMap();
-                    List editorMap = (List) formMap.get("editor"); // TODO: remove magic string
+                    List editorMap = (List) formMap.get(KEY_EDITOR);
                     editorMap.stream()
-                            .map(item -> ((Map) item).get("children"))
+                            .map(item -> ((Map) item).get(KEY_CHILDREN))
                             .forEach(item ->
                                     ((List<Map>) item).stream()
                                             .forEach(queryField -> {
                                                 labelMap.put(
-                                                        queryField.get("configProperty"),
-                                                        (StringUtils.isEmpty(queryField.get("label")) ? "" :
-                                                                queryField.get("label"))
+                                                        queryField.get(KEY_CONFIG_PROPERTY),
+                                                        (StringUtils.isEmpty(queryField.get(KEY_LABEL)) ? "" :
+                                                                queryField.get(KEY_LABEL))
                                                 );
                                             })
                             );
