@@ -30,6 +30,8 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import log from "loglevel";
+import Callout from "components/ads/Callout";
+import { Variant } from "components/ads/common";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -245,7 +247,13 @@ const DocumentationLink = styled.a`
   top: -6px;
 `;
 
-const OutputWrapper = styled.div``;
+const HelpSection = styled.div``;
+
+const OutputWrapper = styled.div`
+  ${HelpSection} {
+    margin-bottom: 10px;
+  }
+`;
 
 type QueryFormProps = {
   onDeleteClick: () => void;
@@ -258,6 +266,7 @@ type QueryFormProps = {
   executedQueryData?: {
     body: any;
     isExecutionSuccess?: boolean;
+    messages?: Array<string>;
   };
   runErrorMessage: string | undefined;
   location: {
@@ -303,6 +312,7 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
   let displayMessage = "";
+  let hintMessages: Array<string> = [];
 
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
@@ -311,6 +321,9 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
       output = JSON.parse(executedQueryData.body);
     } else {
       output = executedQueryData.body;
+    }
+    if (executedQueryData.messages && executedQueryData.messages.length) {
+      hintMessages = executedQueryData.messages;
     }
   }
 
@@ -530,6 +543,18 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
                           </Boxed>
                         )}
                       </OutputHeader>
+                      {hintMessages && hintMessages.length > 0 && (
+                        <HelpSection>
+                          {hintMessages.map((msg, index) => (
+                            <Callout
+                              text={msg}
+                              key={index}
+                              variant={Variant.warning}
+                              fill
+                            />
+                          ))}
+                        </HelpSection>
+                      )}
                       {isTableResponse ? (
                         <Table data={output} />
                       ) : (
