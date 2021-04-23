@@ -577,6 +577,27 @@ Cypress.Commands.add("SaveAndRunAPI", () => {
   cy.RunAPI();
 });
 
+Cypress.Commands.add(
+  "validateRequest",
+  (baseurl, path, verb, error = false) => {
+    cy.get(".react-tabs__tab")
+      .contains("Logs")
+      .click();
+
+    if (!error) {
+      cy.get(".object-key")
+        .last()
+        .contains("request")
+        .click();
+    }
+    cy.get(".string-value").contains(baseurl.concat(path));
+    cy.get(".string-value").contains(verb);
+    cy.xpath(apiwidget.Responsetab)
+      .should("be.visible")
+      .click({ force: true });
+  },
+);
+
 Cypress.Commands.add("SelectAction", (action) => {
   cy.get(ApiEditor.ApiVerb)
     .first()
