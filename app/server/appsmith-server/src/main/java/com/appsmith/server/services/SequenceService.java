@@ -7,8 +7,8 @@ public interface SequenceService {
 
     Mono<Long> getNext(String name);
 
-    Mono<Long> getNext(Class<? extends BaseDomain> domainClass);
+    Mono<Long> getNext(Class<? extends BaseDomain> domainClass, String suffix);
 
-    Mono<String> getNextAsSuffix(Class<? extends BaseDomain> domainClass);
+    Mono<String> getNextAsSuffix(Class<? extends BaseDomain> domainClass, String suffix);
 
 }
