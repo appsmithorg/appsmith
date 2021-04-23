@@ -90,14 +90,14 @@ const DatasourceLink = (props: EntityLinkProps) => {
   const pageId = useSelector(getCurrentPageId);
   const appId = useSelector(getCurrentApplicationId);
 
-  const onClick = useCallback(() => {
+  const onClick = () => {
     if (datasource) {
       history.push(DATA_SOURCES_EDITOR_ID_URL(appId, pageId, datasource.id));
       AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
         entityType: "DATASOURCE",
       });
     }
-  }, []);
+  };
 
   return (
     <Link

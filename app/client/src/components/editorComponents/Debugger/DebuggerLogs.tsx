@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-} from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import styled from "styled-components";
 import { isUndefined } from "lodash";
 import { Severity } from "entities/AppsmithConsole";
@@ -50,11 +44,11 @@ const DebbuggerLogs = (props: Props) => {
     [filter],
   );
 
-  const handleScroll = useCallback((e) => {
-    if (e.target.scrollTop === 0) {
+  const handleScroll = (e: Event) => {
+    if ((e.target as HTMLDivElement).scrollTop === 0) {
       next();
     }
-  }, []);
+  };
 
   useEffect(() => {
     const list = listRef.current;

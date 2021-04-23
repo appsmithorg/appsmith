@@ -1,4 +1,4 @@
-import React, { RefObject, useCallback, useRef, useState } from "react";
+import React, { RefObject, useRef, useState } from "react";
 import styled from "styled-components";
 import { TabComponent } from "components/ads/Tabs";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -55,13 +55,13 @@ const DebuggerTabs = (props: DebuggerTabsProps) => {
   const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const onTabSelect = useCallback((index) => {
+  const onTabSelect = (index: number) => {
     AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
       tabName: DEBUGGER_TABS[index].key,
     });
 
     setSelectedIndex(index);
-  }, []);
+  };
   const onClose = () => dispatch(showDebugger(false));
 
   return (
