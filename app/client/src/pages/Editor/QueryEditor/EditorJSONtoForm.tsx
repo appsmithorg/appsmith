@@ -44,7 +44,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { omnibarDocumentationHelper } from "./OmnibarDocumentationHelper";
+import { omnibarDocumentationHelper } from "constants/OmnibarDocumentationConstants";
 
 const QueryFormContainer = styled.form`
   display: flex;
