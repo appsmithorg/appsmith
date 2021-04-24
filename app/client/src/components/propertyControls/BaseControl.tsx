@@ -47,6 +47,7 @@ export interface ControlFunctions {
   openNextPanel: (props: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
   theme: EditorTheme;
+  hideEvaluatedValue?: boolean;
 }
 
 export default BaseControl;

@@ -25,12 +25,7 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { useHistory, useLocation, useParams } from "react-router-dom";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import Icon, { IconSize } from "components/ads/Icon";
+import Icon from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -38,10 +33,10 @@ import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
 import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import CloseEditor from "components/editorComponents/CloseEditor";
+import { useParams } from "react-router";
 
 const Form = styled.form`
   display: flex;
@@ -94,8 +89,9 @@ const SecondaryWrapper = styled.div`
 `;
 
 const TabbedViewContainer = styled.div`
+  flex: 1;
+  overflow: auto;
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  height: 50%;
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -195,26 +191,6 @@ export const NameWrapper = styled.div`
   }
 `;
 
-const IconContainer = styled.div`
-  width: 22px;
-  height: 22px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 16px;
-  cursor: pointer;
-  svg {
-    width: 12px;
-    height: 12px;
-    path {
-      fill: ${(props) => props.theme.colors.apiPane.closeIcon};
-    }
-  }
-  &:hover {
-    background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
-  }
-`;
-
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [
@@ -234,6 +210,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     paramsCount,
     settingsConfig,
   } = props;
+  const dispatch = useDispatch();
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
 
@@ -245,50 +222,21 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const history = useHistory();
-  const location = useLocation();
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const { pageId } = useParams<ExplorerURLParams>();
 
-  const dispatch = useDispatch();
+  const theme = EditorTheme.LIGHT;
   const handleClickLearnHow = (e: React.MouseEvent) => {
     e.stopPropagation();
     dispatch(setGlobalSearchQuery("capturing data"));
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
   };
-  const handleClose = (e: React.MouseEvent) => {
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.CLOSE_SIDE_PANE,
-      { path: location.pathname },
-    );
-    e.stopPropagation();
-    history.replace(BUILDER_PAGE_URL(applicationId, pageId));
-  };
-  const theme = EditorTheme.LIGHT;
-
   return (
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
         <FormRow className="form-row-header">
           <NameWrapper className="t--nameOfApi">
-            <TooltipComponent
-              minimal
-              position={Position.BOTTOM}
-              content={
-                <Text type={TextType.P3} style={{ color: "#ffffff" }}>
-                  Close
-                </Text>
-              }
-              minWidth="auto !important"
-            >
-              <IconContainer onClick={handleClose}>
-                <Icon
-                  name="close-modal"
-                  size={IconSize.LARGE}
-                  className="close-modal-icon"
-                />
-              </IconContainer>
-            </TooltipComponent>
+            <CloseEditor />
             <ActionNameEditor page="API_PANE" />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
@@ -443,7 +391,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           />
         </TabbedViewContainer>
 
-        <ApiResponseView theme={theme} />
+        <ApiResponseView theme={theme} apiName={actionName} />
       </SecondaryWrapper>
     </Form>
   );

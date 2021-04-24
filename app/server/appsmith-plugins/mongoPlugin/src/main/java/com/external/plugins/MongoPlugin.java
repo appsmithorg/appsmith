@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -9,7 +10,6 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -129,7 +129,14 @@ public class MongoPlugin extends BasePlugin {
 
                 // Since properties is not empty, we are guaranteed to find the first property.
             } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null){
-                smartBsonSubstitution = Boolean.parseBoolean(properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue());
+                Object ssubValue = properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue();
+                if (ssubValue instanceof  Boolean) {
+                    smartBsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartBsonSubstitution = false;
+                }
             } else {
                 smartBsonSubstitution = false;
             }
@@ -370,9 +377,10 @@ public class MongoPlugin extends BasePlugin {
                 builder.append("mongodb://");
             }
 
+            boolean hasUsername = false;
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null) {
-                final boolean hasUsername = StringUtils.hasText(authentication.getUsername());
+                hasUsername = StringUtils.hasText(authentication.getUsername());
                 final boolean hasPassword = StringUtils.hasText(authentication.getPassword());
                 if (hasUsername) {
                     builder.append(urlEncode(authentication.getUsername()));
@@ -442,7 +450,7 @@ public class MongoPlugin extends BasePlugin {
                     );
             }
 
-            if (authentication != null && authentication.getAuthType() != null) {
+            if (hasUsername && authentication.getAuthType() != null) {
                 queryParams.add("authMechanism=" + authentication.getAuthType().name().replace('_', '-'));
             }
 
