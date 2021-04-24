@@ -1,7 +1,7 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { Message, Severity } from "entities/AppsmithConsole";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { get, merge, isEmpty, omit } from "lodash";
+import { get, merge, isEmpty, omit, isUndefined } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 const initialState: DebuggerReduxState = {
@@ -34,11 +34,11 @@ const debuggerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SHOW_DEBUGGER]: (
     state: DebuggerReduxState,
-    action: ReduxAction<boolean>,
+    action: ReduxAction<boolean | undefined>,
   ) => {
     return {
       ...state,
-      isOpen: action.payload,
+      isOpen: isUndefined(action.payload) ? !state.isOpen : action.payload,
     };
   },
   [ReduxActionTypes.DEBUGGER_ERROR_LOG]: (
@@ -73,11 +73,12 @@ const debuggerReducer = createReducer(initialState, {
     if (!action.payload.source) return state;
 
     const entityId = action.payload.source.id;
-    const id =
+    const isWidgetErrorLog =
       action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR ||
-      action.payload.logType === LOG_TYPE.JS_ERROR
-        ? `${entityId}-${action.payload.source.propertyPath}`
-        : entityId;
+      action.payload.logType === LOG_TYPE.JS_ERROR;
+    const id = isWidgetErrorLog
+      ? `${entityId}-${action.payload.source.propertyPath}`
+      : entityId;
 
     if (isEmpty(action.payload.state)) {
       return {
@@ -103,7 +104,7 @@ const debuggerReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      errors: action.payload,
+      errors: { ...action.payload },
     };
   },
 });

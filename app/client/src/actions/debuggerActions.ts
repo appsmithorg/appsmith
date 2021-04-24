@@ -15,7 +15,7 @@ export const clearLogs = () => ({
   type: ReduxActionTypes.CLEAR_DEBUGGER_LOGS,
 });
 
-export const showDebugger = (payload: boolean) => ({
+export const showDebugger = (payload?: boolean) => ({
   type: ReduxActionTypes.SHOW_DEBUGGER,
   payload,
 });

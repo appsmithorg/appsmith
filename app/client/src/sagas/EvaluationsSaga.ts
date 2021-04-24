@@ -95,7 +95,8 @@ const evalErrorHandler = (errors: EvalError[]) => {
       case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
         AppsmithConsole.error({
           logType: LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR,
-          text: error.message,
+          text: `The value at ${error.context?.source.propertyPath} is invalid`,
+          message: error.message,
           source: error.context?.source,
         });
         break;
@@ -103,7 +104,8 @@ const evalErrorHandler = (errors: EvalError[]) => {
       case EvalErrorTypes.JS_ERROR: {
         AppsmithConsole.error({
           logType: LOG_TYPE.JS_ERROR,
-          text: error.message,
+          text: `The value at ${error.context?.source.propertyPath} is invalid`,
+          message: error.message,
           source: error.context?.source,
         });
         break;
@@ -150,7 +152,7 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: dataTree,
   });
-  PerformanceTracker.startAsyncTracking(
+  PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
   yield put({

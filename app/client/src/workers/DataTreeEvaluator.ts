@@ -629,9 +629,12 @@ export default class DataTreeEvaluator {
     _.set(widget, `evaluatedValues.${propertyPath}`, safeEvaluatedValue);
     if (!isValid) {
       const errorMessage = errorInValue ? errorInValue : message;
+      const type = errorInValue
+        ? EvalErrorTypes.JS_ERROR
+        : EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR;
       this.errors.push({
-        type: EvalErrorTypes.JS_ERROR,
-        message: `${propertyPath}: ${errorMessage}`,
+        type: type,
+        message: errorMessage || "",
         context: {
           source: {
             id: widget.widgetId,

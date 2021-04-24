@@ -162,7 +162,7 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
-    openDebugger: () => dispatch(showDebugger(true)),
+    openDebugger: () => dispatch(showDebugger()),
   };
 };
 
