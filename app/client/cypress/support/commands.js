@@ -1936,7 +1936,7 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
 
 Cypress.Commands.add("runQuery", () => {
   cy.get(queryEditor.runQuery).click({ force: true });
-  cy.wait("@getRoles").should((interception) => {
+  cy.wait("@postExecute").should((interception) => {
     expect(interception.response.body.responseMeta.status).to.deep.eq(200);
   });
 });

@@ -94,6 +94,7 @@ describe("Entity explorer tests related to copy query", function() {
     cy.GlobalSearchEntity(newDsName);
     cy.get(`.t--entity-name:contains(${newDsName})`)
       .last()
+      .scrollIntoView()
       .click();
     cy.generateUUID().then((uid) => {
       updatedName = uid;
