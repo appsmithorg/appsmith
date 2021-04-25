@@ -12,12 +12,9 @@ describe("Pages", function() {
       .last()
       .click({ force: true });
     cy.get(pages.clonePage).click({ force: true });
-    //cy.wait("@clonePage").its('response.statusCode').should('be.oneOf', [201, 202])
+    cy.wait(500);
 
-    cy.intercept("POST", "/api/v1/pages/clone/*", (req) => {
-      expect(req.body).to.include("");
-    });
-
+    cy.wait("@clonePage");
     /*
     cy.wait("@clonePage").should(
       "have.nested.property",

@@ -2191,10 +2191,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   );
   cy.intercept("GET", "/api/v1/users/me").as("getUser");
   cy.intercept("POST", "/api/v1/pages").as("createPage");
-  cy.intercept("POST", "/api/v1/pages/clone/*", {
-    statusCode: 200,
-    body: "it worked!",
-  }).as("clonePage");
+  cy.intercept("POST", "/api/v1/pages/clone/*").as("clonePage");
   /*
   cy.intercept(
     {
