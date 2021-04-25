@@ -87,6 +87,7 @@ class TabsWidget extends BaseWidget<
 
   onTabChange = (tabWidgetId: string) => {
     this.props.updateWidgetMetaProperty("selectedTabWidgetId", tabWidgetId, {
+      triggerPropertyName: "onTabSelected",
       dynamicString: this.props.onTabSelected,
       event: {
         type: EventType.ON_TAB_CHANGE,
