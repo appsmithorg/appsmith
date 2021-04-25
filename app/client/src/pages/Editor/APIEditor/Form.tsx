@@ -297,8 +297,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                             <CalloutContent>
                               <Link
                                 onClick={handleClickLearnHow}
-                                target="_blank"
-                                rel="noopener noreferrer"
                                 className="t--learn-how-apis-link"
                               >
                                 <Text type={TextType.H6} case={Case.UPPERCASE}>

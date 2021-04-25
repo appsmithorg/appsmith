@@ -2,9 +2,8 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("Switch datasource", function() {
+describe("Check datasource doc links", function() {
   let postgresDatasourceName;
-  let mongoDatasourceName;
 
   beforeEach(() => {
     cy.startRoutesForDatasource();
@@ -32,18 +31,12 @@ describe("Switch datasource", function() {
     cy.testSaveDatasource();
   });
 
-  it("Create query and check that documentation opens global modal", function() {
+  it("Check that documentation opens global modal", function() {
     cy.NavigateToQueryEditor();
 
     cy.contains(".t--datasource-name", postgresDatasourceName)
       .find(queryLocators.createQuery)
       .click();
-
-    cy.get(queryLocators.templateMenu).click();
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from users limit 10");
 
     cy.get(".t--datasource-documentation-link").click();
     cy.get(commonlocators.globalSearchModal);

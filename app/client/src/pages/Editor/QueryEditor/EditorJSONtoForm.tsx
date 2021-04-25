@@ -487,7 +487,6 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
           {documentationLink && (
             <DocumentationLink
               onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
-              rel="noopener noreferrer"
               className="t--datasource-documentation-link"
             >
               {"Documentation "}

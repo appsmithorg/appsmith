@@ -94,6 +94,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   openOmnibarReadMore = () => {
     const { openOmnibarReadMore } = this.props;
     openOmnibarReadMore("connect to databases");
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "READ_MORE_DATASOURCE" });
   };
 
   test = () => {
