@@ -22,6 +22,11 @@ export type ExecuteActionPayload = {
   responseData?: Array<any>;
 };
 
+// triggerPropertyName was added as a requirement for logging purposes
+export type WidgetExecuteActionPayload = ExecuteActionPayload & {
+  triggerPropertyName?: string;
+};
+
 export type ContentType =
   | "application/json"
   | "application/x-www-form-urlencoded";

@@ -45,7 +45,7 @@ export function validateDateString(
   return isValid;
 }
 
-const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type"; // TODO: Lot's of changes in validations.ts file
+const WIDGET_TYPE_VALIDATION_ERROR = "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
 
 export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
   [VALIDATION_TYPES.TEXT]: (value: any): ValidationResponse => {
@@ -61,7 +61,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid: false,
         parsed: JSON.stringify(value, null, 2),
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "text"`,
       };
     }
     let isValid = isString(value);
@@ -75,7 +75,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         return {
           isValid: false,
           parsed: "",
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "text"`,
         };
       }
     }
@@ -99,7 +99,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         return {
           isValid: false,
           parsed: parsed,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: regex`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "regex"`,
         };
       }
     }
@@ -112,7 +112,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid: false,
         parsed: 0,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: number`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
       };
     }
     let isValid = isNumber(value);
@@ -123,7 +123,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
           return {
             isValid: false,
             parsed: 0,
-            message: `${WIDGET_TYPE_VALIDATION_ERROR}: number`,
+            message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
           };
         }
         isValid = true;
@@ -133,7 +133,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         return {
           isValid: false,
           parsed: 0,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: number`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
         };
       }
     }
@@ -145,7 +145,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid: false,
         parsed: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: boolean`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
     const isABoolean = isBoolean(value);
@@ -156,7 +156,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid: isValid,
         parsed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: boolean`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
     return { isValid, parsed };
@@ -195,7 +195,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
           isValid: false,
           parsed: [],
           transformed: undefined,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
         };
       }
       if (isString(value)) {
@@ -206,7 +206,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
           isValid: false,
           parsed: [],
           transformed: parsed,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
         };
       }
       return { isValid: true, parsed, transformed: parsed };
@@ -215,7 +215,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: [],
         transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
       };
     }
   },
@@ -233,7 +233,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid,
         parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ label: string, id: string(unique), widgetId: string(unique) }>"`,
       };
     } else if (
       !every(
@@ -253,7 +253,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid: false,
         parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ label: string, id: string(unique), widgetId: string(unique) }>"`,
       };
     }
     return { isValid, parsed };
@@ -311,7 +311,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid,
         parsed: [],
         transformed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<Object>"`,
       };
     }
     const isValidTableData = every(parsed, (datum) => {
@@ -326,7 +326,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: [],
         transformed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<Object>"`,
       };
     }
     return { isValid, parsed };
@@ -346,7 +346,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid,
         parsed,
         transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<x:string, y:number>"`,
       };
     }
     let validationMessage = "";
@@ -384,7 +384,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
             ...seriesData,
             data: [],
           });
-          validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
+          validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR} "Array<x:string, y:number>"`;
         } else {
           parsedChartData.push({
             ...seriesData,
@@ -423,7 +423,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid,
         parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"`,
       };
     }
     if (parsed.renderAt) {
@@ -434,7 +434,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         isValid: false,
         parsed: parsed,
         transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"`,
       };
     }
     return { isValid, parsed, transformed: parsed };
@@ -453,7 +453,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid,
         parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ lat: number, long: number }>"`,
       };
     } else if (
       !every(
@@ -464,7 +464,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid: false,
         parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ lat: number, long: number }>"`,
       };
     }
     return { isValid, parsed };
@@ -483,7 +483,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       return {
         isValid,
         parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ label: string, value: string }>"`,
       };
     }
     try {
@@ -500,7 +500,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         return {
           isValid: false,
           parsed: uniqValidOptions,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ label: string, value: string }>"`,
         };
       }
       return { isValid, parsed };
@@ -558,7 +558,9 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     return {
       isValid,
       parsed: parsedDate,
-      message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+      message: isValid
+        ? ""
+        : `Value does not match ISO 8601 standard date string`,
     };
   },
   [VALIDATION_TYPES.DEFAULT_DATE]: (
@@ -771,9 +773,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     return {
       isValid: isValidTabName,
       parsed: value,
-      message: isValidTabName
-        ? ""
-        : `${WIDGET_TYPE_VALIDATION_ERROR}: Invalid tab name.`,
+      message: isValidTabName ? "" : `Invalid tab name.`,
     };
   },
   [VALIDATION_TYPES.DEFAULT_OPTION_VALUE]: (
@@ -909,7 +909,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     const invalidResponse = {
       isValid: false,
       parsed: undefined,
-      message: `${WIDGET_TYPE_VALIDATION_ERROR}: { lat: number, long: number }`,
+      message: `${WIDGET_TYPE_VALIDATION_ERROR} "{ lat: number, long: number }"`,
     };
 
     if (isString(unparsedValue)) {
