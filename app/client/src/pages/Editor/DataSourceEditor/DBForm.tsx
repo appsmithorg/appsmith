@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
@@ -11,7 +12,6 @@ import FormTitle from "./FormTitle";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 
-import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps } from "redux-form";
@@ -40,6 +40,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   onTest: (formValus: Datasource) => void;
   handleDelete: (id: string) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  openOmnibarReadMore: (text: string) => void;
   isSaving: boolean;
   isDeleting: boolean;
   datasourceId: string;
@@ -88,6 +89,11 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       appId: this.props.applicationId,
     });
     this.props.onSave(normalizedValues);
+  };
+
+  openOmnibarReadMore = () => {
+    const { openOmnibarReadMore } = this.props;
+    openOmnibarReadMore("connect to databases");
   };
 
   test = () => {
@@ -157,11 +163,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               <span>{`Whitelist the IP ${convertArrayToSentence(
                 APPSMITH_IP_ADDRESSES,
               )}  on your database instance to connect to it. `}</span>
-              <a
-                href={`${HelpBaseURL}${HelpMap["DATASOURCE_FORM"].path}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a onClick={this.openOmnibarReadMore}>
                 {"Read more "}
                 <StyledOpenDocsIcon icon="document-open" />
               </a>
@@ -209,6 +211,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   };
 }
 
-export default reduxForm<Datasource, DatasourceDBEditorProps>({
-  form: DATASOURCE_DB_FORM,
-})(DatasourceDBEditor);
+export default connect()(
+  reduxForm<Datasource, DatasourceDBEditorProps>({
+    form: DATASOURCE_DB_FORM,
+    enableReinitialize: true,
+  })(DatasourceDBEditor),
+);
