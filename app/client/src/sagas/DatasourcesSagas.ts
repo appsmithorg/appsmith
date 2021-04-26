@@ -76,6 +76,7 @@ import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { get } from "lodash";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -404,7 +405,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
             type: ENTITY_TYPE.DATASOURCE,
           },
           state: {
-            message: responseData.invalids[0],
+            message: get(responseData, "invalids[0]", ""),
           },
         });
       } else {
