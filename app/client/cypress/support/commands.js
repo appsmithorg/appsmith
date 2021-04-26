@@ -2143,7 +2143,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "api/v1/import/templateCollections").as(
     "getTemplateCollections",
   );
-  cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
   cy.intercept("DELETE", "/api/v1/pages/*").as("deletePage");
   cy.intercept("POST", "/api/v1/datasources").as("createDatasource");
   cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
