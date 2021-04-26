@@ -35,6 +35,7 @@ import {
 import { focusWidget } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
+import AppsmithConsole from "utils/AppsmithConsole";
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
@@ -81,6 +82,12 @@ export function* showModalByNameSaga(
       widget.widgetName === action.payload.modalName,
   );
   if (modal) {
+    AppsmithConsole.info({
+      text: action.payload.modalName
+        ? `showModal('${action.payload.modalName}') was triggered`
+        : `showModal() was triggered`,
+    });
+
     yield put({
       type: ReduxActionTypes.SHOW_MODAL,
       payload: {

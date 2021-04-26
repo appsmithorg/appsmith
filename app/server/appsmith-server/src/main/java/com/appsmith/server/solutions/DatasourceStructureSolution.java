@@ -1,10 +1,10 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;

@@ -2,6 +2,7 @@ import { get } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 // A hook to update all column styles when global table styles are updated
 const updateColumnStyles = (
@@ -142,6 +143,7 @@ export default [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TABLE_DATA,
       },
       {
         helpText: "Columns",
@@ -637,6 +639,7 @@ export default [
         placeholderText: "Enter default search text",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TEXT,
       },
       {
         helpText: "Selects the default selected row",
@@ -646,6 +649,7 @@ export default [
         placeholderText: "Enter row index",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
       },
       {
         helpText:
@@ -664,6 +668,7 @@ export default [
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.BOOLEAN,
       },
       {
         propertyName: "multiRowSelection",

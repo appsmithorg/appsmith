@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -16,7 +17,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -40,10 +40,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
 
 @Slf4j
 @Service
@@ -97,11 +97,12 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
+        String orgId = datasource.getOrganizationId();
+        if (orgId == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-        if (datasource.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
         // If Authentication Details are present in the datasource, encrypt the details before saving
@@ -110,10 +111,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         }
 
         Mono<Datasource> datasourceMono = Mono.just(datasource);
-
         if (StringUtils.isEmpty(datasource.getName())) {
             datasourceMono = sequenceService
-                    .getNextAsSuffix(Datasource.class)
+                    .getNextAsSuffix(Datasource.class, " for organization with _id : " + orgId)
                     .zipWith(datasourceMono, (sequenceNumber, datasource1) -> {
                         datasource1.setName(Datasource.DEFAULT_NAME_PREFIX + sequenceNumber);
                         return datasource1;
@@ -287,7 +287,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         if (datasource.getDatasourceConfiguration() != null
                 && !CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
             for (final Endpoint endpoint : datasource.getDatasourceConfiguration().getEndpoints()) {
-                endpoint.setHost(endpoint.getHost().trim());
+                if (endpoint != null && endpoint.getHost() != null) {
+                    endpoint.setHost(endpoint.getHost().trim());
+                }
             }
         }
 

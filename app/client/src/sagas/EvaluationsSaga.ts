@@ -23,7 +23,6 @@ import {
   EvalErrorTypes,
 } from "utils/DynamicBindingUtils";
 import log from "loglevel";
-import { WidgetType } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -38,6 +37,8 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
+import AppsmithConsole from "utils/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -91,6 +92,15 @@ const evalErrorHandler = (errors: EvalError[]) => {
         log.debug(error);
         break;
       }
+      case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
+        AppsmithConsole.error({
+          logType: LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR,
+          text: `The value at ${error.context?.source.propertyPath} is invalid`,
+          message: error.message,
+          source: error.context?.source,
+        });
+        break;
+      }
       default: {
         Sentry.captureException(error);
         log.debug(error);
@@ -133,7 +143,7 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: dataTree,
   });
-  PerformanceTracker.startAsyncTracking(
+  PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
   yield put({
@@ -209,17 +219,17 @@ export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
 }
 
 export function* validateProperty(
-  widgetType: WidgetType,
   property: string,
   value: any,
   props: WidgetProps,
 ) {
+  const unevalTree = yield select(getUnevaluatedDataTree);
+  const validation = unevalTree[props.widgetName].validationPaths[property];
   return yield call(worker.request, EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY, {
-    widgetTypeConfigMap,
-    widgetType,
     property,
     value,
     props,
+    validation,
   });
 }
 
