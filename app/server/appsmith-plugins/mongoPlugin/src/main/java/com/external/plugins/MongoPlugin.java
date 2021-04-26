@@ -87,6 +87,8 @@ public class MongoPlugin extends BasePlugin {
 
     private static final int SMART_BSON_SUBSTITUTION_INDEX = 0;
 
+    private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
+
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -607,6 +609,20 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .collectList()
                     .thenReturn(structure)
+                    .onErrorMap(
+                            MongoCommandException.class,
+                            error -> {
+                                if (MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE.equals(error.getErrorCode())) {
+                                    return new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                            "Appsmith has failed to get database structure. Please provide read permission on" +
+                                                    " the database to fix this."
+                                    );
+                                }
+
+                                return error;
+                            }
+                    )
                     .subscribeOn(scheduler);
         }
 
