@@ -113,6 +113,9 @@ import {
   WIDGET_DELETE,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
 } from "constants/messages";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   doesTriggerPathsContainPropertyPath,
   handleSpecificCasesWhilePasting,
@@ -292,7 +295,6 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       addChildAction.payload,
       widgets,
     );
-
     // Update widgets to put back in the canvasWidgetsReducer
     // TODO(abhinav): This won't work if dont already have an empty children: []
     const parent = {
@@ -301,6 +303,15 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     };
 
     widgets[parent.widgetId] = parent;
+    AppsmithConsole.info({
+      text: "Widget was created",
+      source: {
+        type: ENTITY_TYPE.WIDGET,
+        id: childWidgetPayload.widgetId,
+        name:
+          childWidgetPayload.widgets[childWidgetPayload.widgetId].widgetName,
+      },
+    });
     log.debug("add child computations took", performance.now() - start, "ms");
 
     // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
@@ -509,7 +520,18 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           },
         });
         setTimeout(() => {
-          if (widgetId) flushDeletedWidgets(widgetId);
+          if (widgetId) {
+            flushDeletedWidgets(widgetId);
+            AppsmithConsole.info({
+              logType: LOG_TYPE.ENTITY_DELETED,
+              text: "Widget was deleted",
+              source: {
+                name: widgetName,
+                type: ENTITY_TYPE.WIDGET,
+                id: widgetId,
+              },
+            });
+          }
         }, WIDGET_DELETE_UNDO_TIMEOUT);
       }
 
@@ -1006,6 +1028,7 @@ function* batchUpdateWidgetPropertySaga(
     performance.now() - start,
     "ms",
   );
+
   // Save the layout
   yield put(updateAndSaveLayout(widgets));
 }

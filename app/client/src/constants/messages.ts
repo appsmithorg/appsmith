@@ -280,7 +280,7 @@ export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
 export const OMNIBAR_PLACEHOLDER = () =>
   "Search Widgets, Queries, Documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
-export const NO_SEARCH_DATA_TEXT = () => "Search you must meaningful but";
+export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
 export const WIDGET_BIND_HELP = () =>
   "Having trouble taking inputs from widgets?";
@@ -288,3 +288,10 @@ export const WIDGET_BIND_HELP = () =>
 export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
 export const PAGE_NOT_FOUND = () => "Page not found";
+
+export const CLICK_ON = () => "🙌 Click on ";
+export const PRESS = () => "🎉 Press ";
+export const OPEN_THE_DEBUGGER = () => " to open the issue in debugger";
+export const NO_LOGS = () => "No logs to show";
+
+export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";

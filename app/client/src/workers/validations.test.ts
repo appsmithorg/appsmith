@@ -33,7 +33,8 @@ describe("Validate Validators", () => {
         input: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         output: {
           isValid: false,
-          message: 'Value does not match type: [{ "x": "val", "y": "val" }]',
+          message:
+            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
           parsed: [],
           transformed: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         },
@@ -42,7 +43,8 @@ describe("Validate Validators", () => {
         input: undefined,
         output: {
           isValid: false,
-          message: 'Value does not match type: [{ "x": "val", "y": "val" }]',
+          message:
+            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
           parsed: [],
           transformed: undefined,
         },
@@ -96,7 +98,7 @@ describe("Validate Validators", () => {
         parsed: expected[index],
       };
       if (invalidIndices.includes(index)) {
-        expectedResult.message = `Value does not match type: number[]`;
+        expectedResult.message = `This value does not evaluate to type: number[]`;
       }
       expect(result).toStrictEqual(expectedResult);
     });
@@ -382,7 +384,7 @@ describe("Chart Custom Config validator", () => {
         output: {
           isValid: false,
           message:
-            "Value does not match type: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}",
+            'This value does not evaluate to type "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"',
           parsed: {
             type: undefined,
             dataSource: undefined,
@@ -500,7 +502,7 @@ describe("List data validator", () => {
         output: {
           isValid: false,
           message:
-            'Value does not match type: [{ "key1" : "val1", "key2" : "val2" }]',
+            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
           parsed: [],
           transformed: "sting text",
         },
@@ -510,7 +512,7 @@ describe("List data validator", () => {
         output: {
           isValid: false,
           message:
-            'Value does not match type: [{ "key1" : "val1", "key2" : "val2" }]',
+            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
           parsed: [],
           transformed: undefined,
         },
@@ -520,7 +522,7 @@ describe("List data validator", () => {
         output: {
           isValid: false,
           message:
-            'Value does not match type: [{ "key1" : "val1", "key2" : "val2" }]',
+            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
           parsed: [],
           transformed: {},
         },
