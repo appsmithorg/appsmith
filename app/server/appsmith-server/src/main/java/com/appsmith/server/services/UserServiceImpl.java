@@ -638,7 +638,23 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     //Lets save the updated user object
                     return repository.save(invitedUser);
                 })
-                .collectList();
+                .collectList()
+                .flatMap(users -> Mono.zip(Mono.just(users), currentUserMono))
+                .flatMap(tuple -> {
+                    List<User> users = tuple.getT1();
+                    User currentUser = tuple.getT2();
+
+                    HashMap<String, Object> analyticsProperties = new HashMap<>();
+                    long numberOfUsers = users.size();
+                    List<String> invitedUsers = new ArrayList<>();
+                    for (User user: users) {
+                        invitedUsers.add(user.getEmail());
+                    }
+                    analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
+                    analyticsProperties.put("userEmails", invitedUsers);
+                    analyticsService.sendEvent("execute_INVITE_USERS", currentUser.getEmail(), analyticsProperties);
+                    return Mono.just(users);
+                });
 
         // Trigger the flow to first add the users to the organization and then update each user with the organizationId
         // added to the user's list of organizations.

@@ -25,6 +25,8 @@ const StyledContainerComponent = styled.div<
   background: ${(props) => props.backgroundColor};
 
   ${(props) => (!props.isVisible ? invisible : "")};
+  opacity: ${(props) => (props.resizeDisabled ? "0.5" : "1")};
+  pointer-events: ${(props) => (props.resizeDisabled ? "none" : "inherit")};
   overflow: hidden;
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}
 }`;
@@ -32,6 +34,7 @@ const StyledContainerComponent = styled.div<
 const ContainerComponent = (props: ContainerComponentProps) => {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!props.shouldScrollContents) {
       const supportsNativeSmoothScroll =
@@ -69,6 +72,7 @@ export interface ContainerComponentProps extends ComponentProps {
   className?: string;
   backgroundColor?: Color;
   shouldScrollContents?: boolean;
+  resizeDisabled?: boolean;
 }
 
 export default ContainerComponent;

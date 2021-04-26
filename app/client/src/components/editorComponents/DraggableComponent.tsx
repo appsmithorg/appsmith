@@ -38,6 +38,22 @@ type DraggableComponentProps = WidgetProps;
 
 /* eslint-disable react/display-name */
 
+/**
+ * can drag helper function for react-dnd hook
+ *
+ * @param isResizing
+ * @param isDraggingDisabled
+ * @param props
+ * @returns
+ */
+export const canDrag = (
+  isResizing: boolean,
+  isDraggingDisabled: boolean,
+  props: any,
+) => {
+  return !isResizing && !isDraggingDisabled && !props.dragDisabled;
+};
+
 const DraggableComponent = (props: DraggableComponentProps) => {
   // Dispatch hook handy to toggle property pane
   const showPropertyPane = useShowPropertyPane();
@@ -119,7 +135,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     },
     canDrag: () => {
       // Dont' allow drag if we're resizing or the drag of `DraggableComponent` is disabled
-      return !isResizing && !isDraggingDisabled;
+      return canDrag(isResizing, isDraggingDisabled, props);
     },
   });
 

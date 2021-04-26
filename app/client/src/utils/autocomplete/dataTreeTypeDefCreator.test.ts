@@ -31,6 +31,7 @@ describe("dataTreeTypeDefCreator", () => {
         triggerPaths: {
           onTextChange: true,
         },
+        validationPaths: {},
       },
     };
     const def = dataTreeTypeDefCreator(dataTree);

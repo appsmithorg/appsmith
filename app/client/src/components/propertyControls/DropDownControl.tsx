@@ -24,7 +24,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           options={this.props.options}
           selected={defaultSelected}
           onSelect={this.onItemSelect}
-          width="231px"
+          width="100%"
           showLabelOnly={true}
           optionWidth={
             this.props.optionWidth ? this.props.optionWidth : "231px"

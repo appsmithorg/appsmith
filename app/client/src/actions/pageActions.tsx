@@ -1,5 +1,3 @@
-import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
-import { WidgetOperation } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   EvaluationReduxAction,
@@ -7,9 +5,11 @@ import {
   ReduxActionTypes,
   UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { WidgetOperation } from "widgets/BaseWidget";
+import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export interface FetchPageListPayload {
   applicationId: string;

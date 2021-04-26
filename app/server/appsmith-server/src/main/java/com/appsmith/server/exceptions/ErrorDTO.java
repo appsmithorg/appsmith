@@ -3,6 +3,7 @@ package com.appsmith.server.exceptions;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class ErrorDTO implements Serializable {
 
     private int code;

@@ -1,12 +1,13 @@
 package com.external.plugins;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -23,6 +24,7 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import org.bson.Document;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -127,6 +129,16 @@ public class MongoPluginTest {
                     MongoClient client = obj;
                     assertNotNull(client);
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testConnectToMongoWithoutUsername() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.setAuthentication(new DBAuth(DBAuth.Type.SCRAM_SHA_1, "", "", "admin"));
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(Assert::assertNotNull)
                 .verifyComplete();
     }
 
