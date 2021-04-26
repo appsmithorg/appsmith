@@ -51,7 +51,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
 ): { [widgetId: string]: FlattenedWidgetProps } => {
   let root = get(widgets, `${widget.parentId}`);
 
-  while (root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+  while (root && root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
     if (root.type === WidgetTypes.LIST_WIDGET) {
       const listWidget = root;
       const currentWidget = cloneDeep(widget);

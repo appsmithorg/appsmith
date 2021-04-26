@@ -263,7 +263,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
           />
         </TabbedViewContainer>
 
-        <ApiResponseView />
+        <ApiResponseView apiName={props.apiName} />
       </SecondaryWrapper>
     </Form>
   );
