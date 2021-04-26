@@ -220,7 +220,6 @@ type ApplicationCardProps = {
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
-  fork?: (applicationId: string, organisationId: string) => void;
 };
 
 const EditButton = styled(Button)`
@@ -290,7 +289,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       });
     }
     // add fork app option to menu
-    if (props.fork && hasEditPermission) {
+    if (hasEditPermission) {
       moreActionItems.push({
         onSelect: forkApplicationInitiate,
         text: "Fork",

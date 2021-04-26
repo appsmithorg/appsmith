@@ -51,7 +51,6 @@ import MenuItem from "components/ads/MenuItem";
 import {
   duplicateApplication,
   updateApplication,
-  forkApplication,
 } from "actions/applicationActions";
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
@@ -535,13 +534,6 @@ const ApplicationsSection = (props: any) => {
     dispatch(duplicateApplication(applicationId));
   };
 
-  const forkApplicationDispatch = (
-    applicationId: string,
-    organisationId: string,
-  ) => {
-    dispatch(forkApplication(applicationId, organisationId));
-  };
-
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
@@ -792,7 +784,6 @@ const ApplicationsSection = (props: any) => {
                       delete={deleteApplication}
                       update={updateApplicationDispatch}
                       duplicate={duplicateApplicationDispatch}
-                      fork={forkApplicationDispatch}
                     />
                   </PaddingWrapper>
                 );
