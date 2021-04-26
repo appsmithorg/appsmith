@@ -490,6 +490,22 @@ public class MongoPluginTest {
     }
 
     @Test
+    public void testInvalidsOnCorrectSrvUrlFormat() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("Import from Srv Url", "Yes"));
+        properties.add(new Property("Srv Url", "mongodb+srv://username:password@url.net/dbname"));
+        dsConfig.setProperties(properties);
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids.isEmpty());
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testTestDatasourceTimeoutError() {
         String badHost = "mongo-bad-url.mongodb.net";
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
