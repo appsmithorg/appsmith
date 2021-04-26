@@ -859,7 +859,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
-    .type(apiname, { force: true })
+    .type(apiname, { delay: 500 })
     .should("have.value", apiname)
     .focus();
   cy.get(".error-message").should(($x) => {
