@@ -256,59 +256,72 @@ const WidgetPreview = ({
   canDrop?: boolean;
   currentOffset?: XYCoord | null;
 }) => {
+  const dropZoneRef = React.useRef<HTMLDivElement>(null);
   const dropTargetOffset = useRef({
     x: 0,
     y: 0,
   });
+  const isParentOffsetCalculated = dropTargetOffset.current.x !== 0;
+
   const anotherOffset: XYCoord | null = currentOffset || {
     x: dropTargetOffset.current.x + (diffOffset?.x ?? 0),
     y: dropTargetOffset.current.y + (diffOffset?.y ?? 0),
   };
-  const [left, top] = getDropZoneOffsets(
-    props.parentColumnWidth,
-    props.parentRowHeight,
-    anotherOffset as XYCoord,
-    { x: 0, y: 0 },
-    // dropTargetOffset.current,
-  );
   const movingToDifferentContainer = props.parentWidgetId === widget.parentId;
-  !movingToDifferentContainer &&
-    console.log({
-      diffOffset,
-      left,
-      top,
-      parent: props.parentWidgetId,
-      widget,
-      dropTargetOffset,
-    });
-  movingToDifferentContainer &&
-    props.parentWidgetId !== "0" &&
-    console.log({
-      diffOffset,
-      left,
-      top,
-      parent: props.parentWidgetId,
-      widget,
-      dropTargetOffset,
-    });
+  // !movingToDifferentContainer &&
+  //   console.log({
+  //     diffOffset,
+  //     left,
+  //     top,
+  //     parent: props.parentWidgetId,
+  //     widget,
+  //     dropTargetOffset,
+  //   });
+  // movingToDifferentContainer &&
+  //   props.parentWidgetId !== "0" &&
+  //   console.log({
+  //     diffOffset,
+  //     left,
+  //     top,
+  //     parent: props.parentWidgetId,
+  //     widget,
+  //     dropTargetOffset,
+  //   });
+  const currentOffsetRef = React.useRef<XYCoord>({
+    x: 0,
+    y: 0,
+  });
+  const isCurrentOffsetCalculated = currentOffsetRef.current.x !== 0;
+
   const buffer = {
-    x: movingToDifferentContainer
-      ? props.parentColumnWidth * widget.leftColumn
-      : props.parentColumnWidth * left,
-    y: movingToDifferentContainer
-      ? props.parentRowHeight * widget.topRow
-      : props.parentRowHeight * top,
+    x: isCurrentOffsetCalculated
+      ? currentOffsetRef.current.x
+      : props.parentColumnWidth * widget.leftColumn +
+        dropTargetOffset.current.x,
+    y: isCurrentOffsetCalculated
+      ? currentOffsetRef.current.y
+      : props.parentRowHeight * widget.topRow + dropTargetOffset.current.y,
   };
-  const forCollision: XYCoord | null = {
+
+  // const currentOffsetRef = React.useRef(null);
+
+  const derviedCurrentOffset: XYCoord | null = currentOffset || {
     x: buffer.x + (diffOffset?.x ?? 0),
     y: buffer.y + (diffOffset?.y ?? 0),
   };
-  const derviedCurrentOffset: XYCoord | null = currentOffset || {
-    x: buffer.x + (diffOffset?.x ?? 0) + dropTargetOffset.current.x,
-    y: buffer.y + (diffOffset?.y ?? 0) + dropTargetOffset.current.y,
-  };
+  useEffect(() => {
+    if (isParentOffsetCalculated) {
+      currentOffsetRef.current = derviedCurrentOffset;
+    }
+  }, [props.parentWidgetId]);
+  const [left, top] = getDropZoneOffsets(
+    props.parentColumnWidth,
+    props.parentRowHeight,
+    currentOffsetRef.current as XYCoord,
+    dropTargetOffset.current,
+    // dropTargetOffset.current,
+  );
   const dropTargetMask: RefObject<HTMLDivElement> = React.useRef(null);
-  const dropZoneRef = React.useRef<HTMLDivElement>(null);
   let widgetWidth = 0;
   let widgetHeight = 0;
   if (widget) {
@@ -322,6 +335,13 @@ const WidgetPreview = ({
     const scrollParent: Element | null = getNearestParentCanvas(
       dropTargetMask.current,
     );
+    if (isParentOffsetCalculated && !isCurrentOffsetCalculated) {
+      const currentOffset = dropZoneRef.current?.getBoundingClientRect();
+      currentOffsetRef.current = {
+        x: currentOffset?.left || 0,
+        y: currentOffset?.top || 0,
+      };
+    }
     if (dropTargetMask.current) {
       if (el && props.canDropTargetExtend) {
         scrollElementIntoParentCanvasView(el, scrollParent);
@@ -342,8 +362,6 @@ const WidgetPreview = ({
       }
     }
   });
-  const isParentOffsetCalculated = dropTargetOffset.current.x !== 0;
-
   const calculateCanDrop =
     canDrop === undefined &&
     noCollision(
