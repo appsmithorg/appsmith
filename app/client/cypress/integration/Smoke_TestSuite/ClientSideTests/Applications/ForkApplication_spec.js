@@ -2,9 +2,9 @@ const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const explorerlocators = require("../../../../locators/explorerlocators.json");
-let duplicateApplicationDsl;
+let forkedApplicationDsl;
 
-describe("Duplicate application", function() {
+describe("Fork application across orgs", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -25,9 +25,13 @@ describe("Duplicate application", function() {
     cy.get(homePage.forkAppFromMenu).click({ force: true });
     cy.get(homePage.forkAppOrgButton).click({ force: true });
     cy.wait("@postForkAppOrg").then((httpResponse) => {
-      console.log("response: ", httpResponse);
-      const { id, organizationId, name } = httpResponse.response.body.data;
       expect(httpResponse.status).to.equal(200);
+    });
+    cy.get("@getPage").then((httpResponse) => {
+      const data = httpResponse.response.body.data;
+      forkedApplicationDsl = data.layouts[0].dsl;
+
+      expect(forkedApplicationDsl).to.deep.equal(dsl.dsl);
     });
   });
 });

@@ -289,6 +289,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         cypressSelector: "t--duplicate",
       });
     }
+    // add fork app option to menu
     if (props.fork && hasEditPermission) {
       moreActionItems.push({
         onSelect: forkApplicationInitiate,
@@ -331,13 +332,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const shareApp = () => {
     props.share && props.share(props.application.id);
   };
-  // const forkApp = () => {
-  //   props.fork && props.fork(props.application.id);
-  // };
   const forkApplicationInitiate = () => {
     // open fork application modal
     // on click on an organisation, create app and take to app
-    console.log("open modal here", props.application.id);
     setForkApplicationModalOpen(true);
   };
   const deleteApp = () => {

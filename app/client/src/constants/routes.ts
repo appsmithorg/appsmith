@@ -131,15 +131,6 @@ export const getApplicationViewerPageURL = (
   return url + queryParams;
 };
 
-export const getApplicationDashboardPageURLWithAppId = (
-  applicationId = ":applicationId",
-  params: Record<string, string> = {},
-): string => {
-  const url = `/applications/${applicationId}`;
-  const queryParams = convertToQueryParams(params);
-  return url + queryParams;
-};
-
 export function convertToQueryParams(
   params: Record<string, string> = {},
 ): string {

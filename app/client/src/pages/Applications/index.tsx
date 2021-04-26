@@ -542,7 +542,6 @@ const ApplicationsSection = (props: any) => {
     dispatch(forkApplication(applicationId, organisationId));
   };
 
-  // const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
