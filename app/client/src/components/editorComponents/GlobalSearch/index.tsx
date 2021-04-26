@@ -309,7 +309,6 @@ const GlobalSearch = () => {
       selectedWidgetId === activeItem.widgetId,
       activeItem.parentModalId,
     );
-    setQuery("");
   };
 
   const handleActionClick = (item: SearchItem) => {
