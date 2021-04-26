@@ -298,10 +298,9 @@ public class EncryptionHandler {
                 }
             }
 
+            field.setAccessible(false);
         }
 
         return hasEncryptedFields;
     }
-
-
 }
