@@ -195,12 +195,7 @@ export function* fetchPageSaga(
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
-      yield put(
-        fetchPageSuccess([
-          // Execute page load actions after evaluation of fetch page
-          executePageLoadActions(canvasWidgetsPayload.pageActions),
-        ]),
-      );
+      yield put(fetchPageSuccess());
 
       yield put({
         type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
@@ -264,7 +259,7 @@ export function* fetchPublishedPageSaga(
       yield put(
         fetchPublishedPageSuccess(
           // Execute page load actions post published page eval
-          [executePageLoadActions(canvasWidgetsPayload.pageActions)],
+          [executePageLoadActions()],
         ),
       );
       PerformanceTracker.stopAsyncTracking(

@@ -8,7 +8,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import { change, getFormValues, initialize } from "redux-form";
-import _, { merge } from "lodash";
+import _, { merge, isEmpty } from "lodash";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -68,11 +68,14 @@ import {
   SAAS_AUTHORIZATION_FAILED,
   SAAS_AUTHORIZATION_SUCCESSFUL,
 } from "constants/messages";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { PluginType } from "entities/Action";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -135,11 +138,21 @@ export function* deleteDatasourceSaga(
           id: response.data.id,
         },
       });
+      AppsmithConsole.info({
+        logType: LOG_TYPE.ENTITY_DELETED,
+        text: "Datasource deleted",
+        source: {
+          id: response.data.id,
+          name: response.data.name,
+          type: ENTITY_TYPE.DATASOURCE,
+        },
+      });
       if (actionPayload.onSuccess) {
         yield put(actionPayload.onSuccess);
       }
     }
   } catch (error) {
+    const datasource = yield select(getDatasource, actionPayload.payload.id);
     Toaster.show({
       text: error.message,
       variant: Variant.danger,
@@ -147,6 +160,14 @@ export function* deleteDatasourceSaga(
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
       payload: { error, id: actionPayload.payload.id, show: false },
+    });
+    AppsmithConsole.error({
+      text: error.message,
+      source: {
+        id: actionPayload.payload.id,
+        name: datasource.name,
+        type: ENTITY_TYPE.DATASOURCE,
+      },
     });
     if (actionPayload.onError) {
       yield put(actionPayload.onError);
@@ -199,6 +220,18 @@ function* updateDatasourceSaga(
       if (expandDatasourceId === response.data.id && !datasourceStructure) {
         yield put(fetchDatasourceStructure(response.data.id));
       }
+
+      AppsmithConsole.info({
+        text: "Datasource configuration saved",
+        source: {
+          id: response.data.id,
+          name: response.data.name,
+          type: ENTITY_TYPE.DATASOURCE,
+        },
+        state: {
+          datasourceConfiguration: response.data.datasourceConfiguration,
+        },
+      });
     }
   } catch (error) {
     yield put({
@@ -354,6 +387,17 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
           payload: { show: false },
         });
+        AppsmithConsole.error({
+          text: "Test Connection failed",
+          source: {
+            id: actionPayload.payload.id,
+            name: datasource.name,
+            type: ENTITY_TYPE.DATASOURCE,
+          },
+          state: {
+            message: responseData.invalids[0],
+          },
+        });
       } else {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
           datasource: payload.name,
@@ -366,12 +410,31 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
           payload: datasource,
         });
+        AppsmithConsole.info({
+          text: "Test Connection successful",
+          source: {
+            id: actionPayload.payload.id,
+            name: datasource.name,
+            type: ENTITY_TYPE.DATASOURCE,
+          },
+        });
       }
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
       payload: { error, show: false },
+    });
+    AppsmithConsole.error({
+      text: "Test Connection failed",
+      source: {
+        id: actionPayload.payload.id,
+        name: datasource.name,
+        type: ENTITY_TYPE.DATASOURCE,
+      },
+      state: {
+        message: error,
+      },
     });
   }
 }
@@ -559,6 +622,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
 }
 
 function* fetchDatasourceStructureSaga(action: ReduxAction<{ id: string }>) {
+  const datasource = yield select(getDatasource, action.payload.id);
   try {
     const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
@@ -572,6 +636,26 @@ function* fetchDatasourceStructureSaga(action: ReduxAction<{ id: string }>) {
           datasourceId: action.payload.id,
         },
       });
+
+      if (isEmpty(response.data)) {
+        AppsmithConsole.warning({
+          text: "Datasource structure could not be retrieved",
+          source: {
+            id: action.payload.id,
+            name: datasource.name,
+            type: ENTITY_TYPE.DATASOURCE,
+          },
+        });
+      } else {
+        AppsmithConsole.info({
+          text: "Datasource structure retrieved",
+          source: {
+            id: action.payload.id,
+            name: datasource.name,
+            type: ENTITY_TYPE.DATASOURCE,
+          },
+        });
+      }
     }
   } catch (error) {
     yield put({
@@ -581,10 +665,19 @@ function* fetchDatasourceStructureSaga(action: ReduxAction<{ id: string }>) {
         show: false,
       },
     });
+    AppsmithConsole.error({
+      text: "Datasource structure could not be retrieved",
+      source: {
+        id: action.payload.id,
+        name: datasource.name,
+        type: ENTITY_TYPE.DATASOURCE,
+      },
+    });
   }
 }
 
 function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
+  const datasource = yield select(getDatasource, action.payload.id);
   try {
     const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
@@ -599,6 +692,26 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
           datasourceId: action.payload.id,
         },
       });
+
+      if (isEmpty(response.data)) {
+        AppsmithConsole.warning({
+          text: "Datasource structure could not be retrieved",
+          source: {
+            id: action.payload.id,
+            name: datasource.name,
+            type: ENTITY_TYPE.DATASOURCE,
+          },
+        });
+      } else {
+        AppsmithConsole.info({
+          text: "Datasource structure retrieved",
+          source: {
+            id: action.payload.id,
+            name: datasource.name,
+            type: ENTITY_TYPE.DATASOURCE,
+          },
+        });
+      }
     }
   } catch (error) {
     yield put({
@@ -606,6 +719,14 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
       payload: {
         error,
         show: false,
+      },
+    });
+    AppsmithConsole.error({
+      text: "Datasource structure could not be retrieved",
+      source: {
+        id: action.payload.id,
+        name: datasource.name,
+        type: ENTITY_TYPE.DATASOURCE,
       },
     });
   }

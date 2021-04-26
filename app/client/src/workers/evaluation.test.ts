@@ -2,6 +2,7 @@ import {
   DataTreeAction,
   DataTreeWidget,
   ENTITY_TYPE,
+  EvaluationSubstitutionType,
 } from "../entities/DataTree/dataTreeFactory";
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
@@ -238,9 +239,10 @@ const BASE_ACTION: DataTreeAction = {
   data: {},
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
   bindingPaths: {
-    isLoading: true,
-    data: true,
+    isLoading: EvaluationSubstitutionType.TEMPLATE,
+    data: EvaluationSubstitutionType.TEMPLATE,
   },
+  dependencyMap: {},
 };
 
 describe("DataTreeEvaluator", () => {
@@ -251,7 +253,10 @@ describe("DataTreeEvaluator", () => {
       text: "Label",
       type: WidgetTypes.TEXT_WIDGET,
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
+      },
+      validationPaths: {
+        text: VALIDATION_TYPES.TEXT,
       },
     },
     Text2: {
@@ -261,7 +266,7 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "text" }],
       type: WidgetTypes.TEXT_WIDGET,
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
         text: VALIDATION_TYPES.TEXT,
@@ -274,7 +279,7 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "text" }],
       type: WidgetTypes.TEXT_WIDGET,
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
         text: VALIDATION_TYPES.TEXT,
@@ -294,18 +299,18 @@ describe("DataTreeEvaluator", () => {
       ],
       type: WidgetTypes.DROP_DOWN_WIDGET,
       bindingPaths: {
-        options: true,
-        defaultOptionValue: true,
-        isRequired: true,
-        isVisible: true,
-        isDisabled: true,
-        isValid: true,
-        selectedOption: true,
-        selectedOptionArr: true,
-        selectedIndex: true,
-        selectedIndexArr: true,
-        value: true,
-        selectedOptionValues: true,
+        options: EvaluationSubstitutionType.TEMPLATE,
+        defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
+        isRequired: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        isDisabled: EvaluationSubstitutionType.TEMPLATE,
+        isValid: EvaluationSubstitutionType.TEMPLATE,
+        selectedOption: EvaluationSubstitutionType.TEMPLATE,
+        selectedOptionArr: EvaluationSubstitutionType.TEMPLATE,
+        selectedIndex: EvaluationSubstitutionType.TEMPLATE,
+        selectedIndexArr: EvaluationSubstitutionType.TEMPLATE,
+        value: EvaluationSubstitutionType.TEMPLATE,
+        selectedOptionValues: EvaluationSubstitutionType.TEMPLATE,
       },
     },
     Table1: {
@@ -314,9 +319,9 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "tableData" }],
       type: WidgetTypes.TABLE_WIDGET,
       bindingPaths: {
-        tableData: true,
-        selectedRow: true,
-        selectedRows: true,
+        tableData: EvaluationSubstitutionType.TEMPLATE,
+        selectedRow: EvaluationSubstitutionType.TEMPLATE,
+        selectedRows: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
         tableData: VALIDATION_TYPES.TABLE_DATA,
@@ -328,7 +333,7 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "text" }],
       type: WidgetTypes.TEXT_WIDGET,
       bindingPaths: {
-        text: true,
+        text: EvaluationSubstitutionType.TEMPLATE,
       },
       validationPaths: {
         text: VALIDATION_TYPES.TEXT,
@@ -431,10 +436,10 @@ describe("DataTreeEvaluator", () => {
         widgetName: "Input1",
         type: WidgetTypes.INPUT_WIDGET,
         bindingPaths: {
-          defaultText: true,
-          isValid: true,
-          value: true,
-          text: true,
+          defaultText: EvaluationSubstitutionType.TEMPLATE,
+          isValid: EvaluationSubstitutionType.TEMPLATE,
+          value: EvaluationSubstitutionType.TEMPLATE,
+          text: EvaluationSubstitutionType.TEMPLATE,
         },
       },
     };
@@ -460,18 +465,18 @@ describe("DataTreeEvaluator", () => {
         ],
         type: WidgetTypes.DROP_DOWN_WIDGET,
         bindingPaths: {
-          options: true,
-          defaultOptionValue: true,
-          isRequired: true,
-          isVisible: true,
-          isDisabled: true,
-          isValid: true,
-          selectedOption: true,
-          selectedOptionArr: true,
-          selectedIndex: true,
-          selectedIndexArr: true,
-          value: true,
-          selectedOptionValues: true,
+          options: EvaluationSubstitutionType.TEMPLATE,
+          defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
+          isRequired: EvaluationSubstitutionType.TEMPLATE,
+          isVisible: EvaluationSubstitutionType.TEMPLATE,
+          isDisabled: EvaluationSubstitutionType.TEMPLATE,
+          isValid: EvaluationSubstitutionType.TEMPLATE,
+          selectedOption: EvaluationSubstitutionType.TEMPLATE,
+          selectedOptionArr: EvaluationSubstitutionType.TEMPLATE,
+          selectedIndex: EvaluationSubstitutionType.TEMPLATE,
+          selectedIndexArr: EvaluationSubstitutionType.TEMPLATE,
+          value: EvaluationSubstitutionType.TEMPLATE,
+          selectedOptionValues: EvaluationSubstitutionType.TEMPLATE,
         },
       },
     };
@@ -603,5 +608,87 @@ describe("DataTreeEvaluator", () => {
       "Table1.selectedRowIndices": [],
       "Text4.text": ["Table1.selectedRow.test"],
     });
+  });
+
+  it("Honors predefined action dependencyMap", () => {
+    const updatedTree1 = {
+      ...unEvalTree,
+      Text1: {
+        ...BASE_WIDGET,
+        text: "Test",
+      },
+      Api2: {
+        ...BASE_ACTION,
+        dependencyMap: {
+          "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+        },
+        bindingPaths: {
+          ...BASE_ACTION.bindingPaths,
+          "config.body": EvaluationSubstitutionType.TEMPLATE,
+        },
+        config: {
+          ...BASE_ACTION.config,
+          body: "",
+          pluginSpecifiedTemplates: [
+            {
+              value: false,
+            },
+          ],
+        },
+      },
+    };
+    evaluator.updateDataTree(updatedTree1);
+    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+      "Api2.config.pluginSpecifiedTemplates[0].value",
+    ]);
+    const updatedTree2 = {
+      ...updatedTree1,
+      Api2: {
+        ...updatedTree1.Api2,
+        dynamicBindingPathList: [
+          {
+            key: "config.body",
+          },
+        ],
+        config: {
+          ...updatedTree1.Api2.config,
+          body: "{ 'name': {{ Text1.text }} }",
+        },
+      },
+    };
+    const evaluatedDataTree2 = evaluator.updateDataTree(updatedTree2);
+    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+      "Text1.text",
+      "Api2.config.pluginSpecifiedTemplates[0].value",
+    ]);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    expect(evaluatedDataTree2.Api2.config.body).toBe("{ 'name': Test }");
+    const updatedTree3 = {
+      ...updatedTree2,
+      Api2: {
+        ...updatedTree2.Api2,
+        bindingPaths: {
+          ...updatedTree2.Api2.bindingPaths,
+          "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        },
+        config: {
+          ...updatedTree2.Api2.config,
+          pluginSpecifiedTemplates: [
+            {
+              value: true,
+            },
+          ],
+        },
+      },
+    };
+    const evaluatedDataTree3 = evaluator.updateDataTree(updatedTree3);
+    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+      "Text1.text",
+      "Api2.config.pluginSpecifiedTemplates[0].value",
+    ]);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    expect(evaluatedDataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
   });
 });

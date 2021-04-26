@@ -4,6 +4,7 @@ import {
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import { PluginFormPayload } from "api/PluginApi";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export const fetchPlugins = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
@@ -17,6 +18,7 @@ export type PluginFormsPayload = {
   formConfigs: Record<string, any[]>;
   editorConfigs: Record<string, any[]>;
   settingConfigs: Record<string, any[]>;
+  dependencies: Record<string, DependencyMap>;
 };
 
 export const fetchPluginFormConfigsSuccess = (

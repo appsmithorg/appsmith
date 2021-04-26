@@ -2,7 +2,11 @@ import {
   generateTypeDef,
   dataTreeTypeDefCreator,
 } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  ENTITY_TYPE,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { WidgetTypes } from "../../constants/WidgetConstants";
 
@@ -26,7 +30,7 @@ describe("dataTreeTypeDefCreator", () => {
         isLoading: false,
         version: 1,
         bindingPaths: {
-          defaultText: true,
+          defaultText: EvaluationSubstitutionType.TEMPLATE,
         },
         triggerPaths: {
           onTextChange: true,

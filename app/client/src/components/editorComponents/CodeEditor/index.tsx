@@ -16,7 +16,10 @@ import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
@@ -84,6 +87,7 @@ export type EditorStyleProps = {
   hoverInteraction?: boolean;
   fill?: boolean;
   useValidationMessage?: boolean;
+  evaluationSubstitutionType?: EvaluationSubstitutionType;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -352,6 +356,7 @@ class CodeEditor extends Component<Props, State> {
       fill,
       useValidationMessage,
       hideEvaluatedValue,
+      evaluationSubstitutionType,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
@@ -398,6 +403,7 @@ class CodeEditor extends Component<Props, State> {
           error={meta?.error}
           useValidationMessage={useValidationMessage}
           hideEvaluatedValue={hideEvaluatedValue}
+          evaluationSubstitutionType={evaluationSubstitutionType}
         >
           <EditorWrapper
             editorTheme={this.props.theme}
