@@ -19,104 +19,43 @@ const DUMMY_WIDGET: WidgetProps = {
 };
 
 describe("Validate Validators", () => {
-  const validator = VALIDATORS.CHART_DATA;
-  it("correctly validates chart data ", () => {
+  it("correctly validates chart series data ", () => {
     const cases = [
       {
-        input: [
-          {
-            seriesName: "Sales",
-            data: [{ x: "Jan", y: 1000 }],
-          },
-        ],
+        input: [{ x: "Jan", y: 1000 }],
         output: {
           isValid: true,
-          parsed: [
-            {
-              seriesName: "Sales",
-              data: [{ x: "Jan", y: 1000 }],
-            },
-          ],
-          transformed: [
-            {
-              seriesName: "Sales",
-              data: [{ x: "Jan", y: 1000 }],
-            },
-          ],
+          parsed: [{ x: "Jan", y: 1000 }],
+          transformed: [{ x: "Jan", y: 1000 }],
         },
       },
       {
-        input: [
-          {
-            seriesName: "Sales",
-            data: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
-          },
-        ],
+        input: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         output: {
           isValid: false,
-          message: '0##Value does not match type: [{ "x": "val", "y": "val" }]',
-          parsed: [
-            {
-              seriesName: "Sales",
-              data: [],
-            },
-          ],
-          transformed: [
-            {
-              seriesName: "Sales",
-              data: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
-            },
-          ],
+          message:
+            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+          parsed: [],
+          transformed: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         },
       },
       {
-        input: [
-          {
-            seriesName: "Sales",
-            data: undefined,
-          },
-          {
-            seriesName: "Expenses",
-            data: [
-              { x: "Jan", y: 1000 },
-              { x: "Feb", y: 2000 },
-            ],
-          },
-        ],
+        input: undefined,
         output: {
           isValid: false,
-          message: '0##Value does not match type: [{ "x": "val", "y": "val" }]',
-          parsed: [
-            {
-              seriesName: "Sales",
-              data: [],
-            },
-            {
-              seriesName: "Expenses",
-              data: [
-                { x: "Jan", y: 1000 },
-                { x: "Feb", y: 2000 },
-              ],
-            },
-          ],
-          transformed: [
-            {
-              seriesName: "Sales",
-              data: undefined,
-            },
-            {
-              seriesName: "Expenses",
-              data: [
-                { x: "Jan", y: 1000 },
-                { x: "Feb", y: 2000 },
-              ],
-            },
-          ],
+          message:
+            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+          parsed: [],
+          transformed: undefined,
         },
       },
     ];
     for (const testCase of cases) {
-      const response = validator(testCase.input, DUMMY_WIDGET, {});
+      const response = VALIDATORS.CHART_SERIES_DATA(
+        testCase.input,
+        DUMMY_WIDGET,
+        {},
+      );
       expect(response).toStrictEqual(testCase.output);
     }
   });
@@ -173,7 +112,7 @@ describe("Validate Validators", () => {
         parsed: expected[index],
       };
       if (invalidIndices.includes(index)) {
-        expectedResult.message = `Value does not match type: number[]`;
+        expectedResult.message = `This value does not evaluate to type: number[]`;
       }
       expect(result).toStrictEqual(expectedResult);
     });
@@ -459,7 +398,7 @@ describe("Chart Custom Config validator", () => {
         output: {
           isValid: false,
           message:
-            "Value does not match type: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}",
+            'This value does not evaluate to type "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"',
           parsed: {
             type: undefined,
             dataSource: undefined,
@@ -551,5 +490,68 @@ describe("validateDateString test", () => {
       };
       expect(result).toStrictEqual(expected);
     });
+  });
+});
+
+describe("List data validator", () => {
+  const validator = VALIDATORS.LIST_DATA;
+  it("correctly validates ", () => {
+    const cases = [
+      {
+        input: [],
+        output: {
+          isValid: true,
+          parsed: [],
+        },
+      },
+      {
+        input: [{ a: 1 }],
+        output: {
+          isValid: true,
+          parsed: [{ a: 1 }],
+        },
+      },
+      {
+        input: "sting text",
+        output: {
+          isValid: false,
+          message:
+            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          parsed: [],
+          transformed: "sting text",
+        },
+      },
+      {
+        input: undefined,
+        output: {
+          isValid: false,
+          message:
+            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          parsed: [],
+          transformed: undefined,
+        },
+      },
+      {
+        input: {},
+        output: {
+          isValid: false,
+          message:
+            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          parsed: [],
+          transformed: {},
+        },
+      },
+      {
+        input: `[{ "b": 1 }]`,
+        output: {
+          isValid: true,
+          parsed: JSON.parse(`[{ "b": 1 }]`),
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = validator(testCase.input, DUMMY_WIDGET, {});
+      expect(response).toStrictEqual(testCase.output);
+    }
   });
 });

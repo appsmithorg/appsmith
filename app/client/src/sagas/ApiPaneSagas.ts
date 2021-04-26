@@ -28,17 +28,27 @@ import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  DATA_SOURCES_EDITOR_ID_URL,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getDataSources,
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
+import {
+  createNewApiName,
+  getNextEntityName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getActions,
+  getPlugins,
+  getDatasources,
+  getPlugin,
+} from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest, setActionProperty } from "actions/actionActions";
 import { Datasource } from "entities/Datasource";
@@ -57,7 +67,6 @@ import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getIndextoUpdate } from "utils/ApiPaneUtils";
-import { changeQuery } from "actions/queryPaneActions";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -198,29 +207,10 @@ function* initializeExtraFormDataSaga() {
   const { extraformData } = state.ui.apiPane;
   const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
-  const headers = get(
-    values,
-    "actionConfiguration.headers",
-    DEFAULT_API_ACTION_CONFIG.headers,
-  );
+  const headers = get(values, "actionConfiguration.headers");
 
-  const queryParameters = get(
-    values,
-    "actionConfiguration.queryParameters",
-    [],
-  );
   if (!extraformData[values.id]) {
-    yield put(
-      change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
-    );
-    if (queryParameters.length === 0)
-      yield put(
-        change(
-          API_EDITOR_FORM_NAME,
-          "actionConfiguration.queryParameters",
-          DEFAULT_API_ACTION_CONFIG.queryParameters,
-        ),
-      );
+    yield call(setHeaderFormat, values.id, headers);
   }
 }
 
@@ -258,6 +248,42 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     );
   }
   PerformanceTracker.stopTracking();
+}
+
+function* setHeaderFormat(apiId: string, headers?: Property[]) {
+  let displayFormat;
+
+  if (headers) {
+    const contentType = headers.find(
+      (header: any) =>
+        header &&
+        header.key &&
+        header.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+    );
+
+    if (
+      contentType &&
+      contentType.value &&
+      POST_BODY_FORMATS.includes(contentType.value)
+    ) {
+      displayFormat = {
+        label: contentType.value,
+        value: contentType.value,
+      };
+    } else {
+      displayFormat = POST_BODY_FORMAT_OPTIONS[3];
+    }
+  }
+
+  yield put({
+    type: ReduxActionTypes.SET_EXTRA_FORMDATA,
+    payload: {
+      id: apiId,
+      values: {
+        displayFormat,
+      },
+    },
+  });
 }
 
 function* updateFormFields(
@@ -308,35 +334,7 @@ function* updateFormFields(
       "actionConfiguration.headers",
     );
     const apiId = get(values, "id");
-    let displayFormat;
-
-    if (actionConfigurationHeaders) {
-      const contentType = actionConfigurationHeaders.find(
-        (header: any) =>
-          header &&
-          header.key &&
-          header.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY,
-      );
-
-      if (contentType && POST_BODY_FORMATS.includes(contentType.value)) {
-        displayFormat = {
-          label: contentType.value,
-          value: contentType.value,
-        };
-      } else {
-        displayFormat = POST_BODY_FORMAT_OPTIONS[3];
-      }
-    }
-
-    yield put({
-      type: ReduxActionTypes.SET_EXTRA_FORMDATA,
-      payload: {
-        id: apiId,
-        values: {
-          displayFormat,
-        },
-      },
-    });
+    yield call(setHeaderFormat, apiId, actionConfigurationHeaders);
   }
 }
 
@@ -381,7 +379,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const action = yield select(getAction, id);
   const data = { ...action };
 
-  if (pluginType === "API") {
+  if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
@@ -391,6 +389,19 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
       }),
     );
   }
+}
+
+function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
+  const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  // Only look at API plugins
+  if (plugin.type !== PluginType.API) return;
+
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
+
+  history.push(
+    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, actionPayload.payload.id),
+  );
 }
 
 function* handleCreateNewApiActionSaga(
@@ -439,7 +450,7 @@ function* handleCreateNewQueryActionSaga(
   const { pageId } = action.payload;
   const applicationId = yield select(getCurrentApplicationId);
   const actions = yield select(getActions);
-  const dataSources = yield select(getDataSources);
+  const dataSources = yield select(getDatasources);
   const plugins = yield select(getPlugins);
   const pluginIds = plugins
     .filter((plugin: Plugin) => PLUGIN_PACKAGE_DBS.includes(plugin.packageName))
@@ -508,12 +519,12 @@ function* handleApiNameChangeSuccessSaga(
   if (!actionObj) {
     // Error case, log to sentry
     Toaster.show({
-      text: createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name),
+      text: createMessage(ERROR_ACTION_RENAME_FAIL, ""),
       variant: Variant.danger,
     });
 
     Sentry.captureException(
-      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, actionObj.name)),
+      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, "")),
       {
         extra: {
           actionId: actionId,
@@ -521,6 +532,15 @@ function* handleApiNameChangeSuccessSaga(
       },
     );
     return;
+  }
+  if (actionObj.pluginType === PluginType.API) {
+    const params = getQueryParams();
+    if (params.editName) {
+      params.editName = "false";
+    }
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
   }
 }
 
@@ -530,16 +550,14 @@ function* handleApiNameChangeFailureSaga(
   yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.oldName));
 }
 
-function* updateFormValues(action: ReduxAction<{ data: Action }>) {
-  if (action.payload.data.pluginType === PluginType.API) {
-    yield call(changeApiSaga, changeQuery(action.payload.data.id));
-  }
-}
-
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
+    takeEvery(
+      ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+      handleDatasourceCreatedSaga,
+    ),
     takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleApiNameChangeSaga),
     takeEvery(
       ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,
@@ -561,7 +579,6 @@ export default function* root() {
       ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
       handleUpdateBodyContentType,
     ),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION_SUCCESS, updateFormValues),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),

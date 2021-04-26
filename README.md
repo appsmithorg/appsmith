@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-    <a href="https://app.appsmith.com/signup"><strong>Try Online Sandbox</strong></a>
+    <a href="https://app.appsmith.com/signup?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"><strong>Try Online Sandbox</strong></a>
 </p>
 <p align="center">
   <a href="https://docs.appsmith.com/">Documentation</a>
@@ -63,7 +63,7 @@ But if you’d rather check out some real applications that can be built with Ap
 
 The following steps introduce you to building a simple user-list dashboard on Appsmith.
 
-1. [Sign up on Appsmith Cloud](https://bit.ly/appsmith-signup-github) or [Deploy Appsmith](https://docs.appsmith.com/setup).
+1. [Sign up on Appsmith Cloud](https://app.appsmith.com/signup?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website) or [Deploy Appsmith](https://docs.appsmith.com/setup).
 2. Create a new app within the organization that has already been created for you.
 3. Click on the `+` icon next to the `Queries` section to add a new query in the mock database
    1. Name the query `usersQuery`.
@@ -79,12 +79,12 @@ Connect your own data to build apps for your team. [Read more here.](https://doc
 ## 📚 Tutorials
 
 1. [Building an Admin Panel on MongoDB using Appsmith](https://blog.appsmith.com/building-an-admin-panel-with-mongodb-using-appsmith) ([Video](https://www.youtube.com/watch?v=tisUaIgI86k))
-2. [Building a customer support dashboard in Appsmith](https://www.youtube.com/watch?v=-O_6OLREEzo&t=272s)
-3. [Running CI/CD jobs manually using Appsmith](https://blog.appsmith.com/how-to-run-manual-jobs-in-gitlab-cicd) ([Video](https://www.youtube.com/watch?v=CYdeJcD4I8A))
-4. [Building a calendly clone in Appsmith](https://blog.appsmith.com/how-to-build-a-calendly-clone-in-30-minutes)
-5. [Building Internal Tools with Appsmith](https://youtu.be/eYYYfuW-kEE) `Community`
-6. [Building an Issue Tracker with Appsmith](https://dev.to/pjmantoss/how-to-build-an-issue-tracker-with-appsmith-204e) `Community`
-
+2. [Building a Customer Support Dashboard in Appsmith](https://www.youtube.com/watch?v=-O_6OLREEzo&t=272s)
+3. [Building a Store Catalogue Management System using Appsmith and GraphQL](https://blog.appsmith.com/building-a-store-catalogue-management-system-using-appsmith-and-graphql)
+4. [Running CI/CD Jobs Manually using Appsmith](https://blog.appsmith.com/how-to-run-manual-jobs-in-gitlab-cicd) ([Video](https://www.youtube.com/watch?v=CYdeJcD4I8A))
+5. [Building a Calendly Clone in Appsmith](https://blog.appsmith.com/how-to-build-a-calendly-clone-in-30-minutes)
+6. [Building Internal Tools with Appsmith](https://youtu.be/eYYYfuW-kEE) `Community`
+7. [Building an Issue Tracker with Appsmith](https://dev.to/pjmantoss/how-to-build-an-issue-tracker-with-appsmith-204e) `Community`
 
 ## 📕 Support & Troubleshooting
 
