@@ -63,31 +63,31 @@ export default [
     ],
   },
   {
-    helpText:
-      "Manually configure a FusionChart, see https://www.fusioncharts.com",
-    propertyName: "customFusionChartConfig",
-    placeholderText: `Enter {type: "bar2d","dataSource": {}}`,
-    label: "Custom Fusion Chart Configuration",
-    controlType: "CUSTOM_FUSION_CHARTS_DATA",
-    isBindProperty: true,
-    isTriggerProperty: false,
-    hidden: (x: any) => x.chartType !== "CUSTOM_FUSION_CHART",
-    validation: VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA,
-  },
-  {
     sectionName: "Chart Data",
-    hidden: (props: ChartWidgetProps) =>
-      props.chartType === "CUSTOM_FUSION_CHART",
     children: [
+      {
+        helpText:
+          "Manually configure a FusionChart, see https://www.fusioncharts.com",
+        placeholderText: `Enter {type: "bar2d","dataSource": {}}`,
+        propertyName: "customFusionChartConfig",
+        label: "Custom Fusion Chart Configuration",
+        controlType: "CUSTOM_FUSION_CHARTS_DATA",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA,
+        hidden: (props: ChartWidgetProps) =>
+          props.chartType !== "CUSTOM_FUSION_CHART",
+      },
       {
         helpText: "Populates the chart with the data",
         propertyName: "chartData",
         placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
         label: "Chart Series",
         controlType: "CHART_DATA",
-
         isBindProperty: false,
         isTriggerProperty: false,
+        hidden: (props: ChartWidgetProps) =>
+          props.chartType === "CUSTOM_FUSION_CHART",
         children: [
           {
             helpText: "Series Name",
@@ -105,7 +105,7 @@ export default [
             controlType: "INPUT_TEXT_AREA",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.CHART_DATA,
+            validation: VALIDATION_TYPES.CHART_SERIES_DATA,
           },
         ],
       },
