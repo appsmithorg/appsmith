@@ -2,6 +2,7 @@ import Api from "api/Api";
 import { AxiosPromise } from "axios";
 import { GenericApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export interface Plugin {
   id: string;
@@ -21,6 +22,7 @@ export interface PluginFormPayload {
   form: any[];
   editor: any[];
   setting: any[];
+  dependencies: DependencyMap;
 }
 
 class PluginsApi extends Api {

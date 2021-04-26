@@ -499,7 +499,7 @@ export interface ReduxActionWithCallbacks<T, S, E> extends ReduxAction<T> {
 }
 
 export interface EvaluationReduxAction<T> extends ReduxAction<T> {
-  postEvalActions?: ReduxAction<any>[];
+  postEvalActions?: Array<ReduxAction<any> | ReduxActionWithoutPayload>;
 }
 
 export interface PromisePayload {

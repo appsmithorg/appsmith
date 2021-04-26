@@ -78,6 +78,12 @@ const ActionButtons = styled.div`
   }
 `;
 
+const HelpSection = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[12]}px 0px
+    ${(props) => props.theme.spaces[12]}px;
+`;
+
 const DatasourceWrapper = styled.div`
   width: 100%;
 `;
@@ -86,6 +92,9 @@ const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - 126px);
+  ${HelpSection} {
+    margin-bottom: 10px;
+  }
 `;
 
 const TabbedViewContainer = styled.div`
@@ -155,12 +164,6 @@ const Link = styled.a`
   }
 `;
 
-const HelpSection = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[12]}px 0px
-    ${(props) => props.theme.spaces[12]}px;
-`;
-
 interface APIFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -177,6 +180,7 @@ interface APIFormProps {
   headersCount: number;
   paramsCount: number;
   settingsConfig: any;
+  hintMessages?: Array<string>;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -209,6 +213,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     headersCount,
     paramsCount,
     settingsConfig,
+    hintMessages,
   } = props;
   const dispatch = useDispatch();
   const allowPostBody =
@@ -280,6 +285,13 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         </FormRow>
       </MainConfiguration>
       <SecondaryWrapper>
+        {hintMessages && (
+          <HelpSection>
+            {hintMessages.map((msg, i) => (
+              <Callout text={msg} variant={Variant.warning} fill key={i} />
+            ))}
+          </HelpSection>
+        )}
         <TabbedViewContainer>
           <TabComponent
             tabs={[
@@ -422,6 +434,7 @@ export default connect((state: AppState) => {
     const validParams = params.filter((value) => value.key && value.key !== "");
     paramsCount = validParams.length;
   }
+  const hintMessages = selector(state, "datasource.messages");
 
   return {
     actionName,
@@ -430,6 +443,7 @@ export default connect((state: AppState) => {
     actionConfigurationHeaders,
     headersCount,
     paramsCount,
+    hintMessages,
   };
 })(
   reduxForm<Action, APIFormProps>({

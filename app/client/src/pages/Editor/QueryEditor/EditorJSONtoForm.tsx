@@ -26,6 +26,8 @@ import { addTableWidgetFromQuery } from "actions/widgetActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import log from "loglevel";
+import Callout from "components/ads/Callout";
+import { Variant } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import styled, { getTypographyByKey } from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
@@ -141,10 +143,16 @@ const SecondaryWrapper = styled.div`
   height: calc(100% - 50px);
 `;
 
+const HelpSection = styled.div``;
+
 const ResponseContentWrapper = styled.div`
   padding: 10px 15px;
   overflow-y: auto;
   height: 100%;
+
+  ${HelpSection} {
+    margin-bottom: 10px;
+  }
 `;
 
 const NoResponseContainer = styled.div`
@@ -314,6 +322,7 @@ type QueryFormProps = {
   executedQueryData?: {
     body: any;
     isExecutionSuccess?: boolean;
+    messages?: Array<string>;
   };
   runErrorMessage: string | undefined;
   location: {
@@ -358,6 +367,7 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
+  let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -368,6 +378,9 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
       output = JSON.parse(executedQueryData.body);
     } else {
       output = executedQueryData.body;
+    }
+    if (executedQueryData.messages && executedQueryData.messages.length) {
+      hintMessages = executedQueryData.messages;
     }
   }
 
@@ -599,6 +612,18 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
                           }}
                         />
                       </ErrorContainer>
+                    )}
+                    {hintMessages && hintMessages.length > 0 && (
+                      <HelpSection>
+                        {hintMessages.map((msg, index) => (
+                          <Callout
+                            text={msg}
+                            key={index}
+                            variant={Variant.warning}
+                            fill
+                          />
+                        ))}
+                      </HelpSection>
                     )}
                     {output && (
                       <>

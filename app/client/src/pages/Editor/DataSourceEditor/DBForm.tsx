@@ -23,6 +23,9 @@ import BackButton from "./BackButton";
 import { PluginType } from "entities/Action";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import Callout from "components/ads/Callout";
+import { Variant } from "components/ads/common";
+import { AppState } from "reducers";
 import {
   ActionButton,
   FormTitleContainer,
@@ -51,6 +54,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   pluginImage: string;
   viewMode: boolean;
   pluginType: string;
+  messages?: Array<string>;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -122,9 +126,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       datasourceId,
       handleDelete,
       pluginType,
+      messages,
     } = this.props;
     const { viewMode } = this.props;
-
     return (
       <form
         onSubmit={(e) => {
@@ -158,6 +162,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             </Boxed>
           )}
         </Header>
+        {messages &&
+          messages.map((msg, i) => (
+            <Callout text={msg} variant={Variant.warning} fill key={i} />
+          ))}
         {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
@@ -212,9 +220,20 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   };
 }
 
-export default connect()(
+const mapStateToProps = (state: AppState, props: any) => {
+  const datasource = state.entities.datasources.list.find(
+    (e) => e.id === props.datasourceId,
+  ) as Datasource;
+
+  const hintMessages = datasource && datasource.messages;
+
+  return {
+    messages: hintMessages,
+  };
+};
+
+export default connect(mapStateToProps)(
   reduxForm<Datasource, DatasourceDBEditorProps>({
     form: DATASOURCE_DB_FORM,
-    enableReinitialize: true,
   })(DatasourceDBEditor),
 );
