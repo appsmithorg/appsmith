@@ -44,6 +44,9 @@ import Resizable, {
 import DebuggerMessage from "components/editorComponents/Debugger/DebuggerMessage";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { omnibarDocumentationHelper } from "constants/OmnibarDocumentationConstants";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -434,6 +437,22 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
     );
   };
 
+  const handleDocumentationClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (props?.documentationLink) {
+      const query = omnibarDocumentationHelper(props.documentationLink);
+      if (query !== "") {
+        dispatch(setGlobalSearchQuery(query));
+      } else {
+        dispatch(setGlobalSearchQuery("Connect to Databases"));
+      }
+      dispatch(toggleShowGlobalSearchModal());
+      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+        source: "DATASOURCE_DOCUMENTATION_CLICK",
+      });
+    }
+  };
+
   return (
     <QueryFormContainer onSubmit={handleSubmit}>
       <StyledFormRow>
@@ -480,9 +499,8 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
         <TabContainerView>
           {documentationLink && (
             <DocumentationLink
-              href={documentationLink}
-              target="_blank"
-              rel="noopener noreferrer"
+              onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
+              className="t--datasource-documentation-link"
             >
               {"Documentation "}
               <StyledOpenDocsIcon icon="document-open" />
