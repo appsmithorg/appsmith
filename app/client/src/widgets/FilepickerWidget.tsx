@@ -317,14 +317,13 @@ class FilePickerWidget extends BaseWidget<
             return file.id !== dslFile.id;
           })
         : [];
-      this.props.updateWidgetMetaProperty("files", updatedFiles);
+      this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
     });
 
     this.state.uppy.on("files-added", (files: any[]) => {
       const dslFiles = this.props.selectedFiles
         ? [...this.props.selectedFiles]
         : [];
-
       const fileReaderPromises = files.map((file) => {
         const reader = new FileReader();
         return new Promise((resolve) => {
