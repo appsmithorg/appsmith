@@ -10,7 +10,8 @@ describe("Create org and a new app / delete and recreate app", function() {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
-      cy.createOrg(orgid);
+      cy.createOrg();
+      cy.renameRandomOrg(orgid);
       cy.CreateAppForOrg(orgid, appid);
       cy.DeleteAppByApi();
       cy.NavigateToHome();

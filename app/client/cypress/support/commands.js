@@ -23,20 +23,31 @@ const datasource = require("../locators/DatasourcesEditor.json");
 
 let pageidcopy = " ";
 
-Cypress.Commands.add("createOrg", (orgName) => {
+Cypress.Commands.add("createOrg", () => {
   cy.get(homePage.createOrg)
     .should("be.visible")
     .first()
     .click({ force: true });
-  cy.xpath(homePage.inputOrgName)
+  cy.wait("@createOrganization").then((interception) => {
+    const newOrgName = interception.request.body.name;
+    cy.contains(newOrgName);
+  });
+});
+
+Cypress.Commands.add("renameRandomOrg", (orgName) => {
+  cy.get(".t--org-name")
     .should("be.visible")
-    .type(orgName);
-  cy.xpath(homePage.submitBtn).click();
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+    .first()
+    .click({ force: true });
+  cy.get(".t--org-rename-input")
+    .should("be.visible")
+    .type(orgName)
+    .type("{enter}");
+  cy.get(".t--org-name")
+    .should("be.visible")
+    .first()
+    .click({ force: true });
+  cy.contains(orgName);
 });
 
 Cypress.Commands.add(
@@ -2194,6 +2205,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
   cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 
+  cy.route("POST", "/api/v1/organizations").as("createOrganization");
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
   cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
   cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");

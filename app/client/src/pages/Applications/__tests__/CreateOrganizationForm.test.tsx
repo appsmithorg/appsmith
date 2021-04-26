@@ -1,9 +1,10 @@
 import React from "react";
 import userEvent from "@testing-library/user-event";
 import { unmountComponentAtNode } from "react-dom";
-import { render, fireEvent } from "test/testUtils";
+import { render } from "test/testUtils";
 import { act } from "react-dom/test-utils";
 import CreateOrganisationMockResponse from "mockResponses/CreateOrganisationMockResponse.json";
+
 import Applications from "../index";
 
 let container: any = null;
@@ -14,7 +15,7 @@ describe("Applications", () => {
     document.body.appendChild(container);
   });
   it("create a new organisation", async (done) => {
-    const { findByDataCy, findByText } = render(
+    const { findByText } = render(
       <Applications
         deleteApplication={() => {
           console.log("Delete application");
@@ -28,18 +29,44 @@ describe("Applications", () => {
       userEvent.click(createOrgLink);
     });
     const orgName = CreateOrganisationMockResponse.data.name;
-    const form = await findByDataCy("create-organisation-form");
-    const orgNameField = await findByDataCy("create-organisation-form__name");
-
-    act(() => {
-      userEvent.type(orgNameField, orgName);
-      fireEvent.submit(form);
-    });
 
     await findByText(orgName);
 
     await done();
   });
+
+  it("checks that create new application is visible", async (done) => {
+    const { findAllByText } = render(
+      <Applications
+        deleteApplication={() => {
+          console.log("Delete application");
+        }}
+      />,
+    );
+
+    const orgs = await findAllByText("Create New");
+    expect(orgs.length).toEqual(2);
+    await done();
+  });
+
+  it("checks that share button is clickable and opens a modal", async (done) => {
+    const { findAllByText, findByText } = render(
+      <Applications
+        deleteApplication={() => {
+          console.log("Delete application");
+        }}
+      />,
+    );
+
+    const shares = await findAllByText("Share");
+    act(() => {
+      userEvent.click(shares[0]);
+    });
+
+    await findByText("Invite Users to b1's apps");
+    await done();
+  });
+
   afterEach(() => {
     // cleanup on exiting
     unmountComponentAtNode(container);

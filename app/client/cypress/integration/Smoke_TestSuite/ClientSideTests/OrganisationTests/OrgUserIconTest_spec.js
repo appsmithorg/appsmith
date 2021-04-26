@@ -10,7 +10,8 @@ describe("Check if org has user icons on homepage", function() {
     cy.generateUUID().then((uid) => {
       orgid = uid;
       localStorage.setItem("OrgName", orgid);
-      cy.createOrg(orgid);
+      cy.createOrg();
+      cy.renameRandomOrg(orgid);
       cy.get(homePage.orgList.concat(orgid).concat(")"))
         .scrollIntoView()
         .should("be.visible")
