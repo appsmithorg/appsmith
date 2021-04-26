@@ -53,8 +53,6 @@ const HelpBar = ({ toggleShowModal }: Props) => {
 const mapDispatchToProps = (dispatch: any) => ({
   toggleShowModal: () => {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });
-    // set global search query to empty when
-    // opening directly from nav bar
     dispatch(toggleShowGlobalSearchModal());
   },
 });
