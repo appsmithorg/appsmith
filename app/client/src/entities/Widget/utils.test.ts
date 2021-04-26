@@ -186,12 +186,12 @@ describe("getAllPathsFromPropertyConfig", () => {
       chartName: "Sales on working days",
       allowHorizontalScroll: false,
       version: 1,
-      chartData: [
-        {
+      chartData: {
+        "random-id": {
           seriesName: "",
           data: "{{Api1.data}}",
         },
-      ],
+      },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
       type: WidgetTypes.CHART_WIDGET,
@@ -206,7 +206,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       widgetId: "x1naz9is2b",
       dynamicBindingPathList: [
         {
-          key: "chartData[0].data",
+          key: "chartData.random-id.data",
         },
       ],
     };
@@ -216,8 +216,8 @@ describe("getAllPathsFromPropertyConfig", () => {
       bindingPaths: {
         chartType: EvaluationSubstitutionType.TEMPLATE,
         chartName: EvaluationSubstitutionType.TEMPLATE,
-        "chartData[0].seriesName": EvaluationSubstitutionType.TEMPLATE,
-        "chartData[0].data": EvaluationSubstitutionType.TEMPLATE,
+        "chartData.random-id.seriesName": EvaluationSubstitutionType.TEMPLATE,
+        "chartData.random-id.data": EvaluationSubstitutionType.TEMPLATE,
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
@@ -226,8 +226,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         onDataPointClick: true,
       },
       validationPaths: {
-        "chartData[0].data": "CHART_DATA",
-        "chartData[0].seriesName": "TEXT",
+        "chartData.random-id.data": "CHART_SERIES_DATA",
+        "chartData.random-id.seriesName": "TEXT",
         chartName: "TEXT",
         isVisible: "BOOLEAN",
         xAxisName: "TEXT",
