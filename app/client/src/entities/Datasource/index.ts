@@ -58,6 +58,7 @@ export const isEmbeddedRestDatasource = (
 export interface EmbeddedRestDatasource extends BaseDatasource {
   datasourceConfiguration: { url: string };
   invalids: Array<string>;
+  messages: Array<string>;
 }
 export interface Datasource extends BaseDatasource {
   id: string;
@@ -70,6 +71,7 @@ export interface Datasource extends BaseDatasource {
   };
   invalids?: string[];
   structure?: DatasourceStructure;
+  messages?: string[];
 }
 
 export const DEFAULT_DATASOURCE = (
@@ -84,4 +86,5 @@ export const DEFAULT_DATASOURCE = (
   isValid: true,
   pluginId,
   organizationId,
+  messages: [],
 });
