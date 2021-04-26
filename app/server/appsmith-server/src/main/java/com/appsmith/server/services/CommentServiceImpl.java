@@ -32,8 +32,6 @@ import java.util.Map;
 @Service
 public class CommentServiceImpl extends BaseService<CommentRepository, Comment, String> implements CommentService {
 
-    // TODO: Set permissions on the comment and thread objects directly, so we don't have to look up the application.
-
     private final CommentThreadRepository threadRepository;
 
     private final SessionUserService sessionUserService;

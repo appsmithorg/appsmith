@@ -25,6 +25,7 @@ import {
   fetchApplicationCommentsSuccess,
   updateCommentThreadSuccess,
   pinCommentThreadSuccess,
+  deleteCommentSuccess,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -200,6 +201,21 @@ function* pinCommentThread(action: ReduxAction<{ threadId: string }>) {
   }
 }
 
+function* deleteComment(
+  action: ReduxAction<{ commentId: string; threadId: string }>,
+) {
+  try {
+    const { commentId, threadId } = action.payload;
+    const response = yield CommentsApi.deleteComment(commentId);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(deleteCommentSuccess({ commentId, threadId }));
+    }
+  } catch (e) {
+    console.log(e, "handle error");
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
@@ -225,5 +241,6 @@ export default function* commentSagas() {
     ),
     call(watchCommentEvents),
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
+    takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),
   ]);
 }

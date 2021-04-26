@@ -142,3 +142,19 @@ export const pinCommentThreadSuccess = (payload: {
   type: ReduxActionTypes.PIN_COMMENT_THREAD_SUCCESS,
   payload,
 });
+
+export const deleteCommentRequest = (payload: {
+  commentId: string;
+  threadId: string;
+}) => ({
+  type: ReduxActionTypes.DELETE_COMMENT_REQUEST,
+  payload,
+});
+
+export const deleteCommentSuccess = (payload: {
+  threadId: string;
+  commentId: string;
+}) => ({
+  type: ReduxActionTypes.DELETE_COMMENT_SUCCESS,
+  payload,
+});

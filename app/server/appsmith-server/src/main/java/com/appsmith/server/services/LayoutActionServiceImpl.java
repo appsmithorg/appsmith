@@ -1,11 +1,15 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
@@ -14,6 +18,7 @@ import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -46,6 +51,7 @@ import java.util.regex.Pattern;
 import static com.appsmith.external.helpers.MustacheHelper.extractWordsAndAddToSet;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -154,22 +160,23 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     @Override
-    public Mono<LayoutDTO> refactorActionName(RefactorNameDTO refactorNameDTO) {
-        String pageId = refactorNameDTO.getPageId();
-        String layoutId = refactorNameDTO.getLayoutId();
-        String oldName = refactorNameDTO.getOldName();
-        String newName = refactorNameDTO.getNewName();
+    public Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO) {
+        String pageId = refactorActionNameDTO.getPageId();
+        String layoutId = refactorActionNameDTO.getLayoutId();
+        String oldName = refactorActionNameDTO.getOldName();
+        String newName = refactorActionNameDTO.getNewName();
+        String actionId = refactorActionNameDTO.getActionId();
         return isNameAllowed(pageId, layoutId, newName)
                 .flatMap(allowed -> {
                     if (!allowed) {
                         return Mono.error(new AppsmithException(AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
                     }
                     return newActionService
-                            .findByUnpublishedNameAndPageId(oldName, pageId, MANAGE_ACTIONS);
+                            .findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS);
                 })
                 .flatMap(action -> {
                     action.setName(newName);
-                    return newActionService.updateUnpublishedAction(action.getId(), action);
+                    return newActionService.updateUnpublishedAction(actionId, action);
                 })
                 .then(refactorName(pageId, layoutId, oldName, newName));
     }
@@ -290,6 +297,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * in them aggregated in the field dynamicBindingsPathList.
      * A widget may also have other widgets as children, each of which will follow the same structure
      * Refer to FieldName.DEFAULT_PAGE_LAYOUT for a template
+     *
      * @param dsl
      * @param widgetNames
      * @param dynamicBindings
@@ -746,6 +754,77 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
 
         return dsl;
+    }
+
+    @Override
+    public Mono<ActionDTO> createAction(ActionDTO action) {
+        AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
+        return createAction(action, eventContext);
+    }
+
+    @Override
+    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext) {
+        if (action.getId() != null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
+        }
+
+        if (action.getPageId() == null || action.getPageId().isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
+        }
+
+        NewAction newAction = new NewAction();
+        newAction.setPublishedAction(new ActionDTO());
+        newAction.getPublishedAction().setDatasource(new Datasource());
+
+        Mono<NewPage> pageMono = newPageService
+                .findById(action.getPageId(), READ_PAGES)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
+                .cache();
+
+        return pageMono
+                .flatMap(page -> {
+                    Layout layout = page.getUnpublishedPage().getLayouts().get(0);
+                    return isNameAllowed(page.getId(), layout.getId(), action.getName());
+                })
+                .flatMap(nameAllowed -> {
+                    // If the name is allowed, return pageMono for further processing
+                    if (Boolean.TRUE.equals(nameAllowed)) {
+                        return pageMono;
+                    }
+                    // Throw an error since the new action's name matches an existing action or widget name.
+                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, action.getName(), FieldName.NAME));
+                })
+                .flatMap(page -> {
+                    // Inherit the action policies from the page.
+                    newActionService.generateAndSetActionPolicies(page, newAction);
+
+                    newActionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
+
+                    // Set the application id in the main domain
+                    newAction.setApplicationId(page.getApplicationId());
+
+                    // If the datasource is embedded, check for organizationId and set it in action
+                    if (action.getDatasource() != null &&
+                            action.getDatasource().getId() == null) {
+                        Datasource datasource = action.getDatasource();
+                        if (datasource.getOrganizationId() == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+                        }
+                        newAction.setOrganizationId(datasource.getOrganizationId());
+                    }
+
+                    // New actions will never be set to auto-magical execution, unless it is triggered via a
+                    // page or application clone event.
+                    if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
+                        action.setExecuteOnLoad(false);
+                    }
+
+                    newAction.setUnpublishedAction(action);
+
+                    return Mono.just(newAction);
+                })
+                .flatMap(newActionService::validateAndSaveActionToRepository);
     }
 
 }

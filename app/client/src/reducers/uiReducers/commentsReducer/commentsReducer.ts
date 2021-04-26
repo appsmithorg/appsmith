@@ -146,8 +146,28 @@ const commentsReducer = createReducer(initialState, {
       ...state.commentThreadsMap[threadId],
       isPinned: true,
     };
+    // so that changes are propagated to app comments
     state.applicationCommentThreadsByRef[applicationId] = {
       ...state.applicationCommentThreadsByRef[applicationId],
+    };
+
+    return { ...state };
+  },
+  [ReduxActionTypes.DELETE_COMMENT_SUCCESS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{
+      commentId: string;
+      threadId: string;
+    }>,
+  ) => {
+    const { threadId, commentId } = action.payload;
+
+    const commentThread = state.commentThreadsMap[threadId];
+    state.commentThreadsMap[threadId] = {
+      ...commentThread,
+      comments: commentThread.comments.filter(
+        (comment) => comment.id !== commentId,
+      ),
     };
 
     return { ...state };
