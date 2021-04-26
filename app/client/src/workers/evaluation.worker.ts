@@ -1,4 +1,7 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,
@@ -109,6 +112,7 @@ ctx.addEventListener(
         const triggers = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
+          EvaluationSubstitutionType.TEMPLATE,
           true,
           callbackData,
         );

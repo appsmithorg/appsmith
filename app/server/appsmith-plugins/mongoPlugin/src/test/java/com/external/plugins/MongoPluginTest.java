@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -23,6 +24,7 @@ import com.mongodb.MongoCommandException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
+import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -682,5 +684,28 @@ public class MongoPluginTest {
                     );
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testGetStructureReadPermissionError() {
+        MongoClient mockConnection = mock(MongoClient.class);
+        MongoDatabase mockDatabase = mock(MongoDatabase.class);
+        when(mockConnection.getDatabase(any())).thenReturn(mockDatabase);
+
+        MongoCommandException mockMongoCmdException = mock(MongoCommandException.class);
+        when(mockDatabase.listCollectionNames()).thenReturn(Mono.error(mockMongoCmdException));
+        when(mockMongoCmdException.getErrorCode()).thenReturn(13);
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(mockConnection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .verifyErrorSatisfies(error -> {
+                   assertTrue(error instanceof AppsmithPluginException);
+                   String expectedMessage = "Appsmith has failed to get database structure. Please provide read permission on" +
+                           " the database to fix this.";
+                   assertTrue(expectedMessage.equals(error.getMessage()));
+                });
     }
 }
