@@ -19,6 +19,7 @@ export const Layers = {
   apiPane: Indices.Layer3,
   help: Indices.Layer4,
   dynamicAutoComplete: Indices.Layer5,
+  debugger: Indices.Layer6,
   productUpdates: Indices.Layer7,
   max: Indices.LayerMax,
 };

@@ -133,3 +133,15 @@ export const getConfigInitialValues = (config: Record<string, any>[]) => {
 
   return configInitialValues;
 };
+
+export const actionPathFromName = (
+  actionName: string,
+  name: string,
+): string => {
+  const ActionConfigStarts = "actionConfiguration.";
+  let path = name;
+  if (path.startsWith(ActionConfigStarts)) {
+    path = "config." + path.substr(ActionConfigStarts.length);
+  }
+  return `${actionName}.${path}`;
+};

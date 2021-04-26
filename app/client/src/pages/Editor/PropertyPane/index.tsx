@@ -38,6 +38,7 @@ import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
+import { get } from "lodash";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -93,10 +94,9 @@ const PropertyPaneView = (
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
   const dispatch = useDispatch();
-  const handleDelete = useCallback(
-    () => dispatch(deleteSelectedWidget(false)),
-    [dispatch],
-  );
+  const handleDelete = useCallback(() => {
+    dispatch(deleteSelectedWidget(false));
+  }, [dispatch]);
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
   return (
@@ -178,6 +178,10 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   }
 
   render() {
+    if (get(this.props, "widgetProperties.disablePropertyPane")) {
+      return null;
+    }
+
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane();
@@ -212,13 +216,15 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
   renderPropertyPane() {
     const { widgetProperties } = this.props;
-    if (!widgetProperties)
-      return (
-        <PropertyPaneWrapper
-          className={"t--propertypane"}
-          themeMode={this.getTheme()}
-        />
-      );
+
+    if (!widgetProperties) {
+      return <></>;
+    }
+
+    // if settings control is disabled, don't render anything
+    // for e.g - this will be true for list widget tempalte container widget
+    if (widgetProperties?.disablePropertyPane) return <></>;
+
     return (
       <PropertyPaneWrapper
         className={"t--propertypane"}
