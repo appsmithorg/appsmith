@@ -1,6 +1,8 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+
+import com.appsmith.external.models.CommentThreadAction;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Transient;
@@ -19,7 +21,8 @@ public class CommentThread extends BaseDomain {
 
     String refId;
 
-    Boolean resolved;
+//    Boolean resolved;
+    Actions threadActions;
 
     String applicationId;
 
@@ -31,6 +34,12 @@ public class CommentThread extends BaseDomain {
     public static class Position {
         Float top;
         Float left;
+    }
+
+    @Data
+    public static class Actions {
+        CommentThreadAction pin;
+        CommentThreadAction resolve;
     }
 
 }

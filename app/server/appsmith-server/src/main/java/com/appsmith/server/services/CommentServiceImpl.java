@@ -135,7 +135,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         final CommentThread updates = new CommentThread();
 
         // Copy over only those fields that are allowed to be updated by a PUT request.
-        updates.setResolved(commentThread.getResolved());
+//        updates.setResolved(commentThread.getResolved());
 
         return threadRepository.updateById(threadId, commentThread, AclPermission.MANAGE_THREAD);
     }
