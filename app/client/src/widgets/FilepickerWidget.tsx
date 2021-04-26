@@ -7,10 +7,6 @@ import GoogleDrive from "@uppy/google-drive";
 import Webcam from "@uppy/webcam";
 import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
   EventType,
@@ -50,6 +46,7 @@ class FilePickerWidget extends BaseWidget<
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "maxNumFiles",
@@ -61,6 +58,7 @@ class FilePickerWidget extends BaseWidget<
             inputType: "INTEGER",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.NUMBER,
           },
           {
             propertyName: "maxFileSize",
@@ -115,6 +113,7 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.ARRAY,
           },
           {
             helpText: "Set the format of the data read from the files",
@@ -146,6 +145,7 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isVisible",
@@ -155,6 +155,7 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "uploadedFileUrlPaths",
@@ -175,6 +176,7 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -194,17 +196,6 @@ class FilePickerWidget extends BaseWidget<
         ],
       },
     ];
-  }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      label: VALIDATION_TYPES.TEXT,
-      maxNumFiles: VALIDATION_TYPES.NUMBER,
-      allowedFileTypes: VALIDATION_TYPES.ARRAY,
-      selectedFiles: VALIDATION_TYPES.ARRAY,
-      isRequired: VALIDATION_TYPES.BOOLEAN,
-      // onFilesSelected: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -391,6 +382,7 @@ class FilePickerWidget extends BaseWidget<
   onFilesSelected = () => {
     if (this.props.onFilesSelected) {
       this.executeAction({
+        triggerPropertyName: "onFilesSelected",
         dynamicString: this.props.onFilesSelected,
         event: {
           type: EventType.ON_FILES_SELECTED,

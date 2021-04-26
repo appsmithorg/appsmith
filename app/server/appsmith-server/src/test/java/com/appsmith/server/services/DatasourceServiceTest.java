@@ -63,6 +63,9 @@ public class DatasourceServiceTest {
     PluginService pluginService;
 
     @Autowired
+    OrganizationService organizationService;
+
+    @Autowired
     OrganizationRepository organizationRepository;
 
     @Autowired
@@ -87,6 +90,41 @@ public class DatasourceServiceTest {
     public void setup() {
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
         orgId = testOrg == null ? "" : testOrg.getId();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void datasourceDefaultNameCounterAsPerOrgId() {
+        //Create new organization
+        Organization organization1 = new Organization();
+        organization1.setId("random-org-id-1");
+        organization1.setName("Random Org 1");
+
+        StepVerifier.create(organizationService.create(organization1)
+                .flatMap(org -> {
+                    Datasource datasource = new Datasource();
+                    datasource.setOrganizationId(org.getId());
+                    return datasourceService.create(datasource);
+                })
+                .flatMap(datasource1 -> {
+                    Organization organization2 = new Organization();
+                    organization2.setId("random-org-id-2");
+                    organization2.setName("Random Org 2");
+                    return Mono.zip(Mono.just(datasource1), organizationService.create(organization2));
+                })
+                .flatMap(object -> {
+                    final Organization org2 = object.getT2();
+                    Datasource datasource2 = new Datasource();
+                    datasource2.setOrganizationId(org2.getId());
+                    return Mono.zip(Mono.just(object.getT1()), datasourceService.create(datasource2));
+                }))
+                .assertNext(datasource -> {
+                    assertThat(datasource.getT1().getName()).isEqualTo("Untitled Datasource");
+                    assertThat(datasource.getT1().getOrganizationId()).isEqualTo("random-org-id-1");
+                    assertThat(datasource.getT2().getName()).isEqualTo("Untitled Datasource");
+                    assertThat(datasource.getT2().getOrganizationId()).isEqualTo("random-org-id-2");
+                })
+                .verifyComplete();
     }
 
     @Test

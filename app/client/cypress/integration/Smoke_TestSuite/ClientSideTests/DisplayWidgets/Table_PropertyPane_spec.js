@@ -10,21 +10,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.addDsl(dsl);
   });
 
-  it("Check collapse section feature in property pane", function() {
-    cy.openPropertyPane("tablewidget");
-    //check open and collapse
-    cy.get(commonlocators.collapsesection)
-      .first()
-      .should("be.visible")
-      .click();
-    cy.assertControlVisibility("tabledata");
-  });
-
   it("Check open section and column data in property pane", function() {
-    cy.get(commonlocators.collapsesection)
-      .scrollIntoView()
-      .first()
-      .click();
+    cy.openPropertyPane("tablewidget");
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("email");
     cy.tableColumnDataValidation("userName");

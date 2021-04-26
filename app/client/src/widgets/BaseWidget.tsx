@@ -17,17 +17,13 @@ import {
 } from "constants/WidgetConstants";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
-import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
 import { PositionTypes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   WidgetDynamicPathListProps,
@@ -35,6 +31,8 @@ import {
 } from "../utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 /***
  * BaseWidget
@@ -56,11 +54,6 @@ abstract class BaseWidget<
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
-  }
-  // Needed to send a default no validation option. In case a widget needs
-  // validation implement this in the widget class again
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return BASE_WIDGET_VALIDATION;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -89,9 +82,19 @@ abstract class BaseWidget<
    *  Widgets can execute actions using this `executeAction` method.
    *  Triggers may be specific to the widget
    */
-  executeAction(actionPayload: ExecuteActionPayload): void {
+  executeAction(actionPayload: WidgetExecuteActionPayload): void {
     const { executeAction } = this.context;
     executeAction && executeAction(actionPayload);
+
+    actionPayload.triggerPropertyName &&
+      AppsmithConsole.info({
+        text: `${actionPayload.triggerPropertyName} triggered`,
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: this.props.widgetId,
+          name: this.props.widgetName,
+        },
+      });
   }
 
   disableDrag(disable: boolean) {
@@ -174,6 +177,12 @@ abstract class BaseWidget<
     return this.getWidgetView();
   }
 
+  /**
+   * this function is responsive for making the widget resizable.
+   * A widget can be made by non-resizable by passing resizeDisabled prop.
+   *
+   * @param content
+   */
   makeResizable(content: ReactNode) {
     return (
       <ResizableComponent
@@ -184,21 +193,37 @@ abstract class BaseWidget<
       </ResizableComponent>
     );
   }
+
+  /**
+   * this functions wraps the widget in a component that shows a setting control at the top right
+   * which gets shown on hover. A widget can enable/disable this by setting `disablePropertyPane` prop
+   *
+   * @param content
+   * @param showControls
+   */
   showWidgetName(content: ReactNode, showControls = false) {
     return (
-      <React.Fragment>
-        <WidgetNameComponent
-          widgetName={this.props.widgetName}
-          widgetId={this.props.widgetId}
-          parentId={this.props.parentId}
-          type={this.props.type}
-          showControls={showControls}
-        />
+      <>
+        {!this.props.disablePropertyPane && (
+          <WidgetNameComponent
+            widgetName={this.props.widgetName}
+            widgetId={this.props.widgetId}
+            parentId={this.props.parentId}
+            type={this.props.type}
+            showControls={showControls}
+          />
+        )}
         {content}
-      </React.Fragment>
+      </>
     );
   }
 
+  /**
+   * wraps the widget in a draggable component.
+   * Note: widget drag can be disabled by setting `dragDisabled` prop to true
+   *
+   * @param content
+   */
   makeDraggable(content: ReactNode) {
     return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
   }
@@ -222,11 +247,12 @@ abstract class BaseWidget<
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
+
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
         if (!this.props.detachFromLayout) {
-          content = this.makeResizable(content);
+          if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
           content = this.makePositioned(content);
@@ -266,17 +292,22 @@ abstract class BaseWidget<
     );
   }
 
+  /**
+   * generates styles that positions the widget
+   */
   private getPositionStyle(): BaseStyle {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
+
     return {
       positionType: PositionTypes.ABSOLUTE,
       componentHeight,
       componentWidth,
       yPosition:
-        this.props.topRow * this.props.parentRowSpace + CONTAINER_GRID_PADDING,
+        this.props.topRow * this.props.parentRowSpace +
+        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
       xPosition:
         this.props.leftColumn * this.props.parentColumnSpace +
-        CONTAINER_GRID_PADDING,
+        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
       xPositionUnit: CSSUnits.PIXEL,
       yPositionUnit: CSSUnits.PIXEL,
     };
@@ -290,6 +321,11 @@ abstract class BaseWidget<
     leftColumn: 0,
     isLoading: false,
     renderMode: RenderModes.CANVAS,
+    dragDisabled: false,
+    dropDisabled: false,
+    isDeletable: true,
+    resizeDisabled: false,
+    disablePropertyPane: false,
   };
 }
 
@@ -337,6 +373,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   // Examples: MainContainer is detached from layout,
   // MODAL_WIDGET is also detached from layout.
   detachFromLayout?: boolean;
+  noContainerOffset?: boolean; // This won't offset the child in parent
 }
 
 export const WIDGET_STATIC_PROPS = {
@@ -354,6 +391,7 @@ export const WIDGET_STATIC_PROPS = {
   parentId: true,
   renderMode: true,
   detachFromLayout: true,
+  noContainerOffset: false,
 };
 
 export interface WidgetDisplayProps {
@@ -382,6 +420,7 @@ export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
   widgetCardName: string;
+  isBeta?: boolean;
 }
 
 export const WidgetOperations = {

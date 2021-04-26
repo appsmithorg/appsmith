@@ -131,7 +131,14 @@ public class MongoPlugin extends BasePlugin {
 
                 // Since properties is not empty, we are guaranteed to find the first property.
             } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null){
-                smartBsonSubstitution = Boolean.parseBoolean(properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue());
+                Object ssubValue = properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue();
+                if (ssubValue instanceof  Boolean) {
+                    smartBsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartBsonSubstitution = false;
+                }
             } else {
                 smartBsonSubstitution = false;
             }
@@ -375,9 +382,10 @@ public class MongoPlugin extends BasePlugin {
                 builder.append("mongodb://");
             }
 
+            boolean hasUsername = false;
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null) {
-                final boolean hasUsername = StringUtils.hasText(authentication.getUsername());
+                hasUsername = StringUtils.hasText(authentication.getUsername());
                 final boolean hasPassword = StringUtils.hasText(authentication.getPassword());
                 if (hasUsername) {
                     builder.append(urlEncode(authentication.getUsername()));
@@ -447,7 +455,7 @@ public class MongoPlugin extends BasePlugin {
                     );
             }
 
-            if (authentication != null && authentication.getAuthType() != null) {
+            if (hasUsername && authentication.getAuthType() != null) {
                 queryParams.add("authMechanism=" + authentication.getAuthType().name().replace('_', '-'));
             }
 

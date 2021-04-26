@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -119,7 +118,7 @@ public class FirestorePlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             final com.external.plugins.Method method = CollectionUtils.isEmpty(properties)
                     ? null
-                    : com.external.plugins.Method.valueOf(properties.get(0).getValue());
+                    : com.external.plugins.Method.valueOf((String) properties.get(0).getValue());
             requestData.put("method", method == null ? "" : method.toString());
 
             List<RequestParamDTO> requestParams = new ArrayList<>();
@@ -199,10 +198,10 @@ public class FirestorePlugin extends BasePlugin {
                                     || Method.CREATE_DOCUMENT.equals(method) || Method.ADD_TO_COLLECTION.equals(method))
                                     && (properties == null || ((properties.size() < FIELDVALUE_TIMESTAMP_PROPERTY_INDEX + 1
                                     || properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) == null
-                                    || StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue()))
+                                    || StringUtils.isEmpty((String) properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue()))
                                     && (properties.size() < FIELDVALUE_DELETE_PROPERTY_INDEX
                                     || properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX) == null
-                                    || StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue()))))) {
+                                    || StringUtils.isEmpty((String) properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue()))))) {
                                 return Mono.error(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                         "The method " + method.toString() + " needs at least one of the following " +
@@ -263,7 +262,7 @@ public class FirestorePlugin extends BasePlugin {
             if(!Method.UPDATE_DOCUMENT.equals(method)
                     && properties.size() > FIELDVALUE_DELETE_PROPERTY_INDEX
                     && properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX) != null
-                    && !StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
+                    && !StringUtils.isEmpty((String) properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "Appsmith has found an unexpected query form property - 'Delete Key Value Pair Path'. Please " +
@@ -276,8 +275,8 @@ public class FirestorePlugin extends BasePlugin {
              */
             if( properties.size() > FIELDVALUE_DELETE_PROPERTY_INDEX
                     && properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX) != null
-                    && !StringUtils.isEmpty(properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
-                String deletePaths = properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue();
+                    && !StringUtils.isEmpty((String) properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
+                String deletePaths = (String) properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue();
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(FIELDVALUE_DELETE_PROPERTY_INDEX),
                         deletePaths, null, null));
                 List<String> deletePathsList;
@@ -312,7 +311,7 @@ public class FirestorePlugin extends BasePlugin {
                     || Method.DELETE_DOCUMENT.equals(method))
                     && properties.size() > FIELDVALUE_TIMESTAMP_PROPERTY_INDEX
                     && properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) != null
-                    && !StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
+                    && !StringUtils.isEmpty((String) properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "Appsmith has found an unexpected query form property - 'Timestamp Value Path'. Please reach " +
@@ -325,8 +324,8 @@ public class FirestorePlugin extends BasePlugin {
              */
             if(properties.size() > FIELDVALUE_TIMESTAMP_PROPERTY_INDEX
                     && properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX) != null
-                    && !StringUtils.isEmpty(properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
-                String timestampValuePaths = properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue();
+                    && !StringUtils.isEmpty((String) properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
+                String timestampValuePaths = (String) properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue();
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX),
                         timestampValuePaths, null, null));
                 List<String> timestampPathsStringList; // ["key1.key2", "key3.key4"]
@@ -535,7 +534,7 @@ public class FirestorePlugin extends BasePlugin {
                 return defaultValue;
             }
 
-            final String value = property.getValue();
+            final String value = (String) property.getValue();
             return value != null ? value : defaultValue;
         }
 

@@ -182,6 +182,7 @@ export function* fetchPageSaga(
       id,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
+
     if (isValidResponse) {
       // Clear any existing caches
       yield call(clearEvalCache);
@@ -234,7 +235,10 @@ export function* fetchPublishedPageSaga(
     const { pageId, bustCache } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
-      { pageId: pageId, published: true },
+      {
+        pageId: pageId,
+        published: true,
+      },
     );
     const request: FetchPublishedPageRequest = {
       pageId,

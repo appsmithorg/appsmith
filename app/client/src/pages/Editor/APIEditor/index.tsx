@@ -34,9 +34,8 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import { Theme } from "constants/DefaultTheme";
 import { getPluginSettingConfigs } from "selectors/entitiesSelector";
+import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -57,7 +56,6 @@ interface ReduxStateProps {
   apiAction: Action | ActionData | RapidApiAction | undefined;
   paginationType: PaginationType;
   isEditorInitialized: boolean;
-  lightTheme: Theme;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -223,6 +221,16 @@ class ApiEditor extends React.Component<Props> {
                 location={this.props.location}
               />
             )}
+
+            {formUiComponent === "SaaSEditorForm" &&
+              this.props.history.push(
+                SAAS_EDITOR_API_ID_URL(
+                  this.props.match.params.applicationId,
+                  this.props.match.params.pageId,
+                  this.props.plugins[this.props.pluginId]?.packageName ?? "",
+                  this.props.match.params.apiId,
+                ),
+              )}
           </>
         ) : (
           apiHomeScreen
@@ -253,7 +261,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDeleting: isDeleting[props.match.params.apiId],
     isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
-    lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
   };
 };
 

@@ -322,11 +322,11 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-                AmazonS3Action s3Action = AmazonS3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
+                AmazonS3Action s3Action = AmazonS3Action.valueOf((String) properties.get(ACTION_PROPERTY_INDEX).getValue());
                 query[0] = s3Action.name();
 
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(ACTION_PROPERTY_INDEX),
-                        properties.get(ACTION_PROPERTY_INDEX).getValue(), null, null));
+                        (String)properties.get(ACTION_PROPERTY_INDEX).getValue(), null, null));
 
                 if (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
                         || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
@@ -339,7 +339,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-                final String bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
+                final String bucketName = (String) properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
                 requestProperties.put("bucket", bucketName == null ? "" : bucketName);
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(BUCKET_NAME_PROPERTY_INDEX),
                         bucketName, null, null));
@@ -388,7 +388,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         if (properties.size() > PREFIX_PROPERTY_INDEX
                                 && properties.get(PREFIX_PROPERTY_INDEX) != null
                                 && properties.get(PREFIX_PROPERTY_INDEX).getValue() != null) {
-                            prefix = properties.get(PREFIX_PROPERTY_INDEX).getValue();
+                            prefix = (String) properties.get(PREFIX_PROPERTY_INDEX).getValue();
                         }
                         requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(PREFIX_PROPERTY_INDEX),
                                 prefix, null, null));
@@ -404,18 +404,18 @@ public class AmazonS3Plugin extends BasePlugin {
                             int durationInMinutes;
                             if (properties.size() < (1 + URL_EXPIRY_DURATION_PROPERTY_INDEX)
                                     || properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX) == null
-                                    || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue())) {
+                                    || StringUtils.isEmpty((String) properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue())) {
                                 durationInMinutes = DEFAULT_URL_EXPIRY_IN_MINUTES;
                                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(URL_EXPIRY_DURATION_PROPERTY_INDEX),
                                         "", null, null));
                             } else {
                                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(URL_EXPIRY_DURATION_PROPERTY_INDEX),
-                                        properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue(), null, null));
+                                        (String)properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue(), null, null));
 
                                 try {
                                     durationInMinutes = Integer
                                             .parseInt(
-                                                    properties
+                                                    (String) properties
                                                             .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
                                                             .getValue()
                                             );
@@ -474,13 +474,13 @@ public class AmazonS3Plugin extends BasePlugin {
                         int durationInMinutes;
                         if (properties.size() < (1 + URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
                                 || properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX) == null
-                                || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX).getValue())) {
+                                || StringUtils.isEmpty((String) properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX).getValue())) {
                             durationInMinutes = DEFAULT_URL_EXPIRY_IN_MINUTES;
                         } else {
                             try {
                                 durationInMinutes = Integer
                                         .parseInt(
-                                                properties
+                                                (String) properties
                                                         .get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
                                                         .getValue()
                                         );
@@ -631,7 +631,7 @@ public class AmazonS3Plugin extends BasePlugin {
                  */
                 if (properties == null
                         || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
-                        || StringUtils.isEmpty(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
+                        || StringUtils.isEmpty((String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -647,7 +647,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 if (!usingCustomEndpoint
                         && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
                         || properties.get(AWS_S3_REGION_PROPERTY_INDEX) == null
-                        || StringUtils.isEmpty(properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
+                        || StringUtils.isEmpty((String) properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -676,7 +676,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 if (usingCustomEndpoint
                         && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
                         || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
-                        || StringUtils.isEmpty(properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
+                        || StringUtils.isEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -687,9 +687,9 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-                final String region = usingCustomEndpoint ?
-                        properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue() :
-                        properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue();
+                final String region = (String) (usingCustomEndpoint ?
+                                        properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue() :
+                                        properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue());
 
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (authentication == null
@@ -816,7 +816,7 @@ public class AmazonS3Plugin extends BasePlugin {
              */
             if (properties == null
                     || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
-                    || StringUtils.isEmpty(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
+                    || StringUtils.isEmpty((String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
                 invalids.add("Appsmith has failed to fetch the 'S3 Service Provider' field properties. Please " +
                         "reach out to Appsmith customer support to resolve this.");
             }
@@ -826,7 +826,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if (!usingCustomEndpoint
                     && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
                     || properties.get(AWS_S3_REGION_PROPERTY_INDEX) == null
-                    || StringUtils.isEmpty(properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
+                    || StringUtils.isEmpty((String) properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
                 invalids.add("Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
                         " in the datasource creation form ? You need to fill it with the region where " +
                         "your AWS S3 instance is hosted.");
@@ -845,7 +845,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if (usingCustomEndpoint
                     && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
                     || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
-                    || StringUtils.isEmpty(properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
+                    || StringUtils.isEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
                 invalids.add("Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
                         " in the datasource creation form ? You need to fill it with the region where " +
                         "your S3 instance is hosted.");

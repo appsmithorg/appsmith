@@ -5,10 +5,6 @@ import ButtonComponent, {
   ButtonType,
 } from "components/designSystems/blueprint/ButtonComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -38,6 +34,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "buttonStyle",
@@ -69,6 +66,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isDisabled",
@@ -78,6 +76,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "googleRecaptchaKey",
@@ -87,6 +86,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             placeholderText: "Enter google recaptcha key",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
         ],
       },
@@ -107,26 +107,21 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     ];
   }
 
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      text: VALIDATION_TYPES.TEXT,
-      buttonStyle: VALIDATION_TYPES.TEXT,
-      // onClick: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
-  }
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       recaptchaToken: undefined,
     };
   }
 
-  onButtonClick() {
+  onButtonClick(e: React.MouseEvent<HTMLElement>) {
+    e.stopPropagation();
+
     if (this.props.onClick) {
       this.setState({
         isLoading: true,
       });
       super.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -143,6 +138,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       });
     }
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
+      triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
       event: {
         type: EventType.ON_CLICK,

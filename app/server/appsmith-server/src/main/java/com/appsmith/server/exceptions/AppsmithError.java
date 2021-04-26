@@ -86,8 +86,9 @@ public enum AppsmithError {
     UNKNOWN_ACTION_RESULT_DATA_TYPE(500, 5009, "Appsmith has encountered an unknown action result data type: {0}. " +
             "Please contact Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null),
     INVALID_CURL_HEADER(400, 4036, "Invalid header in cURL command: {0}.", AppsmithErrorAction.DEFAULT, null),
+    AUTHENTICATION_FAILURE(500, 5010, "Authentication failed with error: {0}", AppsmithErrorAction.DEFAULT, null),
+    INSTANCE_REGISTRATION_FAILURE(500, 5011, "Registration for instance failed with error: {0}", AppsmithErrorAction.LOG_EXTERNALLY, null),
     ;
-
 
     private final Integer httpErrorCode;
     private final Integer appErrorCode;
