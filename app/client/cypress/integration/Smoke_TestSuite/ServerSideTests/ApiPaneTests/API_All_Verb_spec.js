@@ -184,7 +184,7 @@ describe("API Panel Test Functionality", function() {
     );
     cy.WaitAutoSave();
     cy.RunAPI();
-    cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get);
+    cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get, true);
     cy.ResponseStatusCheck("5000");
     cy.log("Response code check successful");
     cy.ResponseCheck("Invalid value for Content-Type");

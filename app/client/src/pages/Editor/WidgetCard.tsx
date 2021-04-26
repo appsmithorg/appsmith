@@ -23,6 +23,7 @@ export const Wrapper = styled.div`
   padding: 10px 5px 10px 5px;
   border-radius: 0px;
   border: none;
+  position: relative;
   color: ${Colors.ALTO};
   height: 72px;
   display: flex;
@@ -52,6 +53,17 @@ export const Wrapper = styled.div`
     font-family: ${(props) => props.theme.fonts.text};
     font-size: ${(props) => props.theme.fontSizes[7]}px;
   }
+`;
+
+export const BetaLabel = styled.div`
+  font-size: 10px;
+  background: ${Colors.TUNDORA};
+  margin-top: 3px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  position: absolute;
+  top: 0;
+  right: -2%;
 `;
 
 export const IconLabel = styled.h5`
@@ -116,6 +128,7 @@ const WidgetCard = (props: CardProps) => {
         <div>
           <Icon />
           <IconLabel>{props.details.widgetCardName}</IconLabel>
+          {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
         </div>
       </Wrapper>
     </React.Fragment>
