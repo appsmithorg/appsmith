@@ -88,7 +88,7 @@ public class RedirectHelper {
         // First check if the custom redirect header is set
         String redirectUrl = fulfillRedirectUrl(httpHeaders.getFirst(REDIRECT_URL_HEADER), httpHeaders);
 
-        // If the redirect Url is still empty, construct the redirect Url from the Referrer header.
+        // If the redirect Url is still empty, construct the redirect Url from the Referer header.
         if (StringUtils.isEmpty(redirectUrl)) {
             // If the header is still empty
             String refererHeader = httpHeaders.getFirst(Security.REFERER_HEADER);

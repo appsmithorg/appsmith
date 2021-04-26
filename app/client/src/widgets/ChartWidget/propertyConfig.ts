@@ -1,4 +1,5 @@
 import { ChartWidgetProps } from "widgets/ChartWidget";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 export default [
   {
@@ -12,6 +13,7 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TEXT,
       },
       {
         helpText: "Changes the visualisation of the chart data",
@@ -56,6 +58,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.BOOLEAN,
       },
     ],
   },
@@ -69,6 +72,7 @@ export default [
     isBindProperty: true,
     isTriggerProperty: false,
     hidden: (x: any) => x.chartType !== "CUSTOM_FUSION_CHART",
+    validation: VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA,
   },
   {
     sectionName: "Chart Data",
@@ -92,6 +96,7 @@ export default [
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText: "Series data",
@@ -100,6 +105,7 @@ export default [
             controlType: "INPUT_TEXT_AREA",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.CHART_DATA,
           },
         ],
       },
@@ -118,6 +124,7 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TEXT,
       },
       {
         helpText: "Specifies the label of the y-axis",
@@ -127,6 +134,7 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TEXT,
       },
       {
         helpText: "Enables scrolling inside the chart",

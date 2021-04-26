@@ -54,7 +54,8 @@ describe("Validate Validators", () => {
         ],
         output: {
           isValid: false,
-          message: '0##Value does not match type: [{ "x": "val", "y": "val" }]',
+          message:
+            '0##This value does not evaluate to type "Array<x:string, y:number>"',
           parsed: [
             {
               seriesName: "Sales",
@@ -85,7 +86,8 @@ describe("Validate Validators", () => {
         ],
         output: {
           isValid: false,
-          message: '0##Value does not match type: [{ "x": "val", "y": "val" }]',
+          message:
+            '0##This value does not evaluate to type "Array<x:string, y:number>"',
           parsed: [
             {
               seriesName: "Sales",
@@ -158,7 +160,7 @@ describe("Validate Validators", () => {
         parsed: expected[index],
       };
       if (invalidIndices.includes(index)) {
-        expectedResult.message = `Value does not match type: number[]`;
+        expectedResult.message = `This value does not evaluate to type: number[]`;
       }
       expect(result).toStrictEqual(expectedResult);
     });
@@ -444,7 +446,7 @@ describe("Chart Custom Config validator", () => {
         output: {
           isValid: false,
           message:
-            "Value does not match type: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}",
+            'This value does not evaluate to type "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"',
           parsed: {
             type: undefined,
             dataSource: undefined,
@@ -536,5 +538,68 @@ describe("validateDateString test", () => {
       };
       expect(result).toStrictEqual(expected);
     });
+  });
+});
+
+describe("List data validator", () => {
+  const validator = VALIDATORS.LIST_DATA;
+  it("correctly validates ", () => {
+    const cases = [
+      {
+        input: [],
+        output: {
+          isValid: true,
+          parsed: [],
+        },
+      },
+      {
+        input: [{ a: 1 }],
+        output: {
+          isValid: true,
+          parsed: [{ a: 1 }],
+        },
+      },
+      {
+        input: "sting text",
+        output: {
+          isValid: false,
+          message:
+            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          parsed: [],
+          transformed: "sting text",
+        },
+      },
+      {
+        input: undefined,
+        output: {
+          isValid: false,
+          message:
+            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          parsed: [],
+          transformed: undefined,
+        },
+      },
+      {
+        input: {},
+        output: {
+          isValid: false,
+          message:
+            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          parsed: [],
+          transformed: {},
+        },
+      },
+      {
+        input: `[{ "b": 1 }]`,
+        output: {
+          isValid: true,
+          parsed: JSON.parse(`[{ "b": 1 }]`),
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = validator(testCase.input, DUMMY_WIDGET, {});
+      expect(response).toStrictEqual(testCase.output);
+    }
   });
 });

@@ -309,10 +309,7 @@ public class RedshiftPlugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        result.setBody(error.getMessage());
+                        result.setErrorInfo(error);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -326,12 +323,12 @@ public class RedshiftPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private  Set<String> populateHintMessages(List<String> columnNames) {
+        private Set<String> populateHintMessages(List<String> columnNames) {
 
             Set<String> messages = new HashSet<>();
 
             List<String> identicalColumns = getIdenticalColumns(columnNames);
-            if(!CollectionUtils.isEmpty(identicalColumns)) {
+            if (!CollectionUtils.isEmpty(identicalColumns)) {
                 messages.add("Your Redshift query result may not have all the columns because duplicate column names " +
                         "were found for the column(s): " + String.join(", ", identicalColumns) + ". You may use the " +
                         "SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");

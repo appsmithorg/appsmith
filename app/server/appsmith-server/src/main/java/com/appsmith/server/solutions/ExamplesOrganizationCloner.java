@@ -23,6 +23,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -62,6 +63,7 @@ public class ExamplesOrganizationCloner {
     private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
+    private final LayoutActionService layoutActionService;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -258,7 +260,7 @@ public class ExamplesOrganizationCloner {
                         }
                     }
                     return actionMono
-                            .flatMap(newActionService::createAction)
+                            .flatMap(layoutActionService::createAction)
                             .map(ActionDTO::getId)
                             .zipWith(Mono.justOrEmpty(originalActionId));
                 })

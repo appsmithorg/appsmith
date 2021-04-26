@@ -1,15 +1,16 @@
-import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
-import { WidgetOperation } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   EvaluationReduxAction,
   ReduxAction,
   ReduxActionTypes,
+  ReduxActionWithoutPayload,
   UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { WidgetOperation } from "widgets/BaseWidget";
+import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -46,18 +47,14 @@ export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
   },
 });
 
-export const fetchPageSuccess = (
-  postEvalActions: ReduxAction<unknown>[],
-): EvaluationReduxAction<unknown> => {
+export const fetchPageSuccess = (): ReduxActionWithoutPayload => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
-    payload: {},
-    postEvalActions,
   };
 };
 
 export const fetchPublishedPageSuccess = (
-  postEvalActions: ReduxAction<unknown>[],
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
   postEvalActions,

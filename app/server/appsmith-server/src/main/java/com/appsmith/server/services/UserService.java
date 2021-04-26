@@ -1,13 +1,17 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.InviteUser;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface UserService extends CrudService<User, String> {
 
@@ -31,4 +35,5 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> updateCurrentUser(User updates, ServerWebExchange exchange);
 
+    Map<String, String> getEmailParams(Organization organization, User inviterUser, String inviteUrl, boolean isNewUser);
 }

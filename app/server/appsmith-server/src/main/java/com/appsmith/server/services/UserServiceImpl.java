@@ -494,7 +494,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     public Mono<User> sendWelcomeEmail(User user, String originHeader) {
         Map<String, String> params = new HashMap<>();
         params.put("firstName", user.getName());
-        params.put("appsmithLink", originHeader);
+        params.put("inviteUrl", originHeader);
         return emailSender
                 .sendMail(user.getEmail(), "Welcome to Appsmith", WELCOME_USER_EMAIL_TEMPLATE, params)
                 .thenReturn(user)
@@ -536,6 +536,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * 2. User exists :
      * a. Add user to the organization
      * b. Add organization to the user
+     *
      * @return Publishes the invited users, after being saved with the new organization ID.
      */
     @Override
@@ -557,7 +558,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         List<String> usernames = new ArrayList<>();
         for (String username : originalUsernames) {
-             usernames.add(username.toLowerCase());
+            usernames.add(username.toLowerCase());
         }
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
@@ -588,22 +589,16 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     Organization organization = tuple.getT2();
                     User currentUser = tuple.getT3();
 
-                    // Email template parameters initialization below.
-                    Map<String, String> params = new HashMap<>();
-                    if (!StringUtils.isEmpty(currentUser.getName())) {
-                        params.put("Inviter_First_Name", currentUser.getName());
-                    } else {
-                        params.put("Inviter_First_Name", currentUser.getEmail());
-                    }
-                    params.put("inviter_org_name", organization.getName());
-
                     return repository.findByEmail(username)
                             .flatMap(existingUser -> {
                                 // The user already existed, just send an email informing that the user has been added
                                 // to a new organization
                                 log.debug("Going to send email to user {} informing that the user has been added to new organization {}",
                                         existingUser.getEmail(), organization.getName());
-                                params.put("inviteUrl", originHeader);
+
+                                // Email template parameters initialization below.
+                                Map<String, String> params = getEmailParams(organization, currentUser, originHeader, false);
+
                                 Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
                                         "Appsmith: You have been added to a new organization",
                                         USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
@@ -611,7 +606,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                 return emailMono
                                         .thenReturn(existingUser);
                             })
-                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, params));
+                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, organization, currentUser));
                 })
                 .cache();
 
@@ -643,7 +638,23 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     //Lets save the updated user object
                     return repository.save(invitedUser);
                 })
-                .collectList();
+                .collectList()
+                .flatMap(users -> Mono.zip(Mono.just(users), currentUserMono))
+                .flatMap(tuple -> {
+                    List<User> users = tuple.getT1();
+                    User currentUser = tuple.getT2();
+
+                    HashMap<String, Object> analyticsProperties = new HashMap<>();
+                    long numberOfUsers = users.size();
+                    List<String> invitedUsers = new ArrayList<>();
+                    for (User user: users) {
+                        invitedUsers.add(user.getEmail());
+                    }
+                    analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
+                    analyticsProperties.put("userEmails", invitedUsers);
+                    analyticsService.sendEvent("execute_INVITE_USERS", currentUser.getEmail(), analyticsProperties);
+                    return Mono.just(users);
+                });
 
         // Trigger the flow to first add the users to the organization and then update each user with the organizationId
         // added to the user's list of organizations.
@@ -657,7 +668,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         );
     }
 
-    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Map<String, String> params) {
+    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Organization organization, User inviter) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 
@@ -678,7 +689,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             URLEncoder.encode(createdUser.getEmail(), StandardCharsets.UTF_8)
                     );
 
-                    params.put("inviteUrl", inviteUrl);
+                    // Email template parameters initialization below.
+                    Map<String, String> params = getEmailParams(organization, inviter, inviteUrl, true);
+
                     Mono<Boolean> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
 
                     // We have sent out the emails. Just send back the saved user.
@@ -740,6 +753,27 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                         ? repository.findByEmail(user.getEmail())
                                         : sessionUserService.refreshCurrentUser(exchange))
                 );
+    }
+
+    public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {
+        Map<String, String> params = new HashMap<>();
+
+        if (inviter != null) {
+            if (!StringUtils.isEmpty(inviter.getName())) {
+                params.put("Inviter_First_Name", inviter.getName());
+            } else {
+                params.put("Inviter_First_Name", inviter.getEmail());
+            }
+        }
+        if (organization != null) {
+            params.put("inviter_org_name", organization.getName());
+        }
+        if (isNewUser) {
+            params.put("inviteUrl", inviteUrl);
+        } else {
+            params.put("inviteUrl", inviteUrl + "/applications#" + organization.getSlug());
+        }
+        return params;
     }
 
 }

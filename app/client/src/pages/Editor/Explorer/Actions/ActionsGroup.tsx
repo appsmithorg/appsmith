@@ -17,10 +17,12 @@ type ExplorerActionsGroupProps = {
 export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
   const params = useParams<ExplorerURLParams>();
   const childNode: ReactNode = props.actions.map((action: any) => {
+    const plugin = props.plugins[action.config.pluginId];
     const url = props.config?.getURL(
       params.applicationId,
       props.page.pageId,
       action.config.id,
+      plugin,
     );
     const actionId = getActionIdFromURL();
     const active = actionId === action.config.id;

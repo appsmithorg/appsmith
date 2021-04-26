@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { CSSProperties, ReactNode, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
@@ -23,27 +23,35 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
   const padding = WIDGET_PADDING;
   const openPropertyPane = useClickOpenPropPane();
 
+  // memoized classname
+  const containerClassName = useMemo(() => {
+    return (
+      generateClassName(props.widgetId) +
+      " positioned-widget " +
+      `t--widget-${props.widgetType
+        .split("_")
+        .join("")
+        .toLowerCase()}`
+    );
+  }, [props.widgetType, props.widgetId]);
+  const containerStyle: CSSProperties = useMemo(() => {
+    return {
+      position: "absolute",
+      left: x,
+      top: y,
+      height: props.style.componentHeight + (props.style.heightUnit || "px"),
+      width: props.style.componentWidth + (props.style.widthUnit || "px"),
+      padding: padding + "px",
+    };
+  }, [props.style]);
+
   return (
     <PositionedWidget
       onClickCapture={openPropertyPane}
-      style={{
-        position: "absolute",
-        left: x,
-        top: y,
-        height: props.style.componentHeight + (props.style.heightUnit || "px"),
-        width: props.style.componentWidth + (props.style.widthUnit || "px"),
-        padding: padding + "px",
-      }}
+      style={containerStyle}
       id={props.widgetId}
       //Before you remove: This is used by property pane to reference the element
-      className={
-        generateClassName(props.widgetId) +
-        " " +
-        `t--widget-${props.widgetType
-          .split("_")
-          .join("")
-          .toLowerCase()}`
-      }
+      className={containerClassName}
     >
       {props.children}
     </PositionedWidget>

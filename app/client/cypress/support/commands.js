@@ -577,16 +577,26 @@ Cypress.Commands.add("SaveAndRunAPI", () => {
   cy.RunAPI();
 });
 
-Cypress.Commands.add("validateRequest", (baseurl, path, verb) => {
-  cy.xpath(apiwidget.Request)
-    .should("be.visible")
-    .click({ force: true });
-  cy.xpath(apiwidget.RequestURL).contains(baseurl.concat(path));
-  cy.xpath(apiwidget.RequestMethod).contains(verb);
-  cy.xpath(apiwidget.Responsetab)
-    .should("be.visible")
-    .click({ force: true });
-});
+Cypress.Commands.add(
+  "validateRequest",
+  (baseurl, path, verb, error = false) => {
+    cy.get(".react-tabs__tab")
+      .contains("Logs")
+      .click();
+
+    if (!error) {
+      cy.get(".object-key")
+        .last()
+        .contains("request")
+        .click();
+    }
+    cy.get(".string-value").contains(baseurl.concat(path));
+    cy.get(".string-value").contains(verb);
+    cy.xpath(apiwidget.Responsetab)
+      .should("be.visible")
+      .click({ force: true });
+  },
+);
 
 Cypress.Commands.add("SelectAction", (action) => {
   cy.get(ApiEditor.ApiVerb)
@@ -1409,6 +1419,14 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("readTextDataValidateCSS", (cssProperty, cssValue) => {
+  cy.get(commonlocators.headingTextStyle).should(
+    "have.css",
+    cssProperty,
+    cssValue,
+  );
+});
+
 Cypress.Commands.add("evaluateErrorMessage", (value) => {
   cy.get(commonlocators.evaluateMsg)
     .first()
@@ -1921,7 +1939,7 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
 });
 
 Cypress.Commands.add("runQuery", () => {
-  cy.get(queryEditor.runQuery).click();
+  cy.get(queryEditor.runQuery).click({ force: true });
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.responseMeta.status",

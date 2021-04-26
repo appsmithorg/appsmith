@@ -50,6 +50,12 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
+    type: "LIST_WIDGET",
+    widgetCardName: "List",
+    key: generateReactKey(),
+    isBeta: true,
+  },
+  {
     type: "IMAGE_WIDGET",
     widgetCardName: "Image",
     key: generateReactKey(),

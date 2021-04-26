@@ -2,17 +2,25 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { get } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 export const getAllPathsFromPropertyConfig = (
   widget: WidgetProps,
   widgetConfig: readonly PropertyPaneConfig[],
-  derivedProperties: Record<string, true>,
+  defaultProperties: Record<string, any>,
 ): {
-  bindingPaths: Record<string, true>;
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, true>;
+  validationPaths: Record<string, VALIDATION_TYPES>;
 } => {
-  const bindingPaths: Record<string, true> = derivedProperties;
+  const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
+  Object.keys(defaultProperties).forEach(
+    (property) =>
+      (bindingPaths[property] = EvaluationSubstitutionType.TEMPLATE),
+  );
   const triggerPaths: Record<string, true> = {};
+  const validationPaths: Record<any, VALIDATION_TYPES> = {};
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {
@@ -26,7 +34,12 @@ export const getAllPathsFromPropertyConfig = (
             controlConfig.isBindProperty &&
             !controlConfig.isTriggerProperty
           ) {
-            bindingPaths[controlConfig.propertyName] = true;
+            bindingPaths[controlConfig.propertyName] =
+              EvaluationSubstitutionType.TEMPLATE;
+            if (controlConfig.validation) {
+              validationPaths[controlConfig.propertyName] =
+                controlConfig.validation;
+            }
           } else if (
             controlConfig.isBindProperty &&
             controlConfig.isTriggerProperty
@@ -65,7 +78,12 @@ export const getAllPathsFromPropertyConfig = (
                               panelColumnControlConfig.isBindProperty &&
                               !panelColumnControlConfig.isTriggerProperty
                             ) {
-                              bindingPaths[panelPropertyPath] = true;
+                              bindingPaths[panelPropertyPath] =
+                                EvaluationSubstitutionType.TEMPLATE;
+                              if (panelColumnControlConfig.validation) {
+                                validationPaths[panelPropertyPath] =
+                                  panelColumnControlConfig.validation;
+                              }
                             } else if (
                               panelColumnControlConfig.isBindProperty &&
                               panelColumnControlConfig.isTriggerProperty
@@ -96,7 +114,12 @@ export const getAllPathsFromPropertyConfig = (
                     childPropertyConfig.isBindProperty &&
                     !childPropertyConfig.isTriggerProperty
                   ) {
-                    bindingPaths[childArrayPropertyPath] = true;
+                    bindingPaths[childArrayPropertyPath] =
+                      EvaluationSubstitutionType.TEMPLATE;
+                    if (childPropertyConfig.validation) {
+                      validationPaths[childArrayPropertyPath] =
+                        childPropertyConfig.validation;
+                    }
                   } else if (
                     childPropertyConfig.isBindProperty &&
                     childPropertyConfig.isTriggerProperty
@@ -112,17 +135,17 @@ export const getAllPathsFromPropertyConfig = (
     }
   });
 
-  return { bindingPaths, triggerPaths };
+  return { bindingPaths, triggerPaths, validationPaths };
 };
 
 export const nextAvailableRowInContainer = (
-  parenContainertId: string,
+  parentContainerId: string,
   canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
 ) => {
   return (
     Object.values(canvasWidgets).reduce(
       (prev: number, next: any) =>
-        next?.parentId === parenContainertId && next.bottomRow > prev
+        next?.parentId === parentContainerId && next.bottomRow > prev
           ? next.bottomRow
           : prev,
       0,

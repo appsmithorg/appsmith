@@ -56,6 +56,11 @@ public class DatasourceStructureSolution {
                     }
 
                     return e;
+                })
+                .onErrorResume(error -> {
+                    DatasourceStructure dsStructure = new DatasourceStructure();
+                    dsStructure.setErrorInfo(error);
+                    return Mono.just(dsStructure);
                 });
     }
 
@@ -86,14 +91,16 @@ public class DatasourceStructureSolution {
                         TimeoutException.class,
                         error -> new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR,
-                                "Timed out when fetching structure"
+                                "Appsmith server timed out when fetching structure. Please reach out to appsmith " +
+                                        "customer support to resolve this."
                         )
                 )
                 .onErrorMap(
                         StaleConnectionException.class,
                         error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                                "Secondary stale connection error."
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server found a secondary stale connection. Please reach out to appsmith " +
+                                        "customer support to resolve this."
                         )
                 )
                 .onErrorMap(

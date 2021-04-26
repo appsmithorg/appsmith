@@ -85,18 +85,18 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
+        String orgId = datasource.getOrganizationId();
+        if (orgId == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        if (datasource.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
-        }
 
         Mono<Datasource> datasourceMono = Mono.just(datasource);
-
         if (StringUtils.isEmpty(datasource.getName())) {
             datasourceMono = sequenceService
-                    .getNextAsSuffix(Datasource.class)
+                    .getNextAsSuffix(Datasource.class, " for organization with _id : " + orgId)
                     .zipWith(datasourceMono, (sequenceNumber, datasource1) -> {
                         datasource1.setName(Datasource.DEFAULT_NAME_PREFIX + sequenceNumber);
                         return datasource1;
@@ -248,7 +248,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         if (datasource.getDatasourceConfiguration() != null
                 && !CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
             for (final Endpoint endpoint : datasource.getDatasourceConfiguration().getEndpoints()) {
-                endpoint.setHost(endpoint.getHost().trim());
+                if (endpoint != null && endpoint.getHost() != null) {
+                    endpoint.setHost(endpoint.getHost().trim());
+                }
             }
         }
 

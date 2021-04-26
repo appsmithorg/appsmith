@@ -38,6 +38,9 @@ public class EncryptionHandler {
         // At this point source class represents the true polymorphic type of the document
         Class<?> sourceClass = source.getClass();
 
+        // Lock a thread wanting to find information about the same type
+        // So that this information retrieval is only done once
+        // Ignore this warning, this class reference will be on the heap
         List<CandidateField> candidateFields = this.encryptedFieldsMap.get(sourceClass);
 
         if (candidateFields != null) {
@@ -194,6 +197,7 @@ public class EncryptionHandler {
         encryptedFieldsMap.put(sourceClass, finalCandidateFields);
 
         return finalCandidateFields;
+        
     }
 
     synchronized boolean convertEncryption(Object source, Function<String, String> transformer) {
@@ -245,7 +249,6 @@ public class EncryptionHandler {
                         // unknown types as polymorphic candidates over time
                         // If that is the case then do we need to store the candidate field type by
                         // known, unknown or polymorphic types at all?
-                        // TODO Discuss w/ reviewer
                     }
                 } else {
                     final Type[] typeNames = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();

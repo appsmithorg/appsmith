@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -15,12 +16,14 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
@@ -84,6 +87,8 @@ public class MongoPlugin extends BasePlugin {
 
     private static final int SMART_BSON_SUBSTITUTION_INDEX = 0;
 
+    private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
+
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -126,7 +131,14 @@ public class MongoPlugin extends BasePlugin {
 
                 // Since properties is not empty, we are guaranteed to find the first property.
             } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null){
-                smartBsonSubstitution = Boolean.parseBoolean(properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue());
+                Object ssubValue = properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue();
+                if (ssubValue instanceof  Boolean) {
+                    smartBsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartBsonSubstitution = false;
+                }
             } else {
                 smartBsonSubstitution = false;
             }
@@ -193,9 +205,16 @@ public class MongoPlugin extends BasePlugin {
 
             return mongoOutputMono
                     .onErrorMap(
+                            MongoTimeoutException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                                    error.getMessage()
+                            )
+                    )
+                    .onErrorMap(
                             MongoCommandException.class,
                             error -> new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
                     )
@@ -209,6 +228,10 @@ public class MongoPlugin extends BasePlugin {
 
                             if (BigInteger.ONE.equals(status)) {
                                 result.setIsExecutionSuccess(true);
+                                result.setDataTypes(List.of(
+                                        new ParsedDataType(ActionResultDataType.JSON),
+                                        new ParsedDataType(ActionResultDataType.RAW)
+                                ));
 
                                 /**
                                  * For the `findAndModify` command, we don't get the count of modifications made. Instead,
@@ -273,10 +296,7 @@ public class MongoPlugin extends BasePlugin {
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            actionExecutionResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        actionExecutionResult.setBody(error.getMessage());
+                        actionExecutionResult.setErrorInfo(error);
                         return Mono.just(actionExecutionResult);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -359,9 +379,10 @@ public class MongoPlugin extends BasePlugin {
                 builder.append("mongodb://");
             }
 
+            boolean hasUsername = false;
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null) {
-                final boolean hasUsername = StringUtils.hasText(authentication.getUsername());
+                hasUsername = StringUtils.hasText(authentication.getUsername());
                 final boolean hasPassword = StringUtils.hasText(authentication.getPassword());
                 if (hasUsername) {
                     builder.append(urlEncode(authentication.getUsername()));
@@ -431,7 +452,7 @@ public class MongoPlugin extends BasePlugin {
                     );
             }
 
-            if (authentication != null && authentication.getAuthType() != null) {
+            if (hasUsername && authentication.getAuthType() != null) {
                 queryParams.add("authMechanism=" + authentication.getAuthType().name().replace('_', '-'));
             }
 
@@ -588,6 +609,20 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .collectList()
                     .thenReturn(structure)
+                    .onErrorMap(
+                            MongoCommandException.class,
+                            error -> {
+                                if (MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE.equals(error.getErrorCode())) {
+                                    return new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                            "Appsmith has failed to get database structure. Please provide read permission on" +
+                                                    " the database to fix this."
+                                    );
+                                }
+
+                                return error;
+                            }
+                    )
                     .subscribeOn(scheduler);
         }
 
