@@ -10,11 +10,6 @@ import {
   renderActions,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
@@ -45,22 +40,6 @@ const ReactTableComponent = lazy(() =>
 );
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      tableData: VALIDATION_TYPES.TABLE_DATA,
-      nextPageKey: VALIDATION_TYPES.TEXT,
-      prevPageKey: VALIDATION_TYPES.TEXT,
-      label: VALIDATION_TYPES.TEXT,
-      searchText: VALIDATION_TYPES.TEXT,
-      defaultSearchText: VALIDATION_TYPES.TEXT,
-      defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
-      pageSize: VALIDATION_TYPES.NUMBER,
-      selectedRowIndices: VALIDATION_TYPES.ROW_INDICES,
-      pageNo: VALIDATION_TYPES.TABLE_PAGE_NO,
-    };
-  }
-
   static getPropertyPaneConfig() {
     return tablePropertyPaneConfig;
   }
@@ -583,6 +562,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.pageSize !== prevProps.pageSize) {
       if (this.props.onPageSizeChange) {
         super.executeAction({
+          triggerPropertyName: "onPageSizeChange",
           dynamicString: this.props.onPageSizeChange,
           event: {
             type: EventType.ON_PAGE_SIZE_CHANGE,
@@ -716,6 +696,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("pageNo", 1);
     this.props.updateWidgetMetaProperty("searchText", searchKey, {
+      triggerPropertyName: "onSearchTextChanged",
       dynamicString: onSearchTextChanged,
       event: {
         type: EventType.ON_SEARCH,
@@ -736,6 +717,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }, "");
 
       super.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: modifiedAction,
         event: {
           type: EventType.ON_CLICK,
@@ -779,6 +761,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
       if (selectedRowIndex !== index) {
         this.props.updateWidgetMetaProperty("selectedRowIndex", index, {
+          triggerPropertyName: "onRowSelected",
           dynamicString: this.props.onRowSelected,
           event: {
             type: EventType.ON_ROW_SELECTED,
@@ -791,6 +774,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   updatePageNumber = (pageNo: number, event?: EventType) => {
     if (event) {
       this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+        triggerPropertyName: "onPageChange",
         dynamicString: this.props.onPageChange,
         event: {
           type: event,
@@ -808,6 +792,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     let pageNo = this.props.pageNo || 1;
     pageNo = pageNo + 1;
     this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+      triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
       event: {
         type: EventType.ON_NEXT_PAGE,
@@ -840,6 +825,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     pageNo = pageNo - 1;
     if (pageNo >= 1) {
       this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+        triggerPropertyName: "onPageChange",
         dynamicString: this.props.onPageChange,
         event: {
           type: EventType.ON_PREV_PAGE,

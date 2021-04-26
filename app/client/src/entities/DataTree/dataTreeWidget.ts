@@ -19,7 +19,11 @@ export const generateDataTreeWidget = (
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
   );
-  const { bindingPaths, triggerPaths } = getAllPathsFromPropertyConfig(
+  const {
+    bindingPaths,
+    triggerPaths,
+    validationPaths,
+  } = getAllPathsFromPropertyConfig(
     widget,
     propertyPaneConfigs,
     Object.fromEntries(
@@ -67,6 +71,7 @@ export const generateDataTreeWidget = (
     dynamicBindingPathList,
     bindingPaths,
     triggerPaths,
+    validationPaths,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   };
 };

@@ -4,6 +4,7 @@ import { PluginType } from "entities/Action";
 import queryActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/QuerySettingsConfig";
 import apiActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/ApiSettingsConfig";
 import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/ApiEditorConfigs";
+import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/GoogleSheetsSettingsConfig";
 
 export type ExecuteActionPayloadEvent = {
   type: EventType;
@@ -18,6 +19,11 @@ export type ExecuteActionPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
   responseData?: Array<any>;
+};
+
+// triggerPropertyName was added as a requirement for logging purposes
+export type WidgetExecuteActionPayload = ExecuteActionPayload & {
+  triggerPropertyName?: string;
 };
 
 export type ContentType =
@@ -109,9 +115,11 @@ export const Swagger = "Swagger";
 export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.API]: apiActionSettingsConfig,
   [PluginType.DB]: queryActionSettingsConfig,
+  [PluginType.SAAS]: saasActionSettingsConfig,
 };
 
 export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.API]: apiActionEditorConfig,
   [PluginType.DB]: [],
+  [PluginType.SAAS]: [],
 };
