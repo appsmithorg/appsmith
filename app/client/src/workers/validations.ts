@@ -769,8 +769,8 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     const isValidTabName = tabNames.includes(value);
     return {
       isValid: isValidTabName,
-      parsed: value,
-      message: isValidTabName ? "" : `Invalid tab name.`,
+      parsed: isValidTabName ? value : "",
+      message: isValidTabName ? "" : `Tab name provided does not exist.`,
     };
   },
   [VALIDATION_TYPES.DEFAULT_OPTION_VALUE]: (
