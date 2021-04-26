@@ -108,11 +108,7 @@ class ActionAPI extends API {
   static apiUpdateCancelTokenSource: CancelTokenSource;
   static queryUpdateCancelTokenSource: CancelTokenSource;
 
-  static fetchAPI(id: string): AxiosPromise<GenericApiResponse<Action>> {
-    return API.get(`${ActionAPI.url}/${id}`);
-  }
-
-  static createAPI(
+  static createAction(
     apiConfig: Partial<Action>,
   ): AxiosPromise<ActionCreateUpdateResponse> {
     return API.post(ActionAPI.url, apiConfig);
@@ -136,7 +132,7 @@ class ActionAPI extends API {
     return API.get(ActionAPI.url, { pageId });
   }
 
-  static updateAPI(
+  static updateAction(
     apiConfig: Partial<Action>,
   ): AxiosPromise<ActionCreateUpdateResponse> {
     if (ActionAPI.apiUpdateCancelTokenSource) {
@@ -159,24 +155,6 @@ class ActionAPI extends API {
     return API.delete(`${ActionAPI.url}/${id}`);
   }
 
-  static createQuery(
-    createQuery: CreateActionRequest<QueryConfig>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
-    return API.post(ActionAPI.url, createQuery);
-  }
-
-  static updateQuery(
-    updateQuery: UpdateActionRequest<QueryConfig>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
-    if (ActionAPI.queryUpdateCancelTokenSource) {
-      ActionAPI.queryUpdateCancelTokenSource.cancel();
-    }
-    ActionAPI.queryUpdateCancelTokenSource = axios.CancelToken.source();
-    return API.post(ActionAPI.url, updateQuery, undefined, {
-      cancelToken: ActionAPI.queryUpdateCancelTokenSource.token,
-    });
-  }
-
   static executeAction(
     executeAction: ExecuteActionRequest,
     timeout?: number,
@@ -190,12 +168,6 @@ class ActionAPI extends API {
     return API.put(ActionAPI.url + "/move", moveRequest, undefined, {
       timeout: DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
     });
-  }
-
-  static executeQuery(
-    executeAction: any,
-  ): AxiosPromise<ActionExecutionResponse> {
-    return API.post(ActionAPI.url + "/execute", executeAction);
   }
 
   static toggleActionExecuteOnLoad(actionId: string, shouldExecute: boolean) {

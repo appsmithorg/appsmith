@@ -3,7 +3,6 @@ import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
-import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -29,6 +28,7 @@ class TabsWidget extends BaseWidget<
             controlType: "TABS_INPUT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TABS_DATA,
           },
           {
             propertyName: "defaultTab",
@@ -38,6 +38,7 @@ class TabsWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.SELECTED_TAB,
           },
           {
             propertyName: "shouldShowTabs",
@@ -63,6 +64,7 @@ class TabsWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -82,15 +84,10 @@ class TabsWidget extends BaseWidget<
       },
     ];
   }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      tabs: VALIDATION_TYPES.TABS_DATA,
-      defaultTab: VALIDATION_TYPES.SELECTED_TAB,
-    };
-  }
 
   onTabChange = (tabWidgetId: string) => {
     this.props.updateWidgetMetaProperty("selectedTabWidgetId", tabWidgetId, {
+      triggerPropertyName: "onTabSelected",
       dynamicString: this.props.onTabSelected,
       event: {
         type: EventType.ON_TAB_CHANGE,
