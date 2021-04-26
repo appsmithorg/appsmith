@@ -17,6 +17,7 @@ export enum PaginationType {
 export interface ActionConfig {
   timeoutInMillisecond?: number;
   paginationType?: PaginationType;
+  pluginSpecifiedTemplates?: Array<{ key?: string; value?: unknown }>;
 }
 
 export interface ActionProvider {

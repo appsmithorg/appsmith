@@ -1,4 +1,4 @@
-package com.appsmith.server.exceptions;
+package com.appsmith.external.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

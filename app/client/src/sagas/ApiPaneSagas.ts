@@ -67,7 +67,6 @@ import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getIndextoUpdate } from "utils/ApiPaneUtils";
-import { changeQuery } from "actions/queryPaneActions";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -208,29 +207,10 @@ function* initializeExtraFormDataSaga() {
   const { extraformData } = state.ui.apiPane;
   const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
-  const headers = get(
-    values,
-    "actionConfiguration.headers",
-    DEFAULT_API_ACTION_CONFIG.headers,
-  );
+  const headers = get(values, "actionConfiguration.headers");
 
-  const queryParameters = get(
-    values,
-    "actionConfiguration.queryParameters",
-    [],
-  );
   if (!extraformData[values.id]) {
-    yield put(
-      change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
-    );
-    if (queryParameters.length === 0)
-      yield put(
-        change(
-          API_EDITOR_FORM_NAME,
-          "actionConfiguration.queryParameters",
-          DEFAULT_API_ACTION_CONFIG.queryParameters,
-        ),
-      );
+    yield call(setHeaderFormat, values.id, headers);
   }
 }
 
@@ -268,6 +248,42 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     );
   }
   PerformanceTracker.stopTracking();
+}
+
+function* setHeaderFormat(apiId: string, headers?: Property[]) {
+  let displayFormat;
+
+  if (headers) {
+    const contentType = headers.find(
+      (header: any) =>
+        header &&
+        header.key &&
+        header.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+    );
+
+    if (
+      contentType &&
+      contentType.value &&
+      POST_BODY_FORMATS.includes(contentType.value)
+    ) {
+      displayFormat = {
+        label: contentType.value,
+        value: contentType.value,
+      };
+    } else {
+      displayFormat = POST_BODY_FORMAT_OPTIONS[3];
+    }
+  }
+
+  yield put({
+    type: ReduxActionTypes.SET_EXTRA_FORMDATA,
+    payload: {
+      id: apiId,
+      values: {
+        displayFormat,
+      },
+    },
+  });
 }
 
 function* updateFormFields(
@@ -318,35 +334,7 @@ function* updateFormFields(
       "actionConfiguration.headers",
     );
     const apiId = get(values, "id");
-    let displayFormat;
-
-    if (actionConfigurationHeaders) {
-      const contentType = actionConfigurationHeaders.find(
-        (header: any) =>
-          header &&
-          header.key &&
-          header.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY,
-      );
-
-      if (contentType && POST_BODY_FORMATS.includes(contentType.value)) {
-        displayFormat = {
-          label: contentType.value,
-          value: contentType.value,
-        };
-      } else {
-        displayFormat = POST_BODY_FORMAT_OPTIONS[3];
-      }
-    }
-
-    yield put({
-      type: ReduxActionTypes.SET_EXTRA_FORMDATA,
-      payload: {
-        id: apiId,
-        values: {
-          displayFormat,
-        },
-      },
-    });
+    yield call(setHeaderFormat, apiId, actionConfigurationHeaders);
   }
 }
 
@@ -562,12 +550,6 @@ function* handleApiNameChangeFailureSaga(
   yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.oldName));
 }
 
-function* updateFormValues(action: ReduxAction<{ data: Action }>) {
-  if (action.payload.data.pluginType === PluginType.API) {
-    yield call(changeApiSaga, changeQuery(action.payload.data.id));
-  }
-}
-
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
@@ -597,7 +579,6 @@ export default function* root() {
       ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
       handleUpdateBodyContentType,
     ),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION_SUCCESS, updateFormValues),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
