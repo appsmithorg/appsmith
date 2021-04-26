@@ -9,7 +9,7 @@ describe("Duplicate application", function() {
     cy.addDsl(dsl);
   });
 
-  it("Check whether the forked application has the same dsl as the original", function() {
+  it("Check if the forked application has the same dsl as the original", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     const appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
@@ -22,44 +22,12 @@ describe("Duplicate application", function() {
     cy.get(homePage.appMoreIcon)
       .first()
       .click({ force: true });
-    cy.get(homePage.forkApp).click({ force: true });
-
-    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    // cy.wait("@getPage").should(
-    //     "have.nested.property",
-    //     "response.body.responseMeta.status",
-    //     200,
-    // );
-    // cy.wait("@getPagesForCreateApp").should(
-    //     "have.nested.property",
-    //     "response.body.responseMeta.status",
-    //     200,
-    // );
-    // cy.wait("@getPage");
-    // cy.get("@getPage").then((httpResponse) => {
-    // const data = httpResponse.response.body.data;
-    // duplicateApplicationDsl = data.layouts[0].dsl;
-    // console.log(httpResponse);
-    // expect(duplicateApplicationDsl).to.deep.equal(dsl.dsl);
-    // });
-    // cy.wait("@postForkAppOrg");
-    // cy.wait("@getPage");
-    // cy.wait("@getPage").then((httpResponse) => {
-    //   const data = httpResponse.response.body.data;
-    //   duplicateApplicationDsl = data.layouts[0].dsl;
-    //   console.log(duplicateApplicationDsl, dsl.dsl);
-    //   expect(duplicateApplicationDsl).to.deep.equal(dsl.dsl);
-    // });
-    // cy.wait("@getPage").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
-    // cy.get("@getPage").then((httpResponse) => {
-    //   const data = httpResponse.response.body.data;
-    //   duplicateApplicationDsl = data.layouts[0].dsl;
-
-    //   expect(duplicateApplicationDsl).to.deep.equal(dsl.dsl);
-    // });
+    cy.get(homePage.forkAppFromMenu).click({ force: true });
+    cy.get(homePage.forkAppOrgButton).click({ force: true });
+    cy.wait("@postForkAppOrg").then((httpResponse) => {
+      console.log("response: ", httpResponse);
+      const { id, organizationId, name } = httpResponse.response.body.data;
+      expect(httpResponse.status).to.equal(200);
+    });
   });
 });

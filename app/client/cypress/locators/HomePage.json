@@ -8,7 +8,7 @@
     "homePageID": "//div[@id='root']",
     "appMoreIcon": ".bp3-popover-wrapper.more .bp3-popover-target",
     "duplicateApp": "[data-cy=t--duplicate]",
-    "forkApp": "[data-cy=t--fork-app]",
+    "forkAppFromMenu": "[data-cy=t--fork-app]",
     "forkAppOrgList": "[data-cy=t--org-list-fork-app]",
     "forkAppOrgButton": "[data-cy=t--fork-app-to-org-button]",
     "selectAction": "#Base",
