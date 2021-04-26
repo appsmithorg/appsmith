@@ -6,7 +6,6 @@ import RadioComponent from "components/ads/Radio";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import { AppState } from "reducers";
-import { useLocation } from "react-router";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Classes } from "@blueprintjs/core";
 import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
@@ -95,6 +94,7 @@ const ForkApplicationAcrossOrganisationsModal = (props: any) => {
       {organizationList.length && (
         <OrganizationList>
           <StyledRadioComponent
+            data-cy="t--org-list-fork-app"
             className={"radio-group"}
             columns={1}
             defaultValue={organizationList[0].value}
@@ -108,6 +108,7 @@ const ForkApplicationAcrossOrganisationsModal = (props: any) => {
           isLoading={forkingApplication}
           disabled={!organizationId}
           text={"FORK"}
+          data-cy="t--fork-app-to-org-button"
           onClick={forkApplication}
           size={Size.large}
         />

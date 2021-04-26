@@ -79,7 +79,6 @@ import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import ForkApplicationAcrossOrganisationsModal from "pages/Applications/ForkApplicationAcrossOrganisationsModal";
 
 const OrgDropDown = styled.div`
   display: flex;

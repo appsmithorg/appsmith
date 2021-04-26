@@ -45,7 +45,6 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
-import ForkApplicationModal from "./ForkApplicationModal";
 import ForkApplicationAcrossOrganisationsModal from "pages/Applications/ForkApplicationAcrossOrganisationsModal";
 
 type NameWrapperProps = {
@@ -295,6 +294,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         onSelect: forkApplicationInitiate,
         text: "Fork",
         icon: "fork",
+        cypressSelector: "t--fork-app",
       });
     }
     setMoreActionItems(moreActionItems);
