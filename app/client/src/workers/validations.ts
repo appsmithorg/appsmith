@@ -201,6 +201,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       if (isString(value)) {
         parsed = JSON.parse(parsed as string);
       }
+
       if (!Array.isArray(parsed)) {
         return {
           isValid: false,
@@ -209,6 +210,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
           message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
         };
       }
+
       return { isValid: true, parsed, transformed: parsed };
     } catch (e) {
       return {
@@ -331,80 +333,56 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.CHART_DATA]: (
+  [VALIDATION_TYPES.CHART_SERIES_DATA]: (
     value: any,
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
-      value,
-      props,
-      dataTree,
-    );
+    let parsed = [];
+    let transformed = [];
+    let isValid = false;
+    let validationMessage = "";
+
+    try {
+      const validatedResponse: ValidationResponse = VALIDATORS[
+        VALIDATION_TYPES.ARRAY
+      ](value, props, dataTree);
+
+      if (validatedResponse.isValid) {
+        isValid = every(
+          validatedResponse.parsed,
+          (chartPoint: { x: string; y: any }) => {
+            return (
+              isObject(chartPoint) &&
+              isString(chartPoint.x) &&
+              !isUndefined(chartPoint.y)
+            );
+          },
+        );
+      }
+
+      if (!isValid) {
+        parsed = [];
+        transformed = validatedResponse.transformed;
+        validationMessage = `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
+      } else {
+        parsed = validatedResponse.parsed;
+        transformed = validatedResponse.parsed;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
     if (!isValid) {
       return {
-        isValid,
-        parsed,
-        transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<x:string, y:number>"`,
-      };
-    }
-    let validationMessage = "";
-    let index = 0;
-    const parsedChartData = [];
-    let isValidChart = true;
-
-    for (const seriesData of parsed) {
-      let isValidSeries = false;
-      try {
-        const validatedResponse: {
-          isValid: boolean;
-          parsed: Array<unknown>;
-          message?: string;
-        } = VALIDATORS[VALIDATION_TYPES.ARRAY](
-          seriesData.data,
-          props,
-          dataTree,
-        );
-        if (validatedResponse.isValid) {
-          isValidSeries = every(
-            validatedResponse.parsed,
-            (chartPoint: { x: string; y: any }) => {
-              return (
-                isObject(chartPoint) &&
-                isString(chartPoint.x) &&
-                !isUndefined(chartPoint.y)
-              );
-            },
-          );
-        }
-        if (!isValidSeries) {
-          isValidChart = false;
-          parsedChartData.push({
-            ...seriesData,
-            data: [],
-          });
-          validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR} "Array<x:string, y:number>"`;
-        } else {
-          parsedChartData.push({
-            ...seriesData,
-            data: validatedResponse.parsed,
-          });
-        }
-      } catch (e) {
-        console.error(e);
-      }
-      index++;
-    }
-    if (!isValidChart) {
-      return {
         isValid: false,
-        parsed: parsedChartData,
-        transformed: parsed,
+        parsed: [],
+        transformed: transformed,
         message: validationMessage,
       };
     }
-    return { isValid, parsed: parsedChartData, transformed: parsedChartData };
+
+    return { isValid, parsed, transformed };
   },
   [VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA]: (
     value: any,
@@ -419,6 +397,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     if (props.chartName && parsed.dataSource && parsed.dataSource.chart) {
       parsed.dataSource.chart.caption = props.chartName;
     }
+
     if (!isValid) {
       return {
         isValid,

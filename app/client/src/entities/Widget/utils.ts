@@ -1,6 +1,6 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { get } from "lodash";
+import { get, isObject, isUndefined } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -29,6 +29,7 @@ export const getAllPathsFromPropertyConfig = (
         if ("hidden" in controlConfig) {
           isHidden = controlConfig.hidden(widget, basePath);
         }
+
         if (!isHidden) {
           if (
             controlConfig.isBindProperty &&
@@ -101,34 +102,36 @@ export const getAllPathsFromPropertyConfig = (
           }
         }
         if (controlConfig.children) {
-          // Property in array structure
           const basePropertyPath = controlConfig.propertyName;
           const widgetPropertyValue = get(widget, basePropertyPath, []);
-          if (Array.isArray(widgetPropertyValue)) {
-            widgetPropertyValue.forEach(
-              (arrayPropertyValue: any, index: number) => {
-                const arrayIndexPropertyPath = `${basePropertyPath}[${index}]`;
-                controlConfig.children.forEach((childPropertyConfig: any) => {
-                  const childArrayPropertyPath = `${arrayIndexPropertyPath}.${childPropertyConfig.propertyName}`;
-                  if (
-                    childPropertyConfig.isBindProperty &&
-                    !childPropertyConfig.isTriggerProperty
-                  ) {
-                    bindingPaths[childArrayPropertyPath] =
-                      EvaluationSubstitutionType.TEMPLATE;
-                    if (childPropertyConfig.validation) {
-                      validationPaths[childArrayPropertyPath] =
-                        childPropertyConfig.validation;
-                    }
-                  } else if (
-                    childPropertyConfig.isBindProperty &&
-                    childPropertyConfig.isTriggerProperty
-                  ) {
-                    triggerPaths[childArrayPropertyPath] = true;
+          // Property in object structure
+          if (
+            !isUndefined(widgetPropertyValue) &&
+            isObject(widgetPropertyValue)
+          ) {
+            Object.keys(widgetPropertyValue).map((key: string) => {
+              const objectIndexPropertyPath = `${basePropertyPath}.${key}`;
+              controlConfig.children.forEach((childPropertyConfig: any) => {
+                const childArrayPropertyPath = `${objectIndexPropertyPath}.${childPropertyConfig.propertyName}`;
+
+                if (
+                  childPropertyConfig.isBindProperty &&
+                  !childPropertyConfig.isTriggerProperty
+                ) {
+                  bindingPaths[childArrayPropertyPath] =
+                    EvaluationSubstitutionType.TEMPLATE;
+                  if (childPropertyConfig.validation) {
+                    validationPaths[childArrayPropertyPath] =
+                      childPropertyConfig.validation;
                   }
-                });
-              },
-            );
+                } else if (
+                  childPropertyConfig.isBindProperty &&
+                  childPropertyConfig.isTriggerProperty
+                ) {
+                  triggerPaths[childArrayPropertyPath] = true;
+                }
+              });
+            });
           }
         }
       });
