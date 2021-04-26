@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { connect, useSelector } from "react-redux";
+import { connect, useSelector, useDispatch } from "react-redux";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -12,7 +12,8 @@ import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
 import { Action, PaginationType } from "entities/Action";
-import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -33,6 +34,7 @@ import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 
@@ -213,6 +215,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     settingsConfig,
     hintMessages,
   } = props;
+  const dispatch = useDispatch();
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
 
@@ -227,7 +230,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const { pageId } = useParams<ExplorerURLParams>();
 
   const theme = EditorTheme.LIGHT;
-
+  const handleClickLearnHow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(setGlobalSearchQuery("capturing data"));
+    dispatch(toggleShowGlobalSearchModal());
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
+  };
   return (
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
@@ -300,9 +308,8 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                           label={
                             <CalloutContent>
                               <Link
-                                href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                onClick={handleClickLearnHow}
+                                className="t--learn-how-apis-link"
                               >
                                 <Text type={TextType.H6} case={Case.UPPERCASE}>
                                   Learn How
