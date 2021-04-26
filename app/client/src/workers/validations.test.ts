@@ -19,109 +19,47 @@ const DUMMY_WIDGET: WidgetProps = {
 };
 
 describe("Validate Validators", () => {
-  const validator = VALIDATORS.CHART_DATA;
-  it("correctly validates chart data ", () => {
+  it("correctly validates chart series data ", () => {
     const cases = [
       {
-        input: [
-          {
-            seriesName: "Sales",
-            data: [{ x: "Jan", y: 1000 }],
-          },
-        ],
+        input: [{ x: "Jan", y: 1000 }],
         output: {
           isValid: true,
-          parsed: [
-            {
-              seriesName: "Sales",
-              data: [{ x: "Jan", y: 1000 }],
-            },
-          ],
-          transformed: [
-            {
-              seriesName: "Sales",
-              data: [{ x: "Jan", y: 1000 }],
-            },
-          ],
+          parsed: [{ x: "Jan", y: 1000 }],
+          transformed: [{ x: "Jan", y: 1000 }],
         },
       },
       {
-        input: [
-          {
-            seriesName: "Sales",
-            data: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
-          },
-        ],
+        input: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         output: {
           isValid: false,
           message:
-            '0##This value does not evaluate to type "Array<x:string, y:number>"',
-          parsed: [
-            {
-              seriesName: "Sales",
-              data: [],
-            },
-          ],
-          transformed: [
-            {
-              seriesName: "Sales",
-              data: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
-            },
-          ],
+            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+          parsed: [],
+          transformed: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         },
       },
       {
-        input: [
-          {
-            seriesName: "Sales",
-            data: undefined,
-          },
-          {
-            seriesName: "Expenses",
-            data: [
-              { x: "Jan", y: 1000 },
-              { x: "Feb", y: 2000 },
-            ],
-          },
-        ],
+        input: undefined,
         output: {
           isValid: false,
           message:
-            '0##This value does not evaluate to type "Array<x:string, y:number>"',
-          parsed: [
-            {
-              seriesName: "Sales",
-              data: [],
-            },
-            {
-              seriesName: "Expenses",
-              data: [
-                { x: "Jan", y: 1000 },
-                { x: "Feb", y: 2000 },
-              ],
-            },
-          ],
-          transformed: [
-            {
-              seriesName: "Sales",
-              data: undefined,
-            },
-            {
-              seriesName: "Expenses",
-              data: [
-                { x: "Jan", y: 1000 },
-                { x: "Feb", y: 2000 },
-              ],
-            },
-          ],
+            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+          parsed: [],
+          transformed: undefined,
         },
       },
     ];
     for (const testCase of cases) {
-      const response = validator(testCase.input, DUMMY_WIDGET, {});
+      const response = VALIDATORS.CHART_SERIES_DATA(
+        testCase.input,
+        DUMMY_WIDGET,
+        {},
+      );
       expect(response).toStrictEqual(testCase.output);
     }
   });
+
   it("Correctly validates page number", () => {
     const input = [0, -1, undefined, null, 2, "abcd", [], ""];
     const expected = [1, 1, 1, 1, 2, 1, 1, 1];
