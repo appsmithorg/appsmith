@@ -24,13 +24,24 @@ describe("Duplicate application", function() {
       .click({ force: true });
     cy.get(homePage.forkApp).click({ force: true });
 
-    // cy.get(homePage.forkAppOrgList)
-    //   .children()
-    //   .last()
-    //   .check({ force: true });
-
-    cy.get(homePage.forkAppOrgButton).click({ force: true });
-
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    // cy.wait("@getPage").should(
+    //     "have.nested.property",
+    //     "response.body.responseMeta.status",
+    //     200,
+    // );
+    // cy.wait("@getPagesForCreateApp").should(
+    //     "have.nested.property",
+    //     "response.body.responseMeta.status",
+    //     200,
+    // );
+    // cy.wait("@getPage");
+    // cy.get("@getPage").then((httpResponse) => {
+    // const data = httpResponse.response.body.data;
+    // duplicateApplicationDsl = data.layouts[0].dsl;
+    // console.log(httpResponse);
+    // expect(duplicateApplicationDsl).to.deep.equal(dsl.dsl);
+    // });
     // cy.wait("@postForkAppOrg");
     // cy.wait("@getPage");
     // cy.wait("@getPage").then((httpResponse) => {
