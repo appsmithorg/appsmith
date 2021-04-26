@@ -217,7 +217,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         chartType: EvaluationSubstitutionType.TEMPLATE,
         chartName: EvaluationSubstitutionType.TEMPLATE,
         "chartData.random-id.seriesName": EvaluationSubstitutionType.TEMPLATE,
-        "chartData.random-id.data": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        "chartData.random-id.data": EvaluationSubstitutionType.TEMPLATE,
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
