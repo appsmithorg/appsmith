@@ -376,16 +376,25 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       },
     );
     const isValidResponse = yield validateResponse(response);
+    let messages: Array<string> = [];
     if (isValidResponse) {
       const responseData = response.data;
-      if (responseData.invalids && responseData.invalids.length) {
-        Toaster.show({
-          text: responseData.invalids[0],
-          variant: Variant.danger,
-        });
+      if (
+        (responseData.invalids && responseData.invalids.length) ||
+        (responseData.messages && responseData.messages.length)
+      ) {
+        if (responseData.invalids && responseData.invalids.length) {
+          Toaster.show({
+            text: responseData.invalids[0],
+            variant: Variant.danger,
+          });
+        }
+        if (responseData.messages && responseData.messages.length) {
+          messages = responseData.messages;
+        }
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
-          payload: { show: false },
+          payload: { show: false, id: datasource.id, messages: messages },
         });
         AppsmithConsole.error({
           text: "Test Connection failed",
@@ -408,7 +417,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         });
         yield put({
           type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
-          payload: datasource,
+          payload: { show: false, id: datasource.id, messages: [] },
         });
         AppsmithConsole.info({
           text: "Test Connection successful",
