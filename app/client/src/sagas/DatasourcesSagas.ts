@@ -404,7 +404,10 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
             type: ENTITY_TYPE.DATASOURCE,
           },
           state: {
-            message: responseData.invalids[0],
+            message:
+              responseData.invalids && responseData.invalids.length
+                ? responseData.invalids[0]
+                : "",
           },
         });
       } else {
