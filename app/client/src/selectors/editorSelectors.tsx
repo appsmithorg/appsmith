@@ -28,8 +28,6 @@ import { WidgetTypes } from "../constants/WidgetConstants";
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 const getPageListState = (state: AppState) => state.entities.pageList;
-export const getDataSources = (state: AppState) =>
-  state.entities.datasources.list;
 
 export const getProviderCategories = (state: AppState) =>
   state.ui.providers.providerCategories;
@@ -64,6 +62,9 @@ export const getIsPageSaving = (state: AppState) => {
 export const getPageSavingError = (state: AppState) => {
   return state.ui.editor.loadingStates.savingError;
 };
+
+export const getLayoutOnLoadActions = (state: AppState) =>
+  state.ui.editor.pageActions || [];
 
 export const getIsPublishingApplication = (state: AppState) =>
   state.ui.editor.loadingStates.publishing;

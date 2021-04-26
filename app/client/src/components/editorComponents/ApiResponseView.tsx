@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, RefObject, useCallback } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import { BaseText } from "components/designSystems/blueprint/TextComponent";
@@ -12,24 +12,26 @@ import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
-import { RequestView } from "./RequestView";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import {
-  CHECK_REQUEST_BODY,
-  createMessage,
-  SHOW_REQUEST,
-} from "constants/messages";
+import { CHECK_REQUEST_BODY, createMessage } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
-import Text, { Case, TextType } from "components/ads/Text";
+import Text, { TextType } from "components/ads/Text";
 import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
+import DebuggerLogs from "./Debugger/DebuggerLogs";
+import ErrorLogs from "./Debugger/Errors";
+import Resizer, { ResizerCSS } from "./Debugger/Resizer";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DebugButton } from "./Debugger/DebugCTA";
 
 const ResponseContainer = styled.div`
-  position: relative;
-  flex: 1;
-  height: 50%;
+  ${ResizerCSS}
+  // Initial height of bottom tabs
+  height: 60%;
+  // Minimum height of bottom tabs as it can be resized
+  min-height: 36px;
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
 
   .react-tabs__tab-panel {
@@ -121,14 +123,7 @@ const NoResponseContainer = styled.div`
 const FailedMessage = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const ShowRequestText = styled.a`
-  display: flex;
-  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
-  .${Classes.ICON} {
-    margin-left: ${(props) => props.theme.spaces[1] + 1}px;
-  }
+  margin-left: 5px;
 `;
 
 interface ReduxStateProps {
@@ -137,7 +132,10 @@ interface ReduxStateProps {
 }
 
 type Props = ReduxStateProps &
-  RouteComponentProps<APIEditorRouteParams> & { theme?: EditorTheme };
+  RouteComponentProps<APIEditorRouteParams> & {
+    theme?: EditorTheme;
+    apiName: string;
+  };
 
 export const EMPTY_RESPONSE: ActionResponse = {
   statusCode: "",
@@ -173,11 +171,19 @@ const ApiResponseView = (props: Props) => {
     isRunning = props.isRunning[apiId];
     hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
   }
+  const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
   const [requestDebugVisible, setRequestDebugVisible] = useLocalStorage(
     "requestDebugVisible",
     "true",
   );
+
+  const onDebugClick = useCallback(() => {
+    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+      source: "API",
+    });
+    setSelectedIndex(1);
+  }, []);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const tabs = [
@@ -187,28 +193,20 @@ const ApiResponseView = (props: Props) => {
       panelComponent: (
         <ResponseTabWrapper>
           {hasFailed && !isRunning && requestDebugVisible && (
-            <Callout
-              text={createMessage(CHECK_REQUEST_BODY)}
-              label={
-                <FailedMessage>
-                  <ShowRequestText
-                    href={"#!"}
-                    onClick={() => {
-                      setSelectedIndex(1);
-                    }}
-                  >
-                    <Text type={TextType.H6} case={Case.UPPERCASE}>
-                      {createMessage(SHOW_REQUEST)}
-                    </Text>
-                    <Icon name="right-arrow" />
-                  </ShowRequestText>
-                </FailedMessage>
-              }
-              variant={Variant.warning}
-              fill
-              closeButton
-              onClose={() => setRequestDebugVisible(false)}
-            />
+            <>
+              <Callout
+                text={createMessage(CHECK_REQUEST_BODY)}
+                label={
+                  <FailedMessage>
+                    <DebugButton onClick={onDebugClick} />
+                  </FailedMessage>
+                }
+                variant={Variant.danger}
+                fill
+                closeButton
+                onClose={() => setRequestDebugVisible(false)}
+              />
+            </>
           )}
           {_.isEmpty(response.statusCode) ? (
             <NoResponseContainer>
@@ -230,25 +228,20 @@ const ApiResponseView = (props: Props) => {
       ),
     },
     {
-      key: "request",
-      title: "Request",
-      panelComponent: (
-        <RequestView
-          requestURL={response.request?.url || ""}
-          requestHeaders={response.request?.headers || {}}
-          requestMethod={response.request?.httpMethod || ""}
-          requestBody={
-            _.isObject(response.request?.body)
-              ? JSON.stringify(response.request?.body, null, 2)
-              : response.request?.body || ""
-          }
-        />
-      ),
+      key: "error-logs",
+      title: "Errors",
+      panelComponent: <ErrorLogs />,
+    },
+    {
+      key: "logs",
+      title: "Logs",
+      panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
     },
   ];
 
   return (
-    <ResponseContainer>
+    <ResponseContainer ref={panelRef}>
+      <Resizer panelRef={panelRef} />
       <SectionDivider />
       {isRunning && (
         <LoadingOverlayScreen theme={props.theme}>
