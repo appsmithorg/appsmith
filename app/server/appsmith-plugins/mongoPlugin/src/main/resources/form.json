@@ -220,7 +220,12 @@
               "label": "Disabled",
               "value": "DISABLED"
             }
-          ]
+          ],
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "EQUALS",
+            "value": "Yes"
+          }
         }
       ]
     }
