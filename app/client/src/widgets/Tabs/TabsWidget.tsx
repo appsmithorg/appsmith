@@ -376,7 +376,9 @@ class TabsWidget extends BaseWidget<
     const tabs = Object.values(this.props.tabsObj || {});
     if (tabs.length) {
       return tabs
-        .filter((tab) => tab.isVisible === undefined || tab.isVisible === true)
+        .filter(
+          (tab) => tab.isVisible === undefined || !!tab.isVisible === true,
+        )
         .sort((tab1, tab2) => tab1.index - tab2.index);
     }
     return [];
