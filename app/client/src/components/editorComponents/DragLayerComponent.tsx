@@ -2,7 +2,11 @@ import React, { useContext, useEffect, RefObject, useRef } from "react";
 import styled from "styled-components";
 import { useDragLayer, XYCoord } from "react-dnd";
 import DropZone from "./Dropzone";
-import { noCollision, currentDropRow } from "utils/WidgetPropsUtils";
+import {
+  noCollision,
+  currentDropRow,
+  getDropZoneOffsets,
+} from "utils/WidgetPropsUtils";
 import { OccupiedSpace } from "constants/editorConstants";
 import {
   CONTAINER_GRID_PADDING,
@@ -137,7 +141,7 @@ function DragLayerComponent(props: DragLayerProps) {
 
     updateDropTargetRows && updateDropTargetRows(widget.widgetId, row);
   }
-  console.log("1", currentOffset);
+  console.log(props.parentWidgetId, diffOffset);
 
   let widgetWidth = 0;
   let widgetHeight = 0;
@@ -210,6 +214,7 @@ function DragLayerComponent(props: DragLayerProps) {
           props={props}
           widget={widget}
           diffOffset={diffOffset}
+          currentOffset={widget.topRow ? undefined : currentOffset}
           canDrop={canDrop}
         ></WidgetPreview>
       )}
@@ -221,7 +226,6 @@ const SelectedWidgetPreview = ({
   props,
   diffOffset,
   widgetId,
-  currentOffset,
 }: {
   widgetId: string;
   props: DragLayerProps;
@@ -244,16 +248,64 @@ const WidgetPreview = ({
   diffOffset,
   widget,
   canDrop,
+  currentOffset,
 }: {
   props: DragLayerProps;
   diffOffset: XYCoord | null;
   widget: WidgetProps;
   canDrop?: boolean;
+  currentOffset?: XYCoord | null;
 }) => {
-  const currentOffset: XYCoord | null = {
-    x:
-      props.parentColumnWidth * (widget.leftColumn || 0) + (diffOffset?.x ?? 0),
-    y: props.parentRowHeight * (widget.topRow || 0) + (diffOffset?.y ?? 0),
+  const dropTargetOffset = useRef({
+    x: 0,
+    y: 0,
+  });
+  const anotherOffset: XYCoord | null = currentOffset || {
+    x: dropTargetOffset.current.x + (diffOffset?.x ?? 0),
+    y: dropTargetOffset.current.y + (diffOffset?.y ?? 0),
+  };
+  const [left, top] = getDropZoneOffsets(
+    props.parentColumnWidth,
+    props.parentRowHeight,
+    anotherOffset as XYCoord,
+    { x: 0, y: 0 },
+    // dropTargetOffset.current,
+  );
+  const movingToDifferentContainer = props.parentWidgetId === widget.parentId;
+  !movingToDifferentContainer &&
+    console.log({
+      diffOffset,
+      left,
+      top,
+      parent: props.parentWidgetId,
+      widget,
+      dropTargetOffset,
+    });
+  movingToDifferentContainer &&
+    props.parentWidgetId !== "0" &&
+    console.log({
+      diffOffset,
+      left,
+      top,
+      parent: props.parentWidgetId,
+      widget,
+      dropTargetOffset,
+    });
+  const buffer = {
+    x: movingToDifferentContainer
+      ? props.parentColumnWidth * widget.leftColumn
+      : props.parentColumnWidth * left,
+    y: movingToDifferentContainer
+      ? props.parentRowHeight * widget.topRow
+      : props.parentRowHeight * top,
+  };
+  const forCollision: XYCoord | null = {
+    x: buffer.x + (diffOffset?.x ?? 0),
+    y: buffer.y + (diffOffset?.y ?? 0),
+  };
+  const derviedCurrentOffset: XYCoord | null = currentOffset || {
+    x: buffer.x + (diffOffset?.x ?? 0) + dropTargetOffset.current.x,
+    y: buffer.y + (diffOffset?.y ?? 0) + dropTargetOffset.current.y,
   };
   const dropTargetMask: RefObject<HTMLDivElement> = React.useRef(null);
   const dropZoneRef = React.useRef<HTMLDivElement>(null);
@@ -276,10 +328,7 @@ const WidgetPreview = ({
       }
     }
   });
-  const dropTargetOffset = useRef({
-    x: 0,
-    y: 0,
-  });
+
   useEffect(() => {
     const el = dropTargetMask.current;
     if (el) {
@@ -298,7 +347,7 @@ const WidgetPreview = ({
   const calculateCanDrop =
     canDrop === undefined &&
     noCollision(
-      currentOffset as XYCoord,
+      derviedCurrentOffset as XYCoord,
       props.parentColumnWidth,
       props.parentRowHeight,
       widget,
@@ -307,6 +356,9 @@ const WidgetPreview = ({
       props.parentRows,
       props.parentCols,
     );
+  const parentOffset = currentOffset
+    ? dropTargetOffset.current
+    : { x: 0, y: 0 };
   return (
     <WrappedDragLayer2
       columnWidth={props.parentColumnWidth}
@@ -315,15 +367,15 @@ const WidgetPreview = ({
     >
       {props.visible &&
         props.isOver &&
-        currentOffset &&
+        derviedCurrentOffset &&
         isParentOffsetCalculated && (
           <DropZone
-            parentOffset={{ x: 0, y: 0 }}
+            parentOffset={dropTargetOffset.current}
             parentRowHeight={props.parentRowHeight}
             parentColumnWidth={props.parentColumnWidth}
             width={widgetWidth}
             height={widgetHeight}
-            currentOffset={currentOffset as XYCoord}
+            currentOffset={derviedCurrentOffset as XYCoord}
             canDrop={canDrop || calculateCanDrop}
             ref={dropZoneRef}
             width={widgetWidth}

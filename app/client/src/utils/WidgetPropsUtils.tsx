@@ -780,7 +780,10 @@ export const noCollision = (
       top,
       bottom: top + widgetHeight,
     };
-    return !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset);
+    return (
+      !isDropZoneOccupied(currentOffset, widget.widgetId, occupiedSpaces) &&
+      !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset)
+    );
   }
   return false;
 };
