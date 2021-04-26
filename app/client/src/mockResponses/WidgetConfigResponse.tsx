@@ -4,6 +4,11 @@ import moment from "moment-timezone";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+import {
+  CellAlignmentTypes,
+  VerticalAlignmentTypes,
+} from "components/designSystems/appsmith/TableComponent/Constants";
+import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
@@ -137,8 +142,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
-      primaryColumns: {},
-      derivedColumns: {
+      primaryColumns: {
         action: {
           id: "1",
           label: "Action",
@@ -153,21 +157,25 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
         },
       },
+      derivedColumns: {},
       tableData: [
         {
           step: "#1",
           task: "Drag a Table",
           status: "✅",
+          action: "",
         },
         {
           step: "#2",
           task: "Create a Query fetch_users with the Mock DB",
           status: "--",
+          action: "",
         },
         {
           step: "#3",
           task: "Bind the query to the table {{fetch_users.data}}",
           status: "--",
+          action: "",
         },
       ],
       version: 1,
