@@ -4,11 +4,6 @@ import moment from "moment-timezone";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
-import {
-  CellAlignmentTypes,
-  VerticalAlignmentTypes,
-} from "components/designSystems/appsmith/TableComponent/Constants";
-import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
