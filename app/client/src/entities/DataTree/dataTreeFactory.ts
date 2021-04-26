@@ -9,7 +9,7 @@ import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import { ActionConfig, PluginType } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
-import { DynamicPath } from "utils/DynamicBindingUtils";
+import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
@@ -36,6 +36,12 @@ export type RunActionPayload = {
   params: Record<string, any> | string;
 };
 
+export enum EvaluationSubstitutionType {
+  TEMPLATE = "TEMPLATE",
+  PARAMETER = "PARAMETER",
+  SMART_SUBSTITUTE = "SMART_SUBSTITUTE",
+}
+
 export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   data: ActionResponse["body"];
   actionId: string;
@@ -46,12 +52,13 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
     | ActionDispatcher<RunActionPayload, [string, string, string]>
     | Record<string, any>;
   dynamicBindingPathList: DynamicPath[];
-  bindingPaths: Record<string, boolean>;
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
+  dependencyMap: DependencyMap;
 }
 
 export interface DataTreeWidget extends WidgetProps {
-  bindingPaths: Record<string, boolean>;
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
   validationPaths: Record<string, VALIDATION_TYPES>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
@@ -79,6 +86,7 @@ export type DataTree = {
 type DataTreeSeed = {
   actions: ActionDataState;
   editorConfigs: Record<string, any[]>;
+  pluginDependencyConfig: Record<string, DependencyMap>;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
   pageList: PageListPayload;
@@ -93,13 +101,16 @@ export class DataTreeFactory {
     pageList,
     appData,
     editorConfigs,
+    pluginDependencyConfig,
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
     actions.forEach((action) => {
       const editorConfig = editorConfigs[action.config.pluginId];
+      const dependencyConfig = pluginDependencyConfig[action.config.pluginId];
       dataTree[action.config.name] = generateDataTreeAction(
         action,
         editorConfig,
+        dependencyConfig,
       );
     });
     Object.values(widgets).forEach((widget) => {

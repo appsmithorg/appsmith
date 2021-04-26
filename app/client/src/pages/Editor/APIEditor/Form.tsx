@@ -24,12 +24,7 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { useHistory, useLocation, useParams } from "react-router-dom";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import Icon, { IconSize } from "components/ads/Icon";
+import Icon from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -37,9 +32,9 @@ import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
 import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
+import CloseEditor from "components/editorComponents/CloseEditor";
+import { useParams } from "react-router";
 
 const Form = styled.form`
   display: flex;
@@ -81,6 +76,12 @@ const ActionButtons = styled.div`
   }
 `;
 
+const HelpSection = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[12]}px 0px
+    ${(props) => props.theme.spaces[12]}px;
+`;
+
 const DatasourceWrapper = styled.div`
   width: 100%;
 `;
@@ -89,11 +90,15 @@ const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - 126px);
+  ${HelpSection} {
+    margin-bottom: 10px;
+  }
 `;
 
 const TabbedViewContainer = styled.div`
+  flex: 1;
+  overflow: auto;
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  height: 50%;
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -157,12 +162,6 @@ const Link = styled.a`
   }
 `;
 
-const HelpSection = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[12]}px 0px
-    ${(props) => props.theme.spaces[12]}px;
-`;
-
 interface APIFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -179,6 +178,7 @@ interface APIFormProps {
   headersCount: number;
   paramsCount: number;
   settingsConfig: any;
+  hintMessages?: Array<string>;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -190,26 +190,6 @@ export const NameWrapper = styled.div`
   input {
     margin: 0;
     box-sizing: border-box;
-  }
-`;
-
-const IconContainer = styled.div`
-  width: 22px;
-  height: 22px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 16px;
-  cursor: pointer;
-  svg {
-    width: 12px;
-    height: 12px;
-    path {
-      fill: ${(props) => props.theme.colors.apiPane.closeIcon};
-    }
-  }
-  &:hover {
-    background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
   }
 `;
 
@@ -231,6 +211,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     headersCount,
     paramsCount,
     settingsConfig,
+    hintMessages,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -243,18 +224,8 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const history = useHistory();
-  const location = useLocation();
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const { pageId } = useParams<ExplorerURLParams>();
 
-  const handleClose = (e: React.MouseEvent) => {
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.CLOSE_SIDE_PANE,
-      { path: location.pathname },
-    );
-    e.stopPropagation();
-    history.replace(BUILDER_PAGE_URL(applicationId, pageId));
-  };
   const theme = EditorTheme.LIGHT;
 
   return (
@@ -262,24 +233,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
       <MainConfiguration>
         <FormRow className="form-row-header">
           <NameWrapper className="t--nameOfApi">
-            <TooltipComponent
-              minimal
-              position={Position.BOTTOM}
-              content={
-                <Text type={TextType.P3} style={{ color: "#ffffff" }}>
-                  Close
-                </Text>
-              }
-              minWidth="auto !important"
-            >
-              <IconContainer onClick={handleClose}>
-                <Icon
-                  name="close-modal"
-                  size={IconSize.LARGE}
-                  className="close-modal-icon"
-                />
-              </IconContainer>
-            </TooltipComponent>
+            <CloseEditor />
             <ActionNameEditor page="API_PANE" />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
@@ -323,6 +277,13 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         </FormRow>
       </MainConfiguration>
       <SecondaryWrapper>
+        {hintMessages && (
+          <HelpSection>
+            {hintMessages.map((msg, i) => (
+              <Callout text={msg} variant={Variant.warning} fill key={i} />
+            ))}
+          </HelpSection>
+        )}
         <TabbedViewContainer>
           <TabComponent
             tabs={[
@@ -433,7 +394,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           />
         </TabbedViewContainer>
 
-        <ApiResponseView theme={theme} />
+        <ApiResponseView theme={theme} apiName={actionName} />
       </SecondaryWrapper>
     </Form>
   );
@@ -466,6 +427,7 @@ export default connect((state: AppState) => {
     const validParams = params.filter((value) => value.key && value.key !== "");
     paramsCount = validParams.length;
   }
+  const hintMessages = selector(state, "datasource.messages");
 
   return {
     actionName,
@@ -474,6 +436,7 @@ export default connect((state: AppState) => {
     actionConfigurationHeaders,
     headersCount,
     paramsCount,
+    hintMessages,
   };
 })(
   reduxForm<Action, APIFormProps>({

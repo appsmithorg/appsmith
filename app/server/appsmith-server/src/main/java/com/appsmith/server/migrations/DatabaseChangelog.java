@@ -2112,7 +2112,34 @@ public class DatabaseChangelog {
         ));
     }
 
-    @ChangeSet(order = "064", id = "migrate-smartSubstitution-dataType", author = "")
+    @ChangeSet(order = "065", id = "create-entry-in-sequence-per-organization-for-datasource", author = "")
+    public void createEntryInSequencePerOrganizationForDatasource(MongoTemplate mongoTemplate) {
+
+        Map<String, Long> maxDatasourceCount = new HashMap<>();
+        mongoTemplate
+                .find(query(where("name").regex("^Untitled Datasource \\d+$")), Datasource.class)
+                .forEach(datasource -> {
+                    long count = 1;
+                    String datasourceCnt = datasource.getName().substring("Untitled Datasource ".length()).trim();
+                    if (!datasourceCnt.isEmpty()) {
+                        count = Long.parseLong(datasourceCnt);
+                    }
+
+                    if (maxDatasourceCount.containsKey(datasource.getOrganizationId())
+                            && (count < maxDatasourceCount.get(datasource.getOrganizationId()))) {
+                        return;
+                    }
+                    maxDatasourceCount.put(datasource.getOrganizationId(), count);
+                });
+        maxDatasourceCount.forEach((key, val) -> {
+            Sequence sequence = new Sequence();
+            sequence.setName("datasource for organization with _id : " + key);
+            sequence.setNextNumber(val + 1);
+            mongoTemplate.save(sequence);
+        });
+    }
+
+    @ChangeSet(order = "066", id = "migrate-smartSubstitution-dataType", author = "")
     public void migrateSmartSubstitutionDataTypeBoolean(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
         Set<String> smartSubTurnedOn = new HashSet<>();
         Set<String> smartSubTurnedOff = new HashSet<>();
@@ -2158,12 +2185,9 @@ public class DatabaseChangelog {
                                     }
                                 }
                             }
-                        }
-
-                        // If the current action id exists in either smartSubTurnedOn or smartSubTurnedOff, then these
-                        // actions would get the required correct values. If in none of the above two, then add this action
-                        // for default configuring
-                        if (!smartSubTurnedOn.contains(action.getId()) && !smartSubTurnedOff.contains(action.getId())) {
+                        } else if (pluginSpecifiedTemplates == null) {
+                            // No pluginSpecifiedTemplates array exists. This is possible when an action was created before
+                            // the smart substitution feature was available
                             noSmartSubConfig.add(action.getId());
                         }
                     }
@@ -2178,41 +2202,20 @@ public class DatabaseChangelog {
                 NewAction.class
         );
 
-        // Default for no valid smart substitution configuration to be false aka smart substitution turned off.
-        smartSubTurnedOff.addAll(noSmartSubConfig);
-
         // Migrate actions where smart substitution is turned off
         mongoOperations.updateMulti(
                 query(where("_id").in(smartSubTurnedOff)),
                 new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value", false),
                 NewAction.class
         );
-    }
 
-    @ChangeSet(order = "065", id = "create-entry-in-sequence-per-organization-for-datasource", author = "")
-    public void createEntryInSequencePerOrganizationForDatasource(MongoTemplate mongoTemplate) {
-
-        Map<String, Long> maxDatasourceCount = new HashMap<>();
-        mongoTemplate
-                .find(query(where("name").regex("^Untitled Datasource \\d+$")), Datasource.class)
-                .forEach(datasource -> {
-                    long count = 1;
-                    String datasourceCnt = datasource.getName().substring("Untitled Datasource ".length()).trim();
-                    if (!datasourceCnt.isEmpty()) {
-                        count = Long.parseLong(datasourceCnt);
-                    }
-
-                    if (maxDatasourceCount.containsKey(datasource.getOrganizationId())
-                            && (count < maxDatasourceCount.get(datasource.getOrganizationId()))) {
-                        return;
-                    }
-                    maxDatasourceCount.put(datasource.getOrganizationId(), count);
-                });
-        maxDatasourceCount.forEach((key, val) -> {
-            Sequence sequence = new Sequence();
-            sequence.setName("datasource for organization with _id : " + key);
-            sequence.setNextNumber(val + 1);
-            mongoTemplate.save(sequence);
-        });
+        Property property = new Property();
+        property.setValue(false);
+        // Migrate actions where there is no configuration for smart substitution, aka add the array.
+        mongoOperations.updateMulti(
+                query(where("_id").in(noSmartSubConfig)),
+                new Update().addToSet("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates", property),
+                NewAction.class
+        );
     }
 }

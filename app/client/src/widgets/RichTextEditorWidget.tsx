@@ -120,6 +120,7 @@ class RichTextEditorWidget extends BaseWidget<
 
   onValueChange = (text: string) => {
     this.props.updateWidgetMetaProperty("text", text, {
+      triggerPropertyName: "onTextChange",
       dynamicString: this.props.onTextChange,
       event: {
         type: EventType.ON_TEXT_CHANGE,
