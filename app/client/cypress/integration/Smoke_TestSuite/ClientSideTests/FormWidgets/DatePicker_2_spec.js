@@ -81,6 +81,14 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.closePropertyPane();
   });
 
+  it("Datepicker value to work with selected date formats", function() {
+    cy.openPropertyPane("datepickerwidget2");
+    cy.testJsontext("defaultdate", "04/05/2021 05:25");
+    cy.selectDateFormat("YYYY-MM-DD HH:mm");
+    cy.SearchEntityandOpen("Text1");
+    cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
+  });
+
   it("Datepicker default date validation with js binding", function() {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
