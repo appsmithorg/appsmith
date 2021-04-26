@@ -182,6 +182,7 @@ export function* fetchPageSaga(
       id,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
+
     if (isValidResponse) {
       // Clear any existing caches
       yield call(clearEvalCache);
@@ -194,12 +195,7 @@ export function* fetchPageSaga(
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
-      yield put(
-        fetchPageSuccess([
-          // Execute page load actions after evaluation of fetch page
-          executePageLoadActions(canvasWidgetsPayload.pageActions),
-        ]),
-      );
+      yield put(fetchPageSuccess());
 
       yield put({
         type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
@@ -234,7 +230,10 @@ export function* fetchPublishedPageSaga(
     const { pageId, bustCache } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
-      { pageId: pageId, published: true },
+      {
+        pageId: pageId,
+        published: true,
+      },
     );
     const request: FetchPublishedPageRequest = {
       pageId,
@@ -260,7 +259,7 @@ export function* fetchPublishedPageSaga(
       yield put(
         fetchPublishedPageSuccess(
           // Execute page load actions post published page eval
-          [executePageLoadActions(canvasWidgetsPayload.pageActions)],
+          [executePageLoadActions()],
         ),
       );
       PerformanceTracker.stopAsyncTracking(
