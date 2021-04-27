@@ -85,3 +85,6 @@ export const shouldShowResolved = (state: AppState) =>
 
 export const appCommentsFilter = (state: AppState) =>
   state.ui.comments.appCommentsFilter;
+
+export const showUnreadIndicator = (state: AppState) =>
+  state.ui.comments.showUnreadIndicator;

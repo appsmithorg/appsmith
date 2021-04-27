@@ -9,11 +9,14 @@ import {
 import {
   commentModeSelector,
   areCommentsEnabledForUser as areCommentsEnabledForUserSelector,
+  showUnreadIndicator as showUnreadIndicatorSelector,
 } from "../selectors/commentsSelectors";
 import { useLocation } from "react-router";
 import history from "utils/history";
 
 const StyledToggleCommentMode = styled.div<{ isCommentMode: boolean }>`
+  position: relative;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,6 +36,21 @@ const StyledToggleCommentMode = styled.div<{ isCommentMode: boolean }>`
   height: ${(props) => props.theme.smallHeaderHeight};
   width: ${(props) => props.theme.smallHeaderHeight};
 `;
+
+const StyledIndicator = styled.div`
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: ${(props) => props.theme.colors.comments.unreadIndicator};
+`;
+
+const UnreadIndicator = () => {
+  const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
+  return showUnreadIndicator ? <StyledIndicator /> : null;
+};
 
 // update isCommentMode in the store based on the query search param
 const useUpdateCommentModeInStore = () => {
@@ -97,6 +115,7 @@ const ToggleCommentModeButton = () => {
       onClick={setCommentModeInUrl}
       isCommentMode={isCommentMode}
     >
+      <UnreadIndicator />
       <ToggleCommmentMode />
     </StyledToggleCommentMode>
   ) : null;

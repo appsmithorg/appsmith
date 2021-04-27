@@ -28,6 +28,7 @@ const initialState: CommentsReduxState = {
   creatingNewThreadComment: false,
   appCommentsFilter: filterOptions[0].value,
   shouldShowResolvedAppCommentThreads: false,
+  showUnreadIndicator: false,
 };
 
 /**
@@ -75,6 +76,7 @@ const commentsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isCommentMode: action.payload,
+    showUnreadIndicator: false,
   }),
   [ReduxActionTypes.SET_IS_COMMENT_THREAD_VISIBLE]: (
     state: CommentsReduxState,
@@ -127,7 +129,9 @@ const commentsReducer = createReducer(initialState, {
       ),
     };
 
-    return { ...state };
+    const showUnreadIndicator = !state.isCommentMode;
+
+    return { ...state, showUnreadIndicator };
   },
   [ReduxActionTypes.UPDATE_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
