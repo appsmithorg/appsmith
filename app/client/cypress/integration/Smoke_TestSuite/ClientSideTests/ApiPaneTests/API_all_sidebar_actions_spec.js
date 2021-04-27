@@ -15,6 +15,11 @@ describe("API Panel Test Functionality ", function() {
       .click({ force: true });
     cy.CopyAPIToHome();
     cy.GlobalSearchEntity("FirstAPICopy");
+    // click on learn how link
+    cy.get(".t--learn-how-apis-link").click();
+    // this should open in a global search modal
+    cy.get(commonlocators.globalSearchModal);
+    cy.get("body").click(0, 0);
     cy.DeleteAPIFromSideBar();
   });
 });

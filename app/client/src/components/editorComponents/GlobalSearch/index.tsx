@@ -49,7 +49,7 @@ import RecentIcon from "assets/icons/ads/recent.svg";
 
 const StyledContainer = styled.div`
   width: 750px;
-  height: 45vh;
+  height: 60vh;
   background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
   display: flex;
@@ -97,7 +97,12 @@ const GlobalSearch = () => {
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
-  const toggleShow = () => dispatch(toggleShowGlobalSearchModal());
+  const toggleShow = () => {
+    if (modalOpen) {
+      setQuery("");
+    }
+    dispatch(toggleShowGlobalSearchModal());
+  };
   const [query, setQueryInState] = useState("");
   const setQuery = useCallback((query: string) => {
     setQueryInState(query);
