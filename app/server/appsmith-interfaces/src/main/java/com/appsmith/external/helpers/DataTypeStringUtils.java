@@ -282,7 +282,7 @@ public class DataTypeStringUtils {
         return true;
     }
 
-    public static List<ParsedDataType> getActionRequestResponseDataTypes(String body) {
+    public static List<ParsedDataType> getActionRequestResponseDataTypes(String data) {
 
         if (body == null) {
             return new ArrayList<>();
