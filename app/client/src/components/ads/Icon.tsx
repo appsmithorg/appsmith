@@ -47,8 +47,14 @@ import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
 import { ReactComponent as OvalCheck } from "assets/icons/comments/check-oval.svg";
 import { ReactComponent as ContextMenu } from "assets/icons/ads/context-menu.svg";
 import { ReactComponent as Trash } from "assets/icons/comments/trash.svg";
-import { ReactComponent as Pin2 } from "assets/icons/comments/pin_2.svg";
+import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
+import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
 import { ReactComponent as Link2 } from "assets/icons/comments/link.svg";
+import { ReactComponent as CommentContextMenu } from "assets/icons/comments/context-menu.svg";
+import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
+import { ReactComponent as Filter } from "assets/icons/comments/filter.svg";
+import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
+import { ReactComponent as Pin3 } from "assets/icons/comments/pin_3.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -156,9 +162,15 @@ export const IconCollection = [
   "PARAGRAPH_TWO",
   "context-menu",
   "trash",
-  "pin-2",
   "link-2",
   "close-x",
+  "comment-context-menu",
+  "down-arrow-2",
+  "read-pin",
+  "unread-pin",
+  "filter",
+  "chat",
+  "pin-3",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -181,14 +193,15 @@ export const IconWrapper = styled.span<IconProps>`
   &:hover {
     cursor: pointer;
     path {
-      fill: ${(props) => props.theme.colors.icon.hover};
+      fill: ${(props) => props.hoverFillColor || props.theme.colors.icon.hover};
     }
   }
 
   &:active {
     cursor: pointer;
     path {
-      fill: ${(props) => props.theme.colors.icon.active};
+      fill: ${(props) =>
+        props.hoverFillColor || props.theme.colors.icon.active};
     }
   }
 `;
@@ -200,6 +213,7 @@ export type IconProps = {
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
   fillColor?: string;
+  hoverFillColor?: string;
 };
 
 const Icon = forwardRef(
@@ -362,8 +376,12 @@ const Icon = forwardRef(
         returnIcon = <ContextMenu />;
         break;
 
-      case "pin-2":
-        returnIcon = <Pin2 />;
+      case "read-pin":
+        returnIcon = <ReadPin />;
+        break;
+
+      case "unread-pin":
+        returnIcon = <UnreadPin />;
         break;
 
       case "link-2":
@@ -372,6 +390,26 @@ const Icon = forwardRef(
 
       case "trash":
         returnIcon = <Trash />;
+        break;
+
+      case "comment-context-menu":
+        returnIcon = <CommentContextMenu />;
+        break;
+
+      case "down-arrow-2":
+        returnIcon = <DownArrow2 />;
+        break;
+
+      case "filter":
+        returnIcon = <Filter />;
+        break;
+
+      case "chat":
+        returnIcon = <Chat />;
+        break;
+
+      case "pin-3":
+        returnIcon = <Pin3 />;
         break;
 
       default:
