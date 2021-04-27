@@ -38,6 +38,7 @@ type DropTargetComponentProps = WidgetProps & {
   snapColumnSpace: number;
   snapRowSpace: number;
   minHeight: number;
+  noPad?: boolean;
 };
 
 const StyledDropTarget = styled.div`
@@ -65,7 +66,7 @@ export const DropTargetContext: Context<{
   persistDropTargetRows?: (widgetId: string, row: number) => void;
 }> = createContext({});
 
-export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
+export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const canDropTargetExtend = props.canExtend;
 
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -248,10 +249,8 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
         focusWidget && focusWidget(props.parentId);
       }
     }
-
-    if (!isCommentMode) {
-      e.stopPropagation();
-    }
+    // commenting this out to allow propagation of click events
+    // e.stopPropagation();
     e.preventDefault();
   };
   const height = canDropTargetExtend
@@ -265,13 +264,15 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       ? "1px solid #DDDDDD"
       : "1px solid transparent";
 
+  const dropRef = !props.dropDisabled ? drop : undefined;
+
   return (
     <DropTargetContext.Provider
       value={{ updateDropTargetRows, persistDropTargetRows }}
     >
       <StyledDropTarget
         onClick={handleFocus}
-        ref={drop}
+        ref={dropRef}
         style={{
           height,
           border,
@@ -294,11 +295,14 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
           parentRows={rows}
           parentCols={props.snapColumns}
           isResizing={isChildResizing}
+          noPad={props.noPad || false}
           force={isDragging && !isOver && !props.parentId}
         />
       </StyledDropTarget>
     </DropTargetContext.Provider>
   );
-});
+};
 
-export default DropTargetComponent;
+const MemoizedDropTargetComponent = memo(DropTargetComponent);
+
+export default MemoizedDropTargetComponent;

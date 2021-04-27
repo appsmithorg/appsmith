@@ -8,10 +8,10 @@ import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import {
-  reduxForm,
-  InjectedFormProps,
-  getFormValues,
   getFormMeta,
+  getFormValues,
+  InjectedFormProps,
+  reduxForm,
 } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -24,7 +24,7 @@ import DropDownControl from "components/formControls/DropDownControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { ApiActionConfig } from "entities/Action";
+import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -46,16 +46,16 @@ import {
   GrantType,
 } from "entities/Datasource/RestAPIForm";
 import {
-  REST_API_AUTHORIZATION_SUCCESSFUL,
-  REST_API_AUTHORIZATION_FAILED,
-  REST_API_AUTHORIZATION_APPSMITH_ERROR,
   createMessage,
+  REST_API_AUTHORIZATION_APPSMITH_ERROR,
+  REST_API_AUTHORIZATION_FAILED,
+  REST_API_AUTHORIZATION_SUCCESSFUL,
 } from "constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-
+import Callout from "components/ads/Callout";
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
     formValues: Datasource,
@@ -76,6 +76,7 @@ interface DatasourceRestApiEditorProps {
   formData: ApiDatasourceForm;
   actions: ActionDataState;
   formMeta: any;
+  messages?: Array<string>;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -233,11 +234,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return true;
   };
 
-  disableSave = () => {
+  disableSave = (): boolean => {
     const { formData } = this.props;
     if (!formData) return true;
-    if (!formData.url) return true;
-    return false;
+    return !formData.url;
   };
 
   save = (onSuccess?: ReduxAction<unknown>) => {
@@ -370,10 +370,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderEditor = () => {
-    const { formData } = this.props;
+    const { formData, messages } = this.props;
     if (!formData) return;
     return (
       <>
+        {messages &&
+          messages.map((msg, i) => (
+            <Callout text={msg} variant={Variant.warning} fill key={i} />
+          ))}
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
@@ -632,7 +636,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <AuthorizeButton
             onClick={() =>
-              this.save(redirectAuthorizationCode(pageId, datasourceId))
+              this.save(
+                redirectAuthorizationCode(pageId, datasourceId, PluginType.API),
+              )
             }
             text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
             intent="primary"
@@ -652,6 +658,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
+  const hintMessages = datasource && datasource.messages;
+
   return {
     initialValues: datasourceToFormValues(datasource),
     datasource: datasource,
@@ -660,6 +668,7 @@ const mapStateToProps = (state: AppState, props: any) => {
       state,
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
+    messages: hintMessages,
   };
 };
 

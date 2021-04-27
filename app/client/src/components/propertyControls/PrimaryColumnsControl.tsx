@@ -257,7 +257,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
 
     this.props.openNextPanel({
       ...originalColumn,
-      widgetId: this.props.widgetProperties.widgetId,
+      propPaneId: this.props.widgetProperties.widgetId,
     });
   };
   //Used to reorder columns

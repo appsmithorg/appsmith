@@ -506,7 +506,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
    }
 }' > /dev/null
 
-read -rp 'Installation Directory [appsmith]: ' install_dir
+read -rp 'Create an Installation Directory: [appsmith]' install_dir
 install_dir="${install_dir:-appsmith}"
 if [[ $install_dir != /* ]]; then
     # If it's not an absolute path, prepend current working directory to it, to make it an absolute path.

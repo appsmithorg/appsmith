@@ -28,6 +28,7 @@ import globalSearchReducer from "./globalSearchReducer";
 import releasesReducer from "./releasesReducer";
 import commentsReducer from "./commentsReducer/commentsReducer";
 import websocketReducer from "./websocketReducer";
+import debuggerReducer from "./debuggerReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -59,5 +60,7 @@ const uiReducer = combineReducers({
   releases: releasesReducer,
   comments: commentsReducer,
   websocket: websocketReducer,
+  debugger: debuggerReducer,
 });
+
 export default uiReducer;
