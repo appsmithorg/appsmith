@@ -1955,11 +1955,9 @@ Cypress.Commands.add("hoverAndClick", () => {
 Cypress.Commands.add("deleteQuery", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
-  cy.wait("@deleteAction").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@deleteAction").should((interception) => {
+    expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+  });
 });
 
 Cypress.Commands.add("deleteDataSource", () => {
@@ -2118,14 +2116,12 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
 });
 
 Cypress.Commands.add("startRoutesForDatasource", () => {
-  cy.server();
   cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
   //To update route with intercept after working on alias wrt wait and alias
-  cy.server();
   cy.intercept("GET", "/api/v1/applications/new").as("applications");
   //cy.intercept("GET", "/api/v1/users/profile").as("getUser");
   cy.intercept("GET", "/api/v1/plugins").as("getPlugins");
@@ -2191,21 +2187,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/users/me").as("getUser");
   cy.intercept("POST", "/api/v1/pages").as("createPage");
   cy.intercept("POST", "/api/v1/pages/clone/*").as("clonePage");
-  /*
-  cy.intercept(
-    {
-      method: 'POST',
-      url: '/api/v1/pages/clone/*'
-    },
 
-    {
-      body: {
-        statusCode: 201,
-        message: 'Request successful',
-      }
-    }
-  ).as('clonePage');
-*/
   cy.intercept("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 
   cy.intercept("PUT", "/api/v1/organizations/*").as("updateOrganization");
