@@ -60,20 +60,22 @@ install_docker() {
         $apt_cmd update
         echo "Installing docker"
         $apt_cmd install docker-ce docker-ce-cli containerd.io
+
     elif [[ $package_manager == zypper ]]; then
         zypper_cmd="sudo zypper --quiet --no-gpg-checks --non-interactive"
         echo "Installing docker"
         if [[ $os == sles ]]; then
             os_sp="$(cat /etc/*-release | awk -F= '$1 == "VERSION_ID" { gsub(/"/, ""); print $2; exit }')"
             os_arch="$(uname -i)"
-            sudo SUSEConnect -p sle-module-containers/$os_sp/$os_arch -r ''
+            sudo SUSEConnect -p "sle-module-containers/$os_sp/$os_arch" -r ''
         fi
         $zypper_cmd install docker docker-runc containerd
         sudo systemctl enable docker.service
+
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
-        sudo yum-config-manager --add-repo https://download.docker.com/linux/$os/docker-ce.repo
+        sudo yum-config-manager --add-repo "https://download.docker.com/linux/$os/docker-ce.repo"
         echo "Installing docker"
         $yum_cmd install docker-ce docker-ce-cli containerd.io
 
@@ -122,51 +124,55 @@ check_os() {
     if is_mac; then
         package_manager="brew"
         desired_os=1
-        os="Mac"
+        os="mac"
         return
     fi
 
-    os_name="$(cat /etc/*-release | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }')"
+    local os_name="$(
+        cat /etc/*-release \
+            | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }' \
+            | tr '[:upper:]' '[:lower:]'
+    )"
 
     case "$os_name" in
-        Ubuntu*)
+        ubuntu*)
             desired_os=1
             os="ubuntu"
             package_manager="apt-get"
             ;;
-        Debian*)
+        debian*)
             desired_os=1
             os="debian"
             package_manager="apt-get"
             ;;
-        Linux\ Mint*)
+        linux\ mint*)
             desired_os=1
             os="linux mint"
             package_manager="apt-get"
             ;;
-        Red\ Hat*)
+        red\ hat*)
             desired_os=1
             os="red hat"
             package_manager="yum"
             ;;
-        CentOS*)
+        centos*)
             desired_os=1
             os="centos"
             package_manager="yum"
             ;;
-        SLES*)
+        sles*)
             desired_os=1
             os="sles"
             package_manager="zypper"
             ;;
-        openSUSE*)
+        opensuse*)
             desired_os=1
             os="opensuse"
             package_manager="zypper"
             ;;
         *)
             desired_os=0
-            os="Not Found"
+            os="Not Found: $os_name"
     esac
 }
 
