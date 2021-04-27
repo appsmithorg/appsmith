@@ -88,9 +88,9 @@ public class DeleteRowMethod implements Method {
                                 "Could not map request back to existing data"));
                     }
                     String jsonBody = new String(responseBody);
-                    JsonNode jsonNodeBody = null;
+                    JsonNode sheets = null;
                     try {
-                        jsonNodeBody = objectMapper.readTree(jsonBody).get("sheets");
+                        sheets = objectMapper.readTree(jsonBody).get("sheets");
                     } catch (IOException e) {
                         Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
@@ -99,13 +99,19 @@ public class DeleteRowMethod implements Method {
                         ));
                     }
 
-                    assert jsonNodeBody != null;
-                    for (JsonNode node : jsonNodeBody) {
-                        final JsonNode jsonNode = node.get("properties");
-                        if (jsonNode.get("title").asText().equalsIgnoreCase(methodConfig.getSheetName())) {
-                            methodConfig.setSheetId(jsonNode.get("sheetId").asText());
-                            break;
+                    assert sheets != null;
+                    String sheetId = null;
+                    for (JsonNode sheet : sheets) {
+                        final JsonNode properties = sheet.get("properties");
+                        if (methodConfig.getSheetName().equals(properties.get("title").asText())) {
+                            sheetId = properties.get("sheetId").asText();
                         }
+                    }
+
+                    if (sheetId == null) {
+                        throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown Sheet Name"));
+                    } else {
+                        methodConfig.setSheetId(sheetId);
                     }
 
                     return methodConfig;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { connect, useSelector } from "react-redux";
+import { connect, useSelector, useDispatch } from "react-redux";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -12,7 +12,8 @@ import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
 import { Action, PaginationType } from "entities/Action";
-import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -33,6 +34,7 @@ import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 
@@ -76,6 +78,12 @@ const ActionButtons = styled.div`
   }
 `;
 
+const HelpSection = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[12]}px 0px
+    ${(props) => props.theme.spaces[12]}px;
+`;
+
 const DatasourceWrapper = styled.div`
   width: 100%;
 `;
@@ -84,6 +92,9 @@ const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - 126px);
+  ${HelpSection} {
+    margin-bottom: 10px;
+  }
 `;
 
 const TabbedViewContainer = styled.div`
@@ -153,12 +164,6 @@ const Link = styled.a`
   }
 `;
 
-const HelpSection = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[12]}px 0px
-    ${(props) => props.theme.spaces[12]}px;
-`;
-
 interface APIFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -175,6 +180,7 @@ interface APIFormProps {
   headersCount: number;
   paramsCount: number;
   settingsConfig: any;
+  hintMessages?: Array<string>;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -207,7 +213,9 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     headersCount,
     paramsCount,
     settingsConfig,
+    hintMessages,
   } = props;
+  const dispatch = useDispatch();
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
 
@@ -222,7 +230,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const { pageId } = useParams<ExplorerURLParams>();
 
   const theme = EditorTheme.LIGHT;
-
+  const handleClickLearnHow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(setGlobalSearchQuery("capturing data"));
+    dispatch(toggleShowGlobalSearchModal());
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
+  };
   return (
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
@@ -272,6 +285,13 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         </FormRow>
       </MainConfiguration>
       <SecondaryWrapper>
+        {hintMessages && (
+          <HelpSection>
+            {hintMessages.map((msg, i) => (
+              <Callout text={msg} variant={Variant.warning} fill key={i} />
+            ))}
+          </HelpSection>
+        )}
         <TabbedViewContainer>
           <TabComponent
             tabs={[
@@ -288,9 +308,8 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                           label={
                             <CalloutContent>
                               <Link
-                                href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                onClick={handleClickLearnHow}
+                                className="t--learn-how-apis-link"
                               >
                                 <Text type={TextType.H6} case={Case.UPPERCASE}>
                                   Learn How
@@ -415,6 +434,7 @@ export default connect((state: AppState) => {
     const validParams = params.filter((value) => value.key && value.key !== "");
     paramsCount = validParams.length;
   }
+  const hintMessages = selector(state, "datasource.messages");
 
   return {
     actionName,
@@ -423,6 +443,7 @@ export default connect((state: AppState) => {
     actionConfigurationHeaders,
     headersCount,
     paramsCount,
+    hintMessages,
   };
 })(
   reduxForm<Action, APIFormProps>({
