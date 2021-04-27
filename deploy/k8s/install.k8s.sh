@@ -56,36 +56,40 @@ check_os() {
     if is_mac; then
         package_manager="brew"
         desired_os=1
-        os="Mac"
+        os="mac"
         return
     fi
 
-    os_name="$(cat /etc/*-release | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }')"
+    local os_name="$(
+        cat /etc/*-release \
+            | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }' \
+            | tr '[:upper:]' '[:lower:]'
+    )"
 
     case "$os_name" in
-        Ubuntu*)
+        ubuntu*)
             desired_os=1
             os="ubuntu"
             package_manager="apt-get"
             ;;
-        Debian*)
+        debian*)
             desired_os=1
             os="debian"
             package_manager="apt-get"
             ;;
-        Red\ Hat*)
+        red\ hat*)
             desired_os=1
             os="red hat"
             package_manager="yum"
             ;;
-        CentOS*)
+        centos*)
             desired_os=1
             os="centos"
             package_manager="yum"
             ;;
         *)
             desired_os=0
-            os="Not Found"
+            os="Not Found: $os_name"
     esac
 }
 
