@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -11,7 +10,6 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Param;
-import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
@@ -39,7 +37,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mysema.commons.lang.Pair;
@@ -75,11 +72,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
-import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
-import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
