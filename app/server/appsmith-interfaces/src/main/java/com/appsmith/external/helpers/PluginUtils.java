@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PluginUtils {
-    public static final String ACTION_CONFIGURATION_BODY = "actionConfiguration.body";
-    public static final String ACTION_CONFIGURATION_PATH = "actionConfiguration.path";
 
     public static List<String> getColumnsListForJdbcPlugin(ResultSetMetaData metaData) throws SQLException {
         List<String> columnsList = IntStream

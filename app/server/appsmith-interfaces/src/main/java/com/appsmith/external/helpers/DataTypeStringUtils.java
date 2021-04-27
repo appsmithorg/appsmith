@@ -1,6 +1,6 @@
 package com.appsmith.external.helpers;
 
-import com.appsmith.external.constants.ActionRequestResponseDataType;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -282,14 +282,14 @@ public class DataTypeStringUtils {
         return true;
     }
 
-    public static List<ParsedDataType> getActionRequestResponseDataTypes(String data) {
+    public static List<ParsedDataType> getDisplayDataTypes(String data) {
 
-        if (body == null) {
+        if (data == null) {
             return new ArrayList<>();
         }
 
-        if (body.isEmpty()) {
-            return List.of(new ParsedDataType(ActionRequestResponseDataType.RAW));
+        if (data.isEmpty()) {
+            return List.of(new ParsedDataType(DisplayDataType.RAW));
         }
 
         List<ParsedDataType> dataTypes = new ArrayList<>();
@@ -298,8 +298,8 @@ public class DataTypeStringUtils {
          * - Check if the returned data is a valid table - i.e. an array of simple json objects.
          */
         try {
-            objectMapper.readValue(body, new TypeReference<ArrayList<HashMap<String, String>>>() {});
-            dataTypes.add(new ParsedDataType(ActionRequestResponseDataType.TABLE));
+            objectMapper.readValue(data, new TypeReference<ArrayList<HashMap<String, String>>>() {});
+            dataTypes.add(new ParsedDataType(DisplayDataType.TABLE));
         } catch (IOException e) {
             /* Do nothing */
         }
@@ -308,8 +308,8 @@ public class DataTypeStringUtils {
          * - Check if the returned data is a valid json.
          */
         try {
-            objectMapper.readTree(body);
-            dataTypes.add(new ParsedDataType(ActionRequestResponseDataType.JSON));
+            objectMapper.readTree(data);
+            dataTypes.add(new ParsedDataType(DisplayDataType.JSON));
         } catch (IOException e) {
             /* Do nothing */
         }
@@ -317,7 +317,7 @@ public class DataTypeStringUtils {
         /*
          * - All return data types can be categorized as raw by default.
          */
-        dataTypes.add(new ParsedDataType(ActionRequestResponseDataType.RAW));
+        dataTypes.add(new ParsedDataType(DisplayDataType.RAW));
 
         return dataTypes;
     }

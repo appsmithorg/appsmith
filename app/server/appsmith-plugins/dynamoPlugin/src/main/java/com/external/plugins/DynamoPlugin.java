@@ -53,8 +53,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 
 public class DynamoPlugin extends BasePlugin {
 

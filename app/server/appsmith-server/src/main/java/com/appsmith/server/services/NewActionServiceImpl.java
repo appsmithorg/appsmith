@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.constants.ActionRequestResponseDataType;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -14,6 +14,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -41,6 +42,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mysema.commons.lang.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -61,6 +63,8 @@ import javax.validation.Validator;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -77,7 +81,7 @@ import static com.appsmith.external.constants.ActionConstants.KEY_LABEL;
 import static com.appsmith.external.constants.ActionConstants.KEY_TYPE;
 import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.external.helpers.DataTypeStringUtils.getActionRequestResponseDataTypes;
+import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -682,17 +686,47 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     }
 
                     Map labelMap = tuple.getT2();
-                    result.getRequest().getRequestParams().stream()
-                            .forEach(param -> {
-                                param.setType(param.getValue() != null ?
-                                        getActionRequestResponseDataTypes(param.getValue()) : new ArrayList<>());
-                                param.setLabel((String)labelMap.get(param.getConfigProperty()));
-                                param.setConfigProperty(null);
-                            });
+                    transformRequestParams(result, labelMap);
 
                     return Mono.just(result);
                 })
                 .map(result -> addDataTypes(result));
+    }
+
+    /*
+     * - Comparator for comparing request params. Used when request params are sorted according to their relative
+     * position in the editor.json config file.
+     */
+    Comparator<Pair<Object, Integer>> rankedParamsComparator = Comparator.comparing(Pair::getSecond);
+
+    /*
+     * - Add label to request param entities.
+     * - Add data types to request param entities.
+     */
+    private void transformRequestParams(ActionExecutionResult result, Map labelMap) {
+        List<RequestParamDTO> transformedParams = new ArrayList<>();
+
+        /*
+         * - Each entity in the list is a pair of request parameter and the index for where it appears in the editor
+         * .json file. The top most field in the config file has a index of 0, then 1 and so on.
+         * - The index helps in arranging the request params in the same order as they appear in the editor.json
+         * config file.
+         */
+        List<Pair<Object, Integer>> rankedParams = new ArrayList<>();
+
+        result.getRequest().getRequestParams().stream()
+                .forEach(param -> {
+                    param.setTypes(param.getValue() != null ?
+                            getDisplayDataTypes(param.getValue()) : new ArrayList<>());
+                    param.setLabel((String)((Pair)labelMap.get(param.getConfigProperty())).getFirst());
+                    rankedParams.add(new Pair(param, ((Pair)labelMap.get(param.getConfigProperty())).getSecond()));
+                    param.setConfigProperty(null);
+                });
+
+        Collections.sort(rankedParams, rankedParamsComparator);
+        rankedParams.stream()
+                .forEach(rankedParam -> transformedParams.add((RequestParamDTO) rankedParam.getFirst()));
+        result.getRequest().setRequestParams(transformedParams);
     }
 
     private ActionExecutionResult addDataTypes(ActionExecutionResult result) {
@@ -709,7 +743,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return result;
         }
 
-        result.setDataTypes(getActionRequestResponseDataTypes(result.getBody().toString()));
+        result.setDataTypes(getDisplayDataTypes(result.getBody().toString()));
         return result;
     }
 

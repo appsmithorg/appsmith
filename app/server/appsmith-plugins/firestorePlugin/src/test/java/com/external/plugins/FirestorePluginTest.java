@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
-import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.Blob;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -34,7 +33,6 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,8 +41,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

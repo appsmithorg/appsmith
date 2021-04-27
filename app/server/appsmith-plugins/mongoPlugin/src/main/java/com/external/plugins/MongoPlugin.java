@@ -9,7 +9,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.constants.ActionRequestResponseDataType;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -64,7 +64,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -231,8 +231,8 @@ public class MongoPlugin extends BasePlugin {
                             if (BigInteger.ONE.equals(status)) {
                                 result.setIsExecutionSuccess(true);
                                 result.setDataTypes(List.of(
-                                        new ParsedDataType(ActionRequestResponseDataType.JSON),
-                                        new ParsedDataType(ActionRequestResponseDataType.RAW)
+                                        new ParsedDataType(DisplayDataType.JSON),
+                                        new ParsedDataType(DisplayDataType.RAW)
                                 ));
 
                                 /**

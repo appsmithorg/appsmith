@@ -9,7 +9,7 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.constants.ActionRequestResponseDataType;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
@@ -456,7 +456,7 @@ public class ActionServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(ActionRequestResponseDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -484,7 +484,7 @@ public class ActionServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(ActionRequestResponseDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -510,7 +510,7 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionRequestResponseDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1229,8 +1229,8 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionRequestResponseDataType.TABLE), new ParsedDataType(ActionRequestResponseDataType.JSON)
-                        , new ParsedDataType(ActionRequestResponseDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.TABLE), new ParsedDataType(DisplayDataType.JSON)
+                        , new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1268,7 +1268,7 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionRequestResponseDataType.JSON), new ParsedDataType(ActionRequestResponseDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.JSON), new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1289,7 +1289,7 @@ public class ActionServiceTest {
                 " }");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(ActionRequestResponseDataType.RAW)));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1307,7 +1307,7 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionRequestResponseDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test

@@ -57,9 +57,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.constants.ActionConstants.KEY_VALUE;
-import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
 
 public class AmazonS3Plugin extends BasePlugin {
@@ -406,12 +405,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                     || properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX) == null
                                     || StringUtils.isEmpty((String) properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue())) {
                                 durationInMinutes = DEFAULT_URL_EXPIRY_IN_MINUTES;
-                                requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(URL_EXPIRY_DURATION_PROPERTY_INDEX),
-                                        "", null, null));
                             } else {
-                                requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(URL_EXPIRY_DURATION_PROPERTY_INDEX),
-                                        (String)properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue(), null, null));
-
                                 try {
                                     durationInMinutes = Integer
                                             .parseInt(
@@ -429,6 +423,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                     ));
                                 }
                             }
+                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(URL_EXPIRY_DURATION_PROPERTY_INDEX),
+                                    Integer.toString(durationInMinutes), null, null));
 
                             Calendar calendar = Calendar.getInstance();
                             calendar.add(Calendar.MINUTE, durationInMinutes);

@@ -41,9 +41,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import static com.appsmith.external.constants.ActionRequestResponseDataType.JSON;
-import static com.appsmith.external.constants.ActionRequestResponseDataType.RAW;
-import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.DisplayDataType.JSON;
+import static com.appsmith.external.constants.DisplayDataType.RAW;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

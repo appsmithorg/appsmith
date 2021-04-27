@@ -6,4 +6,6 @@ public class ActionConstants {
     public static final String KEY_LABEL = "label";
     public static final String KEY_TYPE = "type";
     public static final String KEY_VALUE = "value";
+    public static final String ACTION_CONFIGURATION_BODY = "actionConfiguration.body";
+    public static final String ACTION_CONFIGURATION_PATH = "actionConfiguration.path";
 }

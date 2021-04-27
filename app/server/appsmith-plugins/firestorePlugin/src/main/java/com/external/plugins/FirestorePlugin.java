@@ -54,8 +54,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.PluginUtils.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
 
 /**
@@ -122,8 +122,8 @@ public class FirestorePlugin extends BasePlugin {
             requestData.put("method", method == null ? "" : method.toString());
 
             List<RequestParamDTO> requestParams = new ArrayList<>();
-            requestParams.add(new RequestParamDTO("actionConfiguration.pluginSpecifiedTemplates[0]" +
-                    ".value", method == null ? "" : method.toString(), null, null));
+            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0), method == null ? "" :
+                    method.toString(), null, null));
             requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null));
 
             final PaginationField paginationField = executeActionDTO == null ? null : executeActionDTO.getPaginationField();

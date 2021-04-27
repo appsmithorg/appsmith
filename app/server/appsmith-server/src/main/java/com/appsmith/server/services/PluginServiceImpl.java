@@ -14,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mysema.commons.lang.Pair;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -51,6 +52,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -375,9 +377,10 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             return Mono.just(new HashMap());
         }
 
+        AtomicInteger counter = new AtomicInteger(0);
         Mono<Map> labelMapMono = formConfig
                 .flatMap(formMap -> {
-                    Map labelMap = new HashMap();
+                    Map labelMap = new LinkedHashMap();
                     List editorMap = (List) formMap.get(KEY_EDITOR);
                     editorMap.stream()
                             .map(item -> ((Map) item).get(KEY_CHILDREN))
@@ -386,8 +389,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                                             .forEach(queryField -> {
                                                 labelMap.put(
                                                         queryField.get(KEY_CONFIG_PROPERTY),
-                                                        (StringUtils.isEmpty(queryField.get(KEY_LABEL)) ? "" :
-                                                                queryField.get(KEY_LABEL))
+                                                        new Pair((StringUtils.isEmpty(queryField.get(KEY_LABEL)) ? "" :
+                                                                queryField.get(KEY_LABEL)), counter.getAndIncrement())
                                                 );
                                             })
                             );
