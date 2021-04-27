@@ -35,22 +35,6 @@ describe("Image Widget Functionality", function() {
     cy.closePropertyPane();
   });
 
-  it("Image Widget Functionality Base64 validation", function() {
-    cy.openPropertyPane("imagewidget");
-    /**
-     * Test for Base64 encoded image
-     */
-    cy.get(viewWidgetsPage.sourceImage)
-      .click({ force: true })
-      .type(this.data.command)
-      .type(this.data.base64image.withoutPrefix);
-
-    cy.get(viewWidgetsPage.imageinner)
-      .invoke("attr", "src")
-      .should("contain", this.data.base64image.withPrefix);
-    cy.closePropertyPane();
-  });
-
   it("Zoom-in functionality check", function() {
     cy.openPropertyPane("imagewidget");
     //Zoom validation
