@@ -48,7 +48,6 @@ import {
   CreateCommentThreadPayload,
   CreateCommentThreadRequest,
 } from "entities/Comments/CommentsInterfaces";
-import Comments from "comments/inlineComments/Comments";
 
 const { commentsTestModeEnabled } = getAppsmithConfigs();
 
@@ -189,7 +188,8 @@ function* setCommentResolution(
 function* pinCommentThread(action: ReduxAction<{ threadId: string }>) {
   try {
     const { threadId } = action.payload;
-    const response = yield CommentsApi.pinCommentThread(threadId);
+    yield CommentsApi.pinCommentThread(threadId);
+    // const response = yield CommentsApi.pinCommentThread(threadId);
     // TODO: uncomment this
     // const isValidResponse = yield validateResponse(response);
     // if (isValidResponse) {

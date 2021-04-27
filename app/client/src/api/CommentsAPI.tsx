@@ -43,7 +43,6 @@ class CommentsApi extends Api {
   }
 
   static pinCommentThread(threadId: string) {
-    console.log(threadId);
     return Promise.resolve();
   }
 

@@ -2,8 +2,10 @@ import React, { useCallback, useState } from "react";
 import Picker, { IEmojiData } from "emoji-picker-react";
 import { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Popover, Position } from "@blueprintjs/core";
 import { Theme } from "constants/DefaultTheme";
+import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+
+import { Popover2 } from "@blueprintjs/popover2";
 
 const EmojiPicker = withTheme(
   ({
@@ -24,22 +26,22 @@ const EmojiPicker = withTheme(
     );
 
     return (
-      <Popover
+      <Popover2
         isOpen={isOpen}
         minimal
-        boundary="viewport"
+        portalClassName="emoji-picker-portal"
         onInteraction={(nextOpenState) => {
           setIsOpen(nextOpenState);
         }}
-        position={Position.BOTTOM_RIGHT}
+        placement="bottom-end"
+        content={<Picker onEmojiClick={handleSelectEmoji} />}
       >
         <Icon
           name="emoji"
           size={IconSize.LARGE}
           fillColor={theme.colors.comments.emojiPicker}
         />
-        <Picker onEmojiClick={handleSelectEmoji} />
-      </Popover>
+      </Popover2>
     );
   },
 );

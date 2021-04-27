@@ -4,47 +4,12 @@ import { useSelector, useDispatch } from "react-redux";
 import Comments from "./Comments";
 import { isCommentMode as isCommentModeSelector } from "selectors/commentsSelectors";
 import { createUnpublishedCommentThreadRequest } from "actions/commentActions";
-import commentIcon from "assets/icons/ads/commentIcon.png";
+import commentIcon from "assets/icons/comments/commentCursor.png";
+import { getOffsetPos } from "comments/utils";
 
 type Props = {
   children: React.ReactNode;
   refId: string;
-};
-
-/**
- * Returns the offset position relative to the container
- * using the coordinates from the click event
- * @param clickEvent
- * @param containerRef
- */
-const getOffsetPos = (
-  clickEvent: React.MouseEvent,
-  containerRef: HTMLDivElement,
-) => {
-  const boundingClientRect = containerRef.getBoundingClientRect();
-  const containerPosition = {
-    left: boundingClientRect.left,
-    top: boundingClientRect.top,
-  };
-  const clickPosition = {
-    left: clickEvent.clientX,
-    top: clickEvent.clientY,
-  };
-
-  const offsetLeft = clickPosition.left - containerPosition.left;
-  const offsetTop = clickPosition.top - containerPosition.top;
-
-  const offsetLeftPercent = parseInt(
-    `${(offsetLeft / boundingClientRect.width) * 100}`,
-  );
-  const offsetTopPercent = parseInt(
-    `${(offsetTop / boundingClientRect.height) * 100}`,
-  );
-
-  return {
-    left: offsetLeftPercent,
-    top: offsetTopPercent,
-  };
 };
 
 const Container = styled.div`

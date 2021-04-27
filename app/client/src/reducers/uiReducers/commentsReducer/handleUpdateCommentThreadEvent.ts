@@ -17,7 +17,13 @@ const handleUpdateCommentThreadEvent = (
     comments: uniqBy([...existingComments, ...newComments], "id"),
   };
 
-  return { ...state };
+  const showUnreadIndicator = !state.isCommentMode;
+
+  state.applicationCommentThreadsByRef[commentThreadInStore.applicationId] = {
+    ...state.applicationCommentThreadsByRef[commentThreadInStore.applicationId],
+  };
+
+  return { ...state, showUnreadIndicator };
 };
 
 export default handleUpdateCommentThreadEvent;
