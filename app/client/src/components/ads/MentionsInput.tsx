@@ -7,6 +7,18 @@ import styled from "styled-components";
 import "@draft-js-plugins/mention/lib/plugin.css";
 import "draft-js/dist/Draft.css";
 
+const StyledMention = styled.span`
+  color: ${(props) => props.theme.colors.comments.mention};
+`;
+
+export const MentionComponent = (props: {
+  children: React.ReactNode;
+  entityKey: string;
+}) => {
+  const { children } = props;
+  return <StyledMention>@{children}</StyledMention>;
+};
+
 const StyledContainer = styled.div`
   max-height: 60px;
   overflow: auto;
@@ -36,7 +48,10 @@ const MentionsInput = ({
   const ref = useRef<Editor | null>(null);
   const [open, setOpen] = useState(false);
   const { MentionSuggestions, plugins } = useMemo(() => {
-    const mentionPlugin = createMentionPlugin({ mentionTrigger: "@" });
+    const mentionPlugin = createMentionPlugin({
+      mentionTrigger: "@",
+      mentionComponent: MentionComponent,
+    });
     const { MentionSuggestions } = mentionPlugin;
     return { plugins: [mentionPlugin], MentionSuggestions };
   }, []);

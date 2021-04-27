@@ -56,31 +56,49 @@ type Props = {
   pin: typeof noop;
   copyCommentLink: typeof noop;
   deleteComment: typeof noop;
+  isParentComment?: boolean;
+  isCreatedByMe?: boolean;
 };
 
-const CommentContextMenu = ({ pin, copyCommentLink, deleteComment }: Props) => {
+const CommentContextMenu = ({
+  pin,
+  copyCommentLink,
+  deleteComment,
+  isParentComment,
+  // TODO figure out key for isCreatedByMe
+  isCreatedByMe,
+}: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const options = useMemo(
-    () => [
-      {
-        icon: "pin-2",
-        display: createMessage(PIN_COMMENT),
-        onClick: pin,
-      },
-      {
-        icon: "link-2",
-        display: createMessage(COPY_LINK),
-        onClick: copyCommentLink,
-      },
-      {
+  const options = useMemo(() => {
+    const options = [];
+    if (isParentComment) {
+      // TODO add edit option
+      // TODO add pin option
+      options.push(
+        // {
+        //   icon: "pin-2",
+        //   display: createMessage(PIN_COMMENT),
+        //   onClick: pin,
+        // },
+        {
+          icon: "link-2",
+          display: createMessage(COPY_LINK),
+          onClick: copyCommentLink,
+        },
+      );
+    }
+
+    if (isCreatedByMe && !isParentComment) {
+      options.push({
         icon: "trash",
         display: createMessage(DELETE_COMMENT),
         onClick: deleteComment,
-      },
-    ],
-    [],
-  );
+      });
+    }
+
+    return options;
+  }, []);
 
   const handleInteraction = useCallback((isOpen) => {
     setIsOpen(isOpen);
@@ -91,13 +109,15 @@ const CommentContextMenu = ({ pin, copyCommentLink, deleteComment }: Props) => {
     option.onClick();
   }, []);
 
+  if (!options.length) return null;
+
   return (
     <Popover2
       isOpen={isOpen}
-      minimal
       placement={"bottom-end"}
       portalClassName="comment-context-menu"
       onInteraction={handleInteraction}
+      modifiers={{ offset: { enabled: true, options: { offset: [7, 15] } } }}
       content={
         <Container>
           {options.map((option) => (
@@ -111,7 +131,7 @@ const CommentContextMenu = ({ pin, copyCommentLink, deleteComment }: Props) => {
         </Container>
       }
     >
-      <StyledIcon name="context-menu" size={IconSize.LARGE} />
+      <StyledIcon name="comment-context-menu" size={IconSize.LARGE} />
     </Popover2>
   );
 };

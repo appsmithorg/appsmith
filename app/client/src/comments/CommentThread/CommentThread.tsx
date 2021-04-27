@@ -16,29 +16,29 @@ import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { RawDraftContentState } from "draft-js";
 
 import styled from "styled-components";
+import { animated } from "react-spring";
 
-const ThreadContainer = styled.div`
-  width: 400px;
+const ThreadContainer = styled(animated.div)<{
+  visible?: boolean;
+  inline?: boolean;
+  pinned?: boolean;
+}>`
+  width: 280px;
   max-width: 100%;
+  background-color: ${(props) =>
+    props.inline
+      ? "transparent"
+      : props.pinned
+      ? props.theme.colors.comments.pinnedThreadBackground
+      : props.visible
+      ? props.theme.colors.comments.visibleThreadBackground
+      : "transparent"};
 `;
 
 const CommentsContainer = styled.div<{ inline?: boolean }>`
   position: relative;
   max-height: ${(props) => (!props.inline ? "unset" : "285px")};
   overflow: auto;
-`;
-
-const ChildCommentsContainer = styled.div`
-  display: flex;
-`;
-
-const ChildCommentIndent = styled.div`
-  width: 1px;
-  background-color: ${(props) =>
-    props.theme.colors.comments.childCommentsIndent};
-  margin-left: ${(props) => props.theme.spaces[11]}px;
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
-  margin-top: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const ChildComments = styled.div`
@@ -49,11 +49,17 @@ const CommentThreadContainer = ({
   commentThread,
   hideInput,
   inline,
+  hideChildren,
+  transition,
+  showSubheader,
 }: {
   commentThread: CommentThread;
   isOpen?: boolean;
   hideInput?: boolean;
   inline?: boolean;
+  hideChildren?: boolean;
+  transition?: any;
+  showSubheader?: boolean;
 }) => {
   const dispatch = useDispatch();
   const { comments, id: commentThreadId } = commentThread;
@@ -98,9 +104,17 @@ const CommentThreadContainer = ({
 
   const parentComment = Array.isArray(comments) && comments[0];
   const childComments = Array.isArray(comments) && comments.slice(1);
+  const numberOfReplies =
+    (Array.isArray(childComments) && childComments.length) || 0;
 
   return (
-    <ThreadContainer tabIndex={0}>
+    <ThreadContainer
+      tabIndex={0}
+      style={transition}
+      inline={inline}
+      visible={commentThread.isVisible}
+      pinned={commentThread.isPinned}
+    >
       <div style={{ position: "relative" }}>
         <CommentsContainer ref={commentsContainerRef} inline={inline}>
           {parentComment && (
@@ -111,21 +125,23 @@ const CommentThreadContainer = ({
               resolved={!!commentThread.resolved}
               toggleResolved={resolveCommentThread}
               isParentComment
+              numberOfReplies={numberOfReplies}
+              showReplies={hideChildren}
+              showSubheader={showSubheader}
+              inline={inline}
             />
           )}
-          {childComments && childComments.length > 0 && (
-            <ChildCommentsContainer>
-              <ChildCommentIndent />
-              <ChildComments>
-                {childComments.map((comment) => (
-                  <CommentCard
-                    commentThreadId={commentThreadId}
-                    key={comment.id}
-                    comment={comment}
-                  />
-                ))}
-              </ChildComments>
-            </ChildCommentsContainer>
+          {!hideChildren && childComments && childComments.length > 0 && (
+            <ChildComments>
+              {childComments.map((comment) => (
+                <CommentCard
+                  commentThreadId={commentThreadId}
+                  key={comment.id}
+                  comment={comment}
+                  inline={inline}
+                />
+              ))}
+            </ChildComments>
           )}
           <div ref={messagesBottomRef} />
         </CommentsContainer>

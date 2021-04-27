@@ -13,30 +13,31 @@ import { Comment } from "entities/Comments/CommentsInterfaces";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import CommentContextMenu from "./CommentContextMenu";
 import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
+import { MentionComponent } from "components/ads/MentionsInput";
+import Icon from "components/ads/Icon";
 
 import createMentionPlugin from "@draft-js-plugins/mention";
 import { flattenDeep, noop } from "lodash";
 import copy from "copy-to-clipboard";
+import moment from "moment";
+
+import history from "utils/history";
 
 import {
   deleteCommentRequest,
   pinCommentThreadRequest,
 } from "actions/commentActions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { commentThreadsSelector } from "selectors/commentsSelectors";
+import { Toaster } from "components/ads/Toast";
+import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
+import { Variant } from "components/ads/common";
 
 const StyledContainer = styled.div`
   width: 100%;
   padding: ${(props) =>
-    `${props.theme.spaces[5]}px ${props.theme.spaces[7]}px`};
+    `${props.theme.spaces[7]}px ${props.theme.spaces[5]}px`};
   border-radius: 0;
-`;
-
-const Separator = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.comments.childCommentsIndent};
-  height: 1px;
-  width: calc(100% - ${(props) => props.theme.spaces[7] * 2}px);
-  margin-left: ${(props) => props.theme.spaces[7]}px;
 `;
 
 // ${(props) => getTypographyByKey(props, "p1")};
@@ -45,10 +46,7 @@ const Separator = styled.div`
 // margin-top: ${(props) => props.theme.spaces[3]}px;
 
 const CommentBodyContainer = styled.div`
-  background-color: ${(props) => props.theme.colors.comments.commentBackground};
-  border-radius: ${(props) => props.theme.spaces[3]}px;
-  padding: ${(props) =>
-    `${props.theme.spaces[4]}px ${props.theme.spaces[5]}px`};
+  padding-bottom: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const CommentHeader = styled.div`
@@ -71,11 +69,82 @@ const HeaderSection = styled.div`
   align-items: center;
 `;
 
-const mentionPlugin = createMentionPlugin();
+const CommentTime = styled.div`
+  color: ${(props) => props.theme.colors.comments.commentTime};
+  ${(props) => getTypographyByKey(props, "p3")}
+  display: flex;
+  justify-content: space-between;
+`;
+
+const CommentSubheader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${(props) => props.theme.spaces[5]}px;
+  white-space: nowrap;
+
+  ${(props) => getTypographyByKey(props, "p3")}
+
+  color: ${(props) => props.theme.colors.comments.pinnedByText};
+
+  & .thread-id {
+    flex-shrink: 0;
+    max-width: 50px;
+  }
+
+  & .pin {
+    margin: 0 ${(props) => props.theme.spaces[3]}px;
+  }
+
+  strong {
+    white-space: pre;
+    margin-left: ${(props) => props.theme.spaces[0]}px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+`;
+
+const CommentThreadId = styled.div`
+  color: ${(props) => props.theme.colors.comments.commentTime};
+  ${(props) => getTypographyByKey(props, "p3")}
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const Section = styled.div`
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const UnreadIndicator = styled.div`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: ${(props) =>
+    props.theme.colors.comments.unreadIndicatorCommentCard};
+  margin-right: ${(props) => props.theme.spaces[2]}px;
+  flex-shrink: 0;
+`;
+
+const mentionPlugin = createMentionPlugin({
+  mentionComponent: MentionComponent,
+});
 const plugins = [mentionPlugin];
 const decorators = flattenDeep(plugins.map((plugin) => plugin.decorators));
 const decorator = new CompositeDecorator(
   decorators.filter((_decorator, index) => index !== 1) as DraftDecorator[],
+);
+
+const StopClickPropagation = ({ children }: { children: React.ReactNode }) => (
+  <div
+    // flex to unset height, so that align-items works as expected
+    style={{ display: "flex" }}
+    onClick={(e: React.MouseEvent) => e.stopPropagation()}
+  >
+    {children}
+  </div>
 );
 
 const useSelectCommentUsingQuery = (commentId: string) => {
@@ -89,30 +158,58 @@ const useSelectCommentUsingQuery = (commentId: string) => {
   }, []);
 };
 
+const replyText = (replies?: number) => {
+  if (!replies) return "";
+  return replies > 1 ? `${replies} replies` : `1 reply`;
+};
+
 const CommentCard = ({
   comment,
   isParentComment,
   toggleResolved,
   resolved,
   commentThreadId,
+  numberOfReplies,
+  showReplies,
+  showSubheader,
+  unread = true,
+  inline,
 }: {
   comment: Comment;
   isParentComment?: boolean;
   resolved?: boolean;
   toggleResolved?: () => void;
   commentThreadId: string;
+  numberOfReplies?: number;
+  showReplies?: boolean;
+  showSubheader?: boolean;
+  unread?: boolean;
+  inline?: boolean;
 }) => {
   const dispatch = useDispatch();
   const { authorName, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
+  const commentThread = useSelector(commentThreadsSelector(commentThreadId));
+  const isPinned = commentThread.isPinned;
+  const pinnedBy = "Tim Christon";
 
-  const copyCommentLink = useCallback(() => {
+  const getCommentURL = () => {
     const url = new URL(window.location.href);
-    url.searchParams.set("commentId", commentId);
+    // we only link the comment thread currently
+    // url.searchParams.set("commentId", commentId);
     url.searchParams.set("commentThreadId", commentThreadId);
     url.searchParams.set("isCommentMode", "true");
+    return url;
+  };
+
+  const copyCommentLink = useCallback(() => {
+    const url = getCommentURL();
     copy(url.toString());
+    Toaster.show({
+      text: createMessage(LINK_COPIED_SUCCESSFULLY),
+      variant: Variant.success,
+    });
   }, []);
 
   const pin = useCallback(() => {
@@ -127,29 +224,60 @@ const CommentCard = ({
     pin,
     copyCommentLink,
     deleteComment,
+    isParentComment,
+    isCreatedByMe: false,
   };
 
   useSelectCommentUsingQuery(comment.id);
+
+  // Dont make inline cards clickable
+  const handleCardClick = () => {
+    if (inline) return;
+    const url = getCommentURL();
+    history.push(`${url.pathname}${url.search}${url.hash}`);
+  };
 
   return (
     <>
       <StyledContainer
         id={`comment-card-${comment.id}`}
         data-cy={`t--comment-card-${comment.id}`}
+        onClick={handleCardClick}
       >
+        {showSubheader && (
+          <CommentSubheader>
+            <Section className="thread-id">
+              {unread && <UnreadIndicator />}
+              <CommentThreadId>#1</CommentThreadId>
+            </Section>
+            <Section className="pinned-by">
+              {isPinned && (
+                <>
+                  <Icon className="pin" name="pin-3" />
+                  <span>Pinned By</span>
+                  <strong>{` ${pinnedBy}`}</strong>
+                </>
+              )}
+            </Section>
+          </CommentSubheader>
+        )}
         <CommentHeader>
           <HeaderSection>
-            <ProfileImage userName={authorName || ""} side={30} />
+            <ProfileImage userName={authorName || ""} side={25} />
             <UserName>{authorName}</UserName>
           </HeaderSection>
           <HeaderSection>
-            {isParentComment && toggleResolved && (
-              <ResolveCommentButton
-                handleClick={toggleResolved}
-                resolved={!!resolved}
-              />
-            )}
-            <CommentContextMenu {...contextMenuProps} />
+            <StopClickPropagation>
+              {isParentComment && toggleResolved && (
+                <ResolveCommentButton
+                  handleClick={toggleResolved}
+                  resolved={!!resolved}
+                />
+              )}
+            </StopClickPropagation>
+            <StopClickPropagation>
+              <CommentContextMenu {...contextMenuProps} />
+            </StopClickPropagation>
           </HeaderSection>
         </CommentHeader>
         <CommentBodyContainer>
@@ -160,8 +288,11 @@ const CommentCard = ({
             readOnly
           />
         </CommentBodyContainer>
+        <CommentTime>
+          <span>{moment().fromNow()}</span>
+          <span>{showReplies && replyText(numberOfReplies)}</span>
+        </CommentTime>
       </StyledContainer>
-      {!isParentComment && <Separator />}
     </>
   );
 };

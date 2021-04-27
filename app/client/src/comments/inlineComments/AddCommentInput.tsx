@@ -6,35 +6,30 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import Icon, { IconSize } from "components/ads/Icon";
-import styled, { withTheme } from "styled-components";
-import { EditorState, convertToRaw, Modifier, SelectionState } from "draft-js";
 import EmojiPicker from "components/ads/EmojiPicker";
 import MentionsInput from "components/ads/MentionsInput";
-import useOrgUsers from "./useOrgUsers";
-import { MentionData } from "@draft-js-plugins/mention";
-import { OrgUser } from "constants/orgConstants";
-import { IEmojiData } from "emoji-picker-react";
+import Button, { Category } from "components/ads/Button";
 
-import { createMessage, ADD_COMMENT_PLACEHOLDER } from "constants/messages";
+import { IEmojiData } from "emoji-picker-react";
+import styled from "styled-components";
+import { EditorState, convertToRaw, Modifier, SelectionState } from "draft-js";
+import { MentionData } from "@draft-js-plugins/mention";
+
+import { OrgUser } from "constants/orgConstants";
+import useOrgUsers from "./useOrgUsers";
+
+import { RawDraftContentState } from "draft-js";
+
+import {
+  createMessage,
+  ADD_COMMENT_PLACEHOLDER,
+  CANCEL,
+  POST,
+} from "constants/messages";
 
 const StyledInputContainer = styled.div`
-  display: flex;
-  align-items: center;
   width: 100%;
-  padding: ${(props) =>
-    `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
-  background: ${(props) =>
-    props.theme.colors.comments.addCommentInputBackground};
-`;
-
-const StyledSendButton = styled.button`
-  display: inline-flex;
-  background: transparent;
-  border: none;
-  align-items: center;
-  position: relative;
-  top: -1px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const StyledEmojiTrigger = styled.div`
@@ -45,7 +40,16 @@ const StyledEmojiTrigger = styled.div`
 
 const PaddingContainer = styled.div`
   padding: ${(props) =>
-    `${props.theme.spaces[4]}px ${props.theme.spaces[6]}px`};
+    `${props.theme.spaces[7]}px ${props.theme.spaces[5]}px`};
+
+  & .cancel-button {
+    margin-right: ${(props) => props.theme.spaces[5]}px;
+  }
+`;
+
+const Row = styled.div`
+  display: flex;
+  justify-content: space-between;
 `;
 
 const insertCharacter = (
@@ -104,12 +108,20 @@ const useUserSuggestions = (
   }, [users]);
 };
 
-const AddCommentInput = withTheme(({ onSave, theme }: any) => {
+const AddCommentInput = ({
+  onSave,
+}: {
+  onSave: (state: RawDraftContentState) => void;
+}) => {
   const users = useOrgUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
   useUserSuggestions(users, setSuggestions);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [suggestionsQuery, setSuggestionsQuery] = useState("");
+
+  const clearEditor = useCallback(() => {
+    setEditorState(resetEditorState(editorState));
+  }, [editorState]);
 
   const onSaveComment = useCallback(
     (editorStateArg?: EditorState) => {
@@ -119,8 +131,8 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
 
       const contentState = latestEditorState.getCurrentContent();
       const rawContent = convertToRaw(contentState);
+      clearEditor();
       onSave(rawContent);
-      setEditorState(resetEditorState(latestEditorState));
     },
     [editorState],
   );
@@ -153,8 +165,8 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
   }, [suggestionsQuery, suggestions]);
 
   return (
-    <>
-      <PaddingContainer>
+    <PaddingContainer>
+      <Row>
         <StyledInputContainer>
           <MentionsInput
             placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}
@@ -165,20 +177,31 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
             onSearchSuggestions={onSearchChange}
             autoFocus
           />
-          <StyledEmojiTrigger>
-            <EmojiPicker onSelectEmoji={handleEmojiClick} />
-          </StyledEmojiTrigger>
-          <StyledSendButton onClick={handleSubmit} data-cy="add-comment-submit">
-            <Icon
-              name="send-button"
-              fillColor={theme.colors.comments.sendButton}
-              size={IconSize.XL}
-            />
-          </StyledSendButton>
         </StyledInputContainer>
-      </PaddingContainer>
-    </>
+      </Row>
+      <Row>
+        <StyledEmojiTrigger>
+          <EmojiPicker onSelectEmoji={handleEmojiClick} />
+        </StyledEmojiTrigger>
+        <Row>
+          <Button
+            text={createMessage(CANCEL)}
+            type="button"
+            onClick={clearEditor}
+            category={Category.tertiary}
+            className={"cancel-button"}
+          />
+          <Button
+            text={createMessage(POST)}
+            type="button"
+            onClick={handleSubmit}
+            category={Category.primary}
+            disabled={!editorState.getCurrentContent().hasText()}
+          />
+        </Row>
+      </Row>
+    </PaddingContainer>
   );
-});
+};
 
 export default AddCommentInput;

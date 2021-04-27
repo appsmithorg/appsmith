@@ -9,4 +9,8 @@ export const CommentThreadPopoverStyles = createGlobalStyle`
   .comment-context-menu {
     z-index: 13;
   }
+
+  .emoji-picker-portal {
+    z-index: 14;
+  }
 `;
