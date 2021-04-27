@@ -83,6 +83,10 @@ export const HelpMap = {
     path: "",
     searchKey: "Tabs",
   },
+  TABS_MIGRATOR_WIDGET: {
+    path: "",
+    searchKey: "",
+  },
   MODAL_WIDGET: {
     path: "",
     searchKey: "",

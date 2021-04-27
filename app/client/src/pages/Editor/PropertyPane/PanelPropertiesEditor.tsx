@@ -127,7 +127,7 @@ export const PanelPropertiesEditor = (
   }, [widgetProperties, panelParentPropertyPath, panelProps, panelConfig]);
 
   const panelConfigs = useMemo(() => {
-    if (currentIndex) {
+    if (currentIndex !== undefined) {
       let path: string | undefined = undefined;
       if (isString(currentIndex)) {
         path = `${panelParentPropertyPath}.${currentIndex}`;
@@ -147,7 +147,7 @@ export const PanelPropertiesEditor = (
   );
 
   useEffect(() => {
-    if (panelProps.widgetId !== widgetProperties.widgetId) {
+    if (panelProps.propPaneId !== widgetProperties.widgetId) {
       props.closePanel();
     }
   }, [widgetProperties.widgetId]);

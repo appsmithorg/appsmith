@@ -33,16 +33,15 @@ export const WidgetContextMenu = (props: {
     // If the widget is a tab we are updating the `tabs` of the property of the widget
     // This is similar to deleting a tab from the property pane
     if (widget.tabName && parentWidget.type === WidgetTypes.TABS_WIDGET) {
-      const filteredTabs = parentWidget.tabs.filter(
-        (tab: any) => tab.widgetId !== widgetId,
-      );
-
+      const tabsObj = { ...parentWidget.tabsObj };
+      delete tabsObj[widget.tabId];
+      const filteredTabs = Object.values(tabsObj);
       if (widget.parentId && !!filteredTabs.length) {
         dispatch(
           updateWidgetPropertyRequest(
             widget.parentId,
-            "tabs",
-            filteredTabs,
+            "tabsObj",
+            tabsObj,
             RenderModes.CANVAS,
           ),
         );
