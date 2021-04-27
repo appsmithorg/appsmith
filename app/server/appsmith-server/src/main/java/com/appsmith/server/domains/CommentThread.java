@@ -1,13 +1,13 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-
-import com.appsmith.external.models.CommentThreadAction;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -21,8 +21,9 @@ public class CommentThread extends BaseDomain {
 
     String refId;
 
-//    Boolean resolved;
-    Actions threadActions;
+    CommentThreadState pinnedState;
+
+    CommentThreadState resolvedState;
 
     String applicationId;
 
@@ -37,9 +38,11 @@ public class CommentThread extends BaseDomain {
     }
 
     @Data
-    public static class Actions {
-        CommentThreadAction pin;
-        CommentThreadAction resolve;
+    public static class CommentThreadState {
+        String author;
+        @LastModifiedDate
+        Instant updatedAt;
+        Boolean active;
     }
 
 }
