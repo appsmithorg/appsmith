@@ -45,7 +45,8 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
-import ForkApplicationAcrossOrganisationsModal from "pages/Applications/ForkApplicationAcrossOrganisationsModal";
+// import ForkApplicationAcrossOrganisationsModal from "pages/Applications/ForkApplicationAcrossOrganisationsModal";
+import ForkApplicationModalHOC from "./ForkApplicationModalHOC";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -464,7 +465,8 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         {moreActionItems.map((item: MenuItemProps) => {
           return <MenuItem key={item.text} {...item} />;
         })}
-        <ForkApplicationAcrossOrganisationsModal
+        <ForkApplicationModalHOC
+          isDeployedApp={false}
           setModalClose={setForkApplicationModalOpen}
           isModalOpen={isForkApplicationModalopen}
           applicationId={props.application.id}

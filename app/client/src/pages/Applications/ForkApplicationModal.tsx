@@ -1,115 +1,41 @@
-import React, { useEffect, useMemo, useState } from "react";
-import Dialog from "components/ads/DialogComponent";
-import Button, { Size } from "components/ads/Button";
-import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import React, { useEffect } from "react";
+import { Size } from "components/ads/Button";
 import Divider from "components/editorComponents/Divider";
 import { createMessage, FORK_APP } from "constants/messages";
 import { useDispatch } from "react-redux";
 import { getAllApplications } from "actions/applicationActions";
 import { useSelector } from "store";
-import {
-  getIsFetchingApplications,
-  getUserApplicationsOrgs,
-} from "selectors/applicationSelectors";
-import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
-import RadioComponent from "components/ads/Radio";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { Classes } from "@blueprintjs/core";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
 import { getApplicationViewerPageURL } from "constants/routes";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { AppState } from "reducers";
 import Spinner from "components/ads/Spinner";
 import { IconSize } from "components/ads/Icon";
-
-const TriggerButton = styled(Button)`
-  ${(props) => getTypographyByKey(props, "btnLarge")}
-  height: 100%;
-  svg {
-    transform: rotate(-90deg);
-  }
-`;
-
-const StyledDialog = styled(Dialog)`
-  && .${Classes.DIALOG_BODY} {
-    padding-top: 0px;
-  }
-`;
-
-const StyledRadioComponent = styled(RadioComponent)`
-  label {
-    font-size: 16px;
-    margin-bottom: 32px;
-  }
-`;
-
-const ForkButton = styled(Button)`
-  height: 38px;
-  width: 203px;
-`;
-
-const OrganizationList = styled.div`
-  overflow: auto;
-  max-height: 250px;
-  margin-bottom: 10px;
-  margin-top: 20px;
-`;
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end;
-`;
-
-const SpinnerWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-`;
+import {
+  TriggerButton,
+  StyledDialog,
+  StyledRadioComponent,
+  ForkButton,
+  OrganizationList,
+  ButtonWrapper,
+  SpinnerWrapper,
+} from "./ForkModalStyles";
 
 const ForkApplicationModal = (props: any) => {
-  const [organizationId, selectOrganizationId] = useState("");
+  const {
+    organizationList,
+    selectOrganizationId,
+    forkingApplication,
+    organizationId,
+    forkApplication,
+  } = props;
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAllApplications());
   }, [dispatch, getAllApplications]);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const userOrgs = useSelector(getUserApplicationsOrgs);
   const currentPageId = useSelector(getCurrentPageId);
-  const forkingApplication = useSelector(
-    (state: AppState) => state.ui.applications.forkingApplication,
-  );
   const { pathname } = useLocation();
-
-  const forkApplication = () => {
-    dispatch({
-      type: ReduxActionTypes.FORK_APPLICATION_INIT,
-      payload: {
-        applicationId: props.applicationId,
-        organizationId,
-      },
-    });
-  };
-
-  const organizationList = useMemo(() => {
-    const filteredUserOrgs = userOrgs.filter((item) => {
-      const permitted = isPermitted(
-        item.organization.userPermissions ?? [],
-        PERMISSION_TYPE.CREATE_APPLICATION,
-      );
-      return permitted;
-    });
-
-    if (filteredUserOrgs.length) {
-      selectOrganizationId(filteredUserOrgs[0].organization.id);
-    }
-
-    return filteredUserOrgs.map((org) => {
-      return {
-        label: org.organization.name,
-        value: org.organization.id,
-      };
-    });
-  }, [userOrgs]);
   const showForkModal =
     pathname ===
     `${getApplicationViewerPageURL(props.applicationId, currentPageId)}/fork`;
