@@ -12,6 +12,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
@@ -118,13 +119,17 @@ const evalErrorHandler = (errors: EvalError[]) => {
   });
 };
 
-function* postEvalActionDispatcher(actions: ReduxAction<unknown>[]) {
+function* postEvalActionDispatcher(
+  actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+) {
   for (const action of actions) {
     yield put(action);
   }
 }
 
-function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
+function* evaluateTreeSaga(
+  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(

@@ -26,6 +26,8 @@ import { addTableWidgetFromQuery } from "actions/widgetActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import log from "loglevel";
+import Callout from "components/ads/Callout";
+import { Variant } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import styled, { getTypographyByKey } from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
@@ -42,6 +44,9 @@ import Resizable, {
 import DebuggerMessage from "components/editorComponents/Debugger/DebuggerMessage";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { omnibarDocumentationHelper } from "constants/OmnibarDocumentationConstants";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -138,10 +143,16 @@ const SecondaryWrapper = styled.div`
   height: calc(100% - 50px);
 `;
 
+const HelpSection = styled.div``;
+
 const ResponseContentWrapper = styled.div`
   padding: 10px 15px;
   overflow-y: auto;
   height: 100%;
+
+  ${HelpSection} {
+    margin-bottom: 10px;
+  }
 `;
 
 const NoResponseContainer = styled.div`
@@ -311,6 +322,7 @@ type QueryFormProps = {
   executedQueryData?: {
     body: any;
     isExecutionSuccess?: boolean;
+    messages?: Array<string>;
   };
   runErrorMessage: string | undefined;
   location: {
@@ -355,6 +367,7 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
+  let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -365,6 +378,9 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
       output = JSON.parse(executedQueryData.body);
     } else {
       output = executedQueryData.body;
+    }
+    if (executedQueryData.messages && executedQueryData.messages.length) {
+      hintMessages = executedQueryData.messages;
     }
   }
 
@@ -421,6 +437,22 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
     );
   };
 
+  const handleDocumentationClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (props?.documentationLink) {
+      const query = omnibarDocumentationHelper(props.documentationLink);
+      if (query !== "") {
+        dispatch(setGlobalSearchQuery(query));
+      } else {
+        dispatch(setGlobalSearchQuery("Connect to Databases"));
+      }
+      dispatch(toggleShowGlobalSearchModal());
+      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+        source: "DATASOURCE_DOCUMENTATION_CLICK",
+      });
+    }
+  };
+
   return (
     <QueryFormContainer onSubmit={handleSubmit}>
       <StyledFormRow>
@@ -467,9 +499,8 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
         <TabContainerView>
           {documentationLink && (
             <DocumentationLink
-              href={documentationLink}
-              target="_blank"
-              rel="noopener noreferrer"
+              onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
+              className="t--datasource-documentation-link"
             >
               {"Documentation "}
               <StyledOpenDocsIcon icon="document-open" />
@@ -581,6 +612,18 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
                           }}
                         />
                       </ErrorContainer>
+                    )}
+                    {hintMessages && hintMessages.length > 0 && (
+                      <HelpSection>
+                        {hintMessages.map((msg, index) => (
+                          <Callout
+                            text={msg}
+                            key={index}
+                            variant={Variant.warning}
+                            fill
+                          />
+                        ))}
+                      </HelpSection>
                     )}
                     {output && (
                       <>

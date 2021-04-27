@@ -149,29 +149,40 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
-      primaryColumns: {},
+      primaryColumns: {
+        action: {
+          id: "1",
+          label: "Action",
+          columnType: "button",
+          isVisible: true,
+          isDerived: true,
+          index: 3,
+          buttonLabel: "Start",
+          width: 50,
+          computedValue: "Do It",
+          onClick:
+            "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
+        },
+      },
       derivedColumns: {},
       tableData: [
         {
-          id: 2381224,
-          email: "michael.lawson@reqres.in",
-          userName: "Michael Lawson",
-          productName: "Chicken Sandwich",
-          orderAmount: 4.99,
+          step: "#1",
+          task: "Drag a Table",
+          status: "✅",
+          action: "",
         },
         {
-          id: 2736212,
-          email: "lindsay.ferguson@reqres.in",
-          userName: "Lindsay Ferguson",
-          productName: "Tuna Salad",
-          orderAmount: 9.99,
+          step: "#2",
+          task: "Create a Query fetch_users with the Mock DB",
+          status: "--",
+          action: "",
         },
         {
-          id: 6788734,
-          email: "tobias.funke@reqres.in",
-          userName: "Tobias Funke",
-          productName: "Beef steak",
-          orderAmount: 19.99,
+          step: "#3",
+          task: "Bind the query to the table {{fetch_users.data}}",
+          status: "--",
+          action: "",
         },
       ],
       version: 1,
@@ -236,10 +247,22 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8,
       shouldScrollContents: false,
       widgetName: "Tabs",
-      tabs: [
-        { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
-        { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
-      ],
+      tabsObj: {
+        tab1: {
+          label: "Tab 1",
+          id: "tab1",
+          widgetId: "",
+          isVisible: true,
+          index: 0,
+        },
+        tab2: {
+          label: "Tab 2",
+          id: "tab2",
+          widgetId: "",
+          isVisible: true,
+          index: 1,
+        },
+      },
       shouldShowTabs: true,
       defaultTab: "Tab 1",
       blueprint: {
@@ -247,18 +270,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           {
             type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const tabs = [...widget.tabs];
-
-              const newTabs = tabs.map((tab: any) => {
+              const tabs = Object.values({ ...widget.tabsObj });
+              const tabsObj = tabs.reduce((obj: any, tab: any) => {
                 const newTab = { ...tab };
                 newTab.widgetId = generateReactKey();
-                return newTab;
-              });
+                obj[newTab.id] = newTab;
+                return obj;
+              }, {});
               const updatePropertyMap = [
                 {
                   widgetId: widget.widgetId,
-                  propertyName: "tabs",
-                  propertyValue: newTabs,
+                  propertyName: "tabsObj",
+                  propertyValue: tabsObj,
                 },
               ];
               return updatePropertyMap;
@@ -266,7 +289,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
-      version: 1,
+      version: 2,
     },
     MODAL_WIDGET: {
       rows: 6,
@@ -384,8 +407,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       chartName: "Sales on working days",
       allowHorizontalScroll: false,
       version: 1,
-      chartData: [
-        {
+      chartData: {
+        [generateReactKey()]: {
           seriesName: "Sales",
           data: [
             {
@@ -418,7 +441,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             },
           ],
         },
-      ],
+      },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
     },
@@ -505,6 +528,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     SKELETON_WIDGET: {
+      isLoading: true,
+      rows: 1,
+      columns: 1,
+      widgetName: "Skeleton",
+      version: 1,
+    },
+    TABS_MIGRATOR_WIDGET: {
       isLoading: true,
       rows: 1,
       columns: 1,

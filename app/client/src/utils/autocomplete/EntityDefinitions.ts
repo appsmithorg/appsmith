@@ -170,7 +170,6 @@ export const entityDefinitions = {
   },
   TABS_WIDGET: {
     isVisible: isVisible,
-    tabs: "[tabs]",
     selectedTab: "string",
   },
   MODAL_WIDGET: {

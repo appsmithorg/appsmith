@@ -3,7 +3,6 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.domains.RowObject;
-import com.external.utils.SheetsUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -176,17 +175,20 @@ public class GetValuesMethod implements Method {
             return this.objectMapper.createArrayNode();
         }
 
-        final String headerRange = valueRanges.get(0).get("range").asText();
+        int valueSize = 0;
+        for (int i = 0; i < values.size(); i++) {
+            valueSize = Math.max(valueSize, values.get(i).size());
+        }
+
         final String valueRange = valueRanges.get(1).get("range").asText();
         headers = (ArrayNode) headers.get(0);
 
-        Set<String> columnsSet = sanitizeHeaders(headers, headerRange, valueRange);
+        Set<String> columnsSet = sanitizeHeaders(headers, valueSize);
 
         final List<Map<String, String>> collectedCells = new LinkedList<>();
-        final String[] headerArray = columnsSet.toArray(new String[columnsSet.size()]);
-        final String range = valueRanges.get(1).get("range").asText();
+        final String[] headerArray = columnsSet.toArray(new String[0]);
 
-        final Matcher matcher = findOffsetRowPattern.matcher(range);
+        final Matcher matcher = findOffsetRowPattern.matcher(valueRange);
         matcher.find();
         final int rowOffset = Integer.parseInt(matcher.group(1));
         final int tableHeaderIndex = Integer.parseInt(methodConfig.getTableHeaderIndex());
@@ -202,21 +204,9 @@ public class GetValuesMethod implements Method {
         return this.objectMapper.valueToTree(collectedCells);
     }
 
-    private Set<String> sanitizeHeaders(ArrayNode headers, String headerRange, String valueRange) {
+    private Set<String> sanitizeHeaders(ArrayNode headers, int valueSize) {
         final Set<String> headerSet = new LinkedHashSet<>();
         int headerSize = headers.size();
-
-        final Matcher matcher1 = sheetRangePattern.matcher(headerRange);
-        matcher1.find();
-        final int headerStart = SheetsUtil.getColumnNumber(matcher1.group(1));
-        final int headerEnd = SheetsUtil.getColumnNumber(matcher1.group(2));
-
-        final Matcher matcher2 = sheetRangePattern.matcher(valueRange);
-        matcher2.find();
-        final int valuesStart = SheetsUtil.getColumnNumber(matcher2.group(1));
-        final int valuesEnd = SheetsUtil.getColumnNumber(matcher2.group(2));
-
-        final int valueSize = (valuesEnd - valuesStart + 1);
         final int size = Math.max(headerSize, valueSize);
 
         // Manipulation to find valid headers for all columns
