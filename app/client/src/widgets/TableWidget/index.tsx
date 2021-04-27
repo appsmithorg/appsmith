@@ -562,6 +562,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.pageSize !== prevProps.pageSize) {
       if (this.props.onPageSizeChange) {
         super.executeAction({
+          triggerPropertyName: "onPageSizeChange",
           dynamicString: this.props.onPageSizeChange,
           event: {
             type: EventType.ON_PAGE_SIZE_CHANGE,
@@ -695,6 +696,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("pageNo", 1);
     this.props.updateWidgetMetaProperty("searchText", searchKey, {
+      triggerPropertyName: "onSearchTextChanged",
       dynamicString: onSearchTextChanged,
       event: {
         type: EventType.ON_SEARCH,
@@ -715,6 +717,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }, "");
 
       super.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: modifiedAction,
         event: {
           type: EventType.ON_CLICK,
@@ -758,6 +761,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
       if (selectedRowIndex !== index) {
         this.props.updateWidgetMetaProperty("selectedRowIndex", index, {
+          triggerPropertyName: "onRowSelected",
           dynamicString: this.props.onRowSelected,
           event: {
             type: EventType.ON_ROW_SELECTED,
@@ -770,6 +774,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   updatePageNumber = (pageNo: number, event?: EventType) => {
     if (event) {
       this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+        triggerPropertyName: "onPageChange",
         dynamicString: this.props.onPageChange,
         event: {
           type: event,
@@ -787,6 +792,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     let pageNo = this.props.pageNo || 1;
     pageNo = pageNo + 1;
     this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+      triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
       event: {
         type: EventType.ON_NEXT_PAGE,
@@ -819,6 +825,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     pageNo = pageNo - 1;
     if (pageNo >= 1) {
       this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+        triggerPropertyName: "onPageChange",
         dynamicString: this.props.onPageChange,
         event: {
           type: EventType.ON_PREV_PAGE,

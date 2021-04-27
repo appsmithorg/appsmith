@@ -18,7 +18,7 @@ import { FilePickerWidgetProps } from "../../widgets/FilepickerWidget";
 import {
   TabsWidgetProps,
   TabContainerWidgetProps,
-} from "../../widgets/TabsWidget";
+} from "../../widgets/Tabs/TabsWidget";
 import { ChartWidgetProps } from "widgets/ChartWidget";
 import { FormWidgetProps } from "widgets/FormWidget";
 import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
@@ -28,6 +28,7 @@ import { IconWidgetProps } from "widgets/IconWidget";
 import { VideoWidgetProps } from "widgets/VideoWidget";
 import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
 import { SwitchWidgetProps } from "widgets/SwitchWidget";
+import { ListWidgetProps } from "../../widgets/ListWidget/ListWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -69,6 +70,8 @@ export interface WidgetConfigReducerState {
     FILE_PICKER_WIDGET: Partial<FilePickerWidgetProps> & WidgetConfigProps;
     TABS_WIDGET: Partial<TabsWidgetProps<TabContainerWidgetProps>> &
       WidgetConfigProps;
+    TABS_MIGRATOR_WIDGET: Partial<TabsWidgetProps<TabContainerWidgetProps>> &
+      WidgetConfigProps;
     MODAL_WIDGET: Partial<ModalWidgetProps> & WidgetConfigProps;
     CHART_WIDGET: Partial<ChartWidgetProps> & WidgetConfigProps;
     FORM_WIDGET: Partial<FormWidgetProps> & WidgetConfigProps;
@@ -78,6 +81,7 @@ export interface WidgetConfigReducerState {
       WidgetConfigProps;
     ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
     SKELETON_WIDGET: Partial<SkeletonWidgetProps> & WidgetConfigProps;
+    LIST_WIDGET: Partial<ListWidgetProps<WidgetProps>> & WidgetConfigProps;
   };
   configVersion: number;
 }

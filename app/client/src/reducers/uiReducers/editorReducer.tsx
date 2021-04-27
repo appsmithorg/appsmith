@@ -6,6 +6,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import moment from "moment";
+import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 
 const initialState: EditorReduxState = {
   initialized: false,
@@ -106,6 +107,7 @@ const editorReducer = createReducer(initialState, {
       pageWidgetId,
       currentApplicationId,
       currentPageId,
+      pageActions,
     } = action.payload;
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
@@ -116,6 +118,7 @@ const editorReducer = createReducer(initialState, {
       pageWidgetId,
       currentApplicationId,
       currentPageId,
+      pageActions,
     };
   },
   [ReduxActionTypes.CLONE_PAGE_INIT]: (state: EditorReduxState) => {
@@ -171,6 +174,7 @@ export interface EditorReduxState {
   currentLayoutId?: string;
   currentPageName?: string;
   currentPageId?: string;
+  pageActions?: PageAction[][];
   loadingStates: {
     saving: boolean;
     savingError: boolean;

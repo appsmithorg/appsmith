@@ -252,7 +252,8 @@ const Table = (props: TableProps) => {
     [prepareRow, rows],
   );
 
-  if (rows.length === 0 || headerGroups.length === 0) return null;
+  if (rows.length === 0 || headerGroups.length === 0)
+    return <span>No data records to show</span>;
 
   return (
     <ErrorBoundary>

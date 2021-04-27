@@ -250,6 +250,8 @@ export const WIDGET_DELETE = (widgetName: string) =>
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
+export const ERROR_WIDGET_COPY_NOT_ALLOWED = () =>
+  `This selected widget cannot be copied.`;
 export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName}`;
 export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
@@ -274,11 +276,13 @@ export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
   "Error saving a key in localStorage. You have run out of disk space";
+export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
+  "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
   "Search Widgets, Queries, Documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
-export const NO_SEARCH_DATA_TEXT = () => "Search you must meaningful but";
+export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
 export const WIDGET_BIND_HELP = () =>
   "Having trouble taking inputs from widgets?";
@@ -286,3 +290,10 @@ export const WIDGET_BIND_HELP = () =>
 export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
 export const PAGE_NOT_FOUND = () => "Page not found";
+
+export const CLICK_ON = () => "🙌 Click on ";
+export const PRESS = () => "🎉 Press ";
+export const OPEN_THE_DEBUGGER = () => " to open the issue in debugger";
+export const NO_LOGS = () => "No logs to show";
+
+export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";

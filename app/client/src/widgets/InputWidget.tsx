@@ -244,6 +244,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   onValueChange = (value: string) => {
     this.props.updateWidgetMetaProperty("text", value, {
+      triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
         type: EventType.ON_TEXT_CHANGE,
@@ -261,6 +262,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   onSubmitSuccess = (result: ExecutionResult) => {
     if (result.success && this.props.resetOnSubmit) {
       this.props.updateWidgetMetaProperty("text", "", {
+        triggerPropertyName: "onSubmit",
         dynamicString: this.props.onTextChanged,
         event: {
           type: EventType.ON_TEXT_CHANGE,
@@ -278,6 +280,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
     if (isEnterKey && onSubmit && isValid) {
       super.executeAction({
+        triggerPropertyName: "onSubmit",
         dynamicString: onSubmit,
         event: {
           type: EventType.ON_SUBMIT,

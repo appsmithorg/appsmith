@@ -33,6 +33,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       "selectedDataPoint",
       selectedDataPoint,
       {
+        triggerPropertyName: "onDataPointClick",
         dynamicString: this.props.onDataPointClick,
         event: {
           type: EventType.ON_DATA_POINT_CLICK,
@@ -80,6 +81,9 @@ export interface ChartDataPoint {
   y: any;
 }
 
+export interface AllChartData {
+  [key: string]: ChartData;
+}
 export interface ChartData {
   seriesName?: string;
   data: ChartDataPoint[];
@@ -87,7 +91,7 @@ export interface ChartData {
 
 export interface ChartWidgetProps extends WidgetProps, WithMeta {
   chartType: ChartType;
-  chartData: ChartData[];
+  chartData: AllChartData;
   customFusionChartConfig: { config: CustomFusionChartConfig };
   xAxisName: string;
   yAxisName: string;
