@@ -7,6 +7,10 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import DebugButton from "components/editorComponents/Debugger/DebugCTA";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import Tooltip from "components/ads/Tooltip";
+import { Classes } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
   position: relative;
@@ -97,6 +101,10 @@ const StyledTitle = styled.p`
   margin: 8px 0;
 `;
 
+const StyledDebugButton = styled(DebugButton)`
+  margin-left: auto;
+`;
+
 interface Props {
   theme: EditorTheme;
   isOpen: boolean;
@@ -106,6 +114,8 @@ interface Props {
   children: JSX.Element;
   error?: string;
   useValidationMessage?: boolean;
+  hideEvaluatedValue?: boolean;
+  evaluationSubstitutionType?: EvaluationSubstitutionType;
 }
 
 interface PopoverContentProps {
@@ -117,12 +127,57 @@ interface PopoverContentProps {
   theme: EditorTheme;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  hideEvaluatedValue?: boolean;
+  preparedStatementViewer: boolean;
+}
+
+const PreparedStatementViewerContainer = styled.span`
+  .${Classes.POPOVER_TARGET} {
+    display: inline-block;
+  }
+`;
+
+const PreparedStatementParameter = styled.span`
+  cursor: pointer;
+  text-decoration: underline;
+  color: #333;
+`;
+
+type PreparedStatementValue = {
+  value: string;
+  parameters: Record<string, number | string>;
+};
+export function PreparedStatementViewer(props: {
+  evaluatedValue: PreparedStatementValue;
+}) {
+  const { value, parameters } = props.evaluatedValue;
+  const stringSegments = value.split(/\$\d/);
+  const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
+  const paramsWithTooltips = $params.map((param) => (
+    <Tooltip content={<span>{parameters[param]}</span>} key={param}>
+      <PreparedStatementParameter key={param}>
+        {param}
+      </PreparedStatementParameter>
+    </Tooltip>
+  ));
+
+  return (
+    <PreparedStatementViewerContainer>
+      {stringSegments.map((segment, index) => (
+        <span key={segment}>
+          {segment}
+          {paramsWithTooltips[index]}
+        </span>
+      ))}
+    </PreparedStatementViewerContainer>
+  );
 }
 
 export function CurrentValueViewer(props: {
   theme: EditorTheme;
   evaluatedValue: any;
   hideLabel?: boolean;
+  preparedStatementViewer?: boolean;
 }) {
   const currentValueWrapperRef = React.createRef<HTMLDivElement>();
   const codeWrapperRef = React.createRef<HTMLPreElement>();
@@ -138,19 +193,31 @@ export function CurrentValueViewer(props: {
       _.isObject(props.evaluatedValue) ||
       Array.isArray(props.evaluatedValue)
     ) {
-      const reactJsonProps = {
-        theme: props.theme === EditorTheme.DARK ? "summerfruit" : "rjv-default",
-        name: null,
-        enableClipboard: false,
-        displayObjectSize: false,
-        displayDataTypes: false,
-        style: {
-          fontSize: "12px",
-        },
-        collapsed: 2,
-        collapseStringsAfterLength: 20,
-      };
-      content = <ReactJson src={props.evaluatedValue} {...reactJsonProps} />;
+      if (props.preparedStatementViewer) {
+        content = (
+          <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
+            <PreparedStatementViewer
+              evaluatedValue={props.evaluatedValue as PreparedStatementValue}
+            />
+            <ScrollIndicator containerRef={codeWrapperRef} />
+          </CodeWrapper>
+        );
+      } else {
+        const reactJsonProps = {
+          theme:
+            props.theme === EditorTheme.DARK ? "summerfruit" : "rjv-default",
+          name: null,
+          enableClipboard: false,
+          displayObjectSize: false,
+          displayDataTypes: false,
+          style: {
+            fontSize: "12px",
+          },
+          collapsed: 2,
+          collapseStringsAfterLength: 20,
+        };
+        content = <ReactJson src={props.evaluatedValue} {...reactJsonProps} />;
+      }
     } else {
       content = (
         <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
@@ -164,7 +231,11 @@ export function CurrentValueViewer(props: {
   }
   return (
     <>
-      {!props.hideLabel && <StyledTitle>Evaluated Value</StyledTitle>}
+      {!props.hideLabel && (
+        <StyledTitle data-testid="evaluated-value-popup-title">
+          Evaluated Value
+        </StyledTitle>
+      )}
       <CurrentValueWrapper colorTheme={props.theme}>
         <>
           {content}
@@ -177,6 +248,7 @@ export function CurrentValueViewer(props: {
 
 function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
+
   return (
     <ContentWrapper
       className="t--CodeEditor-evaluatedValue"
@@ -186,9 +258,15 @@ function PopoverContent(props: PopoverContentProps) {
     >
       {props.hasError && (
         <ErrorText>
-          {props.useValidationMessage && props.error
-            ? props.error
-            : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+          <span className="t--evaluatedPopup-error">
+            {props.useValidationMessage && props.error
+              ? props.error
+              : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+          </span>
+          <StyledDebugButton
+            className="evaluated-value"
+            source={"EVALUATED_VALUE"}
+          />
         </ErrorText>
       )}
       {!props.hasError && props.expected && (
@@ -200,10 +278,13 @@ function PopoverContent(props: PopoverContentProps) {
           </TypeText>
         </>
       )}
-      <CurrentValueViewer
-        evaluatedValue={props.evaluatedValue}
-        theme={props.theme}
-      />
+      {!props.hideEvaluatedValue && (
+        <CurrentValueViewer
+          evaluatedValue={props.evaluatedValue}
+          preparedStatementViewer={props.preparedStatementViewer}
+          theme={props.theme}
+        />
+      )}
     </ContentWrapper>
   );
 }
@@ -233,19 +314,26 @@ function EvaluatedValuePopup(props: Props) {
           }}
           placement={placement}
           targetNode={wrapperRef.current || undefined}
-          zIndex={15}
+          zIndex={5}
         >
           <PopoverContent
             error={props.error}
             evaluatedValue={props.evaluatedValue}
             expected={props.expected}
             hasError={props.hasError}
+            hideEvaluatedValue={props.hideEvaluatedValue}
             onMouseEnter={() => {
               setContentHovered(true);
             }}
             onMouseLeave={() => {
               setContentHovered(false);
             }}
+            preparedStatementViewer={
+              props.evaluationSubstitutionType
+                ? props.evaluationSubstitutionType ===
+                  EvaluationSubstitutionType.PARAMETER
+                : false
+            }
             theme={props.theme}
             useValidationMessage={props.useValidationMessage}
           />

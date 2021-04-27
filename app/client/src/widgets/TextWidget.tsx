@@ -3,10 +3,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType, TextSize } from "constants/WidgetConstants";
 import TextComponent from "components/designSystems/blueprint/TextComponent";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 
@@ -24,6 +20,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             placeholderText: "Enter text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "shouldScroll",
@@ -41,6 +38,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -142,14 +140,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         ],
       },
     ];
-  }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      text: VALIDATION_TYPES.TEXT,
-      textStyle: VALIDATION_TYPES.TEXT,
-      shouldScroll: VALIDATION_TYPES.BOOLEAN,
-    };
   }
 
   getPageView() {

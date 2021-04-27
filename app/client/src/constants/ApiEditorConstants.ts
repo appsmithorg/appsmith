@@ -33,9 +33,15 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   httpMethod: HTTP_METHODS[0],
   headers: EMPTY_KEY_VALUE_PAIRS.slice(),
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
+  body: "",
+  pluginSpecifiedTemplates: [
+    {
+      // JSON smart substitution
+      value: false,
+    },
+  ],
 };
 
-export const PLUGIN_TYPE_API = "API";
 export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const CONTENT_TYPE_HEADER_KEY = "content-type";
 

@@ -26,6 +26,7 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
   onClick = () => {
     if (this.props.onClick) {
       super.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,

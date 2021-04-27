@@ -1,7 +1,10 @@
 import React, { RefObject, ReactNode, useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 import { ComponentProps } from "./BaseComponent";
-import { TabsWidgetProps, TabContainerWidgetProps } from "widgets/TabsWidget";
+import {
+  TabsWidgetProps,
+  TabContainerWidgetProps,
+} from "widgets/Tabs/TabsWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import ScrollIndicator from "components/ads/ScrollIndicator";

@@ -1,8 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { WidgetPropertyValidationType } from "utils/WidgetValidation";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
@@ -20,17 +18,6 @@ const ChartComponent = lazy(() =>
 );
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      xAxisName: VALIDATION_TYPES.TEXT,
-      yAxisName: VALIDATION_TYPES.TEXT,
-      chartName: VALIDATION_TYPES.TEXT,
-      isVisible: VALIDATION_TYPES.BOOLEAN,
-      chartData: VALIDATION_TYPES.CHART_DATA,
-      customFusionChartConfig: VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA,
-    };
-  }
-
   static getMetaPropertiesMap(): Record<string, undefined> {
     return {
       selectedDataPoint: undefined,
@@ -46,6 +33,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       "selectedDataPoint",
       selectedDataPoint,
       {
+        triggerPropertyName: "onDataPointClick",
         dynamicString: this.props.onDataPointClick,
         event: {
           type: EventType.ON_DATA_POINT_CLICK,
@@ -93,6 +81,9 @@ export interface ChartDataPoint {
   y: any;
 }
 
+export interface AllChartData {
+  [key: string]: ChartData;
+}
 export interface ChartData {
   seriesName?: string;
   data: ChartDataPoint[];
@@ -100,7 +91,7 @@ export interface ChartData {
 
 export interface ChartWidgetProps extends WidgetProps, WithMeta {
   chartType: ChartType;
-  chartData: ChartData[];
+  chartData: AllChartData;
   customFusionChartConfig: { config: CustomFusionChartConfig };
   xAxisName: string;
   yAxisName: string;

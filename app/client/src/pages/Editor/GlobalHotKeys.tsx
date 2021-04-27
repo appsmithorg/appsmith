@@ -19,6 +19,7 @@ import {
   ENTITY_EXPLORER_SEARCH_ID,
   WIDGETS_SEARCH_ID,
 } from "constants/Explorer";
+import { showDebugger } from "actions/debuggerActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -26,6 +27,7 @@ type Props = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   toggleShowGlobalSearchModal: () => void;
+  openDebugger: () => void;
   selectedWidget?: string;
   children: React.ReactNode;
 };
@@ -76,6 +78,16 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.toggleShowGlobalSearchModal();
             AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
           }}
+        />
+        <Hotkey
+          combo="mod + d"
+          global
+          group="Canvas"
+          label="Open Debugger"
+          onKeyDown={() => {
+            this.props.openDebugger();
+          }}
+          preventDefault
         />
         <Hotkey
           combo="mod + c"
@@ -150,6 +162,7 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
+    openDebugger: () => dispatch(showDebugger()),
   };
 };
 

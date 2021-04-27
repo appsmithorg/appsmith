@@ -15,7 +15,7 @@ export type PopperProps = {
   isOpen: boolean;
   themeMode?: ThemeMode;
   targetNode?: Element;
-  children: JSX.Element;
+  children: JSX.Element | null;
   placement: Placement;
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;

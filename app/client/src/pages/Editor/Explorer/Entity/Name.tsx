@@ -83,7 +83,7 @@ export const EntityName = forwardRef(
         ) {
           const parent = state.entities.canvasWidgets[widget.parentId];
           if (parent.type === WidgetTypes.TABS_WIDGET) {
-            return parent.tabs;
+            return Object.values(parent.tabsObj);
           }
         }
       }

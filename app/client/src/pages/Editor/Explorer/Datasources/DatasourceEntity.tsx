@@ -21,7 +21,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { getAction } from "selectors/entitiesSelector";
-import { isStoredDatasource } from "entities/Action";
+import { isStoredDatasource, PluginType } from "entities/Action";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -35,17 +36,26 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
   const icon = getPluginIcon(props.plugin);
-  const switchDatasource = useCallback(
-    () =>
+  const switchDatasource = useCallback(() => {
+    if (props.plugin && props.plugin.type === PluginType.SAAS) {
+      history.push(
+        SAAS_EDITOR_DATASOURCE_ID_URL(
+          params.applicationId,
+          params.pageId,
+          props.plugin.packageName,
+          props.datasource.id,
+        ),
+      );
+    } else {
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
           params.applicationId,
           params.pageId,
           props.datasource.id,
         ),
-      ),
-    [params.applicationId, params.pageId, props.datasource.id],
-  );
+      );
+    }
+  }, [params.applicationId, params.pageId, props.datasource.id]);
 
   const queryId = getQueryIdFromURL();
   const queryAction = useSelector((state: AppState) =>

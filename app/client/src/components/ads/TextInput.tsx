@@ -92,7 +92,7 @@ const StyledInput = styled((props) => {
       inputRef={inputRef}
     />
   ) : (
-    <input {...inputProps} />
+    <input ref={inputRef} {...inputProps} />
   );
 })<TextInputProps & { inputStyle: boxReturnType; isValid: boolean }>`
   width: ${(props) => (props.fill ? "100%" : "320px")};

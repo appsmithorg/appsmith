@@ -59,7 +59,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
         .toLowerCase()
         .replace(/ /g, "")}`}
       disabled={disableGroup}
-      entityId={props.page.pageId + "_" + props.actionConfig?.type}
+      entityId={props.page.pageId + "_" + props.actionConfig?.types.join("_")}
       icon={props.actionConfig?.icon}
       isDefaultExpanded={
         props.actionConfig?.isGroupExpanded(params, props.page.pageId) ||

@@ -10,6 +10,7 @@ import {
   getCurlImportPageURL,
   getProviderTemplatesURL,
 } from "constants/routes";
+import { SAAS_EDITOR_URL } from "pages/Editor/SaaSEditor/constants";
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getImportedCollections } from "selectors/applicationSelectors";
@@ -47,6 +48,8 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
+import CloseEditor from "components/editorComponents/CloseEditor";
+import { PluginType } from "entities/Action";
 const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
@@ -181,6 +184,9 @@ const StyledContainer = styled.div`
   }
   .curlImage {
     width: 55px;
+  }
+  .saasImage.t--saas-google-sheets-plugin-image {
+    width: 40px;
   }
   .createIcon {
     align-items: center;
@@ -591,6 +597,31 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                 <p className="textBtn">CURL</p>
               </Card>
             </Link>
+            {/**
+             * Loop over all Saas plugins
+             */}
+            {this.props.plugins
+              .filter((p) => p.type === PluginType.SAAS)
+              .map((p) => (
+                <Link
+                  key={p.id}
+                  to={
+                    SAAS_EDITOR_URL(applicationId, pageId, p.packageName) +
+                    location.search
+                  }
+                >
+                  <Card className="eachCard" interactive={false}>
+                    <img
+                      alt={p.name}
+                      className={
+                        "saasImage t--saas-" + p.packageName + "-image"
+                      }
+                      src={p.iconLocation}
+                    />
+                    <p className="textBtn">{p.name}</p>
+                  </Card>
+                </Link>
+              ))}
           </ApiCard>
         </StyledContainer>
         {/* Imported APIs section start */}
@@ -631,6 +662,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
         className="t--apiHomePage"
         style={{ overflow: showSearchResults ? "hidden" : "auto" }}
       >
+        <CloseEditor />
         {isSwitchingCategory || !enableRapidAPI ? (
           <>
             {ApiHomepageTopSection}

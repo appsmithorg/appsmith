@@ -1,0 +1,42 @@
+{
+  "form": [
+    {
+      "sectionName": "General",
+      "children": [
+        {
+          "label": "Authentication Type",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true,
+          "initialValue": "oAuth2"
+        },
+        {
+          "label": "Grant Type",
+          "configProperty": "datasourceConfiguration.authentication.grantType",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true,
+          "initialValue": "authorization_code"
+        },
+        {
+          "label": "Scope",
+          "configProperty": "datasourceConfiguration.authentication.scopeString",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "options": [
+            {
+              "label": "Read Only",
+              "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
+            },
+            {
+              "label": "Read and Write",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+            }
+          ],
+          "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+        }
+      ]
+    }
+  ]
+}

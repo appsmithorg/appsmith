@@ -107,7 +107,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     currentActivity = Activities.ACTIVE;
 
   return showWidgetName ? (
-    <PositionStyle>
+    <PositionStyle data-testid="t--settings-controls-positioned-wrapper">
       <ControlGroup>
         <SettingsControl
           activity={currentActivity}

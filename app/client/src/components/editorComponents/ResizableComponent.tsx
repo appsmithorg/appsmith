@@ -251,7 +251,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     <Resizable
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      enable={!isDragging && isWidgetFocused}
+      enable={!isDragging && isWidgetFocused && !props.resizeDisabled}
       handles={{
         left: LeftHandleStyles,
         top: TopHandleStyles,

@@ -1,6 +1,10 @@
 import React, { forwardRef, Ref } from "react";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
+import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
+import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
+import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
+import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
@@ -11,6 +15,7 @@ import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
+import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import { ReactComponent as ShareIcon } from "assets/icons/ads/share.svg";
 import { ReactComponent as RocketIcon } from "assets/icons/ads/launch.svg";
@@ -37,6 +42,7 @@ import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.s
 import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
 import { ReactComponent as PlayIcon } from "assets/icons/ads/play.svg";
 import { ReactComponent as DesktopIcon } from "assets/icons/ads/desktop.svg";
+import { ReactComponent as WandIcon } from "assets/icons/ads/wand.svg";
 import { ReactComponent as MobileIcon } from "assets/icons/ads/mobile.svg";
 import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
@@ -95,7 +101,11 @@ export const sizeHandler = (size?: IconSize) => {
 
 export const IconCollection = [
   "book",
+  "bug",
+  "cancel",
+  "cross",
   "delete",
+  "open",
   "user",
   "general",
   "billing",
@@ -114,6 +124,7 @@ export const IconCollection = [
   "view-all",
   "view-less",
   "warning",
+  "warning-triangle",
   "downArrow",
   "context-menu",
   "duplicate",
@@ -133,6 +144,7 @@ export const IconCollection = [
   "datasource",
   "play",
   "desktop",
+  "wand",
   "mobile",
   "tablet",
   "fluid",
@@ -154,17 +166,29 @@ export const IconWrapper = styled.span<IconProps>`
   svg {
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
+    ${(props) =>
+      !props.keepColors
+        ? `
     path {
-      fill: ${(props) => props.fillColor || props.theme.colors.icon.normal};
+      fill: ${props.fillColor || props.theme.colors.icon.normal};
     }
-  }
+    circle {
+      fill: ${props.fillColor || props.theme.colors.icon.normal};
+    }
+    `
+        : ""}
   ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
   &:hover {
     cursor: pointer;
+    ${(props) =>
+      !props.keepColors
+        ? `
     path {
-      fill: ${(props) => props.theme.colors.icon.hover};
+      fill: ${props.theme.colors.icon.hover};
     }
+    `
+        : ""}
   }
 
   &:active {
@@ -182,6 +206,7 @@ export type IconProps = {
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
   fillColor?: string;
+  keepColors?: boolean;
 };
 
 const Icon = forwardRef(
@@ -191,8 +216,20 @@ const Icon = forwardRef(
       case "book":
         returnIcon = <BookIcon />;
         break;
+      case "bug":
+        returnIcon = <BugIcon />;
+        break;
+      case "cancel":
+        returnIcon = <CancelIcon />;
+        break;
+      case "cross":
+        returnIcon = <CrossIcon />;
+        break;
       case "delete":
         returnIcon = <DeleteIcon />;
+        break;
+      case "open":
+        returnIcon = <OpenIcon />;
         break;
       case "user":
         returnIcon = <UserIcon />;
@@ -233,6 +270,9 @@ const Icon = forwardRef(
       case "rocket":
         returnIcon = <RocketIcon />;
         break;
+      case "wand":
+        returnIcon = <WandIcon />;
+        break;
       case "workspace":
         returnIcon = <WorkspaceIcon />;
         break;
@@ -262,6 +302,9 @@ const Icon = forwardRef(
         break;
       case "warning":
         returnIcon = <WarningIcon />;
+        break;
+      case "warning-triangle":
+        returnIcon = <WarningTriangleIcon />;
         break;
       case "arrow-left":
         returnIcon = <ArrowLeft />;

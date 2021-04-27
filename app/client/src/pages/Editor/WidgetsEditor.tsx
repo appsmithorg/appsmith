@@ -24,6 +24,7 @@ import PerformanceTracker, {
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
+import Debugger from "components/editorComponents/Debugger";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -123,6 +124,7 @@ function WidgetsEditor() {
         <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
           {node}
         </CanvasContainer>
+        <Debugger />
       </EditorWrapper>
     </EditorContextProvider>
   );

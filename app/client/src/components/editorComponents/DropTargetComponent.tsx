@@ -38,6 +38,7 @@ type DropTargetComponentProps = WidgetProps & {
   snapColumnSpace: number;
   snapRowSpace: number;
   minHeight: number;
+  noPad?: boolean;
 };
 
 const StyledDropTarget = styled.div`
@@ -65,7 +66,7 @@ export const DropTargetContext: Context<{
   persistDropTargetRows?: (widgetId: string, row: number) => void;
 }> = createContext({});
 
-export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
+export function DropTargetComponent(props: DropTargetComponentProps) {
   const canDropTargetExtend = props.canExtend;
 
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -244,7 +245,8 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
         focusWidget && focusWidget(props.parentId);
       }
     }
-    e.stopPropagation();
+    // commenting this out to allow propagation of click events
+    // e.stopPropagation();
     e.preventDefault();
   };
   const height = canDropTargetExtend
@@ -258,6 +260,8 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       ? "1px solid #DDDDDD"
       : "1px solid transparent";
 
+  const dropRef = !props.dropDisabled ? drop : undefined;
+
   return (
     <DropTargetContext.Provider
       value={{ updateDropTargetRows, persistDropTargetRows }}
@@ -265,7 +269,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       <StyledDropTarget
         className={"t--drop-target"}
         onClick={handleFocus}
-        ref={drop}
+        ref={dropRef}
         style={{
           height,
           border,
@@ -280,6 +284,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
           force={isDragging && !isOver && !props.parentId}
           isOver={isExactlyOver}
           isResizing={isChildResizing}
+          noPad={props.noPad || false}
           occupiedSpaces={spacesOccupiedBySiblingWidgets}
           onBoundsUpdate={handleBoundsUpdate}
           parentCols={props.snapColumns}
@@ -292,6 +297,8 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       </StyledDropTarget>
     </DropTargetContext.Provider>
   );
-});
+}
 
-export default DropTargetComponent;
+const MemoizedDropTargetComponent = memo(DropTargetComponent);
+
+export default MemoizedDropTargetComponent;

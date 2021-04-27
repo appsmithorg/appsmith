@@ -17,9 +17,6 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   user-select: none;
   border-radius: 0px;
   height: 100%;
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
-  }
   .react-tabs {
     height: 100%;
   }
@@ -104,6 +101,9 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
 const TabTitleWrapper = styled.div`
   display: flex;
   align-items: center;
+  .${Classes.ICON} {
+    margin-right: ${(props) => props.theme.spaces[3]}px;
+  }
 `;
 
 const TabTitle = styled.span`
