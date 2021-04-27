@@ -45,4 +45,12 @@ public class CommentThread extends BaseDomain {
         Boolean active;
     }
 
+    public Instant getCreationTime() {
+        return this.createdAt;
+    }
+
+    public Instant getUpdationTime() {
+        return this.updatedAt;
+    }
+
 }
