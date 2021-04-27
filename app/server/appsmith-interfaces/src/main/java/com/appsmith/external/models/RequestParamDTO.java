@@ -15,5 +15,5 @@ public class RequestParamDTO {
     private String configProperty;
     private String value;
     private String label;
-    private List<ParsedDataType> type;
+    private List<ParsedDataType> types;
 }
