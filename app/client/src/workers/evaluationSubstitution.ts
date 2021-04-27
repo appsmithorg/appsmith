@@ -3,6 +3,7 @@ import _ from "lodash";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { QUOTED_BINDING_REGEX } from "constants/BindingsConstants";
+import { EvalResult } from "./evaluate";
 
 const filterBindingSegmentsAndRemoveQuotes = (
   binding: string,
@@ -16,7 +17,7 @@ const filterBindingSegmentsAndRemoveQuotes = (
     },
   );
   const subBindings: string[] = [];
-  const subValues: unknown[] = [];
+  const subValues: any = [];
   subSegments.forEach((segment, i) => {
     if (isDynamicValue(segment)) {
       subBindings.push(segment);
@@ -29,8 +30,8 @@ const filterBindingSegmentsAndRemoveQuotes = (
 export const smartSubstituteDynamicValues = (
   originalBinding: string,
   subSegments: string[],
-  subSegmentValues: unknown[],
-): string => {
+  subSegmentValues: any,
+): EvalResult => {
   const {
     binding,
     subValues,
@@ -41,8 +42,13 @@ export const smartSubstituteDynamicValues = (
     subSegmentValues,
   );
   let finalBinding = binding;
+  const finalResult: Array<string> = [];
   subBindings.forEach((b, i) => {
-    const value = subValues[i];
+    const value = _.isObject(subValues[i]) ? subValues[i].result : subValues[i];
+    const error = subValues[i].error;
+    if (error) {
+      finalResult.push(error);
+    }
     switch (getType(value)) {
       case Types.NUMBER:
       case Types.BOOLEAN:
@@ -63,7 +69,8 @@ export const smartSubstituteDynamicValues = (
         break;
     }
   });
-  return finalBinding;
+  const finalError = finalResult.join("\n");
+  return { result: finalBinding, error: finalError };
 };
 
 export const parameterSubstituteDynamicValues = (
@@ -81,30 +88,42 @@ export const parameterSubstituteDynamicValues = (
     subSegmentValues,
   );
   let finalBinding = binding;
+  const finalResult: Array<string> = [];
   const parameters: Record<string, unknown> = {};
   subBindings.forEach((b, i) => {
     // Replace binding with $1, $2;
+    const error = subValues[i].error;
     const key = `$${i + 1}`;
     finalBinding = finalBinding.replace(b, key);
+    if (error) {
+      finalResult.push(error);
+    }
     parameters[key] =
       typeof subValues[i] === "object"
         ? JSON.stringify(subValues[i], null, 2)
         : subValues[i];
   });
-  return { value: finalBinding, parameters };
+  const finalError = finalResult.join("\n");
+  return { result: finalBinding, parameters, error: finalError };
 };
 // For creating a final value where bindings could be in a template format
 export const templateSubstituteDynamicValues = (
   binding: string,
   subBindings: string[],
-  subValues: unknown[],
-): string => {
+  subValues: any,
+): EvalResult => {
   // Replace the string with the data tree values
   let finalValue = binding;
+  const finalResult: Array<string> = [];
+  let finalError;
   subBindings.forEach((b, i) => {
-    let value = subValues[i];
+    let value = _.isObject(subValues[i]) ? subValues[i].result : subValues[i];
+    const error = subValues[i].error;
     if (Array.isArray(value) || _.isObject(value)) {
       value = JSON.stringify(value);
+    }
+    if (error) {
+      finalResult.push(error);
     }
     try {
       if (typeof value === "string" && JSON.parse(value)) {
@@ -114,8 +133,9 @@ export const templateSubstituteDynamicValues = (
       // do nothing
     }
     finalValue = finalValue.replace(b, `${value}`);
+    finalError = finalResult.join("\n");
   });
-  return finalValue;
+  return { result: finalValue, error: finalError };
 };
 
 export const substituteDynamicBindingWithValues = (
@@ -123,7 +143,7 @@ export const substituteDynamicBindingWithValues = (
   subSegments: string[],
   subSegmentValues: unknown[],
   evaluationSubstitutionType: EvaluationSubstitutionType,
-): string | { value: string; parameters: Record<string, unknown> } => {
+): EvalResult => {
   switch (evaluationSubstitutionType) {
     case EvaluationSubstitutionType.TEMPLATE:
       return templateSubstituteDynamicValues(

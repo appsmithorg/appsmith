@@ -2,7 +2,7 @@ import { Collapse, Position } from "@blueprintjs/core";
 import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Message, Severity, SourceEntity } from "entities/AppsmithConsole";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
 import { isString } from "lodash";
@@ -184,7 +184,7 @@ const LogItem = (props: LogItemProps) => {
   };
   const showToggleIcon = props.state || props.message;
   const dispatch = useDispatch();
-  const openHelpModal = useCallback((e) => {
+  const openHelpModal = (e: any) => {
     e.stopPropagation();
     const text = props.message || props.text;
 
@@ -194,7 +194,7 @@ const LogItem = (props: LogItemProps) => {
     });
     dispatch(setGlobalSearchQuery(text || ""));
     dispatch(toggleShowGlobalSearchModal());
-  }, []);
+  };
 
   return (
     <Log
@@ -240,7 +240,7 @@ const LogItem = (props: LogItemProps) => {
               name={"wand"}
               size={IconSize.MEDIUM}
               fillColor={props.iconColor}
-              onClick={openHelpModal}
+              onClick={(e) => openHelpModal(e)}
             />
           </TooltipComponent>
         )}
@@ -248,7 +248,10 @@ const LogItem = (props: LogItemProps) => {
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
             {props.message && (
               <div>
-                <span className="debugger-message" onClick={openHelpModal}>
+                <span
+                  className="debugger-message"
+                  onClick={(e) => openHelpModal(e)}
+                >
                   {props.message}
                 </span>
               </div>
