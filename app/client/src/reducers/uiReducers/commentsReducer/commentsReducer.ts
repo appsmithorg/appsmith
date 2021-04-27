@@ -17,6 +17,8 @@ import {
   NewCommentThreadPayload,
 } from "entities/Comments/CommentsInterfaces";
 
+import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+
 const initialState: CommentsReduxState = {
   commentThreadsMap: {},
   applicationCommentThreadsByRef: {},
@@ -24,6 +26,8 @@ const initialState: CommentsReduxState = {
   isCommentMode: false,
   creatingNewThread: false,
   creatingNewThreadComment: false,
+  appCommentsFilter: filterOptions[0].value,
+  shouldShowResolvedAppCommentThreads: false,
 };
 
 /**
@@ -172,6 +176,13 @@ const commentsReducer = createReducer(initialState, {
 
     return { ...state };
   },
+  [ReduxActionTypes.SET_SHOULD_SHOW_RESOLVED_COMMENTS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    shouldShowResolvedAppCommentThreads: action.payload,
+  }),
 });
 
 export default commentsReducer;

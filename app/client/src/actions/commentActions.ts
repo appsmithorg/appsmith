@@ -1,5 +1,7 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { COMMENT_EVENTS_CHANNEL } from "constants/CommentConstants";
+import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+
 import {
   CommentThread,
   CommentEventPayload,
@@ -156,5 +158,17 @@ export const deleteCommentSuccess = (payload: {
   commentId: string;
 }) => ({
   type: ReduxActionTypes.DELETE_COMMENT_SUCCESS,
+  payload,
+});
+
+export const setShouldShowResolvedComments = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SHOULD_SHOW_RESOLVED_COMMENTS,
+  payload,
+});
+
+export const setAppCommentsFilter = (
+  payload: typeof filterOptions[number]["value"],
+) => ({
+  type: ReduxActionTypes.SET_APP_COMMENTS_FILTER,
   payload,
 });

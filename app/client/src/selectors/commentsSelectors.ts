@@ -60,15 +60,28 @@ export const allCommentThreadsMap = (state: AppState) =>
 export const getSortedAppCommentThreadIds = (
   applicationThreadIds: Array<string>,
   commentThreadsMap: Record<string, CommentThread>,
+  shouldShowResolved: boolean,
 ): Array<string> => {
   if (!applicationThreadIds) return [];
-  return applicationThreadIds.sort((a, b) => {
-    const { isPinned: isAPinned } = commentThreadsMap[a];
-    const { isPinned: isBPinned } = commentThreadsMap[b];
+  return applicationThreadIds
+    .sort((a, b) => {
+      const { isPinned: isAPinned } = commentThreadsMap[a];
+      const { isPinned: isBPinned } = commentThreadsMap[b];
 
-    if (isAPinned && isBPinned) return -0;
-    if (isAPinned) return -1;
-    if (isBPinned) return 1;
-    else return 0;
-  });
+      if (isAPinned && isBPinned) return -0;
+      if (isAPinned) return -1;
+      if (isBPinned) return 1;
+      else return 0;
+    })
+    .filter((threadId: string) => {
+      const thread = commentThreadsMap[threadId];
+      const shouldShow = shouldShowResolved || !thread.resolved;
+      return shouldShow;
+    });
 };
+
+export const shouldShowResolved = (state: AppState) =>
+  state.ui.comments.shouldShowResolvedAppCommentThreads;
+
+export const appCommentsFilter = (state: AppState) =>
+  state.ui.comments.appCommentsFilter;

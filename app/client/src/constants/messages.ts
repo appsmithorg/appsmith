@@ -289,3 +289,9 @@ export const PIN_COMMENT = () => "Pin Comment";
 export const COPY_LINK = () => "Copy Link";
 export const DELETE_COMMENT = () => "Delete Comment";
 export const COMMENTS = () => "Comments";
+export const VIEW_LATEST = () => "View Latest";
+export const POST = () => "Post";
+export const CANCEL = () => "Cancel";
+export const NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD = () =>
+  `No comments. \n Click anywhere on the canvas \nto start a conversation.`;
+export const LINK_COPIED_SUCCESSFULLY = () => "LLink copied to clipboard";

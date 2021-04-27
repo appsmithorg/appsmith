@@ -15,6 +15,7 @@ export type RadioProps = CommonComponentProps & {
   defaultValue: string;
   onSelect?: (value: string) => void;
   options: OptionProps[];
+  backgroundColor?: string;
 };
 
 const RadioGroup = styled.div<{
@@ -35,10 +36,11 @@ const RadioGroup = styled.div<{
       : null};
 `;
 
-const Radio = styled.label<{
+export const Radio = styled.label<{
   disabled?: boolean;
   columns?: number;
   rows?: number;
+  backgroundColor?: string;
 }>`
   display: block;
   position: relative;
@@ -100,7 +102,8 @@ const Radio = styled.label<{
     ${(props) =>
       props.disabled
         ? `background-color: ${props.theme.colors.radio.disabled}`
-        : `background-color: ${props.theme.colors.info.main};`};
+        : `background-color: ${props.backgroundColor ||
+            props.theme.colors.info.main};`};
     top: ${(props) => props.theme.spaces[1] - 2}px;
     left: ${(props) => props.theme.spaces[1] - 2}px;
     border-radius: 50%;
@@ -141,6 +144,7 @@ export default function RadioComponent(props: RadioProps) {
           columns={props.columns}
           rows={props.rows}
           disabled={props.disabled || option.disabled}
+          backgroundColor={props.backgroundColor}
         >
           {option.label}
           <input
