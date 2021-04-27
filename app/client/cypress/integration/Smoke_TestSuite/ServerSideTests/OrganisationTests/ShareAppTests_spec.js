@@ -14,7 +14,8 @@ describe("Create new org and share with a user", function() {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
-      cy.createOrg(orgid);
+      cy.createOrg();
+      cy.renameRandomOrg(orgid);
       cy.CreateAppForOrg(orgid, appid);
       cy.wait("@getPagesForCreateApp").should(
         "have.nested.property",
