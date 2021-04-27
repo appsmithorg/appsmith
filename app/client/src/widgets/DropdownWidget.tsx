@@ -4,7 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -44,7 +44,26 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             placeholderText: 'Enter [{label: "label1", value: "value2"}]',
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.OPTIONS_DATA,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  allowedKeys: [
+                    {
+                      name: "label",
+                      type: ValidationTypes.TEXT,
+                      default: "",
+                    },
+                    {
+                      name: "value",
+                      type: ValidationTypes.TEXT,
+                      default: "",
+                    },
+                  ],
+                },
+              },
+            },
           },
           {
             helpText: "Selects the option with value by default",
@@ -54,7 +73,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             placeholderText: "Enter option value",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
+            validation: { type: ValidationTypes.DEFAULT_OPTION_VALUE },
           },
           {
             propertyName: "isRequired",
@@ -64,7 +83,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -74,7 +93,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -84,7 +103,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

@@ -3,7 +3,7 @@ import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetOperations } from "widgets/BaseWidget";
@@ -57,7 +57,7 @@ class TabsWidget extends BaseWidget<
                       isJSConvertible: true,
                       isBindProperty: true,
                       isTriggerProperty: false,
-                      validation: VALIDATION_TYPES.BOOLEAN,
+                      validation: { type: ValidationTypes.BOOLEAN },
                     },
                   ],
                 },
@@ -72,7 +72,7 @@ class TabsWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.SELECTED_TAB,
+            validation: { type: ValidationTypes.SELECTED_TAB },
           },
           {
             propertyName: "shouldShowTabs",
@@ -98,7 +98,7 @@ class TabsWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

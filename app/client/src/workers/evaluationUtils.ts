@@ -14,8 +14,8 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import { ValidationConfig } from "constants/PropertyControlConstants";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -257,7 +257,7 @@ export function validateWidgetProperty(
   property: string,
   value: any,
   props: WidgetProps,
-  validation?: VALIDATION_TYPES,
+  validation?: ValidationConfig,
   dataTree?: DataTree,
 ) {
   if (!validation) {

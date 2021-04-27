@@ -1,5 +1,5 @@
 import { getPropertyControlTypes } from "components/propertyControls";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
@@ -43,11 +43,30 @@ export type PropertyPaneControlConfig = {
   hidden?: (props: any, propertyPath: string) => boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
-  validation?: VALIDATION_TYPES;
+  validation?: ValidationConfig;
   useValidationMessage?: boolean;
   additionalAutoComplete?: (
     props: any,
   ) => Record<string, Record<string, unknown>>;
+};
+
+type ValidationConfigParams = {
+  min?: number;
+  max?: number;
+  default?: unknown;
+  isUnique?: boolean;
+  allowedKeys?: Array<{
+    name: string;
+    type: ValidationTypes;
+    params?: ValidationConfigParams;
+  }>;
+  allowedValues?: string[] | number[] | RegExp;
+  children?: ValidationConfig;
+};
+
+export type ValidationConfig = {
+  type: ValidationTypes;
+  params?: ValidationConfigParams;
 };
 
 export type PropertyPaneConfig =
