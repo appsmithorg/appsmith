@@ -54,14 +54,12 @@ describe("GlobalSearch", function() {
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(commonlocators.globalSearchClearInput).click({ force: true });
     cy.get(commonlocators.globalSearchInput).type("Page1");
     cy.get("body").type("{enter}");
 
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(commonlocators.globalSearchClearInput).click({ force: true });
     cy.get(commonlocators.globalSearchInput).type("SomeApi");
     cy.get("body").type("{enter}");
     cy.window()
@@ -90,14 +88,12 @@ describe("GlobalSearch", function() {
       cy.get(commonlocators.globalSearchTrigger).click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000); // modal open transition should be deterministic
-      cy.get(commonlocators.globalSearchClearInput).click({ force: true });
       cy.get(commonlocators.globalSearchInput).type("Page1");
       cy.get("body").type("{enter}");
 
       cy.get(commonlocators.globalSearchTrigger).click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000); // modal open transition should be deterministic
-      cy.get(commonlocators.globalSearchClearInput).click({ force: true });
       cy.get(commonlocators.globalSearchInput).type(expectedDatasource.name);
       cy.get("body").type("{enter}");
       cy.location().should((loc) => {
@@ -111,7 +107,6 @@ describe("GlobalSearch", function() {
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(commonlocators.globalSearchClearInput).click({ force: true });
     cy.get(commonlocators.globalSearchInput).type("Page1");
     cy.get("body").type("{enter}");
     cy.window()
