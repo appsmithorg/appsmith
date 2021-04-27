@@ -116,7 +116,7 @@
   "validateImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
   "defaultdata": "TestData",
   "label": "one",
-  "rgbValue": "rgb(3, 179, 101)",
+  "rgbValue": "rgb(255, 0, 0)",
   "tabName": "Aditya",
   "TableInput": [
     {
