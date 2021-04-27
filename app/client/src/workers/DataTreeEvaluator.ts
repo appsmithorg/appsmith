@@ -67,6 +67,7 @@ export default class DataTreeEvaluator {
     this.widgetConfigMap = widgetConfigMap;
   }
 
+  // kaushik
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
     // Create dependency map
@@ -110,6 +111,7 @@ export default class DataTreeEvaluator {
       },
     };
     this.logs.push({ timeTakenForFirstTree });
+    debugger;
   }
 
   isDynamicLeaf(unEvalTree: DataTree, propertyPath: string) {
@@ -125,6 +127,7 @@ export default class DataTreeEvaluator {
     return relativePropertyPath in entity.bindingPaths;
   }
 
+  // kaushik
   updateDataTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
     // Calculate diff
@@ -170,6 +173,7 @@ export default class DataTreeEvaluator {
     const evalStart = performance.now();
 
     // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
+    // kaushik: return this to know what changed eg input
     const evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
       // We are setting all values from our uneval tree to the old eval tree we have
       // So that the actual uneval value can be evaluated
@@ -204,6 +208,7 @@ export default class DataTreeEvaluator {
       evaluate: (evalStop - evalStart).toFixed(2),
     };
     this.logs.push({ timeTakenForSubTreeEval });
+    debugger;
     return this.evalTree;
   }
 

@@ -118,6 +118,7 @@ function* postEvalActionDispatcher(
   }
 }
 
+// kaushik: catch here the eval order
 function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ) {
@@ -134,6 +135,7 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
     },
   );
+  // kaushik: also get sort order
   const { errors, dataTree, dependencies, logs } = workerResponse;
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
@@ -151,6 +153,8 @@ function* evaluateTreeSaga(
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+  // kaushik: add last sort order here
+  // create saga that takes this action and call func
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap: dependencies },
