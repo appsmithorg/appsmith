@@ -55,7 +55,7 @@ const StyledPinContainer = styled.div<{ unread: boolean }>`
     left: 50%;
     transform: translate(-50%);
     color: ${(props) =>
-      props.unread ? props.theme.colors.comments.pinId : "#fff"};
+      props.unread ? "#fff" : props.theme.colors.comments.pinId};
     ${(props) => getTypographyByKey(props, "p1")}
   }
   & svg {
@@ -79,7 +79,7 @@ const Pin = ({
     <Icon
       className={`comment-thread-pin-${commentThreadId}`}
       name={unread ? "unread-pin" : "read-pin"}
-      // fillColor={theme.colors.comments.pin}
+      keepColors
       size={IconSize.XXL}
       data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
     />
@@ -120,9 +120,10 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
   useSelectCommentThreadUsingQuery(commentThreadId);
 
   const shouldShowResolved = useSelector(shouldShowResolvedSelector);
-  const isVisible = shouldShowResolved || !commentThread.resolved;
+  const isPinVisible =
+    shouldShowResolved || !commentThread.resolvedState?.active;
 
-  const transition = useTransition(isVisible, null, {
+  const transition = useTransition(isPinVisible, null, {
     from: { opacity: 0 },
     enter: { opacity: 1 },
     leave: { opacity: 0 },
@@ -141,7 +142,7 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
     if (
       newCommentThreadIdURL !== commentThreadId &&
       newCommentThreadIdURL !== commentThreadIdURL &&
-      isVisible
+      commentThread.isVisible
     ) {
       setIsCommentThreadVisible(false);
     }

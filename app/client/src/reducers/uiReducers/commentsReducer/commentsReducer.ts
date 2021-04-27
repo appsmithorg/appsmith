@@ -145,22 +145,6 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleUpdateCommentThreadEvent(state, action);
   },
-  [ReduxActionTypes.PIN_COMMENT_THREAD_SUCCESS]: (
-    state: CommentsReduxState,
-    action: ReduxAction<{ threadId: string; applicationId: string }>,
-  ) => {
-    const { threadId, applicationId } = action.payload;
-    state.commentThreadsMap[threadId] = {
-      ...state.commentThreadsMap[threadId],
-      isPinned: true,
-    };
-    // so that changes are propagated to app comments
-    state.applicationCommentThreadsByRef[applicationId] = {
-      ...state.applicationCommentThreadsByRef[applicationId],
-    };
-
-    return { ...state };
-  },
   [ReduxActionTypes.DELETE_COMMENT_SUCCESS]: (
     state: CommentsReduxState,
     action: ReduxAction<{

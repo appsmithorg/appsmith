@@ -23,8 +23,13 @@ export type CreateCommentThreadRequest = {
   tabId?: string;
   position: { top: number; left: number }; // used as a percentage value
   comments: Array<CreateCommentRequest>;
-  resolved?: boolean;
-  isPinned?: boolean;
+  resolvedState?: {
+    active: boolean;
+  };
+  pinnedState?: {
+    active: boolean;
+    author?: string;
+  };
 };
 
 export type Comment = CreateCommentRequest & {
@@ -35,6 +40,8 @@ export type Comment = CreateCommentRequest & {
 export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   id: string;
   comments: Array<Comment>;
+  // TODO move this to the global config as visibleCommentThreadId
+  // since there's just one comment thread visible at a time
   isVisible?: boolean;
   userPermissions?: string[];
   new?: boolean;

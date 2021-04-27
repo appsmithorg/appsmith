@@ -191,8 +191,9 @@ const CommentCard = ({
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
-  const isPinned = commentThread.isPinned;
-  const pinnedBy = "Tim Christon";
+
+  const isPinned = commentThread.pinnedState?.active;
+  const pinnedBy = commentThread.pinnedState?.author;
 
   const getCommentURL = () => {
     const url = new URL(window.location.href);
@@ -213,8 +214,10 @@ const CommentCard = ({
   }, []);
 
   const pin = useCallback(() => {
-    dispatch(pinCommentThreadRequest({ threadId: commentThreadId }));
-  }, []);
+    dispatch(
+      pinCommentThreadRequest({ threadId: commentThreadId, pin: !isPinned }),
+    );
+  }, [isPinned]);
 
   const deleteComment = useCallback(() => {
     dispatch(deleteCommentRequest({ threadId: commentThreadId, commentId }));
@@ -226,6 +229,7 @@ const CommentCard = ({
     deleteComment,
     isParentComment,
     isCreatedByMe: false,
+    isPinned,
   };
 
   useSelectCommentUsingQuery(comment.id);

@@ -54,6 +54,7 @@ const ResolveCommentButton = withTheme(
     return (
       <Container onClick={_handleClick}>
         <StyledResolveIcon
+          keepColors
           fillColor={fillColor}
           strokeColorCircle={strokeColorCircle}
           strokeColorPath={strokeColorPath}

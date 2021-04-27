@@ -73,7 +73,10 @@ const UnpublishedCommentThread = withTheme(
               size={IconSize.XXL}
             />
             <ThreadContainer tabIndex={0}>
-              <AddCommentInput onSave={createCommentThread} />
+              <AddCommentInput
+                onSave={createCommentThread}
+                onCancel={onClosing}
+              />
             </ThreadContainer>
           </Popover>
         </CommentTriggerContainer>

@@ -65,17 +65,17 @@ export const getSortedAppCommentThreadIds = (
   if (!applicationThreadIds) return [];
   return applicationThreadIds
     .sort((a, b) => {
-      const { isPinned: isAPinned } = commentThreadsMap[a];
-      const { isPinned: isBPinned } = commentThreadsMap[b];
+      const { pinnedState: isAPinned } = commentThreadsMap[a];
+      const { pinnedState: isBPinned } = commentThreadsMap[b];
 
-      if (isAPinned && isBPinned) return -0;
-      if (isAPinned) return -1;
-      if (isBPinned) return 1;
+      if (isAPinned?.active && isBPinned?.active) return 0;
+      if (isAPinned?.active) return -1;
+      if (isBPinned?.active) return 1;
       else return 0;
     })
     .filter((threadId: string) => {
       const thread = commentThreadsMap[threadId];
-      const shouldShow = shouldShowResolved || !thread.resolved;
+      const shouldShow = shouldShowResolved || !thread.resolvedState?.active;
       return shouldShow;
     });
 };

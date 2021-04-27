@@ -97,7 +97,7 @@ const CommentThreadContainer = ({
     dispatch(
       setCommentResolutionRequest({
         threadId: commentThread.id,
-        resolved: !commentThread.resolved,
+        resolved: !commentThread.resolvedState?.active,
       }),
     );
   };
@@ -113,7 +113,7 @@ const CommentThreadContainer = ({
       style={transition}
       inline={inline}
       visible={commentThread.isVisible}
-      pinned={commentThread.isPinned}
+      pinned={commentThread.pinnedState?.active}
     >
       <div style={{ position: "relative" }}>
         <CommentsContainer ref={commentsContainerRef} inline={inline}>
@@ -122,7 +122,7 @@ const CommentThreadContainer = ({
               commentThreadId={commentThreadId}
               key={parentComment.id}
               comment={parentComment}
-              resolved={!!commentThread.resolved}
+              resolved={!!commentThread.resolvedState?.active}
               toggleResolved={resolveCommentThread}
               isParentComment
               numberOfReplies={numberOfReplies}

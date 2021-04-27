@@ -110,8 +110,10 @@ const useUserSuggestions = (
 
 const AddCommentInput = ({
   onSave,
+  onCancel,
 }: {
   onSave: (state: RawDraftContentState) => void;
+  onCancel?: () => void;
 }) => {
   const users = useOrgUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
@@ -122,6 +124,11 @@ const AddCommentInput = ({
   const clearEditor = useCallback(() => {
     setEditorState(resetEditorState(editorState));
   }, [editorState]);
+
+  const _onCancel = () => {
+    if (onCancel) onCancel();
+    clearEditor();
+  };
 
   const onSaveComment = useCallback(
     (editorStateArg?: EditorState) => {
@@ -187,7 +194,7 @@ const AddCommentInput = ({
           <Button
             text={createMessage(CANCEL)}
             type="button"
-            onClick={clearEditor}
+            onClick={_onCancel}
             category={Category.tertiary}
             className={"cancel-button"}
           />
