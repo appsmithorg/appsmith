@@ -16,7 +16,6 @@ export enum VALIDATION_TYPES {
   DEFAULT_DATE = "DEFAULT_DATE",
   MIN_DATE = "MIN_DATE",
   MAX_DATE = "MAX_DATE",
-  TABS_DATA = "TABS_DATA",
   LIST_DATA = "LIST_DATA",
   CHART_SERIES_DATA = "CHART_SERIES_DATA",
   CUSTOM_FUSION_CHARTS_DATA = "CUSTOM_FUSION_CHARTS_DATA",
@@ -31,6 +30,7 @@ export enum VALIDATION_TYPES {
   TABLE_PAGE_NO = "TABLE_PAGE_NO",
   ROW_INDICES = "ROW_INDICES",
   IMAGE = "IMAGE",
+  TABS_DATA = "TABS_DATA",
 }
 
 export type ValidationResponse = {
@@ -44,6 +44,7 @@ export type Validator = (
   value: any,
   props: WidgetProps,
   dataTree?: DataTree,
+  property?: string,
 ) => ValidationResponse;
 
 export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";
