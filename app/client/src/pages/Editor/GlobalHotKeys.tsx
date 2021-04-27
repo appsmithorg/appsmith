@@ -20,6 +20,7 @@ import {
   WIDGETS_SEARCH_ID,
 } from "constants/Explorer";
 import { setCommentMode as setCommentModeAction } from "actions/commentActions";
+import { showDebugger } from "actions/debuggerActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -28,6 +29,7 @@ type Props = {
   cutSelectedWidget: () => void;
   toggleShowGlobalSearchModal: () => void;
   resetCommentMode: () => void;
+  openDebugger: () => void;
   selectedWidget?: string;
   children: React.ReactNode;
 };
@@ -78,6 +80,16 @@ class GlobalHotKeys extends React.Component<Props> {
           allowInInput={false}
           label="Show omnibar"
           global={true}
+        />
+        <Hotkey
+          global={true}
+          combo="mod + d"
+          label="Open Debugger"
+          group="Canvas"
+          onKeyDown={() => {
+            this.props.openDebugger();
+          }}
+          preventDefault
         />
         <Hotkey
           global={true}
@@ -159,6 +171,7 @@ const mapDispatchToProps = (dispatch: any) => {
     cutSelectedWidget: () => dispatch(cutWidget()),
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
+    openDebugger: () => dispatch(showDebugger()),
   };
 };
 

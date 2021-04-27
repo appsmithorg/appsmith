@@ -3,9 +3,11 @@ package com.appsmith.server.domains;
 import com.appsmith.external.models.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -19,7 +21,9 @@ public class CommentThread extends BaseDomain {
 
     String refId;
 
-    Boolean resolved;
+    CommentThreadState pinnedState;
+
+    CommentThreadState resolvedState;
 
     String applicationId;
 
@@ -31,6 +35,14 @@ public class CommentThread extends BaseDomain {
     public static class Position {
         Float top;
         Float left;
+    }
+
+    @Data
+    public static class CommentThreadState {
+        String author;
+        @LastModifiedDate
+        Instant updatedAt;
+        Boolean active;
     }
 
 }

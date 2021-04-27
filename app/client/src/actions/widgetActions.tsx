@@ -2,11 +2,11 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import {
   ExecuteActionPayload,
   ExecuteErrorPayload,
-  PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
@@ -30,11 +30,8 @@ export const executeActionError = (
   };
 };
 
-export const executePageLoadActions = (
-  payload: PageAction[][],
-): ReduxAction<PageAction[][]> => ({
+export const executePageLoadActions = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-  payload,
 });
 
 export const disableDragAction = (

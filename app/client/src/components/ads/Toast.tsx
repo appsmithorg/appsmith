@@ -7,6 +7,8 @@ import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
+import { Colors } from "constants/Colors";
+import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
@@ -59,7 +61,7 @@ const ToastBody = styled.div<{
   justify-content: space-between;
   overflow-wrap: anywhere;
 
-  .${Classes.ICON} {
+  div > .${Classes.ICON} {
     cursor: auto;
     margin-right: ${(props) => props.theme.spaces[3]}px;
     margin-top: ${(props) => props.theme.spaces[1] / 2}px;
@@ -104,6 +106,10 @@ const FlexContainer = styled.div`
   align-items: flex-start;
 `;
 
+const StyledDebugButton = styled(DebugButton)`
+  margin-left: auto;
+`;
+
 const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
   const dispatch = useDispatch();
 
@@ -116,14 +122,19 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
     >
       <FlexContainer>
         {props.variant === Variant.success ? (
-          <Icon name="success" size={IconSize.XXL} />
+          <Icon name="success" size={IconSize.XXL} fillColor={Colors.GREEN} />
         ) : props.variant === Variant.warning ? (
           <Icon name="warning" size={IconSize.XXL} />
         ) : null}
         {props.variant === Variant.danger ? (
           <Icon name="error" size={IconSize.XXL} />
         ) : null}
-        <Text type={TextType.P1}>{props.text}</Text>
+        <div>
+          <Text type={TextType.P1}>{props.text}</Text>
+          {props.variant === Variant.danger ? (
+            <StyledDebugButton source={"TOAST"} />
+          ) : null}
+        </div>
       </FlexContainer>
       <div className="undo-section">
         {props.onUndo || props.dispatchableAction ? (

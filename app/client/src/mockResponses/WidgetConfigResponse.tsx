@@ -1,10 +1,18 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
+import { cloneDeep, get, indexOf, isString } from "lodash";
 import { generateReactKey } from "utils/generators";
+import { WidgetTypes } from "constants/WidgetConstants";
+import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
 
+/**
+ * this config sets the default values of properties being used in the widget
+ */
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
     BUTTON_WIDGET: {
@@ -59,6 +67,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Input",
       version: 1,
       resetOnSubmit: true,
+      isRequired: false,
+      isDisabled: false,
     },
     SWITCH_WIDGET: {
       label: "Label",
@@ -68,6 +78,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Switch",
       alignWidget: "LEFT",
       version: 1,
+      isDisabled: false,
     },
     ICON_WIDGET: {
       widgetName: "Icon",
@@ -119,6 +130,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(),
       version: 2,
+      isRequired: false,
     },
     VIDEO_WIDGET: {
       rows: 7,
@@ -137,29 +149,40 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
-      primaryColumns: {},
+      primaryColumns: {
+        action: {
+          id: "1",
+          label: "Action",
+          columnType: "button",
+          isVisible: true,
+          isDerived: true,
+          index: 3,
+          buttonLabel: "Start",
+          width: 50,
+          computedValue: "Do It",
+          onClick:
+            "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
+        },
+      },
       derivedColumns: {},
       tableData: [
         {
-          id: 2381224,
-          email: "michael.lawson@reqres.in",
-          userName: "Michael Lawson",
-          productName: "Chicken Sandwich",
-          orderAmount: 4.99,
+          step: "#1",
+          task: "Drag a Table",
+          status: "✅",
+          action: "",
         },
         {
-          id: 2736212,
-          email: "lindsay.ferguson@reqres.in",
-          userName: "Lindsay Ferguson",
-          productName: "Tuna Salad",
-          orderAmount: 9.99,
+          step: "#2",
+          task: "Create a Query fetch_users with the Mock DB",
+          status: "--",
+          action: "",
         },
         {
-          id: 6788734,
-          email: "tobias.funke@reqres.in",
-          userName: "Tobias Funke",
-          productName: "Beef steak",
-          orderAmount: 19.99,
+          step: "#3",
+          task: "Bind the query to the table {{fetch_users.data}}",
+          status: "--",
+          action: "",
         },
       ],
       version: 1,
@@ -177,6 +200,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Dropdown",
       defaultOptionValue: "VEG",
       version: 1,
+      isRequired: false,
+      isDisabled: false,
     },
     CHECKBOX_WIDGET: {
       rows: 1,
@@ -186,6 +211,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Checkbox",
       version: 1,
       alignWidget: "LEFT",
+      isDisabled: false,
+      isRequired: false,
     },
     RADIO_GROUP_WIDGET: {
       rows: 2,
@@ -198,16 +225,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       defaultOptionValue: "M",
       widgetName: "RadioGroup",
       version: 1,
-    },
-    ALERT_WIDGET: {
-      alertType: "NOTIFICATION",
-      intent: "SUCCESS",
-      rows: 3,
-      columns: 3,
-      header: "",
-      message: "",
-      widgetName: "Alert",
-      version: 1,
+      isRequired: false,
+      isDisabled: false,
     },
     FILE_PICKER_WIDGET: {
       rows: 1,
@@ -220,35 +239,49 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
       version: 1,
+      isRequired: false,
+      isDisabled: false,
     },
     TABS_WIDGET: {
       rows: 7,
       columns: 8,
       shouldScrollContents: false,
       widgetName: "Tabs",
-      tabs: [
-        { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
-        { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
-      ],
+      tabsObj: {
+        tab1: {
+          label: "Tab 1",
+          id: "tab1",
+          widgetId: "",
+          isVisible: true,
+          index: 0,
+        },
+        tab2: {
+          label: "Tab 2",
+          id: "tab2",
+          widgetId: "",
+          isVisible: true,
+          index: 1,
+        },
+      },
       shouldShowTabs: true,
       defaultTab: "Tab 1",
       blueprint: {
         operations: [
           {
-            type: "MODIFY_PROPS",
+            type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const tabs = [...widget.tabs];
-
-              const newTabs = tabs.map((tab: any) => {
+              const tabs = Object.values({ ...widget.tabsObj });
+              const tabsObj = tabs.reduce((obj: any, tab: any) => {
                 const newTab = { ...tab };
                 newTab.widgetId = generateReactKey();
-                return newTab;
-              });
+                obj[newTab.id] = newTab;
+                return obj;
+              }, {});
               const updatePropertyMap = [
                 {
                   widgetId: widget.widgetId,
-                  propertyName: "tabs",
-                  propertyValue: newTabs,
+                  propertyName: "tabsObj",
+                  propertyValue: tabsObj,
                 },
               ];
               return updatePropertyMap;
@@ -256,7 +289,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
-      version: 1,
+      version: 2,
     },
     MODAL_WIDGET: {
       rows: 6,
@@ -330,9 +363,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 ],
                 operations: [
                   {
-                    type: "MODIFY_PROPS",
+                    type: BlueprintOperationTypes.MODIFY_PROPS,
                     fn: (
                       widget: WidgetProps & { children?: WidgetProps[] },
+                      widgets: { [widgetId: string]: FlattenedWidgetProps },
                       parent?: WidgetProps & { children?: WidgetProps[] },
                     ) => {
                       const iconChild =
@@ -373,8 +407,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       chartName: "Sales on working days",
       allowHorizontalScroll: false,
       version: 1,
-      chartData: [
-        {
+      chartData: {
+        [generateReactKey()]: {
           seriesName: "Sales",
           data: [
             {
@@ -407,7 +441,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             },
           ],
         },
-      ],
+      },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
     },
@@ -499,6 +533,330 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 1,
       widgetName: "Skeleton",
       version: 1,
+    },
+    TABS_MIGRATOR_WIDGET: {
+      isLoading: true,
+      rows: 1,
+      columns: 1,
+      widgetName: "Skeleton",
+      version: 1,
+    },
+    [WidgetTypes.LIST_WIDGET]: {
+      backgroundColor: "",
+      itemBackgroundColor: "white",
+      rows: 10,
+      columns: 8,
+      gridType: "vertical",
+      enhancements: {
+        child: {
+          autocomplete: (parentProps: any) => {
+            return parentProps.childAutoComplete;
+          },
+          hideEvaluatedValue: () => true,
+          propertyUpdateHook: (
+            parentProps: any,
+            widgetName: string,
+            propertyPath: string, // onClick
+            propertyValue: string,
+            isTriggerProperty: boolean,
+          ) => {
+            let value = propertyValue;
+
+            if (!parentProps.widgetId) return [];
+
+            const { jsSnippets } = getDynamicBindings(propertyValue);
+
+            const modifiedAction = jsSnippets.reduce(
+              (prev: string, next: string) => {
+                return `${prev}${next}`;
+              },
+              "",
+            );
+
+            value = `{{${parentProps.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+            const path = `template.${widgetName}.${propertyPath}`;
+
+            return [
+              {
+                widgetId: parentProps.widgetId,
+                propertyPath: path,
+                propertyValue: isTriggerProperty ? propertyValue : value,
+                isDynamicTrigger: isTriggerProperty,
+              },
+            ];
+          },
+        },
+      },
+      gridGap: 0,
+      items: [
+        {
+          id: 1,
+          num: "001",
+          name: "Bulbasaur",
+          img: "http://www.serebii.net/pokemongo/pokemon/001.png",
+        },
+        {
+          id: 2,
+          num: "002",
+          name: "Ivysaur",
+          img: "http://www.serebii.net/pokemongo/pokemon/002.png",
+        },
+        {
+          id: 3,
+          num: "003",
+          name: "Venusaur",
+          img: "http://www.serebii.net/pokemongo/pokemon/003.png",
+        },
+        {
+          id: 4,
+          num: "004",
+          name: "Charmander",
+          img: "http://www.serebii.net/pokemongo/pokemon/004.png",
+        },
+        {
+          id: 5,
+          num: "005",
+          name: "Charmeleon",
+          img: "http://www.serebii.net/pokemongo/pokemon/005.png",
+        },
+        {
+          id: 6,
+          num: "006",
+          name: "Charizard",
+          img: "http://www.serebii.net/pokemongo/pokemon/006.png",
+        },
+      ],
+      widgetName: "List",
+      children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              dropDisabled: true,
+              noPad: true,
+              children: [],
+              blueprint: {
+                view: [
+                  {
+                    type: "CONTAINER_WIDGET",
+                    size: { rows: 4, cols: 16 },
+                    position: { top: 0, left: 0 },
+                    props: {
+                      backgroundColor: "white",
+                      containerStyle: "card",
+                      dragDisabled: true,
+                      isDeletable: false,
+                      disallowCopy: true,
+                      disablePropertyPane: true,
+                      children: [],
+                      blueprint: {
+                        view: [
+                          {
+                            type: "CANVAS_WIDGET",
+                            position: { top: 0, left: 0 },
+                            props: {
+                              containerStyle: "none",
+                              canExtend: false,
+                              detachFromLayout: true,
+                              children: [],
+                              version: 1,
+                              blueprint: {
+                                view: [
+                                  {
+                                    type: "IMAGE_WIDGET",
+                                    size: { rows: 3, cols: 4 },
+                                    position: { top: 0, left: 0 },
+                                    props: {
+                                      defaultImage:
+                                        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                                      imageShape: "RECTANGLE",
+                                      maxZoomLevel: 1,
+                                      image: "{{currentItem.img}}",
+                                      dynamicBindingPathList: [
+                                        {
+                                          key: "image",
+                                        },
+                                      ],
+                                      dynamicTriggerPathList: [],
+                                    },
+                                  },
+                                  {
+                                    type: "TEXT_WIDGET",
+                                    size: { rows: 1, cols: 6 },
+                                    position: { top: 0, left: 4 },
+                                    props: {
+                                      text: "{{currentItem.name}}",
+                                      textStyle: "HEADING",
+                                      textAlign: "LEFT",
+                                      dynamicBindingPathList: [
+                                        {
+                                          key: "text",
+                                        },
+                                      ],
+                                      dynamicTriggerPathList: [],
+                                    },
+                                  },
+                                  {
+                                    type: "TEXT_WIDGET",
+                                    size: { rows: 1, cols: 6 },
+                                    position: { top: 1, left: 4 },
+                                    props: {
+                                      text: "{{currentItem.num}}",
+                                      textStyle: "BODY",
+                                      textAlign: "LEFT",
+                                      dynamicBindingPathList: [
+                                        {
+                                          key: "text",
+                                        },
+                                      ],
+                                      dynamicTriggerPathList: [],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (
+              widget: WidgetProps & { children?: WidgetProps[] },
+              widgets: { [widgetId: string]: FlattenedWidgetProps },
+            ) => {
+              let template = {};
+              const container = get(
+                widgets,
+                `${get(widget, "children.0.children.0")}`,
+              );
+              const canvas = get(widgets, `${get(container, "children.0")}`);
+              let updatePropertyMap: any = [];
+              const dynamicBindingPathList: any[] = get(
+                widget,
+                "dynamicBindingPathList",
+                [],
+              );
+
+              canvas.children &&
+                get(canvas, "children", []).forEach((child: string) => {
+                  const childWidget = cloneDeep(get(widgets, `${child}`));
+                  const keys = Object.keys(childWidget);
+
+                  for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
+                    let value = childWidget[key];
+
+                    if (isString(value) && value.indexOf("currentItem") > -1) {
+                      const { jsSnippets } = getDynamicBindings(value);
+
+                      const modifiedAction = jsSnippets.reduce(
+                        (prev: string, next: string) => {
+                          return prev + `${next}`;
+                        },
+                        "",
+                      );
+
+                      value = `{{${widget.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+
+                      childWidget[key] = value;
+
+                      dynamicBindingPathList.push({
+                        key: `template.${childWidget.widgetName}.${key}`,
+                      });
+                    }
+                  }
+
+                  template = {
+                    ...template,
+                    [childWidget.widgetName]: childWidget,
+                  };
+                });
+
+              updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "dynamicBindingPathList",
+                  propertyValue: dynamicBindingPathList,
+                },
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "template",
+                  propertyValue: template,
+                },
+              ];
+              return updatePropertyMap;
+            },
+          },
+          {
+            type: BlueprintOperationTypes.CHILD_OPERATIONS,
+            fn: (
+              widgets: { [widgetId: string]: FlattenedWidgetProps },
+              widgetId: string,
+              parentId: string,
+              widgetPropertyMaps: {
+                defaultPropertyMap: Record<string, string>;
+              },
+            ) => {
+              if (!parentId) return { widgets };
+              const widget = { ...widgets[widgetId] };
+              const parent = { ...widgets[parentId] };
+
+              const disallowedWidgets = [WidgetTypes.FILE_PICKER_WIDGET];
+
+              if (
+                Object.keys(widgetPropertyMaps.defaultPropertyMap).length > 0 ||
+                indexOf(disallowedWidgets, widget.type) > -1
+              ) {
+                const widget = widgets[widgetId];
+                if (widget.children && widget.children.length > 0) {
+                  widget.children.forEach((childId: string) => {
+                    delete widgets[childId];
+                  });
+                }
+                if (widget.parentId) {
+                  const _parent = { ...widgets[widget.parentId] };
+                  _parent.children = _parent.children?.filter(
+                    (id) => id !== widgetId,
+                  );
+                  widgets[widget.parentId] = _parent;
+                }
+                delete widgets[widgetId];
+
+                return {
+                  widgets,
+                  message: `${
+                    WidgetConfigResponse.config[widget.type].widgetName
+                  } widgets cannot be used inside the list widget right now.`,
+                };
+              }
+
+              const template = {
+                ...get(parent, "template", {}),
+                [widget.widgetName]: widget,
+              };
+
+              parent.template = template;
+
+              widgets[parentId] = parent;
+
+              return { widgets };
+            },
+          },
+        ],
+      },
     },
   },
   configVersion: 1,

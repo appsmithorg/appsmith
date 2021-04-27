@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -93,8 +94,13 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         // 2. Save the comment thread and get it's id. This is the `threadId`.
         // 3. Pull the comment out of the list of comments, set it's `threadId` and save it separately.
         // 4. Populate the new comment's ID into the CommentThread object sent as response.
-
         final String applicationId = commentThread.getApplicationId();
+        CommentThread.CommentThreadState initState = new CommentThread.CommentThreadState();
+        initState.setActive(false);
+        initState.setAuthor("");
+
+        commentThread.setPinnedState(initState);
+        commentThread.setResolvedState(initState);
 
         return applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
@@ -130,12 +136,22 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
     @Override
     public Mono<CommentThread> updateThread(String threadId, CommentThread commentThread) {
-        final CommentThread updates = new CommentThread();
 
-        // Copy over only those fields that are allowed to be updated by a PUT request.
-        updates.setResolved(commentThread.getResolved());
-
-        return threadRepository.updateById(threadId, commentThread, AclPermission.MANAGE_THREAD);
+        CommentThread.CommentThreadState initState = new CommentThread.CommentThreadState();
+        // Copy over only those fields that are allowed to be updated by a PATCH request.
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> {
+                    initState.setAuthor(user.getName());
+                    initState.setUpdatedAt(Instant.now());
+                    if (commentThread.getResolvedState() != null) {
+                        initState.setActive(commentThread.getResolvedState().getActive());
+                        commentThread.setResolvedState(initState);
+                    } else if (commentThread.getPinnedState() != null) {
+                        initState.setActive(commentThread.getPinnedState().getActive());
+                        commentThread.setPinnedState(initState);
+                    }
+                    return threadRepository.updateById(threadId, commentThread, AclPermission.MANAGE_THREAD);
+                });
     }
 
     @Override

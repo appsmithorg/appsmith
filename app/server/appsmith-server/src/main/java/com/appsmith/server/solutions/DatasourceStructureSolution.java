@@ -1,10 +1,10 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
@@ -59,6 +59,11 @@ public class DatasourceStructureSolution {
                     }
 
                     return e;
+                })
+                .onErrorResume(error -> {
+                    DatasourceStructure dsStructure = new DatasourceStructure();
+                    dsStructure.setErrorInfo(error);
+                    return Mono.just(dsStructure);
                 });
     }
 
@@ -91,14 +96,16 @@ public class DatasourceStructureSolution {
                         TimeoutException.class,
                         error -> new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR,
-                                "Timed out when fetching structure"
+                                "Appsmith server timed out when fetching structure. Please reach out to appsmith " +
+                                        "customer support to resolve this."
                         )
                 )
                 .onErrorMap(
                         StaleConnectionException.class,
                         error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                                "Secondary stale connection error."
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server found a secondary stale connection. Please reach out to appsmith " +
+                                        "customer support to resolve this."
                         )
                 )
                 .onErrorMap(

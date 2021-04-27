@@ -70,4 +70,6 @@ export type AppsmithUIConfigs = {
 
   disableTelemetry: boolean;
   commentsTestModeEnabled: boolean;
+
+  cloudServicesBaseUrl: string;
 };
