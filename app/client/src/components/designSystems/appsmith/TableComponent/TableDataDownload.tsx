@@ -44,7 +44,7 @@ const downloadDataAsCSV = (props: {
   }
 };
 
-const TableDataDownload = (props: TableDataDownloadProps) => {
+function TableDataDownload(props: TableDataDownloadProps) {
   const [selected, toggleButtonClick] = React.useState(false);
   const downloadTableData = () => {
     toggleButtonClick(true);
@@ -62,7 +62,7 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
   if (props.columns.length === 0) {
     return (
       <TableIconWrapper disabled>
-        <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
+        <IconWrapper color={Colors.CADET_BLUE} height={20} width={20}>
           <DownloadIcon />
         </IconWrapper>
       </TableIconWrapper>
@@ -70,16 +70,16 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
   }
   return (
     <TableActionIcon
-      tooltip="Download"
-      selected={selected}
+      className="t--table-download-btn"
       selectMenu={() => {
         downloadTableData();
       }}
-      className="t--table-download-btn"
+      selected={selected}
+      tooltip="Download"
     >
       <DownloadIcon />
     </TableActionIcon>
   );
-};
+}
 
 export default TableDataDownload;

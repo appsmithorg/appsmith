@@ -317,14 +317,13 @@ class FilePickerWidget extends BaseWidget<
             return file.id !== dslFile.id;
           })
         : [];
-      this.props.updateWidgetMetaProperty("files", updatedFiles);
+      this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
     });
 
     this.state.uppy.on("files-added", (files: any[]) => {
       const dslFiles = this.props.selectedFiles
         ? [...this.props.selectedFiles]
         : [];
-
       const fileReaderPromises = files.map((file) => {
         const reader = new FileReader();
         return new Promise((resolve) => {
@@ -382,6 +381,7 @@ class FilePickerWidget extends BaseWidget<
   onFilesSelected = () => {
     if (this.props.onFilesSelected) {
       this.executeAction({
+        triggerPropertyName: "onFilesSelected",
         dynamicString: this.props.onFilesSelected,
         event: {
           type: EventType.ON_FILES_SELECTED,
@@ -439,13 +439,13 @@ class FilePickerWidget extends BaseWidget<
   getPageView() {
     return (
       <FilePickerComponent
-        uppy={this.state.uppy}
-        widgetId={this.props.widgetId}
+        files={this.props.selectedFiles || []}
+        isDisabled={this.props.isDisabled}
+        isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         label={this.props.label}
-        files={this.props.selectedFiles || []}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        isDisabled={this.props.isDisabled}
+        uppy={this.state.uppy}
+        widgetId={this.props.widgetId}
       />
     );
   }

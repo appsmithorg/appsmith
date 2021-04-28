@@ -48,8 +48,12 @@ public class RowObject {
 
     public RowObject(String[] headerValues, String[] rowValues, int rowIndex) {
         this.valueMap = new LinkedHashMap<>(rowValues.length + 1);
-        for (int i = 0; i < rowValues.length; i++) {
+        int i = 0;
+        for (; i < rowValues.length; i++) {
             valueMap.put(headerValues[i], rowValues[i]);
+        }
+        while (i < headerValues.length) {
+            valueMap.put(headerValues[i++], "");
         }
 
         this.currentRowIndex = rowIndex;

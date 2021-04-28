@@ -23,7 +23,7 @@ const StyledTrigger = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 ${(props) => props.theme.spaces[2]}px;
+  margin: 0 ${(props) => props.theme.spaces[4]}px;
   background: ${(props) =>
     props.theme.colors.globalSearch.helpButtonBackground};
 `;
@@ -31,9 +31,9 @@ const StyledTrigger = styled.div`
 const Trigger = withTheme(({ theme }: { theme: Theme }) => (
   <StyledTrigger>
     <Icon
+      fillColor={theme.colors.globalSearch.helpIcon}
       name="help"
       size={IconSize.XS}
-      fillColor={theme.colors.globalSearch.helpIcon}
     />
   </StyledTrigger>
 ));
@@ -41,29 +41,29 @@ const Trigger = withTheme(({ theme }: { theme: Theme }) => (
 const onOpened = () => {
   AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
 };
-const HelpButton = () => {
+function HelpButton() {
   return (
     <Popover
+      minimal
       modifiers={{
         offset: {
           enabled: true,
           offset: "0, 6",
         },
       }}
-      minimal
-      position={Position.BOTTOM_RIGHT}
       onOpened={onOpened}
       popoverClassName="navbar-help-popover"
+      position={Position.BOTTOM_RIGHT}
     >
       <>
         <HelpPopoverStyle />
         <Trigger />
       </>
       <div style={{ width: HELP_MODAL_WIDTH }}>
-        <DocumentationSearch hitsPerPage={4} hideSearch hideMinimizeBtn />
+        <DocumentationSearch hideMinimizeBtn hideSearch hitsPerPage={4} />
       </div>
     </Popover>
   );
-};
+}
 
 export default HelpButton;

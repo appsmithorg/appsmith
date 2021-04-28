@@ -51,7 +51,7 @@ type DragLayerProps = {
   noPad: boolean;
 };
 
-const DragLayerComponent = (props: DragLayerProps) => {
+function DragLayerComponent(props: DragLayerProps) {
   const { updateDropTargetRows } = useContext(DropTargetContext);
   const dropTargetMask: RefObject<HTMLDivElement> = React.useRef(null);
   const dropZoneRef = React.useRef<HTMLDivElement>(null);
@@ -146,26 +146,26 @@ const DragLayerComponent = (props: DragLayerProps) => {
   return (
     <WrappedDragLayer
       columnWidth={props.parentColumnWidth}
-      rowHeight={props.parentRowHeight}
-      ref={dropTargetMask}
       noPad={props.noPad}
+      ref={dropTargetMask}
+      rowHeight={props.parentRowHeight}
     >
       {props.visible &&
         props.isOver &&
         currentOffset &&
         isParentOffsetCalculated && (
           <DropZone
+            canDrop={canDrop}
+            currentOffset={currentOffset as XYCoord}
+            height={widgetHeight}
+            parentColumnWidth={props.parentColumnWidth}
             parentOffset={dropTargetOffset.current}
             parentRowHeight={props.parentRowHeight}
-            parentColumnWidth={props.parentColumnWidth}
-            width={widgetWidth}
-            height={widgetHeight}
-            currentOffset={currentOffset as XYCoord}
-            canDrop={canDrop}
             ref={dropZoneRef}
+            width={widgetWidth}
           />
         )}
     </WrappedDragLayer>
   );
-};
+}
 export default DragLayerComponent;

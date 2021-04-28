@@ -30,6 +30,9 @@ import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 import {
   useChildWidgetEnhancementFns,
@@ -178,6 +181,16 @@ const PropertyControl = memo((props: Props) => {
         });
         allUpdates[propertyName] = propertyValue;
         onBatchUpdateProperties(allUpdates);
+        AppsmithConsole.info({
+          logType: LOG_TYPE.WIDGET_UPDATE,
+          text: "Widget properties were updated",
+          source: {
+            type: ENTITY_TYPE.WIDGET,
+            name: widgetProperties.widgetName,
+            id: widgetProperties.widgetId,
+          },
+          state: allUpdates,
+        });
       }
       if (!propertiesToUpdate) {
         dispatch(
@@ -188,6 +201,18 @@ const PropertyControl = memo((props: Props) => {
             RenderModes.CANVAS, // This seems to be not needed anymore.
           ),
         );
+        AppsmithConsole.info({
+          logType: LOG_TYPE.WIDGET_UPDATE,
+          text: "Widget properties were updated",
+          source: {
+            type: ENTITY_TYPE.WIDGET,
+            name: widgetProperties.widgetName,
+            id: widgetProperties.widgetId,
+          },
+          state: {
+            [propertyName]: propertyValue,
+          },
+        });
       }
     },
     [dispatch, widgetProperties],
@@ -224,12 +249,13 @@ const PropertyControl = memo((props: Props) => {
     let validationMessage = "";
     if (widgetProperties) {
       isValid = widgetProperties.invalidProps
-        ? !(propertyName in widgetProperties.invalidProps)
+        ? !_.has(widgetProperties.invalidProps, propertyName)
         : true;
-      validationMessage = widgetProperties.validationMessages
-        ? propertyName in widgetProperties.validationMessages
-          ? widgetProperties.validationMessages[propertyName]
-          : ""
+      const validationMsgPresent =
+        widgetProperties.validationMessages &&
+        _.has(widgetProperties.validationMessages, propertyName);
+      validationMessage = validationMsgPresent
+        ? _.get(widgetProperties.validationMessages, propertyName)
         : "";
     }
     return { isValid, validationMessage };
@@ -321,30 +347,30 @@ const PropertyControl = memo((props: Props) => {
           }
         >
           <Boxed
-            step={OnboardingStep.DEPLOY}
             show={
               propertyName !== "isRequired" && propertyName !== "isDisabled"
             }
+            step={OnboardingStep.DEPLOY}
           >
             <ControlPropertyLabelContainer>
               <PropertyHelpLabel
-                tooltip={props.helpText}
                 label={label}
                 theme={props.theme}
+                tooltip={props.helpText}
               />
               {isConvertible && (
                 <JSToggleButton
                   active={isDynamic}
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
                   className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
                 >
                   <ControlIcons.JS_TOGGLE />
                 </JSToggleButton>
               )}
             </ControlPropertyLabelContainer>
             <Indicator
-              step={OnboardingStep.ADD_INPUT_WIDGET}
               show={propertyName === "onSubmit"}
+              step={OnboardingStep.ADD_INPUT_WIDGET}
             >
               {PropertyControlFactory.createControl(
                 config,

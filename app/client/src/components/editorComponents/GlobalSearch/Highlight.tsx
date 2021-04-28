@@ -1,6 +1,6 @@
 import React from "react";
 
-const Highlight = ({ match, text }: { match: string; text: string }) => {
+function Highlight({ match, text }: { match: string; text: string }) {
   if (!match) return <span>{text}</span>;
 
   const regEx = new RegExp(match, "ig");
@@ -27,6 +27,6 @@ const Highlight = ({ match, text }: { match: string; text: string }) => {
       })}
     </span>
   );
-};
+}
 
 export default Highlight;

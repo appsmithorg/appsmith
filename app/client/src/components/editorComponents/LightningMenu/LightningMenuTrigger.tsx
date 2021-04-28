@@ -43,7 +43,7 @@ interface LightningMenuTriggerProps {
 
 type MenuState = "none" | "default" | "active" | "hover";
 
-export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
+export function LightningMenuTrigger(props: LightningMenuTriggerProps) {
   const getMenuState = () => {
     let menuState: MenuState = "none";
     if (props.isOpened) {
@@ -70,27 +70,27 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
   const { background, iconProps } = getMenuState();
   return (
     <LightningIconWrapper
-      color={iconProps.color}
       background={background}
+      className="lightning-menu"
+      color={iconProps.color}
+      isFocused={props.isFocused}
       onClick={() => {
         if (props.onOpenLightningMenu) {
           props.onOpenLightningMenu();
         }
       }}
       skin={props.skin}
-      className="lightning-menu"
-      isFocused={props.isFocused}
     >
       <Tooltip
-        content={createMessage(LIGHTNING_MENU_DATA_TOOLTIP)}
         autoFocus={false}
+        content={createMessage(LIGHTNING_MENU_DATA_TOOLTIP)}
         hoverOpenDelay={1000}
-        openOnTargetFocus={false}
         minWidth={"180px"}
+        openOnTargetFocus={false}
         position={Position.LEFT}
       >
         <Icon name="lightning" size={IconSize.LARGE} />
       </Tooltip>
     </LightningIconWrapper>
   );
-};
+}

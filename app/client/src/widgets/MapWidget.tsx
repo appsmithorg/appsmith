@@ -176,6 +176,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     markers.push(marker);
     this.props.updateWidgetMetaProperty("markers", markers);
     this.props.updateWidgetMetaProperty("selectedMarker", marker, {
+      triggerPropertyName: "onCreateMarker",
       dynamicString: this.props.onCreateMarker,
       event: {
         type: EventType.ON_CREATE_MARKER,
@@ -195,6 +196,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       title: title,
     };
     this.props.updateWidgetMetaProperty("selectedMarker", selectedMarker, {
+      triggerPropertyName: "onMarkerClick",
       dynamicString: this.props.onMarkerClick,
       event: {
         type: EventType.ON_MARKER_CLICK,
@@ -226,9 +228,9 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             <p>
               {"See our"}
               <a
-                target="_blank"
-                rel="noopener noreferrer"
                 href="https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 {" documentation "}
               </a>
@@ -238,26 +240,26 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         )}
         {google.enabled && (
           <MapComponent
-            apiKey={google.apiKey}
-            widgetId={this.props.widgetId}
-            isVisible={this.props.isVisible}
-            zoomLevel={this.props.zoomLevel}
             allowZoom={this.props.allowZoom}
+            apiKey={google.apiKey}
             center={this.getCenter()}
             enableCreateMarker={this.props.enableCreateMarker}
-            selectedMarker={this.props.selectedMarker}
-            updateCenter={this.updateCenter}
-            isDisabled={this.props.isDisabled}
-            enableSearch={this.props.enableSearch}
-            enablePickLocation={this.props.enablePickLocation}
-            saveMarker={this.onCreateMarker}
-            updateMarker={this.updateMarker}
-            selectMarker={this.onMarkerClick}
-            unselectMarker={this.unselectMarker}
-            markers={this.props.markers}
             enableDrag={() => {
               this.disableDrag(false);
             }}
+            enablePickLocation={this.props.enablePickLocation}
+            enableSearch={this.props.enableSearch}
+            isDisabled={this.props.isDisabled}
+            isVisible={this.props.isVisible}
+            markers={this.props.markers}
+            saveMarker={this.onCreateMarker}
+            selectMarker={this.onMarkerClick}
+            selectedMarker={this.props.selectedMarker}
+            unselectMarker={this.unselectMarker}
+            updateCenter={this.updateCenter}
+            updateMarker={this.updateMarker}
+            widgetId={this.props.widgetId}
+            zoomLevel={this.props.zoomLevel}
           />
         )}
       </>
