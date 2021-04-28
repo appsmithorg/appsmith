@@ -180,7 +180,9 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                   .map((datasource) => ({
                     text: datasource.datasourceConfiguration.url,
                     data: datasource,
-                    className: "datasource-hint",
+                    className: !datasource.isValid
+                      ? "datasource-hint invalid"
+                      : "datasource-hint",
                   }));
                 const hints = {
                   list,
@@ -285,7 +287,7 @@ const mapStateToProps = (
     orgId: state.ui.orgs.currentOrg.id,
     datasource: datasourceMerged,
     datasourceList: state.entities.datasources.list.filter(
-      (d) => d.pluginId === ownProps.pluginId && d.isValid,
+      (d) => d.pluginId === ownProps.pluginId,
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
