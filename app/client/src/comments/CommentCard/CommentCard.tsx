@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import Editor from "@draft-js-plugins/editor";
 import {
   CompositeDecorator,
@@ -15,6 +15,7 @@ import CommentContextMenu from "./CommentContextMenu";
 import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
 import { MentionComponent } from "components/ads/MentionsInput";
 import Icon from "components/ads/Icon";
+import EmojiReactions, { Reactions } from "components/ads/EmojiReactions";
 
 import createMentionPlugin from "@draft-js-plugins/mention";
 import { flattenDeep, noop } from "lodash";
@@ -32,6 +33,7 @@ import { commentThreadsSelector } from "selectors/commentsSelectors";
 import { Toaster } from "components/ads/Toast";
 import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
 import { Variant } from "components/ads/common";
+import { BaseEmoji } from "emoji-mart";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -74,6 +76,7 @@ const CommentTime = styled.div`
   ${(props) => getTypographyByKey(props, "p3")}
   display: flex;
   justify-content: space-between;
+  margin-bottom: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const CommentSubheader = styled.div`
@@ -126,6 +129,11 @@ const UnreadIndicator = styled.div`
     props.theme.colors.comments.unreadIndicatorCommentCard};
   margin-right: ${(props) => props.theme.spaces[2]}px;
   flex-shrink: 0;
+`;
+
+const ReactionsRow = styled.div`
+  display: flex;
+  margin-bottom: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const mentionPlugin = createMentionPlugin({
@@ -182,6 +190,7 @@ function CommentCard({
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
+  const [reactions, setReactions] = useState<Reactions>();
 
   const isPinned = commentThread.pinnedState?.active;
   const pinnedBy = commentThread.pinnedState?.author;
@@ -231,6 +240,14 @@ function CommentCard({
     if (inline) return;
     const url = getCommentURL();
     history.push(`${url.pathname}${url.search}${url.hash}`);
+  };
+
+  const handleReaction = (
+    _event: React.MouseEvent,
+    _emojiData: BaseEmoji,
+    updatedReactions: Reactions,
+  ) => {
+    setReactions(updatedReactions);
   };
 
   return (
@@ -286,6 +303,14 @@ function CommentCard({
         <span>{moment().fromNow()}</span>
         <span>{showReplies && replyText(numberOfReplies)}</span>
       </CommentTime>
+      <ReactionsRow>
+        <StopClickPropagation>
+          <EmojiReactions
+            onSelectReaction={handleReaction}
+            reactions={reactions}
+          />
+        </StopClickPropagation>
+      </ReactionsRow>
     </StyledContainer>
   );
 }

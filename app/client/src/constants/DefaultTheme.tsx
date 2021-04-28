@@ -929,6 +929,12 @@ type ColorType = {
     pinnedThreadBackground: string;
     visibleThreadBackground: string;
   };
+  reactionsComponent: {
+    reactionBackground: string;
+    reactionBackgroundActive: string;
+    text: string;
+    textActive: string;
+  };
   treeDropdown: {
     targetBg: string;
     targetIcon: {
@@ -1003,6 +1009,13 @@ type ColorType = {
     background: string;
   };
   mentionsInput: Record<string, string>;
+};
+
+const reactionsComponent = {
+  reactionBackground: lightShades[2],
+  reactionBackgroundActive: "#FEEDE5",
+  text: lightShades[7],
+  textActive: "#BF4109",
 };
 
 const comments = {
@@ -1115,6 +1128,7 @@ const mentionsInput = {
 };
 
 export const dark: ColorType = {
+  reactionsComponent,
   mentionsInput,
   helpModal,
   globalSearch,
@@ -1560,6 +1574,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  reactionsComponent,
   mentionsInput,
   helpModal,
   globalSearch,

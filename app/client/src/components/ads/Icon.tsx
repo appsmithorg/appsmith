@@ -62,6 +62,7 @@ import { ReactComponent as Filter } from "assets/icons/comments/filter.svg";
 import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
 import { ReactComponent as Pin3 } from "assets/icons/comments/pin_3.svg";
 import { ReactComponent as Unpin } from "assets/icons/comments/unpin.svg";
+import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -185,6 +186,7 @@ export const IconCollection = [
   "chat",
   "pin-3",
   "unpin",
+  "reaction",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -463,6 +465,10 @@ const Icon = forwardRef(
 
       case "unpin":
         returnIcon = <Unpin />;
+        break;
+
+      case "reaction":
+        returnIcon = <Reaction />;
         break;
 
       default:

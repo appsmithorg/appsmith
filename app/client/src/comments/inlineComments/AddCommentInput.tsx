@@ -10,7 +10,7 @@ import EmojiPicker from "components/ads/EmojiPicker";
 import MentionsInput from "components/ads/MentionsInput";
 import Button, { Category } from "components/ads/Button";
 
-import { IEmojiData } from "emoji-picker-react";
+import { BaseEmoji } from "emoji-mart";
 import styled from "styled-components";
 import { EditorState, convertToRaw, Modifier, SelectionState } from "draft-js";
 import { MentionData } from "@draft-js-plugins/mention";
@@ -146,8 +146,8 @@ function AddCommentInput({
   const handleSubmit = useCallback(() => onSaveComment(), [editorState]);
 
   const handleEmojiClick = useCallback(
-    (e: React.MouseEvent, emojiObject: IEmojiData) => {
-      const newEditorState = insertCharacter(emojiObject.emoji, editorState);
+    (e: React.MouseEvent, emojiObject: BaseEmoji) => {
+      const newEditorState = insertCharacter(emojiObject.native, editorState);
       setEditorState(newEditorState);
     },
     [editorState],
