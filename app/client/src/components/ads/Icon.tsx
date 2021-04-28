@@ -398,7 +398,7 @@ const Icon = forwardRef(
       case "PARAGRAPH":
       case "PARAGRAPH_TWO":
         const ControlIcon = ControlIcons[props.name];
-        returnIcon = <ControlIcon width={24} height={24} />;
+        returnIcon = <ControlIcon height={24} width={24} />;
         break;
 
       case "context-menu":

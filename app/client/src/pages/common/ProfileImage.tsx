@@ -36,7 +36,7 @@ export default function ProfileImage(props: {
       className={props.className}
       side={props.side} // side since it's a square
     >
-      <Text type={TextType.H6} highlight>
+      <Text highlight type={TextType.H6}>
         {props.commonName || initialsAndColorCode[0]}
       </Text>
     </Profile>

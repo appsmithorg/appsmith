@@ -100,17 +100,17 @@ class HelpModal extends React.Component<Props> {
       <>
         {isHelpModalOpen && (
           <ModalComponent
-            canOutsideClickClose
             canEscapeKeyClose
-            scrollContents
-            height={MODAL_HEIGHT}
-            width={MODAL_WIDTH}
-            top={window.innerHeight - MODAL_BOTTOM_DISTANCE - MODAL_HEIGHT}
-            left={window.innerWidth - MODAL_RIGHT_DISTANCE - MODAL_WIDTH}
+            canOutsideClickClose
             data-cy={"help-modal"}
             hasBackDrop={false}
-            onClose={this.onClose}
+            height={MODAL_HEIGHT}
             isOpen
+            left={window.innerWidth - MODAL_RIGHT_DISTANCE - MODAL_WIDTH}
+            onClose={this.onClose}
+            scrollContents
+            top={window.innerHeight - MODAL_BOTTOM_DISTANCE - MODAL_HEIGHT}
+            width={MODAL_WIDTH}
             zIndex={layers.help}
           >
             <DocumentationSearch hitsPerPage={4} />

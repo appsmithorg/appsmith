@@ -36,7 +36,7 @@ type StateAndRouteProps = EditorJSONtoFormProps &
 
 type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
 
-const ActionForm: React.FC<Props> = (props: Props) => {
+function ActionForm(props: Props) {
   const {
     match: {
       params: { pageId, applicationId, apiId },
@@ -64,7 +64,7 @@ const ActionForm: React.FC<Props> = (props: Props) => {
     onCreateDatasourceClick,
   };
   return <EditorJSONtoForm {...childProps} />;
-};
+}
 
 const mapStateToProps = (state: AppState, props: any) => {
   const { apiId } = props.match.params;

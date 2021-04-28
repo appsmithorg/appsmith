@@ -3,13 +3,13 @@ import { Icon, IconName } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 
-export const CollapseToggle = (props: {
+export function CollapseToggle(props: {
   isOpen: boolean;
   isVisible: boolean;
   onClick: () => void;
   disabled: boolean;
   className: string;
-}) => {
+}) {
   const handleClick = (e: any) => {
     props.onClick();
     e.stopPropagation();
@@ -18,15 +18,15 @@ export const CollapseToggle = (props: {
     ? IconNames.CARET_DOWN
     : IconNames.CARET_RIGHT;
 
-  if (!props.isVisible) return <span></span>;
+  if (!props.isVisible) return <span />;
   return (
     <Icon
       className={props.className}
+      color={props.disabled ? Colors.SLATE_GRAY : Colors.WHITE}
       icon={icon}
       onClick={handleClick}
-      color={props.disabled ? Colors.SLATE_GRAY : Colors.WHITE}
     />
   );
-};
+}
 
 export default CollapseToggle;

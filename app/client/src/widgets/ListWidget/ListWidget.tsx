@@ -537,11 +537,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
         {shouldPaginate && (
           <ListPagination
-            total={this.props.items.length}
             current={this.state.page}
-            perPage={perPage}
-            onChange={(page: number) => this.setState({ page })}
             disabled={false && this.props.renderMode === RenderModes.CANVAS}
+            onChange={(page: number) => this.setState({ page })}
+            perPage={perPage}
+            total={this.props.items.length}
           />
         )}
       </ListComponent>
