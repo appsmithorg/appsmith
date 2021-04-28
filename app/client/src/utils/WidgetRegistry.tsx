@@ -44,7 +44,7 @@ import TabsWidget, {
   TabsWidgetProps,
   TabContainerWidgetProps,
   ProfiledTabsWidget,
-} from "widgets/TabsWidget";
+} from "widgets/Tabs/TabsWidget";
 import {
   ModalWidgetProps,
   ProfiledModalWidget,
@@ -90,10 +90,19 @@ import SkeletonWidget, {
   ProfiledSkeletonWidget,
   SkeletonWidgetProps,
 } from "../widgets/SkeletonWidget";
+
+import ListWidget, {
+  ListWidgetProps,
+  ProfiledListWidget,
+} from "widgets/ListWidget/ListWidget";
+
 import SwitchWidget, {
   ProfiledSwitchWidget,
   SwitchWidgetProps,
 } from "widgets/SwitchWidget";
+import TabsMigratorWidget, {
+  ProfiledTabsMigratorWidget,
+} from "widgets/Tabs/TabsMigrator";
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -291,6 +300,20 @@ export default class WidgetBuilderRegistry {
       TabsWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
+      "TABS_MIGRATOR_WIDGET",
+      {
+        buildWidget(
+          widgetProps: TabsWidgetProps<TabContainerWidgetProps>,
+        ): JSX.Element {
+          return <ProfiledTabsMigratorWidget {...widgetProps} />;
+        },
+      },
+      TabsMigratorWidget.getDerivedPropertiesMap(),
+      TabsMigratorWidget.getDefaultPropertiesMap(),
+      TabsMigratorWidget.getMetaPropertiesMap(),
+      TabsMigratorWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
       WidgetTypes.MODAL_WIDGET,
       {
         buildWidget(widgetProps: ModalWidgetProps): JSX.Element {
@@ -407,7 +430,18 @@ export default class WidgetBuilderRegistry {
       SkeletonWidget.getMetaPropertiesMap(),
       SkeletonWidget.getPropertyPaneConfig(),
     );
-
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.LIST_WIDGET,
+      {
+        buildWidget(widgetProps: ListWidgetProps<WidgetProps>): JSX.Element {
+          return <ProfiledListWidget {...widgetProps} />;
+        },
+      },
+      ListWidget.getDerivedPropertiesMap(),
+      ListWidget.getDefaultPropertiesMap(),
+      ListWidget.getMetaPropertiesMap(),
+      ListWidget.getPropertyPaneConfig(),
+    );
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.MODAL_WIDGET,
       {

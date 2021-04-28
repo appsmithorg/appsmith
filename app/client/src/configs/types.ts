@@ -69,4 +69,6 @@ export type AppsmithUIConfigs = {
   mailEnabled: boolean;
 
   disableTelemetry: boolean;
+
+  cloudServicesBaseUrl: string;
 };

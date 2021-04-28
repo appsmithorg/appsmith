@@ -113,12 +113,15 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     };
   }
 
-  onButtonClick() {
+  onButtonClick(e: React.MouseEvent<HTMLElement>) {
+    e.stopPropagation();
+
     if (this.props.onClick) {
       this.setState({
         isLoading: true,
       });
       super.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -135,6 +138,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       });
     }
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
+      triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
       event: {
         type: EventType.ON_CLICK,
@@ -153,16 +157,16 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return (
       <ButtonComponent
         buttonStyle={this.props.buttonStyle}
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        text={this.props.text}
-        disabled={this.props.isDisabled}
-        onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        type={this.props.buttonType || ButtonType.BUTTON}
-        googleRecaptchaKey={this.props.googleRecaptchaKey}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
+        disabled={this.props.isDisabled}
+        googleRecaptchaKey={this.props.googleRecaptchaKey}
+        isLoading={this.props.isLoading || this.state.isLoading}
+        key={this.props.widgetId}
+        onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
+        text={this.props.text}
+        type={this.props.buttonType || ButtonType.BUTTON}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
       />
     );
   }

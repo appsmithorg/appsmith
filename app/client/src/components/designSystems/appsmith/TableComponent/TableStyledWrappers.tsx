@@ -309,6 +309,18 @@ const ALIGN_ITEMS = {
   BOTTOM: "flex-end",
 };
 
+const IMAGE_HORIZONTAL_ALIGN = {
+  LEFT: "left",
+  CENTER: "center",
+  RIGHT: "right",
+};
+
+const IMAGE_VERTICAL_ALIGN = {
+  TOP: "top",
+  CENTER: "center",
+  BOTTOM: "bottom",
+};
+
 export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
   font-weight: ${(props) =>
     props?.cellProperties?.fontStyle?.includes(FontStyleTypes.BOLD)
@@ -369,7 +381,12 @@ export const CellWrapper = styled.div<{
     height: 100%;
     margin: 0 5px 0 0;
     border-radius: 4px;
-    background-position: start;
+    background-position-x: ${(props) =>
+      props?.cellProperties?.horizontalAlignment &&
+      IMAGE_HORIZONTAL_ALIGN[props?.cellProperties?.horizontalAlignment]};
+    background-position-y: ${(props) =>
+      props?.cellProperties?.verticalAlignment &&
+      IMAGE_VERTICAL_ALIGN[props?.cellProperties?.verticalAlignment]};
     background-repeat: no-repeat;
     background-size: contain;
   }
@@ -497,7 +514,6 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
   justify-content: space-between;
   align-items: center;
   width: 150px;
-  background: ${(props) => props.selected && Colors.GREEN};
   position: relative;
   .title {
     color: ${(props) => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};

@@ -426,6 +426,12 @@ export function* createApplicationSaga(
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,
         });
+        // This sets ui.pageWidgets = {} to ensure that
+        // widgets are cleaned up from state before
+        // finishing creating a new application
+        yield put({
+          type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
+        });
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: {

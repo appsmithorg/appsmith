@@ -113,7 +113,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectedIndex: `{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}`,
       selectedIndexArr: `{{ this.selectedOptionValueArr.map(o => _.findIndex(this.options, { value: o })) }}`,
       value: `{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}`,
-      selectedOptionValues: `{{ this.selectedOptionValueArr }}`,
+      selectedOptionValues: `{{ this.selectionType === 'MULTI_SELECT' ? this.selectedOptionValueArr : [] }}`,
       selectedOptionLabels: `{{ this.selectionType === "MULTI_SELECT" ? this.selectedOptionValueArr.map(o => { const index = _.findIndex(this.options, { value: o }); return this.options[index]?.label; }) : [] }}`,
       selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.selectedOptionValue }); return this.selectionType === "SINGLE_SELECT" ? this.options[index]?.label : ""; })()}}`,
     };
@@ -154,19 +154,19 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const { componentWidth, componentHeight } = this.getComponentDimensions();
     return (
       <DropDownComponent
-        onOptionSelected={this.onOptionSelected}
-        onOptionRemoved={this.onOptionRemoved}
-        widgetId={this.props.widgetId}
-        placeholder={this.props.placeholderText}
-        options={options}
+        disabled={this.props.isDisabled}
         height={componentHeight}
-        width={componentWidth}
-        selectionType={this.props.selectionType}
+        isLoading={this.props.isLoading}
+        label={`${this.props.label}`}
+        onOptionRemoved={this.onOptionRemoved}
+        onOptionSelected={this.onOptionSelected}
+        options={options}
+        placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         selectedIndexArr={computedSelectedIndexArr}
-        label={`${this.props.label}`}
-        isLoading={this.props.isLoading}
-        disabled={this.props.isDisabled}
+        selectionType={this.props.selectionType}
+        widgetId={this.props.widgetId}
+        width={componentWidth}
       />
     );
   }
@@ -184,6 +184,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           "selectedOptionValue",
           selectedOption.value,
           {
+            triggerPropertyName: "onOptionChange",
             dynamicString: this.props.onOptionChange,
             event: {
               type: EventType.ON_OPTION_CHANGE,
@@ -209,6 +210,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         "selectedOptionValueArr",
         newSelectedValue,
         {
+          triggerPropertyName: "onOptionChange",
           dynamicString: this.props.onOptionChange,
           event: {
             type: EventType.ON_OPTION_CHANGE,
@@ -227,6 +229,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       "selectedOptionValueArr",
       newSelectedValue,
       {
+        triggerPropertyName: "onOptionChange",
         dynamicString: this.props.onOptionChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,

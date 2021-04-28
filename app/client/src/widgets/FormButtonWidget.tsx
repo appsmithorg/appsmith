@@ -137,6 +137,7 @@ class FormButtonWidget extends BaseWidget<
       });
     }
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
+      triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
       event: {
         type: EventType.ON_CLICK,
@@ -151,6 +152,7 @@ class FormButtonWidget extends BaseWidget<
         isLoading: true,
       });
       super.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -181,16 +183,16 @@ class FormButtonWidget extends BaseWidget<
     return (
       <ButtonComponent
         buttonStyle={this.props.buttonStyle}
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        text={this.props.text}
-        disabled={disabled}
-        onClick={!disabled ? this.onButtonClickBound : undefined}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        type={this.props.buttonType || ButtonType.BUTTON}
-        googleRecaptchaKey={this.props.googleRecaptchaKey}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
+        disabled={disabled}
+        googleRecaptchaKey={this.props.googleRecaptchaKey}
+        isLoading={this.props.isLoading || this.state.isLoading}
+        key={this.props.widgetId}
+        onClick={!disabled ? this.onButtonClickBound : undefined}
+        text={this.props.text}
+        type={this.props.buttonType || ButtonType.BUTTON}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
       />
     );
   }

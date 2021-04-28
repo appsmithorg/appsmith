@@ -107,20 +107,21 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   getPageView() {
     return (
       <RadioGroupComponent
-        widgetId={this.props.widgetId}
-        onRadioSelectionChange={this.onRadioSelectionChange}
+        isDisabled={this.props.isDisabled}
+        isLoading={this.props.isLoading}
         key={this.props.widgetId}
         label={`${this.props.label}`}
-        selectedOptionValue={this.props.selectedOptionValue}
+        onRadioSelectionChange={this.onRadioSelectionChange}
         options={this.props.options}
-        isLoading={this.props.isLoading}
-        isDisabled={this.props.isDisabled}
+        selectedOptionValue={this.props.selectedOptionValue}
+        widgetId={this.props.widgetId}
       />
     );
   }
 
   onRadioSelectionChange = (updatedValue: string) => {
     this.props.updateWidgetMetaProperty("selectedOptionValue", updatedValue, {
+      triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
       event: {
         type: EventType.ON_OPTION_CHANGE,

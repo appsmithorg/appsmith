@@ -40,25 +40,24 @@ const PageNumberInputWrapper = styled(NumericInput)`
   margin: 0 8px;
 `;
 
-const PageNumberInput = (props: {
+function PageNumberInput(props: {
   pageNo: number;
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   disabled: boolean;
-}) => {
+}) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
   useEffect(() => {
     setPageNumber(props.pageNo || 0);
   }, [props.pageNo]);
   return (
     <PageNumberInputWrapper
-      value={pageNumber}
-      min={1}
-      max={props.pageCount || 1}
       buttonPosition="none"
       clampValueOnBlur
       className="t--table-widget-page-input"
       disabled={props.disabled}
+      max={props.pageCount || 1}
+      min={1}
       onBlur={(e: any) => {
         const oldPageNo = Number(props.pageNo || 0);
         const value = e.target.value;
@@ -81,9 +80,10 @@ const PageNumberInput = (props: {
           setPageNumber(value);
         }
       }}
+      value={pageNumber}
     />
   );
-};
+}
 
 interface TableHeaderProps {
   updatePageNo: (pageNo: number, event?: EventType) => void;
@@ -109,24 +109,24 @@ interface TableHeaderProps {
   tableSizes: TableSizes;
 }
 
-const TableHeader = (props: TableHeaderProps) => {
+function TableHeader(props: TableHeaderProps) {
   return (
-    <React.Fragment>
+    <>
       <SearchComponent
-        value={props.searchKey}
-        placeholder="Search..."
         onSearch={props.searchTableData}
+        placeholder="Search..."
+        value={props.searchKey}
       />
       <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
         <TableFilters
-          columns={props.columns}
-          filters={props.filters}
           applyFilter={props.applyFilter}
+          columns={props.columns}
           editMode={props.editMode}
+          filters={props.filters}
         />
         <TableDataDownload
-          data={props.tableData}
           columns={props.tableColumns}
+          data={props.tableData}
           widgetName={props.widgetName}
         />
         <TableCompactMode
@@ -143,9 +143,9 @@ const TableHeader = (props: TableHeaderProps) => {
               props.prevPageClick();
             }}
           >
-            <Icon icon="chevron-left" iconSize={16} color={Colors.HIT_GRAY} />
+            <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          <PaginationItemWrapper selected className="page-item">
+          <PaginationItemWrapper className="page-item" selected>
             {props.pageNo + 1}
           </PaginationItemWrapper>
           <PaginationItemWrapper
@@ -155,7 +155,7 @@ const TableHeader = (props: TableHeaderProps) => {
               props.nextPageClick();
             }}
           >
-            <Icon icon="chevron-right" iconSize={16} color={Colors.HIT_GRAY} />
+            <Icon color={Colors.HIT_GRAY} icon="chevron-right" iconSize={16} />
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
@@ -173,15 +173,15 @@ const TableHeader = (props: TableHeaderProps) => {
               props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
             }}
           >
-            <Icon icon="chevron-left" iconSize={16} color={Colors.HIT_GRAY} />
+            <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
           <RowWrapper>
             Page{" "}
             <PageNumberInput
+              disabled={props.pageCount === 1}
+              pageCount={props.pageCount}
               pageNo={props.pageNo + 1}
               updatePageNo={props.updatePageNo}
-              pageCount={props.pageCount}
-              disabled={props.pageCount === 1}
             />{" "}
             of {props.pageCount}
           </RowWrapper>
@@ -196,12 +196,12 @@ const TableHeader = (props: TableHeaderProps) => {
               props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
             }}
           >
-            <Icon icon="chevron-right" iconSize={16} color={Colors.HIT_GRAY} />
+            <Icon color={Colors.HIT_GRAY} icon="chevron-right" iconSize={16} />
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
-    </React.Fragment>
+    </>
   );
-};
+}
 
 export default TableHeader;

@@ -86,32 +86,32 @@ const PageListItem = withTheme((props: PageListItemProps) => {
   );
   return (
     <PageListItemWrapper
-      onClick={() => props.switchPage(props.id)}
       active={props.active}
       className={`t--page-sidebar-${props.name}`}
+      onClick={() => props.switchPage(props.id)}
     >
       <div>
         {pageIcon}
         <Tooltip content="Double click to edit">
           <EditableText
-            type="text"
-            placeholder="Enter page name"
+            className="t--page-list-item"
             defaultValue={props.name}
             editInteractionKind={EditInteractionKind.DOUBLE}
-            onTextChanged={onEditPageName}
             hideEditIcon
-            className="t--page-list-item"
+            onTextChanged={onEditPageName}
+            placeholder="Enter page name"
+            type="text"
           />
         </Tooltip>
       </div>
       <ContextDropdown
+        className="more t--page-sidebar-menu-actions"
         options={props.contextActions}
         toggle={{
           type: "icon",
           icon: "MORE_VERTICAL_CONTROL",
           iconSize: props.theme.fontSizes[6],
         }}
-        className="more t--page-sidebar-menu-actions"
       />
     </PageListItemWrapper>
   );

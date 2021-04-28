@@ -12,6 +12,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
@@ -37,6 +38,8 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
+import AppsmithConsole from "utils/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -90,6 +93,15 @@ const evalErrorHandler = (errors: EvalError[]) => {
         log.debug(error);
         break;
       }
+      case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
+        AppsmithConsole.error({
+          logType: LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR,
+          text: `The value at ${error.context?.source.propertyPath} is invalid`,
+          message: error.message,
+          source: error.context?.source,
+        });
+        break;
+      }
       default: {
         Sentry.captureException(error);
         log.debug(error);
@@ -98,13 +110,17 @@ const evalErrorHandler = (errors: EvalError[]) => {
   });
 };
 
-function* postEvalActionDispatcher(actions: ReduxAction<unknown>[]) {
+function* postEvalActionDispatcher(
+  actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+) {
   for (const action of actions) {
     yield put(action);
   }
 }
 
-function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
+function* evaluateTreeSaga(
+  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
@@ -132,7 +148,7 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: dataTree,
   });
-  PerformanceTracker.startAsyncTracking(
+  PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
   yield put({

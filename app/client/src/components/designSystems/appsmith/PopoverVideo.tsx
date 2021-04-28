@@ -26,16 +26,14 @@ const PlayerWrapper = styled.div`	import React, { Ref } from "react";
   height: 400px;	
 `;
 
-const PopoverVideo = (props: VideoComponentProps) => {
+function PopoverVideo(props: VideoComponentProps) {
   return (
     <div onClick={(e) => e.stopPropagation()}>
       <Popover
-        position={PopoverPosition.AUTO}
-        interactionKind={PopoverInteractionKind.CLICK}
-        minimal
-        usePortal
         enforceFocus={false}
+        interactionKind={PopoverInteractionKind.CLICK}
         lazy
+        minimal
         modifiers={{
           flip: {
             behavior: ["right", "left", "bottom", "top"],
@@ -51,14 +49,16 @@ const PopoverVideo = (props: VideoComponentProps) => {
             boundariesElement: "viewport",
           },
         }}
+        position={PopoverPosition.AUTO}
+        usePortal
       >
-        <PlayIcon></PlayIcon>
+        <PlayIcon />
         <PlayerWrapper>
           <VideoComponent url={props.url} />
         </PlayerWrapper>
       </Popover>
     </div>
   );
-};
+}
 
 export default PopoverVideo;

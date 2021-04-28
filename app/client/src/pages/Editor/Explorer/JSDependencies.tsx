@@ -45,7 +45,7 @@ const Help = styled(Icon)`
     fill: ${Colors.WHITE};
   }
 `;
-export const JSDependencies = () => {
+export function JSDependencies() {
   const [isOpen, setIsOpen] = useState(false);
   const openDocs = (name: string, url: string) => () => window.open(url, name);
   const dependencyList = extraLibraries.map((lib) => {
@@ -83,11 +83,11 @@ export const JSDependencies = () => {
       <Title onClick={toggleDependencies}>
         <Icon icon={icon} />
         <span>JS libraries you can use</span>
-        <Tooltip content={TooltipContent} position="top" boundary="viewport">
+        <Tooltip boundary="viewport" content={TooltipContent} position="top">
           <Help
+            color={Colors.DOVE_GRAY}
             icon="help"
             iconSize={12}
-            color={Colors.DOVE_GRAY}
             onClick={showDocs}
           />
         </Tooltip>
@@ -97,6 +97,6 @@ export const JSDependencies = () => {
       </Collapse>
     </Wrapper>
   );
-};
+}
 
 export default JSDependencies;

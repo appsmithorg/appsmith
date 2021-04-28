@@ -12,16 +12,17 @@ import { getNearestParentCanvas } from "utils/generators";
 const WrappedDragLayer = styled.div<{
   columnWidth: number;
   rowHeight: number;
+  noPad: boolean;
   ref: RefObject<HTMLDivElement>;
 }>`
   position: absolute;
   pointer-events: none;
-  left: 0;
-  top: 0;
-  left: ${CONTAINER_GRID_PADDING}px;
-  top: ${CONTAINER_GRID_PADDING}px;
-  height: calc(100% - ${CONTAINER_GRID_PADDING}px);
-  width: calc(100% - ${CONTAINER_GRID_PADDING}px);
+  left: ${(props) => (props.noPad ? "0" : `${CONTAINER_GRID_PADDING}px;`)};
+  top: ${(props) => (props.noPad ? "0" : `${CONTAINER_GRID_PADDING}px;`)};
+  height: ${(props) =>
+    props.noPad ? `100%` : `calc(100% - ${CONTAINER_GRID_PADDING}px)`};
+  width: ${(props) =>
+    props.noPad ? `100%` : `calc(100% - ${CONTAINER_GRID_PADDING}px)`};
 
   background-image: radial-gradient(
     circle,
@@ -47,9 +48,10 @@ type DragLayerProps = {
   isResizing?: boolean;
   parentWidgetId: string;
   force: boolean;
+  noPad: boolean;
 };
 
-const DragLayerComponent = (props: DragLayerProps) => {
+function DragLayerComponent(props: DragLayerProps) {
   const { updateDropTargetRows } = useContext(DropTargetContext);
   const dropTargetMask: RefObject<HTMLDivElement> = React.useRef(null);
   const dropZoneRef = React.useRef<HTMLDivElement>(null);
@@ -133,9 +135,9 @@ const DragLayerComponent = (props: DragLayerProps) => {
     return null;
   }
 
-  /* 
+  /*
   When the parent offsets are not updated, we don't need to show the dropzone, as the dropzone
-  will be rendered at an incorrect coordinates. 
+  will be rendered at an incorrect coordinates.
   We can be sure that the parent offset has been calculated
   when the coordiantes are not [0,0].
   */
@@ -144,25 +146,26 @@ const DragLayerComponent = (props: DragLayerProps) => {
   return (
     <WrappedDragLayer
       columnWidth={props.parentColumnWidth}
-      rowHeight={props.parentRowHeight}
+      noPad={props.noPad}
       ref={dropTargetMask}
+      rowHeight={props.parentRowHeight}
     >
       {props.visible &&
         props.isOver &&
         currentOffset &&
         isParentOffsetCalculated && (
           <DropZone
+            canDrop={canDrop}
+            currentOffset={currentOffset as XYCoord}
+            height={widgetHeight}
+            parentColumnWidth={props.parentColumnWidth}
             parentOffset={dropTargetOffset.current}
             parentRowHeight={props.parentRowHeight}
-            parentColumnWidth={props.parentColumnWidth}
-            width={widgetWidth}
-            height={widgetHeight}
-            currentOffset={currentOffset as XYCoord}
-            canDrop={canDrop}
             ref={dropZoneRef}
+            width={widgetWidth}
           />
         )}
     </WrappedDragLayer>
   );
-};
+}
 export default DragLayerComponent;

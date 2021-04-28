@@ -11,11 +11,8 @@
           "evaluationSubstitutionType": "PARAMETER",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "IN",
-            "value": [
-              "false",
-              false
-            ]
+            "comparison": "EQUALS",
+            "value": false
           }
         },
         {
@@ -25,11 +22,8 @@
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "IN",
-            "value": [
-              "true",
-              true
-            ]
+            "comparison": "EQUALS",
+            "value": true
           }
         }
       ]
