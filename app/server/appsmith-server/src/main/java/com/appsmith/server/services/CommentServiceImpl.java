@@ -111,7 +111,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .count(query, CommentThread.class)
                 .flatMap(count -> {
                     count += 1;
-                    log.debug("Cnt : {}", count);
                     commentThread.setSequenceId("#" + count);
                     return applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS);
                 })
