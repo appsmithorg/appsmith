@@ -858,10 +858,11 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(apiwidget.resourceUrl).should("be.visible");
   cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
+    .wait(500)
+    .focus()
     .clear()
-    .type(apiname, { delay: 500 })
-    .should("have.value", apiname)
-    .focus();
+    .type(apiname, { force: true, delay: 500 })
+    .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
     console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
