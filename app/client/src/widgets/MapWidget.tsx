@@ -133,14 +133,14 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     ];
   }
 
-  static getDefaultPropertiesMap(): Record<string, string> {
+  static getDefaultPropertiesMap(props: WidgetProps): Record<string, any> {
     return {
       markers: "defaultMarkers",
       center: "mapCenter",
     };
   }
 
-  static getMetaPropertiesMap(): Record<string, undefined> {
+  static getMetaPropertiesMap(props: WidgetProps): Record<string, any> {
     return {
       center: undefined,
       markers: undefined,
