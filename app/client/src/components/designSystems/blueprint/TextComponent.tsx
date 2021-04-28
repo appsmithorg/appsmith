@@ -57,6 +57,7 @@ export const StyledText = styled(Text)<{
   font-size: ${(props) => props?.fontSize && TEXT_SIZES[props?.fontSize]};
   span {
     width: 100%;
+    line-height: 1.2;
   }
 `;
 
