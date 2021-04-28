@@ -23,6 +23,7 @@ export function InputText(props: {
   additionalAutocomplete?: Record<string, Record<string, unknown>>;
   theme?: EditorTheme;
   hideEvaluatedValue?: boolean;
+  jsErrorMessage?: string;
 }) {
   const {
     errorMessage,
@@ -34,6 +35,7 @@ export function InputText(props: {
     dataTreePath,
     evaluatedValue,
     hideEvaluatedValue,
+    jsErrorMessage,
   } = props;
 
   return (
@@ -49,6 +51,8 @@ export function InputText(props: {
         meta={{
           error: isValid ? "" : errorMessage,
           touched: true,
+          isJsError: jsErrorMessage && jsErrorMessage.length > 0 ? true : false,
+          jsError: jsErrorMessage,
         }}
         theme={props.theme || EditorTheme.LIGHT}
         mode={EditorModes.TEXT_WITH_BINDING}
@@ -75,6 +79,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
       defaultValue,
       additionalAutoComplete,
       hideEvaluatedValue,
+      jsErrorMessage,
     } = this.props;
 
     return (
@@ -90,6 +95,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         theme={this.props.theme}
         additionalAutocomplete={additionalAutoComplete}
         hideEvaluatedValue={hideEvaluatedValue}
+        jsErrorMessage={jsErrorMessage}
       />
     );
   }

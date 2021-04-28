@@ -116,6 +116,8 @@ interface Props {
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  hasJSError: boolean;
+  jsError?: string;
 }
 
 interface PopoverContentProps {
@@ -129,6 +131,8 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
+  hasJSError: boolean;
+  jsError?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -259,9 +263,11 @@ const PopoverContent = (props: PopoverContentProps) => {
       {props.hasError && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
-            {props.useValidationMessage && props.error
+            {props.hasJSError && props.jsError
+              ? props.jsError
+              : props.useValidationMessage && props.error
               ? props.error
-              : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+              : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{}}'`}
           </span>
           <StyledDebugButton
             className="evaluated-value"
@@ -322,6 +328,8 @@ const EvaluatedValuePopup = (props: Props) => {
             error={props.error}
             useValidationMessage={props.useValidationMessage}
             hasError={props.hasError}
+            hasJSError={props.hasJSError}
+            jsError={props.jsError}
             theme={props.theme}
             hideEvaluatedValue={props.hideEvaluatedValue}
             preparedStatementViewer={

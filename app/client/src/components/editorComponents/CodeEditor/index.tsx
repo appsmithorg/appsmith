@@ -404,6 +404,8 @@ class CodeEditor extends Component<Props, State> {
           useValidationMessage={useValidationMessage}
           hideEvaluatedValue={hideEvaluatedValue}
           evaluationSubstitutionType={evaluationSubstitutionType}
+          hasJSError={meta?.isJsError || false}
+          jsError={meta?.jsError}
         >
           <EditorWrapper
             editorTheme={this.props.theme}
