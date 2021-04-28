@@ -5,7 +5,7 @@ import AppCommentsHeader from "./AppCommentsHeader";
 import AppCommentThreads from "./AppCommentThreads";
 import Container from "./Container";
 
-const AppComments = () => {
+function AppComments() {
   const isCommentMode = useSelector(commentModeSelector);
 
   if (!isCommentMode) return null;
@@ -16,6 +16,6 @@ const AppComments = () => {
       <AppCommentThreads />
     </Container>
   );
-};
+}
 
 export default AppComments;

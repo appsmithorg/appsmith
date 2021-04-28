@@ -32,7 +32,7 @@ const preventInteractionsBlacklist = [
 /**
  * Prevent interactions with the component
  */
-const PreventInteractionsOverlay = ({ children, widgetType }: Props) => {
+function PreventInteractionsOverlay({ children, widgetType }: Props) {
   const isCommentMode = useSelector(commentModeSelector);
   const isComponentBlacklisted =
     preventInteractionsBlacklist.indexOf(widgetType) !== -1;
@@ -44,6 +44,6 @@ const PreventInteractionsOverlay = ({ children, widgetType }: Props) => {
       {shouldPreventInteraction && <StyledPreventInteractionsOverlay />}
     </Container>
   );
-};
+}
 
 export default PreventInteractionsOverlay;

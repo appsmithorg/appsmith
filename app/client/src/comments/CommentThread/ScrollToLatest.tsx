@@ -25,9 +25,9 @@ const ScrollToLatest = withTheme(
       <Container onClick={scrollToBottom}>
         <span className="view-latest">{createMessage(VIEW_LATEST)}</span>
         <Icon
-          name="down-arrow-2"
           fillColor={theme.colors.comments.viewLatest}
           hoverFillColor={theme.colors.comments.viewLatest}
+          name="down-arrow-2"
         />
       </Container>
     );

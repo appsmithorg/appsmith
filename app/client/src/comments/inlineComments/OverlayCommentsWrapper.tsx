@@ -23,7 +23,7 @@ const Container = styled.div`
  * 1. Renders inline comment threads down the tree
  * 2. Calculates pin offset while creating a new comment
  */
-const OverlayCommentsWrapper = ({ children, refId }: Props) => {
+function OverlayCommentsWrapper({ children, refId }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isCommentMode = useSelector(commentModeSelector);
   const dispatch = useDispatch();
@@ -42,18 +42,19 @@ const OverlayCommentsWrapper = ({ children, refId }: Props) => {
     }
   };
 
+  // eslint-disable-next-line react/jsx-no-useless-fragment
   if (!isCommentMode) return <>{children}</>;
 
   return (
     <Container
-      ref={containerRef}
-      onClick={clickHandler}
       data-cy="overlay-comments-wrapper"
+      onClick={clickHandler}
+      ref={containerRef}
     >
       {children}
       <Comments refId={refId} />
     </Container>
   );
-};
+}
 
 export default OverlayCommentsWrapper;

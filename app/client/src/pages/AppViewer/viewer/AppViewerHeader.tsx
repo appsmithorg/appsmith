@@ -128,7 +128,7 @@ type AppViewerHeaderProps = {
   lightTheme: Theme;
 };
 
-export const AppViewerHeader = (props: AppViewerHeaderProps) => {
+export function AppViewerHeader(props: AppViewerHeaderProps) {
   const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
@@ -138,14 +138,14 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
 
-  const HtmlTitle = () => {
+  function HtmlTitle() {
     if (!currentApplicationDetails?.name) return null;
     return (
       <Helmet>
         <title>{currentApplicationDetails?.name}</title>
       </Helmet>
     );
-  };
+  }
   if (hideHeader) return <HtmlTitle />;
 
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}/fork`;
@@ -167,10 +167,10 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
             <PrimaryLogoLink to={APPLICATIONS_URL}>
-              <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+              <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
             </PrimaryLogoLink>
           </HeaderSection>
-          <HeaderSection justify={"center"} className="current-app-name">
+          <HeaderSection className="current-app-name" justify={"center"}>
             {currentApplicationDetails && (
               <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
             )}
@@ -180,19 +180,19 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
             {currentApplicationDetails && (
               <>
                 <FormDialogComponent
+                  Form={AppInviteUsersForm}
+                  applicationId={currentApplicationDetails.id}
+                  canOutsideClickClose
+                  orgId={currentOrgId}
+                  title={currentApplicationDetails.name}
                   trigger={
                     <Button
-                      text={"Share"}
+                      className="t--application-share-btn header__application-share-btn"
                       icon={"share"}
                       size={Size.small}
-                      className="t--application-share-btn header__application-share-btn"
+                      text={"Share"}
                     />
                   }
-                  Form={AppInviteUsersForm}
-                  orgId={currentOrgId}
-                  applicationId={currentApplicationDetails.id}
-                  title={currentApplicationDetails.name}
-                  canOutsideClickClose={true}
                 />
                 {CTA && (
                   <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
@@ -202,8 +202,6 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
             {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
               <HeaderRightItemContainer>
                 <ProfileDropdown
-                  name={currentUser.name}
-                  userName={currentUser?.username || ""}
                   hideThemeSwitch
                   modifiers={{
                     offset: {
@@ -211,19 +209,21 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                       offset: `0, ${pages.length > 1 ? 35 : 0}`,
                     },
                   }}
+                  name={currentUser.name}
+                  userName={currentUser?.username || ""}
                 />
               </HeaderRightItemContainer>
             )}
           </HeaderSection>
         </HeaderRow>
         <PageTabsContainer
-          pages={pages}
           currentApplicationDetails={currentApplicationDetails}
+          pages={pages}
         />
       </HeaderWrapper>
     </ThemeProvider>
   );
-};
+}
 
 const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   pages: getViewModePageList(state),

@@ -27,9 +27,11 @@ import javax.validation.Validator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -85,7 +87,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .flatMap(tuple -> {
                     final Comment comment1 = tuple.getT1();
                     final User user = tuple.getT2();
-                    comment1.setAuthorName(user.getName());
+                    String authorName = user.getName() != null ? user.getName(): user.getUsername();
+                    comment1.setAuthorName(authorName);
                     return repository.save(comment1);
                 });
     }
@@ -99,7 +102,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         final String applicationId = commentThread.getApplicationId();
         CommentThread.CommentThreadState initState = new CommentThread.CommentThreadState();
         initState.setActive(false);
-        initState.setAuthor("");
+        initState.setAuthorName("");
+        initState.setAuthorUsername("");
 
         commentThread.setPinnedState(initState);
         commentThread.setResolvedState(initState);
@@ -111,7 +115,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .count(query, CommentThread.class)
                 .flatMap(count -> {
                     count += 1;
-                    log.debug("Cnt : {}", count);
                     commentThread.setSequenceId("#" + count);
                     return applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS);
                 })
@@ -124,7 +127,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     ));
                     return sessionUserService.getCurrentUser();
                 })
-                .flatMap(ignored -> threadRepository.save(commentThread))
+                .flatMap(user -> {
+                    Set<String> viewedUser = new HashSet<>();
+                    viewedUser.add(user.getUsername());
+                    commentThread.setViewedByUsers(viewedUser);
+                    return threadRepository.save(commentThread);
+                })
                 .flatMapMany(thread -> {
                     List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
 
@@ -142,30 +150,41 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .collectList()
                 .map(comments -> {
                     commentThread.setComments(comments);
+                    commentThread.setIsViewed(true);
                     return commentThread;
                 });
     }
 
     @Override
     public Mono<CommentThread> updateThread(String threadId, CommentThread commentThread) {
-
         CommentThread.CommentThreadState initState = new CommentThread.CommentThreadState();
         // Copy over only those fields that are allowed to be updated by a PATCH request.
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
-                    String author = user.getName();
-                    if(author != null) {
-                        initState.setAuthor(author);
-                    } else {
-                        initState.setAuthor(user.getUsername());
-                    }
+                    String authorName = user.getName() != null ? user.getName(): user.getUsername();
+                    initState.setAuthorName(authorName);
+                    initState.setAuthorUsername(user.getUsername());
+                    //Nested object in mongo doc doesn't update time automatically
                     initState.setUpdatedAt(Instant.now());
+
                     if (commentThread.getResolvedState() != null) {
                         initState.setActive(commentThread.getResolvedState().getActive());
                         commentThread.setResolvedState(initState);
                     } else if (commentThread.getPinnedState() != null) {
                         initState.setActive(commentThread.getPinnedState().getActive());
                         commentThread.setPinnedState(initState);
+                    }
+
+                    Set<String> viewedUser = new HashSet<>();
+                    viewedUser.add(user.getUsername());
+                    commentThread.setViewedByUsers(viewedUser);
+                    commentThread.setIsViewed(true);
+                    return threadRepository.findById(threadId);
+                })
+                .flatMap(thread -> {
+
+                    if(thread.getViewedByUsers() != null) {
+                        commentThread.getViewedByUsers().addAll(thread.getViewedByUsers());
                     }
                     return threadRepository.updateById(threadId, commentThread, AclPermission.MANAGE_THREAD);
                 });
@@ -175,11 +194,22 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     public Mono<List<CommentThread>> getThreadsByApplicationId(String applicationId) {
         return threadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
                 .collectList()
-                .flatMap(threads -> {
+                .flatMap(threads -> Mono.zip(
+                        Mono.just(threads),
+                        sessionUserService.getCurrentUser()
+                ))
+                .flatMap(tuple -> {
+                    List<CommentThread> threads = tuple.getT1();
+                    User user = tuple.getT2();
                     final Map<String, CommentThread> threadsByThreadId = new HashMap<>();
 
                     for (CommentThread thread : threads) {
                         thread.setComments(new LinkedList<>());
+                        if(thread.getViewedByUsers() != null && thread.getViewedByUsers().contains(user.getUsername())) {
+                            thread.setIsViewed(true);
+                        } else {
+                            thread.setIsViewed(false);
+                        }
                         threadsByThreadId.put(thread.getId(), thread);
                     }
 

@@ -20,13 +20,15 @@ const Container = styled.div`
   }
 `;
 
-const AppCommentsPlaceholder = () => (
-  <Container>
-    <Icon fillColor={Colors.BLACK} name="chat" size={IconSize.XXL} />
-    <span className="message">
-      {createMessage(NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD)}
-    </span>
-  </Container>
-);
+function AppCommentsPlaceholder() {
+  return (
+    <Container>
+      <Icon fillColor={Colors.BLACK} name="chat" size={IconSize.XXL} />
+      <span className="message">
+        {createMessage(NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD)}
+      </span>
+    </Container>
+  );
+}
 
 export default AppCommentsPlaceholder;

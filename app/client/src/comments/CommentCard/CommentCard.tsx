@@ -137,22 +137,24 @@ const decorator = new CompositeDecorator(
   decorators.filter((_decorator, index) => index !== 1) as DraftDecorator[],
 );
 
-const StopClickPropagation = ({ children }: { children: React.ReactNode }) => (
-  <div
-    // flex to unset height, so that align-items works as expected
-    style={{ display: "flex" }}
-    onClick={(e: React.MouseEvent) => e.stopPropagation()}
-  >
-    {children}
-  </div>
-);
+function StopClickPropagation({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      // flex to unset height, so that align-items works as expected
+      onClick={(e: React.MouseEvent) => e.stopPropagation()}
+      style={{ display: "flex" }}
+    >
+      {children}
+    </div>
+  );
+}
 
 const replyText = (replies?: number) => {
   if (!replies) return "";
   return replies > 1 ? `${replies} replies` : `1 reply`;
 };
 
-const CommentCard = ({
+function CommentCard({
   comment,
   isParentComment,
   toggleResolved,
@@ -174,7 +176,7 @@ const CommentCard = ({
   showSubheader?: boolean;
   unread?: boolean;
   inline?: boolean;
-}) => {
+}) {
   const dispatch = useDispatch();
   const { authorName, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
@@ -232,63 +234,60 @@ const CommentCard = ({
   };
 
   return (
-    <>
-      <StyledContainer
-        id={`comment-card-${comment.id}`}
-        data-cy={`t--comment-card-${comment.id}`}
-        onClick={handleCardClick}
-      >
-        {showSubheader && (
-          <CommentSubheader>
-            <Section className="thread-id">
-              {unread && <UnreadIndicator />}
-              <CommentThreadId>{commentThread.sequenceId}</CommentThreadId>
-            </Section>
-            <Section className="pinned-by">
-              {isPinned && (
-                <>
-                  <Icon className="pin" name="pin-3" />
-                  <span>Pinned By</span>
-                  <strong>{` ${pinnedBy}`}</strong>
-                </>
-              )}
-            </Section>
-          </CommentSubheader>
-        )}
-        <CommentHeader>
-          <HeaderSection>
-            <ProfileImage userName={authorName || ""} side={25} />
-            <UserName>{authorName}</UserName>
-          </HeaderSection>
-          <HeaderSection>
-            <StopClickPropagation>
-              {isParentComment && toggleResolved && (
-                <ResolveCommentButton
-                  handleClick={toggleResolved}
-                  resolved={!!resolved}
-                />
-              )}
-            </StopClickPropagation>
-            <StopClickPropagation>
-              <CommentContextMenu {...contextMenuProps} />
-            </StopClickPropagation>
-          </HeaderSection>
-        </CommentHeader>
-        <CommentBodyContainer>
-          <Editor
-            editorState={editorState}
-            plugins={plugins}
-            onChange={noop}
-            readOnly
-          />
-        </CommentBodyContainer>
-        <CommentTime>
-          <span>{moment().fromNow()}</span>
-          <span>{showReplies && replyText(numberOfReplies)}</span>
-        </CommentTime>
-      </StyledContainer>
-    </>
+    <StyledContainer
+      data-cy={`t--comment-card-${comment.id}`}
+      onClick={handleCardClick}
+    >
+      {showSubheader && (
+        <CommentSubheader>
+          <Section className="thread-id">
+            {unread && <UnreadIndicator />}
+            <CommentThreadId>{commentThread.sequenceId}</CommentThreadId>
+          </Section>
+          <Section className="pinned-by">
+            {isPinned && (
+              <>
+                <Icon className="pin" name="pin-3" />
+                <span>Pinned By</span>
+                <strong>{` ${pinnedBy}`}</strong>
+              </>
+            )}
+          </Section>
+        </CommentSubheader>
+      )}
+      <CommentHeader>
+        <HeaderSection>
+          <ProfileImage side={25} userName={authorName || ""} />
+          <UserName>{authorName}</UserName>
+        </HeaderSection>
+        <HeaderSection>
+          <StopClickPropagation>
+            {isParentComment && toggleResolved && (
+              <ResolveCommentButton
+                handleClick={toggleResolved}
+                resolved={!!resolved}
+              />
+            )}
+          </StopClickPropagation>
+          <StopClickPropagation>
+            <CommentContextMenu {...contextMenuProps} />
+          </StopClickPropagation>
+        </HeaderSection>
+      </CommentHeader>
+      <CommentBodyContainer>
+        <Editor
+          editorState={editorState}
+          onChange={noop}
+          plugins={plugins}
+          readOnly
+        />
+      </CommentBodyContainer>
+      <CommentTime>
+        <span>{moment().fromNow()}</span>
+        <span>{showReplies && replyText(numberOfReplies)}</span>
+      </CommentTime>
+    </StyledContainer>
   );
-};
+}
 
 export default CommentCard;

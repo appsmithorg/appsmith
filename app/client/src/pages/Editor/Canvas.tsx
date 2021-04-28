@@ -14,13 +14,13 @@ interface CanvasProps {
 const Canvas = memo((props: CanvasProps) => {
   try {
     return (
-      <React.Fragment>
+      <>
         <PropertyPane />
         <ArtBoard className="t--canvas-artboard" width={props.dsl.rightColumn}>
           {props.dsl.widgetId &&
             WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
         </ArtBoard>
-      </React.Fragment>
+      </>
     );
   } catch (error) {
     console.log("Error rendering DSL", error);

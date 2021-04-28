@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -29,6 +31,12 @@ public class CommentThread extends BaseDomain {
 
     String applicationId;
 
+    @JsonIgnore
+    Set<String> viewedByUsers;
+
+    @Transient
+    Boolean isViewed;
+
     // These comments are saved in a separate collection and loaded by the APIs separately.
     @Transient
     List<Comment> comments;
@@ -41,7 +49,8 @@ public class CommentThread extends BaseDomain {
 
     @Data
     public static class CommentThreadState {
-        String author;
+        String authorName;
+        String authorUsername;
         @LastModifiedDate
         Instant updatedAt;
         Boolean active;
@@ -54,5 +63,4 @@ public class CommentThread extends BaseDomain {
     public Instant getUpdationTime() {
         return this.updatedAt;
     }
-
 }

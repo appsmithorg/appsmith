@@ -51,21 +51,21 @@ const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
   return (
     <Container>
       <RadioGroup
-        rows={3}
         backgroundColor={theme.colors.comments.commentsFilter}
-        options={options}
-        onSelect={(value) => dispatch(setAppCommentsFilter(value))}
         defaultValue={appCommentsFilter}
+        onSelect={(value) => dispatch(setAppCommentsFilter(value))}
+        options={options}
+        rows={3}
       />
       {checkboxes.map(({ label }) => (
         <Row key={label}>
           <Checkbox
             backgroundColor={theme.colors.comments.commentsFilter}
+            isDefaultChecked={shouldShowResolved}
             label={label}
             onCheckChange={(isChecked) =>
               dispatch(setShouldShowResolvedComments(isChecked))
             }
-            isDefaultChecked={shouldShowResolved}
           />
         </Row>
       ))}
@@ -73,25 +73,27 @@ const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
   );
 });
 
-const AppCommentsFilterPopover = () => (
-  <Popover2
-    placement={"bottom-end"}
-    portalClassName="comment-context-menu"
-    content={<AppCommentsFilter />}
-    modifiers={{
-      offset: {
-        enabled: true,
-        options: {
-          offset: [7, 10],
+function AppCommentsFilterPopover() {
+  return (
+    <Popover2
+      content={<AppCommentsFilter />}
+      modifiers={{
+        offset: {
+          enabled: true,
+          options: {
+            offset: [7, 10],
+          },
         },
-      },
-      preventOverflow: {
-        enabled: true,
-      },
-    }}
-  >
-    <Icon name="filter" size={IconSize.LARGE} />
-  </Popover2>
-);
+        preventOverflow: {
+          enabled: true,
+        },
+      }}
+      placement={"bottom-end"}
+      portalClassName="comment-context-menu"
+    >
+      <Icon name="filter" size={IconSize.LARGE} />
+    </Popover2>
+  );
+}
 
 export default AppCommentsFilterPopover;

@@ -13,7 +13,7 @@ import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { noop } from "utils/AppsmithUtils";
 
 Element.prototype.scrollTo = noop;
-const SetCanvas = ({ dsl, children }: any) => {
+function SetCanvas({ dsl, children }: any) {
   const dispatch = useDispatch();
   const mockResp: any = {
     data: {
@@ -32,8 +32,8 @@ const SetCanvas = ({ dsl, children }: any) => {
   };
   const canvasWidgetsPayload = getCanvasWidgetsPayload(mockResp);
   dispatch(initCanvasLayout(canvasWidgetsPayload));
-  return <>{children}</>;
-};
+  return children;
+}
 describe("Tabs widget functional cases", () => {
   it("Should render 2 tabs by default", () => {
     editorInitializer();
@@ -43,7 +43,7 @@ describe("Tabs widget functional cases", () => {
     });
     const component = render(
       <SetCanvas dsl={dsl}>
-        <Canvas dsl={dsl}></Canvas>
+        <Canvas dsl={dsl} />
       </SetCanvas>,
     );
     const tab1 = component.queryByText("Tab 1");
@@ -70,7 +70,7 @@ describe("Tabs widget functional cases", () => {
     });
     const component = render(
       <SetCanvas dsl={dsl}>
-        <Canvas dsl={dsl}></Canvas>
+        <Canvas dsl={dsl} />
       </SetCanvas>,
     );
     const tab1 = component.queryByText("Tab 1");

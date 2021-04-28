@@ -74,7 +74,7 @@ const StyledPinContainer = styled.div<{ unread: boolean }>`
   cursor: pointer;
 `;
 
-const Pin = ({
+function Pin({
   commentThreadId,
   // TODO remove default
   sequenceId = "",
@@ -83,24 +83,26 @@ const Pin = ({
   commentThreadId: string;
   sequenceId?: string;
   unread?: boolean;
-}) => (
-  <StyledPinContainer unread={unread}>
-    <Icon
-      className={`comment-thread-pin-${commentThreadId}`}
-      name={unread ? "unread-pin" : "read-pin"}
-      keepColors
-      size={IconSize.XXL}
-      data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
-    />
-    <div className="pin-id">{sequenceId.slice(1)}</div>
-  </StyledPinContainer>
-);
+}) {
+  return (
+    <StyledPinContainer unread={unread}>
+      <Icon
+        className={`comment-thread-pin-${commentThreadId}`}
+        data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
+        keepColors
+        name={unread ? "unread-pin" : "read-pin"}
+        size={IconSize.XXL}
+      />
+      <div className="pin-id">{sequenceId.slice(1)}</div>
+    </StyledPinContainer>
+  );
+}
 
 /**
  * Comment pins that toggle comment thread popover visibility on click
  * They position themselves using position absolute based on top and left values (in percent)
  */
-const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
+function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
   const { top, left } = get(commentThread, "position", {
     top: 0,
@@ -133,31 +135,23 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
           show ? (
             <animated.div style={springProps}>
               <CommentTriggerContainer
-                top={top}
+                data-cy="inline-comment-pin"
+                draggable="true"
                 left={left}
                 onClick={(e: any) => {
                   // capture clicks so that create new thread is not triggered
                   e.preventDefault();
                   e.stopPropagation();
                 }}
-                data-cy="inline-comment-pin"
-                draggable="true"
+                top={top}
               >
                 <Popover
-                  hasBackdrop
                   autoFocus
                   canEscapeKeyClose
-                  minimal
-                  popoverClassName="comment-thread"
-                  // isOpen is controlled so that newly created threads are set to be visible
+                  hasBackdrop
                   isOpen={!!isCommentThreadVisible}
-                  onInteraction={(nextOpenState) => {
-                    if (nextOpenState) {
-                      dispatch(setVisibleThread(commentThreadId));
-                    } else {
-                      dispatch(resetVisibleThread(commentThreadId));
-                    }
-                  }}
+                  minimal
+                  // isOpen is controlled so that newly created threads are set to be visible
                   modifiers={{
                     preventOverflow: { enabled: true },
                     offset: {
@@ -165,6 +159,14 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
                       offset: "-8, 10",
                     },
                   }}
+                  onInteraction={(nextOpenState) => {
+                    if (nextOpenState) {
+                      dispatch(setVisibleThread(commentThreadId));
+                    } else {
+                      dispatch(resetVisibleThread(commentThreadId));
+                    }
+                  }}
+                  popoverClassName="comment-thread"
                   position={Position.RIGHT_TOP}
                 >
                   <Pin
@@ -173,9 +175,9 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
                   />
                   <animated.div style={springProps}>
                     <CommentThread
-                      isOpen={!!isCommentThreadVisible}
                       commentThread={commentThread}
                       inline
+                      isOpen={!!isCommentThreadVisible}
                     />
                   </animated.div>
                 </Popover>
@@ -185,6 +187,6 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
       )}
     </>
   );
-};
+}
 
 export default InlineCommentPin;

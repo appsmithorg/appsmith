@@ -53,7 +53,7 @@ type Props = {
   isPinned?: boolean;
 };
 
-const CommentContextMenu = ({
+function CommentContextMenu({
   pin,
   copyCommentLink,
   deleteComment,
@@ -61,7 +61,7 @@ const CommentContextMenu = ({
   // TODO figure out key for isCreatedByMe
   isCreatedByMe,
   isPinned,
-}: Props) => {
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   const options = useMemo(() => {
@@ -109,20 +109,15 @@ const CommentContextMenu = ({
 
   return (
     <Popover2
-      isOpen={isOpen}
-      placement={"bottom-end"}
-      portalClassName="comment-context-menu"
-      onInteraction={handleInteraction}
-      modifiers={{ offset: { enabled: true, options: { offset: [7, 15] } } }}
       content={
         <Container>
           {options.map((option) => (
             <MenuItem key={option.icon} onClick={() => handleClick(option)}>
               <MenuIcon>
                 <StyledIcon
+                  keepColors
                   name={option.icon as IconName}
                   size={IconSize.XL}
-                  keepColors
                 />
               </MenuIcon>
               <MenuTitle>{option.display}</MenuTitle>
@@ -130,10 +125,16 @@ const CommentContextMenu = ({
           ))}
         </Container>
       }
+      isOpen={isOpen}
+      minimal
+      modifiers={{ offset: { enabled: true, options: { offset: [7, 15] } } }}
+      onInteraction={handleInteraction}
+      placement={"bottom-end"}
+      portalClassName="comment-context-menu"
     >
       <StyledIcon name="comment-context-menu" size={IconSize.LARGE} />
     </Popover2>
   );
-};
+}
 
 export default CommentContextMenu;

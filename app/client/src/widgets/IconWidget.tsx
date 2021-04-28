@@ -40,10 +40,10 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
     return (
       <IconWrapper>
         <IconComponent
-          iconName={this.props.iconName}
-          disabled={this.props.disabled}
-          iconSize={this.props.iconSize}
           color={this.props.color}
+          disabled={this.props.disabled}
+          iconName={this.props.iconName}
+          iconSize={this.props.iconSize}
           onClick={this.onClick}
         />
       </IconWrapper>

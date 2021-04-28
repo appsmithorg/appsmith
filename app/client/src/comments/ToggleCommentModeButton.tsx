@@ -47,10 +47,10 @@ const StyledIndicator = styled.div`
   background-color: ${(props) => props.theme.colors.comments.unreadIndicator};
 `;
 
-const UnreadIndicator = () => {
+function UnreadIndicator() {
   const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
   return showUnreadIndicator ? <StyledIndicator /> : null;
-};
+}
 
 // update isCommentMode in the store based on the query search param
 const useUpdateCommentModeInStore = () => {
@@ -80,7 +80,7 @@ const useUpdateCommentModeInStore = () => {
  * This component is also responsible for fetching
  * application comments
  */
-const ToggleCommentModeButton = () => {
+function ToggleCommentModeButton() {
   const dispatch = useDispatch();
 
   const commentsEnabled = useSelector(areCommentsEnabledForUserSelector);
@@ -112,13 +112,13 @@ const ToggleCommentModeButton = () => {
 
   return commentsEnabled ? (
     <StyledToggleCommentMode
-      onClick={setCommentModeInUrl}
       isCommentMode={isCommentMode}
+      onClick={setCommentModeInUrl}
     >
       <UnreadIndicator />
       <ToggleCommmentMode />
     </StyledToggleCommentMode>
   ) : null;
-};
+}
 
 export default ToggleCommentModeButton;

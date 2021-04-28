@@ -46,7 +46,7 @@ const ChildComments = styled.div`
   flex: 1;
 `;
 
-const CommentThreadContainer = ({
+function CommentThreadContainer({
   commentThread,
   hideInput,
   inline,
@@ -61,7 +61,7 @@ const CommentThreadContainer = ({
   hideChildren?: boolean;
   transition?: any;
   showSubheader?: boolean;
-}) => {
+}) {
   const dispatch = useDispatch();
   const { comments, id: commentThreadId } = commentThread;
   const messagesBottomRef = useRef<HTMLDivElement>(null);
@@ -115,36 +115,36 @@ const CommentThreadContainer = ({
 
   return (
     <ThreadContainer
-      tabIndex={0}
-      style={transition}
       inline={inline}
-      visible={isVisible}
       pinned={commentThread.pinnedState?.active}
+      style={transition}
+      tabIndex={0}
+      visible={isVisible}
     >
       <div style={{ position: "relative" }}>
-        <CommentsContainer ref={commentsContainerRef} inline={inline}>
+        <CommentsContainer inline={inline} ref={commentsContainerRef}>
           {parentComment && (
             <CommentCard
-              commentThreadId={commentThreadId}
-              key={parentComment.id}
               comment={parentComment}
-              resolved={!!commentThread.resolvedState?.active}
-              toggleResolved={resolveCommentThread}
+              commentThreadId={commentThreadId}
+              inline={inline}
               isParentComment
+              key={parentComment.id}
               numberOfReplies={numberOfReplies}
+              resolved={!!commentThread.resolvedState?.active}
               showReplies={hideChildren}
               showSubheader={showSubheader}
-              inline={inline}
+              toggleResolved={resolveCommentThread}
             />
           )}
           {!hideChildren && childComments && childComments.length > 0 && (
             <ChildComments>
               {childComments.map((comment) => (
                 <CommentCard
-                  commentThreadId={commentThreadId}
-                  key={comment.id}
                   comment={comment}
+                  commentThreadId={commentThreadId}
                   inline={inline}
+                  key={comment.id}
                 />
               ))}
             </ChildComments>
@@ -158,6 +158,6 @@ const CommentThreadContainer = ({
       {!hideInput && <AddCommentInput onSave={addComment} />}
     </ThreadContainer>
   );
-};
+}
 
 export default CommentThreadContainer;

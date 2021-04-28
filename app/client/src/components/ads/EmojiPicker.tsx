@@ -27,19 +27,19 @@ const EmojiPicker = withTheme(
 
     return (
       <Popover2
+        content={<Picker onEmojiClick={handleSelectEmoji} />}
         isOpen={isOpen}
         minimal
-        portalClassName="emoji-picker-portal"
         onInteraction={(nextOpenState) => {
           setIsOpen(nextOpenState);
         }}
         placement="bottom-end"
-        content={<Picker onEmojiClick={handleSelectEmoji} />}
+        portalClassName="emoji-picker-portal"
       >
         <Icon
+          fillColor={theme.colors.comments.emojiPicker}
           name="emoji"
           size={IconSize.LARGE}
-          fillColor={theme.colors.comments.emojiPicker}
         />
       </Popover2>
     );

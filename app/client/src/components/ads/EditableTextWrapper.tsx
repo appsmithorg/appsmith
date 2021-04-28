@@ -86,23 +86,16 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
   return (
     <Container
       isEditing={isEditing}
-      savingState={props.savingState}
       isInvalid={isValid}
+      savingState={props.savingState}
     >
       <EditableText
+        className={props.className}
         defaultValue={props.defaultValue}
         editInteractionKind={props.editInteractionKind}
-        placeholder={props.placeholder}
+        fill={!!props.fill}
         hideEditIcon={props.hideEditIcon}
         isEditingDefault={props.isNewApp}
-        savingState={props.savingState}
-        fill={!!props.fill}
-        onBlur={(value) => {
-          setIsEditing(false);
-          props.onBlur && props.onBlur(value);
-        }}
-        className={props.className}
-        onTextChanged={() => setIsEditing(true)}
         isInvalid={(value: string) => {
           setIsEditing(true);
           if (props.isInvalid) {
@@ -118,6 +111,13 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
             return false;
           }
         }}
+        onBlur={(value) => {
+          setIsEditing(false);
+          props.onBlur && props.onBlur(value);
+        }}
+        onTextChanged={() => setIsEditing(true)}
+        placeholder={props.placeholder}
+        savingState={props.savingState}
       />
     </Container>
   );

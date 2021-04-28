@@ -149,34 +149,30 @@ class QueryEditor extends React.Component<Props> {
     const onCreateDatasourceClick = () => {
       history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
     };
-    return (
-      <React.Fragment>
-        {queryId ? (
-          <QueryEditorForm
-            location={this.props.location}
-            isRunning={isRunning}
-            isDeleting={isDeleting}
-            onDeleteClick={this.handleDeleteClick}
-            onRunClick={this.handleRunClick}
-            dataSources={dataSources}
-            editorConfig={editorConfig}
-            settingConfig={settingConfig}
-            DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
-            executedQueryData={responses[queryId]}
-            runErrorMessage={runErrorMessage[queryId]}
-            onCreateDatasourceClick={onCreateDatasourceClick}
-          />
-        ) : (
-          <QueryHomeScreen
-            dataSources={dataSources}
-            applicationId={applicationId}
-            pageId={pageId}
-            history={this.props.history}
-            location={this.props.location}
-            isCreating={isCreating}
-          />
-        )}
-      </React.Fragment>
+    return queryId ? (
+      <QueryEditorForm
+        DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
+        dataSources={dataSources}
+        editorConfig={editorConfig}
+        executedQueryData={responses[queryId]}
+        isDeleting={isDeleting}
+        isRunning={isRunning}
+        location={this.props.location}
+        onCreateDatasourceClick={onCreateDatasourceClick}
+        onDeleteClick={this.handleDeleteClick}
+        onRunClick={this.handleRunClick}
+        runErrorMessage={runErrorMessage[queryId]}
+        settingConfig={settingConfig}
+      />
+    ) : (
+      <QueryHomeScreen
+        applicationId={applicationId}
+        dataSources={dataSources}
+        history={this.props.history}
+        isCreating={isCreating}
+        location={this.props.location}
+        pageId={pageId}
+      />
     );
   }
 }

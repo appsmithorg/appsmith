@@ -22,7 +22,7 @@ const Container = styled.div`
   overflow: auto;
 `;
 
-const AppCommentThreads = () => {
+function AppCommentThreads() {
   const applicationId = useSelector(getCurrentApplicationId) as string;
   const appCommentThreadsByRefMap = useSelector(
     applicationCommentsSelector(applicationId),
@@ -55,17 +55,17 @@ const AppCommentThreads = () => {
     <Container>
       {transition.map(({ item: commentThreadId, props, key }) => (
         <CommentThread
-          key={key}
-          transition={props}
           commentThreadId={commentThreadId}
-          hideInput
           hideChildren
+          hideInput
+          key={key}
           showSubheader
+          transition={props}
         />
       ))}
       {!commentsExist && <AppCommentsPlaceholder />}
     </Container>
   );
-};
+}
 
 export default AppCommentThreads;

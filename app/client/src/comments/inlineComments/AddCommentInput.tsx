@@ -108,13 +108,13 @@ const useUserSuggestions = (
   }, [users]);
 };
 
-const AddCommentInput = ({
+function AddCommentInput({
   onSave,
   onCancel,
 }: {
   onSave: (state: RawDraftContentState) => void;
   onCancel?: () => void;
-}) => {
+}) {
   const users = useOrgUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
   useUserSuggestions(users, setSuggestions);
@@ -176,13 +176,13 @@ const AddCommentInput = ({
       <Row>
         <StyledInputContainer>
           <MentionsInput
-            placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}
-            suggestions={filteredSuggestions}
-            editorState={editorState}
-            setEditorState={setEditorState}
-            onSubmit={onSaveComment}
-            onSearchSuggestions={onSearchChange}
             autoFocus
+            editorState={editorState}
+            onSearchSuggestions={onSearchChange}
+            onSubmit={onSaveComment}
+            placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}
+            setEditorState={setEditorState}
+            suggestions={filteredSuggestions}
           />
         </StyledInputContainer>
       </Row>
@@ -192,23 +192,23 @@ const AddCommentInput = ({
         </StyledEmojiTrigger>
         <Row>
           <Button
-            text={createMessage(CANCEL)}
-            type="button"
-            onClick={_onCancel}
             category={Category.tertiary}
             className={"cancel-button"}
+            onClick={_onCancel}
+            text={createMessage(CANCEL)}
+            type="button"
           />
           <Button
-            text={createMessage(POST)}
-            type="button"
-            onClick={handleSubmit}
             category={Category.primary}
             disabled={!editorState.getCurrentContent().hasText()}
+            onClick={handleSubmit}
+            text={createMessage(POST)}
+            type="button"
           />
         </Row>
       </Row>
     </PaddingContainer>
   );
-};
+}
 
 export default AddCommentInput;

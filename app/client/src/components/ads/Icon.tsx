@@ -223,12 +223,16 @@ export const IconWrapper = styled.span<IconProps>`
         : ""}
   }
 
-  &:active {
+  &:hover {
     cursor: pointer;
+    ${(props) =>
+      !props.keepColors
+        ? `
     path {
-      fill: ${(props) =>
-        props.hoverFillColor || props.theme.colors.icon.active};
+      fill: ${props.hoverFillColor || props.theme.colors.icon.hover};
     }
+    `
+        : ""}
   }
 `;
 
@@ -414,7 +418,7 @@ const Icon = forwardRef(
       case "PARAGRAPH":
       case "PARAGRAPH_TWO":
         const ControlIcon = ControlIcons[props.name];
-        returnIcon = <ControlIcon width={24} height={24} />;
+        returnIcon = <ControlIcon height={24} width={24} />;
         break;
 
       case "context-menu":

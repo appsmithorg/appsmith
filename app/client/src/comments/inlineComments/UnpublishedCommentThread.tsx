@@ -44,44 +44,45 @@ const UnpublishedCommentThread = withTheme(
 
     return (
       <div
+        data-cy="unpublished-comment-thread"
         key={`${top}-${left}`}
         onClick={(e: any) => {
           // capture clicks so that create new thread is not triggered
           e.preventDefault();
           e.stopPropagation();
         }}
-        data-cy="unpublished-comment-thread"
       >
-        <CommentTriggerContainer top={top} left={left}>
+        <CommentTriggerContainer left={left} top={top}>
           <Popover
-            hasBackdrop
             autoFocus
+            boundary="viewport"
             canEscapeKeyClose
+            hasBackdrop
+            isOpen
             minimal
-            isOpen={true}
-            position={Position.RIGHT_TOP}
-            popoverClassName="comment-thread"
-            onInteraction={(nextOpenState) => {
-              if (!nextOpenState) {
-                onClosing();
-              }
-            }}
             modifiers={{
               offset: {
                 enabled: true,
                 offset: "-8, 10",
               },
             }}
+            onInteraction={(nextOpenState) => {
+              if (!nextOpenState) {
+                onClosing();
+              }
+            }}
+            popoverClassName="comment-thread"
+            position={Position.RIGHT_TOP}
           >
             <Icon
-              name="unread-pin"
               fillColor={theme.colors.comments.pin}
+              name="unread-pin"
               size={IconSize.XXL}
             />
             <ThreadContainer tabIndex={0}>
               <AddCommentInput
-                onSave={createCommentThread}
                 onCancel={onClosing}
+                onSave={createCommentThread}
               />
             </ThreadContainer>
           </Popover>

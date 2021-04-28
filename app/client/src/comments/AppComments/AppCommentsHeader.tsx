@@ -19,13 +19,13 @@ const Header = styled.div`
     ${(props) => props.theme.colors.comments.appCommentsHeaderBorder};
 `;
 
-const AppCommentsHeader = () => {
+function AppCommentsHeader() {
   return (
     <Header>
       <AppCommentHeaderTitle>{createMessage(COMMENTS)}</AppCommentHeaderTitle>
       <AppCommentsFilterPopover />
     </Header>
   );
-};
+}
 
 export default AppCommentsHeader;
