@@ -25,6 +25,8 @@ public class CommentThread extends BaseDomain {
 
     CommentThreadState resolvedState;
 
+    String sequenceId;
+
     String applicationId;
 
     // These comments are saved in a separate collection and loaded by the APIs separately.

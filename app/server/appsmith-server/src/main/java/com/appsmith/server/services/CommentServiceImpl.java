@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -102,7 +104,17 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         commentThread.setPinnedState(initState);
         commentThread.setResolvedState(initState);
 
-        return applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS)
+        //TODO : Use sequenceDB for optimised results here
+        Query query = new Query();
+        query.addCriteria(Criteria.where("applicationId").is(applicationId));
+        return mongoTemplate
+                .count(query, CommentThread.class)
+                .flatMap(count -> {
+                    count += 1;
+                    log.debug("Cnt : {}", count);
+                    commentThread.setSequenceId("#" + count);
+                    return applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS);
+                })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application -> {
                     commentThread.setPolicies(policyGenerator.getAllChildPolicies(
@@ -141,7 +153,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         // Copy over only those fields that are allowed to be updated by a PATCH request.
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
-                    initState.setAuthor(user.getName());
+                    String author = user.getName();
+                    if(author != null) {
+                        initState.setAuthor(author);
+                    } else {
+                        initState.setAuthor(user.getUsername());
+                    }
                     initState.setUpdatedAt(Instant.now());
                     if (commentThread.getResolvedState() != null) {
                         initState.setActive(commentThread.getResolvedState().getActive());
