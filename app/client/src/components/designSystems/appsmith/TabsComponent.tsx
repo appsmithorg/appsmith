@@ -112,7 +112,7 @@ const StyledText = styled.div<TabProps>`
   }
 `;
 
-const TabsComponent = (props: TabsComponentProps) => {
+function TabsComponent(props: TabsComponentProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { onTabChange, ...remainingProps } = props;
   const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
@@ -132,12 +132,12 @@ const TabsComponent = (props: TabsComponentProps) => {
           {props.tabs.map((tab, index) => (
             <StyledText
               className={`t--tab-${tab.label}`}
+              key={index}
               onClick={(event: React.MouseEvent<HTMLDivElement>) => {
                 onTabChange(tab.widgetId);
                 event.stopPropagation();
               }}
               selected={props.selectedTabWidgetId === tab.widgetId}
-              key={index}
             >
               {tab.label}
             </StyledText>
@@ -160,6 +160,6 @@ const TabsComponent = (props: TabsComponentProps) => {
       </ChildrenWrapper>
     </TabsContainerWrapper>
   );
-};
+}
 
 export default TabsComponent;

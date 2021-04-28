@@ -101,16 +101,16 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     const { maxZoomLevel } = this.props;
     return (
       <ImageComponent
+        defaultImageUrl={this.props.defaultImage}
         disableDrag={(disable: boolean) => {
           this.disableDrag(disable);
         }}
-        maxZoomLevel={maxZoomLevel}
-        widgetId={this.props.widgetId}
         imageUrl={this.props.image || ""}
+        isLoading={this.props.isLoading}
+        maxZoomLevel={maxZoomLevel}
         onClick={this.props.onClick ? this.onImageClick : undefined}
         showHoverPointer={this.props.renderMode === RenderModes.PAGE}
-        defaultImageUrl={this.props.defaultImage}
-        isLoading={this.props.isLoading}
+        widgetId={this.props.widgetId}
       />
     );
   }

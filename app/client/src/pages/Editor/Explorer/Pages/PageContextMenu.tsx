@@ -19,14 +19,14 @@ const CustomLabel = styled.div`
   align-items: center;
 `;
 
-export const PageContextMenu = (props: {
+export function PageContextMenu(props: {
   pageId: string;
   name: string;
   applicationId: string;
   className?: string;
   isDefaultPage: boolean;
   isHidden: boolean;
-}) => {
+}) {
   const dispatch = useDispatch();
 
   const deletePage = useCallback(
@@ -116,11 +116,11 @@ export const PageContextMenu = (props: {
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      selectedValue=""
       optionTree={optionTree}
+      selectedValue=""
       toggle={<ContextMenuTrigger />}
     />
   );
-};
+}
 
 export default PageContextMenu;
