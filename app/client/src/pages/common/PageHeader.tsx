@@ -40,7 +40,7 @@ type PageHeaderProps = {
   user?: User;
 };
 
-export const PageHeader = (props: PageHeaderProps) => {
+export function PageHeader(props: PageHeaderProps) {
   const { user } = props;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -53,8 +53,8 @@ export const PageHeader = (props: PageHeaderProps) => {
   return (
     <StyledPageHeader>
       <HeaderSection>
-        <Link to={APPLICATIONS_URL} className="t--appsmith-logo">
-          <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+        <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
+          <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
         </Link>
       </HeaderSection>
       {user && (
@@ -62,19 +62,19 @@ export const PageHeader = (props: PageHeaderProps) => {
           {user.username === ANONYMOUS_USERNAME ? (
             <Button
               filled
-              text="Sign In"
               intent={"primary"}
-              size="small"
               onClick={() => history.push(loginUrl)}
+              size="small"
+              text="Sign In"
             />
           ) : (
-            <ProfileDropdown userName={user.username} name={user.name} />
+            <ProfileDropdown name={user.name} userName={user.username} />
           )}
         </StyledDropDownContainer>
       )}
     </StyledPageHeader>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),

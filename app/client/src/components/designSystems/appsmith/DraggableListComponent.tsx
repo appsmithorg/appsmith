@@ -100,8 +100,8 @@ export class DroppableComponent extends React.Component<
                   return (
                     <Draggable
                       draggableId={item.id}
-                      key={item.id}
                       index={index}
+                      key={item.id}
                     >
                       {({ innerRef, draggableProps, dragHandleProps }) => (
                         <ItemWrapper

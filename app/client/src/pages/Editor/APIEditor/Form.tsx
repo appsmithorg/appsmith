@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { connect, useSelector } from "react-redux";
+import { connect, useSelector, useDispatch } from "react-redux";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -12,7 +12,8 @@ import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
 import { Action, PaginationType } from "entities/Action";
-import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -33,6 +34,7 @@ import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 
@@ -76,6 +78,12 @@ const ActionButtons = styled.div`
   }
 `;
 
+const HelpSection = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[12]}px 0px
+    ${(props) => props.theme.spaces[12]}px;
+`;
+
 const DatasourceWrapper = styled.div`
   width: 100%;
 `;
@@ -84,6 +92,9 @@ const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - 126px);
+  ${HelpSection} {
+    margin-bottom: 10px;
+  }
 `;
 
 const TabbedViewContainer = styled.div`
@@ -153,12 +164,6 @@ const Link = styled.a`
   }
 `;
 
-const HelpSection = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[12]}px 0px
-    ${(props) => props.theme.spaces[12]}px;
-`;
-
 interface APIFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -175,6 +180,7 @@ interface APIFormProps {
   headersCount: number;
   paramsCount: number;
   settingsConfig: any;
+  hintMessages?: Array<string>;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -189,7 +195,7 @@ export const NameWrapper = styled.div`
   }
 `;
 
-const ApiEditorForm: React.FC<Props> = (props: Props) => {
+function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [
     apiBindHelpSectionVisible,
@@ -207,7 +213,9 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     headersCount,
     paramsCount,
     settingsConfig,
+    hintMessages,
   } = props;
+  const dispatch = useDispatch();
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
 
@@ -222,7 +230,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const { pageId } = useParams<ExplorerURLParams>();
 
   const theme = EditorTheme.LIGHT;
-
+  const handleClickLearnHow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(setGlobalSearchQuery("capturing data"));
+    dispatch(toggleShowGlobalSearchModal());
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
+  };
   return (
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
@@ -233,47 +246,56 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
             <MoreActionsMenu
+              className="t--more-action-menu"
               id={currentActionConfig ? currentActionConfig.id : ""}
               name={currentActionConfig ? currentActionConfig.name : ""}
-              className="t--more-action-menu"
               pageId={pageId}
             />
             <Button
-              text="Run"
-              tag="button"
-              size={Size.medium}
-              type="button"
+              className="t--apiFormRunBtn"
+              isLoading={isRunning}
               onClick={() => {
                 onRunClick();
               }}
-              isLoading={isRunning}
-              className="t--apiFormRunBtn"
+              size={Size.medium}
+              tag="button"
+              text="Run"
+              type="button"
             />
           </ActionButtons>
         </FormRow>
         <FormRow className="api-info-row">
           <RequestDropdownField
-            placeholder="Method"
-            name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"
-            options={HTTP_METHOD_OPTIONS}
-            width={"100px"}
-            optionWidth={"100px"}
             height={"35px"}
+            name="actionConfiguration.httpMethod"
+            optionWidth={"100px"}
+            options={HTTP_METHOD_OPTIONS}
+            placeholder="Method"
+            width={"100px"}
           />
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField
               name="actionConfiguration.path"
-              pluginId={pluginId}
               placeholder="https://mock-api.appsmith.com/users"
+              pluginId={pluginId}
               theme={theme}
             />
           </DatasourceWrapper>
         </FormRow>
       </MainConfiguration>
       <SecondaryWrapper>
+        {hintMessages && (
+          <HelpSection>
+            {hintMessages.map((msg, i) => (
+              <Callout fill key={i} text={msg} variant={Variant.warning} />
+            ))}
+          </HelpSection>
+        )}
         <TabbedViewContainer>
           <TabComponent
+            onSelect={setSelectedIndex}
+            selectedIndex={selectedIndex}
             tabs={[
               {
                 key: "headers",
@@ -284,35 +306,34 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                     {apiBindHelpSectionVisible && (
                       <HelpSection>
                         <Callout
-                          text={createMessage(WIDGET_BIND_HELP)}
+                          closeButton
+                          fill
                           label={
                             <CalloutContent>
                               <Link
-                                href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                className="t--learn-how-apis-link"
+                                onClick={handleClickLearnHow}
                               >
-                                <Text type={TextType.H6} case={Case.UPPERCASE}>
+                                <Text case={Case.UPPERCASE} type={TextType.H6}>
                                   Learn How
                                 </Text>
                                 <Icon name="right-arrow" />
                               </Link>
                             </CalloutContent>
                           }
-                          variant={Variant.warning}
-                          fill
-                          closeButton
                           onClose={() => setApiBindHelpSectionVisible(false)}
+                          text={createMessage(WIDGET_BIND_HELP)}
+                          variant={Variant.warning}
                         />
                       </HelpSection>
                     )}
                     <KeyValueFieldArray
-                      theme={theme}
-                      name="actionConfiguration.headers"
-                      label="Headers"
                       actionConfig={actionConfigurationHeaders}
-                      placeholder="Value"
                       dataTreePath={`${actionName}.config.headers`}
+                      label="Headers"
+                      name="actionConfiguration.headers"
+                      placeholder="Value"
+                      theme={theme}
                     />
                   </TabSection>
                 ),
@@ -324,10 +345,10 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 panelComponent: (
                   <TabSection>
                     <KeyValueFieldArray
-                      theme={theme}
-                      name="actionConfiguration.queryParameters"
-                      label="Params"
                       dataTreePath={`${actionName}.config.queryParameters`}
+                      label="Params"
+                      name="actionConfiguration.queryParameters"
+                      theme={theme}
                     />
                   </TabSection>
                 ),
@@ -335,21 +356,17 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               {
                 key: "body",
                 title: "Body",
-                panelComponent: (
-                  <>
-                    {allowPostBody ? (
-                      <PostBodyData
-                        dataTreePath={`${actionName}.config`}
-                        theme={theme}
-                      />
-                    ) : (
-                      <NoBodyMessage>
-                        <Text type={TextType.P2}>
-                          This request does not have a body
-                        </Text>
-                      </NoBodyMessage>
-                    )}
-                  </>
+                panelComponent: allowPostBody ? (
+                  <PostBodyData
+                    dataTreePath={`${actionName}.config`}
+                    theme={theme}
+                  />
+                ) : (
+                  <NoBodyMessage>
+                    <Text type={TextType.P2}>
+                      This request does not have a body
+                    </Text>
+                  </NoBodyMessage>
                 ),
               },
               {
@@ -377,16 +394,14 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 ),
               },
             ]}
-            selectedIndex={selectedIndex}
-            onSelect={setSelectedIndex}
           />
         </TabbedViewContainer>
 
-        <ApiResponseView theme={theme} apiName={actionName} />
+        <ApiResponseView apiName={actionName} theme={theme} />
       </SecondaryWrapper>
     </Form>
   );
-};
+}
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
@@ -415,6 +430,7 @@ export default connect((state: AppState) => {
     const validParams = params.filter((value) => value.key && value.key !== "");
     paramsCount = validParams.length;
   }
+  const hintMessages = selector(state, "datasource.messages");
 
   return {
     actionName,
@@ -423,6 +439,7 @@ export default connect((state: AppState) => {
     actionConfigurationHeaders,
     headersCount,
     paramsCount,
+    hintMessages,
   };
 })(
   reduxForm<Action, APIFormProps>({

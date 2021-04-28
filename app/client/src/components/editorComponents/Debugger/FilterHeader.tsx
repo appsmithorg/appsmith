@@ -51,7 +51,7 @@ type FilterHeaderProps = {
   searchQuery: string;
 };
 
-const FilterHeader = (props: FilterHeaderProps) => {
+function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
 
@@ -59,16 +59,16 @@ const FilterHeader = (props: FilterHeaderProps) => {
     <Wrapper>
       <Icon
         name="cancel"
-        size={IconSize.XL}
         onClick={() => dispatch(clearLogs())}
+        size={IconSize.XL}
       />
       <div className="input-container">
         <TextInput
-          ref={searchRef}
           className="debugger-search"
-          placeholder="Filter"
-          onChange={props.onChange}
           defaultValue={props.defaultValue}
+          onChange={props.onChange}
+          placeholder="Filter"
+          ref={searchRef}
         />
         {props.searchQuery && (
           <Icon
@@ -84,16 +84,16 @@ const FilterHeader = (props: FilterHeaderProps) => {
       </div>
       <Dropdown
         className="debugger-filter"
-        width={"100px"}
         height={"28px"}
+        onSelect={props.onSelect}
         optionWidth={"100px"}
         options={props.options}
-        showLabelOnly
         selected={props.selected}
-        onSelect={props.onSelect}
+        showLabelOnly
+        width={"100px"}
       />
     </Wrapper>
   );
-};
+}
 
 export default FilterHeader;
