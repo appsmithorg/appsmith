@@ -643,6 +643,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                         });
                                     }
                             );
+                })
+                .onErrorResume(AppsmithException.class, error -> {
+                    ActionExecutionResult result = new ActionExecutionResult();
+                    result.setIsExecutionSuccess(false);
+                    result.setStatusCode(error.getAppErrorCode().toString());
+                    result.setBody(error.getMessage());
+                    result.setTitle(error.getTitle());
+                    return Mono.just(result);
                 });
 
         Mono<Map> editorConfigLabelMapMono = datasourceMono
@@ -654,18 +662,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     return Mono.just(new HashMap());
                 });
 
-        return actionExecutionResultMono
-               .onErrorResume(AppsmithException.class, error -> {
-                    ActionExecutionResult result = new ActionExecutionResult();
-                    result.setIsExecutionSuccess(false);
-                    result.setStatusCode(error.getAppErrorCode().toString());
-                    result.setBody(error.getMessage());
-                    result.setTitle(error.getTitle());
-                    return Mono.just(result);
-                })
-                // Processing editorConfigLabelMap here because in case execution result returns an error, we
-                // still should be able to return the request params.
-                .flatMap(result -> Mono.zip(Mono.just(result), editorConfigLabelMapMono))
+        return Mono.zip(actionExecutionResultMono, editorConfigLabelMapMono)
                 .flatMap(tuple -> {
                     ActionExecutionResult result = tuple.getT1();
                     // In case the action was executed in view mode, do not return the request object
@@ -686,39 +683,25 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .map(result -> addDataTypes(result));
     }
 
-    /*
-     * - Comparator for comparing request params. Used when request params are sorted according to their relative
-     * position in the editor.json config file.
-     */
-    Comparator<Pair<Object, Integer>> rankedParamsComparator = Comparator.comparing(Pair::getSecond);
-
-    /*
-     * - Add label to request param entities.
-     * - Add data types to request param entities.
-     */
-    private void transformRequestParams(ActionExecutionResult result, Map labelMap) {
+    // Add label and data types to request param entities.
+    private void transformRequestParams(ActionExecutionResult result, Map<String, String> labelMap) {
         List<RequestParamDTO> transformedParams = new ArrayList<>();
-
-        /*
-         * - Each entity in the list is a pair of request parameter and the index for where it appears in the editor
-         * .json file. The top most field in the config file has a index of 0, then 1 and so on.
-         * - The index helps in arranging the request params in the same order as they appear in the editor.json
-         * config file.
-         */
-        List<Pair<Object, Integer>> rankedParams = new ArrayList<>();
-
+        Map<String, RequestParamDTO> requestParamsConfigMap = new HashMap();
         result.getRequest().getRequestParams().stream()
-                .forEach(param -> {
-                    param.setTypes(param.getValue() != null ?
-                            getDisplayDataTypes(param.getValue()) : new ArrayList<>());
-                    param.setLabel((String)((Pair)labelMap.get(param.getConfigProperty())).getFirst());
-                    rankedParams.add(new Pair(param, ((Pair)labelMap.get(param.getConfigProperty())).getSecond()));
-                    param.setConfigProperty(null);
+                .forEach(param -> requestParamsConfigMap.put(param.getConfigProperty(), param));
+
+        labelMap.entrySet().stream()
+                .forEach(e -> {
+                    String configProperty = e.getKey();
+                    if(requestParamsConfigMap.containsKey(configProperty)) {
+                        RequestParamDTO param = requestParamsConfigMap.get(configProperty);
+                        param.setTypes(param.getValue() != null ?
+                                getDisplayDataTypes(param.getValue()) : new ArrayList<>());
+                        param.setLabel(e.getValue());
+                        transformedParams.add(param);
+                    }
                 });
 
-        Collections.sort(rankedParams, rankedParamsComparator);
-        rankedParams.stream()
-                .forEach(rankedParam -> transformedParams.add((RequestParamDTO) rankedParam.getFirst()));
         result.getRequest().setRequestParams(transformedParams);
     }
 

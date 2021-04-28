@@ -14,7 +14,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysema.commons.lang.Pair;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -51,7 +50,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -73,7 +71,9 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     private static final String KEY_EDITOR = "editor";
     private static final String KEY_CONFIG_PROPERTY = "configProperty";
     private static final String KEY_LABEL = "label";
+    private static final String KEY_INTERNAL_LABEL = "internalLabel";
     private static final String KEY_CHILDREN = "children";
+    private static final String DEFAULT_LABEL = "Query";
 
     @Autowired
     public PluginServiceImpl(Scheduler scheduler,
@@ -376,20 +376,28 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             return Mono.just(new HashMap());
         }
 
-        AtomicInteger counter = new AtomicInteger(0);
         Mono<Map> labelMapMono = formConfig
                 .flatMap(formMap -> {
-                    Map labelMap = new LinkedHashMap();
+                    Map<String, String> labelMap = new LinkedHashMap(); // need to keep the key value pairs in order
                     List editorMap = (List) formMap.get(KEY_EDITOR);
                     editorMap.stream()
                             .map(item -> ((Map) item).get(KEY_CHILDREN))
                             .forEach(item ->
                                     ((List<Map>) item).stream()
                                             .forEach(queryField -> {
+                                                /*
+                                                 * - First check for "label" key.
+                                                 * - If "label" key has empty value, then get the value against
+                                                 * "internalLabel" key.
+                                                 */
+                                                String label = StringUtils.isEmpty(queryField.get(KEY_LABEL)) ?
+                                                        (StringUtils.isEmpty(queryField.get(KEY_INTERNAL_LABEL)) ?
+                                                                DEFAULT_LABEL : (String) queryField.get(KEY_INTERNAL_LABEL)) :
+                                                        (String) queryField.get(KEY_LABEL);
+                                                String configProperty = (String) queryField.get(KEY_CONFIG_PROPERTY);
                                                 labelMap.put(
-                                                        queryField.get(KEY_CONFIG_PROPERTY),
-                                                        new Pair((StringUtils.isEmpty(queryField.get(KEY_LABEL)) ? "" :
-                                                                queryField.get(KEY_LABEL)), counter.getAndIncrement())
+                                                        configProperty,
+                                                        label
                                                 );
                                             })
                             );
