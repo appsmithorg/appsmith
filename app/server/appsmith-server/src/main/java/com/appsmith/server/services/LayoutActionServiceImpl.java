@@ -226,7 +226,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             // DSL has removed all the old names and replaced it with new name. If the change of name
                             // was one of the mongoEscaped widgets, then update the names in the set as well
                             Set<String> mongoEscapedWidgetNames = layout.getMongoEscapedWidgetNames();
-                            if (mongoEscapedWidgetNames.contains(oldName)) {
+                            if (mongoEscapedWidgetNames != null && mongoEscapedWidgetNames.contains(oldName)) {
                                 mongoEscapedWidgetNames.remove(oldName);
                                 mongoEscapedWidgetNames.add(newName);
                             }
