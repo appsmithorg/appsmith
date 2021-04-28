@@ -29,6 +29,7 @@ type Props = {
   toggleShowGlobalSearchModal: () => void;
   openDebugger: () => void;
   selectedWidget?: string;
+  isDebuggerOpen: boolean;
   children: React.ReactNode;
 };
 
@@ -86,6 +87,11 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           onKeyDown={() => {
             this.props.openDebugger();
+            if (this.props.isDebuggerOpen) {
+              AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+                source: "CANVAS",
+              });
+            }
           }}
           preventDefault
         />
@@ -153,6 +159,7 @@ class GlobalHotKeys extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState) => ({
   selectedWidget: getSelectedWidget(state),
+  isDebuggerOpen: state.ui.debugger.isOpen,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
