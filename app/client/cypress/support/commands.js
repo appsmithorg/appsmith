@@ -23,6 +23,10 @@ const datasource = require("../locators/DatasourcesEditor.json");
 
 let pageidcopy = " ";
 
+function checkIfApiWasSuccessful(interception, statuscode) {
+  expect(interception.response.body.responseMeta.status).to.deep.eq(statuscode);
+}
+
 Cypress.Commands.add("createOrg", (orgName) => {
   cy.get(homePage.createOrg)
     .should("be.visible")
@@ -32,11 +36,9 @@ Cypress.Commands.add("createOrg", (orgName) => {
     .should("be.visible")
     .type(orgName);
   cy.xpath(homePage.submitBtn).click();
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@applications").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add(
@@ -59,13 +61,6 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
   cy.wait("@getRoles");
-  /*
-  cy.wait("@getRoles").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  */
   cy.get(homePage.inviteUserMembersPage).should("be.visible");
 });
 
@@ -137,11 +132,9 @@ Cypress.Commands.add("shareAndPublic", (email, role) => {
 
 Cypress.Commands.add("enablePublicAccess", () => {
   cy.get(homePage.enablePublicAccess).click();
-  cy.wait("@changeAccess").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@changeAccess").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
   cy.get(homePage.closeBtn).click();
 });
 
@@ -161,11 +154,9 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
     .first()
     .should("be.visible")
     .click();
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@applications").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
@@ -195,11 +186,9 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
     .first()
     .should("be.visible")
     .click();
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@applications").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add("launchApp", (appName) => {
@@ -208,11 +197,9 @@ Cypress.Commands.add("launchApp", (appName) => {
     .first()
     .click();
   cy.get("#loading").should("not.exist");
-  cy.wait("@getPagesForViewApp").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@getPagesForViewApp").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
@@ -220,40 +207,33 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     .scrollIntoView()
     .should("be.visible")
     .click({ force: true });
-  cy.wait("@createNewApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApplication").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
+
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
   cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@updateApplication").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });
-  cy.wait("@createNewApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApplication").should((interception) => {
+    checkIfApiWasSuccessful(interception, 201);
+  });
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
 
   cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@updateApplication").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add(
@@ -300,16 +280,12 @@ Cypress.Commands.add("amazonDatasourceForm", () => {
 
 Cypress.Commands.add("DeleteApp", (appName) => {
   cy.get(commonlocators.homeIcon).click({ force: true });
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  cy.wait("@organizations").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@applications").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
+  cy.wait("@organizations").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
   cy.get('button span[icon="chevron-down"]').should("be.visible");
   cy.get(homePage.searchInput).type(appName, { force: true });
   cy.get(homePage.applicationCard).trigger("mouseover");
@@ -405,11 +381,9 @@ Cypress.Commands.add("NavigateToHome", () => {
   cy.get(commonlocators.homeIcon).click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@applications").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add("NavigateToWidgets", (pageName) => {
@@ -551,11 +525,9 @@ Cypress.Commands.add(
     cy.get(explorer.editEntityField)
       .clear()
       .type(updatedName + "{enter}", { force: true });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@saveDatasource").should((interception) => {
+      checkIfApiWasSuccessful(interception, 200);
+    });
   },
 );
 
@@ -672,11 +644,9 @@ Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
     .children()
     .contains(zoomValue)
     .click();
-  cy.wait("@updateLayout").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@updateLayout").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
   cy.get(commonlocators.selectedZoomlevel)
     .last()
     .invoke("text")
@@ -694,11 +664,9 @@ Cypress.Commands.add("changeColumnType", (dataType) => {
     .children()
     .contains(dataType)
     .click();
-  cy.wait("@updateLayout").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@updateLayout").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
   /*
   cy.get(commonlocators.selectedColType)
     .first()
@@ -875,11 +843,9 @@ Cypress.Commands.add("MoveAPIToHome", (apiname) => {
     .click({ force: true });
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
-  cy.wait("@createNewApi").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApi").should((interception) => {
+    checkIfApiWasSuccessful(interception, 201);
+  });
 });
 
 Cypress.Commands.add("MoveAPIToPage", (pageName) => {
@@ -891,7 +857,7 @@ Cypress.Commands.add("MoveAPIToPage", (pageName) => {
     .contains(pageName)
     .click();
   cy.wait("@saveAction").should((interception) => {
-    expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    checkIfApiWasSuccessful(interception, 200);
   });
 });
 
@@ -904,7 +870,7 @@ Cypress.Commands.add("copyEntityToPage", (pageName) => {
     .contains(pageName)
     .click();
   cy.wait("@createNewApi").should((interception) => {
-    expect(interception.response.body.responseMeta.status).to.deep.eq(201);
+    checkIfApiWasSuccessful(interception, 201);
   });
 });
 
@@ -914,11 +880,9 @@ Cypress.Commands.add("CopyAPIToHome", () => {
     .click({ force: true });
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
-  cy.wait("@createNewApi").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApi").should((interception) => {
+    checkIfApiWasSuccessful(interception, 201);
+  });
 });
 
 Cypress.Commands.add("RenameEntity", (value) => {
@@ -959,20 +923,16 @@ Cypress.Commands.add("validateMessage", (value) => {
 
 Cypress.Commands.add("DeleteAPIFromSideBar", () => {
   cy.deleteEntity();
-  cy.wait("@deleteAction").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@deleteAction").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
   cy.deleteEntity();
-  cy.wait("@updateLayout").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@updateLayout").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add("deleteEntity", () => {
@@ -989,11 +949,9 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
   cy.get(apiwidget.deleteAPI)
     .first()
     .click({ force: true });
-  cy.wait("@deleteAction").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@deleteAction").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 // Cypress.Commands.add("CreateModal", () => {
@@ -1551,11 +1509,9 @@ Cypress.Commands.add("Createpage", (Pagename) => {
   cy.get(pages.AddPage)
     .first()
     .click();
-  cy.wait("@createPage").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createPage").should((interception) => {
+    checkIfApiWasSuccessful(interception, 201);
+  });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.xpath(pages.popover)
@@ -1790,11 +1746,9 @@ Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
 
 Cypress.Commands.add("testCreateApiButton", () => {
   cy.get(ApiEditor.createBlankApiCard).click({ force: true });
-  cy.wait("@createNewApi").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApi").should((interception) => {
+    checkIfApiWasSuccessful(interception, 201);
+  });
 });
 
 Cypress.Commands.add("testSaveDeleteDatasource", () => {
@@ -1805,29 +1759,23 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
     .debug();
   */
   cy.get(".t--save-datasource").click();
-  cy.wait("@saveDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@saveDatasource").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 
   cy.get(datasourceEditor.editDatasource).click();
 
   cy.get(".t--delete-datasource").click();
-  cy.wait("@deleteDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@deleteDatasource").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add("importCurl", () => {
   cy.get(ApiEditor.curlImportBtn).click({ force: true });
-  cy.wait("@curlImport").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@curlImport").should((interception) => {
+    checkIfApiWasSuccessful(interception, 201);
+  });
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
@@ -1855,11 +1803,9 @@ Cypress.Commands.add("testDatasource", () => {
 
 Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click();
-  cy.wait("@saveDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@saveDatasource").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
@@ -1937,7 +1883,7 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
 Cypress.Commands.add("runQuery", () => {
   cy.get(queryEditor.runQuery).click({ force: true });
   cy.wait("@postExecute").should((interception) => {
-    expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    checkIfApiWasSuccessful(interception, 200);
   });
 });
 
@@ -1956,32 +1902,23 @@ Cypress.Commands.add("deleteQuery", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
   cy.wait("@deleteAction").should((interception) => {
-    expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    checkIfApiWasSuccessful(interception, 200);
   });
 });
 
 Cypress.Commands.add("deleteDataSource", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
-  cy.wait("@deleteDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@deleteDatasource").should((interception) => {
+    checkIfApiWasSuccessful(interception, 200);
+  });
 });
 
 Cypress.Commands.add("runAndDeleteQuery", () => {
   cy.get(queryEditor.runQuery).click();
   cy.wait("@postExecute").should((interception) => {
-    expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+    checkIfApiWasSuccessful(interception, 200);
   });
-  /*
-  cy.wait("@postExecute").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-*/
   cy.get(queryEditor.deleteQuery).click();
   cy.wait("@deleteAction").should(
     "have.nested.property",
