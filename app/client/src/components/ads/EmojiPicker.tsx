@@ -5,6 +5,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Popover, Position } from "@blueprintjs/core";
 import { Theme } from "constants/DefaultTheme";
 
+// TODO remove: (trigger tests)
 const EmojiPicker = withTheme(
   ({
     theme,
