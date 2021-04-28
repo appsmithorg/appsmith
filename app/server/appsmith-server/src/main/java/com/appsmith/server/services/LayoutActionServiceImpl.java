@@ -223,6 +223,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             } catch (ParseException e) {
                                 log.debug("Exception caught during DSL conversion from string to Json object. ", e);
                             }
+                            // DSL has removed all the old names and replaced it with new name. If the change of name
+                            // was one of the mongoEscaped widgets, then update the names in the set as well
+                            Set<String> mongoEscapedWidgetNames = layout.getMongoEscapedWidgetNames();
+                            if (mongoEscapedWidgetNames.contains(oldName)) {
+                                mongoEscapedWidgetNames.remove(oldName);
+                                mongoEscapedWidgetNames.add(newName);
+                            }
                             page.setLayouts(layouts);
                             // Since the page has most probably changed, save the page and return.
                             return newPageService.saveUnpublishedPage(page);
