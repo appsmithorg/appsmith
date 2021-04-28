@@ -36,9 +36,9 @@ const ResolveCommentButton = withTheme(
       <Container onClick={handleClick}>
         <StyledResolveIcon
           fillColor={"transparent"}
-          strokeColor={strokeColor}
           name="oval-check"
           size={IconSize.XXL}
+          strokeColor={strokeColor}
         />
       </Container>
     );

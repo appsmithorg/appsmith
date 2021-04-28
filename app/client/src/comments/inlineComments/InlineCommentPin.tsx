@@ -65,38 +65,38 @@ const InlineCommentPin = withTheme(
 
     return (
       <CommentTriggerContainer
-        top={top}
+        data-cy="inline-comment-pin"
         left={left}
         onClick={(e: any) => {
           // capture clicks so that create new thread is not triggered
           e.preventDefault();
           e.stopPropagation();
         }}
-        data-cy="inline-comment-pin"
+        top={top}
       >
         <Popover
-          hasBackdrop
           autoFocus
           canEscapeKeyClose
-          minimal
-          popoverClassName="comment-thread"
-          // isOpen is controlled so that newly created threads are set to be visible
+          hasBackdrop
           isOpen={!!commentThread.isVisible}
+          minimal
+          // isOpen is controlled so that newly created threads are set to be visible
           onInteraction={(nextOpenState) => {
             setIsCommentThreadVisible(nextOpenState);
           }}
+          popoverClassName="comment-thread"
         >
           <Icon
             className={`comment-thread-pin-${commentThreadId}`}
-            name="pin"
-            fillColor={theme.colors.comments.pin}
-            size={IconSize.XXL}
             data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
+            fillColor={theme.colors.comments.pin}
+            name="pin"
+            size={IconSize.XXL}
           />
           <CommentThread
-            isOpen={!!commentThread.isVisible}
             commentThread={commentThread}
             inline
+            isOpen={!!commentThread.isVisible}
           />
         </Popover>
       </CommentTriggerContainer>

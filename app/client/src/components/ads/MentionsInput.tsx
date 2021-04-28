@@ -24,7 +24,7 @@ type Props = {
   placeholder?: string;
 };
 
-const MentionsInput = ({
+function MentionsInput({
   onSubmit,
   suggestions,
   onSearchSuggestions,
@@ -32,7 +32,7 @@ const MentionsInput = ({
   setEditorState,
   autoFocus,
   placeholder,
-}: Props) => {
+}: Props) {
   const ref = useRef<Editor | null>(null);
   const [open, setOpen] = useState(false);
   const { MentionSuggestions, plugins } = useMemo(() => {
@@ -70,25 +70,25 @@ const MentionsInput = ({
   return (
     <StyledContainer onClick={focusInput}>
       <Editor
-        ref={setRef}
         editorKey={"editor"}
         editorState={editorState}
-        onChange={setEditorState}
-        plugins={plugins}
         handleReturn={handleReturn}
+        onChange={setEditorState}
         placeholder={placeholder}
+        plugins={plugins}
+        ref={setRef}
       />
       <MentionSuggestions
-        open={open}
         onOpenChange={onOpenChange}
-        suggestions={suggestions}
         onSearchChange={onSearchSuggestions}
+        open={open}
+        suggestions={suggestions}
         // onAddMention={() => {
         //   // get the mention object selected
         // }}
       />
     </StyledContainer>
   );
-};
+}
 
 export default MentionsInput;

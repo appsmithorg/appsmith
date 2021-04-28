@@ -6,7 +6,7 @@ import AppCommentThreads from "./AppCommentThreadsContainer";
 import Container from "./Container";
 import { useCallback } from "react";
 
-const AppComments = () => {
+function AppComments() {
   const [isOpen, setIsOpen] = useState(false);
   const isCommentMode = useSelector(commentModeSelector);
   const onClose = useCallback(() => {
@@ -18,13 +18,13 @@ const AppComments = () => {
   return (
     <Container>
       <AppCommentsHeader
-        onClose={onClose}
         isOpen={isOpen}
+        onClose={onClose}
         setIsOpen={setIsOpen}
       />
       <AppCommentThreads isOpen={isOpen} />
     </Container>
   );
-};
+}
 
 export default AppComments;

@@ -14,7 +14,7 @@ const Container = styled(AnimatedDiv)`
   overflow: auto;
 `;
 
-const AppCommentThreadsContainer = ({ isOpen }: Props) => {
+function AppCommentThreadsContainer({ isOpen }: Props) {
   const [, windowHeight] = useWindowDimensions();
   const [springHeight, setHeight] = useSpring(() => ({
     height: 0,
@@ -33,6 +33,6 @@ const AppCommentThreadsContainer = ({ isOpen }: Props) => {
       <AppCommentThreads />
     </Container>
   );
-};
+}
 
 export default AppCommentThreadsContainer;

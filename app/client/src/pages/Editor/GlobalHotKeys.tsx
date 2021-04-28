@@ -145,8 +145,8 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
-          global={true}
           combo="esc"
+          global
           label="Escape"
           onKeyDown={this.props.resetCommentMode}
         />

@@ -58,7 +58,7 @@ type Props = {
   deleteComment: typeof noop;
 };
 
-const CommentContextMenu = ({ pin, copyCommentLink, deleteComment }: Props) => {
+function CommentContextMenu({ pin, copyCommentLink, deleteComment }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   const options = useMemo(
@@ -93,11 +93,6 @@ const CommentContextMenu = ({ pin, copyCommentLink, deleteComment }: Props) => {
 
   return (
     <Popover2
-      isOpen={isOpen}
-      minimal
-      placement={"bottom-end"}
-      portalClassName="comment-context-menu"
-      onInteraction={handleInteraction}
       content={
         <Container>
           {options.map((option) => (
@@ -110,10 +105,15 @@ const CommentContextMenu = ({ pin, copyCommentLink, deleteComment }: Props) => {
           ))}
         </Container>
       }
+      isOpen={isOpen}
+      minimal
+      onInteraction={handleInteraction}
+      placement={"bottom-end"}
+      portalClassName="comment-context-menu"
     >
       <StyledIcon name="context-menu" size={IconSize.LARGE} />
     </Popover2>
   );
-};
+}
 
 export default CommentContextMenu;

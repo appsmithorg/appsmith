@@ -62,7 +62,7 @@ const useUpdateCommentModeInStore = () => {
  * This component is also responsible for fetching
  * application comments
  */
-const ToggleCommentModeButton = () => {
+function ToggleCommentModeButton() {
   const dispatch = useDispatch();
 
   const commentsEnabled = useSelector(areCommentsEnabledForUserSelector);
@@ -94,12 +94,12 @@ const ToggleCommentModeButton = () => {
 
   return commentsEnabled ? (
     <StyledToggleCommentMode
-      onClick={setCommentModeInUrl}
       isCommentMode={isCommentMode}
+      onClick={setCommentModeInUrl}
     >
       <ToggleCommmentMode />
     </StyledToggleCommentMode>
   ) : null;
-};
+}
 
 export default ToggleCommentModeButton;

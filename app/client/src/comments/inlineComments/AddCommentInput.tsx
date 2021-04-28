@@ -153,31 +153,29 @@ const AddCommentInput = withTheme(({ onSave, theme }: any) => {
   }, [suggestionsQuery, suggestions]);
 
   return (
-    <>
-      <PaddingContainer>
-        <StyledInputContainer>
-          <MentionsInput
-            placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}
-            suggestions={filteredSuggestions}
-            editorState={editorState}
-            setEditorState={setEditorState}
-            onSubmit={onSaveComment}
-            onSearchSuggestions={onSearchChange}
-            autoFocus
+    <PaddingContainer>
+      <StyledInputContainer>
+        <MentionsInput
+          autoFocus
+          editorState={editorState}
+          onSearchSuggestions={onSearchChange}
+          onSubmit={onSaveComment}
+          placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}
+          setEditorState={setEditorState}
+          suggestions={filteredSuggestions}
+        />
+        <StyledEmojiTrigger>
+          <EmojiPicker onSelectEmoji={handleEmojiClick} />
+        </StyledEmojiTrigger>
+        <StyledSendButton data-cy="add-comment-submit" onClick={handleSubmit}>
+          <Icon
+            fillColor={theme.colors.comments.sendButton}
+            name="send-button"
+            size={IconSize.XL}
           />
-          <StyledEmojiTrigger>
-            <EmojiPicker onSelectEmoji={handleEmojiClick} />
-          </StyledEmojiTrigger>
-          <StyledSendButton onClick={handleSubmit} data-cy="add-comment-submit">
-            <Icon
-              name="send-button"
-              fillColor={theme.colors.comments.sendButton}
-              size={IconSize.XL}
-            />
-          </StyledSendButton>
-        </StyledInputContainer>
-      </PaddingContainer>
-    </>
+        </StyledSendButton>
+      </StyledInputContainer>
+    </PaddingContainer>
   );
 });
 

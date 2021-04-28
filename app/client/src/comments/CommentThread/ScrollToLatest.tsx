@@ -8,8 +8,8 @@ const Container = styled.div`
   cursor: pointer;
 `;
 
-const ScrollToLatest = ({ scrollToBottom }: { scrollToBottom: () => void }) => {
+function ScrollToLatest({ scrollToBottom }: { scrollToBottom: () => void }) {
   return <Container onClick={scrollToBottom}>View latest</Container>;
-};
+}
 
 export default ScrollToLatest;

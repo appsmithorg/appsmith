@@ -89,7 +89,7 @@ const useSelectCommentUsingQuery = (commentId: string) => {
   }, []);
 };
 
-const CommentCard = ({
+function CommentCard({
   comment,
   isParentComment,
   toggleResolved,
@@ -101,7 +101,7 @@ const CommentCard = ({
   resolved?: boolean;
   toggleResolved?: () => void;
   commentThreadId: string;
-}) => {
+}) {
   const dispatch = useDispatch();
   const { authorName, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
@@ -134,12 +134,12 @@ const CommentCard = ({
   return (
     <>
       <StyledContainer
-        id={`comment-card-${comment.id}`}
         data-cy={`t--comment-card-${comment.id}`}
+        id={`comment-card-${comment.id}`}
       >
         <CommentHeader>
           <HeaderSection>
-            <ProfileImage userName={authorName || ""} side={30} />
+            <ProfileImage side={30} userName={authorName || ""} />
             <UserName>{authorName}</UserName>
           </HeaderSection>
           <HeaderSection>
@@ -155,8 +155,8 @@ const CommentCard = ({
         <CommentBodyContainer>
           <Editor
             editorState={editorState}
-            plugins={plugins}
             onChange={noop}
+            plugins={plugins}
             readOnly
           />
         </CommentBodyContainer>
@@ -164,6 +164,6 @@ const CommentCard = ({
       {!isParentComment && <Separator />}
     </>
   );
-};
+}
 
 export default CommentCard;

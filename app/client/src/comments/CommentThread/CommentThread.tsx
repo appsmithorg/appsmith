@@ -45,7 +45,7 @@ const ChildComments = styled.div`
   flex: 1;
 `;
 
-const CommentThreadContainer = ({
+function CommentThreadContainer({
   commentThread,
   hideInput,
   inline,
@@ -54,7 +54,7 @@ const CommentThreadContainer = ({
   isOpen?: boolean;
   hideInput?: boolean;
   inline?: boolean;
-}) => {
+}) {
   const dispatch = useDispatch();
   const { comments, id: commentThreadId } = commentThread;
   const messagesBottomRef = useRef<HTMLDivElement>(null);
@@ -102,15 +102,15 @@ const CommentThreadContainer = ({
   return (
     <ThreadContainer tabIndex={0}>
       <div style={{ position: "relative" }}>
-        <CommentsContainer ref={commentsContainerRef} inline={inline}>
+        <CommentsContainer inline={inline} ref={commentsContainerRef}>
           {parentComment && (
             <CommentCard
-              commentThreadId={commentThreadId}
-              key={parentComment.id}
               comment={parentComment}
+              commentThreadId={commentThreadId}
+              isParentComment
+              key={parentComment.id}
               resolved={!!commentThread.resolved}
               toggleResolved={resolveCommentThread}
-              isParentComment
             />
           )}
           {childComments && childComments.length > 0 && (
@@ -119,9 +119,9 @@ const CommentThreadContainer = ({
               <ChildComments>
                 {childComments.map((comment) => (
                   <CommentCard
+                    comment={comment}
                     commentThreadId={commentThreadId}
                     key={comment.id}
-                    comment={comment}
                   />
                 ))}
               </ChildComments>
@@ -136,6 +136,6 @@ const CommentThreadContainer = ({
       {!hideInput && <AddCommentInput onSave={addComment} />}
     </ThreadContainer>
   );
-};
+}
 
 export default CommentThreadContainer;

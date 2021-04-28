@@ -32,13 +32,13 @@ const AppCommentsHeader = withTheme(
     }, [isOpen]);
 
     return (
-      <Header onClick={showCommentThreads} isOpen={isOpen}>
+      <Header isOpen={isOpen} onClick={showCommentThreads}>
         <AppCommentHeaderTitle>{createMessage(COMMENTS)}</AppCommentHeaderTitle>
         {isOpen && (
           <Icon
+            fillColor={theme.colors.comments.appCommentsClose}
             name="close-x"
             onClick={onClose}
-            fillColor={theme.colors.comments.appCommentsClose}
           />
         )}
       </Header>

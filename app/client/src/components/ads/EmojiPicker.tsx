@@ -25,18 +25,18 @@ const EmojiPicker = withTheme(
 
     return (
       <Popover
+        boundary="viewport"
         isOpen={isOpen}
         minimal
-        boundary="viewport"
         onInteraction={(nextOpenState) => {
           setIsOpen(nextOpenState);
         }}
         position={Position.BOTTOM_RIGHT}
       >
         <Icon
+          fillColor={theme.colors.comments.emojiPicker}
           name="emoji"
           size={IconSize.LARGE}
-          fillColor={theme.colors.comments.emojiPicker}
         />
         <Picker onEmojiClick={handleSelectEmoji} />
       </Popover>

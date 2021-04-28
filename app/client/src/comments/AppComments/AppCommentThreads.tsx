@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 
 import CommentThread from "comments/CommentThread/connectedCommentThread";
 
-const AppCommentThreads = () => {
+function AppCommentThreads() {
   const applicationId = useSelector(getCurrentApplicationId) as string;
   const appCommentThreadsByRefMap = useSelector(
     applicationCommentsSelector(applicationId),
@@ -24,16 +24,17 @@ const AppCommentThreads = () => {
   );
 
   return (
+    // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {commentThreadIds?.map((commentThreadId: string) => (
         <CommentThread
-          key={commentThreadId}
           commentThreadId={commentThreadId}
           hideInput
+          key={commentThreadId}
         />
       ))}
     </>
   );
-};
+}
 
 export default AppCommentThreads;

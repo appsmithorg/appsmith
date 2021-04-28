@@ -13,7 +13,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
  * Comment thread pins (children) are absolutely positioned from the parent boundary
  * Children set their position themselves
  */
-const Comments = ({ refId }: { refId: string }) => {
+function Comments({ refId }: { refId: string }) {
   const applicationId = useSelector(getCurrentApplicationId);
   const commentsThreadIds = useSelector(
     refCommentThreadsSelector(refId, applicationId),
@@ -41,6 +41,6 @@ const Comments = ({ refId }: { refId: string }) => {
       )}
     </>
   );
-};
+}
 
 export default Comments;
