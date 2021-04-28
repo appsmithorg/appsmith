@@ -453,6 +453,91 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
     }
   };
 
+  const responseTabs = [
+    {
+      key: "Response",
+      title: "Response",
+      panelComponent: (
+        <ResponseContentWrapper>
+          {error && (
+            <ErrorContainer>
+              <AdsIcon name="warning-triangle" keepColors />
+              <Text type={TextType.H3} style={{ color: "#F22B2B" }}>
+                An error occurred
+              </Text>
+
+              <ErrorDescriptionText
+                className="t--query-error"
+                type={TextType.P1}
+              >
+                {error}
+              </ErrorDescriptionText>
+              <DebuggerMessage
+                onClick={() => {
+                  AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+                    source: "QUERY",
+                  });
+                  setSelectedIndex(1);
+                }}
+              />
+            </ErrorContainer>
+          )}
+          {hintMessages && hintMessages.length > 0 && (
+            <HelpSection>
+              {hintMessages.map((msg, index) => (
+                <Callout
+                  text={msg}
+                  key={index}
+                  variant={Variant.warning}
+                  fill
+                />
+              ))}
+            </HelpSection>
+          )}
+          {output && (
+            <>
+              {isTableResponse ? (
+                <Table data={output} />
+              ) : (
+                <JSONViewer src={output} />
+              )}
+            </>
+          )}
+          {!output && !error && (
+            <NoResponseContainer>
+              <AdsIcon name="no-response" />
+              <Text type={TextType.P1}>Hit Run to get a Response</Text>
+            </NoResponseContainer>
+          )}
+        </ResponseContentWrapper>
+      ),
+    },
+    {
+      key: "ERROR",
+      title: "Errors",
+      panelComponent: <ErrorLogs />,
+    },
+    {
+      key: "LOGS",
+      title: "Logs",
+      panelComponent: <DebuggerLogs searchQuery={actionName} />,
+    },
+  ];
+
+  const onTabSelect = (index: number) => {
+    const debuggerTabKeys = ["ERROR", "LOGS"];
+    if (
+      debuggerTabKeys.includes(responseTabs[index].key) &&
+      debuggerTabKeys.includes(responseTabs[selectedIndex].key)
+    ) {
+      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
+        tabName: responseTabs[index].key,
+      });
+    }
+
+    setSelectedIndex(index);
+  };
+
   return (
     <QueryFormContainer onSubmit={handleSubmit}>
       <StyledFormRow>
@@ -583,79 +668,8 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
 
           <TabComponent
             selectedIndex={selectedIndex}
-            onSelect={setSelectedIndex}
-            tabs={[
-              {
-                key: "Response",
-                title: "Response",
-                panelComponent: (
-                  <ResponseContentWrapper>
-                    {error && (
-                      <ErrorContainer>
-                        <AdsIcon name="warning-triangle" keepColors />
-                        <Text type={TextType.H3} style={{ color: "#F22B2B" }}>
-                          An error occurred
-                        </Text>
-
-                        <ErrorDescriptionText
-                          className="t--query-error"
-                          type={TextType.P1}
-                        >
-                          {error}
-                        </ErrorDescriptionText>
-                        <DebuggerMessage
-                          onClick={() => {
-                            AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-                              source: "QUERY",
-                            });
-                            setSelectedIndex(1);
-                          }}
-                        />
-                      </ErrorContainer>
-                    )}
-                    {hintMessages && hintMessages.length > 0 && (
-                      <HelpSection>
-                        {hintMessages.map((msg, index) => (
-                          <Callout
-                            text={msg}
-                            key={index}
-                            variant={Variant.warning}
-                            fill
-                          />
-                        ))}
-                      </HelpSection>
-                    )}
-                    {output && (
-                      <>
-                        {isTableResponse ? (
-                          <Table data={output} />
-                        ) : (
-                          <JSONViewer src={output} />
-                        )}
-                      </>
-                    )}
-                    {!output && !error && (
-                      <NoResponseContainer>
-                        <AdsIcon name="no-response" />
-                        <Text type={TextType.P1}>
-                          Hit Run to get a Response
-                        </Text>
-                      </NoResponseContainer>
-                    )}
-                  </ResponseContentWrapper>
-                ),
-              },
-              {
-                key: "error-logs",
-                title: "Errors",
-                panelComponent: <ErrorLogs />,
-              },
-              {
-                key: "logs",
-                title: "Logs",
-                panelComponent: <DebuggerLogs searchQuery={actionName} />,
-              },
-            ]}
+            onSelect={onTabSelect}
+            tabs={responseTabs}
           />
         </TabbedViewContainer>
       </SecondaryWrapper>
