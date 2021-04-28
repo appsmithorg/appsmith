@@ -8,7 +8,7 @@ import {
   ButtonWrapper,
 } from "./ForkModalStyles";
 
-const ForkApplicationAcrossOrganisationsModal = (props: any) => {
+function ForkApplicationAcrossOrganisationsModal(props: any) {
   const {
     organizationList,
     selectOrganizationId,
@@ -23,37 +23,37 @@ const ForkApplicationAcrossOrganisationsModal = (props: any) => {
 
   return (
     <StyledDialog
-      title={"Choose where to fork the app"}
-      maxHeight={"540px"}
+      canOutsideClickClose
       className={"fork-modal"}
-      canOutsideClickClose={true}
       isOpen={showForkModal}
+      maxHeight={"540px"}
       setModalClose={props.setModalClose}
+      title={"Choose where to fork the app"}
     >
       {organizationList.length && (
         <OrganizationList>
           <StyledRadioComponent
-            data-cy="t--org-list-fork-app"
             className={"radio-group"}
             columns={1}
+            data-cy="t--org-list-fork-app"
             defaultValue={organizationList[0].value}
-            options={organizationList}
             onSelect={(value) => selectOrganizationId(value)}
+            options={organizationList}
           />
         </OrganizationList>
       )}
       <ButtonWrapper>
         <ForkButton
-          isLoading={forkingApplication}
-          disabled={!organizationId}
-          text={"FORK"}
           data-cy="t--fork-app-to-org-button"
+          disabled={!organizationId}
+          isLoading={forkingApplication}
           onClick={forkApplication}
           size={Size.large}
+          text={"FORK"}
         />
       </ButtonWrapper>
     </StyledDialog>
   );
-};
+}
 
 export default ForkApplicationAcrossOrganisationsModal;

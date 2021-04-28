@@ -8,7 +8,7 @@ import { AppState } from "reducers";
 import ForkApplicationAcrossOrganisationsModal from "./ForkApplicationAcrossOrganisationsModal";
 import ForkApplicationModal from "./ForkApplicationModal";
 
-const ForkApplicationModalHOC = (props: any) => {
+function ForkApplicationModalHOC(props: any) {
   const { isDeployedApp, applicationId, setModalClose, isModalOpen } = props;
   const [organizationId, selectOrganizationId] = useState("");
   const dispatch = useDispatch();
@@ -49,26 +49,26 @@ const ForkApplicationModalHOC = (props: any) => {
   if (isDeployedApp) {
     return (
       <ForkApplicationModal
-        organizationList={organizationList}
-        selectOrganizationId={selectOrganizationId}
+        forkApplication={forkApplication}
         forkingApplication={forkingApplication}
         organizationId={organizationId}
-        forkApplication={forkApplication}
+        organizationList={organizationList}
+        selectOrganizationId={selectOrganizationId}
       />
     );
   }
   return (
     <ForkApplicationAcrossOrganisationsModal
-      setModalClose={setModalClose}
-      isModalOpen={isModalOpen}
       applicationId={applicationId}
+      forkApplication={forkApplication}
+      forkingApplication={forkingApplication}
+      isModalOpen={isModalOpen}
+      organizationId={organizationId}
       organizationList={organizationList}
       selectOrganizationId={selectOrganizationId}
-      forkingApplication={forkingApplication}
-      organizationId={organizationId}
-      forkApplication={forkApplication}
+      setModalClose={setModalClose}
     />
   );
-};
+}
 
 export default ForkApplicationModalHOC;
