@@ -106,8 +106,6 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       })
       .type("04/05/2021 06:25");
     cy.selectDateFormat("LLL");
-    cy.SearchEntityandOpen("Text1");
-    cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.wait("@updateLayout");
     cy.get(".t--draggable-textwidget .bp3-ui-text")
       .first()
