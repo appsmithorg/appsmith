@@ -450,7 +450,6 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
   justify-content: space-between;
   align-items: center;
   width: 150px;
-  background: ${(props) => props.selected && Colors.GREEN};
   position: relative;
   .title {
     color: ${(props) => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
