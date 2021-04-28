@@ -252,7 +252,7 @@ const CommentCard = ({
           <CommentSubheader>
             <Section className="thread-id">
               {unread && <UnreadIndicator />}
-              <CommentThreadId>#1</CommentThreadId>
+              <CommentThreadId>{commentThread.sequenceId}</CommentThreadId>
             </Section>
             <Section className="pinned-by">
               {isPinned && (

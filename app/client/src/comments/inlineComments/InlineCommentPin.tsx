@@ -57,6 +57,9 @@ const StyledPinContainer = styled.div<{ unread: boolean }>`
     color: ${(props) =>
       props.unread ? "#fff" : props.theme.colors.comments.pinId};
     ${(props) => getTypographyByKey(props, "p1")}
+    max-width: 25px;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
   & svg {
     width: 30px;
@@ -71,11 +74,11 @@ const StyledPinContainer = styled.div<{ unread: boolean }>`
 const Pin = ({
   commentThreadId,
   // TODO remove default
-  commentId = 1,
+  sequenceId = "",
   unread = true,
 }: {
   commentThreadId: string;
-  commentId?: string | number;
+  sequenceId?: string;
   unread?: boolean;
 }) => (
   <StyledPinContainer unread={unread}>
@@ -86,7 +89,7 @@ const Pin = ({
       size={IconSize.XXL}
       data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
     />
-    <div className="pin-id">{commentId}</div>
+    <div className="pin-id">{sequenceId.slice(1)}</div>
   </StyledPinContainer>
 );
 
@@ -182,7 +185,10 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
                   }}
                   modifiers={{ preventOverflow: { enabled: true } }}
                 >
-                  <Pin commentThreadId={commentThreadId} />
+                  <Pin
+                    commentThreadId={commentThreadId}
+                    sequenceId={commentThread.sequenceId}
+                  />
                   <animated.div style={springProps}>
                     <CommentThread
                       isOpen={!!commentThread.isVisible}

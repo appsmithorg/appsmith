@@ -45,6 +45,7 @@ export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   isVisible?: boolean;
   userPermissions?: string[];
   new?: boolean;
+  sequenceId?: string;
 };
 
 export type CommentEventPayload = {
