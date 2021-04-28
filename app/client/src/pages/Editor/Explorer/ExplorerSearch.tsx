@@ -71,12 +71,12 @@ export const ExplorerSearch = forwardRef(
       <ExplorerSearchWrapper>
         <Icon icon="search" iconSize={12} />
         <input
-          id={ENTITY_EXPLORER_SEARCH_ID}
-          type="text"
-          placeholder={props.placeholder || "Search entities..."}
-          ref={ref}
           autoComplete="off"
           autoFocus={props.autoFocus}
+          id={ENTITY_EXPLORER_SEARCH_ID}
+          placeholder={props.placeholder || "Search entities..."}
+          ref={ref}
+          type="text"
         />
         <Icon icon="cross" iconSize={12} onClick={props.clear} />
         <Underline className="underline" />
