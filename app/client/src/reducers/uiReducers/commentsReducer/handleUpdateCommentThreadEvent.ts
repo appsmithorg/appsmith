@@ -15,7 +15,6 @@ const handleUpdateCommentThreadEvent = (
     ...commentThreadInStore,
     ...action.payload,
     comments: uniqBy([...existingComments, ...newComments], "id"),
-    isVisible: commentThreadInStore.isVisible,
   };
 
   const showUnreadIndicator = !state.isCommentMode;

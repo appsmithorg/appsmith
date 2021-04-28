@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import CommentThread from "comments/CommentThread/CommentThread";
@@ -10,10 +10,11 @@ import {
   shouldShowResolved as shouldShowResolvedSelector,
 } from "selectors/commentsSelectors";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { setIsCommentThreadVisible as setIsCommentThreadVisibleAction } from "actions/commentActions";
+import { setVisibleThread, resetVisibleThread } from "actions/commentActions";
 import { useTransition, animated } from "react-spring";
 import { useLocation } from "react-router";
 import scrollIntoView from "scroll-into-view-if-needed";
+import { AppState } from "reducers";
 
 const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   position: absolute;
@@ -43,12 +44,7 @@ const useSelectCommentThreadUsingQuery = (commentThreadId: string) => {
       }
       // set comment thread visible after scrollIntoView is complete
       setTimeout(() => {
-        dispatch(
-          setIsCommentThreadVisibleAction({
-            commentThreadId,
-            isVisible: true,
-          }),
-        );
+        dispatch(setVisibleThread(commentThreadId));
       });
     }
   }, [location]);
@@ -100,14 +96,6 @@ const Pin = ({
   </StyledPinContainer>
 );
 
-const getCommentThreadIdFromURL = () => {
-  const href = window.location.href;
-  const searchParams = new URL(href).searchParams;
-  const commentThreadIdURL = searchParams.get("commentThreadId") || null;
-
-  return commentThreadIdURL || null;
-};
-
 /**
  * Comment pins that toggle comment thread popover visibility on click
  * They position themselves using position absolute based on top and left values (in percent)
@@ -120,21 +108,16 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
   });
 
   const dispatch = useDispatch();
-  const location = useLocation();
-
-  const setIsCommentThreadVisible = (isVisible: boolean) =>
-    dispatch(
-      setIsCommentThreadVisibleAction({
-        commentThreadId,
-        isVisible,
-      }),
-    );
 
   useSelectCommentThreadUsingQuery(commentThreadId);
 
   const shouldShowResolved = useSelector(shouldShowResolvedSelector);
   const isPinVisible =
     shouldShowResolved || !commentThread.resolvedState?.active;
+  const isCommentThreadVisible = useSelector(
+    (state: AppState) =>
+      state.ui.comments.visibleCommentThreadId === commentThreadId,
+  );
 
   const transition = useTransition(isPinVisible, null, {
     from: { opacity: 0 },
@@ -142,25 +125,6 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
     leave: { opacity: 0 },
     config: { duration: 300 },
   });
-
-  /**
-   * Set visibility to false when navigating to another comment thread
-   */
-  const [commentThreadIdURL, setCommentThreadIdURL] = useState<string | null>(
-    getCommentThreadIdFromURL(),
-  );
-  useEffect(() => {
-    const newCommentThreadIdURL = getCommentThreadIdFromURL();
-
-    if (
-      newCommentThreadIdURL !== commentThreadId &&
-      newCommentThreadIdURL !== commentThreadIdURL &&
-      commentThread.isVisible
-    ) {
-      setIsCommentThreadVisible(false);
-    }
-    setCommentThreadIdURL(newCommentThreadIdURL);
-  }, [location]);
 
   return (
     <>
@@ -186,9 +150,13 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
                   minimal
                   popoverClassName="comment-thread"
                   // isOpen is controlled so that newly created threads are set to be visible
-                  isOpen={!!commentThread.isVisible}
+                  isOpen={!!isCommentThreadVisible}
                   onInteraction={(nextOpenState) => {
-                    setIsCommentThreadVisible(nextOpenState);
+                    if (nextOpenState) {
+                      dispatch(setVisibleThread(commentThreadId));
+                    } else {
+                      dispatch(resetVisibleThread(commentThreadId));
+                    }
                   }}
                   modifiers={{
                     preventOverflow: { enabled: true },
@@ -205,7 +173,7 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
                   />
                   <animated.div style={springProps}>
                     <CommentThread
-                      isOpen={!!commentThread.isVisible}
+                      isOpen={!!isCommentThreadVisible}
                       commentThread={commentThread}
                       inline
                     />

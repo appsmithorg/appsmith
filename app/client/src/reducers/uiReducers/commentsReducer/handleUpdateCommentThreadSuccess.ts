@@ -21,7 +21,6 @@ const handleUpdateCommentThreadSuccess = (
     ...commentThreadInStore,
     ...action.payload,
     comments: existingComments,
-    isVisible: commentThreadInStore.isVisible,
   };
 
   return {

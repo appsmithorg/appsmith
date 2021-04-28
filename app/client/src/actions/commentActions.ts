@@ -83,14 +83,6 @@ export const setCommentMode = (payload: boolean) => ({
   payload,
 });
 
-export const setIsCommentThreadVisible = (payload: {
-  commentThreadId: string;
-  isVisible: boolean;
-}) => ({
-  type: ReduxActionTypes.SET_IS_COMMENT_THREAD_VISIBLE,
-  payload,
-});
-
 export const fetchApplicationCommentsRequest = () => ({
   type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
 });
@@ -174,4 +166,14 @@ export const setAppCommentsFilter = (
 ) => ({
   type: ReduxActionTypes.SET_APP_COMMENTS_FILTER,
   payload,
+});
+
+export const resetVisibleThread = (threadId?: string) => ({
+  type: ReduxActionTypes.RESET_VISIBLE_THREAD,
+  payload: threadId,
+});
+
+export const setVisibleThread = (threadId: string) => ({
+  type: ReduxActionTypes.SET_VISIBLE_THREAD,
+  payload: threadId,
 });

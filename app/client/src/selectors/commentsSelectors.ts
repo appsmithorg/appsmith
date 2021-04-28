@@ -62,10 +62,9 @@ const getSortIndexBool = (a: boolean, b: boolean) => {
 };
 
 const getSortIndexNumber = (a = 0, b = 0) => {
-  console.log({ a, b });
   if (a === b) return 0;
-  if (a > b) return 1;
-  else return -1;
+  if (a > b) return -1;
+  else return 1;
 };
 
 export const getSortedAppCommentThreadIds = (
@@ -111,3 +110,6 @@ export const appCommentsFilter = (state: AppState) =>
 
 export const showUnreadIndicator = (state: AppState) =>
   state.ui.comments.showUnreadIndicator;
+
+export const visibleCommentThread = (state: AppState) =>
+  state.ui.comments.visibleCommentThreadId;

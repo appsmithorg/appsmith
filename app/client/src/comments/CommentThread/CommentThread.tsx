@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import CommentCard from "comments/CommentCard/CommentCard";
 import AddCommentInput from "comments/inlineComments/AddCommentInput";
@@ -17,6 +17,7 @@ import { RawDraftContentState } from "draft-js";
 
 import styled from "styled-components";
 import { animated } from "react-spring";
+import { AppState } from "reducers";
 
 const ThreadContainer = styled(animated.div)<{
   visible?: boolean;
@@ -66,6 +67,11 @@ const CommentThreadContainer = ({
   const messagesBottomRef = useRef<HTMLDivElement>(null);
   const commentsContainerRef = useRef<HTMLDivElement>(null);
 
+  const isVisible = useSelector(
+    (state: AppState) =>
+      state.ui.comments.visibleCommentThreadId === commentThreadId,
+  );
+
   // Check if the comments window is scrolled to the bottom
   // We don't autoscroll for the user receiving the updates
   // for better UX, instead we'd show a helper message to indicate
@@ -112,7 +118,7 @@ const CommentThreadContainer = ({
       tabIndex={0}
       style={transition}
       inline={inline}
-      visible={commentThread.isVisible}
+      visible={isVisible}
       pinned={commentThread.pinnedState?.active}
     >
       <div style={{ position: "relative" }}>

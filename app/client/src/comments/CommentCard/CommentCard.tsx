@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import Editor from "@draft-js-plugins/editor";
 import {
   CompositeDecorator,
@@ -146,17 +146,6 @@ const StopClickPropagation = ({ children }: { children: React.ReactNode }) => (
     {children}
   </div>
 );
-
-const useSelectCommentUsingQuery = (commentId: string) => {
-  useEffect(() => {
-    const searchParams = new URL(window.location.href).searchParams;
-    const commentIdInUrl = searchParams.get("commentId");
-    if (commentIdInUrl && commentIdInUrl === commentId) {
-      const commentCard = document.getElementById(`comment-card-${commentId}`);
-      commentCard?.scrollIntoView();
-    }
-  }, []);
-};
 
 const replyText = (replies?: number) => {
   if (!replies) return "";

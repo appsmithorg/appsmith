@@ -11,4 +11,5 @@ export interface CommentsReduxState {
   appCommentsFilter: typeof filterOptions[number]["value"];
   shouldShowResolvedAppCommentThreads: boolean;
   showUnreadIndicator: boolean;
+  visibleCommentThreadId?: string;
 }

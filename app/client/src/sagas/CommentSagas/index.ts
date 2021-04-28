@@ -25,6 +25,7 @@ import {
   fetchApplicationCommentsSuccess,
   updateCommentThreadSuccess,
   deleteCommentSuccess,
+  setVisibleThread,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -98,12 +99,8 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
   const isValidResponse = yield validateResponse(response);
 
   if (isValidResponse) {
-    yield put(
-      createCommentThreadSuccess({
-        ...response.data,
-        isVisible: true,
-      }),
-    );
+    yield put(createCommentThreadSuccess(response.data));
+    yield put(setVisibleThread(response.data.id));
   } else {
     // todo handle error here
     console.log(response, "invalid response");

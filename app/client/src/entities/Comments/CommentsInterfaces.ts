@@ -40,9 +40,6 @@ export type Comment = CreateCommentRequest & {
 export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   id: string;
   comments: Array<Comment>;
-  // TODO move this to the global config as visibleCommentThreadId
-  // since there's just one comment thread visible at a time
-  isVisible?: boolean;
   userPermissions?: string[];
   new?: boolean;
   sequenceId?: string;

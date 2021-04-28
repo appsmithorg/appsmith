@@ -29,6 +29,7 @@ const initialState: CommentsReduxState = {
   appCommentsFilter: filterOptions[0].value,
   shouldShowResolvedAppCommentThreads: false,
   showUnreadIndicator: false,
+  visibleCommentThreadId: "",
 };
 
 /**
@@ -78,17 +79,6 @@ const commentsReducer = createReducer(initialState, {
     isCommentMode: action.payload,
     showUnreadIndicator: false,
   }),
-  [ReduxActionTypes.SET_IS_COMMENT_THREAD_VISIBLE]: (
-    state: CommentsReduxState,
-    action: ReduxAction<{ isVisible: boolean; commentThreadId: string }>,
-  ) => {
-    state.commentThreadsMap[action.payload.commentThreadId] = {
-      ...state.commentThreadsMap[action.payload.commentThreadId],
-      isVisible: action.payload.isVisible,
-    };
-
-    return { ...state };
-  },
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
     state: CommentsReduxState,
   ) => ({
@@ -170,6 +160,24 @@ const commentsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     shouldShowResolvedAppCommentThreads: action.payload,
+  }),
+  [ReduxActionTypes.RESET_VISIBLE_THREAD]: (
+    state: CommentsReduxState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    // for race cond, explicitly hide a visible thread
+    visibleCommentThreadId:
+      action.payload === state.visibleCommentThreadId
+        ? ""
+        : state.visibleCommentThreadId,
+  }),
+  [ReduxActionTypes.SET_VISIBLE_THREAD]: (
+    state: CommentsReduxState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    visibleCommentThreadId: action.payload,
   }),
 });
 
