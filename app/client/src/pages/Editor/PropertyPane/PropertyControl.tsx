@@ -249,12 +249,13 @@ const PropertyControl = memo((props: Props) => {
     let validationMessage = "";
     if (widgetProperties) {
       isValid = widgetProperties.invalidProps
-        ? !(propertyName in widgetProperties.invalidProps)
+        ? !_.has(widgetProperties.invalidProps, propertyName)
         : true;
-      validationMessage = widgetProperties.validationMessages
-        ? propertyName in widgetProperties.validationMessages
-          ? widgetProperties.validationMessages[propertyName]
-          : ""
+      const validationMsgPresent =
+        widgetProperties.validationMessages &&
+        _.has(widgetProperties.validationMessages, propertyName);
+      validationMessage = validationMsgPresent
+        ? _.get(widgetProperties.validationMessages, propertyName)
         : "";
     }
     return { isValid, validationMessage };
