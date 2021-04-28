@@ -45,7 +45,11 @@ const Container = (props: Props) => {
     } else {
       view = (
         <EntityPlaceholder step={props.step + 1}>
-          No information available
+          {props.datasourceStructure &&
+          props.datasourceStructure.error &&
+          props.datasourceStructure.error.message
+            ? props.datasourceStructure.error.message
+            : "No information available"}
         </EntityPlaceholder>
       );
     }

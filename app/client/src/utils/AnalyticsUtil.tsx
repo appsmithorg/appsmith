@@ -237,6 +237,8 @@ class AnalyticsUtil {
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
+    } else {
+      log.debug("Event fired locally", eventName, finalEventData);
     }
   }
 

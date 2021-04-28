@@ -10,7 +10,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
-  getValidatedTree,
+  getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
@@ -76,7 +76,7 @@ ctx.addEventListener(
             });
             console.error(e);
           }
-          dataTree = getValidatedTree(unevalTree);
+          dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
         }
         return {
