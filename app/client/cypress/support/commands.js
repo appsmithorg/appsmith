@@ -28,10 +28,17 @@ Cypress.Commands.add("createOrg", () => {
     .should("be.visible")
     .first()
     .click({ force: true });
-  cy.wait("@createOrganization").then((interception) => {
-    const newOrgName = interception.request.body.name;
-    cy.contains(newOrgName);
-  });
+});
+
+Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
+  cy.contains(orgName)
+    .should("be.visible")
+    .click({ force: true });
+  cy.get(".t--org-rename-input")
+    .should("be.visible")
+    .type(newOrgName)
+    .type("{enter}");
+  cy.contains(newOrgName);
 });
 
 Cypress.Commands.add("renameRandomOrg", (orgName) => {
@@ -2205,7 +2212,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
   cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 
-  cy.route("POST", "/api/v1/organizations").as("createOrganization");
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
   cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
   cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
