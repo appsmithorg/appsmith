@@ -59,8 +59,11 @@ const StyledPinContainer = styled.div<{ unread: boolean }>`
     ${(props) => getTypographyByKey(props, "p1")}
   }
   & svg {
-    width: 46px;
-    height: 46px;
+    width: 30px;
+    height: 30px;
+    box-shadow: 0px 8px 10px rgb(0 0 0 / 15%);
+    border-radius: 15px;
+    overflow: visible;
   }
   cursor: pointer;
 `;
