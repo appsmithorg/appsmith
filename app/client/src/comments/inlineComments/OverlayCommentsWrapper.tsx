@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import Comments from "./Comments";
-import { isCommentMode as isCommentModeSelector } from "selectors/commentsSelectors";
+import { commentModeSelector } from "selectors/commentsSelectors";
 import { createUnpublishedCommentThreadRequest } from "actions/commentActions";
 import commentIcon from "assets/icons/comments/commentCursor.png";
 import { getOffsetPos } from "comments/utils";
@@ -25,7 +25,7 @@ const Container = styled.div`
  */
 const OverlayCommentsWrapper = ({ children, refId }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isCommentMode = useSelector(isCommentModeSelector);
+  const isCommentMode = useSelector(commentModeSelector);
   const dispatch = useDispatch();
   // create new unpublished thread
   const clickHandler = (e: any) => {

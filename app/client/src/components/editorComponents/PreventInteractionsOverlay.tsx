@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { isCommentMode as isCommentModeSelector } from "selectors/commentsSelectors";
+import { commentModeSelector } from "selectors/commentsSelectors";
 
 const StyledPreventInteractionsOverlay = styled.div`
   position: absolute;
@@ -33,7 +33,7 @@ const preventInteractionsBlacklist = [
  * Prevent interactions with the component
  */
 const PreventInteractionsOverlay = ({ children, widgetType }: Props) => {
-  const isCommentMode = useSelector(isCommentModeSelector);
+  const isCommentMode = useSelector(commentModeSelector);
   const isComponentBlacklisted =
     preventInteractionsBlacklist.indexOf(widgetType) !== -1;
   const shouldPreventInteraction = !isComponentBlacklisted && isCommentMode;

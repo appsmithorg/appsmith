@@ -10,14 +10,14 @@ import {
   fork,
   select,
 } from "redux-saga/effects";
-import { updateLayout, getTestComments } from "comments/init";
+// import { updateLayout, getTestComments } from "comments/init";
 import {
   COMMENT_EVENTS_CHANNEL,
-  COMMENT_EVENTS,
+  // COMMENT_EVENTS,
 } from "constants/CommentConstants";
 import handleCommentEvents from "./handleCommentEvents";
 import {
-  commentEvent,
+  // commentEvent,
   createUnpublishedCommentThreadSuccess,
   removeUnpublishedCommentThreads,
   createCommentThreadSuccess,
@@ -34,7 +34,7 @@ import {
 
 import CommentsApi from "api/CommentsAPI";
 
-import { getAppsmithConfigs } from "configs";
+// import { getAppsmithConfigs } from "configs";
 
 import { validateResponse } from "../ErrorSagas";
 
@@ -49,26 +49,25 @@ import {
   CreateCommentThreadRequest,
 } from "entities/Comments/CommentsInterfaces";
 
-const { commentsTestModeEnabled } = getAppsmithConfigs();
-
-export function* initCommentThreads() {
-  if (!commentsTestModeEnabled) return;
-  try {
-    yield race([
-      take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS),
-      take(ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS),
-    ]);
-    yield put(updateLayout());
-    yield put(
-      commentEvent({
-        type: COMMENT_EVENTS.SET_COMMENTS,
-        payload: getTestComments(),
-      }),
-    );
-  } catch (err) {
-    console.log(err, "err");
-  }
-}
+// const { commentsTestModeEnabled } = getAppsmithConfigs();
+// export function* initCommentThreads() {
+//   if (!commentsTestModeEnabled) return;
+//   try {
+//     yield race([
+//       take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS),
+//       take(ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS),
+//     ]);
+//     yield put(updateLayout());
+//     yield put(
+//       commentEvent({
+//         type: COMMENT_EVENTS.SET_COMMENTS,
+//         payload: getTestComments(),
+//       }),
+//     );
+//   } catch (err) {
+//     console.log(err, "err");
+//   }
+// }
 
 function* watchCommentEvents() {
   const requestChan = yield actionChannel(COMMENT_EVENTS_CHANNEL);
@@ -220,7 +219,7 @@ function* deleteComment(
 
 export default function* commentSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
+    // takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
     takeLatest(
       ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
       fetchApplicationComments,
