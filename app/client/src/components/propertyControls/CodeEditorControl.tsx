@@ -26,16 +26,16 @@ class CodeEditorControl extends BaseControl<ControlProps> {
 
     return (
       <CodeEditor
-        theme={this.props.theme}
         input={{ value: propertyValue, onChange: this.onChange }}
         meta={{
           error: isValid ? "" : validationMessage,
           touched: true,
         }}
-        useValidationMessage={useValidationMessage}
-        size={EditorSize.EXTENDED}
         mode={EditorModes.TEXT_WITH_BINDING}
+        size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
+        theme={this.props.theme}
+        useValidationMessage={useValidationMessage}
         {...props}
       />
     );

@@ -11,8 +11,8 @@ import { ReactComponent as DownloadIcon } from "assets/icons/control/download-ta
 import { ReactTableColumnProps } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
 import TableActionIcon from "components/designSystems/appsmith/TableComponent/TableActionIcon";
-import { isString } from "lodash";
 import styled from "styled-components";
+import { transformTableDataIntoCsv } from "./CommonUtilities";
 
 const DropDownWrapper = styled.div`
   display: flex;
@@ -49,7 +49,6 @@ const OptionWrapper = styled.div`
     background: ${Colors.POLAR};
   }
 `;
-
 interface TableDataDownloadProps {
   data: Array<Record<string, unknown>>;
   columns: ReactTableColumnProps[];
@@ -74,7 +73,59 @@ const dowloadOptions: DownloadOptionProps[] = [
   },
 ];
 
-const TableDataDownload = (props: TableDataDownloadProps) => {
+const downloadDataAsCSV = (props: {
+  csvData: Array<Array<any>>;
+  fileName: string;
+}) => {
+  let csvContent = "";
+  props.csvData.forEach((infoArray: Array<any>, index: number) => {
+    const dataString = infoArray.join(",");
+    csvContent += index < props.csvData.length ? dataString + "\n" : dataString;
+  });
+  const anchor = document.createElement("a");
+  const mimeType = "application/octet-stream";
+  if (navigator.msSaveBlob) {
+    navigator.msSaveBlob(
+      new Blob([csvContent], {
+        type: mimeType,
+      }),
+      props.fileName,
+    );
+  } else if (URL && "download" in anchor) {
+    anchor.href = URL.createObjectURL(
+      new Blob([csvContent], {
+        type: mimeType,
+      }),
+    );
+    anchor.setAttribute("download", props.fileName);
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  }
+};
+
+const downloadDataAsExcel = (tableData: string[][], fileName: string) => {
+  import("xlsx").then((XLSX) => {
+    const workSheet = XLSX.utils.aoa_to_sheet(tableData);
+    const workBook = {
+      Sheets: { data: workSheet, cols: [] },
+      SheetNames: ["data"],
+    };
+    const excelBuffer = XLSX.write(workBook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const fileData = new Blob([excelBuffer], {
+      type:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    });
+    import("file-saver").then((FileSaver) => {
+      FileSaver.saveAs(fileData, `${fileName}.xlsx`);
+    });
+  });
+};
+
+function TableDataDownload(props: TableDataDownloadProps) {
   const [selected, selectMenu] = React.useState(false);
   const downloadFile = (type: string) => {
     if (type === "CSV") {
@@ -84,19 +135,19 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
     }
   };
   const downloadTableDataAsExcel = () => {
-    const tableData: Array<{ [key: string]: any }> = [];
-    const tableHeaders = props.columns
+    const tableData: string[][] = [];
+    const tableHeaders: string[] = props.columns
       .map((column: ReactTableColumnProps) => {
         if (column.metaProperties && !column.metaProperties.isHidden) {
           return column.Header;
         }
-        return null;
+        return "";
       })
       .filter((i) => !!i);
     tableData.push(tableHeaders);
     for (let row = 0; row < props.data.length; row++) {
       const data: { [key: string]: any } = props.data[row];
-      const tableRow = [];
+      const tableRow: string[] = [];
       for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
         const column = props.columns[colIndex];
         if (column.metaProperties && !column.metaProperties.isHidden) {
@@ -105,87 +156,25 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
       }
       tableData.push(tableRow);
     }
-    import("xlsx").then((XLSX) => {
-      const workSheet = XLSX.utils.aoa_to_sheet(tableData);
-      const workBook = {
-        Sheets: { data: workSheet, cols: [] },
-        SheetNames: ["data"],
-      };
-      const excelBuffer = XLSX.write(workBook, {
-        bookType: "xlsx",
-        type: "array",
-      });
-      const fileData = new Blob([excelBuffer], {
-        type:
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-      });
-      import("file-saver").then((FileSaver) => {
-        FileSaver.saveAs(fileData, `${props.widgetName}.xlsx`);
-      });
-    });
+    downloadDataAsExcel(tableData, props.widgetName);
   };
   const downloadTableDataAsCsv = () => {
     selectMenu(true);
-    const csvData = [];
-    csvData.push(
-      props.columns
-        .map((column: ReactTableColumnProps) => {
-          if (column.metaProperties && !column.metaProperties.isHidden) {
-            return column.Header;
-          }
-          return null;
-        })
-        .filter((i) => !!i),
-    );
-    for (let row = 0; row < props.data.length; row++) {
-      const data: { [key: string]: any } = props.data[row];
-      const csvDataRow = [];
-      for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
-        const column = props.columns[colIndex];
-        const value = data[column.accessor];
-        if (column.metaProperties && !column.metaProperties.isHidden) {
-          if (isString(value) && value.includes(",")) {
-            csvDataRow.push(`"${value}"`);
-          } else {
-            csvDataRow.push(value);
-          }
-        }
-      }
-      csvData.push(csvDataRow);
-    }
-    let csvContent = "";
-    csvData.forEach(function(infoArray, index) {
-      const dataString = infoArray.join(",");
-      csvContent += index < csvData.length ? dataString + "\n" : dataString;
+    const csvData = transformTableDataIntoCsv({
+      columns: props.columns,
+      data: props.data,
     });
-    const fileName = `${props.widgetName}.csv`;
-    const anchor = document.createElement("a");
-    const mimeType = "application/octet-stream";
-    if (navigator.msSaveBlob) {
-      navigator.msSaveBlob(
-        new Blob([csvContent], {
-          type: mimeType,
-        }),
-        fileName,
-      );
-    } else if (URL && "download" in anchor) {
-      anchor.href = URL.createObjectURL(
-        new Blob([csvContent], {
-          type: mimeType,
-        }),
-      );
-      anchor.setAttribute("download", fileName);
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-    }
+    downloadDataAsCSV({
+      csvData: csvData,
+      fileName: `${props.widgetName}.csv`,
+    });
     selectMenu(false);
   };
 
   if (props.columns.length === 0) {
     return (
       <TableIconWrapper disabled>
-        <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
+        <IconWrapper color={Colors.CADET_BLUE} height={20} width={20}>
           <DownloadIcon />
         </IconWrapper>
       </TableIconWrapper>
@@ -193,22 +182,22 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
   }
   return (
     <Popover
-      minimal
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
-      position={Position.BOTTOM}
+      isOpen={selected}
+      minimal
       onClose={() => {
         selectMenu(false);
       }}
-      isOpen={selected}
+      position={Position.BOTTOM}
     >
       <TableActionIcon
-        tooltip="Download"
-        selected={selected}
+        className="t--table-download-btn"
         selectMenu={(selected: boolean) => {
           selectMenu(selected);
         }}
-        className="t--table-download-btn"
+        selected={selected}
+        tooltip="Download"
       >
         <DownloadIcon />
       </TableActionIcon>
@@ -216,11 +205,11 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
         {dowloadOptions.map((item: DownloadOptionProps, index: number) => {
           return (
             <OptionWrapper
+              className={`${Classes.POPOVER_DISMISS} t--table-download-data-option`}
               key={index}
               onClick={() => {
                 downloadFile(item.value);
               }}
-              className={`${Classes.POPOVER_DISMISS} t--table-download-data-option`}
             >
               {item.label}
             </OptionWrapper>
@@ -229,6 +218,6 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
       </DropDownWrapper>
     </Popover>
   );
-};
+}
 
 export default TableDataDownload;

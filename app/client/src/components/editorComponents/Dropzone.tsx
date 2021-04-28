@@ -118,31 +118,31 @@ export const DropZone = forwardRef(
       setXY,
     ]);
     return (
-      <React.Fragment>
+      <>
         <AnimatedDropZone
-          ref={ref}
-          width={props.width * props.parentColumnWidth}
-          height={props.height * props.parentRowHeight}
           candrop={props.canDrop}
+          height={props.height * props.parentRowHeight}
+          ref={ref}
           style={{
             transform: interpolate(
               [X, Y],
               (x: number, y: number) => `translate3d(${x}px,${y}px,0)`,
             ),
           }}
+          width={props.width * props.parentColumnWidth}
         />
         <AnimatedSnappingDropZone
-          width={props.width * props.parentColumnWidth}
-          height={props.height * props.parentRowHeight}
           candrop={props.canDrop}
+          height={props.height * props.parentRowHeight}
           style={{
             transform: interpolate(
               [snappedX, snappedY],
               (x: number, y: number) => `translate3d(${x}px,${y}px,0)`,
             ),
           }}
+          width={props.width * props.parentColumnWidth}
         />
-      </React.Fragment>
+      </>
     );
   },
 );

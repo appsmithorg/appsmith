@@ -10,6 +10,7 @@ import { isMac } from "utils/helpers";
 
 const StyledHelpBar = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
+  margin: ${(props) => props.theme.spaces[2]}px;
   .placeholder-text {
     ${(props) => getTypographyByKey(props, "p2")}
   }
@@ -21,6 +22,10 @@ const StyledHelpBar = styled.div`
   height: 28px;
   flex: 1;
   max-width: 350px;
+  border: 1.5px solid transparent;
+  &:hover {
+    border: 1.5px solid ${(props) => props.theme.colors.tertiary.light};
+  }
 `;
 
 const modText = () => (isMac() ? <span>&#8984;</span> : "ctrl");
@@ -30,19 +35,20 @@ type Props = {
   toggleShowModal: () => void;
 };
 
-const HelpBar = ({ toggleShowModal }: Props) => {
+function HelpBar({ toggleShowModal }: Props) {
   return (
     <StyledHelpBar
-      onClick={toggleShowModal}
       className="t--global-search-modal-trigger"
+      data-cy="global-search-modal-trigger"
+      onClick={toggleShowModal}
     >
       <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
-      <Text type={TextType.P3} italic>
+      <Text italic type={TextType.P3}>
         {comboText}
       </Text>
     </StyledHelpBar>
   );
-};
+}
 
 const mapDispatchToProps = (dispatch: any) => ({
   toggleShowModal: () => {

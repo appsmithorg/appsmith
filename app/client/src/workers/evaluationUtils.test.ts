@@ -56,6 +56,7 @@ describe("Add functions", () => {
         isLoading: false,
         run: {},
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
+        dependencyMap: {},
       },
     };
     const dataTreeWithFunctions = addFunctions(dataTree);

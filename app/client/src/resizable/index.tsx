@@ -34,7 +34,7 @@ type ResizableHandleProps = {
   };
 };
 
-const ResizableHandle = (props: ResizableHandleProps) => {
+function ResizableHandle(props: ResizableHandleProps) {
   const bind = useDrag(
     ({ first, last, dragging, movement: [mx, my], memo }) => {
       const snapped = getSnappedValues(mx, my, props.snapGrid);
@@ -52,7 +52,7 @@ const ResizableHandle = (props: ResizableHandleProps) => {
   );
 
   return <props.component {...bind()} />;
-};
+}
 
 type ResizableProps = {
   handles: {
@@ -236,28 +236,28 @@ export const Resizable = forwardRef(
 
     return (
       <Spring
-        from={{
-          width: props.componentWidth,
-          height: props.componentHeight,
-        }}
-        to={{
-          width: newDimensions.width,
-          height: newDimensions.height,
-          transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
-        }}
         config={{
           clamp: true,
           friction: 0,
           tension: 999,
         }}
+        from={{
+          width: props.componentWidth,
+          height: props.componentHeight,
+        }}
         immediate={newDimensions.reset ? true : false}
+        to={{
+          width: newDimensions.width,
+          height: newDimensions.height,
+          transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
+        }}
       >
         {(_props) => (
           <ResizeWrapper
-            ref={ref}
-            style={_props}
             className={props.className}
             pevents={pointerEvents}
+            ref={ref}
+            style={_props}
           >
             {props.children}
             {props.enable && renderHandles}

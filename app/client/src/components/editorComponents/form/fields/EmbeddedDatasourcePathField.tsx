@@ -239,6 +239,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (
           <DatasourceIcon
+            enable
             onClick={() =>
               history.push(
                 DATA_SOURCES_EDITOR_ID_URL(
@@ -301,16 +302,16 @@ const EmbeddedDatasourcePathConnectedComponent = connect(
   mapDispatchToProps,
 )(EmbeddedDatasourcePathComponent);
 
-const EmbeddedDatasourcePathField = (
+function EmbeddedDatasourcePathField(
   props: BaseFieldProps & {
     pluginId: string;
     placeholder?: string;
     theme: EditorTheme;
   },
-) => {
+) {
   return (
     <Field component={EmbeddedDatasourcePathConnectedComponent} {...props} />
   );
-};
+}
 
 export default EmbeddedDatasourcePathField;
