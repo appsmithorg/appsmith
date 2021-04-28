@@ -11,11 +11,13 @@ export const generateDataTreeWidget = (
 ): DataTreeWidget => {
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
-  );
+  )(widget);
   const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
     widget.type,
   );
-  const defaultProps = WidgetFactory.getWidgetDefaultPropertiesMap(widget.type);
+  const defaultProps = WidgetFactory.getWidgetDefaultPropertiesMap(widget.type)(
+    widget,
+  );
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
   );

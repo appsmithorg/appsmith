@@ -106,7 +106,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const currentTemplate = template[key];
       const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
         currentTemplate.type,
-      );
+      )(currentTemplate);
 
       Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
         childrenDefaultPropertiesMap = {
@@ -130,7 +130,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const currentTemplate = template[key];
       const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
         currentTemplate.type,
-      );
+      )(currentTemplate);
 
       Object.keys(metaProperties).map((metaPropertyKey: string) => {
         childrenMetaPropertiesMap = {
