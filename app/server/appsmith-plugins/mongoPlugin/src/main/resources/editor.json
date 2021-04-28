@@ -6,13 +6,84 @@
       "children": [
         {
           "label": "",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "FORM",
+          "options": [
+            {
+              "label": "Form Input",
+              "value": "FORM"
+            },
+            {
+              "label": "Raw Input",
+              "value": "RAW"
+            }
+          ]
+        },
+        {
+          "label": "Command",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "FIND",
+          "options": [
+            {
+              "label": "Insert a document",
+              "value": "INSERT"
+            },
+            {
+              "label": "Find one or more documents",
+              "value": "FIND"
+            },
+            {
+              "label": "Update one document",
+              "value": "UPDATE_ONE"
+            },
+            {
+              "label": "Update one or more documents",
+              "value": "UPDATE_MANY"
+            },
+            {
+              "label": "Delete one or more documents",
+              "value": "DELETE"
+            },
+            {
+              "label": "Count",
+              "value": "COUNT"
+            },
+            {
+              "label": "Distinct",
+              "value": "DISTINCT"
+            },
+            {
+              "label": "Aggregate",
+              "value": "AGGREGATE"
+            }
+          ],
+          "hidden" : {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+            "comparison": "EQUALS",
+            "value": "RAW"
+          }
+        },
+        {
+          "label": "",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "EQUALS",
-            "value": false
+            "conditionType" : "OR",
+            "conditions" : [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+                "comparison": "EQUALS",
+                "value": "FORM"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "EQUALS",
+                "value": false
+              }
+            ]
           }
         },
         {
@@ -21,9 +92,19 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "EQUALS",
-            "value": true
+            "conditionType" : "OR",
+            "conditions" : [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+                "comparison": "EQUALS",
+                "value": "FORM"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "EQUALS",
+                "value": true
+              }
+            ]
           }
         }
       ]
