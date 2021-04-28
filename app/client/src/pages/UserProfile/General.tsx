@@ -56,7 +56,7 @@ const TextLoader = styled.div`
   border-radius: 0;
 `;
 
-const General = () => {
+function General() {
   const user = useSelector(getCurrentUser);
   const dispatch = useDispatch();
   const forgotPassword = async () => {
@@ -94,15 +94,15 @@ const General = () => {
         <LabelWrapper>
           <Text type={TextType.H4}>Display name</Text>
         </LabelWrapper>
-        {isFetchingUser && <Loader className={Classes.SKELETON}></Loader>}
+        {isFetchingUser && <Loader className={Classes.SKELETON} />}
         {!isFetchingUser && (
           <TextInput
-            validator={notEmptyValidator}
-            placeholder="Display name"
-            onChange={onNameChange}
-            defaultValue={user?.name}
             cypressSelector="t--display-name"
-          ></TextInput>
+            defaultValue={user?.name}
+            onChange={onNameChange}
+            placeholder="Display name"
+            validator={notEmptyValidator}
+          />
         )}
       </InputWrapper>
       <FieldWrapper>
@@ -142,6 +142,6 @@ const General = () => {
       </InputWrapper> */}
     </Wrapper>
   );
-};
+}
 
 export default General;

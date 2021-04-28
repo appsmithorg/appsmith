@@ -161,38 +161,38 @@ export const Entity = forwardRef(
       >
         <EntityItem
           active={!!props.active}
-          step={props.step}
           spaced={!!props.children}
+          step={props.step}
         >
           <CollapseToggle
+            className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
+            disabled={!!props.disabled}
             isOpen={isOpen}
             isVisible={!!props.children}
             onClick={toggleChildren}
-            disabled={!!props.disabled}
-            className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
           />
           <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
           <EntityName
-            entityId={props.entityId}
             className={`${EntityClassNames.NAME}`}
-            ref={itemRef}
+            entityId={props.entityId}
+            isEditing={!!props.updateEntityName && isEditing}
             name={props.name}
             nameTransformFn={props.onNameEdit}
-            isEditing={!!props.updateEntityName && isEditing}
-            updateEntityName={updateNameCallback}
+            ref={itemRef}
             searchKeyword={props.searchKeyword}
+            updateEntityName={updateNameCallback}
           />
           <IconWrapper className={EntityClassNames.RIGHT_ICON}>
             {props.rightIcon}
           </IconWrapper>
           <AddButton
-            onClick={props.onCreate}
             className={`${EntityClassNames.ADD_BUTTON}`}
+            onClick={props.onCreate}
           />
           {props.contextMenu}
           <Loader isVisible={isUpdating} />
         </EntityItem>
-        <Collapse step={props.step} isOpen={isOpen} active={props.active}>
+        <Collapse active={props.active} isOpen={isOpen} step={props.step}>
           {props.children}
         </Collapse>
       </Wrapper>

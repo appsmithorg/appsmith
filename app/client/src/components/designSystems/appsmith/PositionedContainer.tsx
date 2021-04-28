@@ -17,7 +17,7 @@ type PositionedContainerProps = {
   widgetType: string;
 };
 
-export const PositionedContainer = (props: PositionedContainerProps) => {
+export function PositionedContainer(props: PositionedContainerProps) {
   const x = props.style.xPosition + (props.style.xPositionUnit || "px");
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
@@ -47,16 +47,16 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
 
   return (
     <PositionedWidget
-      onClickCapture={openPropertyPane}
-      style={containerStyle}
-      id={props.widgetId}
-      //Before you remove: This is used by property pane to reference the element
       className={containerClassName}
+      id={props.widgetId}
+      onClickCapture={openPropertyPane}
+      //Before you remove: This is used by property pane to reference the element
+      style={containerStyle}
     >
       {props.children}
     </PositionedWidget>
   );
-};
+}
 
 PositionedContainer.padding = WIDGET_PADDING;
 

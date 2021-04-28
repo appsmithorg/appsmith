@@ -97,14 +97,14 @@ class AppViewer extends Component<
           {isInitialized && this.state.registered && (
             <Switch>
               <SentryRoute
-                path={getApplicationViewerPageURL()}
-                exact
                 component={AppViewerPageContainer}
+                exact
+                path={getApplicationViewerPageURL()}
               />
               <SentryRoute
-                path={`${getApplicationViewerPageURL()}/fork`}
                 component={AppViewerPageContainer}
                 exact
+                path={`${getApplicationViewerPageURL()}/fork`}
               />
             </Switch>
           )}

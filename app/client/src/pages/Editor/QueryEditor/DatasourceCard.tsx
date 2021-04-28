@@ -81,7 +81,7 @@ type DatasourceCardProps = {
   onCreateQuery: (datasource: Datasource) => void;
 };
 
-const DatasourceCard = (props: DatasourceCardProps) => {
+function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
   const pluginImages = useSelector(getPluginImages);
   const params = useParams<{ applicationId: string; pageId: string }>();
@@ -117,9 +117,9 @@ const DatasourceCard = (props: DatasourceCardProps) => {
         <div style={{ flex: 1 }}>
           <DatasourceNameWrapper>
             <DatasourceImage
-              src={pluginImages[datasource.pluginId]}
-              className="dataSourceImage"
               alt="Datasource"
+              className="dataSourceImage"
+              src={pluginImages[datasource.pluginId]}
             />
             <DatasourceName>{datasource.name}</DatasourceName>
           </DatasourceNameWrapper>
@@ -133,16 +133,16 @@ const DatasourceCard = (props: DatasourceCardProps) => {
           <EditDatasourceButton
             className="t--edit-datasource"
             icon={"edit"}
-            text="Edit Datasource"
             onClick={editDatasource}
+            text="Edit Datasource"
           />
           <ActionButton
-            className="t--create-query"
-            icon={"plus"}
-            text="New Query"
-            filled
             accent="primary"
+            className="t--create-query"
+            filled
+            icon={"plus"}
             onClick={() => props.onCreateQuery(datasource)}
+            text="New Query"
           />
         </ButtonsWrapper>
       </DatasourceCardHeader>
@@ -151,6 +151,6 @@ const DatasourceCard = (props: DatasourceCardProps) => {
         : undefined}
     </Wrapper>
   );
-};
+}
 
 export default DatasourceCard;
