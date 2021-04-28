@@ -102,10 +102,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const { selectWidget, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
-  const isCommentMode = useSelector(
-    (state: AppState) => state.ui.comments.isCommentMode,
-  );
-
   useEffect(() => {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     setRows(snapRows);
