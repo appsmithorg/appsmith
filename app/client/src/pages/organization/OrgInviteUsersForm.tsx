@@ -202,7 +202,7 @@ const validate = (values: any) => {
 
 const { mailEnabled } = getAppsmithConfigs();
 
-const OrgInviteUsersForm = (props: any) => {
+function OrgInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const userRef = React.createRef<HTMLDivElement>();
   const {
@@ -287,51 +287,51 @@ const OrgInviteUsersForm = (props: any) => {
         <StyledInviteFieldGroup>
           <div className="wrapper">
             <TagListField
+              customError={(err: string) => setEmailError(err)}
+              data-cy="t--invite-email-input"
+              intent="success"
+              label="Emails"
               name="users"
               placeholder="Enter email address"
               type="email"
-              label="Emails"
-              intent="success"
-              data-cy="t--invite-email-input"
-              customError={(err: string) => setEmailError(err)}
             />
             <SelectField
-              name="role"
-              placeholder="Select a role"
-              options={styledRoles}
-              size="small"
-              outline={false}
               data-cy="t--invite-role-input"
+              name="role"
+              options={styledRoles}
+              outline={false}
+              placeholder="Select a role"
+              size="small"
             />
           </div>
           <Button
-            tag="button"
             className="t--invite-user-btn"
             disabled={!valid}
-            text="Invite"
-            size={Size.large}
-            variant={Variant.info}
             isLoading={submitting && !(submitFailed && !anyTouched)}
+            size={Size.large}
+            tag="button"
+            text="Invite"
+            variant={Variant.info}
           />
         </StyledInviteFieldGroup>
         {isLoading ? (
           <Loading size={30} />
         ) : (
-          <React.Fragment>
+          <>
             {!mailEnabled && (
               <MailConfigContainer>
                 {allUsers.length === 0 && <NoEmailConfigImage />}
                 <span>You haven’t setup any email service yet</span>
                 <a
                   href="https://docs.appsmith.com/v/v1.2.1/setup/docker/email"
-                  target="_blank"
                   rel="noopener noreferrer"
+                  target="_blank"
                 >
                   Please configure your email service to invite people
                 </a>
               </MailConfigContainer>
             )}
-            <UserList style={{ justifyContent: "space-between" }} ref={userRef}>
+            <UserList ref={userRef} style={{ justifyContent: "space-between" }}>
               {allUsersProfiles.map(
                 (user: {
                   username: string;
@@ -361,29 +361,29 @@ const OrgInviteUsersForm = (props: any) => {
               )}
               <ScrollIndicator containerRef={userRef} mode="DARK" />
             </UserList>
-          </React.Fragment>
+          </>
         )}
         <ErrorBox message={submitSucceeded || submitFailed}>
           {submitSucceeded && (
             <Callout
-              variant={Variant.success}
               fill
               text={
                 numberOfUsersInvited > 1
                   ? INVITE_USERS_SUBMIT_SUCCESS()
                   : INVITE_USER_SUBMIT_SUCCESS()
               }
+              variant={Variant.success}
             />
           )}
           {((submitFailed && error) || emailError) && (
-            <Callout variant={Variant.danger} fill text={error || emailError} />
+            <Callout fill text={error || emailError} variant={Variant.danger} />
           )}
         </ErrorBox>
         {canManage && <ManageUsers orgId={props.orgId} />}
       </StyledForm>
     </>
   );
-};
+}
 
 export default connect(
   (state: AppState) => {

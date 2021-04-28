@@ -25,15 +25,17 @@ const FooterLinksContainer = styled.div`
   max-width: ${(props) => props.theme.authCard.width}px;
 `;
 
-const FooterLinks = () => (
-  <FooterLinksContainer>
-    <FooterLink target="_blank" href="/privacy-policy.html">
-      Privacy Policy
-    </FooterLink>
-    <FooterLink target="_blank" href="/terms-and-conditions.html">
-      Terms and conditions
-    </FooterLink>
-  </FooterLinksContainer>
-);
+function FooterLinks() {
+  return (
+    <FooterLinksContainer>
+      <FooterLink href="/privacy-policy.html" target="_blank">
+        Privacy Policy
+      </FooterLink>
+      <FooterLink href="/terms-and-conditions.html" target="_blank">
+        Terms and conditions
+      </FooterLink>
+    </FooterLinksContainer>
+  );
+}
 
 export default FooterLinks;

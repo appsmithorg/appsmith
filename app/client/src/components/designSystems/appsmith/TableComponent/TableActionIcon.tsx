@@ -13,30 +13,30 @@ interface TableActionIconProps {
   icon?: React.ReactNode;
 }
 
-const TableActionIcon = (props: TableActionIconProps) => {
+function TableActionIcon(props: TableActionIconProps) {
   return (
     <Tooltip
       autoFocus={false}
-      hoverOpenDelay={1000}
       content={props.tooltip}
-      position="top"
+      hoverOpenDelay={1000}
       modifiers={{
         preventOverflow: { enabled: false },
         flip: { enabled: false },
       }}
+      position="top"
     >
       <TableIconWrapper
-        selected={props.selected}
+        className={props.className}
         onClick={(e) => {
           props.selectMenu(!props.selected);
           e.stopPropagation();
         }}
-        className={props.className}
+        selected={props.selected}
       >
         <IconWrapper
-          width={20}
-          height={20}
           color={props.selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
+          height={20}
+          width={20}
         >
           {props.children}
         </IconWrapper>
@@ -44,6 +44,6 @@ const TableActionIcon = (props: TableActionIconProps) => {
       </TableIconWrapper>
     </Tooltip>
   );
-};
+}
 
 export default TableActionIcon;

@@ -18,8 +18,8 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
     return (
       <IconTabsComponent
         options={options}
-        value={propertyValue}
         selectOption={this.selectOption}
+        value={propertyValue}
       />
     );
   }

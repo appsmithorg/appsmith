@@ -1,7 +1,7 @@
-import React, { ReactNode } from "react";
-import styled from "styled-components";
-import { useSelector } from "store";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import React from "react";
+import { useSelector } from "store";
+import styled from "styled-components";
 
 const Wrapper = styled.div<{ width: number; hasButton?: boolean }>`
   position: relative;
@@ -82,11 +82,11 @@ type IndicatorProps = {
   width?: number;
   // Is wrapped around a button
   hasButton?: boolean;
-  children: ReactNode;
+  children: JSX.Element;
   className?: string;
 };
 
-const Indicator: React.FC<IndicatorProps> = (props: IndicatorProps) => {
+function Indicator(props: IndicatorProps): JSX.Element {
   const showingIndicator = useSelector(
     (state) => state.ui.onBoarding.showingIndicator,
   );
@@ -94,17 +94,17 @@ const Indicator: React.FC<IndicatorProps> = (props: IndicatorProps) => {
   if (showingIndicator === props.step && props.show) {
     return (
       <Wrapper
+        className={`t--onboarding-indicator ${props.className}`}
         hasButton={props.hasButton}
         width={props.width || 250}
-        className={`t--onboarding-indicator ${props.className}`}
       >
         {props.children}
       </Wrapper>
     );
   }
 
-  return <>{props.children}</>;
-};
+  return props.children || null;
+}
 
 Indicator.defaultProps = {
   show: true,

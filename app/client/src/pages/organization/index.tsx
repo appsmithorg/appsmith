@@ -6,17 +6,17 @@ import Settings from "./settings";
 import * as Sentry from "@sentry/react";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-export const Organization = () => {
+export function Organization() {
   const { path } = useRouteMatch();
   const location = useLocation();
   return (
     <PageWrapper displayName="Organization Settings">
       <Switch location={location}>
-        <SentryRoute path={`${path}/:orgId/settings`} component={Settings} />
+        <SentryRoute component={Settings} path={`${path}/:orgId/settings`} />
         <SentryRoute component={DefaultOrgPage} />
       </Switch>
     </PageWrapper>
   );
-};
+}
 
 export default Organization;

@@ -44,7 +44,7 @@ type ErrorPageHeaderProps = {
   safeCrash: boolean;
 };
 
-export const ErrorPageHeader = (props: ErrorPageHeaderProps) => {
+export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   const { user, flushErrors, flushErrorsAndRedirect, safeCrash } = props;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -57,13 +57,13 @@ export const ErrorPageHeader = (props: ErrorPageHeaderProps) => {
     <StyledPageHeader>
       <HeaderSection>
         <Link
-          to={APPLICATIONS_URL}
           className="t--appsmith-logo"
           onClick={() => {
             if (safeCrash) flushErrors();
           }}
+          to={APPLICATIONS_URL}
         >
-          <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+          <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
         </Link>
       </HeaderSection>
       {user && (
@@ -71,21 +71,21 @@ export const ErrorPageHeader = (props: ErrorPageHeaderProps) => {
           {user.username === ANONYMOUS_USERNAME ? (
             <Button
               filled
-              text="Sign In"
               intent={"primary"}
-              size="small"
               onClick={() => {
                 flushErrorsAndRedirect(loginUrl);
               }}
+              size="small"
+              text="Sign In"
             />
           ) : (
-            <ProfileDropdown userName={user.username} name={user.name} />
+            <ProfileDropdown name={user.name} userName={user.username} />
           )}
         </StyledDropDownContainer>
       )}
     </StyledPageHeader>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
