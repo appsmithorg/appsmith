@@ -23,6 +23,11 @@ describe("Fork application across orgs", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.forkAppFromMenu).click({ force: true });
+    // select a different org here
+    cy.get(homePage.forkAppOrgList)
+      .children()
+      .last()
+      .check();
     cy.get(homePage.forkAppOrgButton).click({ force: true });
     cy.wait("@postForkAppOrg").then((httpResponse) => {
       expect(httpResponse.status).to.equal(200);

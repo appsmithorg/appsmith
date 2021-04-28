@@ -9,7 +9,7 @@
     "appMoreIcon": ".bp3-popover-wrapper.more .bp3-popover-target",
     "duplicateApp": "[data-cy=t--duplicate]",
     "forkAppFromMenu": "[data-cy=t--fork-app]",
-    "forkAppOrgList": "[data-cy=t--org-list-fork-app]",
+    "forkAppOrgList": ".radio-group",
     "forkAppOrgButton": "[data-cy=t--fork-app-to-org-button]",
     "selectAction": "#Base",
     "deleteApp": "[data-cy=t--delete]",
