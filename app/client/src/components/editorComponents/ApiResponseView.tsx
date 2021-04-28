@@ -156,7 +156,7 @@ const StatusCodeText = styled(BaseText)<{ code: string }>`
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
 `;
 
-const ApiResponseView = (props: Props) => {
+function ApiResponseView(props: Props) {
   const {
     match: {
       params: { apiId },
@@ -193,20 +193,18 @@ const ApiResponseView = (props: Props) => {
       panelComponent: (
         <ResponseTabWrapper>
           {hasFailed && !isRunning && requestDebugVisible && (
-            <>
-              <Callout
-                text={createMessage(CHECK_REQUEST_BODY)}
-                label={
-                  <FailedMessage>
-                    <DebugButton onClick={onDebugClick} />
-                  </FailedMessage>
-                }
-                variant={Variant.danger}
-                fill
-                closeButton
-                onClose={() => setRequestDebugVisible(false)}
-              />
-            </>
+            <Callout
+              closeButton
+              fill
+              label={
+                <FailedMessage>
+                  <DebugButton onClick={onDebugClick} />
+                </FailedMessage>
+              }
+              onClose={() => setRequestDebugVisible(false)}
+              text={createMessage(CHECK_REQUEST_BODY)}
+              variant={Variant.danger}
+            />
           )}
           {_.isEmpty(response.statusCode) ? (
             <NoResponseContainer>
@@ -215,13 +213,13 @@ const ApiResponseView = (props: Props) => {
             </NoResponseContainer>
           ) : (
             <ReadOnlyEditor
+              folding
+              height={"100%"}
               input={{
                 value: response.body
                   ? JSON.stringify(response.body, null, 2)
                   : "",
               }}
-              height={"100%"}
-              folding={true}
             />
           )}
         </ResponseTabWrapper>
@@ -283,14 +281,14 @@ const ApiResponseView = (props: Props) => {
           </ResponseMetaWrapper>
         )}
         <TabComponent
-          tabs={tabs}
-          selectedIndex={selectedIndex}
           onSelect={setSelectedIndex}
+          selectedIndex={selectedIndex}
+          tabs={tabs}
         />
       </TabbedViewWrapper>
     </ResponseContainer>
   );
-};
+}
 
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {

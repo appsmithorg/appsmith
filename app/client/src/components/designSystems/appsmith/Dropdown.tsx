@@ -52,23 +52,23 @@ const selectStyles = {
   indicatorSeparator: () => ({}),
 };
 
-export const BaseDropdown = (props: DropdownProps) => {
+export function BaseDropdown(props: DropdownProps) {
   const { input, customSelectStyles } = props;
   return (
     <Select
       styles={{ ...selectStyles, ...customSelectStyles }}
       {...input}
-      width={props.width}
-      onChange={(value) => input.onChange(value)}
-      isSearchable={props.isSearchable}
       isDisabled={props.isDisabled}
+      isSearchable={props.isSearchable}
+      onChange={(value) => input.onChange(value)}
+      width={props.width}
       {...props}
     />
   );
-};
+}
 
-const Dropdown = (props: DropdownProps) => {
+function Dropdown(props: DropdownProps) {
   return <BaseDropdown {...props} />;
-};
+}
 
 export default Dropdown;

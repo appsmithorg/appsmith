@@ -195,7 +195,7 @@ export const NameWrapper = styled.div`
   }
 `;
 
-const ApiEditorForm: React.FC<Props> = (props: Props) => {
+function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [
     apiBindHelpSectionVisible,
@@ -246,39 +246,39 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
             <MoreActionsMenu
+              className="t--more-action-menu"
               id={currentActionConfig ? currentActionConfig.id : ""}
               name={currentActionConfig ? currentActionConfig.name : ""}
-              className="t--more-action-menu"
               pageId={pageId}
             />
             <Button
-              text="Run"
-              tag="button"
-              size={Size.medium}
-              type="button"
+              className="t--apiFormRunBtn"
+              isLoading={isRunning}
               onClick={() => {
                 onRunClick();
               }}
-              isLoading={isRunning}
-              className="t--apiFormRunBtn"
+              size={Size.medium}
+              tag="button"
+              text="Run"
+              type="button"
             />
           </ActionButtons>
         </FormRow>
         <FormRow className="api-info-row">
           <RequestDropdownField
-            placeholder="Method"
-            name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"
-            options={HTTP_METHOD_OPTIONS}
-            width={"100px"}
-            optionWidth={"100px"}
             height={"35px"}
+            name="actionConfiguration.httpMethod"
+            optionWidth={"100px"}
+            options={HTTP_METHOD_OPTIONS}
+            placeholder="Method"
+            width={"100px"}
           />
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField
               name="actionConfiguration.path"
-              pluginId={pluginId}
               placeholder="https://mock-api.appsmith.com/users"
+              pluginId={pluginId}
               theme={theme}
             />
           </DatasourceWrapper>
@@ -288,12 +288,14 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         {hintMessages && (
           <HelpSection>
             {hintMessages.map((msg, i) => (
-              <Callout text={msg} variant={Variant.warning} fill key={i} />
+              <Callout fill key={i} text={msg} variant={Variant.warning} />
             ))}
           </HelpSection>
         )}
         <TabbedViewContainer>
           <TabComponent
+            onSelect={setSelectedIndex}
+            selectedIndex={selectedIndex}
             tabs={[
               {
                 key: "headers",
@@ -304,34 +306,34 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                     {apiBindHelpSectionVisible && (
                       <HelpSection>
                         <Callout
-                          text={createMessage(WIDGET_BIND_HELP)}
+                          closeButton
+                          fill
                           label={
                             <CalloutContent>
                               <Link
-                                onClick={handleClickLearnHow}
                                 className="t--learn-how-apis-link"
+                                onClick={handleClickLearnHow}
                               >
-                                <Text type={TextType.H6} case={Case.UPPERCASE}>
+                                <Text case={Case.UPPERCASE} type={TextType.H6}>
                                   Learn How
                                 </Text>
                                 <Icon name="right-arrow" />
                               </Link>
                             </CalloutContent>
                           }
-                          variant={Variant.warning}
-                          fill
-                          closeButton
                           onClose={() => setApiBindHelpSectionVisible(false)}
+                          text={createMessage(WIDGET_BIND_HELP)}
+                          variant={Variant.warning}
                         />
                       </HelpSection>
                     )}
                     <KeyValueFieldArray
-                      theme={theme}
-                      name="actionConfiguration.headers"
-                      label="Headers"
                       actionConfig={actionConfigurationHeaders}
-                      placeholder="Value"
                       dataTreePath={`${actionName}.config.headers`}
+                      label="Headers"
+                      name="actionConfiguration.headers"
+                      placeholder="Value"
+                      theme={theme}
                     />
                   </TabSection>
                 ),
@@ -343,10 +345,10 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 panelComponent: (
                   <TabSection>
                     <KeyValueFieldArray
-                      theme={theme}
-                      name="actionConfiguration.queryParameters"
-                      label="Params"
                       dataTreePath={`${actionName}.config.queryParameters`}
+                      label="Params"
+                      name="actionConfiguration.queryParameters"
+                      theme={theme}
                     />
                   </TabSection>
                 ),
@@ -354,21 +356,17 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               {
                 key: "body",
                 title: "Body",
-                panelComponent: (
-                  <>
-                    {allowPostBody ? (
-                      <PostBodyData
-                        dataTreePath={`${actionName}.config`}
-                        theme={theme}
-                      />
-                    ) : (
-                      <NoBodyMessage>
-                        <Text type={TextType.P2}>
-                          This request does not have a body
-                        </Text>
-                      </NoBodyMessage>
-                    )}
-                  </>
+                panelComponent: allowPostBody ? (
+                  <PostBodyData
+                    dataTreePath={`${actionName}.config`}
+                    theme={theme}
+                  />
+                ) : (
+                  <NoBodyMessage>
+                    <Text type={TextType.P2}>
+                      This request does not have a body
+                    </Text>
+                  </NoBodyMessage>
                 ),
               },
               {
@@ -396,16 +394,14 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 ),
               },
             ]}
-            selectedIndex={selectedIndex}
-            onSelect={setSelectedIndex}
           />
         </TabbedViewContainer>
 
-        <ApiResponseView theme={theme} apiName={actionName} />
+        <ApiResponseView apiName={actionName} theme={theme} />
       </SecondaryWrapper>
     </Form>
   );
-};
+}
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 

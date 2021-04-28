@@ -310,17 +310,17 @@ interface ListPaginationProps {
   onChange: (page: number) => void;
 }
 
-const ListPagination = (props: ListPaginationProps) => {
+function ListPagination(props: ListPaginationProps) {
   return (
     <StyledPagination
-      locale={locale}
-      total={props.total}
       current={props.current}
-      pageSize={props.perPage}
-      onChange={props.onChange}
       disabled={props.disabled}
+      locale={locale}
+      onChange={props.onChange}
+      pageSize={props.perPage}
+      total={props.total}
     />
   );
-};
+}
 
 export default ListPagination;

@@ -78,7 +78,7 @@ const FlexContainer = styled.div`
   }
 `;
 
-const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
+function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   useEffect(() => {
     // Always maintain 2 rows
     if (props.fields.length < 2 && props.pushFields) {
@@ -91,19 +91,19 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   return (
     <KeyValueStackContainer>
       <FlexContainer>
-        <Flex size={1} className="key-value">
-          <Text type={TextType.H6} case={Case.CAPITALIZE}>
+        <Flex className="key-value" size={1}>
+          <Text case={Case.CAPITALIZE} type={TextType.H6}>
             Key
           </Text>
         </Flex>
-        <Flex size={3} className="key-value">
-          <Text type={TextType.H6} case={Case.CAPITALIZE}>
+        <Flex className="key-value" size={3}>
+          <Text case={Case.CAPITALIZE} type={TextType.H6}>
             Value
           </Text>
         </Flex>
       </FlexContainer>
       {props.fields.length > 0 && (
-        <React.Fragment>
+        <>
           {props.fields.map((field: any, index: number) => {
             const otherProps: Record<string, any> = {};
             if (
@@ -124,28 +124,28 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
               <FormRowWithLabel key={index}>
                 <Flex size={1}>
                   <DynamicTextField
-                    theme={props.theme}
+                    border={CodeEditorBorder.BOTTOM_SIDE}
                     className={`t--${field}.key.${index}`}
+                    dataTreePath={`${props.dataTreePath}[${index}].key`}
+                    hoverInteraction
                     name={`${field}.key`}
                     placeholder={`Key ${index + 1}`}
                     showLightningMenu={false}
-                    dataTreePath={`${props.dataTreePath}[${index}].key`}
-                    hoverInteraction={true}
-                    border={CodeEditorBorder.BOTTOM_SIDE}
+                    theme={props.theme}
                   />
                 </Flex>
 
                 {!props.actionConfig && (
                   <Flex size={3}>
                     <DynamicTextField
-                      theme={props.theme}
+                      border={CodeEditorBorder.BOTTOM_SIDE}
                       className={`t--${field}.value.${index}`}
-                      name={`${field}.value`}
-                      placeholder={`Value ${index + 1}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={FIELD_VALUES.API_ACTION.params}
-                      hoverInteraction={true}
-                      border={CodeEditorBorder.BOTTOM_SIDE}
+                      hoverInteraction
+                      name={`${field}.value`}
+                      placeholder={`Value ${index + 1}`}
+                      theme={props.theme}
                     />
                   </Flex>
                 )}
@@ -153,11 +153,16 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                 {props.actionConfig && props.actionConfig[index] && (
                   <Flex size={3}>
                     <DynamicTextField
-                      theme={props.theme}
                       className={`t--${field}.value.${index}`}
-                      name={`${field}.value`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
+                      disabled={
+                        !(
+                          props.actionConfig[index].editable ||
+                          props.actionConfig[index].editable === undefined
+                        )
+                      }
                       expected={FIELD_VALUES.API_ACTION.params}
+                      name={`${field}.value`}
                       placeholder={
                         props.placeholder
                           ? `${props.placeholder} ${index + 1}`
@@ -168,47 +173,42 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                           ? `${props.actionConfig[index].type} (Optional)`
                           : `(Optional)`
                       }
-                      disabled={
-                        !(
-                          props.actionConfig[index].editable ||
-                          props.actionConfig[index].editable === undefined
-                        )
-                      }
                       showLightningMenu={
                         props.actionConfig[index].editable ||
                         props.actionConfig[index].editable === undefined
                       }
+                      theme={props.theme}
                       {...otherProps}
-                      hoverInteraction={true}
                       border={CodeEditorBorder.BOTTOM_SIDE}
+                      hoverInteraction
                     />
                   </Flex>
                 )}
                 {props.addOrDeleteFields !== false && (
                   <CenteredIcon
                     name="delete"
-                    size={IconSize.LARGE}
                     onClick={() => props.fields.remove(index)}
+                    size={IconSize.LARGE}
                   />
                 )}
               </FormRowWithLabel>
             );
           })}
-        </React.Fragment>
+        </>
       )}
       <AddMoreAction onClick={() => props.fields.push({ key: "", value: "" })}>
         <Icon
-          name="add-more"
           className="t--addApiHeader"
+          name="add-more"
           size={IconSize.LARGE}
         />
-        <Text type={TextType.H5} case={Case.UPPERCASE}>
+        <Text case={Case.UPPERCASE} type={TextType.H5}>
           Add more
         </Text>
       </AddMoreAction>
     </KeyValueStackContainer>
   );
-};
+}
 
 type Props = {
   name: string;
@@ -227,7 +227,7 @@ type Props = {
   theme?: EditorTheme;
 };
 
-const KeyValueFieldArray = (props: Props) => {
+function KeyValueFieldArray(props: Props) {
   return (
     <FieldArray
       component={KeyValueRow}
@@ -235,6 +235,6 @@ const KeyValueFieldArray = (props: Props) => {
       {...props}
     />
   );
-};
+}
 
 export default KeyValueFieldArray;

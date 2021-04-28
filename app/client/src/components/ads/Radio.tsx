@@ -129,29 +129,29 @@ export default function RadioComponent(props: RadioProps) {
 
   return (
     <RadioGroup
-      data-cy={props.cypressSelector}
-      rows={props.rows}
-      columns={props.columns}
-      onChange={(e: any) => onChangeHandler(e.target.value)}
       className={props.className}
+      columns={props.columns}
+      data-cy={props.cypressSelector}
+      onChange={(e: any) => onChangeHandler(e.target.value)}
+      rows={props.rows}
     >
       {props.options.map((option: OptionProps, index: number) => (
         <Radio
-          key={index}
           columns={props.columns}
-          rows={props.rows}
           disabled={props.disabled || option.disabled}
+          key={index}
+          rows={props.rows}
         >
           {option.label}
           <input
+            checked={selected === option.value}
+            disabled={props.disabled || option.disabled}
+            name="radio"
+            onChange={(e) => option.onSelect && option.onSelect(e.target.value)}
             type="radio"
             value={option.value}
-            disabled={props.disabled || option.disabled}
-            onChange={(e) => option.onSelect && option.onSelect(e.target.value)}
-            checked={selected === option.value}
-            name="radio"
           />
-          <span className="checkbox"></span>
+          <span className="checkbox" />
         </Radio>
       ))}
     </RadioGroup>
