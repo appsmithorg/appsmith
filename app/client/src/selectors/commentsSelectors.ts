@@ -54,6 +54,20 @@ export const getAppCommentThreads = (
 export const allCommentThreadsMap = (state: AppState) =>
   state.ui.comments.commentThreadsMap;
 
+const getSortIndexBool = (a: boolean, b: boolean) => {
+  if (a && b) return 0;
+  if (a) return -1;
+  if (b) return 1;
+  else return 0;
+};
+
+const getSortIndexNumber = (a = 0, b = 0) => {
+  console.log({ a, b });
+  if (a === b) return 0;
+  if (a > b) return 1;
+  else return -1;
+};
+
 export const getSortedAppCommentThreadIds = (
   applicationThreadIds: Array<string>,
   commentThreadsMap: Record<string, CommentThread>,
@@ -62,13 +76,25 @@ export const getSortedAppCommentThreadIds = (
   if (!applicationThreadIds) return [];
   return applicationThreadIds
     .sort((a, b) => {
-      const { pinnedState: isAPinned } = commentThreadsMap[a];
-      const { pinnedState: isBPinned } = commentThreadsMap[b];
+      const {
+        pinnedState: isAPinned,
+        updationTime: updationTimeA,
+      } = commentThreadsMap[a];
+      const {
+        pinnedState: isBPinned,
+        updationTime: updationTimeB,
+      } = commentThreadsMap[b];
 
-      if (isAPinned?.active && isBPinned?.active) return 0;
-      if (isAPinned?.active) return -1;
-      if (isBPinned?.active) return 1;
-      else return 0;
+      const sortIdx = getSortIndexBool(
+        !!isAPinned?.active,
+        !!isBPinned?.active,
+      );
+      if (sortIdx !== 0) return sortIdx;
+
+      return getSortIndexNumber(
+        updationTimeA?.epochSecond,
+        updationTimeB?.epochSecond,
+      );
     })
     .filter((threadId: string) => {
       const thread = commentThreadsMap[threadId];
