@@ -258,17 +258,17 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
           {this.props.selectionType === "SINGLE_SELECT" ? (
             <StyledSingleDropDown
               className={this.props.isLoading ? Classes.SKELETON : ""}
-              items={this.props.options}
-              filterable={true}
-              itemRenderer={this.renderSingleSelectItem}
-              onItemSelect={this.onItemSelect}
               disabled={this.props.disabled}
+              filterable
+              itemListPredicate={this.itemListPredicate}
+              itemRenderer={this.renderSingleSelectItem}
+              items={this.props.options}
+              onItemSelect={this.onItemSelect}
               popoverProps={{
                 minimal: true,
                 usePortal: true,
                 popoverClassName: "select-popover-wrapper",
               }}
-              itemListPredicate={this.itemListPredicate}
             >
               <Button
                 rightIcon={IconNames.CHEVRON_DOWN}
@@ -283,16 +283,22 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             </StyledSingleDropDown>
           ) : (
             <StyledMultiDropDown
+              className={this.props.isLoading ? Classes.SKELETON : ""}
+              height={this.props.height}
+              hideCloseButtonIndex={hideCloseButtonIndex}
+              itemListPredicate={this.itemListPredicate}
+              itemRenderer={this.renderMultiSelectItem}
+              items={this.props.options}
+              onItemSelect={this.onItemSelect}
+              placeholder={this.props.placeholder}
+              popoverProps={{
+                minimal: true,
+                usePortal: true,
+                popoverClassName: "select-popover-wrapper",
+              }}
               resetOnSelect
               scrollToActiveItem={false}
-              className={this.props.isLoading ? Classes.SKELETON : ""}
-              items={this.props.options}
-              itemListPredicate={this.itemListPredicate}
-              placeholder={this.props.placeholder}
-              tagRenderer={this.renderTag}
-              itemRenderer={this.renderMultiSelectItem}
               selectedItems={selectedItems}
-              height={this.props.height}
               tagInputProps={{
                 onRemove: this.onItemRemoved,
                 tagProps: (value, index) => ({
@@ -308,13 +314,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                 fill: true,
                 rightElement: <Icon icon={IconNames.CHEVRON_DOWN} />,
               }}
-              hideCloseButtonIndex={hideCloseButtonIndex}
-              onItemSelect={this.onItemSelect}
-              popoverProps={{
-                minimal: true,
-                usePortal: true,
-                popoverClassName: "select-popover-wrapper",
-              }}
+              tagRenderer={this.renderTag}
               width={this.props.width}
             />
           )}
@@ -365,8 +365,8 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     const isSelected: boolean = this.isOptionSelected(option);
     return (
       <MenuItem
-        className="single-select"
         active={isSelected}
+        className="single-select"
         key={option.value}
         onClick={itemProps.handleClick}
         text={option.label}
@@ -383,19 +383,17 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     }
     const isSelected: boolean = this.isOptionSelected(option);
     const content: ReactNode = (
-      <React.Fragment>
-        <StyledCheckbox
-          checked={isSelected}
-          label={option.label}
-          alignIndicator="left"
-          onChange={(e: any) => itemProps.handleClick(e)}
-        />
-      </React.Fragment>
+      <StyledCheckbox
+        alignIndicator="left"
+        checked={isSelected}
+        label={option.label}
+        onChange={(e: any) => itemProps.handleClick(e)}
+      />
     );
     return (
       <MenuItem
-        className="multi-select"
         active={isSelected}
+        className="multi-select"
         key={option.value}
         text={content}
       />

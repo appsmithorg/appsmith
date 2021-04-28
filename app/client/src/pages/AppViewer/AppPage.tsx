@@ -21,7 +21,7 @@ type AppPageProps = {
   appName?: string;
 };
 
-export const AppPage = (props: AppPageProps) => {
+export function AppPage(props: AppPageProps) {
   useDynamicAppLayout();
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {
@@ -37,6 +37,6 @@ export const AppPage = (props: AppPageProps) => {
         WidgetFactory.createWidget(props.dsl, RenderModes.PAGE)}
     </PageView>
   );
-};
+}
 
 export default AppPage;

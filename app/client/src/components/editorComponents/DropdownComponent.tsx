@@ -45,21 +45,21 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       const renderItems = props.items.map(props.renderItem).filter(Boolean);
       const displayMode = (
         <BaseButton
-          icon-right="plus"
           accent="primary"
-          filled={true}
-          text={this.props.addItem.displayText}
+          filled
+          icon-right="plus"
           onClick={this.showTextBox}
+          text={this.props.addItem.displayText}
         />
       );
       const editMode = (
-        <ControlGroup fill={true}>
+        <ControlGroup fill>
           <InputGroup inputRef={this.setNewItemTextInput} />
           <BaseButton
-            filled={true}
-            text={this.props.addItem.displayText}
+            filled
             onClick={this.handleAddItem}
-          ></BaseButton>
+            text={this.props.addItem.displayText}
+          />
         </ControlGroup>
       );
       return (
@@ -70,7 +70,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       );
     }
 
-    return <React.Fragment />;
+    return null;
   };
 
   searchItem = (query: string, option: DropdownOption): boolean => {
@@ -118,22 +118,22 @@ class DropdownComponent extends Component<DropdownComponentProps> {
   render() {
     return (
       <StyledDropdown
-        items={this.props.options}
-        onItemSelect={this.onItemSelect}
-        itemRenderer={this.renderItem}
-        itemListRenderer={this.props.addItem && this.renderItemList}
-        filterable={!!this.props.autocomplete}
-        itemPredicate={this.searchItem}
-        itemsEqual="value"
-        popoverProps={{ minimal: true }}
         activeItem={this.props.selected}
-        noResults={<MenuItem disabled={true} text="No results." />}
+        filterable={!!this.props.autocomplete}
+        itemListRenderer={this.props.addItem && this.renderItemList}
+        itemPredicate={this.searchItem}
+        itemRenderer={this.renderItem}
+        items={this.props.options}
+        itemsEqual="value"
+        noResults={<MenuItem disabled text="No results." />}
+        onItemSelect={this.onItemSelect}
+        popoverProps={{ minimal: true }}
       >
         {this.props.toggle || (
           <BaseButton
             accent="secondary"
-            text={this.getSelectedDisplayText()}
             rightIcon="chevron-down"
+            text={this.getSelectedDisplayText()}
           />
         )}
       </StyledDropdown>

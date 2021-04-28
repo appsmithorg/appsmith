@@ -29,11 +29,11 @@ const CollapseWrapper = styled.div`
   }
 `;
 
-const CollapseComponent = (props: {
+function CollapseComponent(props: {
   children?: React.ReactNode;
   title?: string;
   isOpen?: boolean;
-}) => {
+}) {
   const [open, toggleOpen] = React.useState(true);
   const handleIsOpen = () => {
     toggleOpen(!open);
@@ -46,8 +46,8 @@ const CollapseComponent = (props: {
       <div className="collapse-title">
         {props.title}
         <Icon
-          icon="chevron-down"
           className={`icon ${!open ? "collapse" : ""}`}
+          icon="chevron-down"
           iconSize={16}
           onClick={handleIsOpen}
         />
@@ -59,6 +59,6 @@ const CollapseComponent = (props: {
       </Collapse>
     </CollapseWrapper>
   );
-};
+}
 
 export default CollapseComponent;

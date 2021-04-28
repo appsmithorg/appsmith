@@ -44,7 +44,7 @@ import TabsWidget, {
   TabsWidgetProps,
   TabContainerWidgetProps,
   ProfiledTabsWidget,
-} from "widgets/TabsWidget";
+} from "widgets/Tabs/TabsWidget";
 import {
   ModalWidgetProps,
   ProfiledModalWidget,
@@ -100,6 +100,9 @@ import SwitchWidget, {
   ProfiledSwitchWidget,
   SwitchWidgetProps,
 } from "widgets/SwitchWidget";
+import TabsMigratorWidget, {
+  ProfiledTabsMigratorWidget,
+} from "widgets/Tabs/TabsMigrator";
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -295,6 +298,20 @@ export default class WidgetBuilderRegistry {
       TabsWidget.getDefaultPropertiesMap(),
       TabsWidget.getMetaPropertiesMap(),
       TabsWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      "TABS_MIGRATOR_WIDGET",
+      {
+        buildWidget(
+          widgetProps: TabsWidgetProps<TabContainerWidgetProps>,
+        ): JSX.Element {
+          return <ProfiledTabsMigratorWidget {...widgetProps} />;
+        },
+      },
+      TabsMigratorWidget.getDerivedPropertiesMap(),
+      TabsMigratorWidget.getDefaultPropertiesMap(),
+      TabsMigratorWidget.getMetaPropertiesMap(),
+      TabsMigratorWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.MODAL_WIDGET,

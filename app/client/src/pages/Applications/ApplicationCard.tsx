@@ -243,7 +243,7 @@ const ContextDropdownWrapper = styled.div`
   }
 `;
 
-export const ApplicationCard = (props: ApplicationCardProps) => {
+export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
@@ -380,7 +380,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.application.defaultPageId,
   );
   const appNameText = (
-    <Text type={TextType.H3} cypressSelector="t--app-card-name">
+    <Text cypressSelector="t--app-card-name" type={TextType.H3}>
       {props.application.name}
     </Text>
   );
@@ -388,16 +388,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
-        position={Position.RIGHT_TOP}
-        target={
-          <MoreOptionsContainer>
-            <Icon name="context-menu" size={IconSize.XXXL} />
-          </MoreOptionsContainer>
-        }
         className="more"
-        onOpening={() => {
-          setIsMenuOpen(true);
-        }}
         onClosing={() => {
           setIsMenuOpen(false);
           setShowOverlay(false);
@@ -409,15 +400,22 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
               });
           }
         }}
+        onOpening={() => {
+          setIsMenuOpen(true);
+        }}
+        position={Position.RIGHT_TOP}
+        target={
+          <MoreOptionsContainer>
+            <Icon name="context-menu" size={IconSize.XXXL} />
+          </MoreOptionsContainer>
+        }
       >
         {hasEditPermission && (
           <EditableText
+            className="t--application-name"
             defaultValue={props.application.name}
             editInteractionKind={EditInteractionKind.SINGLE}
-            onTextChanged={(value: string) => {
-              setLastUpdatedValue(value);
-            }}
-            placeholder={"Edit text input"}
+            fill
             hideEditIcon={false}
             isInvalid={(value: string) => {
               if (!value) {
@@ -426,26 +424,28 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                 return false;
               }
             }}
-            savingState={
-              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-            }
-            fill
             onBlur={(value: string) => {
               props.update &&
                 props.update(props.application.id, {
                   name: value,
                 });
             }}
-            className="t--application-name"
+            onTextChanged={(value: string) => {
+              setLastUpdatedValue(value);
+            }}
+            placeholder={"Edit text input"}
+            savingState={
+              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+            }
             underline
           />
         )}
         {hasEditPermission && (
           <>
             <ColorSelector
-              defaultValue={selectedColor}
               colorPalette={theme.colors.appCardColors}
-              fill={true}
+              defaultValue={selectedColor}
+              fill
               onSelect={updateColor}
             />
             <MenuDivider />
@@ -454,10 +454,10 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         {hasEditPermission && (
           <>
             <IconSelector
-              fill={true}
-              selectedIcon={appIcon}
-              selectedColor={selectedColor}
+              fill
               onSelect={updateIcon}
+              selectedColor={selectedColor}
+              selectedIcon={appIcon}
             />
             <MenuDivider />
           </>
@@ -466,10 +466,10 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           return <MenuItem key={item.text} {...item} />;
         })}
         <ForkApplicationModalHOC
-          isDeployedApp={false}
-          setModalClose={setForkApplicationModalOpen}
-          isModalOpen={isForkApplicationModalopen}
           applicationId={props.application.id}
+          isDeployedApp={false}
+          isModalOpen={isForkApplicationModalopen}
+          setModalClose={setForkApplicationModalOpen}
         />
       </Menu>
     </ContextDropdownWrapper>
@@ -477,8 +477,9 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
 
   return (
     <NameWrapper
+      className="t--application-card"
+      hasReadPermission={hasReadPermission}
       isMenuOpen={isMenuOpen}
-      showOverlay={showOverlay}
       onMouseEnter={() => {
         !isFetchingApplications && setShowOverlay(true);
       }}
@@ -487,21 +488,20 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         // Set overlay false on outside click.
         !isMenuOpen && setShowOverlay(false);
       }}
-      hasReadPermission={hasReadPermission}
-      className="t--application-card"
+      showOverlay={showOverlay}
     >
       <>
         <Wrapper
+          backgroundColor={selectedColor}
           className={
             isFetchingApplications
               ? Classes.SKELETON
               : "t--application-card-background"
           }
-          key={props.application.id}
           hasReadPermission={hasReadPermission}
-          backgroundColor={selectedColor}
+          key={props.application.id}
         >
-          <AppIcon size={Size.large} name={appIcon} />
+          <AppIcon name={appIcon} size={Size.large} />
           {/* <Initials>{initials}</Initials> */}
           {showOverlay && (
             <div className="overlay">
@@ -524,23 +524,23 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
 
                   {hasEditPermission && !isMenuOpen && (
                     <EditButton
-                      text="Edit"
-                      size={Size.medium}
-                      icon={"edit"}
                       className="t--application-edit-link"
                       fill
                       href={editApplicationURL}
+                      icon={"edit"}
+                      size={Size.medium}
+                      text="Edit"
                     />
                   )}
                   {!isMenuOpen && (
                     <Button
-                      text="LAUNCH"
-                      size={Size.medium}
                       category={Category.tertiary}
                       className="t--application-view-link"
-                      icon={"rocket"}
-                      href={viewApplicationURL}
                       fill
+                      href={viewApplicationURL}
+                      icon={"rocket"}
+                      size={Size.medium}
+                      text="LAUNCH"
                     />
                   )}
                 </Control>
@@ -549,12 +549,12 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           )}
         </Wrapper>
         <AppNameWrapper
-          ref={appNameWrapperRef}
-          isFetching={isFetchingApplications}
           className={isFetchingApplications ? Classes.SKELETON : ""}
+          isFetching={isFetchingApplications}
+          ref={appNameWrapperRef}
         >
           {isEllipsisActive(appNameWrapperRef?.current) ? (
-            <TooltipComponent maxWidth="400px" content={props.application.name}>
+            <TooltipComponent content={props.application.name} maxWidth="400px">
               {appNameText}
             </TooltipComponent>
           ) : (
@@ -564,6 +564,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       </>
     </NameWrapper>
   );
-};
+}
 
 export default ApplicationCard;

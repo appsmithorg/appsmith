@@ -4,9 +4,9 @@ import { PopoverStyles } from "./popover";
 
 export default function GlobalStyles() {
   return (
-    <React.Fragment>
+    <>
       <TooltipStyles />
       <PopoverStyles />
-    </React.Fragment>
+    </>
   );
 }

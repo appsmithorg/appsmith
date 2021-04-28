@@ -46,16 +46,16 @@ const getAppViewerHeaderCTA = ({
         <ForkButton
           className="t--fork-app"
           href={forkUrl}
-          text={createMessage(FORK_APP)}
           icon="fork"
+          text={createMessage(FORK_APP)}
         />
       );
     } else {
       CTA = (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
           <ForkApplicationModalHOC
-            isDeployedApp={true}
             applicationId={currentApplicationDetails.id}
+            isDeployedApp
           />
         </div>
       );

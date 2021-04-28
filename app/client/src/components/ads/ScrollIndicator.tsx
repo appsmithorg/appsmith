@@ -47,7 +47,7 @@ interface Props {
   right?: string;
   mode?: "DARK" | "LIGHT";
 }
-const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
+function ScrollIndicator({ containerRef, top, bottom, right }: Props) {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
     config: {
@@ -105,10 +105,10 @@ const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
 
   return (
     <ScrollTrack
-      isVisible={isScrollVisible}
-      top={top}
       bottom={bottom}
+      isVisible={isScrollVisible}
       right={right}
+      top={top}
     >
       <ScrollThumb
         ref={thumbRef}
@@ -121,6 +121,6 @@ const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
       />
     </ScrollTrack>
   );
-};
+}
 
 export default ScrollIndicator;

@@ -15,7 +15,7 @@ export type PopperProps = {
   isOpen: boolean;
   themeMode?: ThemeMode;
   targetNode?: Element;
-  children: JSX.Element;
+  children: JSX.Element | null;
   placement: Placement;
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;
@@ -42,13 +42,13 @@ const DragHandleBlock = styled.div`
   clip-path: inset(-2px 0px -2px -2px);
 `;
 
-export const PopperDragHandle: React.FC<any> = () => {
+export function PopperDragHandle() {
   return (
     <DragHandleBlock>
       <DragHandleIcon />
     </DragHandleBlock>
   );
-};
+}
 
 /* eslint-disable react/display-name */
 export default (props: PopperProps) => {
@@ -120,7 +120,7 @@ export default (props: PopperProps) => {
           position,
           () => (
             <ThemeProvider theme={popperTheme}>
-              <PopperDragHandle {...props} />
+              <PopperDragHandle />
             </ThemeProvider>
           ),
         );

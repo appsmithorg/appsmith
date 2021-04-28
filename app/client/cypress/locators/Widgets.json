@@ -65,6 +65,7 @@
     "verticalCenter": ".t--icon-tab-CENTER",
     "verticalBottom": ".t--icon-tab-BOTTOM",
     "textColor": ".t--property-control-textcolor input",
+    "backgroundcolorPicker": ".t--property-control-backgroundcolor input",
     "greenColor": "//div[@color='rgb(3, 179, 101)']",
     "toggleJsColor": ".t--property-control-textcolor .t--js-toggle",
     "backgroundColor": ".t--property-control-cellbackground input",

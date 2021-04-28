@@ -25,32 +25,32 @@ interface Props {
   onBackButton: () => void;
 }
 
-const NotFound: React.FC<Props> = (props: Props) => {
+function NotFound(props: Props) {
   const { title, subtitle, buttonText, onBackButton } = props;
 
   return (
     <Wrapper>
       <img
-        src={IntegrationUnavailableImage}
         alt={title || "Unavailable"}
         className="unavailable-img"
+        src={IntegrationUnavailableImage}
       />
       <div>
         <p className="bold-text">{title}</p>
         {subtitle && <p>{subtitle}</p>}
         <Button
+          className="button-position"
           filled
-          text={buttonText}
-          intent="primary"
           icon="arrow-right"
           iconAlignment="right"
-          size="small"
-          className="button-position"
+          intent="primary"
           onClick={() => onBackButton()}
+          size="small"
+          text={buttonText}
         />
       </div>
     </Wrapper>
   );
-};
+}
 
 export default NotFound;

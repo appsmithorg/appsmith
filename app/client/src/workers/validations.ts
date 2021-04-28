@@ -741,18 +741,15 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     value: any,
     props: WidgetProps,
   ): ValidationResponse => {
-    const tabs =
-      props.tabs && isString(props.tabs)
-        ? JSON.parse(props.tabs)
-        : props.tabs && Array.isArray(props.tabs)
-        ? props.tabs
-        : [];
+    const tabs: any = props.tabsObj
+      ? Object.values(props.tabsObj)
+      : props.tabs || [];
     const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
     const isValidTabName = tabNames.includes(value);
     return {
       isValid: isValidTabName,
-      parsed: value,
-      message: isValidTabName ? "" : `Invalid tab name.`,
+      parsed: isValidTabName ? value : "",
+      message: isValidTabName ? "" : `Tab name provided does not exist.`,
     };
   },
   [VALIDATION_TYPES.DEFAULT_OPTION_VALUE]: (

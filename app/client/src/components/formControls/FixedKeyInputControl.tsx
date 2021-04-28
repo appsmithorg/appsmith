@@ -27,10 +27,6 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
           {label} {isRequired && "*"}
         </FormLabel>
         <TextField
-          name={configProperty}
-          placeholder={placeholderText}
-          type={this.getType(dataType)}
-          showError
           format={(value) => {
             // Get the value property
             if (value) {
@@ -39,6 +35,7 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
 
             return "";
           }}
+          name={configProperty}
           parse={(value) => {
             // Store the value in this field as {key: fixedKey, value: <user-input>}
             return {
@@ -46,6 +43,9 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
               value: value,
             };
           }}
+          placeholder={placeholderText}
+          showError
+          type={this.getType(dataType)}
         />
       </Wrapper>
     );

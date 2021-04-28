@@ -94,7 +94,7 @@ type DialogComponentProps = {
   className?: string;
 };
 
-export const DialogComponent = (props: DialogComponentProps) => {
+export function DialogComponent(props: DialogComponentProps) {
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
   const { setModalClose } = props;
@@ -110,7 +110,7 @@ export const DialogComponent = (props: DialogComponentProps) => {
   const getHeader = props.getHeader;
 
   return (
-    <React.Fragment>
+    <>
       {props.trigger && (
         <TriggerWrapper
           className="ads-dialog-trigger"
@@ -123,23 +123,23 @@ export const DialogComponent = (props: DialogComponentProps) => {
         </TriggerWrapper>
       )}
       <StyledDialog
-        canOutsideClickClose={!!props.canOutsideClickClose}
         canEscapeKeyClose={!!props.canEscapeKeyClose}
-        title={props.title}
-        onClose={onClose}
-        isOpen={isOpen}
-        width={props.width}
-        setMaxWidth={props.setMaxWidth}
-        maxHeight={props.maxHeight}
-        onOpening={props.onOpening}
-        showHeaderUnderline={props.showHeaderUnderline}
+        canOutsideClickClose={!!props.canOutsideClickClose}
         className={props.className}
+        isOpen={isOpen}
+        maxHeight={props.maxHeight}
+        onClose={onClose}
+        onOpening={props.onOpening}
+        setMaxWidth={props.setMaxWidth}
+        showHeaderUnderline={props.showHeaderUnderline}
+        title={props.title}
+        width={props.width}
       >
         {getHeader && getHeader()}
         <div className={Classes.DIALOG_BODY}>{props.children}</div>
       </StyledDialog>
-    </React.Fragment>
+    </>
   );
-};
+}
 
 export default DialogComponent;
