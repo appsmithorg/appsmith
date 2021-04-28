@@ -59,12 +59,18 @@ const UnpublishedCommentThread = withTheme(
             canEscapeKeyClose
             minimal
             isOpen={true}
-            position={Position.BOTTOM_RIGHT}
+            position={Position.RIGHT_TOP}
             popoverClassName="comment-thread"
             onInteraction={(nextOpenState) => {
               if (!nextOpenState) {
                 onClosing();
               }
+            }}
+            modifiers={{
+              offset: {
+                enabled: true,
+                offset: "-8, 10",
+              },
             }}
           >
             <Icon

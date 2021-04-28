@@ -232,7 +232,8 @@ const CommentCard = ({
     isPinned,
   };
 
-  useSelectCommentUsingQuery(comment.id);
+  // TODO enable when comments links are enabled
+  // useSelectCommentUsingQuery(comment.id);
 
   // Dont make inline cards clickable
   const handleCardClick = () => {

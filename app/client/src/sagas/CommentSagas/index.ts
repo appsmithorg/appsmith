@@ -24,7 +24,6 @@ import {
   addCommentToThreadSuccess,
   fetchApplicationCommentsSuccess,
   updateCommentThreadSuccess,
-  pinCommentThreadSuccess,
   deleteCommentSuccess,
 } from "actions/commentActions";
 import {

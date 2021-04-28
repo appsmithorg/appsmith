@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import CommentThread from "comments/CommentThread/CommentThread";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Popover } from "@blueprintjs/core";
+import { Popover, Position } from "@blueprintjs/core";
 import { get } from "lodash";
 import {
   commentThreadsSelector,
@@ -13,6 +13,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { setIsCommentThreadVisible as setIsCommentThreadVisibleAction } from "actions/commentActions";
 import { useTransition, animated } from "react-spring";
 import { useLocation } from "react-router";
+import scrollIntoView from "scroll-into-view-if-needed";
 
 const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   position: absolute;
@@ -33,7 +34,13 @@ const useSelectCommentThreadUsingQuery = (commentThreadId: string) => {
         `comment-thread-pin-${commentThreadId}`,
       );
       const commentPin = elements && elements[0];
-      commentPin?.scrollIntoView();
+      if (commentPin) {
+        scrollIntoView(commentPin, {
+          scrollMode: "if-needed",
+          block: "nearest",
+          inline: "nearest",
+        });
+      }
       // set comment thread visible after scrollIntoView is complete
       setTimeout(() => {
         dispatch(
@@ -183,7 +190,14 @@ const InlineCommentPin = ({ commentThreadId }: { commentThreadId: string }) => {
                   onInteraction={(nextOpenState) => {
                     setIsCommentThreadVisible(nextOpenState);
                   }}
-                  modifiers={{ preventOverflow: { enabled: true } }}
+                  modifiers={{
+                    preventOverflow: { enabled: true },
+                    offset: {
+                      enabled: true,
+                      offset: "-8, 10",
+                    },
+                  }}
+                  position={Position.RIGHT_TOP}
                 >
                   <Pin
                     commentThreadId={commentThreadId}
