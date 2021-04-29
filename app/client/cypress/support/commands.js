@@ -208,7 +208,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     .should("be.visible")
     .click({ force: true });
   cy.wait("@createNewApplication").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    checkIfApiWasSuccessful(interception, 201);
   });
 
   // eslint-disable-next-line cypress/no-unnecessary-waiting
