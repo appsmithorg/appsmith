@@ -33,7 +33,7 @@ type DeleteControlProps = {
   show: boolean;
 };
 
-const DeleteControl = (props: DeleteControlProps) => {
+function DeleteControl(props: DeleteControlProps) {
   return props.show ? (
     <StyledDeleteIcon
       className="control t--widget-delete-control"
@@ -44,5 +44,5 @@ const DeleteControl = (props: DeleteControlProps) => {
       </Tooltip>
     </StyledDeleteIcon>
   ) : null;
-};
+}
 export default DeleteControl;

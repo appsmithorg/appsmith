@@ -17,7 +17,7 @@ import {
 } from "constants/WidgetConstants";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
-import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
@@ -31,6 +31,8 @@ import {
 } from "../utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 /***
  * BaseWidget
@@ -80,9 +82,19 @@ abstract class BaseWidget<
    *  Widgets can execute actions using this `executeAction` method.
    *  Triggers may be specific to the widget
    */
-  executeAction(actionPayload: ExecuteActionPayload): void {
+  executeAction(actionPayload: WidgetExecuteActionPayload): void {
     const { executeAction } = this.context;
     executeAction && executeAction(actionPayload);
+
+    actionPayload.triggerPropertyName &&
+      AppsmithConsole.info({
+        text: `${actionPayload.triggerPropertyName} triggered`,
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: this.props.widgetId,
+          name: this.props.widgetName,
+        },
+      });
   }
 
   disableDrag(disable: boolean) {
@@ -194,11 +206,11 @@ abstract class BaseWidget<
       <>
         {!this.props.disablePropertyPane && (
           <WidgetNameComponent
-            widgetName={this.props.widgetName}
-            widgetId={this.props.widgetId}
             parentId={this.props.parentId}
-            type={this.props.type}
             showControls={showControls}
+            type={this.props.type}
+            widgetId={this.props.widgetId}
+            widgetName={this.props.widgetName}
           />
         )}
         {content}
@@ -220,9 +232,9 @@ abstract class BaseWidget<
     const style = this.getPositionStyle();
     return (
       <PositionedContainer
+        style={style}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
-        style={style}
       >
         {content}
       </PositionedContainer>
@@ -257,7 +269,7 @@ abstract class BaseWidget<
           }
           return content;
         }
-        return <React.Fragment />;
+        return null;
       default:
         throw Error("RenderMode not defined");
     }

@@ -1,7 +1,7 @@
-import React from "react";
+import React, { RefObject, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
-import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover, Tag } from "@blueprintjs/core";
+import { Icon, Tag } from "@blueprintjs/core";
+import { isString } from "lodash";
 import {
   components,
   MenuListComponentProps,
@@ -9,58 +9,216 @@ import {
   OptionTypeBase,
   SingleValueProps,
 } from "react-select";
-import { isString, isArray } from "lodash";
-import Button from "components/editorComponents/Button";
-import FormRow from "components/editorComponents/FormRow";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "entities/Datasource";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import { Colors } from "constants/Colors";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
 import Table from "./Table";
 import { Action } from "entities/Action";
 import { useDispatch } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
+import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import log from "loglevel";
+import Callout from "components/ads/Callout";
+import { Variant } from "components/ads/common";
+import Text, { TextType } from "components/ads/Text";
+import styled, { getTypographyByKey } from "constants/DefaultTheme";
+import { TabComponent } from "components/ads/Tabs";
+import AdsIcon from "components/ads/Icon";
+import { Classes } from "components/ads/common";
+import FormRow from "components/editorComponents/FormRow";
+import Button from "components/editorComponents/Button";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
+import ErrorLogs from "components/editorComponents/Debugger/Errors";
+import Resizable, {
+  ResizerCSS,
+} from "components/editorComponents/Debugger/Resizer";
+import DebuggerMessage from "components/editorComponents/Debugger/DebuggerMessage";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import CloseEditor from "components/editorComponents/CloseEditor";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { omnibarDocumentationHelper } from "constants/OmnibarDocumentationConstants";
 
 const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
-  padding: 20px 0px;
+  overflow: hidden;
+  padding: 20px 0px 0px 0px;
   width: 100%;
   height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
-  a {
-    font-size: 14px;
-    line-height: 20px;
-    margin-top: 15px;
-  }
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
     color: #2e3d49;
     margin-top: 5px;
   }
-
   .queryInput {
     max-width: 30%;
     padding-right: 10px;
   }
-  span.bp3-popover-target {
-    display: initial !important;
-  }
-
   .executeOnLoad {
     display: flex;
     justify-content: flex-end;
     margin-top: 10px;
+  }
+`;
+
+const ErrorMessage = styled.p`
+  font-size: 14px;
+  color: ${Colors.RED};
+  display: inline-block;
+  margin-right: 10px;
+`;
+
+const TabbedViewContainer = styled.div`
+  ${ResizerCSS}
+  height: 50%;
+  // Minimum height of bottom tabs as it can be resized
+  min-height: 36px;
+  .react-tabs__tab-panel {
+    overflow: hidden;
+  }
+  .react-tabs__tab-list {
+    margin: 0px;
+  }
+  &&& {
+    ul.react-tabs__tab-list {
+      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      background-color: ${(props) =>
+        props.theme.colors.apiPane.responseBody.bg};
+    }
+    .react-tabs__tab-panel {
+      height: calc(100% - 36px);
+    }
+  }
+  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
+  border-top: 2px solid #e8e8e8;
+`;
+
+const SettingsWrapper = styled.div`
+  padding: 5px 30px;
+  overflow-y: auto;
+  height: 100%;
+`;
+
+const GenerateWidgetButton = styled.a`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 30px;
+  top: 8px;
+  ${(props) => getTypographyByKey(props, "h5")}
+  color: #716e6e;
+  && {
+    margin: 0;
+  }
+  &:hover {
+    text-decoration: none;
+    color: #716e6e;
+  }
+`;
+
+const ResultsCount = styled.div`
+  position: absolute;
+  right: 180px;
+  top: 8px;
+  color: #716e6e;
+`;
+
+const FieldWrapper = styled.div`
+  margin-top: 15px;
+`;
+
+const DocumentationLink = styled.a`
+  position: absolute;
+  right: 23px;
+  top: -6px;
+`;
+
+const SecondaryWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 50px);
+`;
+
+const HelpSection = styled.div``;
+
+const ResponseContentWrapper = styled.div`
+  padding: 10px 15px;
+  overflow-y: auto;
+  height: 100%;
+
+  ${HelpSection} {
+    margin-bottom: 10px;
+  }
+`;
+
+const NoResponseContainer = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  .${Classes.ICON} {
+    margin-right: 0px;
+    svg {
+      width: 150px;
+      height: 150px;
+    }
+  }
+  .${Classes.TEXT} {
+    margin-top: ${(props) => props.theme.spaces[9]}px;
+  }
+`;
+
+const ErrorContainer = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding-top: 10px;
+  flex-direction: column;
+  & > .${Classes.ICON} {
+    margin-right: 0px;
+    svg {
+      width: 75px;
+      height: 75px;
+    }
+  }
+  .${Classes.TEXT} {
+    margin-top: ${(props) => props.theme.spaces[9]}px;
+  }
+`;
+
+const ErrorDescriptionText = styled(Text)`
+  width: 500px;
+  text-align: center;
+  line-height: 25px;
+  letter-spacing: -0.195px;
+`;
+
+const StyledFormRow = styled(FormRow)`
+  padding: 0px 24px;
+  flex: 0;
+`;
+
+const NameWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  input {
+    margin: 0;
+    box-sizing: border-box;
   }
 `;
 
@@ -71,6 +229,42 @@ const ActionsWrapper = styled.div`
   justify-content: flex-end;
 `;
 
+const DropdownSelect = styled.div`
+  font-size: 14px;
+  margin-right: 10px;
+`;
+
+const CreateDatasource = styled.div`
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  border-top: 1px solid ${Colors.ATHENS_GRAY};
+  :hover {
+    cursor: pointer;
+  }
+  .createIcon {
+    margin-right: 6px;
+  }
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  .plugin-image {
+    height: 20px;
+    width: auto;
+  }
+  .selected-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: no-wrap;
+    margin-left: 6px;
+  }
+`;
+
 const ActionButton = styled(BaseButton)`
   &&&& {
     min-width: 72px;
@@ -78,11 +272,6 @@ const ActionButton = styled(BaseButton)`
     margin: 0 5px;
     min-height: 30px;
   }
-`;
-
-const DropdownSelect = styled.div`
-  font-size: 14px;
-  margin-right: 10px;
 `;
 
 const NoDataSourceContainer = styled.div`
@@ -100,83 +289,6 @@ const NoDataSourceContainer = styled.div`
   }
 `;
 
-const TooltipStyles = createGlobalStyle`
- .helper-tooltip{
-  width: 378px;
-  .bp3-popover {
-    height: 137px;
-    max-width: 378px;
-    box-shadow: none;
-    display: inherit !important;
-    .bp3-popover-arrow {
-      display: block;
-      fill: none;
-    }
-    .bp3-popover-arrow-fill {
-      fill:  #23292E;
-    }
-    .bp3-popover-content {
-      padding: 15px;
-      background-color: #23292E;
-      color: #fff;
-      text-align: left;
-      border-radius: 4px;
-      text-transform: initial;
-      font-weight: 500;
-      font-size: 16px;
-      line-height: 20px;
-    }
-    .popoverBtn {
-      float: right;
-      margin-top: 25px;
-    }
-    .popuptext {
-      padding-right: 30px;
-    }
-  }
- }
-`;
-
-const ErrorMessage = styled.p`
-  font-size: 14px;
-  color: ${Colors.RED};
-  display: inline-block;
-  margin-right: 10px;
-`;
-const CreateDatasource = styled.div`
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
-  border-top: 1px solid ${Colors.ATHENS_GRAY};
-  :hover {
-    cursor: pointer;
-  }
-
-  .createIcon {
-    margin-right: 6px;
-  }
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  .plugin-image {
-    height: 20px;
-    width: auto;
-  }
-
-  .selected-value {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: no-wrap;
-    margin-left: 6px;
-  }
-`;
-
 const StyledOpenDocsIcon = styled(Icon)`
   svg {
     width: 12px;
@@ -184,16 +296,14 @@ const StyledOpenDocsIcon = styled(Icon)`
   }
 `;
 
-const NameWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  input {
-    margin: 0;
-    box-sizing: border-box;
-  }
-`;
-
 const TabContainerView = styled.div`
+  flex: 1;
+  overflow: auto;
+  a {
+    font-size: 14px;
+    line-height: 20px;
+    margin-top: 15px;
+  }
   .react-tabs__tab-panel {
     overflow: scroll;
   }
@@ -206,46 +316,7 @@ const TabContainerView = styled.div`
     }
   }
   position: relative;
-  margin-top: 31px;
-  height: calc(100vh - 150px);
 `;
-
-const SettingsWrapper = styled.div`
-  padding: 5px 23px;
-`;
-
-const AddWidgetButton = styled(BaseButton)`
-  &&&& {
-    height: 36px;
-    max-width: 125px;
-    border: 1px solid ${Colors.GEYSER_LIGHT};
-  }
-`;
-
-const OutputHeader = styled.div`
-  flex-direction: row;
-  justify-content: space-between;
-  display: flex;
-  margin: 10px 0px;
-  align-items: center;
-`;
-
-const FieldWrapper = styled.div`
-  margin-top: 15px;
-`;
-
-const StyledFormRow = styled(FormRow)`
-  padding: 0px 24px;
-  flex: 0;
-`;
-
-const DocumentationLink = styled.a`
-  position: absolute;
-  right: 23px;
-  top: -6px;
-`;
-
-const OutputWrapper = styled.div``;
 
 type QueryFormProps = {
   onDeleteClick: () => void;
@@ -258,6 +329,7 @@ type QueryFormProps = {
   executedQueryData?: {
     body: any;
     isExecutionSuccess?: boolean;
+    messages?: Array<string>;
   };
   runErrorMessage: string | undefined;
   location: {
@@ -280,7 +352,7 @@ export type EditorJSONtoFormProps = QueryFormProps & ReduxProps;
 type Props = EditorJSONtoFormProps &
   InjectedFormProps<Action, EditorJSONtoFormProps>;
 
-export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
+export function EditorJSONtoForm(props: Props) {
   const {
     handleSubmit,
     isDeleting,
@@ -302,7 +374,9 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
-  let displayMessage = "";
+  let hintMessages: Array<string> = [];
+  const panelRef: RefObject<HTMLDivElement> = useRef(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
@@ -312,19 +386,9 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
     } else {
       output = executedQueryData.body;
     }
-  }
-
-  // Constructing the header of the response based on the response
-  if (!output) {
-    displayMessage = "No data records to display";
-  } else if (isArray(output)) {
-    // The returned output is an array
-    displayMessage = output.length
-      ? "Query response"
-      : "No data records to display";
-  } else {
-    // Output is a JSON object. We can display a single object
-    displayMessage = "Query response";
+    if (executedQueryData.messages && executedQueryData.messages.length) {
+      hintMessages = executedQueryData.messages;
+    }
   }
 
   const isTableResponse = responseType === "TABLE";
@@ -334,230 +398,278 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
     dispatch(addTableWidgetFromQuery(actionName));
   };
 
-  const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
+  function MenuList(props: MenuListComponentProps<{ children: Node }>) {
     return (
       <>
         <components.MenuList {...props}>{props.children}</components.MenuList>
         <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-          <Icon icon="plus" iconSize={11} className="createIcon" />
+          <Icon className="createIcon" icon="plus" iconSize={11} />
           Create new datasource
         </CreateDatasource>
       </>
     );
-  };
+  }
 
-  const SingleValue = (props: SingleValueProps<OptionTypeBase>) => {
+  function SingleValue(props: SingleValueProps<OptionTypeBase>) {
     return (
-      <>
-        <components.SingleValue {...props}>
-          <Container>
-            <img
-              className="plugin-image"
-              src={props.data.image}
-              alt="Datasource"
-            />
-            <div className="selected-value">{props.children}</div>
-          </Container>
-        </components.SingleValue>
-      </>
+      <components.SingleValue {...props}>
+        <Container>
+          <img
+            alt="Datasource"
+            className="plugin-image"
+            src={props.data.image}
+          />
+          <div className="selected-value">{props.children}</div>
+        </Container>
+      </components.SingleValue>
     );
-  };
+  }
 
-  const CustomOption = (props: OptionProps<OptionTypeBase>) => {
+  function CustomOption(props: OptionProps<OptionTypeBase>) {
     return (
-      <>
-        <components.Option {...props}>
-          <Container className="t--datasource-option">
-            <img
-              className="plugin-image"
-              src={props.data.image}
-              alt="Datasource"
-            />
-            <div style={{ marginLeft: "6px" }}>{props.children}</div>
-          </Container>
-        </components.Option>
-      </>
+      <components.Option {...props}>
+        <Container className="t--datasource-option">
+          <img
+            alt="Datasource"
+            className="plugin-image"
+            src={props.data.image}
+          />
+          <div style={{ marginLeft: "6px" }}>{props.children}</div>
+        </Container>
+      </components.Option>
     );
+  }
+
+  const handleDocumentationClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (props?.documentationLink) {
+      const query = omnibarDocumentationHelper(props.documentationLink);
+      if (query !== "") {
+        dispatch(setGlobalSearchQuery(query));
+      } else {
+        dispatch(setGlobalSearchQuery("Connect to Databases"));
+      }
+      dispatch(toggleShowGlobalSearchModal());
+      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+        source: "DATASOURCE_DOCUMENTATION_CLICK",
+      });
+    }
   };
 
   return (
     <QueryFormContainer onSubmit={handleSubmit}>
       <StyledFormRow>
         <NameWrapper>
+          <CloseEditor />
           <ActionNameEditor />
         </NameWrapper>
         <ActionsWrapper>
           <DropdownSelect>
             <DropdownField
               className={"t--switch-datasource"}
-              placeholder="Datasource"
+              components={{ MenuList, Option: CustomOption, SingleValue }}
+              maxMenuHeight={200}
               name="datasource.id"
               options={DATASOURCES_OPTIONS}
+              placeholder="Datasource"
               width={232}
-              maxMenuHeight={200}
-              components={{ MenuList, Option: CustomOption, SingleValue }}
             />
           </DropdownSelect>
           <ActionButton
-            className="t--delete-query"
-            text="Delete"
             accent="error"
+            className="t--delete-query"
             loading={isDeleting}
             onClick={onDeleteClick}
+            text="Delete"
           />
-          {dataSources.length === 0 ? (
-            <>
-              <TooltipStyles />
-              <Popover
-                autoFocus={true}
-                canEscapeKeyClose={true}
-                content="You don’t have a Data Source to run this query"
-                position="bottom"
-                defaultIsOpen={false}
-                usePortal
-                portalClassName="helper-tooltip"
-              >
-                <ActionButton
-                  className="t--run-query"
-                  text="Run"
-                  filled
-                  loading={isRunning}
-                  accent="primary"
-                  onClick={onRunClick}
-                />
-                <div>
-                  <p className="popuptext">
-                    You don’t have a Data Source to run this query
-                  </p>
-                  <Button
-                    onClick={() => onCreateDatasourceClick()}
-                    text="Add Datasource"
-                    intent="primary"
-                    filled
-                    size="small"
-                    className="popoverBtn"
-                  />
-                </div>
-              </Popover>
-            </>
-          ) : (
-            <OnboardingIndicator
-              step={OnboardingStep.EXAMPLE_DATABASE}
-              width={75}
-            >
-              <ActionButton
-                className="t--run-query"
-                text="Run"
-                filled
-                loading={isRunning}
-                accent="primary"
-                onClick={onRunClick}
-              />
-            </OnboardingIndicator>
-          )}
+
+          <OnboardingIndicator
+            step={OnboardingStep.EXAMPLE_DATABASE}
+            width={75}
+          >
+            <ActionButton
+              accent="primary"
+              className="t--run-query"
+              filled
+              loading={isRunning}
+              onClick={onRunClick}
+              text="Run"
+            />
+          </OnboardingIndicator>
         </ActionsWrapper>
       </StyledFormRow>
-      <TabContainerView>
-        {documentationLink && (
-          <DocumentationLink
-            href={documentationLink}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {"Documentation "}
-            <StyledOpenDocsIcon icon="document-open" />
-          </DocumentationLink>
-        )}
-        <BaseTabbedView
-          tabs={[
-            {
-              key: "query",
-              title: "Query",
-              panelComponent: (
-                <SettingsWrapper>
-                  {editorConfig && editorConfig.length > 0 ? (
-                    editorConfig.map(renderEachConfig(formName))
-                  ) : (
-                    <>
-                      <ErrorMessage>An unexpected error occurred</ErrorMessage>
-                      <Tag
-                        round
-                        intent="warning"
-                        interactive
-                        minimal
-                        onClick={() => window.location.reload()}
-                      >
-                        Refresh
-                      </Tag>
-                    </>
-                  )}
-                  {dataSources.length === 0 && (
-                    <NoDataSourceContainer>
-                      <p className="font18">
-                        Seems like you don’t have any Datasources to create a
-                        query
-                      </p>
-                      <Button
-                        onClick={() => onCreateDatasourceClick()}
-                        text="Add a Datasource"
-                        intent="primary"
-                        filled
-                        size="small"
-                        icon="plus"
-                      />
-                    </NoDataSourceContainer>
-                  )}
+      <SecondaryWrapper>
+        <TabContainerView>
+          {documentationLink && (
+            <DocumentationLink
+              className="t--datasource-documentation-link"
+              onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
+            >
+              {"Documentation "}
+              <StyledOpenDocsIcon icon="document-open" />
+            </DocumentationLink>
+          )}
 
-                  {error && (
-                    <OutputWrapper>
-                      <p className="statementTextArea">Query error</p>
-                      <ErrorMessage>{error}</ErrorMessage>
-                    </OutputWrapper>
-                  )}
+          <BaseTabbedView
+            tabs={[
+              {
+                key: "query",
+                title: "Query",
+                panelComponent: (
+                  <SettingsWrapper>
+                    {editorConfig && editorConfig.length > 0 ? (
+                      editorConfig.map(renderEachConfig(formName))
+                    ) : (
+                      <>
+                        <ErrorMessage>
+                          An unexpected error occurred
+                        </ErrorMessage>
+                        <Tag
+                          intent="warning"
+                          interactive
+                          minimal
+                          onClick={() => window.location.reload()}
+                          round
+                        >
+                          Refresh
+                        </Tag>
+                      </>
+                    )}
+                    {dataSources.length === 0 && (
+                      <NoDataSourceContainer>
+                        <p className="font18">
+                          Seems like you don’t have any Datasources to create a
+                          query
+                        </p>
+                        <Button
+                          filled
+                          icon="plus"
+                          intent="primary"
+                          onClick={() => onCreateDatasourceClick()}
+                          size="small"
+                          text="Add a Datasource"
+                        />
+                      </NoDataSourceContainer>
+                    )}
+                  </SettingsWrapper>
+                ),
+              },
+              {
+                key: "settings",
+                title: "Settings",
+                panelComponent: (
+                  <SettingsWrapper>
+                    <ActionSettings
+                      actionSettingsConfig={settingConfig}
+                      formName={formName}
+                    />
+                  </SettingsWrapper>
+                ),
+              },
+            ]}
+          />
+        </TabContainerView>
 
-                  {!error && output && dataSources.length && (
-                    <OutputWrapper>
-                      <OutputHeader>
-                        <p className="statementTextArea">{displayMessage}</p>
-                        {!!output.length && (
-                          <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-                            <AddWidgetButton
-                              className="t--add-widget"
-                              icon={"plus"}
-                              text="Add Widget"
-                              onClick={onAddWidget}
-                            />
-                          </Boxed>
-                        )}
-                      </OutputHeader>
-                      {isTableResponse ? (
+        <TabbedViewContainer ref={panelRef}>
+          <Resizable panelRef={panelRef} />
+          {output && !!output.length && (
+            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+              <ResultsCount>
+                <Text type={TextType.P3}>
+                  Result:
+                  <Text type={TextType.H5}>{`${output.length} Record${
+                    output.length > 1 ? "s" : ""
+                  }`}</Text>
+                </Text>
+              </ResultsCount>
+              <GenerateWidgetButton
+                className="t--add-widget"
+                onClick={onAddWidget}
+              >
+                <AdsIcon name="plus" />
+                &nbsp;&nbsp;Generate Widget
+              </GenerateWidgetButton>
+            </Boxed>
+          )}
+
+          <TabComponent
+            onSelect={setSelectedIndex}
+            selectedIndex={selectedIndex}
+            tabs={[
+              {
+                key: "Response",
+                title: "Response",
+                panelComponent: (
+                  <ResponseContentWrapper>
+                    {error && (
+                      <ErrorContainer>
+                        <AdsIcon keepColors name="warning-triangle" />
+                        <Text style={{ color: "#F22B2B" }} type={TextType.H3}>
+                          An error occurred
+                        </Text>
+
+                        <ErrorDescriptionText
+                          className="t--query-error"
+                          type={TextType.P1}
+                        >
+                          {error}
+                        </ErrorDescriptionText>
+                        <DebuggerMessage
+                          onClick={() => {
+                            AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+                              source: "QUERY",
+                            });
+                            setSelectedIndex(1);
+                          }}
+                        />
+                      </ErrorContainer>
+                    )}
+                    {hintMessages && hintMessages.length > 0 && (
+                      <HelpSection>
+                        {hintMessages.map((msg, index) => (
+                          <Callout
+                            fill
+                            key={index}
+                            text={msg}
+                            variant={Variant.warning}
+                          />
+                        ))}
+                      </HelpSection>
+                    )}
+                    {output &&
+                      (isTableResponse ? (
                         <Table data={output} />
                       ) : (
                         <JSONViewer src={output} />
-                      )}
-                    </OutputWrapper>
-                  )}
-                </SettingsWrapper>
-              ),
-            },
-            {
-              key: "settings",
-              title: "Settings",
-              panelComponent: (
-                <SettingsWrapper>
-                  <ActionSettings
-                    actionSettingsConfig={settingConfig}
-                    formName={formName}
-                  />
-                </SettingsWrapper>
-              ),
-            },
-          ]}
-        />
-      </TabContainerView>
+                      ))}
+                    {!output && !error && (
+                      <NoResponseContainer>
+                        <AdsIcon name="no-response" />
+                        <Text type={TextType.P1}>
+                          Hit Run to get a Response
+                        </Text>
+                      </NoResponseContainer>
+                    )}
+                  </ResponseContentWrapper>
+                ),
+              },
+              {
+                key: "error-logs",
+                title: "Errors",
+                panelComponent: <ErrorLogs />,
+              },
+              {
+                key: "logs",
+                title: "Logs",
+                panelComponent: <DebuggerLogs searchQuery={actionName} />,
+              },
+            ]}
+          />
+        </TabbedViewContainer>
+      </SecondaryWrapper>
     </QueryFormContainer>
   );
-};
+}
 
 const renderEachConfig = (formName: string) => (section: any): any => {
   return section.children.map((formControlOrSection: ControlProps) => {

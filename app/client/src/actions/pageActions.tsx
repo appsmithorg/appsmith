@@ -3,6 +3,7 @@ import {
   EvaluationReduxAction,
   ReduxAction,
   ReduxActionTypes,
+  ReduxActionWithoutPayload,
   UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -46,18 +47,14 @@ export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
   },
 });
 
-export const fetchPageSuccess = (
-  postEvalActions: ReduxAction<unknown>[],
-): EvaluationReduxAction<unknown> => {
+export const fetchPageSuccess = (): ReduxActionWithoutPayload => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
-    payload: {},
-    postEvalActions,
   };
 };
 
 export const fetchPublishedPageSuccess = (
-  postEvalActions: ReduxAction<unknown>[],
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
   postEvalActions,
@@ -230,12 +227,23 @@ export type WidgetAddChildren = {
   }>;
 };
 
+export type WidgetUpdateProperty = {
+  widgetId: string;
+  propertyPath: string;
+  propertyValue: any;
+};
+
 export const updateWidget = (
   operation: WidgetOperation,
   widgetId: string,
   payload: any,
 ): ReduxAction<
-  WidgetAddChild | WidgetMove | WidgetResize | WidgetDelete | WidgetAddChildren
+  | WidgetAddChild
+  | WidgetMove
+  | WidgetResize
+  | WidgetDelete
+  | WidgetAddChildren
+  | WidgetUpdateProperty
 > => {
   return {
     type: ReduxActionTypes["WIDGET_" + operation],

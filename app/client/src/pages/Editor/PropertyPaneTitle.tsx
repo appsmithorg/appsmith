@@ -159,28 +159,28 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
           <>
             {props.isPanelTitle && (
               <StyledBackIcon
-                onClick={props.onBackClick}
                 className="t--property-pane-back-btn"
+                onClick={props.onBackClick}
               />
             )}
 
             <EditableText
-              valueTransform={
-                !props.isPanelTitle ? removeSpecialChars : undefined
-              }
+              className="t--propery-page-title"
               defaultValue={name}
-              placeholder={props.title}
               editInteractionKind={EditInteractionKind.SINGLE}
+              fill
+              hideEditIcon
               isEditingDefault={!props.isPanelTitle ? isNew : undefined}
               onBlur={!props.isPanelTitle ? updateTitle : undefined}
               onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
-              hideEditIcon
-              className="t--propery-page-title"
+              placeholder={props.title}
               savingState={
                 updating ? SavingState.STARTED : SavingState.NOT_STARTED
               }
-              fill
               underline
+              valueTransform={
+                !props.isPanelTitle ? removeSpecialChars : undefined
+              }
             />
           </>
         </NameWrapper>

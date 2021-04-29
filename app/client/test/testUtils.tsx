@@ -7,6 +7,8 @@ import { getCurrentThemeDetails } from "../src/selectors/themeSelectors";
 import * as customQueries from "./customQueries";
 import { BrowserRouter } from "react-router-dom";
 import { AppState } from "reducers";
+import { DndProvider } from "react-dnd";
+import TouchBackend from "react-dnd-touch-backend";
 
 const customRender = (
   ui: ReactElement,
@@ -25,7 +27,14 @@ const customRender = (
   return render(
     <BrowserRouter>
       <Provider store={reduxStore}>
-        <ThemeProvider theme={defaultTheme}>{ui}</ThemeProvider>
+        <DndProvider
+          backend={TouchBackend}
+          options={{
+            enableMouseEvents: true,
+          }}
+        >
+          <ThemeProvider theme={defaultTheme}>{ui}</ThemeProvider>
+        </DndProvider>
       </Provider>
     </BrowserRouter>,
     {

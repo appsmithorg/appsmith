@@ -38,7 +38,7 @@ interface IconTabsComponentProps {
   selectOption: (value: string) => void;
 }
 
-const IconTabsComponent = (props: IconTabsComponentProps) => {
+function IconTabsComponent(props: IconTabsComponentProps) {
   return (
     <FlexWrapper>
       {props.options.map((option: IconTabOption, index: number) => {
@@ -47,17 +47,17 @@ const IconTabsComponent = (props: IconTabsComponentProps) => {
         const isSelected = props.value === option.value;
         return (
           <ItemWrapper
-            key={index}
-            selected={isSelected}
-            onClick={() => props.selectOption(option.value)}
             className={`t--icon-tab-${option.value}`}
+            key={index}
+            onClick={() => props.selectOption(option.value)}
+            selected={isSelected}
           >
-            <ControlIcon width={24} height={24} />
+            <ControlIcon height={24} width={24} />
           </ItemWrapper>
         );
       })}
     </FlexWrapper>
   );
-};
+}
 
 export default IconTabsComponent;

@@ -93,14 +93,14 @@ const EmptyColorIconWrapper = styled.div`
   }
 `;
 
-const ColorBoard = (props: ColorBoardProps) => {
+function ColorBoard(props: ColorBoardProps) {
   return (
     <ColorsWrapper>
       {defaultColors.map((color: string, index: number) => (
         <ColorTab
-          key={index}
-          color={color}
           className={Classes.POPOVER_DISMISS}
+          color={color}
+          key={index}
           onClick={() => props.selectColor(color)}
         >
           {props.selectedColor === color && <CheckedIcon />}
@@ -113,7 +113,7 @@ const ColorBoard = (props: ColorBoardProps) => {
       </EmptyColorIconWrapper>
     </ColorsWrapper>
   );
-};
+}
 
 const NoColorIconWrapper = styled.div`
   position: absolute;
@@ -148,7 +148,7 @@ interface ColorPickerProps {
   changeColor: (color: string) => void;
 }
 
-const ColorPickerComponent = (props: ColorPickerProps) => {
+function ColorPickerComponent(props: ColorPickerProps) {
   const [color, setColor] = React.useState(props.color);
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 500),
@@ -161,16 +161,16 @@ const ColorPickerComponent = (props: ColorPickerProps) => {
   };
   return (
     <Popover
-      minimal
-      usePortal
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
-      position={Position.BOTTOM}
+      minimal
       modifiers={{
         offset: {
           offset: "0, 24px",
         },
       }}
+      position={Position.BOTTOM}
+      usePortal
     >
       <StyledInputGroup
         leftIcon={
@@ -189,14 +189,14 @@ const ColorPickerComponent = (props: ColorPickerProps) => {
         value={color}
       />
       <ColorBoard
-        selectedColor={color}
         selectColor={(color) => {
           setColor(color);
           props.changeColor(color);
         }}
+        selectedColor={color}
       />
     </Popover>
   );
-};
+}
 
 export default ColorPickerComponent;

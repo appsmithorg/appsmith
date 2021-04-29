@@ -14,7 +14,7 @@ import { useSelector } from "store";
 import { getOnboardingWelcomeState } from "utils/storage";
 import OnboardingHelper from "./Helper";
 
-const WelcomeHelper = () => {
+function WelcomeHelper() {
   const [showHelper, setShowHelper] = useState(false);
   const currentUser = useSelector(getCurrentUser);
   const showWelcomeHelper = useSelector(
@@ -43,6 +43,6 @@ const WelcomeHelper = () => {
   if (!showHelper) return null;
 
   return <OnboardingHelper />;
-};
+}
 
 export default WelcomeHelper;

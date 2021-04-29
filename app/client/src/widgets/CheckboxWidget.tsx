@@ -126,21 +126,22 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getPageView() {
     return (
       <CheckboxComponent
-        isRequired={this.props.isRequired}
-        isChecked={!!this.props.isChecked}
         alignWidget={this.props.alignWidget}
-        label={this.props.label}
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
+        isChecked={!!this.props.isChecked}
         isDisabled={this.props.isDisabled}
-        onCheckChange={this.onCheckChange}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
+        key={this.props.widgetId}
+        label={this.props.label}
+        onCheckChange={this.onCheckChange}
+        widgetId={this.props.widgetId}
       />
     );
   }
 
   onCheckChange = (isChecked: boolean) => {
     this.props.updateWidgetMetaProperty("isChecked", isChecked, {
+      triggerPropertyName: "onCheckChange",
       dynamicString: this.props.onCheckChange,
       event: {
         type: EventType.ON_CHECK_CHANGE,

@@ -1,10 +1,10 @@
-import _, { isString } from "lodash";
+import _, { get } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "configs";
-import { ChartData, ChartDataPoint, ChartType } from "widgets/ChartWidget";
+import { AllChartData, ChartDataPoint, ChartType } from "widgets/ChartWidget";
 import log from "loglevel";
 
 export interface CustomFusionChartConfig {
@@ -43,7 +43,7 @@ FusionCharts.options.license({
 
 export interface ChartComponentProps {
   chartType: ChartType;
-  chartData: ChartData[];
+  chartData: AllChartData;
   customFusionChartConfig: CustomFusionChartConfig;
   xAxisName: string;
   yAxisName: string;
@@ -73,7 +73,8 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartType = () => {
     const { chartType, allowHorizontalScroll, chartData } = this.props;
-    const isMSChart = chartData.length > 1;
+    const dataLength = Object.keys(chartData).length;
+    const isMSChart = dataLength > 1;
     switch (chartType) {
       case "PIE_CHART":
         return "pie2d";
@@ -107,9 +108,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartData = () => {
-    const chartData: ChartData[] = this.props.chartData;
+    const chartData: AllChartData = this.props.chartData;
+    const dataLength = Object.keys(chartData).length;
 
-    if (chartData.length === 0) {
+    // if datalength is zero, just pass a empty datum
+    if (dataLength === 0) {
       return [
         {
           label: "",
@@ -118,14 +121,13 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       ];
     }
 
-    let data: ChartDataPoint[] = chartData[0].data;
-    if (isString(chartData[0].data)) {
-      try {
-        data = JSON.parse(chartData[0].data);
-      } catch (e) {
-        data = [];
-      }
+    const firstKey = Object.keys(chartData)[0] as string;
+    let data = get(chartData, `${firstKey}.data`, []) as ChartDataPoint[];
+
+    if (!Array.isArray(data)) {
+      data = [];
     }
+
     if (data.length === 0) {
       return [
         {
@@ -134,6 +136,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ];
     }
+
     return data.map((item) => {
       return {
         label: item.x,
@@ -142,22 +145,30 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     });
   };
 
-  getChartCategoriesMutliSeries = (chartData: ChartData[]) => {
+  getChartCategoriesMutliSeries = (chartData: AllChartData) => {
     const categories: string[] = [];
-    for (let index = 0; index < chartData.length; index++) {
-      const data: ChartDataPoint[] = chartData[index].data;
+
+    Object.keys(chartData).forEach((key: string) => {
+      let data = get(chartData, `${key}.data`, []) as ChartDataPoint[];
+
+      if (!Array.isArray(data)) {
+        data = [];
+      }
+
       for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
         const category = data[dataIndex].x;
         if (!categories.includes(category)) {
           categories.push(category);
         }
       }
-    }
+    });
+
     return categories;
   };
 
-  getChartCategories = (chartData: ChartData[]) => {
+  getChartCategories = (chartData: AllChartData) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
+
     if (categories.length === 0) {
       return [
         {
@@ -192,9 +203,18 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     });
   };
 
-  getChartDataset = (chartData: ChartData[]) => {
+  /**
+   * creates dataset need by fusion chart  from widget object-data
+   *
+   * @param chartData
+   * @returns
+   */
+  getChartDataset = (chartData: AllChartData) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
-    return chartData.map((item: ChartData) => {
+
+    const dataset = Object.keys(chartData).map((key: string) => {
+      const item = get(chartData, `${key}`);
+
       const seriesChartData: Array<Record<
         string,
         unknown
@@ -204,6 +224,8 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         data: seriesChartData,
       };
     });
+
+    return dataset;
   };
 
   getChartConfig = () => {
@@ -219,10 +241,9 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartDataSource = () => {
-    if (
-      this.props.chartData.length <= 1 ||
-      this.props.chartType === "PIE_CHART"
-    ) {
+    const dataLength = Object.keys(this.props.chartData).length;
+
+    if (dataLength <= 1 || this.props.chartType === "PIE_CHART") {
       return {
         chart: this.getChartConfig(),
         data: this.getChartData(),

@@ -34,7 +34,7 @@ class ContainerWidget extends BaseWidget<
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "backgroundColor",
             label: "Background Color",
-            controlType: "INPUT_TEXT",
+            controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.TEXT,

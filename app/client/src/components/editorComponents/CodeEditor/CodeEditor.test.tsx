@@ -22,18 +22,18 @@ describe("CodeEditor", () => {
       <Provider store={store}>
         <ThemeProvider theme={finalTheme}>
           <CodeEditor
+            additionalDynamicData={{}}
+            hideEvaluatedValue={false}
             input={{
               value: "",
               onChange: () => {
                 //
               },
             }}
-            hideEvaluatedValue={false}
-            additionalDynamicData={{}}
             mode={EditorModes.TEXT}
-            theme={EditorTheme.LIGHT}
             size={EditorSize.COMPACT}
             tabBehaviour={TabBehaviour.INDENT}
+            theme={EditorTheme.LIGHT}
           />
         </ThemeProvider>
       </Provider>,
@@ -52,18 +52,18 @@ describe("CodeEditor", () => {
       <Provider store={store}>
         <ThemeProvider theme={finalTheme}>
           <CodeEditor
+            additionalDynamicData={{}}
+            hideEvaluatedValue
             input={{
               value: "",
               onChange: () => {
                 //
               },
             }}
-            hideEvaluatedValue={true}
-            additionalDynamicData={{}}
             mode={EditorModes.TEXT}
-            theme={EditorTheme.LIGHT}
             size={EditorSize.COMPACT}
             tabBehaviour={TabBehaviour.INDENT}
+            theme={EditorTheme.LIGHT}
           />
         </ThemeProvider>
       </Provider>,

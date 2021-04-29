@@ -28,12 +28,12 @@ export const generatePropertyControl = (
       const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
         <PropertySection
-          key={config.id + props.id}
-          id={config.id || sectionConfig.sectionName}
-          name={sectionConfig.sectionName}
           hidden={sectionConfig.hidden}
-          propertyPath={sectionConfig.propertySectionPath}
+          id={config.id || sectionConfig.sectionName}
           isDefaultOpen
+          key={config.id + props.id}
+          name={sectionConfig.sectionName}
+          propertyPath={sectionConfig.propertySectionPath}
         >
           {config.children && generatePropertyControl(config.children, props)}
         </PropertySection>
@@ -52,15 +52,15 @@ export const generatePropertyControl = (
   });
 };
 
-export const PropertyControlsGenerator = (
+export function PropertyControlsGenerator(
   props: PropertyControlsGeneratorProps,
-) => {
+) {
   const config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
   return (
     <>
       {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
     </>
   );
-};
+}
 
 export default PropertyControlsGenerator;
