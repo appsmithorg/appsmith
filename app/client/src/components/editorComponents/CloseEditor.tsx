@@ -35,7 +35,7 @@ const IconContainer = styled.div`
   }
 `;
 
-const CloseEditor = () => {
+function CloseEditor() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
 
@@ -51,24 +51,24 @@ const CloseEditor = () => {
 
   return (
     <TooltipComponent
-      minimal
-      position={Position.BOTTOM_LEFT}
       content={
-        <Text type={TextType.P3} style={{ color: "#ffffff" }}>
+        <Text style={{ color: "#ffffff" }} type={TextType.P3}>
           Close
         </Text>
       }
       minWidth="auto !important"
+      minimal
+      position={Position.BOTTOM_LEFT}
     >
       <IconContainer onClick={handleClose}>
         <Icon
+          className="close-modal-icon"
           name="close-modal"
           size={IconSize.LARGE}
-          className="close-modal-icon"
         />
       </IconContainer>
     </TooltipComponent>
   );
-};
+}
 
 export default CloseEditor;

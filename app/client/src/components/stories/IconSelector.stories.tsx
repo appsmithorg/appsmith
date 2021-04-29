@@ -12,27 +12,29 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-export const IconPicker = () => (
-  <StoryWrapper>
-    <IconSelector
-      onSelect={action("icon-selected")}
-      fill={boolean("fill", false)}
-      selectedIcon={select("select icon", AppIconCollection, "bag")}
-      selectedColor={select(
-        "select color",
-        [
-          "#4F70FD",
+export function IconPicker() {
+  return (
+    <StoryWrapper>
+      <IconSelector
+        fill={boolean("fill", false)}
+        onSelect={action("icon-selected")}
+        selectedColor={select(
+          "select color",
+          [
+            "#4F70FD",
+            "#54A9FB",
+            "#5ED3DA",
+            "#F56AF4",
+            "#F36380",
+            "#FE9F44",
+            "#E9C951",
+            "#A8D76C",
+            "#6C4CF1",
+          ],
           "#54A9FB",
-          "#5ED3DA",
-          "#F56AF4",
-          "#F36380",
-          "#FE9F44",
-          "#E9C951",
-          "#A8D76C",
-          "#6C4CF1",
-        ],
-        "#54A9FB",
-      )}
-    />
-  </StoryWrapper>
-);
+        )}
+        selectedIcon={select("select icon", AppIconCollection, "bag")}
+      />
+    </StoryWrapper>
+  );
+}

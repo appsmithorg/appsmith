@@ -158,7 +158,7 @@ export function CloudinaryUploader(
     });
 }
 
-const FilePickerComponent = (props: FilePickerProps) => {
+function FilePickerComponent(props: FilePickerProps) {
   const { logoUploadError } = props;
   const [fileInfo, setFileInfo] = useState<{ name: string; size: number }>({
     name: "",
@@ -293,64 +293,64 @@ const FilePickerComponent = (props: FilePickerProps) => {
 
   return (
     <ContainerDiv
-      isActive={isActive}
       canDrop={canDrop}
+      isActive={isActive}
       isUploaded={isUploaded}
       ref={drop}
     >
-      <div ref={bgRef} className="bg-image">
+      <div className="bg-image" ref={bgRef}>
         <div className="button-wrapper" ref={fileContainerRef}>
           <UploadIcon />
-          <Text type={TextType.P2} className="drag-drop-text">
+          <Text className="drag-drop-text" type={TextType.P2}>
             Drag & Drop files to upload or
           </Text>
           <form>
             <input
-              type="file"
+              accept=".jpeg,.png,.svg"
               id="fileInput"
               multiple={false}
-              ref={inputRef}
-              accept=".jpeg,.png,.svg"
-              value={""}
               onChange={(el) => handleFileUpload(el.target.files)}
+              ref={inputRef}
+              type="file"
+              value={""}
             />
             <Button
-              text="Browse"
               category={Category.tertiary}
-              size={Size.medium}
               onClick={(el) => ButtonClick(el)}
+              size={Size.medium}
+              text="Browse"
             />
           </form>
         </div>
-        <div className="file-description" ref={fileDescRef} id="fileDesc">
+        <div className="file-description" id="fileDesc" ref={fileDescRef}>
           <div className="file-spec">
             <Text type={TextType.H6}>{fileInfo.name}</Text>
             <Text type={TextType.H6}>{fileInfo.size}KB</Text>
           </div>
           <div className="progress-container">
-            <div className="progress-inner" ref={progressRef}></div>
+            <div className="progress-inner" ref={progressRef} />
           </div>
         </div>
       </div>
       <div className="remove-button">
         <Button
-          text="remove"
-          icon="delete"
-          size={Size.medium}
           category={Category.tertiary}
+          icon="delete"
           onClick={() => removeFile()}
+          size={Size.medium}
+          text="remove"
         />
       </div>
     </ContainerDiv>
   );
-};
+}
 
-const FilePicker = (props: FilePickerProps) => {
+function FilePicker(props: FilePickerProps) {
   return (
     <DndProvider backend={HTML5Backend}>
       <FilePickerComponent {...props} />
     </DndProvider>
   );
-};
+}
 
 export default FilePicker;

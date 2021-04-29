@@ -50,7 +50,7 @@ const useListenToChange = (modalOpen: boolean) => {
   return listenToChange;
 };
 
-const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
+function SearchBox({ query, setQuery }: SearchBoxProps) {
   const { modalOpen } = useSelector((state: AppState) => state.ui.globalSearch);
   const listenToChange = useListenToChange(modalOpen);
 
@@ -67,23 +67,23 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
     <Container>
       <InputContainer>
         <input
-          value={query}
-          onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           autoFocus
+          className="t--global-search-input"
+          onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           onKeyDown={handleKeyDown}
           placeholder={createMessage(OMNIBAR_PLACEHOLDER)}
-          className="t--global-search-input"
+          value={query}
         />
         {query && (
           <Icon
-            name="close"
             className="t--global-clear-input"
+            name="close"
             onClick={() => updateSearchQuery("")}
           />
         )}
       </InputContainer>
     </Container>
   );
-};
+}
 
 export default connectSearchBox<SearchBoxProps>(SearchBox);

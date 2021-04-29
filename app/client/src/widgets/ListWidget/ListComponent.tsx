@@ -32,7 +32,7 @@ const ScrollableCanvasWrapper = styled.div<
   height: 100%;
 `;
 
-const ListComponent = (props: GridComponentProps) => {
+function ListComponent(props: GridComponentProps) {
   // using memoized class name
   const scrollableCanvasClassName = useMemo(() => {
     return `${
@@ -47,7 +47,7 @@ const ListComponent = (props: GridComponentProps) => {
       </ScrollableCanvasWrapper>
     </GridContainer>
   );
-};
+}
 
 export const ListComponentEmpty = styled.div`
   height: 100%;

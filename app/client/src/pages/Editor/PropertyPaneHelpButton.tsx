@@ -32,10 +32,10 @@ const PropertyPaneHelpButton = withTheme(({ theme }: Props) => {
 
   return (
     <Icon
-      onClick={openHelpModal}
       color={theme.colors.paneSectionLabel}
       icon="help"
       iconSize={16}
+      onClick={openHelpModal}
     />
   );
 });
