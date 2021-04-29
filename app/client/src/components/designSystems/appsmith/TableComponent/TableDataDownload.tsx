@@ -121,23 +121,19 @@ function TableDataDownload(props: TableDataDownloadProps) {
   };
   const downloadTableDataAsExcel = () => {
     const tableData: Array<Array<DataCellProps>> = [];
-    const tableHeaders: Array<{
-      value: string | number;
-      type: string;
-    }> = props.columns
-      .map((column: ReactTableColumnProps) => {
-        if (column.metaProperties && !column.metaProperties.isHidden) {
-          return {
-            value: column.Header,
-            type:
-              column.columnProperties?.columnType === "number"
-                ? "number"
-                : "string",
-          };
-        }
-        return null;
+    const tableHeaders: Array<DataCellProps> = props.columns
+      .filter((column: ReactTableColumnProps) => {
+        return column.metaProperties && !column.metaProperties.isHidden;
       })
-      .filter((i) => !!i);
+      .map((column: ReactTableColumnProps) => {
+        return {
+          value: column.Header,
+          type:
+            column.columnProperties?.columnType === "number"
+              ? "number"
+              : "string",
+        };
+      });
     tableData.push(tableHeaders);
     for (let row = 0; row < props.data.length; row++) {
       const data: { [key: string]: any } = props.data[row];
