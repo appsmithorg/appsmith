@@ -277,6 +277,16 @@ function ApiResponseView(props: Props) {
                   </Text>
                 </Flex>
               )}
+              {!_.isEmpty(response.body) && Array.isArray(response.body) && (
+                <Flex>
+                  <Text type={TextType.P3}>Result: </Text>
+                  <Text type={TextType.H5}>
+                    {`${response.body.length} Record${
+                      response.body.length > 1 ? "s" : ""
+                    }`}
+                  </Text>
+                </Flex>
+              )}
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}

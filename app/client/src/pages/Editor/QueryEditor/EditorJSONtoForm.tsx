@@ -127,6 +127,13 @@ const GenerateWidgetButton = styled.a`
   }
 `;
 
+const ResultsCount = styled.div`
+  position: absolute;
+  right: 180px;
+  top: 8px;
+  color: #716e6e;
+`;
+
 const FieldWrapper = styled.div`
   margin-top: 15px;
 `;
@@ -567,6 +574,14 @@ export function EditorJSONtoForm(props: Props) {
           <Resizable panelRef={panelRef} />
           {output && !!output.length && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+              <ResultsCount>
+                <Text type={TextType.P3}>
+                  Result:
+                  <Text type={TextType.H5}>{`${output.length} Record${
+                    output.length > 1 ? "s" : ""
+                  }`}</Text>
+                </Text>
+              </ResultsCount>
               <GenerateWidgetButton
                 className="t--add-widget"
                 onClick={onAddWidget}
