@@ -143,28 +143,28 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         <br />
         <Header>
           <FormTitleContainer>
-            <PluginImage src={this.props.pluginImage} alt="Datasource" />
+            <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
           {viewMode && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
               <ActionButton
-                className="t--edit-datasource"
-                text="EDIT"
                 accent="secondary"
+                className="t--edit-datasource"
                 onClick={() => {
                   this.props.setDatasourceEditorMode(
                     this.props.datasourceId,
                     false,
                   );
                 }}
+                text="EDIT"
               />
             </Boxed>
           )}
         </Header>
         {messages &&
           messages.map((msg, i) => (
-            <Callout text={msg} variant={Variant.warning} fill key={i} />
+            <Callout fill key={i} text={msg} variant={Variant.warning} />
           ))}
         {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>
@@ -186,29 +186,29 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               : undefined}
             <SaveButtonContainer>
               <ActionButton
-                className="t--delete-datasource"
-                text="Delete"
                 accent="error"
+                className="t--delete-datasource"
                 loading={isDeleting}
                 onClick={() => handleDelete(datasourceId)}
+                text="Delete"
               />
 
               <ActionButton
-                className="t--test-datasource"
-                text="Test"
-                loading={isTesting}
                 accent="secondary"
+                className="t--test-datasource"
+                loading={isTesting}
                 onClick={this.test}
+                text="Test"
               />
               <StyledButton
                 className="t--save-datasource"
-                onClick={this.save}
-                text="Save"
                 disabled={this.validate()}
-                loading={isSaving}
-                intent="primary"
                 filled
+                intent="primary"
+                loading={isSaving}
+                onClick={this.save}
                 size="small"
+                text="Save"
               />
             </SaveButtonContainer>
           </>

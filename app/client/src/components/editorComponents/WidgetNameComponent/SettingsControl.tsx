@@ -89,11 +89,9 @@ const getStyles = (
   }
 };
 
-export const SettingsControl = (props: SettingsControlProps) => {
+export function SettingsControl(props: SettingsControlProps) {
   const settingsIcon = (
     <SettingsIcon
-      width={12}
-      height={14}
       color={
         !!props.errorCount
           ? Colors.WHITE
@@ -101,26 +99,28 @@ export const SettingsControl = (props: SettingsControlProps) => {
           ? Colors.BLACK_PEARL
           : Colors.WHITE
       }
+      height={14}
+      width={12}
     />
   );
   const errorIcon = (
     <StyledErrorIcon
+      fillColor={Colors.WHITE}
       name="warning"
       size={IconSize.SMALL}
-      fillColor={Colors.WHITE}
     />
   );
 
   return (
     <StyledTooltip
       content="Edit widget properties"
-      position="top-right"
       hoverOpenDelay={500}
+      position="top-right"
     >
       <SettingsWrapper
-        style={getStyles(props.activity, props.errorCount)}
-        onClick={props.toggleSettings}
         className="t--widget-propertypane-toggle"
+        onClick={props.toggleSettings}
+        style={getStyles(props.activity, props.errorCount)}
       >
         {!!props.errorCount && (
           <>
@@ -133,6 +133,6 @@ export const SettingsControl = (props: SettingsControlProps) => {
       </SettingsWrapper>
     </StyledTooltip>
   );
-};
+}
 
 export default SettingsControl;

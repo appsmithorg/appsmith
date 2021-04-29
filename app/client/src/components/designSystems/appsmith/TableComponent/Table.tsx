@@ -62,7 +62,7 @@ const defaultColumn = {
   width: 150,
 };
 
-export const Table = (props: TableProps) => {
+export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
   const tableWrapperRef = React.useRef<HTMLDivElement>(null);
 
@@ -142,45 +142,45 @@ export const Table = (props: TableProps) => {
   /* Subtracting 9px to handling widget padding */
   return (
     <TableWrapper
-      width={props.width}
-      height={props.height}
-      tableSizes={tableSizes}
-      id={`table${props.widgetId}`}
-      triggerRowSelection={props.triggerRowSelection}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
+      height={props.height}
+      id={`table${props.widgetId}`}
       ref={tableWrapperRef}
+      tableSizes={tableSizes}
+      triggerRowSelection={props.triggerRowSelection}
+      width={props.width}
     >
       <TableHeader
-        width={props.width}
-        tableData={props.data}
-        tableColumns={props.columns}
-        searchTableData={props.searchTableData}
-        searchKey={props.searchKey}
-        updatePageNo={props.updatePageNo}
-        nextPageClick={props.nextPageClick}
-        prevPageClick={props.prevPageClick}
-        pageNo={props.pageNo}
-        pageCount={pageCount}
-        currentPageIndex={currentPageIndex}
-        pageOptions={pageOptions}
-        widgetName={props.widgetName}
-        serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+        applyFilter={props.applyFilter}
         columns={props.columns.filter((column: ReactTableColumnProps) => {
           return column.accessor !== "actions";
         })}
-        filters={props.filters}
-        applyFilter={props.applyFilter}
-        editMode={props.editMode}
         compactMode={props.compactMode}
-        updateCompactMode={props.updateCompactMode}
+        currentPageIndex={currentPageIndex}
+        editMode={props.editMode}
+        filters={props.filters}
+        nextPageClick={props.nextPageClick}
+        pageCount={pageCount}
+        pageNo={props.pageNo}
+        pageOptions={pageOptions}
+        prevPageClick={props.prevPageClick}
+        searchKey={props.searchKey}
+        searchTableData={props.searchTableData}
+        serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+        tableColumns={props.columns}
+        tableData={props.data}
         tableSizes={tableSizes}
+        updateCompactMode={props.updateCompactMode}
+        updatePageNo={props.updatePageNo}
+        widgetName={props.widgetName}
+        width={props.width}
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">
           <div
-            onMouseOver={props.disableDrag}
-            onMouseLeave={props.enableDrag}
             className="thead"
+            onMouseLeave={props.enableDrag}
+            onMouseOver={props.disableDrag}
           >
             {headerGroups.map((headerGroup: any, index: number) => (
               <div
@@ -191,14 +191,14 @@ export const Table = (props: TableProps) => {
                 {headerGroup.headers.map((column: any, columnIndex: number) => {
                   return (
                     <TableHeaderCell
-                      key={columnIndex}
                       column={column}
-                      columnName={column.Header}
                       columnIndex={columnIndex}
-                      isHidden={column.isHidden}
-                      sortTableColumn={props.sortTableColumn}
+                      columnName={column.Header}
                       isAscOrder={column.isAscOrder}
+                      isHidden={column.isHidden}
                       isResizingColumn={isResizingColumn.current}
+                      key={columnIndex}
+                      sortTableColumn={props.sortTableColumn}
                     />
                   );
                 })}
@@ -233,20 +233,20 @@ export const Table = (props: TableProps) => {
                         : ""
                     }`
                   }
+                  key={rowIndex}
                   onClick={() => {
                     row.toggleRowSelected();
                     props.selectTableRow(row);
                   }}
-                  key={rowIndex}
                 >
                   {row.cells.map((cell, cellIndex) => {
                     return (
                       <div
                         {...cell.getCellProps()}
                         className="td"
-                        key={cellIndex}
-                        data-rowindex={rowIndex}
                         data-colindex={cellIndex}
+                        data-rowindex={rowIndex}
+                        key={cellIndex}
                       >
                         {cell.render("Cell")}
                       </div>
@@ -269,6 +269,6 @@ export const Table = (props: TableProps) => {
       <ScrollIndicator containerRef={tableWrapperRef} mode="LIGHT" />
     </TableWrapper>
   );
-};
+}
 
 export default Table;

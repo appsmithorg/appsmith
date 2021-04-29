@@ -26,7 +26,7 @@ import AppErrorBoundary from "./AppErrorBoundry";
 import GlobalStyles from "globalStyles";
 appInitializer();
 
-const App = () => {
+function App() {
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
       <Provider store={store}>
@@ -36,7 +36,7 @@ const App = () => {
       </Provider>
     </Sentry.ErrorBoundary>
   );
-};
+}
 
 class ThemedApp extends React.Component<{
   currentTheme: any;
@@ -51,12 +51,12 @@ class ThemedApp extends React.Component<{
     return (
       <ThemeProvider theme={this.props.currentTheme}>
         <StyledToastContainer
-          hideProgressBar
-          draggable={false}
-          transition={Slide}
           autoClose={5000}
           closeButton={false}
+          draggable={false}
+          hideProgressBar
           pauseOnHover={false}
+          transition={Slide}
         />
         <GlobalStyles />
         <AppErrorBoundary>

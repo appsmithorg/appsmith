@@ -14,14 +14,14 @@ class CustomFusionChartControl extends InputTextControl {
     } = this.props;
     return (
       <InputText
-        label={label}
-        value={propertyValue}
-        onChange={this.onTextChange}
-        isValid={isValid}
+        dataTreePath={dataTreePath}
         errorMessage={validationMessage}
         expected={expected}
+        isValid={isValid}
+        label={label}
+        onChange={this.onTextChange}
         placeholder={placeholderText}
-        dataTreePath={dataTreePath}
+        value={propertyValue}
       />
     );
   }

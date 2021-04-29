@@ -44,7 +44,7 @@ type WidgetNameComponentProps = {
   errorCount: number;
 };
 
-export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
+export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const showPropertyPane = useShowPropertyPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
@@ -111,14 +111,14 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
     <PositionStyle data-testid="t--settings-controls-positioned-wrapper">
       <ControlGroup>
         <SettingsControl
-          toggleSettings={togglePropertyEditor}
           activity={currentActivity}
-          name={props.widgetName}
           errorCount={props.errorCount}
+          name={props.widgetName}
+          toggleSettings={togglePropertyEditor}
         />
       </ControlGroup>
     </PositionStyle>
   ) : null;
-};
+}
 
 export default WidgetNameComponent;

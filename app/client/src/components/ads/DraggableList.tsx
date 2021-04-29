@@ -59,7 +59,7 @@ const DraggableListWrapper = styled.div`
   }
 `;
 
-const DraggableList = ({ items, ItemRenderer, onUpdate, itemHeight }: any) => {
+function DraggableList({ items, ItemRenderer, onUpdate, itemHeight }: any) {
   // order of items in the list
   const order = useRef<any>(items.map((_: any, index: any) => index));
 
@@ -111,12 +111,12 @@ const DraggableList = ({ items, ItemRenderer, onUpdate, itemHeight }: any) => {
   });
   return (
     <DraggableListWrapper
+      className="content"
       onMouseDown={() => {
         // set events to null to stop other parent draggable elements execution(ex: Property pane)
         document.onmouseup = null;
         document.onmousemove = null;
       }}
-      className="content"
       style={{ height: items.length * itemHeight }}
     >
       {springs.map(({ zIndex, y, scale }, i) => (
@@ -134,13 +134,13 @@ const DraggableList = ({ items, ItemRenderer, onUpdate, itemHeight }: any) => {
           }}
         >
           <div>
-            <ItemRenderer item={items[i]} index={i} />
+            <ItemRenderer index={i} item={items[i]} />
           </div>
         </animated.div>
       ))}
     </DraggableListWrapper>
   );
-};
+}
 DraggableList.displayName = "DraggableList";
 
 export default DraggableList;
