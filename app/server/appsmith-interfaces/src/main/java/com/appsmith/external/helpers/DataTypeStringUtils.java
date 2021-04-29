@@ -286,14 +286,16 @@ public class DataTypeStringUtils {
 
     private static boolean isDisplayTypeTable(Object data) {
         if (data instanceof List) {
-            // Check if the object is a list of simple json objects i.e. all values in the key value pairs are String.
+            // Check if the data is a list of simple json objects i.e. all values in the key value pairs are simple
+            // objects or their wrappers.
             return ((List)data).stream()
                     .allMatch(item -> item instanceof Map
                             && ((Map)item).entrySet().stream()
-                            .allMatch(e -> isPrimitiveType(((Map.Entry)e).getValue())));
+                            .allMatch(e -> ((Map.Entry)e).getValue() == null ||
+                            isPrimitiveOrWrapper(((Map.Entry)e).getValue().getClass())));
         }
         else if (data instanceof JsonNode) {
-            // Check if the object is an array of simple json objects i.e. all values in the key value pairs are String.
+            // Check if the data is an array of simple json objects
             try {
                 objectMapper.convertValue(data, new TypeReference<List<Map<String, String>>>() {});
                 return true;
@@ -302,7 +304,7 @@ public class DataTypeStringUtils {
             }
         }
         else if (data instanceof String) {
-            // Check if the object is an array of simple json objects i.e. all values in the key value pairs are String.
+            // Check if the data is an array of simple json objects
             try {
                 objectMapper.readValue((String)data, new TypeReference<List<Map<String, String>>>() {});
                 return true;
@@ -314,19 +316,12 @@ public class DataTypeStringUtils {
         return false;
     }
 
-    private static boolean isPrimitiveType(Object data) {
-        // https://stackoverflow.com/questions/25039080/
-        // java-how-to-determine-if-type-is-any-of-primitive-wrapper-string-or-something/25039320
-        if (isPrimitiveOrWrapper(data.getClass())) {
-            return true;
-        }
-
-        return false;
-    }
-
     private static boolean isDisplayTypeJson(Object data) {
-        // Any non string non primitive object is converted into a json when serializing.
-        if (!isPrimitiveType(data) && !(data instanceof String)) {
+        /*
+         * - Any non string non primitive object is converted into a json when serializing.
+         * - https://stackoverflow.com/questions/25039080/java-how-to-determine-if-type-is-any-of-primitive-wrapper-string-or-something/25039320
+         */
+        if (!isPrimitiveOrWrapper(data.getClass()) && !(data instanceof String)) {
             return true;
         }
         else if (data instanceof String) {
