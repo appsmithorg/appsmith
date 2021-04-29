@@ -63,7 +63,7 @@ describe("Image Widget Functionality", function() {
   it("Image Widget Functionality To Validate Image", function() {
     cy.get(publish.imageWidget + " " + "img")
       .invoke("attr", "src")
-      .should("contain", this.data.base64image.withPrefix);
+      .should("contain", this.data.NewImage);
   });
 
   it("Image Widget Functionality To Unchecked Visible Widget", function() {
