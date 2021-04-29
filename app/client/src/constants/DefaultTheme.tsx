@@ -887,6 +887,35 @@ type ColorType = {
     iconPath: string;
     iconCircle: string;
   };
+  comments: {
+    profileUserName: string;
+    threadTitle: string;
+    commentBody: string;
+    profileImageBorder: string;
+    mention: string;
+    threadContainerBorder: string;
+    addCommentInputBorder: string;
+    sendButton: string;
+    addCommentInputBackground: string;
+    pin: string;
+    commentModeButtonIcon: string;
+    commentModeButtonBackground: string;
+    emojiPicker: string;
+    resolved: string;
+    unresolved: string;
+    childCommentsIndent: string;
+    commentBackground: string;
+    contextMenuTrigger: string;
+    contextMenuItemHover: ShadeColor;
+    contextMenuIcon: ShadeColor;
+    contextMenuIconHover: ShadeColor;
+    contextMenuIconStroke: ShadeColor;
+    contextMenuIconStrokeHover: ShadeColor;
+    contextMenuTitle: ShadeColor;
+    contextMenuTitleHover: ShadeColor;
+    appCommentsHeaderTitle: ShadeColor;
+    appCommentsClose: ShadeColor;
+  };
   treeDropdown: {
     targetBg: string;
     targetIcon: {
@@ -960,6 +989,37 @@ type ColorType = {
     itemHighlight: string;
     background: string;
   };
+  mentionsInput: Record<string, string>;
+};
+
+const comments = {
+  profileUserName: darkShades[11],
+  threadTitle: darkShades[8],
+  commentBody: darkShades[8],
+  profileImageBorder: Colors.JAFFA_DARK,
+  mention: "#F86A2B",
+  threadContainerBorder: lightShades[5],
+  addCommentInputBorder: lightShades[13],
+  sendButton: "#6A86CE",
+  addCommentInputBackground: "#FAFAFA",
+  pin: "#EF4141",
+  commentModeButtonIcon: "#6A86CE",
+  commentModeButtonBackground: "#262626",
+  emojiPicker: lightShades[5],
+  resolved: Colors.GREEN,
+  unresolved: lightShades[5],
+  childCommentsIndent: lightShades[13],
+  commentBackground: lightShades[2],
+  contextMenuTrigger: darkShades[6],
+  contextMenuItemHover: lightShades[2],
+  contextMenuIcon: darkShades[6],
+  contextMenuIconHover: darkShades[11],
+  contextMenuIconStroke: darkShades[6],
+  contextMenuIconStrokeHover: darkShades[11],
+  contextMenuTitle: lightShades[8],
+  contextMenuTitleHover: darkShades[11],
+  appCommentsHeaderTitle: darkShades[11],
+  appCommentsClose: lightShades[15],
 };
 
 const auth: any = {
@@ -1020,9 +1080,19 @@ const globalSearch = {
   navigateToEntityEnterkey: "#3DA5D9",
 };
 
+const mentionsInput = {
+  suggestionsListBackground: "#fff",
+  suggestionsListBorder: "rgba(0,0,0,0.15)",
+  focusedItemBackground: "#cee4e5",
+  itemBorderBottom: "#cee4e5",
+  mentionBackground: "#cee4e5",
+};
+
 export const dark: ColorType = {
+  mentionsInput,
   helpModal,
   globalSearch,
+  comments,
   selected: darkShades[10],
   header: {
     separator: darkShades[4],
@@ -1464,8 +1534,13 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  mentionsInput,
   helpModal,
   globalSearch,
+  comments: {
+    ...comments,
+    commentModeButtonBackground: "#FAFAFA",
+  },
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
