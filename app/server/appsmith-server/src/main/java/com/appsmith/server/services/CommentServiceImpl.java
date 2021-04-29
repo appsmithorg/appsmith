@@ -89,6 +89,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     final User user = tuple.getT2();
                     String authorName = user.getName() != null ? user.getName(): user.getUsername();
                     comment1.setAuthorName(authorName);
+                    comment1.setAuthorUsername(user.getUsername());
                     return repository.save(comment1);
                 });
     }

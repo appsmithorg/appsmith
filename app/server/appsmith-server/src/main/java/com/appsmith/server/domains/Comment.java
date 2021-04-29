@@ -30,6 +30,9 @@ public class Comment extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String authorName;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    String authorUsername;
+
     Body body;
 
     @Data
