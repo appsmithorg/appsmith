@@ -16,12 +16,12 @@ import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
 import { MentionComponent } from "components/ads/MentionsInput";
 import Icon from "components/ads/Icon";
 import EmojiReactions, { Reactions } from "components/ads/EmojiReactions";
+import { Toaster } from "components/ads/Toast";
 
 import createMentionPlugin from "@draft-js-plugins/mention";
 import { flattenDeep, noop } from "lodash";
 import copy from "copy-to-clipboard";
 import moment from "moment";
-
 import history from "utils/history";
 
 import {
@@ -31,7 +31,7 @@ import {
 } from "actions/commentActions";
 import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
-import { Toaster } from "components/ads/Toast";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { BaseEmoji } from "emoji-mart";
@@ -192,9 +192,16 @@ function CommentCard({
   const editorState = EditorState.createWithContent(contentState, decorator);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
   const [reactions, setReactions] = useState<Reactions>();
+  const currentUser = useSelector(getCurrentUser);
+  const currentUserUsername = currentUser?.username;
 
   const isPinned = commentThread.pinnedState?.active;
-  const pinnedBy = commentThread.pinnedState?.authorName;
+  const pinnedByUsername = commentThread.pinnedState?.authorUsername;
+  let pinnedBy = commentThread.pinnedState?.authorName;
+
+  if (currentUserUsername === pinnedByUsername) {
+    pinnedBy = "You";
+  }
 
   const getCommentURL = () => {
     const url = new URL(window.location.href);
