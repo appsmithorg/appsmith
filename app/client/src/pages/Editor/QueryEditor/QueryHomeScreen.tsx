@@ -137,20 +137,20 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
         ) : (
           <AddDatasource
             className="t--add-datasource"
+            fill
+            icon={"plus"}
+            minimal
             onClick={() => {
               history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
             }}
-            fill
-            minimal
             text="New Datasource"
-            icon={"plus"}
           />
         )}
         {dataSources.map((datasource) => {
           return (
             <DatasourceCard
-              key={datasource.id}
               datasource={datasource}
+              key={datasource.id}
               onCreateQuery={this.handleCreateNewQuery}
             />
           );

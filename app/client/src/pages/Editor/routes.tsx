@@ -130,55 +130,55 @@ class EditorsRouter extends React.Component<
     return (
       <Wrapper isVisible={this.state.isVisible} onClick={this.handleClose}>
         <PaneDrawer
-          isVisible={this.state.isVisible}
           isActionPath={this.state.isActionPath}
+          isVisible={this.state.isVisible}
           onClick={this.preventClose}
         >
           <Switch>
-            <SentryRoute exact path={API_EDITOR_URL()} component={ApiEditor} />
+            <SentryRoute component={ApiEditor} exact path={API_EDITOR_URL()} />
             <SentryRoute
+              component={ApiEditor}
               exact
               path={API_EDITOR_ID_URL()}
-              component={ApiEditor}
             />
             <SentryRoute
+              component={ApiEditor}
               exact
               path={API_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
-              component={ApiEditor}
             />
             <SentryRoute
+              component={QueryEditor}
               exact
               path={QUERIES_EDITOR_URL()}
-              component={QueryEditor}
             />
             <SentryRoute
+              component={QueryEditor}
               exact
               path={QUERIES_EDITOR_ID_URL()}
-              component={QueryEditor}
             />
 
             <SentryRoute
+              component={CurlImportForm}
               exact
               path={getCurlImportPageURL()}
-              component={CurlImportForm}
             />
             {SaaSEditorRoutes.map((props) => (
               <SentryRoute exact key={props.path} {...props} />
             ))}
             <SentryRoute
+              component={DataSourceEditor}
               exact
               path={DATA_SOURCES_EDITOR_URL()}
-              component={DataSourceEditor}
             />
             <SentryRoute
+              component={DataSourceEditor}
               exact
               path={DATA_SOURCES_EDITOR_ID_URL()}
-              component={DataSourceEditor}
             />
             <SentryRoute
+              component={ProviderTemplates}
               exact
               path={getProviderTemplatesURL()}
-              component={ProviderTemplates}
             />
           </Switch>
         </PaneDrawer>
@@ -192,7 +192,7 @@ type PaneDrawerProps = {
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };
-const PaneDrawer = (props: PaneDrawerProps) => {
+function PaneDrawer(props: PaneDrawerProps) {
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget, focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
@@ -210,7 +210,7 @@ const PaneDrawer = (props: PaneDrawerProps) => {
     }
   }, [dispatch, props.isVisible, selectWidget, showPropertyPane, focusWidget]);
   return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;
-};
+}
 
 PaneDrawer.displayName = "PaneDrawer";
 

@@ -19,42 +19,42 @@ const ENTITY_ICON_SIZE = 14;
 const PagesIcon = MenuIcons.PAGES_ICON;
 export const pageGroupIcon = (
   <PagesIcon
-    width={ENTITY_ICON_SIZE}
-    height={ENTITY_ICON_SIZE}
     color={Colors.ALTO}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
   />
 );
 
 const PageIcon = MenuIcons.PAGE_ICON;
 export const pageIcon = (
   <PageIcon
-    width={ENTITY_ICON_SIZE}
-    height={ENTITY_ICON_SIZE}
     color={Colors.ALTO}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
   />
 );
 
 export const homePageIcon = (
-  <Icon icon="home" iconSize={ENTITY_ICON_SIZE} color={Colors.JUNGLE_GREEN} />
+  <Icon color={Colors.JUNGLE_GREEN} icon="home" iconSize={ENTITY_ICON_SIZE} />
 );
 
 export const hiddenPageIcon = (
-  <Icon icon="eye-off" iconSize={ENTITY_ICON_SIZE} color={Colors.ALTO} />
+  <Icon color={Colors.ALTO} icon="eye-off" iconSize={ENTITY_ICON_SIZE} />
 );
 
 const WidgetIcon = MenuIcons.WIDGETS_COLORED_ICON;
 export const widgetIcon = (
-  <WidgetIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
+  <WidgetIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
 const ApiIcon = MenuIcons.APIS_COLORED_ICON;
 export const apiIcon = (
-  <ApiIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
+  <ApiIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
 const DBQueryIcon = MenuIcons.DATASOURCES_COLORED_ICON;
 export const dbQueryIcon = (
-  <DBQueryIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
+  <DBQueryIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
 const QueryIconWrapper = styled.div`
@@ -72,57 +72,57 @@ const QueryIconWrapper = styled.div`
   }
 `;
 
-export const QueryIcon = (props: { plugin: Plugin }) => {
+export function QueryIcon(props: { plugin: Plugin }) {
   return (
     <QueryIconWrapper>
-      <img src={props.plugin.iconLocation} className="inner-image" />
-      <img src={QueryImageOutline} className="outer-image" />
+      <img className="inner-image" src={props.plugin.iconLocation} />
+      <img className="outer-image" src={QueryImageOutline} />
     </QueryIconWrapper>
   );
-};
+}
 
 const DataSourceIcon = MenuIcons.DATASOURCES_ICON;
 export const datasourceIcon = (
   <DataSourceIcon
-    width={ENTITY_ICON_SIZE}
-    height={ENTITY_ICON_SIZE}
     color={Colors.ALTO}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
   />
 );
 
 const DataSourceTableIcon = MenuIcons.DATASOURCES_TABLE_ICON;
 export const datasourceTableIcon = (
   <DataSourceTableIcon
-    width={ENTITY_ICON_SIZE}
     height={ENTITY_ICON_SIZE}
     keepColors
+    width={ENTITY_ICON_SIZE}
   />
 );
 
 const PrimaryKeyIcon = MenuIcons.PRIMARY_KEY_ICON;
 export const primaryKeyIcon = (
   <PrimaryKeyIcon
-    width={ENTITY_ICON_SIZE}
     height={ENTITY_ICON_SIZE}
     keepColors
+    width={ENTITY_ICON_SIZE}
   />
 );
 
 export const ForeignKeyIcon = MenuIcons.FOREIGN_KEY_ICON;
 export const foreignKeyIcon = (
   <ForeignKeyIcon
-    width={ENTITY_ICON_SIZE}
     height={ENTITY_ICON_SIZE}
     keepColors
+    width={ENTITY_ICON_SIZE}
   />
 );
 
 const DatasourceColumnIcon = MenuIcons.DATASOURCE_COLUMN_ICON;
 export const datasourceColumnIcon = (
   <DatasourceColumnIcon
-    width={ENTITY_ICON_SIZE}
     height={ENTITY_ICON_SIZE}
     keepColors
+    width={ENTITY_ICON_SIZE}
   />
 );
 
@@ -134,7 +134,7 @@ export const DATASOURCE_FIELD_ICONS_MAP: Record<string, ReactNode> = {
 export const getWidgetIcon = (type: WidgetType) => {
   const WidgetIcon = WidgetIcons[type];
   if (WidgetIcon)
-    return <WidgetIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} />;
+    return <WidgetIcon height={ENTITY_ICON_SIZE} width={ENTITY_ICON_SIZE} />;
   return null;
 };
 
@@ -162,10 +162,10 @@ const StyledTag = styled.div<{ color: string }>`
   line-height: 16px;
 `;
 
-export const MethodTag = (props: { type: typeof HTTP_METHODS[number] }) => {
+export function MethodTag(props: { type: typeof HTTP_METHODS[number] }) {
   return (
     <StyledTag color={HTTP_METHOD_COLOR_MAP[props.type]}>
       {props.type}
     </StyledTag>
   );
-};
+}

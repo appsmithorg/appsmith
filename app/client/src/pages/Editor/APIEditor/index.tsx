@@ -171,10 +171,10 @@ class ApiEditor extends React.Component<Props> {
     const apiHomeScreen = (
       <ApiHomeScreen
         applicationId={this.props.match.params.applicationId}
-        pageId={this.props.match.params.pageId}
         history={this.props.history}
         location={this.props.location}
         match={this.props.match}
+        pageId={this.props.match.params.pageId}
       />
     );
     return (
@@ -188,37 +188,37 @@ class ApiEditor extends React.Component<Props> {
           <>
             {formUiComponent === "ApiEditorForm" && (
               <ApiEditorForm
-                pluginId={pluginId}
-                paginationType={paginationType}
-                isRunning={isRunning}
-                isDeleting={isDeleting}
-                onDeleteClick={this.handleDeleteClick}
-                onRunClick={this.handleRunClick}
+                apiName={this.props.apiName}
                 appName={
                   this.props.currentApplication
                     ? this.props.currentApplication.name
                     : ""
                 }
-                apiName={this.props.apiName}
+                isDeleting={isDeleting}
+                isRunning={isRunning}
+                onDeleteClick={this.handleDeleteClick}
+                onRunClick={this.handleRunClick}
+                paginationType={paginationType}
+                pluginId={pluginId}
                 settingsConfig={this.props.settingsConfig}
               />
             )}
 
             {formUiComponent === "RapidApiEditorForm" && (
               <RapidApiEditorForm
-                apiName={this.props.apiName}
                 apiId={this.props.match.params.apiId}
-                paginationType={paginationType}
-                isRunning={isRunning}
-                isDeleting={isDeleting}
-                onDeleteClick={this.handleDeleteClick}
-                onRunClick={this.handleRunClick}
+                apiName={this.props.apiName}
                 appName={
                   this.props.currentApplication
                     ? this.props.currentApplication.name
                     : ""
                 }
+                isDeleting={isDeleting}
+                isRunning={isRunning}
                 location={this.props.location}
+                onDeleteClick={this.handleDeleteClick}
+                onRunClick={this.handleRunClick}
+                paginationType={paginationType}
               />
             )}
 

@@ -62,7 +62,7 @@ type TagInputProps = {
  * On addition or removal of tags, passes the comman separated string to input.onChange prop
  * @param props : TagInputProps
  */
-const TagInputComponent = (props: TagInputProps) => {
+function TagInputComponent(props: TagInputProps) {
   const _values =
     props.input.value && props.input.value.length > 0
       ? props.input.value.split(",")
@@ -145,25 +145,25 @@ const TagInputComponent = (props: TagInputProps) => {
   return (
     <TagInputWrapper intent={props.intent}>
       <TagInput
+        addOnPaste
         inputProps={{
           type: props.type,
           value: currentValue,
           onBlur: handleInputBlur,
         }}
-        onInputChange={handleInputChange}
-        placeholder={props.placeholder}
-        values={_values || [""]}
-        separator={props.separator || ","}
-        addOnPaste
+        large={false}
         onChange={onTagsChange}
+        onInputChange={handleInputChange}
         onKeyDown={onKeyDown}
+        placeholder={props.placeholder}
+        separator={props.separator || ","}
         tagProps={{
           round: true,
         }}
-        large={false}
+        values={_values || [""]}
       />
     </TagInputWrapper>
   );
-};
+}
 
 export default TagInputComponent;

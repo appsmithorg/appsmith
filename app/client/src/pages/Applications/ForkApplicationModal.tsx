@@ -66,7 +66,7 @@ const SpinnerWrapper = styled.div`
   justify-content: center;
 `;
 
-const ForkApplicationModal = (props: any) => {
+function ForkApplicationModal(props: any) {
   const [organizationId, selectOrganizationId] = useState("");
   const dispatch = useDispatch();
   useEffect(() => {
@@ -116,18 +116,18 @@ const ForkApplicationModal = (props: any) => {
 
   return (
     <StyledDialog
-      title={"Choose where to fork the app"}
-      maxHeight={"540px"}
+      canOutsideClickClose
       className={"fork-modal"}
-      canOutsideClickClose={true}
       isOpen={showForkModal}
+      maxHeight={"540px"}
+      title={"Choose where to fork the app"}
       trigger={
         <TriggerButton
-          text={createMessage(FORK_APP)}
-          icon="fork"
-          size={Size.small}
           className="t--fork-app"
+          icon="fork"
           onClick={() => dispatch(getAllApplications())}
+          size={Size.small}
+          text={createMessage(FORK_APP)}
         />
       }
     >
@@ -143,22 +143,22 @@ const ForkApplicationModal = (props: any) => {
             className={"radio-group"}
             columns={1}
             defaultValue={organizationList[0].value}
-            options={organizationList}
             onSelect={(value) => selectOrganizationId(value)}
+            options={organizationList}
           />
         </OrganizationList>
       )}
       <ButtonWrapper>
         <ForkButton
-          isLoading={forkingApplication}
           disabled={!organizationId}
-          text={"FORK"}
+          isLoading={forkingApplication}
           onClick={forkApplication}
           size={Size.large}
+          text={"FORK"}
         />
       </ButtonWrapper>
     </StyledDialog>
   );
-};
+}
 
 export default ForkApplicationModal;

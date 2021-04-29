@@ -51,7 +51,7 @@ const DEBUGGER_TABS = [
   },
 ];
 
-const DebuggerTabs = (props: DebuggerTabsProps) => {
+function DebuggerTabs(props: DebuggerTabsProps) {
   const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
@@ -68,18 +68,18 @@ const DebuggerTabs = (props: DebuggerTabsProps) => {
     <Container ref={panelRef}>
       <Resizer panelRef={panelRef} />
       <TabComponent
-        selectedIndex={selectedIndex}
         onSelect={onTabSelect}
+        selectedIndex={selectedIndex}
         tabs={DEBUGGER_TABS}
       />
       <Icon
         className="close-debugger"
         name="cross"
-        size={IconSize.SMALL}
         onClick={onClose}
+        size={IconSize.SMALL}
       />
     </Container>
   );
-};
+}
 
 export default DebuggerTabs;

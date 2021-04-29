@@ -33,7 +33,7 @@ const LOGS_FILTER_OPTIONS = [
   { label: "Errors", value: Severity.ERROR },
 ];
 
-const DebbuggerLogs = (props: Props) => {
+function DebbuggerLogs(props: Props) {
   const [filter, setFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState(props.searchQuery);
   const filteredLogs = useFilteredLogs(searchQuery, filter);
@@ -69,12 +69,12 @@ const DebbuggerLogs = (props: Props) => {
   return (
     <ContainerWrapper>
       <FilterHeader
-        options={LOGS_FILTER_OPTIONS}
-        selected={selectedFilter || LOGS_FILTER_OPTIONS[0]}
+        defaultValue={props.searchQuery}
         onChange={setSearchQuery}
         onSelect={(value) => !isUndefined(value) && setFilter(value)}
-        defaultValue={props.searchQuery}
+        options={LOGS_FILTER_OPTIONS}
         searchQuery={searchQuery}
+        selected={selectedFilter || LOGS_FILTER_OPTIONS[0]}
       />
 
       <ListWrapper className="debugger-list" ref={listRef}>
@@ -96,7 +96,7 @@ const DebbuggerLogs = (props: Props) => {
       </ListWrapper>
     </ContainerWrapper>
   );
-};
+}
 
 // Set default props
 DebbuggerLogs.defaultProps = {
