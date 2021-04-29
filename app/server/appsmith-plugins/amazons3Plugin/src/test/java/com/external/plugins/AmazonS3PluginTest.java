@@ -807,7 +807,7 @@ public class AmazonS3PluginTest {
                             null)); // Prefix
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(2), "YES", null,
                             null)); // Generate signed URL
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(3), "", null,
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(3), "5", null,
                             null)); // Expiry duration
                     assertEquals(result.getRequest().getRequestParams().toString(),
                             expectedRequestParams.toString());
