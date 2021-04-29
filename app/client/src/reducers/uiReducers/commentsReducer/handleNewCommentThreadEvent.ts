@@ -13,13 +13,6 @@ const handleNewCommentThreadEvent = (
     {},
   ) as Record<string, Array<string>>;
   const threadsForRefId = get(applicationCommentIdsByRefId, thread.refId, []);
-  // Prevent duplicate events from hiding the thread popover
-  // Can happen if the creator is also receiving the new comment thread updates
-  const isVisible = get(
-    state.commentThreadsMap,
-    `${thread._id}.isVisible`,
-    false,
-  );
   const existingComments = get(
     state.commentThreadsMap,
     `${thread._id}.comments`,
@@ -29,7 +22,6 @@ const handleNewCommentThreadEvent = (
   state.commentThreadsMap[thread._id] = {
     id: thread._id,
     ...thread,
-    isVisible,
     comments: [...existingComments, ...(thread.comments || [])],
   };
 
