@@ -53,6 +53,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
+  const selectedWidgets = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
+  );
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
@@ -93,7 +96,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
 
   const showWidgetName =
     props.showControls ||
-    ((focusedWidget === props.widgetId || selectedWidget === props.widgetId) &&
+    ((focusedWidget === props.widgetId ||
+      selectedWidget === props.widgetId ||
+      selectedWidgets.includes(props.widgetId)) &&
       !isDragging &&
       !isResizing);
 

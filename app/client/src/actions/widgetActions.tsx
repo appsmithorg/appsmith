@@ -70,6 +70,22 @@ export const selectWidget = (
   payload: { widgetId },
 });
 
+export const selectWidgets = (
+  widgetId?: string[],
+): ReduxAction<{ widgetId?: string[] }> => ({
+  type: ReduxActionTypes.SELECT_WIDGETS,
+  payload: { widgetId },
+});
+
+export const selectAllWidgets = (
+  widgetIds?: string[],
+): ReduxAction<{ widgetIds?: string[] }> => {
+  return {
+    type: ReduxActionTypes.SELECT_WIDGETS,
+    payload: { widgetIds },
+  };
+};
+
 export const showModal = (id: string) => {
   return {
     type: ReduxActionTypes.SHOW_MODAL,

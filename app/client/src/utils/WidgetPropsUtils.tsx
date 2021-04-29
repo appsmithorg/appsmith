@@ -660,7 +660,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
       currentDSL.detachFromLayout || false,
     );
     currentDSL = migrateToNewLayout(currentDSL);
-    currentDSL.version = 18;
+    currentDSL.version = 19;
   }
   return currentDSL;
 };
@@ -780,7 +780,10 @@ export const noCollision = (
       top,
       bottom: top + widgetHeight,
     };
-    return !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset);
+    return (
+      !isDropZoneOccupied(currentOffset, widget.widgetId, occupiedSpaces) &&
+      !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset)
+    );
   }
   return false;
 };
