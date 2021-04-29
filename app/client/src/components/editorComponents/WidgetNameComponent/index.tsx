@@ -41,6 +41,7 @@ type WidgetNameComponentProps = {
   parentId?: string;
   type: WidgetType;
   showControls?: boolean;
+  errorCount: number;
 };
 
 export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
@@ -113,6 +114,7 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
           toggleSettings={togglePropertyEditor}
           activity={currentActivity}
           name={props.widgetName}
+          errorCount={props.errorCount}
         />
       </ControlGroup>
     </PositionStyle>

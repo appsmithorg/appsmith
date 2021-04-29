@@ -1,5 +1,6 @@
 import React, { CSSProperties } from "react";
 import { ControlIcons } from "icons/ControlIcons";
+import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Tooltip, Classes } from "@blueprintjs/core";
@@ -35,17 +36,40 @@ const SettingsWrapper = styled.div`
 
 const WidgetName = styled.span`
   margin-right: 5px;
+  margin-left: 8px;
+`;
+
+const StyledErrorIcon = styled(Icon)`
+  &:hover {
+    svg {
+      path {
+        fill: ${Colors.WHITE};
+      }
+    }
+  }
+  margin-right: 3px;
 `;
 
 type SettingsControlProps = {
   toggleSettings: (e: any) => void;
   activity: Activities;
   name: string;
+  errorCount: number;
 };
 
 const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
-const getStyles = (activity: Activities): CSSProperties | undefined => {
+const getStyles = (
+  activity: Activities,
+  errorCount: number,
+): CSSProperties | undefined => {
+  if (errorCount > 0) {
+    return {
+      background: "red",
+      color: Colors.WHITE,
+    };
+  }
+
   switch (activity) {
     case Activities.ACTIVE:
       return {
@@ -71,10 +95,19 @@ export const SettingsControl = (props: SettingsControlProps) => {
       width={12}
       height={14}
       color={
-        props.activity === Activities.HOVERING
+        !!props.errorCount
+          ? Colors.WHITE
+          : props.activity === Activities.HOVERING
           ? Colors.BLACK_PEARL
           : Colors.WHITE
       }
+    />
+  );
+  const errorIcon = (
+    <StyledErrorIcon
+      name="warning"
+      size={IconSize.SMALL}
+      fillColor={Colors.WHITE}
     />
   );
 
@@ -85,10 +118,16 @@ export const SettingsControl = (props: SettingsControlProps) => {
       hoverOpenDelay={500}
     >
       <SettingsWrapper
-        style={getStyles(props.activity)}
+        style={getStyles(props.activity, props.errorCount)}
         onClick={props.toggleSettings}
         className="t--widget-propertypane-toggle"
       >
+        {!!props.errorCount && (
+          <>
+            {errorIcon}
+            <span>{props.errorCount}</span>
+          </>
+        )}
         <WidgetName className="t--widget-name">{props.name}</WidgetName>
         {settingsIcon}
       </SettingsWrapper>

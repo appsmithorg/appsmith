@@ -173,6 +173,11 @@ abstract class BaseWidget<
     };
   }
 
+  getErrorCount = () => {
+    const invalidProps = this.props?.invalidProps ?? {};
+    return Object.values(invalidProps).filter((e) => !!e).length;
+  };
+
   render() {
     return this.getWidgetView();
   }
@@ -210,6 +215,7 @@ abstract class BaseWidget<
             widgetId={this.props.widgetId}
             parentId={this.props.parentId}
             type={this.props.type}
+            errorCount={this.getErrorCount()}
             showControls={showControls}
           />
         )}
