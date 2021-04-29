@@ -15,13 +15,20 @@ type Props = {
   theme: Theme;
 };
 
-const StyledResolveIcon = styled(Icon)<{ strokeColor: string }>`
-  & circle,
-  & path {
-    stroke: ${(props) => props.strokeColor};
+const StyledResolveIcon = styled(Icon)<{
+  strokeColorCircle: string;
+  strokeColorPath: string;
+  fillColor: string;
+}>`
+  & circle {
+    stroke: ${(props) => props.strokeColorCircle};
   }
   && path {
+    stroke: ${(props) => props.strokeColorPath};
     fill: transparent;
+  }
+  && svg {
+    fill: ${(props) => props.fillColor};
   }
 `;
 
@@ -30,15 +37,29 @@ const ResolveCommentButton = withTheme(
     const {
       resolved: resolvedColor,
       unresolved: unresolvedColor,
+      resolvedFill: resolvedFillColor,
+      unresolvedFill: unresolvedFillColor,
+      resolvedPath: resolvedPathColor,
     } = theme.colors.comments;
-    const strokeColor = resolved ? resolvedColor : unresolvedColor;
+
+    const strokeColorCircle = resolved ? resolvedColor : unresolvedColor;
+    const strokeColorPath = resolved ? resolvedPathColor : unresolvedColor;
+    const fillColor = resolved ? resolvedFillColor : unresolvedFillColor;
+
+    const _handleClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      handleClick();
+    };
+
     return (
-      <Container onClick={handleClick}>
+      <Container onClick={_handleClick}>
         <StyledResolveIcon
-          fillColor={"transparent"}
+          fillColor={fillColor}
+          keepColors
           name="oval-check"
           size={IconSize.XXL}
-          strokeColor={strokeColor}
+          strokeColorCircle={strokeColorCircle}
+          strokeColorPath={strokeColorPath}
         />
       </Container>
     );

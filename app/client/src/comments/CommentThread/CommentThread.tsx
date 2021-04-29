@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import CommentCard from "comments/CommentCard/CommentCard";
 import AddCommentInput from "comments/inlineComments/AddCommentInput";
@@ -16,29 +16,30 @@ import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { RawDraftContentState } from "draft-js";
 
 import styled from "styled-components";
+import { animated } from "react-spring";
+import { AppState } from "reducers";
 
-const ThreadContainer = styled.div`
-  width: 400px;
+const ThreadContainer = styled(animated.div)<{
+  visible?: boolean;
+  inline?: boolean;
+  pinned?: boolean;
+}>`
+  width: 280px;
   max-width: 100%;
+  background-color: ${(props) =>
+    props.inline
+      ? "transparent"
+      : props.pinned
+      ? props.theme.colors.comments.pinnedThreadBackground
+      : props.visible
+      ? props.theme.colors.comments.visibleThreadBackground
+      : "transparent"};
 `;
 
 const CommentsContainer = styled.div<{ inline?: boolean }>`
   position: relative;
   max-height: ${(props) => (!props.inline ? "unset" : "285px")};
   overflow: auto;
-`;
-
-const ChildCommentsContainer = styled.div`
-  display: flex;
-`;
-
-const ChildCommentIndent = styled.div`
-  width: 1px;
-  background-color: ${(props) =>
-    props.theme.colors.comments.childCommentsIndent};
-  margin-left: ${(props) => props.theme.spaces[11]}px;
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
-  margin-top: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const ChildComments = styled.div`
@@ -49,16 +50,27 @@ function CommentThreadContainer({
   commentThread,
   hideInput,
   inline,
+  hideChildren,
+  transition,
+  showSubheader,
 }: {
   commentThread: CommentThread;
   isOpen?: boolean;
   hideInput?: boolean;
   inline?: boolean;
+  hideChildren?: boolean;
+  transition?: any;
+  showSubheader?: boolean;
 }) {
   const dispatch = useDispatch();
   const { comments, id: commentThreadId } = commentThread;
   const messagesBottomRef = useRef<HTMLDivElement>(null);
   const commentsContainerRef = useRef<HTMLDivElement>(null);
+
+  const isVisible = useSelector(
+    (state: AppState) =>
+      state.ui.comments.visibleCommentThreadId === commentThreadId,
+  );
 
   // Check if the comments window is scrolled to the bottom
   // We don't autoscroll for the user receiving the updates
@@ -91,41 +103,51 @@ function CommentThreadContainer({
     dispatch(
       setCommentResolutionRequest({
         threadId: commentThread.id,
-        resolved: !commentThread.resolved,
+        resolved: !commentThread.resolvedState?.active,
       }),
     );
   };
 
   const parentComment = Array.isArray(comments) && comments[0];
   const childComments = Array.isArray(comments) && comments.slice(1);
+  const numberOfReplies =
+    (Array.isArray(childComments) && childComments.length) || 0;
 
   return (
-    <ThreadContainer tabIndex={0}>
+    <ThreadContainer
+      inline={inline}
+      pinned={commentThread.pinnedState?.active}
+      style={transition}
+      tabIndex={0}
+      visible={isVisible}
+    >
       <div style={{ position: "relative" }}>
         <CommentsContainer inline={inline} ref={commentsContainerRef}>
           {parentComment && (
             <CommentCard
               comment={parentComment}
               commentThreadId={commentThreadId}
+              inline={inline}
               isParentComment
               key={parentComment.id}
-              resolved={!!commentThread.resolved}
+              numberOfReplies={numberOfReplies}
+              resolved={!!commentThread.resolvedState?.active}
+              showReplies={hideChildren}
+              showSubheader={showSubheader}
               toggleResolved={resolveCommentThread}
             />
           )}
-          {childComments && childComments.length > 0 && (
-            <ChildCommentsContainer>
-              <ChildCommentIndent />
-              <ChildComments>
-                {childComments.map((comment) => (
-                  <CommentCard
-                    comment={comment}
-                    commentThreadId={commentThreadId}
-                    key={comment.id}
-                  />
-                ))}
-              </ChildComments>
-            </ChildCommentsContainer>
+          {!hideChildren && childComments && childComments.length > 0 && (
+            <ChildComments>
+              {childComments.map((comment) => (
+                <CommentCard
+                  comment={comment}
+                  commentThreadId={commentThreadId}
+                  inline={inline}
+                  key={comment.id}
+                />
+              ))}
+            </ChildComments>
           )}
           <div ref={messagesBottomRef} />
         </CommentsContainer>

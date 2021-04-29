@@ -38,11 +38,14 @@ const handleNewCommentThreadEvent = (
   }
   state.applicationCommentThreadsByRef[thread.applicationId] = {
     ...state.applicationCommentThreadsByRef[thread.applicationId],
-    [thread.refId]: Array.from(new Set([...threadsForRefId, thread._id])),
+    [thread.refId]: Array.from(new Set([thread._id, ...threadsForRefId])),
   };
+
+  const showUnreadIndicator = !state.isCommentMode;
 
   return {
     ...state,
+    showUnreadIndicator,
   };
 };
 

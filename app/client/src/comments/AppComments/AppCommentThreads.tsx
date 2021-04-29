@@ -1,14 +1,26 @@
 import React, { useMemo } from "react";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+import { useTransition } from "react-spring";
+
 import {
   getSortedAppCommentThreadIds,
   applicationCommentsSelector,
   allCommentThreadsMap,
   getAppCommentThreads,
+  shouldShowResolved as shouldShowResolvedSelector,
 } from "selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useSelector } from "react-redux";
 
 import CommentThread from "comments/CommentThread/connectedCommentThread";
+import AppCommentsPlaceholder from "./AppCommentsPlaceholder";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
+`;
 
 function AppCommentThreads() {
   const applicationId = useSelector(getCurrentApplicationId) as string;
@@ -18,22 +30,41 @@ function AppCommentThreads() {
   const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
   const commentThreadsMap = useSelector(allCommentThreadsMap);
 
+  const shouldShowResolved = useSelector(shouldShowResolvedSelector);
+
   const commentThreadIds = useMemo(
-    () => getSortedAppCommentThreadIds(appCommentThreadIds, commentThreadsMap),
+    () =>
+      getSortedAppCommentThreadIds(
+        appCommentThreadIds,
+        commentThreadsMap,
+        shouldShowResolved,
+      ),
     [appCommentThreadIds, commentThreadsMap],
   );
 
+  const commentsExist = commentThreadIds.length > 0;
+
+  const transition = useTransition(commentThreadIds, (s) => s, {
+    from: { opacity: 0, transform: "translateX(-100%)" },
+    enter: { opacity: 1, transform: "translateX(0)" },
+    leave: { opacity: 0, transform: "translateX(-100%)" },
+    config: { duration: 300 },
+  });
+
   return (
-    // eslint-disable-next-line react/jsx-no-useless-fragment
-    <>
-      {commentThreadIds?.map((commentThreadId: string) => (
+    <Container>
+      {transition.map(({ item: commentThreadId, props, key }) => (
         <CommentThread
           commentThreadId={commentThreadId}
+          hideChildren
           hideInput
-          key={commentThreadId}
+          key={key}
+          showSubheader
+          transition={props}
         />
       ))}
-    </>
+      {!commentsExist && <AppCommentsPlaceholder />}
+    </Container>
   );
 }
 

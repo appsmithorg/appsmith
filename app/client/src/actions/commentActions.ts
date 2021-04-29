@@ -1,5 +1,7 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { COMMENT_EVENTS_CHANNEL } from "constants/CommentConstants";
+import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+
 import {
   CommentThread,
   CommentEventPayload,
@@ -81,14 +83,6 @@ export const setCommentMode = (payload: boolean) => ({
   payload,
 });
 
-export const setIsCommentThreadVisible = (payload: {
-  commentThreadId: string;
-  isVisible: boolean;
-}) => ({
-  type: ReduxActionTypes.SET_IS_COMMENT_THREAD_VISIBLE,
-  payload,
-});
-
 export const fetchApplicationCommentsRequest = () => ({
   type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
 });
@@ -130,7 +124,10 @@ export const updateCommentThreadEvent = (payload: Partial<CommentThread>) => ({
   payload,
 });
 
-export const pinCommentThreadRequest = (payload: { threadId: string }) => ({
+export const pinCommentThreadRequest = (payload: {
+  threadId: string;
+  pin: boolean;
+}) => ({
   type: ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST,
   payload,
 });
@@ -157,4 +154,26 @@ export const deleteCommentSuccess = (payload: {
 }) => ({
   type: ReduxActionTypes.DELETE_COMMENT_SUCCESS,
   payload,
+});
+
+export const setShouldShowResolvedComments = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SHOULD_SHOW_RESOLVED_COMMENTS,
+  payload,
+});
+
+export const setAppCommentsFilter = (
+  payload: typeof filterOptions[number]["value"],
+) => ({
+  type: ReduxActionTypes.SET_APP_COMMENTS_FILTER,
+  payload,
+});
+
+export const resetVisibleThread = (threadId?: string) => ({
+  type: ReduxActionTypes.RESET_VISIBLE_THREAD,
+  payload: threadId,
+});
+
+export const setVisibleThread = (threadId: string) => ({
+  type: ReduxActionTypes.SET_VISIBLE_THREAD,
+  payload: threadId,
 });

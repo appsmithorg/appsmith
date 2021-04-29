@@ -2,9 +2,7 @@ import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 export const ThreadContainer = styled.div`
-  border: 1px solid
-    ${(props) => props.theme.colors.comments.threadContainerBorder};
-  width: 400px;
+  width: 280px;
   max-width: 100%;
 `;
 

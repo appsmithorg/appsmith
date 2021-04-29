@@ -24,8 +24,8 @@ import {
   addCommentToThreadSuccess,
   fetchApplicationCommentsSuccess,
   updateCommentThreadSuccess,
-  pinCommentThreadSuccess,
   deleteCommentSuccess,
+  setVisibleThread,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -99,12 +99,8 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
   const isValidResponse = yield validateResponse(response);
 
   if (isValidResponse) {
-    yield put(
-      createCommentThreadSuccess({
-        ...response.data,
-        isVisible: true,
-      }),
-    );
+    yield put(createCommentThreadSuccess(response.data));
+    yield put(setVisibleThread(response.data.id));
   } else {
     // todo handle error here
     console.log(response, "invalid response");
@@ -170,7 +166,7 @@ function* setCommentResolution(
   try {
     const { threadId, resolved } = action.payload;
     const response = yield CommentsApi.updateCommentThread(
-      { resolved },
+      { resolvedState: { active: resolved } },
       threadId,
     );
     const isValidResponse = yield validateResponse(response);
@@ -184,16 +180,19 @@ function* setCommentResolution(
   }
 }
 
-function* pinCommentThread(action: ReduxAction<{ threadId: string }>) {
+function* pinCommentThread(
+  action: ReduxAction<{ threadId: string; pin: boolean }>,
+) {
   try {
-    const { threadId } = action.payload;
-    yield CommentsApi.pinCommentThread(threadId);
-    // TODO: uncomment this
-    // const isValidResponse = yield validateResponse(response);
-    // if (isValidResponse) {
-    const applicationId = yield select(getCurrentApplicationId);
-    yield put(pinCommentThreadSuccess({ threadId, applicationId }));
-    // }
+    const { pin, threadId } = action.payload;
+    const response = yield CommentsApi.updateCommentThread(
+      { pinnedState: { active: pin } },
+      threadId,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(updateCommentThreadSuccess(response.data));
+    }
   } catch (e) {
     console.log(e, "handle error");
   }

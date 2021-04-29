@@ -54,18 +54,62 @@ export const getAppCommentThreads = (
 export const allCommentThreadsMap = (state: AppState) =>
   state.ui.comments.commentThreadsMap;
 
+const getSortIndexBool = (a: boolean, b: boolean) => {
+  if (a && b) return 0;
+  if (a) return -1;
+  if (b) return 1;
+  else return 0;
+};
+
+const getSortIndexNumber = (a = 0, b = 0) => {
+  if (a === b) return 0;
+  if (a > b) return -1;
+  else return 1;
+};
+
 export const getSortedAppCommentThreadIds = (
   applicationThreadIds: Array<string>,
   commentThreadsMap: Record<string, CommentThread>,
+  shouldShowResolved: boolean,
 ): Array<string> => {
   if (!applicationThreadIds) return [];
-  return applicationThreadIds.sort((a, b) => {
-    const { isPinned: isAPinned } = commentThreadsMap[a];
-    const { isPinned: isBPinned } = commentThreadsMap[b];
+  return applicationThreadIds
+    .sort((a, b) => {
+      const {
+        pinnedState: isAPinned,
+        updationTime: updationTimeA,
+      } = commentThreadsMap[a];
+      const {
+        pinnedState: isBPinned,
+        updationTime: updationTimeB,
+      } = commentThreadsMap[b];
 
-    if (isAPinned && isBPinned) return -0;
-    if (isAPinned) return -1;
-    if (isBPinned) return 1;
-    else return 0;
-  });
+      const sortIdx = getSortIndexBool(
+        !!isAPinned?.active,
+        !!isBPinned?.active,
+      );
+      if (sortIdx !== 0) return sortIdx;
+
+      return getSortIndexNumber(
+        updationTimeA?.epochSecond,
+        updationTimeB?.epochSecond,
+      );
+    })
+    .filter((threadId: string) => {
+      const thread = commentThreadsMap[threadId];
+      const shouldShow = shouldShowResolved || !thread.resolvedState?.active;
+      return shouldShow;
+    });
 };
+
+export const shouldShowResolved = (state: AppState) =>
+  state.ui.comments.shouldShowResolvedAppCommentThreads;
+
+export const appCommentsFilter = (state: AppState) =>
+  state.ui.comments.appCommentsFilter;
+
+export const showUnreadIndicator = (state: AppState) =>
+  state.ui.comments.showUnreadIndicator;
+
+export const visibleCommentThread = (state: AppState) =>
+  state.ui.comments.visibleCommentThreadId;

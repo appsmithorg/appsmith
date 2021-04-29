@@ -36,15 +36,10 @@ class CommentsApi extends Api {
     updateCommentRequest: Partial<CreateCommentThreadRequest>,
     threadId: string,
   ): AxiosPromise<ApiResponse> {
-    return Api.put(
+    return Api.patch(
       `${CommentsApi.getThreadsAPI}/${threadId}`,
       updateCommentRequest,
     );
-  }
-
-  static pinCommentThread(threadId: string) {
-    console.log(threadId);
-    return Promise.resolve();
   }
 
   static deleteComment(commentId: string): AxiosPromise<ApiResponse> {

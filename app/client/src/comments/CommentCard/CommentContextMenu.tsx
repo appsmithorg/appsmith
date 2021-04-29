@@ -5,6 +5,7 @@ import {
   PIN_COMMENT,
   COPY_LINK,
   DELETE_COMMENT,
+  UNPIN_COMMENT,
   createMessage,
 } from "constants/messages";
 import { noop } from "lodash";
@@ -28,16 +29,7 @@ const MenuItem = styled.div`
   }
 `;
 
-const StyledIcon = styled(Icon)`
-  && path {
-    stroke: ${(props) => props.theme.colors.comments.contextMenuIcon};
-    fill: ${(props) => props.theme.colors.comments.contextMenuIcon};
-  }
-  ${MenuItem}:hover & path {
-    stroke: ${(props) =>
-      props.theme.colors.comments.contextMenuIconStrokeHover};
-  }
-`;
+const StyledIcon = styled(Icon)``;
 
 const MenuIcon = styled.div`
   padding: ${(props) =>
@@ -56,31 +48,53 @@ type Props = {
   pin: typeof noop;
   copyCommentLink: typeof noop;
   deleteComment: typeof noop;
+  isParentComment?: boolean;
+  isCreatedByMe?: boolean;
+  isPinned?: boolean;
 };
 
-function CommentContextMenu({ pin, copyCommentLink, deleteComment }: Props) {
+function CommentContextMenu({
+  pin,
+  copyCommentLink,
+  deleteComment,
+  isParentComment,
+  // TODO figure out key for isCreatedByMe
+  isCreatedByMe,
+  isPinned,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const options = useMemo(
-    () => [
-      {
-        icon: "pin-2",
-        display: createMessage(PIN_COMMENT),
-        onClick: pin,
-      },
-      {
-        icon: "link-2",
-        display: createMessage(COPY_LINK),
-        onClick: copyCommentLink,
-      },
-      {
+  const options = useMemo(() => {
+    const options = [];
+    if (isParentComment) {
+      // TODO add edit option
+      // TODO add pin option
+      options.push(
+        {
+          icon: isPinned ? "unpin" : "pin-3",
+          display: isPinned
+            ? createMessage(UNPIN_COMMENT)
+            : createMessage(PIN_COMMENT),
+          onClick: pin,
+        },
+        {
+          icon: "link-2",
+          display: createMessage(COPY_LINK),
+          onClick: copyCommentLink,
+        },
+      );
+    }
+
+    if (isCreatedByMe && !isParentComment) {
+      options.push({
         icon: "trash",
         display: createMessage(DELETE_COMMENT),
         onClick: deleteComment,
-      },
-    ],
-    [],
-  );
+      });
+    }
+
+    return options;
+  }, [isPinned]);
 
   const handleInteraction = useCallback((isOpen) => {
     setIsOpen(isOpen);
@@ -91,6 +105,8 @@ function CommentContextMenu({ pin, copyCommentLink, deleteComment }: Props) {
     option.onClick();
   }, []);
 
+  if (!options.length) return null;
+
   return (
     <Popover2
       content={
@@ -98,7 +114,11 @@ function CommentContextMenu({ pin, copyCommentLink, deleteComment }: Props) {
           {options.map((option) => (
             <MenuItem key={option.icon} onClick={() => handleClick(option)}>
               <MenuIcon>
-                <StyledIcon name={option.icon as IconName} size={IconSize.XL} />
+                <StyledIcon
+                  keepColors
+                  name={option.icon as IconName}
+                  size={IconSize.XL}
+                />
               </MenuIcon>
               <MenuTitle>{option.display}</MenuTitle>
             </MenuItem>
@@ -107,11 +127,12 @@ function CommentContextMenu({ pin, copyCommentLink, deleteComment }: Props) {
       }
       isOpen={isOpen}
       minimal
+      modifiers={{ offset: { enabled: true, options: { offset: [7, 15] } } }}
       onInteraction={handleInteraction}
       placement={"bottom-end"}
       portalClassName="comment-context-menu"
     >
-      <StyledIcon name="context-menu" size={IconSize.LARGE} />
+      <StyledIcon name="comment-context-menu" size={IconSize.LARGE} />
     </Popover2>
   );
 }

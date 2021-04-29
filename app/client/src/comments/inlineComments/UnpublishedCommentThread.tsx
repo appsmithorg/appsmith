@@ -1,11 +1,7 @@
 import React from "react";
 import { Popover, Position } from "@blueprintjs/core";
 import AddCommentInput from "./AddCommentInput";
-import {
-  ThreadContainer,
-  ThreadHeaderTitle,
-  ThreadHeader,
-} from "./StyledComponents";
+import { ThreadContainer } from "./StyledComponents";
 import { useDispatch } from "react-redux";
 import styled, { withTheme } from "styled-components";
 import { get } from "lodash";
@@ -64,24 +60,30 @@ const UnpublishedCommentThread = withTheme(
             hasBackdrop
             isOpen
             minimal
+            modifiers={{
+              offset: {
+                enabled: true,
+                offset: "-8, 10",
+              },
+            }}
             onInteraction={(nextOpenState) => {
               if (!nextOpenState) {
                 onClosing();
               }
             }}
             popoverClassName="comment-thread"
-            position={Position.BOTTOM_RIGHT}
+            position={Position.RIGHT_TOP}
           >
             <Icon
               fillColor={theme.colors.comments.pin}
-              name="pin"
+              name="unread-pin"
               size={IconSize.XXL}
             />
             <ThreadContainer tabIndex={0}>
-              <ThreadHeader>
-                <ThreadHeaderTitle>Add a Comment</ThreadHeaderTitle>
-              </ThreadHeader>
-              <AddCommentInput onSave={createCommentThread} />
+              <AddCommentInput
+                onCancel={onClosing}
+                onSave={createCommentThread}
+              />
             </ThreadContainer>
           </Popover>
         </CommentTriggerContainer>

@@ -903,6 +903,9 @@ type ColorType = {
     emojiPicker: string;
     resolved: string;
     unresolved: string;
+    resolvedFill: string;
+    unresolvedFill: string;
+    resolvedPath: string;
     childCommentsIndent: string;
     commentBackground: string;
     contextMenuTrigger: string;
@@ -915,6 +918,22 @@ type ColorType = {
     contextMenuTitleHover: ShadeColor;
     appCommentsHeaderTitle: ShadeColor;
     appCommentsClose: ShadeColor;
+    viewLatest: string;
+    commentTime: string;
+    pinId: string;
+    commentsFilter: string;
+    appCommentsHeaderBorder: string;
+    unreadIndicator: string;
+    unreadIndicatorCommentCard: string;
+    pinnedByText: string;
+    pinnedThreadBackground: string;
+    visibleThreadBackground: string;
+  };
+  reactionsComponent: {
+    reactionBackground: string;
+    reactionBackgroundActive: string;
+    text: string;
+    textActive: string;
   };
   treeDropdown: {
     targetBg: string;
@@ -992,7 +1011,15 @@ type ColorType = {
   mentionsInput: Record<string, string>;
 };
 
+const reactionsComponent = {
+  reactionBackground: lightShades[2],
+  reactionBackgroundActive: "#FEEDE5",
+  text: lightShades[7],
+  textActive: "#BF4109",
+};
+
 const comments = {
+  commentsFilter: "#6A86CE",
   profileUserName: darkShades[11],
   threadTitle: darkShades[8],
   commentBody: darkShades[8],
@@ -1006,8 +1033,11 @@ const comments = {
   commentModeButtonIcon: "#6A86CE",
   commentModeButtonBackground: "#262626",
   emojiPicker: lightShades[5],
-  resolved: Colors.GREEN,
+  resolved: Colors.BLACK,
   unresolved: lightShades[5],
+  resolvedFill: Colors.BLACK,
+  unresolvedFill: "transparent",
+  resolvedPath: Colors.WHITE,
   childCommentsIndent: lightShades[13],
   commentBackground: lightShades[2],
   contextMenuTrigger: darkShades[6],
@@ -1020,6 +1050,15 @@ const comments = {
   contextMenuTitleHover: darkShades[11],
   appCommentsHeaderTitle: darkShades[11],
   appCommentsClose: lightShades[15],
+  viewLatest: "#F86A2B",
+  commentTime: lightShades[7],
+  pinId: lightShades[8],
+  appCommentsHeaderBorder: lightShades[3],
+  unreadIndicator: "#E00D0D",
+  unreadIndicatorCommentCard: "#F86A2B",
+  pinnedByText: lightShades[7],
+  pinnedThreadBackground: "#FFFAE9",
+  visibleThreadBackground: "#FBEED0",
 };
 
 const auth: any = {
@@ -1089,6 +1128,7 @@ const mentionsInput = {
 };
 
 export const dark: ColorType = {
+  reactionsComponent,
   mentionsInput,
   helpModal,
   globalSearch,
@@ -1534,6 +1574,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  reactionsComponent,
   mentionsInput,
   helpModal,
   globalSearch,
@@ -2056,7 +2097,7 @@ export const theme: Theme = {
     },
     btnSmall: {
       fontSize: 11,
-      lineHeight: 13,
+      lineHeight: 12,
       letterSpacing: 0.4,
       fontWeight: 600,
     },
