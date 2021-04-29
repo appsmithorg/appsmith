@@ -5,10 +5,13 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +44,10 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
     private final SessionUserService sessionUserService;
     private final ApplicationService applicationService;
+    private final NotificationService notificationService;
 
     private final PolicyGenerator policyGenerator;
+    private final PolicyUtils policyUtils;
 
     public CommentServiceImpl(
             Scheduler scheduler,
@@ -54,13 +59,17 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             CommentThreadRepository threadRepository,
             SessionUserService sessionUserService,
             ApplicationService applicationService,
-            PolicyGenerator policyGenerator
+            NotificationService notificationService,
+            PolicyGenerator policyGenerator,
+            PolicyUtils policyUtils
     ) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
         this.sessionUserService = sessionUserService;
         this.applicationService = applicationService;
+        this.notificationService = notificationService;
         this.policyGenerator = policyGenerator;
+        this.policyUtils = policyUtils;
     }
 
     @Override
@@ -90,6 +99,20 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     String authorName = user.getName() != null ? user.getName(): user.getUsername();
                     comment1.setAuthorName(authorName);
                     return repository.save(comment1);
+                })
+                .flatMap(savedComment -> {
+                    final Set<String> usernames = policyUtils.findUsernamesWithPermission(
+                            savedComment.getPolicies(), AclPermission.READ_COMMENT);
+
+                    List<Mono<Notification>> monos = new ArrayList<>();
+                    for (String username : usernames) {
+                        final CommentNotification notification = new CommentNotification();
+                        notification.setComment(savedComment);
+                        notification.setForUsername(username);
+                        monos.add(notificationService.create(notification));
+                    }
+
+                    return Flux.concat(monos).then(Mono.just(savedComment));
                 });
     }
 
@@ -137,6 +160,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
 
                     if (!CollectionUtils.isEmpty(thread.getComments())) {
+                        thread.getComments().get(0).setLeading(true);
                         for (final Comment comment : thread.getComments()) {
                             comment.setId(null);
                             commentSaverMonos.add(create(thread.getId(), comment));

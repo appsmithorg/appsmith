@@ -32,6 +32,12 @@ public class Comment extends BaseDomain {
 
     Body body;
 
+    /**
+     * Indicates whether this comment is the leading comment in it's thread. Such a comment cannot be deleted.
+     */
+    @JsonIgnore
+    Boolean leading;
+
     @Data
     public static class Body {
         List<Block> blocks;
