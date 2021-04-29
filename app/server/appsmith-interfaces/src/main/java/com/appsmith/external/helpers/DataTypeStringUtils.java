@@ -290,13 +290,21 @@ public class DataTypeStringUtils {
                             && ((Map)item).entrySet().stream()
                             .allMatch(e -> ((Map.Entry)e).getValue() instanceof String));
         }
-
-        if (data instanceof String || data instanceof JsonNode) {
+        else if (data instanceof JsonNode) {
             // Check if the object is an array of simple json objects i.e. all values in the key value pairs are String.
             try {
                 objectMapper.convertValue(data, new TypeReference<List<Map<String, String>>>() {});
                 return true;
             } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+        else if (data instanceof String) {
+            // Check if the object is an array of simple json objects i.e. all values in the key value pairs are String.
+            try {
+                objectMapper.readValue((String)data, new TypeReference<List<Map<String, String>>>() {});
+                return true;
+            } catch (IOException e) {
                 return false;
             }
         }
