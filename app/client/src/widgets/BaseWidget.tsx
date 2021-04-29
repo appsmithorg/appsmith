@@ -31,6 +31,8 @@ import {
 } from "../utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
+import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
@@ -46,6 +48,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
  * 3) Call actions in widgets or connect the widgets to the entity reducers
  *
  */
+
 abstract class BaseWidget<
   T extends WidgetProps,
   K extends WidgetState
@@ -245,12 +248,37 @@ abstract class BaseWidget<
     return <ErrorBoundary>{content}</ErrorBoundary>;
   }
 
+  /**
+   * These comments are rendered using position: absolute over the widget borders,
+   * they are not aware of the component structure.
+   * For additional component specific contexts, for eg.
+   * a comment bound to the scroll position or a specific section
+   * we would pass comments as props to the components
+   */
+  addOverlayComments(content: ReactNode) {
+    return (
+      <OverlayCommentsWrapper refId={this.props.widgetId}>
+        {content}
+      </OverlayCommentsWrapper>
+    );
+  }
+
+  addPreventInteractionOverlay(content: ReactNode) {
+    return (
+      <PreventInteractionsOverlay widgetType={this.props.type}>
+        {content}
+      </PreventInteractionsOverlay>
+    );
+  }
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
 
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
+        content = this.addPreventInteractionOverlay(content);
+        content = this.addOverlayComments(content);
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
@@ -263,6 +291,8 @@ abstract class BaseWidget<
       case RenderModes.PAGE:
         content = this.getPageView();
         if (this.props.isVisible) {
+          content = this.addPreventInteractionOverlay(content);
+          content = this.addOverlayComments(content);
           content = this.addErrorBoundary(content);
           if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
