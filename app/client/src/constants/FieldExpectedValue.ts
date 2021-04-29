@@ -13,6 +13,7 @@ const FIELD_VALUES: Record<
   CANVAS_WIDGET: {},
   ICON_WIDGET: {},
   SKELETON_WIDGET: {},
+  TABS_MIGRATOR_WIDGET: {},
   CONTAINER_WIDGET: {
     backgroundColor: "string",
     isVisible: "boolean",
@@ -61,8 +62,6 @@ const FIELD_VALUES: Record<
     // onSelectionChange: "Function Call",
   },
   TABS_WIDGET: {
-    tabs:
-      "Array<{ label: string, id: string(unique), widgetId: string(unique) }>",
     selectedTab: "string",
     isVisible: "boolean",
   },

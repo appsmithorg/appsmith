@@ -16,7 +16,10 @@ import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
@@ -84,6 +87,7 @@ export type EditorStyleProps = {
   hoverInteraction?: boolean;
   fill?: boolean;
   useValidationMessage?: boolean;
+  evaluationSubstitutionType?: EvaluationSubstitutionType;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -352,6 +356,7 @@ class CodeEditor extends Component<Props, State> {
       fill,
       useValidationMessage,
       hideEvaluatedValue,
+      evaluationSubstitutionType,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
@@ -365,54 +370,55 @@ class CodeEditor extends Component<Props, State> {
 
     return (
       <DynamicAutocompleteInputWrapper
-        theme={this.props.theme}
-        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
-        isError={hasError}
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
+        isError={hasError}
         isNotHover={this.state.isFocused || this.state.isOpened}
+        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
+        theme={this.props.theme}
       >
         {showLightningMenu !== false && !this.state.isFocused && (
           <Suspense fallback={<div />}>
             <LightningMenu
+              isFocused={this.state.isFocused}
+              isOpened={this.state.isOpened}
+              onCloseLightningMenu={() => {
+                this.setState({ isOpened: false });
+              }}
+              onOpenLightningMenu={() => {
+                this.setState({ isOpened: true });
+              }}
               skin={
                 this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT
               }
               updateDynamicInputValue={this.updatePropertyValue}
-              isFocused={this.state.isFocused}
-              isOpened={this.state.isOpened}
-              onOpenLightningMenu={() => {
-                this.setState({ isOpened: true });
-              }}
-              onCloseLightningMenu={() => {
-                this.setState({ isOpened: false });
-              }}
             />
           </Suspense>
         )}
         <EvaluatedValuePopup
-          theme={theme || EditorTheme.LIGHT}
-          isOpen={showEvaluatedValue}
+          error={meta?.error}
           evaluatedValue={evaluated}
+          evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
           hasError={hasError}
-          error={meta?.error}
-          useValidationMessage={useValidationMessage}
           hideEvaluatedValue={hideEvaluatedValue}
+          isOpen={showEvaluatedValue}
+          theme={theme || EditorTheme.LIGHT}
+          useValidationMessage={useValidationMessage}
         >
           <EditorWrapper
-            editorTheme={this.props.theme}
-            hasError={hasError}
-            size={size}
-            isFocused={this.state.isFocused}
-            disabled={disabled}
-            className={className}
-            height={height}
-            borderLess={borderLess}
             border={border}
-            isNotHover={this.state.isFocused || this.state.isOpened}
-            hoverInteraction={hoverInteraction}
+            borderLess={borderLess}
+            className={className}
+            disabled={disabled}
+            editorTheme={this.props.theme}
             fill={fill}
+            hasError={hasError}
+            height={height}
+            hoverInteraction={hoverInteraction}
+            isFocused={this.state.isFocused}
+            isNotHover={this.state.isFocused || this.state.isOpened}
             ref={this.editorWrapperRef}
+            size={size}
           >
             <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (
@@ -421,9 +427,9 @@ class CodeEditor extends Component<Props, State> {
 
             {this.props.leftImage && (
               <img
-                src={this.props.leftImage}
                 alt="img"
                 className="leftImageStyles"
+                src={this.props.leftImage}
               />
             )}
             <textarea
@@ -433,24 +439,22 @@ class CodeEditor extends Component<Props, State> {
               placeholder={placeholder}
             />
             {this.props.link && (
-              <React.Fragment>
-                <a
-                  href={this.props.link}
-                  target="_blank"
-                  className="linkStyles"
-                  rel="noopener noreferrer"
-                >
-                  API documentation
-                </a>
-              </React.Fragment>
+              <a
+                className="linkStyles"
+                href={this.props.link}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                API documentation
+              </a>
             )}
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
             <BindingPrompt
+              editorTheme={this.props.theme}
               isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
               promptMessage={this.props.promptMessage}
-              editorTheme={this.props.theme}
             />
             <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>

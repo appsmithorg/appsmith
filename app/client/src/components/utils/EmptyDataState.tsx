@@ -20,13 +20,13 @@ const TableColumnEmptyWrapper = styled.div`
   }
 `;
 
-const EmptyDataState = () => {
+function EmptyDataState() {
   return (
     <TableColumnEmptyWrapper>
       <img alt="No data" src={NoDataImage} />
       <div className="no-data-title">No data found</div>
     </TableColumnEmptyWrapper>
   );
-};
+}
 
 export default EmptyDataState;

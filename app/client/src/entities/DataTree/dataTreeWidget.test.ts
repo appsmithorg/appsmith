@@ -1,6 +1,10 @@
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeWidget,
+  ENTITY_TYPE,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
@@ -181,19 +185,19 @@ describe("generateDataTreeWidget", () => {
 
     const expected: DataTreeWidget = {
       bindingPaths: {
-        defaultText: true,
-        errorMessage: true,
-        isDirty: true,
-        isDisabled: true,
-        isFocused: true,
-        isRequired: true,
-        isValid: true,
-        isVisible: true,
-        placeholderText: true,
-        regex: true,
-        resetOnSubmit: true,
-        text: true,
-        value: true,
+        defaultText: EvaluationSubstitutionType.TEMPLATE,
+        errorMessage: EvaluationSubstitutionType.TEMPLATE,
+        isDirty: EvaluationSubstitutionType.TEMPLATE,
+        isDisabled: EvaluationSubstitutionType.TEMPLATE,
+        isFocused: EvaluationSubstitutionType.TEMPLATE,
+        isRequired: EvaluationSubstitutionType.TEMPLATE,
+        isValid: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        placeholderText: EvaluationSubstitutionType.TEMPLATE,
+        regex: EvaluationSubstitutionType.TEMPLATE,
+        resetOnSubmit: EvaluationSubstitutionType.TEMPLATE,
+        text: EvaluationSubstitutionType.TEMPLATE,
+        value: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onSubmit: true,

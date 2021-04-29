@@ -90,20 +90,20 @@ class NavBarItem extends React.Component<Props> {
     return (
       <ItemContainer>
         <NavLink
+          className={this.props.className}
           exact={exact}
-          to={path}
           isActive={(match, location) => {
             return isActive(path, location.pathname);
           }}
-          className={this.props.className}
           onClick={() => {
             onClick && onClick();
             AnalyticsUtil.logEvent("SIDEBAR_NAVIGATION", {
               navPage: this.props.title.toUpperCase(),
             });
           }}
+          to={path}
         >
-          <IconContainer width={width} height={height}>
+          <IconContainer height={height} width={width}>
             {icon({ width, height })}
           </IconContainer>
           <span>{title}</span>

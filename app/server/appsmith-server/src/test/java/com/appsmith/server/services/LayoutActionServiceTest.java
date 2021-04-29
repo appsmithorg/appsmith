@@ -17,6 +17,7 @@ import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
+import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -615,5 +616,51 @@ public class LayoutActionServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.DUPLICATE_KEY_USER_ERROR.getMessage(name, FieldName.NAME)))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void tableWidgetKeyEscapeRefactorName() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "Table1");
+        dsl.put("type", "TABLE_WIDGET");
+        Map primaryColumns = new HashMap<String, Object>();
+        JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+        primaryColumns.put("_id", jsonObject);
+        primaryColumns.put("_class", jsonObject);
+        dsl.put("primaryColumns", primaryColumns);
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(layout.getId());
+        refactorNameDTO.setOldName("Table1");
+        refactorNameDTO.setNewName("NewNameTable1");
+
+        Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
+
+        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+
+        StepVerifier
+                .create(Mono.zip(widgetRenameMono, pageFromRepoMono))
+                .assertNext(tuple -> {
+                    LayoutDTO updatedLayout = tuple.getT1();
+                    PageDTO pageFromRepo = tuple.getT2();
+
+                    String widgetName = (String) updatedLayout.getDsl().get("widgetName");
+                    assertThat(widgetName).isEqualTo("NewNameTable1");
+
+                    Map primaryColumns1 = (Map) updatedLayout.getDsl().get("primaryColumns");
+                    assertThat(primaryColumns1.keySet()).containsAll(Set.of(FieldName.MONGO_UNESCAPED_ID, FieldName.MONGO_UNESCAPED_CLASS));
+
+                    Map primaryColumns2 = (Map) pageFromRepo.getLayouts().get(0).getDsl().get("primaryColumns");
+                    assertThat(primaryColumns2.keySet()).containsAll(Set.of(FieldName.MONGO_ESCAPE_ID, FieldName.MONGO_ESCAPE_CLASS));
+                })
+                .verifyComplete();
     }
 }

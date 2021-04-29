@@ -48,7 +48,7 @@ const validate = (values: CreateApplicationFormValues) => {
 
 // TODO(abhinav): abstract onCancel out.
 
-const CreateApplicationForm = (props: Props) => {
+function CreateApplicationForm(props: Props) {
   const { error, handleSubmit, pristine, submitting, invalid } = props;
   return (
     <Form onSubmit={handleSubmit(createApplicationFormSubmitHandler)}>
@@ -58,22 +58,22 @@ const CreateApplicationForm = (props: Props) => {
           name={CREATE_APPLICATION_FORM_NAME_FIELD}
           placeholder="Name"
         />
-        <Field type="hidden" name="orgId" component="input" />
+        <Field component="input" name="orgId" type="hidden" />
       </FormGroup>
       <FormFooter
+        canSubmit={!invalid}
+        data-cy="t--create-app-submit"
+        divider
         onCancel={props.onCancel}
         onSubmit={handleSubmit(createApplicationFormSubmitHandler)}
-        divider
-        canSubmit={!invalid}
-        submitOnEnter
-        data-cy="t--create-app-submit"
-        submitText="Submit"
         size="small"
+        submitOnEnter
+        submitText="Submit"
         submitting={submitting && !error}
       />
     </Form>
   );
-};
+}
 
 const mapStateToProps = (state: AppState, props: Props): any => {
   const orgId = props.orgId;

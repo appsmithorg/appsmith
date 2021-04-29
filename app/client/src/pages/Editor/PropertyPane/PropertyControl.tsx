@@ -249,12 +249,13 @@ const PropertyControl = memo((props: Props) => {
     let validationMessage = "";
     if (widgetProperties) {
       isValid = widgetProperties.invalidProps
-        ? !(propertyName in widgetProperties.invalidProps)
+        ? !_.has(widgetProperties.invalidProps, propertyName)
         : true;
-      validationMessage = widgetProperties.validationMessages
-        ? propertyName in widgetProperties.validationMessages
-          ? widgetProperties.validationMessages[propertyName]
-          : ""
+      const validationMsgPresent =
+        widgetProperties.validationMessages &&
+        _.has(widgetProperties.validationMessages, propertyName);
+      validationMessage = validationMsgPresent
+        ? _.get(widgetProperties.validationMessages, propertyName)
         : "";
     }
     return { isValid, validationMessage };
@@ -346,30 +347,30 @@ const PropertyControl = memo((props: Props) => {
           }
         >
           <Boxed
-            step={OnboardingStep.DEPLOY}
             show={
               propertyName !== "isRequired" && propertyName !== "isDisabled"
             }
+            step={OnboardingStep.DEPLOY}
           >
             <ControlPropertyLabelContainer>
               <PropertyHelpLabel
-                tooltip={props.helpText}
                 label={label}
                 theme={props.theme}
+                tooltip={props.helpText}
               />
               {isConvertible && (
                 <JSToggleButton
                   active={isDynamic}
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
                   className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
                 >
                   <ControlIcons.JS_TOGGLE />
                 </JSToggleButton>
               )}
             </ControlPropertyLabelContainer>
             <Indicator
-              step={OnboardingStep.ADD_INPUT_WIDGET}
               show={propertyName === "onSubmit"}
+              step={OnboardingStep.ADD_INPUT_WIDGET}
             >
               {PropertyControlFactory.createControl(
                 config,

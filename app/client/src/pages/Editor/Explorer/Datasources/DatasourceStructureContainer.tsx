@@ -4,7 +4,7 @@ import {
   DatasourceStructure as DatasourceStructureType,
   DatasourceTable,
 } from "entities/Datasource";
-import React, { memo, ReactNode } from "react";
+import React, { memo, ReactElement } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { useEntityUpdateState } from "../hooks";
 import DatasourceStructure from "./DatasourceStructure";
@@ -15,43 +15,49 @@ type Props = {
   step: number;
 };
 
-export const DatasourceStructureContainer = memo((props: Props) => {
+const Container = (props: Props) => {
   const isLoading = useEntityUpdateState(props.datasourceId);
-  let view: ReactNode = <div />;
+  let view: ReactElement<Props> = <div />;
 
   if (!isLoading) {
-    if (
-      props.datasourceStructure &&
-      props.datasourceStructure.tables &&
-      props.datasourceStructure.tables.length
-    ) {
-      view = props.datasourceStructure.tables.map(
-        (structure: DatasourceTable) => {
-          return (
-            <Boxed
-              key={`${props.datasourceId}${structure.name}`}
-              step={OnboardingStep.DEPLOY}
-              show={structure.name === "public.standup_updates"}
-            >
-              <DatasourceStructure
-                dbStructure={structure}
-                step={props.step + 1}
-                datasourceId={props.datasourceId}
-              />
-            </Boxed>
-          );
-        },
+    if (props.datasourceStructure?.tables?.length) {
+      view = (
+        <>
+          {props.datasourceStructure.tables.map(
+            (structure: DatasourceTable) => {
+              return (
+                <Boxed
+                  key={`${props.datasourceId}${structure.name}`}
+                  show={structure.name === "public.standup_updates"}
+                  step={OnboardingStep.DEPLOY}
+                >
+                  <DatasourceStructure
+                    datasourceId={props.datasourceId}
+                    dbStructure={structure}
+                    step={props.step + 1}
+                  />
+                </Boxed>
+              );
+            },
+          )}
+        </>
       );
     } else {
       view = (
         <EntityPlaceholder step={props.step + 1}>
-          No information available
+          {props.datasourceStructure &&
+          props.datasourceStructure.error &&
+          props.datasourceStructure.error.message
+            ? props.datasourceStructure.error.message
+            : "No information available"}
         </EntityPlaceholder>
       );
     }
   }
 
-  return <>{view}</>;
-});
+  return view;
+};
+
+export const DatasourceStructureContainer = memo(Container);
 
 DatasourceStructureContainer.displayName = "DatasourceStructureContainer";

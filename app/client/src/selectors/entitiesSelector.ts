@@ -129,6 +129,9 @@ export const getPluginByPackageName = (state: AppState, name: string) =>
 export const getPluginEditorConfigs = (state: AppState) =>
   state.entities.plugins.editorConfigs;
 
+export const getPluginDependencyConfig = (state: AppState) =>
+  state.entities.plugins.dependencies;
+
 export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
   state.entities.plugins.settingConfigs[pluginId];
 

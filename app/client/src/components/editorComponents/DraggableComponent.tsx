@@ -54,7 +54,7 @@ export const canDrag = (
   return !isResizing && !isDraggingDisabled && !props.dragDisabled;
 };
 
-const DraggableComponent = (props: DraggableComponentProps) => {
+function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to toggle property pane
   const showPropertyPane = useShowPropertyPane();
 
@@ -190,15 +190,15 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   return (
     <DraggableWrapper
       className={className}
-      ref={drag}
-      onMouseOver={handleMouseOver}
       onClick={handleClick}
+      onMouseOver={handleMouseOver}
+      ref={drag}
       style={style}
     >
       {shouldRenderComponent && props.children}
       {widgetBoundaries}
     </DraggableWrapper>
   );
-};
+}
 
 export default DraggableComponent;

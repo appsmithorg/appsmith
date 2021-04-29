@@ -19,7 +19,7 @@ import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 
-const ActionLink = (props: EntityLinkProps) => {
+function ActionLink(props: EntityLinkProps) {
   const applicationId = useSelector(getCurrentApplicationId);
   const action = useSelector((state: AppState) => getAction(state, props.id));
 
@@ -44,15 +44,15 @@ const ActionLink = (props: EntityLinkProps) => {
 
   return (
     <Link
+      entityType={props.type}
       name={props.name}
       onClick={onClick}
-      entityType={props.type}
       uiComponent={props.uiComponent}
     />
   );
-};
+}
 
-const WidgetLink = (props: EntityLinkProps) => {
+function WidgetLink(props: EntityLinkProps) {
   const widgetMap = useSelector(getAllWidgetsMap);
   const selectedWidgetId = useSelector(getSelectedWidget);
   const { navigateToWidget } = useNavigateToWidget();
@@ -75,15 +75,15 @@ const WidgetLink = (props: EntityLinkProps) => {
 
   return (
     <Link
+      entityType={props.type}
       name={props.name}
       onClick={onClick}
-      entityType={props.type}
       uiComponent={props.uiComponent}
     />
   );
-};
+}
 
-const DatasourceLink = (props: EntityLinkProps) => {
+function DatasourceLink(props: EntityLinkProps) {
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, props.id),
   );
@@ -101,20 +101,20 @@ const DatasourceLink = (props: EntityLinkProps) => {
 
   return (
     <Link
+      entityType={props.type}
       name={props.name}
       onClick={onClick}
-      entityType={props.type}
       uiComponent={props.uiComponent}
     />
   );
-};
+}
 
-const Link = (props: {
+function Link(props: {
   name: string;
   onClick: any;
   entityType: ENTITY_TYPE;
   uiComponent: DebuggerLinkUI;
-}) => {
+}) {
   const onClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     props.onClick();
@@ -136,7 +136,7 @@ const Link = (props: {
     default:
       return null;
   }
-};
+}
 
 const entityTypeLinkMap = {
   [ENTITY_TYPE.WIDGET]: WidgetLink,
@@ -144,10 +144,10 @@ const entityTypeLinkMap = {
   [ENTITY_TYPE.DATASOURCE]: DatasourceLink,
 };
 
-const EntityLink = (props: EntityLinkProps) => {
+function EntityLink(props: EntityLinkProps) {
   const Component = entityTypeLinkMap[props.type];
   return <Component {...props} />;
-};
+}
 
 type EntityLinkProps = {
   uiComponent: DebuggerLinkUI;

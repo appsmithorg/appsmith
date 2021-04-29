@@ -58,7 +58,12 @@ export const getWidgetPropsForPropertyPane = createSelector(
   },
 );
 
+const isResizingorDragging = (state: AppState) =>
+  state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
+
 export const getIsPropertyPaneVisible = createSelector(
   getPropertyPaneState,
-  (pane: PropertyPaneReduxState) => !!(pane.isVisible && pane.widgetId),
+  isResizingorDragging,
+  (pane: PropertyPaneReduxState, isResizingorDragging: boolean) =>
+    !!(!isResizingorDragging && pane.isVisible && pane.widgetId),
 );

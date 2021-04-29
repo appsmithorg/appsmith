@@ -152,7 +152,7 @@ export function* fetchPageListSaga(
   }
 }
 
-const getCanvasWidgetsPayload = (
+export const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
 ): UpdateCanvasPayload => {
   const normalizedResponse = CanvasWidgetsNormalizer.normalize(
@@ -195,12 +195,7 @@ export function* fetchPageSaga(
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
-      yield put(
-        fetchPageSuccess([
-          // Execute page load actions after evaluation of fetch page
-          executePageLoadActions(canvasWidgetsPayload.pageActions),
-        ]),
-      );
+      yield put(fetchPageSuccess());
 
       yield put({
         type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
@@ -264,7 +259,7 @@ export function* fetchPublishedPageSaga(
       yield put(
         fetchPublishedPageSuccess(
           // Execute page load actions post published page eval
-          [executePageLoadActions(canvasWidgetsPayload.pageActions)],
+          [executePageLoadActions()],
         ),
       );
       PerformanceTracker.stopAsyncTracking(
@@ -601,13 +596,14 @@ export function* updateWidgetNameSaga(
 
     // TODO(abhinav): Why do we need to jump through these hoops just to
     // change the tab name? Figure out a better design to make this moot.
-    const tabs:
-      | Array<{
-          id: string;
-          widgetId: string;
-          label: string;
-        }>
-      | undefined = yield select((state: AppState) => {
+    const tabsObj: Record<
+      string,
+      {
+        id: string;
+        widgetId: string;
+        label: string;
+      }
+    > = yield select((state: AppState) => {
       // Check if this widget exists in the canvas widgets
       if (state.entities.canvasWidgets.hasOwnProperty(action.payload.id)) {
         // If it does assign it to a variable
@@ -622,7 +618,7 @@ export function* updateWidgetNameSaga(
           // Check if this parent is a TABS_WIDGET
           if (parent.type === WidgetTypes.TABS_WIDGET) {
             // If it is return the tabs property
-            return parent.tabs;
+            return parent.tabsObj;
           }
         }
       }
@@ -631,7 +627,8 @@ export function* updateWidgetNameSaga(
     });
 
     // If we're trying to update the name of a tab in the TABS_WIDGET
-    if (tabs !== undefined) {
+    if (tabsObj !== undefined) {
+      const tabs: any = Object.values(tabsObj);
       // Get all canvas widgets
       const stateWidgets = yield select(getWidgets);
       // Shallow copy canvas widgets as they're immutable
@@ -646,14 +643,19 @@ export function* updateWidgetNameSaga(
       // Shallow copy the parent widget so that we can update the properties
       const parent = { ...widgets[parentId] };
       // Update the tabs property of the parent tabs widget
-      parent.tabs = tabs.map(
-        (tab: { widgetId: string; label: string; id: string }) => {
-          if (tab.widgetId === action.payload.id) {
-            return { ...tab, label: action.payload.newName };
-          }
-          return tab;
-        },
+      const tabToChange = tabs.find(
+        (each: any) => each.widgetId === action.payload.id,
       );
+      const updatedTab = {
+        ...tabToChange,
+        label: action.payload.newName,
+      };
+      parent.tabsObj = {
+        ...parent.tabsObj,
+        [updatedTab.id]: {
+          ...updatedTab,
+        },
+      };
       // replace the parent widget in the canvas widgets
       widgets[parentId] = parent;
       // Update and save the new widgets
