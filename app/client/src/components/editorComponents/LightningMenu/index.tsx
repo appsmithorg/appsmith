@@ -68,7 +68,7 @@ type LightningMenuProps = {
   theme: Theme;
 };
 
-export const LightningMenu = (props: LightningMenuProps) => {
+export function LightningMenu(props: LightningMenuProps) {
   const widgets = useWidgets();
   const { apis, queries, saas } = useActions();
   const pageId = usePageId();
@@ -85,16 +85,16 @@ export const LightningMenu = (props: LightningMenuProps) => {
         dispatch,
         props.updateDynamicInputValue,
         <LightningMenuTrigger
-          skin={props.skin}
-          theme={props.theme}
           isFocused={props.isFocused}
           isOpened={props.isOpened}
           onOpenLightningMenu={props.onOpenLightningMenu}
+          skin={props.skin}
+          theme={props.theme}
         />,
         props.onCloseLightningMenu,
       )}
     />
   );
-};
+}
 
 export default withTheme(LightningMenu);

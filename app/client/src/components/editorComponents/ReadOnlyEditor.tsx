@@ -18,7 +18,7 @@ interface Props {
   folding: boolean;
 }
 
-const ReadOnlyEditor = (props: Props) => {
+function ReadOnlyEditor(props: Props) {
   const editorProps: EditorProps = {
     hinting: [],
     input: props.input,
@@ -34,6 +34,6 @@ const ReadOnlyEditor = (props: Props) => {
     folding: props.folding,
   };
   return <CodeEditor {...editorProps} />;
-};
+}
 
 export default ReadOnlyEditor;

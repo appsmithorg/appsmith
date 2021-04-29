@@ -36,7 +36,7 @@ type QueryTemplatesProps = {
   datasourceId: string;
 };
 
-export const QueryTemplates = (props: QueryTemplatesProps) => {
+export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
   const actions = useSelector((state: AppState) => state.entities.actions);
@@ -91,8 +91,8 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
       {props.templates.map((template) => {
         return (
           <TemplateType
-            key={template.title}
             className={Classes.POPOVER_DISMISS}
+            key={template.title}
             onClick={() => createQueryAction(template)}
           >
             {template.title}
@@ -101,6 +101,6 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
       })}
     </Container>
   );
-};
+}
 
 export default QueryTemplates;

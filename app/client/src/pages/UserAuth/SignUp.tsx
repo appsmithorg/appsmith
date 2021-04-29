@@ -75,7 +75,7 @@ type SignUpFormProps = InjectedFormProps<
 > &
   RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
 
-export const SignUp = (props: SignUpFormProps) => {
+export function SignUp(props: SignUpFormProps) {
   const { error, submitting, pristine, valid, emailValue: email } = props;
   const isFormValid = valid && email && !isEmptyString(email);
 
@@ -106,25 +106,25 @@ export const SignUp = (props: SignUpFormProps) => {
       <SignUpLinkSection>
         {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
         <AuthCardNavLink
-          to={AUTH_LOGIN_URL}
           style={{ marginLeft: props.theme.spaces[3] }}
+          to={AUTH_LOGIN_URL}
         >
           {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
         </AuthCardNavLink>
       </SignUpLinkSection>
       {SocialLoginList.length > 0 && (
-        <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+        <ThirdPartyAuth logins={SocialLoginList} type={"SIGNUP"} />
       )}
-      <SpacedSubmitForm method="POST" action={signupURL}>
+      <SpacedSubmitForm action={signupURL} method="POST">
         <FormGroup
           intent={error ? "danger" : "none"}
           label={createMessage(SIGNUP_PAGE_EMAIL_INPUT_LABEL)}
         >
           <FormTextField
-            name="email"
-            type="email"
-            placeholder={createMessage(SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER)}
             autoFocus
+            name="email"
+            placeholder={createMessage(SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER)}
+            type="email"
           />
         </FormGroup>
         <FormGroup
@@ -132,20 +132,16 @@ export const SignUp = (props: SignUpFormProps) => {
           label={createMessage(SIGNUP_PAGE_PASSWORD_INPUT_LABEL)}
         >
           <FormTextField
-            type="password"
             name="password"
             placeholder={createMessage(SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER)}
+            type="password"
           />
         </FormGroup>
         <FormActions>
           <Button
-            tag="button"
-            type="submit"
             disabled={pristine || !isFormValid}
-            isLoading={submitting}
-            text={createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
             fill
-            size={Size.large}
+            isLoading={submitting}
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                 signupMethod: "EMAIL",
@@ -155,12 +151,16 @@ export const SignUp = (props: SignUpFormProps) => {
               );
               initiateOnboarding();
             }}
+            size={Size.large}
+            tag="button"
+            text={createMessage(SIGNUP_PAGE_SUBMIT_BUTTON_TEXT)}
+            type="submit"
           />
         </FormActions>
       </SpacedSubmitForm>
     </>
   );
-};
+}
 
 const selector = formValueSelector(SIGNUP_FORM_NAME);
 export default connect((state: AppState, props: SignUpFormProps) => {

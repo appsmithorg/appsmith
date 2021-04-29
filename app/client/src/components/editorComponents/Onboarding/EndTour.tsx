@@ -11,7 +11,7 @@ const EndTourText = styled.span`
   cursor: pointer;
 `;
 
-const EndTour = () => {
+function EndTour() {
   const dispatch = useDispatch();
 
   return (
@@ -24,6 +24,6 @@ const EndTour = () => {
       End Tour
     </EndTourText>
   );
-};
+}
 
 export default EndTour;

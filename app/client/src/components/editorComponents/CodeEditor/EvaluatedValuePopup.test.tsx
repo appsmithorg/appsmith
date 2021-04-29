@@ -13,10 +13,10 @@ describe("EvaluatedValuePopup", () => {
       <Provider store={store}>
         <ThemeProvider theme={theme}>
           <EvaluatedValuePopup
-            theme={EditorTheme.LIGHT}
-            isOpen={true}
             hasError={false}
             hideEvaluatedValue={false}
+            isOpen
+            theme={EditorTheme.LIGHT}
           >
             <div>children</div>
           </EvaluatedValuePopup>
@@ -33,10 +33,10 @@ describe("EvaluatedValuePopup", () => {
       <Provider store={store}>
         <ThemeProvider theme={theme}>
           <EvaluatedValuePopup
-            theme={EditorTheme.LIGHT}
-            isOpen={true}
             hasError={false}
-            hideEvaluatedValue={true}
+            hideEvaluatedValue
+            isOpen
+            theme={EditorTheme.LIGHT}
           >
             <div>children</div>
           </EvaluatedValuePopup>

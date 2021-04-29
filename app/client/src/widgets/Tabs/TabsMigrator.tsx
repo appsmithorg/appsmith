@@ -1,6 +1,5 @@
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { TabContainerWidgetProps, TabsWidgetProps } from "./TabsWidget";
-import React from "react";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import withMeta from "widgets/MetaHOC";
 import * as Sentry from "@sentry/react";
@@ -13,7 +12,7 @@ class TabsMigratorWidget extends BaseWidget<
   WidgetState
 > {
   getPageView() {
-    return <></>;
+    return null;
   }
   static getPropertyPaneConfig() {
     return [
