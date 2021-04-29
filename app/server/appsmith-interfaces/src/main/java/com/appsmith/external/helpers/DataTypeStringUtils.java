@@ -337,17 +337,17 @@ public class DataTypeStringUtils {
 
         List<ParsedDataType> dataTypes = new ArrayList<>();
 
-        // Check if the returned data is a valid table.
+        // Check if the data is a valid table.
         if (isDisplayTypeTable(data)) {
             dataTypes.add(new ParsedDataType(DisplayDataType.TABLE));
         }
 
-        // Check if the returned data is a valid json.
+        // Check if the data is a valid json.
         if (isDisplayTypeJson(data)) {
             dataTypes.add(new ParsedDataType(DisplayDataType.JSON));
         }
 
-        // All return data types can be categorized as raw by default.
+        // All data types can be categorized as raw by default.
         dataTypes.add(new ParsedDataType(DisplayDataType.RAW));
 
         return dataTypes;
