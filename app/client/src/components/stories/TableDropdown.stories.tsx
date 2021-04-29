@@ -26,15 +26,21 @@ const options = [
   },
 ];
 
-export const TableDropdownStory = () => (
-  <StoryWrapper
-    style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-  >
-    <TableDropdown
-      position={select("position", Object.values(Position), Position.BOTTOM)}
-      options={options}
-      onSelect={(selectedValue) => console.log(selectedValue)}
-      selectedIndex={0}
-    ></TableDropdown>
-  </StoryWrapper>
-);
+export function TableDropdownStory() {
+  return (
+    <StoryWrapper
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <TableDropdown
+        onSelect={(selectedValue) => console.log(selectedValue)}
+        options={options}
+        position={select("position", Object.values(Position), Position.BOTTOM)}
+        selectedIndex={0}
+      />
+    </StoryWrapper>
+  );
+}

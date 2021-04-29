@@ -761,7 +761,9 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
 
     if (props) {
       if (props.selectionType === "SINGLE_SELECT") {
-        return VALIDATORS[VALIDATION_TYPES.TEXT](value, props, dataTree);
+        const defaultValue =
+          value && !Array.isArray(value) ? value.trim() : value;
+        return VALIDATORS[VALIDATION_TYPES.TEXT](defaultValue, props, dataTree);
       } else if (props.selectionType === "MULTI_SELECT") {
         if (typeof value === "string") {
           try {

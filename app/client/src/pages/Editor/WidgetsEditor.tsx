@@ -52,7 +52,7 @@ const CanvasContainer = styled.section`
 `;
 
 /* eslint-disable react/display-name */
-const WidgetsEditor = () => {
+function WidgetsEditor() {
   const { focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
@@ -121,13 +121,13 @@ const WidgetsEditor = () => {
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
         <MainContainerLayoutControl />
-        <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
+        <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
           {node}
         </CanvasContainer>
         <Debugger />
       </EditorWrapper>
     </EditorContextProvider>
   );
-};
+}
 
 export default WidgetsEditor;

@@ -113,20 +113,20 @@ const ReadMore = withTheme(
             : "read less"}
         </div>
         <Icon
+          fillColor={theme.colors.text.normal}
           name={
             currentState === ReleaseComponentViewState.collapsed
               ? "view-all"
               : "view-less"
           }
           size={IconSize.XS}
-          fillColor={theme.colors.text.normal}
         />
       </StyledReadMore>
     </ReadMoreContainer>
   ),
 );
 
-const ReleaseComponent = ({ release }: ReleaseProps) => {
+function ReleaseComponent({ release }: ReleaseProps) {
   const { name, publishedAt, descriptionHtml } = release;
   const [isCollapsed, setCollapsed] = useState(true);
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
@@ -159,19 +159,19 @@ const ReleaseComponent = ({ release }: ReleaseProps) => {
       <StyledTitle>{name}</StyledTitle>
       <StyledDate>{moment(publishedAt).format("Do MMMM, YYYY")}</StyledDate>
       <StyledContent
-        ref={contentRef}
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
         maxHeight={getHeight()}
+        ref={contentRef}
       />
       {shouldShowReadMore && (
         <ReadMore
-          onClick={toggleCollapsedState}
           currentState={getReadMoreState()}
+          onClick={toggleCollapsedState}
         />
       )}
       <StyledSeparator />
     </StyledContainer>
   ) : null;
-};
+}
 
 export default ReleaseComponent;

@@ -26,7 +26,7 @@ const BlankStateWrapper = styled.div`
   }
 `;
 
-export const BlankState = (props: { hasShortCut?: boolean }) => {
+export function BlankState(props: { hasShortCut?: boolean }) {
   return (
     <BlankStateWrapper>
       {props.hasShortCut ? (
@@ -40,7 +40,7 @@ export const BlankState = (props: { hasShortCut?: boolean }) => {
       )}
     </BlankStateWrapper>
   );
-};
+}
 
 export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",

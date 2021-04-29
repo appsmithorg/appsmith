@@ -48,11 +48,11 @@ Spinner.defaultProp = {
 export default function Spinner(props: SpinnerProp) {
   return (
     <SvgContainer
-      viewBox="0 0 50 50"
       className={Classes.SPINNER}
       size={props.size}
+      viewBox="0 0 50 50"
     >
-      <SvgCircle cx="25" cy="25" r="20" fill="none"></SvgCircle>
+      <SvgCircle cx="25" cy="25" fill="none" r="20" />
     </SvgContainer>
   );
 }

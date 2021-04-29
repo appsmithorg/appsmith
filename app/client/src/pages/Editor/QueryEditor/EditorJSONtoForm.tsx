@@ -127,6 +127,13 @@ const GenerateWidgetButton = styled.a`
   }
 `;
 
+const ResultsCount = styled.div`
+  position: absolute;
+  right: 180px;
+  top: 8px;
+  color: #716e6e;
+`;
+
 const FieldWrapper = styled.div`
   margin-top: 15px;
 `;
@@ -345,7 +352,7 @@ export type EditorJSONtoFormProps = QueryFormProps & ReduxProps;
 type Props = EditorJSONtoFormProps &
   InjectedFormProps<Action, EditorJSONtoFormProps>;
 
-export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
+export function EditorJSONtoForm(props: Props) {
   const {
     handleSubmit,
     isDeleting,
@@ -391,51 +398,47 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
     dispatch(addTableWidgetFromQuery(actionName));
   };
 
-  const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
+  function MenuList(props: MenuListComponentProps<{ children: Node }>) {
     return (
       <>
         <components.MenuList {...props}>{props.children}</components.MenuList>
         <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-          <Icon icon="plus" iconSize={11} className="createIcon" />
+          <Icon className="createIcon" icon="plus" iconSize={11} />
           Create new datasource
         </CreateDatasource>
       </>
     );
-  };
+  }
 
-  const SingleValue = (props: SingleValueProps<OptionTypeBase>) => {
+  function SingleValue(props: SingleValueProps<OptionTypeBase>) {
     return (
-      <>
-        <components.SingleValue {...props}>
-          <Container>
-            <img
-              className="plugin-image"
-              src={props.data.image}
-              alt="Datasource"
-            />
-            <div className="selected-value">{props.children}</div>
-          </Container>
-        </components.SingleValue>
-      </>
+      <components.SingleValue {...props}>
+        <Container>
+          <img
+            alt="Datasource"
+            className="plugin-image"
+            src={props.data.image}
+          />
+          <div className="selected-value">{props.children}</div>
+        </Container>
+      </components.SingleValue>
     );
-  };
+  }
 
-  const CustomOption = (props: OptionProps<OptionTypeBase>) => {
+  function CustomOption(props: OptionProps<OptionTypeBase>) {
     return (
-      <>
-        <components.Option {...props}>
-          <Container className="t--datasource-option">
-            <img
-              className="plugin-image"
-              src={props.data.image}
-              alt="Datasource"
-            />
-            <div style={{ marginLeft: "6px" }}>{props.children}</div>
-          </Container>
-        </components.Option>
-      </>
+      <components.Option {...props}>
+        <Container className="t--datasource-option">
+          <img
+            alt="Datasource"
+            className="plugin-image"
+            src={props.data.image}
+          />
+          <div style={{ marginLeft: "6px" }}>{props.children}</div>
+        </Container>
+      </components.Option>
     );
-  };
+  }
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -461,8 +464,8 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
         <ResponseContentWrapper>
           {error && (
             <ErrorContainer>
-              <AdsIcon name="warning-triangle" keepColors />
-              <Text type={TextType.H3} style={{ color: "#F22B2B" }}>
+              <AdsIcon keepColors name="warning-triangle" />
+              <Text style={{ color: "#F22B2B" }} type={TextType.H3}>
                 An error occurred
               </Text>
 
@@ -486,23 +489,20 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
             <HelpSection>
               {hintMessages.map((msg, index) => (
                 <Callout
-                  text={msg}
-                  key={index}
-                  variant={Variant.warning}
                   fill
+                  key={index}
+                  text={msg}
+                  variant={Variant.warning}
                 />
               ))}
             </HelpSection>
           )}
-          {output && (
-            <>
-              {isTableResponse ? (
-                <Table data={output} />
-              ) : (
-                <JSONViewer src={output} />
-              )}
-            </>
-          )}
+          {output &&
+            (isTableResponse ? (
+              <Table data={output} />
+            ) : (
+              <JSONViewer src={output} />
+            ))}
           {!output && !error && (
             <NoResponseContainer>
               <AdsIcon name="no-response" />
@@ -549,20 +549,20 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
           <DropdownSelect>
             <DropdownField
               className={"t--switch-datasource"}
-              placeholder="Datasource"
+              components={{ MenuList, Option: CustomOption, SingleValue }}
+              maxMenuHeight={200}
               name="datasource.id"
               options={DATASOURCES_OPTIONS}
+              placeholder="Datasource"
               width={232}
-              maxMenuHeight={200}
-              components={{ MenuList, Option: CustomOption, SingleValue }}
             />
           </DropdownSelect>
           <ActionButton
-            className="t--delete-query"
-            text="Delete"
             accent="error"
+            className="t--delete-query"
             loading={isDeleting}
             onClick={onDeleteClick}
+            text="Delete"
           />
 
           <OnboardingIndicator
@@ -570,12 +570,12 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
             width={75}
           >
             <ActionButton
+              accent="primary"
               className="t--run-query"
-              text="Run"
               filled
               loading={isRunning}
-              accent="primary"
               onClick={onRunClick}
+              text="Run"
             />
           </OnboardingIndicator>
         </ActionsWrapper>
@@ -584,8 +584,8 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
         <TabContainerView>
           {documentationLink && (
             <DocumentationLink
-              onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
               className="t--datasource-documentation-link"
+              onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
             >
               {"Documentation "}
               <StyledOpenDocsIcon icon="document-open" />
@@ -607,11 +607,11 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
                           An unexpected error occurred
                         </ErrorMessage>
                         <Tag
-                          round
                           intent="warning"
                           interactive
                           minimal
                           onClick={() => window.location.reload()}
+                          round
                         >
                           Refresh
                         </Tag>
@@ -624,12 +624,12 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
                           query
                         </p>
                         <Button
-                          onClick={() => onCreateDatasourceClick()}
-                          text="Add a Datasource"
-                          intent="primary"
                           filled
-                          size="small"
                           icon="plus"
+                          intent="primary"
+                          onClick={() => onCreateDatasourceClick()}
+                          size="small"
+                          text="Add a Datasource"
                         />
                       </NoDataSourceContainer>
                     )}
@@ -656,6 +656,14 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
           <Resizable panelRef={panelRef} />
           {output && !!output.length && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+              <ResultsCount>
+                <Text type={TextType.P3}>
+                  Result:
+                  <Text type={TextType.H5}>{`${output.length} Record${
+                    output.length > 1 ? "s" : ""
+                  }`}</Text>
+                </Text>
+              </ResultsCount>
               <GenerateWidgetButton
                 className="t--add-widget"
                 onClick={onAddWidget}
@@ -667,15 +675,15 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
           )}
 
           <TabComponent
-            selectedIndex={selectedIndex}
             onSelect={onTabSelect}
+            selectedIndex={selectedIndex}
             tabs={responseTabs}
           />
         </TabbedViewContainer>
       </SecondaryWrapper>
     </QueryFormContainer>
   );
-};
+}
 
 const renderEachConfig = (formName: string) => (section: any): any => {
   return section.children.map((formControlOrSection: ControlProps) => {

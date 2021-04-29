@@ -95,25 +95,25 @@ class DataSourceEditor extends React.Component<Props> {
 
     return (
       <DataSourceEditorForm
-        pluginImage={pluginImages[pluginId]}
         applicationId={this.props.match.params.applicationId}
-        pageId={this.props.match.params.pageId}
-        isSaving={isSaving}
-        isTesting={isTesting}
+        datasourceId={datasourceId}
+        formConfig={formConfig}
+        formData={formData}
+        formName={DATASOURCE_DB_FORM}
+        handleDelete={deleteDatasource}
         isDeleting={isDeleting}
         isNewDatasource={isNewDatasource}
-        onSubmit={this.handleSubmit}
+        isSaving={isSaving}
+        isTesting={isTesting}
         onSave={this.handleSave}
+        onSubmit={this.handleSubmit}
         onTest={this.props.testDatasource}
-        datasourceId={datasourceId}
-        formData={formData}
-        formConfig={formConfig}
-        handleDelete={deleteDatasource}
-        viewMode={viewMode}
-        setDatasourceEditorMode={setDatasourceEditorMode}
         openOmnibarReadMore={openOmnibarReadMore}
+        pageId={this.props.match.params.pageId}
+        pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
-        formName={DATASOURCE_DB_FORM}
+        setDatasourceEditorMode={setDatasourceEditorMode}
+        viewMode={viewMode}
       />
     );
   }
@@ -192,11 +192,11 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (!datasourceId) {
       return (
         <DatasourceHome
-          isSaving={isSaving}
           applicationId={applicationId}
-          pageId={pageId}
           history={history}
+          isSaving={isSaving}
           location={location}
+          pageId={pageId}
         />
       );
     }
@@ -205,14 +205,14 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (pluginDatasourceForm === "RestAPIDatasourceForm") {
       return (
         <RestAPIDatasourceForm
-          pluginImage={pluginImages[pluginId]}
           applicationId={this.props.match.params.applicationId}
           datasourceId={datasourceId}
-          pageId={this.props.match.params.pageId}
-          isSaving={isSaving}
           isDeleting={isDeleting}
           isNewDatasource={isNewDatasource}
+          isSaving={isSaving}
           location={location}
+          pageId={this.props.match.params.pageId}
+          pluginImage={pluginImages[pluginId]}
         />
       );
     }

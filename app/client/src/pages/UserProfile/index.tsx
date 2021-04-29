@@ -26,7 +26,7 @@ const LinkToApplications = styled(Link)`
   }
 `;
 
-const UserProfile = () => {
+function UserProfile() {
   const tabs: TabProp[] = [
     {
       key: "general",
@@ -39,17 +39,17 @@ const UserProfile = () => {
   return (
     <PageWrapper displayName={"Profile"}>
       <ProfileWrapper>
-        <LinkToApplications to={"/applications"} className="t--back">
+        <LinkToApplications className="t--back" to={"/applications"}>
           <IconComponent
-            iconName="chevron-left"
             color={Colors.SILVER_CHALICE}
-          ></IconComponent>
+            iconName="chevron-left"
+          />
           <Text type={TextType.H1}>Profile</Text>
         </LinkToApplications>
         <TabComponent tabs={tabs} />
       </ProfileWrapper>
     </PageWrapper>
   );
-};
+}
 
 export default UserProfile;
