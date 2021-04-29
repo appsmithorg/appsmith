@@ -16,8 +16,13 @@ import { CommentThread } from "entities/Comments/CommentsInterfaces";
 
 const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   position: absolute;
-  top: ${(props) => props.top}%;
-  left: ${(props) => props.left}%;
+  bottom: calc(${(props) => 100 - props.top}% - 2px);
+  right: calc(${(props) => 100 - props.left}% - 2px);
+
+  & svg {
+    width: 30px;
+    height: 30px;
+  
 `;
 
 // TODO look into drying this up using comment thread component
