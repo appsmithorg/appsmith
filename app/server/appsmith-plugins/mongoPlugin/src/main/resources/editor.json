@@ -70,47 +70,17 @@
           "id": 2,
           "serverLabel": "findCommandForm",
           "hidden" : {
-            "conditionType": "AND",
+            "conditionType": "OR",
             "conditions": [
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-                "comparison": "EQUALS",
-                "value": "RAW"
+                "comparison": "NOT_EQUALS",
+                "value": "FORM"
               },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-                "comparison": "EQUALS",
-                "value": "INSERT"
-              },
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-                "comparison": "EQUALS",
-                "value": "UPDATE_ONE"
-              },
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-                "comparison": "EQUALS",
-                "value": "UPDATE_MANY"
-              },
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-                "comparison": "EQUALS",
-                "value": "DELETE"
-              },
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-                "comparison": "EQUALS",
-                "value": "COUNT"
-              },
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-                "comparison": "EQUALS",
-                "value": "DISTINCT"
-              },
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-                "comparison": "EQUALS",
-                "value": "AGGREGATE"
+                "comparison": "NOT_EQUALS",
+                "value": "FIND"
               }
             ]
           },
