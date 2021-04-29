@@ -76,6 +76,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
+  const selectedWidgets = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
+  );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
@@ -234,15 +237,21 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     }
   };
 
+  const selectWidgetIfUnSelected = (
+    widgetId: string,
+    isMultiSelect: boolean,
+  ) => {
+    ((selectedWidget && selectedWidget !== props.widgetId) ||
+      !(selectedWidgets && selectedWidgets.includes(props.widgetId))) &&
+      selectWidget(widgetId, isMultiSelect);
+  };
+
   const handleFocus = (e: any) => {
     if (!isResizing && !isDragging) {
       if (!props.parentId) {
-        selectWidget && selectWidget(props.widgetId);
+        selectWidgetIfUnSelected(props.widgetId, e.metaKey);
         focusWidget && focusWidget(props.widgetId);
         showPropertyPane && showPropertyPane();
-      } else {
-        selectWidget && selectWidget(props.parentId);
-        focusWidget && focusWidget(props.parentId);
       }
     }
     // commenting this out to allow propagation of click events

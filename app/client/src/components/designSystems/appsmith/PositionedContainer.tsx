@@ -49,6 +49,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
     <PositionedWidget
       className={containerClassName}
       id={props.widgetId}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
       onClickCapture={openPropertyPane}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}

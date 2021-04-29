@@ -93,18 +93,19 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     e.preventDefault();
     e.stopPropagation();
   };
+  const showAsSelected =
+    selectedWidget === props.widgetId ||
+    selectedWidgets.includes(props.widgetId);
 
   const showWidgetName =
     props.showControls ||
-    ((focusedWidget === props.widgetId ||
-      selectedWidget === props.widgetId ||
-      selectedWidgets.includes(props.widgetId)) &&
+    ((focusedWidget === props.widgetId || showAsSelected) &&
       !isDragging &&
       !isResizing);
 
   let currentActivity = Activities.NONE;
   if (focusedWidget === props.widgetId) currentActivity = Activities.HOVERING;
-  if (selectedWidget === props.widgetId) currentActivity = Activities.SELECTED;
+  if (showAsSelected) currentActivity = Activities.SELECTED;
   if (
     propertyPaneState.isVisible &&
     propertyPaneState.widgetId === props.widgetId

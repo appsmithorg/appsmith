@@ -459,7 +459,7 @@ export function* deleteAllSelectedWidgetsSaga(
     const stateWidgets = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const selectedWidgets: string[] = yield select(getSelectedWidgets);
-    if (!(selectedWidgets && selectedWidgets.length)) return;
+    if (!(selectedWidgets && selectedWidgets.length !== 1)) return;
     const widgetsToBeDeleted = yield all(
       selectedWidgets.map((eachId) => {
         return call(getAllWidgetsInTree, eachId, widgets);

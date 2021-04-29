@@ -4,6 +4,7 @@ import { AppState } from "reducers";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import {
+  closePropertyPane,
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
@@ -32,6 +33,7 @@ type Props = {
   toggleShowGlobalSearchModal: () => void;
   resetCommentMode: () => void;
   openDebugger: () => void;
+  closeProppane: () => void;
   selectAllWidgets: (widgetIds: string[]) => void;
   widgetIds: string[];
   selectedWidget?: string;
@@ -154,12 +156,23 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
-          global={true}
           combo="mod + a"
-          label="Select all Widget"
+          global
           group="Canvas"
+          label="Select all Widget"
           onKeyDown={(e: any) => {
             this.props.selectAllWidgets(this.props.widgetIds);
+            e.preventDefault();
+          }}
+        />
+        <Hotkey
+          combo="esc"
+          global
+          group="Canvas"
+          label="Deselect all Widget"
+          onKeyDown={(e: any) => {
+            this.props.selectAllWidgets([]);
+            this.props.closeProppane();
             e.preventDefault();
           }}
         />
@@ -187,6 +200,7 @@ const mapDispatchToProps = (dispatch: any) => {
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
+    closeProppane: () => dispatch(closePropertyPane()),
     selectAllWidgets: (widgetIds: string[]) =>
       dispatch(selectAllWidgets(widgetIds)),
   };
