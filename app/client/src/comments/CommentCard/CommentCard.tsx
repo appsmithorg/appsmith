@@ -231,12 +231,14 @@ function CommentCard({
     dispatch(deleteCommentRequest({ threadId: commentThreadId, commentId }));
   }, []);
 
+  const isCreatedByMe = currentUserUsername === comment.authorUsername;
+
   const contextMenuProps = {
     pin,
     copyCommentLink,
     deleteComment,
     isParentComment,
-    isCreatedByMe: false,
+    isCreatedByMe,
     isPinned,
   };
 

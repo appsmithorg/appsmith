@@ -1,7 +1,8 @@
 import { AppState } from "reducers";
 import { get } from "lodash";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { CommentThread } from "entities/Comments/CommentsInterfaces";
+import { CommentThread, Comment } from "entities/Comments/CommentsInterfaces";
+import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
 
 export const refCommentThreadsSelector = (
   refId: string,
@@ -67,10 +68,20 @@ const getSortIndexNumber = (a = 0, b = 0) => {
   else return 1;
 };
 
-export const getSortedAppCommentThreadIds = (
+const getContainsMyComment = (
+  thread: CommentThread,
+  currentUserUsername?: string,
+) =>
+  thread.comments.some(
+    (comment: Comment) => comment.authorUsername === currentUserUsername,
+  );
+
+export const getSortedAndFilteredAppCommentThreadIds = (
   applicationThreadIds: Array<string>,
   commentThreadsMap: Record<string, CommentThread>,
   shouldShowResolved: boolean,
+  appCommentsFilter: typeof filterOptions[number]["value"],
+  currentUserUsername?: string,
 ): Array<string> => {
   if (!applicationThreadIds) return [];
   return applicationThreadIds
@@ -97,8 +108,24 @@ export const getSortedAppCommentThreadIds = (
     })
     .filter((threadId: string) => {
       const thread = commentThreadsMap[threadId];
-      const shouldShow = shouldShowResolved || !thread.resolvedState?.active;
-      return shouldShow;
+      const isResolved = thread.resolvedState?.active;
+      const isPinned = thread.pinnedState?.active;
+
+      switch (appCommentsFilter) {
+        case "show-only-yours": {
+          const containsMyComment = getContainsMyComment(
+            thread,
+            currentUserUsername,
+          );
+          return containsMyComment;
+        }
+        case "show-only-pinned": {
+          return isPinned && (!isResolved || shouldShowResolved);
+        }
+        default: {
+          return shouldShowResolved || !isResolved;
+        }
+      }
     });
 };
 

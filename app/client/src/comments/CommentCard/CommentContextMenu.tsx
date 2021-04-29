@@ -58,7 +58,6 @@ function CommentContextMenu({
   copyCommentLink,
   deleteComment,
   isParentComment,
-  // TODO figure out key for isCreatedByMe
   isCreatedByMe,
   isPinned,
 }: Props) {
@@ -68,7 +67,6 @@ function CommentContextMenu({
     const options = [];
     if (isParentComment) {
       // TODO add edit option
-      // TODO add pin option
       options.push(
         {
           icon: isPinned ? "unpin" : "pin-3",
