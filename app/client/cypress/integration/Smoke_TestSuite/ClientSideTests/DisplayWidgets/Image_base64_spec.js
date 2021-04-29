@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
+const dsl = require("../../../../fixtures/base64imagedsl.json");
 const pages = require("../../../../locators/Pages.json");
 
 describe("Image Widget Functionality with base64", function() {
@@ -16,14 +16,13 @@ describe("Image Widget Functionality with base64", function() {
      */
     cy.get(viewWidgetsPage.sourceImage)
       .click({ force: true })
-      .type(this.data.command)
       .type(this.data.base64image.withoutPrefix);
-    cy.wait(1000);
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
+    cy.EvaluateCurrentValue(this.data.base64image.withPrefix);
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
       .should("contain", this.data.base64image.withPrefix);
