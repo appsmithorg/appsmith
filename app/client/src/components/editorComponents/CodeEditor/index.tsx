@@ -400,7 +400,6 @@ class CodeEditor extends Component<Props, State> {
           evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
           hasError={hasError}
-          hasJSError={meta?.isJsError || false}
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
           jsError={meta?.jsError}

@@ -930,6 +930,18 @@ function* executePageLoadAction(pageAction: PageAction) {
         message += `\nERROR: "${body}"`;
       }
 
+      AppsmithConsole.error({
+        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+        text: `Execution failed with status ${response.data.statusCode}`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: pageAction.name,
+          id: pageAction.id,
+        },
+        state: response.data?.request ?? null,
+        message: JSON.stringify(body),
+      });
+
       yield put(
         executeActionError({
           actionId: pageAction.id,
@@ -964,6 +976,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   } catch (e) {
+    console.log("**** this is getting executed *");
     yield put(
       executeActionError({
         actionId: pageAction.id,

@@ -53,7 +53,6 @@ export function InputText(props: {
         meta={{
           error: isValid ? "" : errorMessage,
           touched: true,
-          isJsError: jsErrorMessage && jsErrorMessage.length > 0 ? true : false,
           jsError: jsErrorMessage,
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
