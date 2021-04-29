@@ -8,6 +8,7 @@ import { Theme } from "constants/DefaultTheme";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "emoji-mart/css/emoji-mart.css";
 
+// TODO remove: (trigger tests)
 const EmojiPicker = withTheme(
   ({
     iconName,

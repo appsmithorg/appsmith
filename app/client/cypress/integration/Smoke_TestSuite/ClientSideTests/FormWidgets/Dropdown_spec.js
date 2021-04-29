@@ -15,7 +15,6 @@ describe("Dropdown Widget Functionality", function() {
 
     cy.testJsontext("options", JSON.stringify(data.input));
     cy.testJsontext("defaultoption", "{{ undefined }}");
-
     cy.get(formWidgetsPage.dropdownWidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
@@ -23,6 +22,13 @@ describe("Dropdown Widget Functionality", function() {
       .contains("Option 3")
       .click({ force: true });
 
+    cy.get(formWidgetsPage.dropdownWidget)
+      .find(widgetLocators.defaultSingleSelectValue)
+      .should("have.text", "Option 3");
+  });
+  it("Selects value with enter in default value", () => {
+    // cy.openPropertyPane("dropdownwidget");
+    cy.testJsontext("defaultoption", "3\n");
     cy.get(formWidgetsPage.dropdownWidget)
       .find(widgetLocators.defaultSingleSelectValue)
       .should("have.text", "Option 3");
