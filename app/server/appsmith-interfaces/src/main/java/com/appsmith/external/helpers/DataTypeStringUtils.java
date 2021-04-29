@@ -7,6 +7,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.ParsedDataType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -30,7 +31,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -282,41 +282,72 @@ public class DataTypeStringUtils {
         return true;
     }
 
-    public static List<ParsedDataType> getDisplayDataTypes(String data) {
+    private static boolean isDisplayTypeTable(Object data) {
+        if (data instanceof List) {
+            // Check if the object is a list of simple json objects i.e. all values in the key value pairs are String.
+            return ((List)data).stream()
+                    .allMatch(item -> item instanceof Map
+                            && ((Map)item).entrySet().stream()
+                            .allMatch(e -> ((Map.Entry)e).getValue() instanceof String));
+        }
+
+        if (data instanceof String || data instanceof JsonNode) {
+            // Check if the object is an array of simple json objects i.e. all values in the key value pairs are String.
+            try {
+                objectMapper.convertValue(data, new TypeReference<List<Map<String, String>>>() {});
+                return true;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isPrimitiveType(Object data) {
+        if (data instanceof Number || data instanceof Boolean ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean isDisplayTypeJson(Object data) {
+        // Any non string non primitive object is converted into a json when serializing.
+        if (!isPrimitiveType(data) && !(data instanceof String)) {
+            return true;
+        }
+        else if (data instanceof String) {
+            try {
+                objectMapper.readTree((String)data);
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    public static List<ParsedDataType> getDisplayDataTypes(Object data) {
 
         if (data == null) {
             return new ArrayList<>();
         }
 
-        if (data.isEmpty()) {
-            return List.of(new ParsedDataType(DisplayDataType.RAW));
-        }
-
         List<ParsedDataType> dataTypes = new ArrayList<>();
 
-        /*
-         * - Check if the returned data is a valid table - i.e. an array of simple json objects.
-         */
-        try {
-            objectMapper.readValue(data, new TypeReference<ArrayList<HashMap<String, String>>>() {});
+        // Check if the returned data is a valid table.
+        if (isDisplayTypeTable(data)) {
             dataTypes.add(new ParsedDataType(DisplayDataType.TABLE));
-        } catch (IOException e) {
-            /* Do nothing */
         }
 
-        /*
-         * - Check if the returned data is a valid json.
-         */
-        try {
-            objectMapper.readTree(data);
+        // Check if the returned data is a valid json.
+        if (isDisplayTypeJson(data)) {
             dataTypes.add(new ParsedDataType(DisplayDataType.JSON));
-        } catch (IOException e) {
-            /* Do nothing */
         }
 
-        /*
-         * - All return data types can be categorized as raw by default.
-         */
+        // All return data types can be categorized as raw by default.
         dataTypes.add(new ParsedDataType(DisplayDataType.RAW));
 
         return dataTypes;

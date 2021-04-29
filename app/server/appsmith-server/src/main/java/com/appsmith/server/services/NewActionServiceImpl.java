@@ -714,12 +714,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return result;
         }
 
-        if (result.getBody() == null) {
-            result.setDataTypes(new ArrayList<>());
-            return result;
-        }
-
-        result.setDataTypes(getDisplayDataTypes(result.getBody().toString()));
+        result.setDataTypes(getDisplayDataTypes(result.getBody()));
         return result;
     }
 
