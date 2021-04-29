@@ -48,6 +48,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -120,7 +121,7 @@ public class ActionServiceTest {
     @Autowired
     ActionCollectionService actionCollectionService;
 
-    @Autowired
+    @SpyBean
     PluginService pluginService;
 
     @Autowired
@@ -841,6 +842,7 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void executeActionWithExternalDatasource() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("Default Database");

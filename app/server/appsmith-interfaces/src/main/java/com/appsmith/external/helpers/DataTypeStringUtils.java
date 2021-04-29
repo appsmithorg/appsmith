@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
+
 @Slf4j
 public class DataTypeStringUtils {
 
@@ -288,7 +290,7 @@ public class DataTypeStringUtils {
             return ((List)data).stream()
                     .allMatch(item -> item instanceof Map
                             && ((Map)item).entrySet().stream()
-                            .allMatch(e -> ((Map.Entry)e).getValue() instanceof String));
+                            .allMatch(e -> isPrimitiveType(((Map.Entry)e).getValue())));
         }
         else if (data instanceof JsonNode) {
             // Check if the object is an array of simple json objects i.e. all values in the key value pairs are String.
@@ -313,7 +315,9 @@ public class DataTypeStringUtils {
     }
 
     private static boolean isPrimitiveType(Object data) {
-        if (data instanceof Number || data instanceof Boolean ) {
+        // https://stackoverflow.com/questions/25039080/
+        // java-how-to-determine-if-type-is-any-of-primitive-wrapper-string-or-something/25039320
+        if (isPrimitiveOrWrapper(data.getClass())) {
             return true;
         }
 
