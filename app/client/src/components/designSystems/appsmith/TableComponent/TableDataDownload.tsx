@@ -13,6 +13,7 @@ import { TableIconWrapper } from "components/designSystems/appsmith/TableCompone
 import TableActionIcon from "components/designSystems/appsmith/TableComponent/TableActionIcon";
 import styled from "styled-components";
 import { transformTableDataIntoCsv } from "./CommonUtilities";
+import zipcelx from "zipcelx";
 
 const DropDownWrapper = styled.div`
   display: flex;
@@ -57,6 +58,11 @@ interface TableDataDownloadProps {
 
 type FileDownloadType = "CSV" | "EXCEL";
 
+type DataCellProps = {
+  value: string | number;
+  type: "string" | "number";
+};
+
 interface DownloadOptionProps {
   label: string;
   value: FileDownloadType;
@@ -64,11 +70,11 @@ interface DownloadOptionProps {
 
 const dowloadOptions: DownloadOptionProps[] = [
   {
-    label: "CSV",
+    label: "Download as CSV",
     value: "CSV",
   },
   {
-    label: "Excel",
+    label: "Download as Excel",
     value: "EXCEL",
   },
 ];
@@ -104,27 +110,6 @@ const downloadDataAsCSV = (props: {
   }
 };
 
-const downloadDataAsExcel = (tableData: string[][], fileName: string) => {
-  import("xlsx").then((XLSX) => {
-    const workSheet = XLSX.utils.aoa_to_sheet(tableData);
-    const workBook = {
-      Sheets: { data: workSheet, cols: [] },
-      SheetNames: ["data"],
-    };
-    const excelBuffer = XLSX.write(workBook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-    const fileData = new Blob([excelBuffer], {
-      type:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-    });
-    import("file-saver").then((FileSaver) => {
-      FileSaver.saveAs(fileData, `${fileName}.xlsx`);
-    });
-  });
-};
-
 function TableDataDownload(props: TableDataDownloadProps) {
   const [selected, selectMenu] = React.useState(false);
   const downloadFile = (type: string) => {
@@ -135,28 +120,49 @@ function TableDataDownload(props: TableDataDownloadProps) {
     }
   };
   const downloadTableDataAsExcel = () => {
-    const tableData: string[][] = [];
-    const tableHeaders: string[] = props.columns
+    const tableData: Array<Array<DataCellProps>> = [];
+    const tableHeaders: Array<{
+      value: string | number;
+      type: string;
+    }> = props.columns
       .map((column: ReactTableColumnProps) => {
         if (column.metaProperties && !column.metaProperties.isHidden) {
-          return column.Header;
+          return {
+            value: column.Header,
+            type:
+              column.columnProperties?.columnType === "number"
+                ? "number"
+                : "string",
+          };
         }
-        return "";
+        return null;
       })
       .filter((i) => !!i);
     tableData.push(tableHeaders);
     for (let row = 0; row < props.data.length; row++) {
       const data: { [key: string]: any } = props.data[row];
-      const tableRow: string[] = [];
+      const tableRow: Array<DataCellProps> = [];
       for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
         const column = props.columns[colIndex];
+        const type =
+          column.columnProperties?.columnType === "number"
+            ? "number"
+            : "string";
         if (column.metaProperties && !column.metaProperties.isHidden) {
-          tableRow.push(data[column.accessor]);
+          tableRow.push({
+            value: data[column.accessor],
+            type: type,
+          });
         }
       }
       tableData.push(tableRow);
     }
-    downloadDataAsExcel(tableData, props.widgetName);
+    zipcelx({
+      filename: props.widgetName,
+      sheet: {
+        data: tableData,
+      },
+    });
   };
   const downloadTableDataAsCsv = () => {
     selectMenu(true);
