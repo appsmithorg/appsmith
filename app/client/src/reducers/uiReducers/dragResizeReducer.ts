@@ -55,6 +55,8 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       state.selectedWidget = action.payload.widgetId;
       if (action.payload.widgetId) {
         state.selectedWidgets = [action.payload.widgetId];
+      } else {
+        state.selectedWidgets = [];
       }
     }
   },

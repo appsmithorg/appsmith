@@ -107,6 +107,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   if (focusedWidget === props.widgetId) currentActivity = Activities.HOVERING;
   if (showAsSelected) currentActivity = Activities.SELECTED;
   if (
+    showAsSelected &&
     propertyPaneState.isVisible &&
     propertyPaneState.widgetId === props.widgetId
   )
