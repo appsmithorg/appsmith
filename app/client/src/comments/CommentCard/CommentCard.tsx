@@ -26,6 +26,7 @@ import history from "utils/history";
 
 import {
   deleteCommentRequest,
+  markThreadAsReadRequest,
   pinCommentThreadRequest,
 } from "actions/commentActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -193,7 +194,7 @@ function CommentCard({
   const [reactions, setReactions] = useState<Reactions>();
 
   const isPinned = commentThread.pinnedState?.active;
-  const pinnedBy = commentThread.pinnedState?.author;
+  const pinnedBy = commentThread.pinnedState?.authorName;
 
   const getCommentURL = () => {
     const url = new URL(window.location.href);
@@ -240,6 +241,9 @@ function CommentCard({
     if (inline) return;
     const url = getCommentURL();
     history.push(`${url.pathname}${url.search}${url.hash}`);
+    if (!commentThread.isViewed) {
+      dispatch(markThreadAsReadRequest(commentThreadId));
+    }
   };
 
   const handleReaction = (

@@ -135,6 +135,7 @@ function CommentThreadContainer({
               showReplies={hideChildren}
               showSubheader={showSubheader}
               toggleResolved={resolveCommentThread}
+              unread={!commentThread.isViewed}
             />
           )}
           {!hideChildren && childComments && childComments.length > 0 && (

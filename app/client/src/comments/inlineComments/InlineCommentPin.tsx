@@ -10,7 +10,11 @@ import {
   shouldShowResolved as shouldShowResolvedSelector,
 } from "selectors/commentsSelectors";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { setVisibleThread, resetVisibleThread } from "actions/commentActions";
+import {
+  setVisibleThread,
+  resetVisibleThread,
+  markThreadAsReadRequest,
+} from "actions/commentActions";
 import { useTransition, animated } from "react-spring";
 import { useLocation } from "react-router";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -50,7 +54,7 @@ const useSelectCommentThreadUsingQuery = (commentThreadId: string) => {
   }, [location]);
 };
 
-const StyledPinContainer = styled.div<{ unread: boolean }>`
+const StyledPinContainer = styled.div<{ unread?: boolean }>`
   position: relative;
   & .pin-id {
     position: absolute;
@@ -76,16 +80,17 @@ const StyledPinContainer = styled.div<{ unread: boolean }>`
 
 function Pin({
   commentThreadId,
-  // TODO remove default
   sequenceId = "",
-  unread = true,
+  unread,
+  onClick,
 }: {
   commentThreadId: string;
   sequenceId?: string;
   unread?: boolean;
+  onClick: () => void;
 }) {
   return (
-    <StyledPinContainer unread={unread}>
+    <StyledPinContainer onClick={onClick} unread={unread}>
       <Icon
         className={`comment-thread-pin-${commentThreadId}`}
         data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
@@ -127,6 +132,12 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
     leave: { opacity: 0 },
     config: { duration: 300 },
   });
+
+  const handlePinClick = () => {
+    if (!commentThread.isViewed) {
+      dispatch(markThreadAsReadRequest(commentThreadId));
+    }
+  };
 
   return (
     <>
@@ -171,7 +182,9 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
                 >
                   <Pin
                     commentThreadId={commentThreadId}
+                    onClick={handlePinClick}
                     sequenceId={commentThread.sequenceId}
+                    unread={!commentThread.isViewed}
                   />
                   <animated.div style={springProps}>
                     <CommentThread

@@ -177,3 +177,8 @@ export const setVisibleThread = (threadId: string) => ({
   type: ReduxActionTypes.SET_VISIBLE_THREAD,
   payload: threadId,
 });
+
+export const markThreadAsReadRequest = (threadId: string) => ({
+  type: ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST,
+  payload: { threadId },
+});

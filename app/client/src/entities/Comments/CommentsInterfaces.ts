@@ -28,8 +28,10 @@ export type CreateCommentThreadRequest = {
   };
   pinnedState?: {
     active: boolean;
-    author?: string;
+    authorName?: string;
+    authorUsername?: string;
   };
+  isViewed?: boolean;
 };
 
 export type Comment = CreateCommentRequest & {
