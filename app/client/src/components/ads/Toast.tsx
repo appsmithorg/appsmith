@@ -39,13 +39,13 @@ const WrappedToastContainer = styled.div`
     top: 4em;
   }
 `;
-export const StyledToastContainer = (props: ToastOptions) => {
+export function StyledToastContainer(props: ToastOptions) {
   return (
     <WrappedToastContainer>
       <ToastContainer {...props} />
     </WrappedToastContainer>
   );
-};
+}
 
 const ToastBody = styled.div<{
   variant?: Variant;
@@ -110,19 +110,19 @@ const StyledDebugButton = styled(DebugButton)`
   margin-left: auto;
 `;
 
-const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
+function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
   const dispatch = useDispatch();
 
   return (
     <ToastBody
-      variant={props.variant || Variant.info}
-      isUndo={!!props.onUndo}
-      dispatchableAction={props.dispatchableAction}
       className="t--toast-action"
+      dispatchableAction={props.dispatchableAction}
+      isUndo={!!props.onUndo}
+      variant={props.variant || Variant.info}
     >
       <FlexContainer>
         {props.variant === Variant.success ? (
-          <Icon name="success" size={IconSize.XXL} fillColor={Colors.GREEN} />
+          <Icon fillColor={Colors.GREEN} name="success" size={IconSize.XXL} />
         ) : props.variant === Variant.warning ? (
           <Icon name="warning" size={IconSize.XXL} />
         ) : null}
@@ -139,7 +139,6 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
       <div className="undo-section">
         {props.onUndo || props.dispatchableAction ? (
           <Text
-            type={TextType.H6}
             onClick={() => {
               if (props.dispatchableAction) {
                 dispatch(props.dispatchableAction);
@@ -148,6 +147,7 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
                 props.undoAction && props.undoAction();
               }
             }}
+            type={TextType.H6}
           >
             UNDO
           </Text>
@@ -155,7 +155,7 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
       </div>
     </ToastBody>
   );
-};
+}
 
 export const Toaster = {
   show: (config: ToastProps) => {

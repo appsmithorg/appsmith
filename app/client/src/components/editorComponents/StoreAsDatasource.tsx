@@ -35,7 +35,7 @@ type storeDataSourceProps = {
   enable: boolean;
 };
 
-const StoreAsDatasource = (props: storeDataSourceProps) => {
+function StoreAsDatasource(props: storeDataSourceProps) {
   const dispatch = useDispatch();
 
   return (
@@ -48,6 +48,6 @@ const StoreAsDatasource = (props: storeDataSourceProps) => {
       <Text type={TextType.P1}>Save As Datasource</Text>
     </DatasourceIcon>
   );
-};
+}
 
 export default StoreAsDatasource;

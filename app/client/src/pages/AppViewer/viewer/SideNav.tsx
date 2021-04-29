@@ -68,7 +68,7 @@ const ToggleButton = styled(Button)<{
   }
 `;
 
-export const SideNav = (props: SideNavProps) => {
+export function SideNav(props: SideNavProps) {
   const { open, toggleCollapse } = props;
   const renderItems = (sideNavItems?: SideNavItemProps[]) => {
     let items = sideNavItems;
@@ -93,20 +93,20 @@ export const SideNav = (props: SideNavProps) => {
   };
 
   return (
-    <SideNavWrapper open={open} headeroffset={props.headeroffset}>
+    <SideNavWrapper headeroffset={props.headeroffset} open={open}>
       <ToggleButton
+        className="sidenav-toggle"
         headeroffset={props.headeroffset}
+        icon={open ? "double-chevron-left" : "menu"}
+        minimal
         onClick={() => {
           toggleCollapse(!open);
         }}
-        icon={open ? "double-chevron-left" : "menu"}
-        minimal
         open={open}
-        className="sidenav-toggle"
-      ></ToggleButton>
+      />
       <Menu large>{renderItems(props.items)}</Menu>
     </SideNavWrapper>
   );
-};
+}
 
 export default SideNav;

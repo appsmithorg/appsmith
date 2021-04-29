@@ -38,24 +38,26 @@ const StyledDiscordIcon = styled(DiscordIcon)`
   vertical-align: -7px;
 `;
 
-const ResultsNotFound = () => (
-  <Container>
-    <img alt="No data" src={NoSearchDataImage} />
-    <div className="no-data-title">{NO_SEARCH_DATA_TEXT()}</div>
-    <span className="discord">
-      🤖 Join our{"  "}
-      <span
-        className="discord-link"
-        onClick={() => {
-          window.open("https://discord.gg/rBTTVJp", "_blank");
-        }}
-      >
-        <StyledDiscordIcon width={24} height={22} color="red" />
-        Discord Server
-      </span>{" "}
-      for more help.
-    </span>
-  </Container>
-);
+function ResultsNotFound() {
+  return (
+    <Container>
+      <img alt="No data" src={NoSearchDataImage} />
+      <div className="no-data-title">{NO_SEARCH_DATA_TEXT()}</div>
+      <span className="discord">
+        🤖 Join our{"  "}
+        <span
+          className="discord-link"
+          onClick={() => {
+            window.open("https://discord.gg/rBTTVJp", "_blank");
+          }}
+        >
+          <StyledDiscordIcon color="red" height={22} width={24} />
+          Discord Server
+        </span>{" "}
+        for more help.
+      </span>
+    </Container>
+  );
+}
 
 export default ResultsNotFound;

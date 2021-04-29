@@ -65,9 +65,9 @@ export const getIcon = (icon?: string | MaybeElement, intent?: Intent) => {
     if (iconNames.indexOf(icon) > -1) {
       return (
         <Icon
+          color={intent ? IntentColors[intent] : IntentColors["secondary"]}
           icon={icon as IconName}
           iconSize={16}
-          color={intent ? IntentColors[intent] : IntentColors["secondary"]}
         />
       );
     }
@@ -79,87 +79,84 @@ const getContentSection = (
   skin: Skin,
 ) => {
   return (
-    <React.Fragment>
-      {section.options &&
-        section.options.map((option, index) => {
-          const shouldClose =
-            option.shouldCloseDropdown === undefined ||
-            option.shouldCloseDropdown;
-          return (
-            <Option
-              key={index}
-              className={
-                shouldClose
-                  ? `${Classes.POPOVER_DISMISS} t--dropdown-option`
-                  : "t--dropdown-option"
-              }
-              onClick={option.onSelect}
-              active={!!option.active}
-              disabled={!!option.disabled}
-              skin={skin}
-            >
-              {option.content}
-            </Option>
-          );
-        })}
-    </React.Fragment>
+    section.options &&
+    section.options.map((option, index) => {
+      const shouldClose =
+        option.shouldCloseDropdown === undefined || option.shouldCloseDropdown;
+      return (
+        <Option
+          active={!!option.active}
+          className={
+            shouldClose
+              ? `${Classes.POPOVER_DISMISS} t--dropdown-option`
+              : "t--dropdown-option"
+          }
+          disabled={!!option.disabled}
+          key={index}
+          onClick={option.onSelect}
+          skin={skin}
+        >
+          {option.content}
+        </Option>
+      );
+    })
   );
 };
 
-export const CustomizedDropdown = (
+export function CustomizedDropdown(
   props: CustomizedDropdownProps & { theme: Theme },
-) => {
+) {
   const skin = props.skin ? props.skin : Skin.LIGHT;
   const icon = getIcon(props.trigger.icon, props.trigger.intent);
   const trigger = (
-    <React.Fragment>
+    <>
       {icon && <div>{icon}</div>}
       {props.trigger.content || (
         <Button
-          outline={props.trigger.outline}
           filled={props.trigger.filled}
-          size={props.trigger.size}
           icon={getDirectionBased.ICON_NAME(props.openDirection) as IconName}
           iconAlignment={Directions.RIGHT}
-          text={props.trigger.text}
           intent={props.trigger.intent}
+          outline={props.trigger.outline}
+          size={props.trigger.size}
           skin={skin}
+          text={props.trigger.text}
           type="button"
         />
       )}
-    </React.Fragment>
+    </>
   );
 
   const content = props.sections.map((section, index) => (
-    <DropdownContentSection key={index} stick={!!section.isSticky} skin={skin}>
+    <DropdownContentSection key={index} skin={skin} stick={!!section.isSticky}>
       {getContentSection(section, skin)}
     </DropdownContentSection>
   ));
   return (
     <Popover
-      position={
-        getDirectionBased.POPPER_POSITION(
-          props.openDirection,
-        ) as PopoverPosition
-      }
+      enforceFocus={false}
       interactionKind={
         props.openOnHover
           ? PopoverInteractionKind.HOVER
           : PopoverInteractionKind.CLICK
       }
       minimal
-      enforceFocus={false}
+      modifiers={props.modifiers}
       onClose={() => {
         if (props.onCloseDropDown) {
           props.onCloseDropDown();
         }
       }}
-      modifiers={props.modifiers}
+      position={
+        getDirectionBased.POPPER_POSITION(
+          props.openDirection,
+        ) as PopoverPosition
+      }
     >
       <DropdownTrigger skin={skin}>{trigger}</DropdownTrigger>
       <DropdownContent skin={skin}>{content}</DropdownContent>
     </Popover>
   );
-};
+}
 
 export default withTheme(CustomizedDropdown);

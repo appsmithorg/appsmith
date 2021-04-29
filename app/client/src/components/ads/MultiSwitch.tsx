@@ -55,10 +55,10 @@ export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
         {props.tabs.map((tab) => (
           <Tab
             key={tab.key}
-            selected={props.selected.value === tab.key}
             onClick={() => props.onSelect(tab.title)}
+            selected={props.selected.value === tab.key}
           >
-            <Text type={TextType.P3} case={Case.UPPERCASE}>
+            <Text case={Case.UPPERCASE} type={TextType.P3}>
               {tab.title}
             </Text>
           </Tab>
