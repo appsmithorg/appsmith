@@ -18,7 +18,12 @@ describe("Image Widget Functionality with base64", function() {
       .click({ force: true })
       .type(this.data.command)
       .type(this.data.base64image.withoutPrefix);
-
+    cy.wait(1000);
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
       .should("contain", this.data.base64image.withPrefix);
