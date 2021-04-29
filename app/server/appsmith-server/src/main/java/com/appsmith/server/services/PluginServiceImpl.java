@@ -370,7 +370,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             return labelCache.get(pluginId);
         }
 
-        Mono<Map> formConfig = formCache.get(pluginId);
+        Mono<Map> formConfig = getFormConfig(pluginId);
 
         if (formConfig == null) {
             return Mono.just(new HashMap());
