@@ -6,6 +6,7 @@
       "children": [
         {
           "label": "",
+          "internalLabel": "Query",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "PARAMETER",
@@ -17,6 +18,7 @@
         },
         {
           "label": "",
+          "internalLabel": "Query",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
