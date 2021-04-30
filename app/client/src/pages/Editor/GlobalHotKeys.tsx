@@ -4,14 +4,16 @@ import { AppState } from "reducers";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import {
+  closePropertyPane,
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
   pasteWidget,
+  selectAllWidgets,
 } from "actions/widgetActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
-import { getSelectedWidget } from "selectors/ui";
+import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -21,6 +23,7 @@ import {
 } from "constants/Explorer";
 import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 import { showDebugger } from "actions/debuggerActions";
+import { getWidgetChildren } from "sagas/selectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -30,16 +33,24 @@ type Props = {
   toggleShowGlobalSearchModal: () => void;
   resetCommentMode: () => void;
   openDebugger: () => void;
+  closeProppane: () => void;
+  selectAllWidgets: (widgetIds: string[]) => void;
+  widgetIds: string[];
   selectedWidget?: string;
+  selectedWidgets: string[];
   children: React.ReactNode;
 };
 
 @HotkeysTarget
 class GlobalHotKeys extends React.Component<Props> {
   public stopPropagationIfWidgetSelected(e: KeyboardEvent): boolean {
-    if (
+    const multipleWidgetsSelected =
+      this.props.selectedWidgets && this.props.selectedWidgets.length;
+    const singleWidgetSelected =
       this.props.selectedWidget &&
-      this.props.selectedWidget != MAIN_CONTAINER_WIDGET_ID &&
+      this.props.selectedWidget != MAIN_CONTAINER_WIDGET_ID;
+    if (
+      (singleWidgetSelected || multipleWidgetsSelected) &&
       !getSelectedText()
     ) {
       e.preventDefault();
@@ -145,10 +156,25 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
+          combo="mod + a"
+          global
+          group="Canvas"
+          label="Select all Widget"
+          onKeyDown={(e: any) => {
+            this.props.selectAllWidgets(this.props.widgetIds);
+            e.preventDefault();
+          }}
+        />
+        <Hotkey
           combo="esc"
           global
-          label="Escape"
-          onKeyDown={this.props.resetCommentMode}
+          group="Canvas"
+          label="Deselect all Widget"
+          onKeyDown={(e: any) => {
+            this.props.selectAllWidgets([]);
+            this.props.closeProppane();
+            e.preventDefault();
+          }}
         />
       </Hotkeys>
     );
@@ -161,6 +187,8 @@ class GlobalHotKeys extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState) => ({
   selectedWidget: getSelectedWidget(state),
+  selectedWidgets: getSelectedWidgets(state),
+  widgetIds: getWidgetChildren(state, MAIN_CONTAINER_WIDGET_ID),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -172,6 +200,9 @@ const mapDispatchToProps = (dispatch: any) => {
     toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
+    closeProppane: () => dispatch(closePropertyPane()),
+    selectAllWidgets: (widgetIds: string[]) =>
+      dispatch(selectAllWidgets(widgetIds)),
   };
 };
 

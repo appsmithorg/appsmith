@@ -71,6 +71,9 @@ function DraggableComponent(props: DraggableComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
 
+  const selectedWidgets = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
+  );
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
   const focusedWidget = useSelector(
@@ -93,6 +96,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isDraggingDisabled: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
+  // const { isCurrentWidgetDragging, drag } = useContext(DragContext);
 
   const [{ isCurrentWidgetDragging }, drag] = useDrag({
     item: props as WidgetProps,
@@ -142,16 +146,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
 
-  // When the draggable is clicked
-  const handleClick = (e: any) => {
-    if (!isResizingOrDragging) {
-      selectWidget &&
-        selectedWidget !== props.widgetId &&
-        selectWidget(props.widgetId);
-    }
-    e.stopPropagation();
-  };
-
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
     focusWidget &&
@@ -160,7 +154,9 @@ function DraggableComponent(props: DraggableComponentProps) {
       focusWidget(props.widgetId);
     e.stopPropagation();
   };
-
+  const shouldRenderComponent = !(
+    selectedWidgets.includes(props.widgetId) && isDragging
+  );
   // Display this draggable based on the current drag state
   const style: CSSProperties = {
     display: isCurrentWidgetDragging ? "none" : "flex",
@@ -183,14 +179,9 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   const className = `${classNameForTesting}`;
 
-  const shouldRenderComponent = !(
-    selectedWidget === props.widgetId && isDragging
-  );
-
   return (
     <DraggableWrapper
       className={className}
-      onClick={handleClick}
       onMouseOver={handleMouseOver}
       ref={drag}
       style={style}

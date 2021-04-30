@@ -8,6 +8,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getSelectedWidgets } from "./ui";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -64,6 +65,12 @@ const isResizingorDragging = (state: AppState) =>
 export const getIsPropertyPaneVisible = createSelector(
   getPropertyPaneState,
   isResizingorDragging,
-  (pane: PropertyPaneReduxState, isResizingorDragging: boolean) =>
-    !!(!isResizingorDragging && pane.isVisible && pane.widgetId),
+  getSelectedWidgets,
+  (pane: PropertyPaneReduxState, isResizingorDragging: boolean, widgets) =>
+    !!(
+      !(widgets && widgets.length > 1) &&
+      !isResizingorDragging &&
+      pane.isVisible &&
+      pane.widgetId
+    ),
 );
