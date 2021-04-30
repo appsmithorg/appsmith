@@ -179,7 +179,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     Set<String> viewedUser = new HashSet<>();
                     viewedUser.add(user.getUsername());
                     commentThread.setViewedByUsers(viewedUser);
-                    commentThread.setIsViewed(true);
                     return threadRepository.findById(threadId);
                 })
                 .flatMap(thread -> {
@@ -187,7 +186,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     if(thread.getViewedByUsers() != null) {
                         commentThread.getViewedByUsers().addAll(thread.getViewedByUsers());
                     }
-                    return threadRepository.updateById(threadId, commentThread, AclPermission.MANAGE_THREAD);
+                    return threadRepository
+                            .updateById(threadId, commentThread, AclPermission.MANAGE_THREAD)
+                            .flatMap(updatedThread -> {
+                                updatedThread.setIsViewed(true);
+                                return Mono.just(updatedThread);
+                            });
                 });
     }
 
