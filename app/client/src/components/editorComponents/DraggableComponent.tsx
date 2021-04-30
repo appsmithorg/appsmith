@@ -59,7 +59,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const showPropertyPane = useShowPropertyPane();
 
   // Dispatch hook handy to set a widget as focused/selected
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { focusWidget } = useWidgetSelection();
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
@@ -103,7 +103,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     collect: (monitor: DragSourceMonitor) => ({
       isCurrentWidgetDragging: monitor.isDragging(),
     }),
-    begin: (monitor) => {
+    begin: () => {
       // When this draggable starts dragging
       // Make sure that this widget is selected
 

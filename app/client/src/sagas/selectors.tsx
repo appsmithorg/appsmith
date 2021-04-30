@@ -7,7 +7,6 @@ import { WidgetType } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "constants/ReduxActionConstants";
 import { getActions } from "../selectors/entitiesSelector";
-import { useSelector } from "react-redux";
 
 export const getWidgets = (
   state: AppState,

@@ -12,7 +12,6 @@ import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getWidgetChildren } from "sagas/selectors";
 
 export const executeAction = (
   payload: ExecuteActionPayload,

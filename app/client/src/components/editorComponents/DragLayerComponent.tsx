@@ -2,20 +2,13 @@ import React, { useContext, useEffect, RefObject, useRef } from "react";
 import styled from "styled-components";
 import { useDragLayer, XYCoord } from "react-dnd";
 import DropZone from "./Dropzone";
-import {
-  noCollision,
-  currentDropRow,
-  getDropZoneOffsets,
-} from "utils/WidgetPropsUtils";
+import { noCollision, currentDropRow } from "utils/WidgetPropsUtils";
 import { OccupiedSpace } from "constants/editorConstants";
-import {
-  CONTAINER_GRID_PADDING,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
-import { getWidget, getWidgetChildren } from "sagas/selectors";
+import { getWidget } from "sagas/selectors";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -143,14 +136,14 @@ function DragLayerComponent(props: DragLayerProps) {
   }
   console.log(props.parentWidgetId, diffOffset);
 
-  let widgetWidth = 0;
-  let widgetHeight = 0;
-  if (widget) {
-    widgetWidth = widget.columns
-      ? widget.columns
-      : widget.rightColumn - widget.leftColumn;
-    widgetHeight = widget.rows ? widget.rows : widget.bottomRow - widget.topRow;
-  }
+  // let widgetWidth = 0;
+  // let widgetHeight = 0;
+  // if (widget) {
+  //   widgetWidth = widget.columns
+  //     ? widget.columns
+  //     : widget.rightColumn - widget.leftColumn;
+  //   widgetHeight = widget.rows ? widget.rows : widget.bottomRow - widget.topRow;
+  // }
   useEffect(() => {
     const el = dropTargetMask.current;
     if (el) {
@@ -179,7 +172,7 @@ function DragLayerComponent(props: DragLayerProps) {
   We can be sure that the parent offset has been calculated
   when the coordiantes are not [0,0].
   */
-  const isParentOffsetCalculated = dropTargetOffset.current.x !== 0;
+  // const isParentOffsetCalculated = dropTargetOffset.current.x !== 0;
   let otherSelectedWidgets;
   if (widget && widget.widgetId) {
     otherSelectedWidgets = selectedWidgets.filter(
@@ -259,11 +252,11 @@ function WidgetPreview({
   });
   const isParentOffsetCalculated = dropTargetOffset.current.x !== 0;
 
-  const anotherOffset: XYCoord | null = currentOffset || {
-    x: dropTargetOffset.current.x + (diffOffset?.x ?? 0),
-    y: dropTargetOffset.current.y + (diffOffset?.y ?? 0),
-  };
-  const movingToDifferentContainer = props.parentWidgetId === widget.parentId;
+  // const anotherOffset: XYCoord | null = currentOffset || {
+  //   x: dropTargetOffset.current.x + (diffOffset?.x ?? 0),
+  //   y: dropTargetOffset.current.y + (diffOffset?.y ?? 0),
+  // };
+  // const movingToDifferentContainer = props.parentWidgetId === widget.parentId;
   // !movingToDifferentContainer &&
   //   console.log({
   //     diffOffset,
@@ -310,13 +303,13 @@ function WidgetPreview({
       currentOffsetRef.current = derviedCurrentOffset;
     }
   }, [props.parentWidgetId]);
-  const [left, top] = getDropZoneOffsets(
-    props.parentColumnWidth,
-    props.parentRowHeight,
-    currentOffsetRef.current as XYCoord,
-    dropTargetOffset.current,
-    // dropTargetOffset.current,
-  );
+  // const [left, top] = getDropZoneOffsets(
+  //   props.parentColumnWidth,
+  //   props.parentRowHeight,
+  //   currentOffsetRef.current as XYCoord,
+  //   dropTargetOffset.current,
+  //   // dropTargetOffset.current,
+  // );
   const dropTargetMask: RefObject<HTMLDivElement> = React.useRef(null);
   let widgetWidth = 0;
   let widgetHeight = 0;
@@ -370,9 +363,9 @@ function WidgetPreview({
       props.parentRows,
       props.parentCols,
     );
-  const parentOffset = currentOffset
-    ? dropTargetOffset.current
-    : { x: 0, y: 0 };
+  // const parentOffset = currentOffset
+  //   ? dropTargetOffset.current
+  //   : { x: 0, y: 0 };
   return (
     <WrappedDragLayer2
       columnWidth={props.parentColumnWidth}
