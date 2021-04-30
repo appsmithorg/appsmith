@@ -247,6 +247,8 @@ export const ERROR_EVAL_TRIGGER = (message: string) =>
 
 export const WIDGET_DELETE = (widgetName: string) =>
   `${widgetName} widget deleted`;
+export const WIDGET_BULK_DELETE = (widgetName: string) =>
+  `${widgetName} widgets deleted`;
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;

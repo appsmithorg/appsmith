@@ -121,7 +121,13 @@ function WidgetsEditor() {
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
         <MainContainerLayoutControl />
-        <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
+        <CanvasContainer
+          className={getCanvasClassName()}
+          key={currentPageId}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           {node}
         </CanvasContainer>
         <Debugger />

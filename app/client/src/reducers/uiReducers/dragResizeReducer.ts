@@ -1,6 +1,11 @@
 import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
+export const SINGLE_SELECT: "SINGLE_SELECT" = "SINGLE_SELECT" as const;
+export const MULTI_SELECT: "MULTI_SELECT" = "MULTI_SELECT" as const;
+
+export type SELECTION_MODES = typeof SINGLE_SELECT | typeof MULTI_SELECT;
+
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
   isDragging: false,
@@ -9,6 +14,7 @@ const initialState: WidgetDragResizeState = {
   selectedWidgets: [],
   focusedWidget: undefined,
   selectedWidgetAncestory: [],
+  selectionMode: SINGLE_SELECT,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -32,18 +38,40 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.SELECT_WIDGET]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<{ widgetId?: string }>,
+    action: ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }>,
   ) => {
-    state.selectedWidget = action.payload.widgetId;
-    state.selectedWidgets = action.payload.widgetId
-      ? [action.payload.widgetId]
-      : [];
+    if (action.payload.isMultiSelect) {
+      state.selectedWidget = "";
+      const widgetId = action.payload.widgetId || "";
+      const removeSelection = state.selectedWidgets.includes(widgetId);
+      if (removeSelection) {
+        state.selectedWidgets = state.selectedWidgets.filter(
+          (each) => each !== widgetId,
+        );
+      } else if (!!widgetId) {
+        state.selectedWidgets = [...state.selectedWidgets, widgetId];
+      }
+    } else {
+      state.selectedWidget = action.payload.widgetId;
+      if (action.payload.widgetId) {
+        state.selectedWidgets = [action.payload.widgetId];
+      } else {
+        state.selectedWidgets = [];
+      }
+    }
+  },
+  [ReduxActionTypes.MULTI_SELECT]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ start: boolean }>,
+  ) => {
+    state.selectionMode = action.payload.start ? MULTI_SELECT : SINGLE_SELECT;
   },
   [ReduxActionTypes.SELECT_WIDGETS]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetIds?: string[] }>,
   ) => {
     state.selectedWidgets = action.payload.widgetIds || [];
+    state.selectedWidget = "";
   },
   [ReduxActionTypes.FOCUS_WIDGET]: (
     state: WidgetDragResizeState,
@@ -67,6 +95,7 @@ export type WidgetDragResizeState = {
   focusedWidget?: string;
   selectedWidgetAncestory: string[];
   selectedWidgets: string[];
+  selectionMode: SELECTION_MODES;
 };
 
 export default widgetDraggingReducer;

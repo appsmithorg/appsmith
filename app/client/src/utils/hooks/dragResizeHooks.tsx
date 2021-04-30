@@ -63,8 +63,8 @@ export const useWidgetSelection = () => {
   const dispatch = useDispatch();
   return {
     selectWidget: useCallback(
-      (widgetId?: string) => {
-        dispatch(selectWidget(widgetId));
+      (widgetId?: string, isMultiSelect?: boolean) => {
+        dispatch(selectWidget(widgetId, isMultiSelect));
       },
       [dispatch],
     ),

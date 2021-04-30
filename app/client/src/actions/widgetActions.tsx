@@ -66,9 +66,10 @@ export const focusWidget = (
 
 export const selectWidget = (
   widgetId?: string,
-): ReduxAction<{ widgetId?: string }> => ({
+  isMultiSelect?: boolean,
+): ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }> => ({
   type: ReduxActionTypes.SELECT_WIDGET,
-  payload: { widgetId },
+  payload: { widgetId, isMultiSelect },
 });
 
 export const selectWidgets = (
@@ -83,7 +84,16 @@ export const selectAllWidgets = (
 ): ReduxAction<{ widgetIds?: string[] }> => {
   return {
     type: ReduxActionTypes.SELECT_WIDGETS,
-    payload: { widgetIds: widgetIds?.slice(0, widgetIds.length - 1) },
+    payload: { widgetIds },
+  };
+};
+
+export const multiSelect = (
+  start: boolean,
+): ReduxAction<{ start: boolean }> => {
+  return {
+    type: ReduxActionTypes.MULTI_SELECT,
+    payload: { start },
   };
 };
 

@@ -75,6 +75,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
     focusedWidget === props.widgetId ||
+    selectedWidget === props.widgetId ||
     selectedWidgets.includes(props.widgetId);
 
   // Calculate the dimensions of the widget,

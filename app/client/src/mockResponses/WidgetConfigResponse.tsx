@@ -616,8 +616,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     [WidgetTypes.LIST_WIDGET]: {
       backgroundColor: "",
       itemBackgroundColor: "white",
-      rows: 10,
-      columns: 8,
+      rows: 10 * 4,
+      columns: 8 * 4,
       gridType: "vertical",
       enhancements: {
         child: {
@@ -716,7 +716,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 view: [
                   {
                     type: "CONTAINER_WIDGET",
-                    size: { rows: 4, cols: 16 },
+                    size: { rows: 4 * 4, cols: 16 * 4 },
                     position: { top: 0, left: 0 },
                     props: {
                       backgroundColor: "white",
@@ -741,7 +741,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                 view: [
                                   {
                                     type: "IMAGE_WIDGET",
-                                    size: { rows: 3, cols: 4 },
+                                    size: { rows: 3 * 4, cols: 4 * 4 },
                                     position: { top: 0, left: 0 },
                                     props: {
                                       defaultImage:
@@ -759,8 +759,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                   },
                                   {
                                     type: "TEXT_WIDGET",
-                                    size: { rows: 1, cols: 6 },
-                                    position: { top: 0, left: 4 },
+                                    size: { rows: 1 * 4, cols: 6 * 4 },
+                                    position: { top: 0, left: 4 * 4 },
                                     props: {
                                       text: "{{currentItem.name}}",
                                       textStyle: "HEADING",
@@ -775,8 +775,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                   },
                                   {
                                     type: "TEXT_WIDGET",
-                                    size: { rows: 1, cols: 6 },
-                                    position: { top: 1, left: 4 },
+                                    size: { rows: 1 * 4, cols: 6 * 4 },
+                                    position: { top: 1 * 4, left: 4 * 4 },
                                     props: {
                                       text: "{{currentItem.num}}",
                                       textStyle: "BODY",

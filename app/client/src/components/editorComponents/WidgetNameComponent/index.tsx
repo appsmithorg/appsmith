@@ -53,6 +53,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
+  const selectedWidgets = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
+  );
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
@@ -90,17 +93,21 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     e.preventDefault();
     e.stopPropagation();
   };
+  const showAsSelected =
+    selectedWidget === props.widgetId ||
+    selectedWidgets.includes(props.widgetId);
 
   const showWidgetName =
     props.showControls ||
-    ((focusedWidget === props.widgetId || selectedWidget === props.widgetId) &&
+    ((focusedWidget === props.widgetId || showAsSelected) &&
       !isDragging &&
       !isResizing);
 
   let currentActivity = Activities.NONE;
   if (focusedWidget === props.widgetId) currentActivity = Activities.HOVERING;
-  if (selectedWidget === props.widgetId) currentActivity = Activities.SELECTED;
+  if (showAsSelected) currentActivity = Activities.SELECTED;
   if (
+    showAsSelected &&
     propertyPaneState.isVisible &&
     propertyPaneState.widgetId === props.widgetId
   )

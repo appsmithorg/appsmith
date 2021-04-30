@@ -146,16 +146,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
 
-  // When the draggable is clicked
-  const handleClick = (e: any) => {
-    if (!isResizingOrDragging) {
-      selectWidget &&
-        selectedWidget !== props.widgetId &&
-        selectWidget(props.widgetId);
-    }
-    e.stopPropagation();
-  };
-
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
     focusWidget &&
@@ -192,7 +182,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   return (
     <DraggableWrapper
       className={className}
-      onClick={handleClick}
       onMouseOver={handleMouseOver}
       ref={drag}
       style={style}

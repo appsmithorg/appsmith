@@ -4,9 +4,6 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
-import { getAppMode } from "selectors/applicationSelectors";
-import { useSelector } from "store";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 const PositionedWidget = styled.div`
   &.allow-hover:hover {
@@ -53,7 +50,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
     <PositionedWidget
       className={containerClassName}
       id={props.widgetId}
-      onClickCapture={openPropertyPane}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+      onClickCapture={(e) => openPropertyPane(e, props.widgetId)}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
     >
