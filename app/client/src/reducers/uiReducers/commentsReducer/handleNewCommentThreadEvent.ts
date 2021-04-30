@@ -19,9 +19,11 @@ const handleNewCommentThreadEvent = (
     [],
   ) as [];
 
+  // TODO override fields explicitly?
   state.commentThreadsMap[thread._id] = {
-    id: thread._id,
     ...thread,
+    ...(state.commentThreadsMap[thread._id] || {}),
+    id: thread._id,
     comments: [...existingComments, ...(thread.comments || [])],
   };
 

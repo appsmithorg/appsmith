@@ -144,7 +144,7 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
       {transition.map(
         ({ item: show, props: springProps }: { item: boolean; props: any }) =>
           show ? (
-            <animated.div style={springProps}>
+            <animated.div key={commentThreadId} style={springProps}>
               <CommentTriggerContainer
                 data-cy="inline-comment-pin"
                 draggable="true"

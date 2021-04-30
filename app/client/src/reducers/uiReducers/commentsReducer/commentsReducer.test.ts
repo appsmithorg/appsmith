@@ -22,7 +22,6 @@ import {
   unpublishedCommentPayload,
   createCommentThreadSuccessPayload,
   addCommentToThreadSuccessPayload,
-  updateCommentThreadPayload,
   newCommentThreadEventPayload,
   updateCommentThreadEventPayload,
   newCommentEventPayload,
