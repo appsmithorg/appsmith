@@ -96,7 +96,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     props.showControls ||
     ((focusedWidget === props.widgetId || selectedWidget === props.widgetId) &&
       !isDragging &&
-      !isResizing);
+      !isResizing) ||
+    !!props.errorCount;
 
   let currentActivity = Activities.NONE;
   if (focusedWidget === props.widgetId) currentActivity = Activities.HOVERING;
