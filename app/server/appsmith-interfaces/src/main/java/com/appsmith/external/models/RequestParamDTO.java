@@ -15,7 +15,7 @@ import java.util.List;
 public class RequestParamDTO {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String configProperty; // Only meant for internal use. It won't be returned back to the client.
-    private String value;
+    private Object value;
     private String label;
     private List<ParsedDataType> types;
 }

@@ -315,7 +315,7 @@ public class DataTypeStringUtils {
 
         return false;
     }
-
+    
     private static boolean isDisplayTypeJson(Object data) {
         /*
          * - Any non string non primitive object is converted into a json when serializing.

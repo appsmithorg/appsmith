@@ -325,7 +325,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 query[0] = s3Action.name();
 
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(ACTION_PROPERTY_INDEX),
-                        (String)properties.get(ACTION_PROPERTY_INDEX).getValue(), null, null));
+                        properties.get(ACTION_PROPERTY_INDEX).getValue(), null, null));
 
                 if (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
                         || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
@@ -424,7 +424,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 }
                             }
                             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(URL_EXPIRY_DURATION_PROPERTY_INDEX),
-                                    Integer.toString(durationInMinutes), null, null));
+                                    durationInMinutes, null, null));
 
                             Calendar calendar = Calendar.getInstance();
                             calendar.add(Calendar.MINUTE, durationInMinutes);
