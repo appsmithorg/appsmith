@@ -313,7 +313,11 @@ function CommentCard({
         />
       </CommentBodyContainer>
       <CommentTime>
-        <span>{moment().fromNow()}</span>
+        <span>
+          {isParentComment
+            ? moment(commentThread.creationTime).fromNow()
+            : moment().fromNow()}
+        </span>
         <span>{showReplies && replyText(numberOfReplies)}</span>
       </CommentTime>
       <ReactionsRow>

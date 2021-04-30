@@ -3,6 +3,7 @@ import { get } from "lodash";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CommentThread, Comment } from "entities/Comments/CommentsInterfaces";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+import moment from "moment";
 
 export const refCommentThreadsSelector = (
   refId: string,
@@ -62,9 +63,12 @@ const getSortIndexBool = (a: boolean, b: boolean) => {
   else return 0;
 };
 
-const getSortIndexNumber = (a = 0, b = 0) => {
-  if (a === b) return 0;
-  if (a > b) return -1;
+const getSortIndexNumber = (
+  a = new Date().toISOString(),
+  b = new Date().toISOString(),
+) => {
+  if (moment(a).isSame(moment(b))) return 0;
+  if (moment(a).isAfter(moment(b))) return -1;
   else return 1;
 };
 
@@ -101,10 +105,7 @@ export const getSortedAndFilteredAppCommentThreadIds = (
       );
       if (sortIdx !== 0) return sortIdx;
 
-      return getSortIndexNumber(
-        updationTimeA?.epochSecond,
-        updationTimeB?.epochSecond,
-      );
+      return getSortIndexNumber(updationTimeA, updationTimeB);
     })
     .filter((threadId: string) => {
       const thread = commentThreadsMap[threadId];

@@ -46,10 +46,8 @@ export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   userPermissions?: string[];
   new?: boolean;
   sequenceId?: string;
-  updationTime?: {
-    epochSecond: number;
-    nano: number;
-  };
+  updationTime?: string;
+  creationTime?: string;
 };
 
 export type CommentEventPayload = {
