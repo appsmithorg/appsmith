@@ -52,7 +52,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set } from "lodash";
+import _, { cloneDeep, isString, set, remove } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -120,6 +120,7 @@ import {
   doesTriggerPathsContainPropertyPath,
   handleSpecificCasesWhilePasting,
 } from "./WidgetOperationUtils";
+import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -537,8 +538,15 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       yield call(clearEvalPropertyCacheOfWidget, widgetName);
 
-      const finalWidgets: CanvasWidgetsReduxState = _.omit(
+      let finalWidgets: CanvasWidgetsReduxState = yield call(
+        updateListWidgetPropertiesOnChildDelete,
         widgets,
+        widgetId,
+        widgetName,
+      );
+
+      finalWidgets = _.omit(
+        finalWidgets,
         otherWidgetsToDelete.map((widgets) => widgets.widgetId),
       );
 
@@ -556,6 +564,43 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       },
     });
   }
+}
+
+/**
+ * this saga clears out the enhancementMap, template and dynamicBindingPathList when a child
+ * is deleted in list widget
+ *
+ * @param widgets
+ * @param widgetId
+ * @param widgetName
+ * @param parentId
+ */
+export function* updateListWidgetPropertiesOnChildDelete(
+  widgets: CanvasWidgetsReduxState,
+  widgetId: string,
+  widgetName: string,
+) {
+  const clone = JSON.parse(JSON.stringify(widgets));
+
+  const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, clone);
+
+  if (parentWithEnhancementFn?.type === "LIST_WIDGET") {
+    const listWidget = parentWithEnhancementFn;
+
+    // delete widget in template of list
+    if (listWidget && widgetName in listWidget.template) {
+      listWidget.template[widgetName] = undefined;
+    }
+
+    // delete dynamic binding path if any
+    remove(listWidget?.dynamicBindingPathList || [], (path: any) =>
+      path.key.startsWith(`template.${widgetName}`),
+    );
+
+    return clone;
+  }
+
+  return clone;
 }
 
 export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
