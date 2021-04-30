@@ -81,7 +81,7 @@ public class ElasticSearchPlugin extends BasePlugin {
 
                 HttpMethod httpMethod = actionConfiguration.getHttpMethod();
                 requestData.put("method", httpMethod.name());
-                requestParams.add(new RequestParamDTO("actionConfiguration.httpMethod", httpMethod.toString(), null,
+                requestParams.add(new RequestParamDTO("actionConfiguration.httpMethod", httpMethod.name(), null,
                         null));
                 requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null));
                 requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null, null));
