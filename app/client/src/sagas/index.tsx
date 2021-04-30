@@ -26,6 +26,8 @@ import saaSPaneSagas from "./SaaSPaneSagas";
 import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
 import recentEntitiesSagas from "./RecentEntitiesSagas";
+import commentSagas from "./CommentSagas";
+import websocketSagas from "./WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
@@ -59,6 +61,8 @@ export function* rootSaga() {
     saaSPaneSagas,
     globalSearchSagas,
     recentEntitiesSagas,
+    commentSagas,
+    websocketSagas,
     debuggerSagas,
     utilSagas,
     saaSPaneSagas,
