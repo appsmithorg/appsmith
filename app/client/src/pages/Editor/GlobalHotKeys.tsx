@@ -150,10 +150,10 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
-          global={true}
           combo="mod + a"
-          label="Select all Widget"
+          global
           group="Canvas"
+          label="Select all Widget"
           onKeyDown={(e: any) => {
             this.props.selectAllWidgets(this.props.widgetIds);
             e.preventDefault();
