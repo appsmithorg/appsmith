@@ -126,8 +126,8 @@ function AddCommentInput({
   }, [editorState]);
 
   const _onCancel = () => {
-    if (onCancel) onCancel();
     clearEditor();
+    if (onCancel) onCancel();
   };
 
   const onSaveComment = useCallback(
@@ -200,6 +200,7 @@ function AddCommentInput({
           />
           <Button
             category={Category.primary}
+            data-cy="add-comment-submit"
             disabled={!editorState.getCurrentContent().hasText()}
             onClick={handleSubmit}
             text={createMessage(POST)}

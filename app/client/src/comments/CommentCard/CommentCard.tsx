@@ -49,14 +49,14 @@ const StyledContainer = styled.div`
 // margin-top: ${(props) => props.theme.spaces[3]}px;
 
 const CommentBodyContainer = styled.div`
-  padding-bottom: ${(props) => props.theme.spaces[5]}px;
+  padding-bottom: ${(props) => props.theme.spaces[4]}px;
 `;
 
 const CommentHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: ${(props) => props.theme.spaces[5]}px;
+  padding-bottom: ${(props) => props.theme.spaces[4]}px;
 `;
 
 const UserName = styled.span`
@@ -77,14 +77,14 @@ const CommentTime = styled.div`
   ${(props) => getTypographyByKey(props, "p3")}
   display: flex;
   justify-content: space-between;
-  margin-bottom: ${(props) => props.theme.spaces[5]}px;
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
 `;
 
 const CommentSubheader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: ${(props) => props.theme.spaces[5]}px;
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
   white-space: nowrap;
 
   ${(props) => getTypographyByKey(props, "p3")}
@@ -134,7 +134,7 @@ const UnreadIndicator = styled.div`
 
 const ReactionsRow = styled.div`
   display: flex;
-  margin-bottom: ${(props) => props.theme.spaces[5]}px;
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
 `;
 
 const mentionPlugin = createMentionPlugin({
@@ -313,11 +313,7 @@ function CommentCard({
         />
       </CommentBodyContainer>
       <CommentTime>
-        <span>
-          {isParentComment
-            ? moment(commentThread.creationTime).fromNow()
-            : moment().fromNow()}
-        </span>
+        <span>{moment(comment.creationTime).fromNow()}</span>
         <span>{showReplies && replyText(numberOfReplies)}</span>
       </CommentTime>
       <ReactionsRow>

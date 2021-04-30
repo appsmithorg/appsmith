@@ -38,6 +38,8 @@ export type Comment = CreateCommentRequest & {
   id: string;
   authorName?: string;
   authorUsername?: string;
+  updationTime?: string;
+  creationTime?: string;
 };
 
 export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {

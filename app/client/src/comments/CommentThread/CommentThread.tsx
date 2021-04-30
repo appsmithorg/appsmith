@@ -7,6 +7,7 @@ import ScrollToLatest from "./ScrollToLatest";
 
 import {
   addCommentToThreadRequest,
+  resetVisibleThread,
   setCommentResolutionRequest,
 } from "actions/commentActions";
 
@@ -114,6 +115,8 @@ function CommentThreadContainer({
   const numberOfReplies =
     (Array.isArray(childComments) && childComments.length) || 0;
 
+  const handleCancel = () => dispatch(resetVisibleThread(commentThreadId));
+
   return (
     <ThreadContainer
       inline={inline}
@@ -157,7 +160,9 @@ function CommentThreadContainer({
           <ScrollToLatest scrollToBottom={scrollToBottom} />
         )}
       </div>
-      {!hideInput && <AddCommentInput onSave={addComment} />}
+      {!hideInput && (
+        <AddCommentInput onCancel={handleCancel} onSave={addComment} />
+      )}
     </ThreadContainer>
   );
 }

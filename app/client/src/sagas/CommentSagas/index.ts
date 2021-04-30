@@ -219,9 +219,7 @@ function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
     const response = yield CommentsApi.updateCommentThread({}, threadId);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(
-        updateCommentThreadSuccess({ ...response.data, isViewed: true }),
-      );
+      yield put(updateCommentThreadSuccess(response.data));
     }
   } catch (e) {
     console.log(e, "handle error");
