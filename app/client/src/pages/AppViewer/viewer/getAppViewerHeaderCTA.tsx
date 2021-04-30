@@ -4,7 +4,7 @@ import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Button from "components/ads/Button";
-import ForkApplicationModalHOC from "pages/Applications/ForkApplicationModalHOC";
+import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
@@ -53,7 +53,7 @@ const getAppViewerHeaderCTA = ({
     } else {
       CTA = (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
-          <ForkApplicationModalHOC
+          <ForkApplicationModal
             applicationId={currentApplicationDetails.id}
             isDeployedApp
           />
