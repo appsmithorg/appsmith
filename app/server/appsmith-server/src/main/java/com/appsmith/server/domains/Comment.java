@@ -7,7 +7,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -83,7 +85,10 @@ public class Comment extends BaseDomain {
         }
     }
 
-    public Instant getCreationTime() {
-        return this.createdAt;
+    private static final DateTimeFormatter ISO_FORMATTER =
+            DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
+
+    public String getCreationTime() {
+        return ISO_FORMATTER.format(createdAt);
     }
 }
