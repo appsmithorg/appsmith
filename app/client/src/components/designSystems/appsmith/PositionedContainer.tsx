@@ -4,6 +4,9 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
+import { useSelector } from "store";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "reducers/entityReducers/appReducer";
 
 const PositionedWidget = styled.div`
   &.allow-hover:hover {

@@ -103,13 +103,9 @@ function DraggableComponent(props: DraggableComponentProps) {
     collect: (monitor: DragSourceMonitor) => ({
       isCurrentWidgetDragging: monitor.isDragging(),
     }),
-    begin: () => {
+    begin: (monitor) => {
       // When this draggable starts dragging
-
       // Make sure that this widget is selected
-      selectWidget &&
-        selectedWidget !== props.widgetId &&
-        selectWidget(props.widgetId);
 
       // Tell the rest of the application that a widget has started dragging
       setIsDragging && setIsDragging(true);

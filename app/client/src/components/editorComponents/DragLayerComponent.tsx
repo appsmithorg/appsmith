@@ -365,7 +365,7 @@ function WidgetPreview({
       props.parentColumnWidth,
       props.parentRowHeight,
       widget,
-      { x: 0, y: 0 },
+      dropTargetOffset.current,
       props.occupiedSpaces,
       props.parentRows,
       props.parentCols,
