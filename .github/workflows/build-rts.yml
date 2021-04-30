@@ -64,7 +64,7 @@ jobs:
       - name: Push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
         run: |
-          docker build --build-arg -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           #docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
 
@@ -72,8 +72,8 @@ jobs:
       - name: Push master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master'
         run: |
-          docker build --build-arg -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
-          docker build --build-arg -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           #docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
           #docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
