@@ -25,6 +25,9 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,6 +46,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private final ApplicationService applicationService;
 
     private final PolicyGenerator policyGenerator;
+    private static final DateTimeFormatter ISO_FORMATTER =
+            DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
 
     public CommentServiceImpl(
             Scheduler scheduler,
@@ -166,7 +171,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     initState.setAuthorName(authorName);
                     initState.setAuthorUsername(user.getUsername());
                     //Nested object in mongo doc doesn't update time automatically
-                    initState.setUpdatedAt(Instant.now());
+                    initState.setUpdatedAt(ISO_FORMATTER.format(Instant.now()));
 
                     if (commentThread.getResolvedState() != null) {
                         initState.setActive(commentThread.getResolvedState().getActive());
