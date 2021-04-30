@@ -103,6 +103,7 @@
         },
         {
           "label": "",
+          "internalLabel": "Query",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -125,6 +126,7 @@
         {
           "label": "",
           "configProperty": "actionConfiguration.body",
+          "internalLabel": "Query",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
