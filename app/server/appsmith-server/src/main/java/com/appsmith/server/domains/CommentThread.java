@@ -44,6 +44,9 @@ public class CommentThread extends BaseDomain {
     @Transient
     List<Comment> comments;
 
+    private static final DateTimeFormatter ISO_FORMATTER =
+            DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
+
     @Data
     public static class Position {
         Float top;
@@ -60,11 +63,11 @@ public class CommentThread extends BaseDomain {
     }
 
     public String getCreationTime() {
-        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.from(ZoneOffset.UTC)).format(createdAt);
+        return ISO_FORMATTER.format(createdAt);
     }
 
     public String getUpdationTime() {
-        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.from(ZoneOffset.UTC)).format(updatedAt);
+        return ISO_FORMATTER.format(updatedAt);
     }
 
 }
