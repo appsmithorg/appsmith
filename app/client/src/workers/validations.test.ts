@@ -59,7 +59,21 @@ describe("Validate Validators", () => {
       expect(response).toStrictEqual(testCase.output);
     }
   });
-
+  it("Correctly validates image string", () => {
+    const input =
+      "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png";
+    const result = VALIDATORS.IMAGE(input, DUMMY_WIDGET, undefined);
+    const expectedResult: {
+      isValid: boolean;
+      parsed: string;
+      message?: string;
+    } = {
+      isValid: true,
+      parsed: input,
+      message: "",
+    };
+    expect(result).toStrictEqual(expectedResult);
+  });
   it("Correctly validates page number", () => {
     const input = [0, -1, undefined, null, 2, "abcd", [], ""];
     const expected = [1, 1, 1, 1, 2, 1, 1, 1];

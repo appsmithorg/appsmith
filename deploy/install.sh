@@ -519,8 +519,8 @@ if [[ $install_dir != /* ]]; then
     install_dir="$PWD/$install_dir"
 fi
 
-if [[ -e "$install_dir" ]]; then
-    echo "The path '$install_dir' is already present. Please run the script again with a different path to install new."
+if [[ -e "$install_dir" && -n "$(ls -A "$install_dir")" ]]; then
+    echo "The path '$install_dir' is already present and is non-empty. Please run the script again with a different path to install new."
     echo "If you're trying to update your existing installation, that happens automatically through WatchTower."
     echo_contact_support " if you're facing problems with the auto-updates."
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
@@ -732,7 +732,7 @@ fi
 ask_telemetry
 echo ""
 echo "Downloading the configuration templates..."
-templates_dir="$(mktemp -d)"
+templates_dir="$install_dir/tmp"
 mkdir -p "$templates_dir"
 
 (
@@ -750,19 +750,19 @@ mkdir -p "$install_dir/data/"{nginx,mongo/db}
 
 echo ""
 echo "Generating the configuration files from the templates"
-bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
-bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > docker-compose.yml
-bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > mongo-init.js
-bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" "$disable_telemetry" > docker.env
+bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > "$templates_dir/nginx_app.conf"
+bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > "$templates_dir/docker-compose.yml"
+bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > "$templates_dir/mongo-init.js"
+bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" "$disable_telemetry" > "$templates_dir/docker.env"
 if [[ "$setup_encryption" = "true" ]]; then
-    bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
+    bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > "$templates_dir/encryption.env"
 fi
 
-overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
-overwrite_file "docker-compose.yml" "docker-compose.yml"
-overwrite_file "data/mongo/init.js" "mongo-init.js"
-overwrite_file "docker.env" "docker.env"
-overwrite_file "encryption.env" "encryption.env"
+overwrite_file "data/nginx/app.conf.template" "$templates_dir/nginx_app.conf"
+overwrite_file "docker-compose.yml"           "$templates_dir/docker-compose.yml"
+overwrite_file "data/mongo/init.js"           "$templates_dir/mongo-init.js"
+overwrite_file "docker.env"                   "$templates_dir/docker.env"
+overwrite_file "encryption.env"               "$templates_dir/encryption.env"
 
 echo ""
 

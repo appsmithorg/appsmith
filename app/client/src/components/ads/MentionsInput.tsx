@@ -20,7 +20,6 @@ export function MentionComponent(props: {
 }
 
 const StyledContainer = styled.div`
-  max-height: 60px;
   overflow: auto;
   flex: 1;
 `;

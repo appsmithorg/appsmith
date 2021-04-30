@@ -28,13 +28,16 @@ export type CreateCommentThreadRequest = {
   };
   pinnedState?: {
     active: boolean;
-    author?: string;
+    authorName?: string;
+    authorUsername?: string;
   };
+  isViewed?: boolean;
 };
 
 export type Comment = CreateCommentRequest & {
   id: string;
   authorName?: string;
+  authorUsername?: string;
 };
 
 export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
@@ -43,10 +46,8 @@ export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   userPermissions?: string[];
   new?: boolean;
   sequenceId?: string;
-  updationTime?: {
-    epochSecond: number;
-    nano: number;
-  };
+  updationTime?: string;
+  creationTime?: string;
 };
 
 export type CommentEventPayload = {

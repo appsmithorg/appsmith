@@ -213,6 +213,21 @@ function* deleteComment(
   }
 }
 
+function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
+  try {
+    const { threadId } = action.payload;
+    const response = yield CommentsApi.updateCommentThread({}, threadId);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(
+        updateCommentThreadSuccess({ ...response.data, isViewed: true }),
+      );
+    }
+  } catch (e) {
+    console.log(e, "handle error");
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     // takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
@@ -239,5 +254,6 @@ export default function* commentSagas() {
     call(watchCommentEvents),
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
     takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),
+    takeLatest(ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST, markThreadAsRead),
   ]);
 }

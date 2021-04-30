@@ -179,6 +179,13 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     visibleCommentThreadId: action.payload,
   }),
+  [ReduxActionTypes.SET_APP_COMMENTS_FILTER]: (
+    state: CommentsReduxState,
+    action: ReduxAction<typeof filterOptions[number]["value"]>,
+  ) => ({
+    ...state,
+    appCommentsFilter: action.payload,
+  }),
 });
 
 export default commentsReducer;

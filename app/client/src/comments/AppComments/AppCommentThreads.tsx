@@ -4,16 +4,18 @@ import styled from "styled-components";
 import { useTransition } from "react-spring";
 
 import {
-  getSortedAppCommentThreadIds,
+  getSortedAndFilteredAppCommentThreadIds,
   applicationCommentsSelector,
   allCommentThreadsMap,
   getAppCommentThreads,
   shouldShowResolved as shouldShowResolvedSelector,
+  appCommentsFilter as appCommentsFilterSelector,
 } from "selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 import CommentThread from "comments/CommentThread/connectedCommentThread";
 import AppCommentsPlaceholder from "./AppCommentsPlaceholder";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 const Container = styled.div`
   display: flex;
@@ -29,17 +31,28 @@ function AppCommentThreads() {
   );
   const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
   const commentThreadsMap = useSelector(allCommentThreadsMap);
-
   const shouldShowResolved = useSelector(shouldShowResolvedSelector);
+  const appCommentsFilter = useSelector(appCommentsFilterSelector);
+
+  const currentUser = useSelector(getCurrentUser);
+  const currentUsername = currentUser?.username;
 
   const commentThreadIds = useMemo(
     () =>
-      getSortedAppCommentThreadIds(
+      getSortedAndFilteredAppCommentThreadIds(
         appCommentThreadIds,
         commentThreadsMap,
         shouldShowResolved,
+        appCommentsFilter,
+        currentUsername,
       ),
-    [appCommentThreadIds, commentThreadsMap],
+    [
+      appCommentThreadIds,
+      commentThreadsMap,
+      shouldShowResolved,
+      appCommentsFilter,
+      currentUsername,
+    ],
   );
 
   const commentsExist = commentThreadIds.length > 0;

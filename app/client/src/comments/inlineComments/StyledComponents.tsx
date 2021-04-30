@@ -19,6 +19,4 @@ export const ThreadHeaderTitle = styled.div`
 
 export const CommentsContainer = styled.div`
   position: relative;
-  max-height: 285px;
-  overflow: auto;
 `;

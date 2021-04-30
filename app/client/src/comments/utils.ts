@@ -66,10 +66,10 @@ export const getOffsetPos = (
   const offsetLeft = clickPosition.left - containerPosition.left;
   const offsetTop = clickPosition.top - containerPosition.top;
 
-  const offsetLeftPercent = parseInt(
+  const offsetLeftPercent = parseFloat(
     `${(offsetLeft / boundingClientRect.width) * 100}`,
   );
-  const offsetTopPercent = parseInt(
+  const offsetTopPercent = parseFloat(
     `${(offsetTop / boundingClientRect.height) * 100}`,
   );
 

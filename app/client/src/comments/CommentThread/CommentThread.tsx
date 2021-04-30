@@ -34,12 +34,13 @@ const ThreadContainer = styled(animated.div)<{
       : props.visible
       ? props.theme.colors.comments.visibleThreadBackground
       : "transparent"};
+  max-height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  // overflow: auto collapses the comment threads in the sidebar
+  overflow: ${(props) => (props.inline ? "auto" : "unset")};
 `;
 
 const CommentsContainer = styled.div<{ inline?: boolean }>`
   position: relative;
-  max-height: ${(props) => (!props.inline ? "unset" : "285px")};
-  overflow: auto;
 `;
 
 const ChildComments = styled.div`
@@ -135,6 +136,7 @@ function CommentThreadContainer({
               showReplies={hideChildren}
               showSubheader={showSubheader}
               toggleResolved={resolveCommentThread}
+              unread={!commentThread.isViewed}
             />
           )}
           {!hideChildren && childComments && childComments.length > 0 && (

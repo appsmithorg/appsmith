@@ -16,7 +16,7 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
-  cursor: -webkit-image-set(url("${commentIcon}") 2x) 11 17, auto;
+  cursor: url("${commentIcon}") 25 20 , auto;
 `;
 
 /**
