@@ -367,57 +367,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       message: message,
     };
   },
-  [ValidationTypes.SELECTED_TAB]: (
-    value: any,
-    props: WidgetProps,
-  ): ValidationResponse => {
-    const tabs: any = props.tabsObj
-      ? Object.values(props.tabsObj)
-      : props.tabs || [];
-    const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
-    const isValidTabName = tabNames.includes(value);
-    return {
-      isValid: isValidTabName,
-      parsed: isValidTabName ? value : "",
-      message: isValidTabName ? "" : `Tab name provided does not exist.`,
-    };
-  },
-  [ValidationTypes.DEFAULT_OPTION_VALUE]: (
-    value: string | string[],
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ) => {
-    let values = value;
-
-    if (props) {
-      if (props.selectionType === "SINGLE_SELECT") {
-        return VALIDATORS[ValidationTypes.TEXT](value, props, dataTree);
-      } else if (props.selectionType === "MULTI_SELECT") {
-        if (typeof value === "string") {
-          try {
-            values = JSON.parse(value);
-            if (!Array.isArray(values)) {
-              throw new Error();
-            }
-          } catch {
-            values = value.length ? value.split(",") : [];
-            if (values.length > 0) {
-              values = values.map((value) => value.trim());
-            }
-          }
-        }
-      }
-    }
-
-    if (Array.isArray(values)) {
-      values = _.uniq(values);
-    }
-
-    return {
-      isValid: true,
-      parsed: values,
-    };
-  },
   [ValidationTypes.DEFAULT_SELECTED_ROW]: (
     value: string | string[],
     props: WidgetProps,

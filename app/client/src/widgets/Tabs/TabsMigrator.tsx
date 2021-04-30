@@ -1,5 +1,9 @@
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { TabContainerWidgetProps, TabsWidgetProps } from "./TabsWidget";
+import {
+  selectedTabValidation,
+  TabContainerWidgetProps,
+  TabsWidgetProps,
+} from "./TabsWidget";
 import React from "react";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import withMeta from "widgets/MetaHOC";
@@ -73,7 +77,12 @@ class TabsMigratorWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.SELECTED_TAB },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fnString: selectedTabValidation.toString(),
+              },
+            },
           },
           {
             propertyName: "shouldScrollContents",

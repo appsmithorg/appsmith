@@ -11,6 +11,21 @@ import * as Sentry from "@sentry/react";
 import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "../MetaHOC";
 
+export const selectedTabValidation = (
+  value: string,
+  props: TabsWidgetProps<TabContainerWidgetProps>,
+) => {
+  const tabs: Array<{
+    label: string;
+    id: string;
+  }> = props.tabsObj ? Object.values(props.tabsObj) : props.tabs || [];
+  const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
+  return {
+    isValid: tabNames.includes(value),
+    parsed: value,
+    message: `Tab name ${value} does not exist`,
+  };
+};
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
@@ -72,7 +87,12 @@ class TabsWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.SELECTED_TAB },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fnString: selectedTabValidation.toString(),
+              },
+            },
           },
           {
             propertyName: "shouldShowTabs",

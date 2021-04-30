@@ -62,6 +62,7 @@ type ValidationConfigParams = {
   }>;
   allowedValues?: string[] | number[] | RegExp;
   children?: ValidationConfig;
+  fnString?: string;
 };
 
 export type ValidationConfig = {

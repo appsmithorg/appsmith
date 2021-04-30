@@ -3,12 +3,39 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import moment from "moment";
 
+function defaultDateValidation(value: string, props: DatePickerWidgetProps) {
+  const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
+  if (value === null) {
+    return {
+      isValid: true,
+      parsed: "",
+      message: "",
+    };
+  }
+  if (value === undefined) {
+    return {
+      isValid: false,
+      parsed: "",
+      message: `This value does not evaluate to type: Date ${dateFormat}`,
+    };
+  }
+
+  const isValid = moment(value, dateFormat).isValid();
+
+  if (!isValid) {
+    return {
+      isValid: isValid,
+      parsed: "",
+      message: `Value does not match ISO 8601 standard date string`,
+    };
+  }
+}
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -25,7 +52,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.DEFAULT_DATE },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fnString: defaultDateValidation.toString(),
+              },
+            },
           },
           {
             helpText: "Sets the format of the selected date",
