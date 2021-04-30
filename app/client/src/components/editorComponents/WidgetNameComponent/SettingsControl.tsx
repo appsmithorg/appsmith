@@ -65,35 +65,35 @@ const getStyles = (activity: Activities): CSSProperties | undefined => {
   }
 };
 
-export const SettingsControl = (props: SettingsControlProps) => {
+export function SettingsControl(props: SettingsControlProps) {
   const settingsIcon = (
     <SettingsIcon
-      width={12}
-      height={14}
       color={
         props.activity === Activities.HOVERING
           ? Colors.BLACK_PEARL
           : Colors.WHITE
       }
+      height={14}
+      width={12}
     />
   );
 
   return (
     <StyledTooltip
       content="Edit widget properties"
-      position="top-right"
       hoverOpenDelay={500}
+      position="top-right"
     >
       <SettingsWrapper
-        style={getStyles(props.activity)}
-        onClick={props.toggleSettings}
         className="t--widget-propertypane-toggle"
+        onClick={props.toggleSettings}
+        style={getStyles(props.activity)}
       >
         <WidgetName className="t--widget-name">{props.name}</WidgetName>
         {settingsIcon}
       </SettingsWrapper>
     </StyledTooltip>
   );
-};
+}
 
 export default SettingsControl;

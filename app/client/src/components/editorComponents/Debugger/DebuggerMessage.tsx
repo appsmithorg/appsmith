@@ -12,7 +12,7 @@ const Container = styled.div`
   color: ${(props) => props.theme.colors.debugger.messageTextColor};
 `;
 
-const DebuggerMessage = (props: any) => {
+function DebuggerMessage(props: any) {
   return (
     <Container>
       {createMessage(CLICK_ON)}
@@ -20,6 +20,6 @@ const DebuggerMessage = (props: any) => {
       {createMessage(OPEN_THE_DEBUGGER)}
     </Container>
   );
-};
+}
 
 export default DebuggerMessage;

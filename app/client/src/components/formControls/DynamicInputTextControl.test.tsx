@@ -6,7 +6,9 @@ import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import userEvent from "@testing-library/user-event";
 import { waitFor } from "@testing-library/dom";
 
-const TestForm = (props: any) => <div>{props.children}</div>;
+function TestForm(props: any) {
+  return <div>{props.children}</div>;
+}
 
 const ReduxFormDecorator = reduxForm({
   form: "TestForm",
@@ -21,15 +23,15 @@ describe("DynamicInputTextControl", () => {
     render(
       <ReduxFormDecorator>
         <DynamicInputTextControl
-          controlType="DYNAMIC_INPUT_TEXT_CONTROL"
           actionName="Test action"
-          formName="TestForm"
-          label="Action"
           configProperty="actionConfiguration.testPath"
-          onPropertyChange={jest.fn()}
-          id={"test"}
-          isValid={true}
+          controlType="DYNAMIC_INPUT_TEXT_CONTROL"
           dataType={"TABLE"}
+          formName="TestForm"
+          id={"test"}
+          isValid
+          label="Action"
+          onPropertyChange={jest.fn()}
           placeholderText="Test placeholder"
         />
       </ReduxFormDecorator>,

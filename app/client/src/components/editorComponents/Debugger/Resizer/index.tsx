@@ -22,7 +22,7 @@ type ResizerProps = {
   panelRef: RefObject<HTMLDivElement>;
 };
 
-const Resizer = (props: ResizerProps) => {
+function Resizer(props: ResizerProps) {
   const [mouseDown, setMouseDown] = useState(false);
 
   const handleResize = (movementY: number) => {
@@ -74,6 +74,6 @@ const Resizer = (props: ResizerProps) => {
   };
 
   return <Top onMouseDown={handleMouseDown} />;
-};
+}
 
 export default Resizer;
