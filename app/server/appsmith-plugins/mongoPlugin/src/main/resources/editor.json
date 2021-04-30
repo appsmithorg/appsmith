@@ -88,14 +88,14 @@
             {
               "label": "Query",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
-              "controlType": "QUERY_DYNAMIC_TEXT",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
               "initialValue" : "{rating : {$gte : 9}}"
             },
             {
               "label": "Sort",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
-              "controlType": "QUERY_DYNAMIC_TEXT",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
               "initialValue" : "{name : 1}"
             }
