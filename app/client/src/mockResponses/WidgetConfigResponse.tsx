@@ -270,7 +270,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Red", value: "RED" },
       ],
       widgetName: "Dropdown",
-      defaultOptionValue: "Green",
+      defaultOptionValue: "GREEN",
       version: 1,
       isRequired: false,
       isDisabled: false,
@@ -292,9 +292,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "",
       options: [
         { label: "Yes", value: "Y" },
-        { label: "No", value: "No" },
+        { label: "No", value: "N" },
       ],
-      defaultOptionValue: "M",
+      defaultOptionValue: "Y",
       widgetName: "RadioGroup",
       version: 1,
       isRequired: false,
@@ -549,7 +549,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     size: { rows: 1, cols: 6 },
                     position: { top: 0, left: 0 },
                     props: {
-                      text: "This is a Form",
+                      text: "Form",
                       fontSize: "HEADING1",
                       version: 1,
                     },
@@ -596,7 +596,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       enablePickLocation: true,
       allowZoom: true,
       mapCenter: { lat: 25.122, long: 50.132 },
-      defaultMarkers: [{ lat: -34.397, long: 150.644, title: "Test A" }],
+      defaultMarkers: [{ lat: 25.122, long: 50.132, title: "Test A" }],
       version: 1,
     },
     SKELETON_WIDGET: {
