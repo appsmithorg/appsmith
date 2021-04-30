@@ -1,5 +1,7 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.ExportFile;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -15,6 +17,8 @@ import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -33,5 +37,17 @@ public class ImportExportApplicationFromJSONFile {
     private final NewActionService newActionService;
     private final LayoutActionService layoutActionService;
 
+    ExportFile removePoliciesAndDecryptPasswords(ExportFile file) {
 
+        file.getPageList().forEach(newPage -> newPage.setPolicies(null));
+        file.getExportedApplication().setPolicies(null);
+        file.getDatasourceList().forEach(datasource -> datasource.setPolicies(null));
+        file.getActionList().forEach(newAction -> newAction.setPolicies(null));
+
+        file.getDatasourceList()
+                .forEach(datasource -> {
+                    datasource.getDatasourceConfiguration();
+                });
+
+    }
 }
