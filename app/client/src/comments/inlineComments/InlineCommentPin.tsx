@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import CommentThread from "comments/CommentThread/CommentThread";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Popover, Position } from "@blueprintjs/core";
 import { get } from "lodash";
 import {
   commentThreadsSelector,
@@ -19,6 +18,9 @@ import { useTransition, animated } from "react-spring";
 import { useLocation } from "react-router";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { AppState } from "reducers";
+
+import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+import { Popover2 } from "@blueprintjs/popover2";
 
 const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   position: absolute;
@@ -156,9 +158,18 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
                 }}
                 top={top}
               >
-                <Popover
+                <Popover2
                   autoFocus
                   canEscapeKeyClose
+                  content={
+                    <animated.div style={springProps}>
+                      <CommentThread
+                        commentThread={commentThread}
+                        inline
+                        isOpen={!!isCommentThreadVisible}
+                      />
+                    </animated.div>
+                  }
                   hasBackdrop
                   isOpen={!!isCommentThreadVisible}
                   minimal
@@ -167,18 +178,21 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
                     preventOverflow: { enabled: true },
                     offset: {
                       enabled: true,
-                      offset: "-8, 10",
+                      options: {
+                        offset: [-8, 10],
+                      },
                     },
                   }}
-                  onInteraction={(nextOpenState) => {
+                  onInteraction={(nextOpenState: boolean) => {
                     if (nextOpenState) {
                       dispatch(setVisibleThread(commentThreadId));
                     } else {
                       dispatch(resetVisibleThread(commentThreadId));
                     }
                   }}
+                  placement={"right-start"}
                   popoverClassName="comment-thread"
-                  position={Position.RIGHT_TOP}
+                  portalClassName="inline-comment-thread"
                 >
                   <Pin
                     commentThreadId={commentThreadId}
@@ -186,14 +200,7 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
                     sequenceId={commentThread.sequenceId}
                     unread={!commentThread.isViewed}
                   />
-                  <animated.div style={springProps}>
-                    <CommentThread
-                      commentThread={commentThread}
-                      inline
-                      isOpen={!!isCommentThreadVisible}
-                    />
-                  </animated.div>
-                </Popover>
+                </Popover2>
               </CommentTriggerContainer>
             </animated.div>
           ) : null,

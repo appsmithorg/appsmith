@@ -13,4 +13,9 @@ export const CommentThreadPopoverStyles = createGlobalStyle`
   .emoji-picker-portal {
     z-index: 14;
   }
+
+  .inline-comment-thread {
+    // unable to reference headerHeight here
+    margin-top: 35px;
+  }
 `;
