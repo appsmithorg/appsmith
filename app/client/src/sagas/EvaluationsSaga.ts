@@ -153,8 +153,8 @@ function* evaluateTreeSaga(
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  // kaushik: add last sort order here
-  // create saga that takes this action and call func
+  // kaushik - Hetu call: add last sort order here
+  // kaushik - Hetu call: create saga that takes this action and call func
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap: dependencies },

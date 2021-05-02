@@ -67,7 +67,7 @@ export default class DataTreeEvaluator {
     this.widgetConfigMap = widgetConfigMap;
   }
 
-  // kaushik
+  // kaushik - Hetu call : check here
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
     // Create dependency map
@@ -127,7 +127,7 @@ export default class DataTreeEvaluator {
     return relativePropertyPath in entity.bindingPaths;
   }
 
-  // kaushik
+  // kaushik - Hetu call: check here
   updateDataTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
     // Calculate diff
@@ -173,7 +173,7 @@ export default class DataTreeEvaluator {
     const evalStart = performance.now();
 
     // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
-    // kaushik: return this to know what changed eg input
+    // kaushik - Hetu call: return this to know what changed eg input
     const evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
       // We are setting all values from our uneval tree to the old eval tree we have
       // So that the actual uneval value can be evaluated
