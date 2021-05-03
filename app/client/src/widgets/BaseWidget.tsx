@@ -15,6 +15,7 @@ import {
   CSSUnit,
   CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
+import { memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -35,6 +36,7 @@ import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapp
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { flattenObject } from "utils/helpers";
 
 /***
  * BaseWidget
@@ -178,7 +180,10 @@ abstract class BaseWidget<
 
   getErrorCount = () => {
     const invalidProps = this.props?.invalidProps ?? {};
-    return Object.values(invalidProps).filter((e) => !!e).length;
+
+    const memoizedFlatterObject = memoize(flattenObject);
+    return Object.values(memoizedFlatterObject(invalidProps)).filter((e) => !!e)
+      .length;
   };
 
   render() {
