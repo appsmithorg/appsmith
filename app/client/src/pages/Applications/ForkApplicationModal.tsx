@@ -26,7 +26,7 @@ type ForkApplicationModalProps = {
   applicationId: string;
   // if a trigger is passed
   // it renders that component
-  trigger?: any;
+  trigger?: React.ReactNode;
   isModalOpen?: boolean;
   setModalClose?: (isOpen: boolean) => void;
 };
@@ -51,7 +51,6 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     pathname ===
     `${getApplicationViewerPageURL(props.applicationId, currentPageId)}/fork`;
 
-  console.log("user orgs: ", userOrgs);
   const forkApplication = () => {
     dispatch({
       type: ReduxActionTypes.FORK_APPLICATION_INIT,

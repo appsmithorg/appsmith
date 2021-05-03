@@ -32,7 +32,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
+import GetAppViewerHeaderCTA from "./getAppViewerHeaderCTA";
 import ToggleCommentModeButton from "comments/ToggleCommentModeButton";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
