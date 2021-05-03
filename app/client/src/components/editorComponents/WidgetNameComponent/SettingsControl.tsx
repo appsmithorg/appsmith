@@ -125,7 +125,7 @@ export function SettingsControl(props: SettingsControlProps) {
         {!!props.errorCount && (
           <>
             {errorIcon}
-            <span>{props.errorCount}</span>
+            <span className="t--widget-error-count">{props.errorCount}</span>
           </>
         )}
         <WidgetName className="t--widget-name">{props.name}</WidgetName>
