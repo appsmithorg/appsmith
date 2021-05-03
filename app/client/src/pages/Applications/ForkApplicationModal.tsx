@@ -92,6 +92,7 @@ function ForkApplicationModal(props: any) {
       className={"fork-modal"}
       isOpen={showForkModal}
       maxHeight={"540px"}
+      setModalClose={setModalClose}
       title={"Choose where to fork the app"}
       trigger={
         isDeployedApp ? (
