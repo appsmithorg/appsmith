@@ -105,6 +105,8 @@ function Pin({
   );
 }
 
+const Container = document.getElementById("root");
+
 /**
  * Comment pins that toggle comment thread popover visibility on click
  * They position themselves using position absolute based on top and left values (in percent)
@@ -160,6 +162,7 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
               >
                 <Popover2
                   autoFocus
+                  boundary={Container as HTMLDivElement}
                   canEscapeKeyClose
                   content={
                     <animated.div style={springProps}>
