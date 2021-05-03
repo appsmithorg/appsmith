@@ -18,15 +18,16 @@ describe("Update Organization", function() {
         .scrollIntoView()
         .should("be.visible")
         .within(() => {
-          cy.get(".t--org-name")
+          cy.get(".t--org-name span")
             .first()
-            .click();
+            .click({ force: true });
+          cy.get(homePage.orgSettingOption).click({ force: true });
         });
-      cy.get(homePage.orgSettingOption).click();
     });
     cy.generateUUID().then((uid) => {
       orgid = uid;
       localStorage.setItem("OrgName", orgid);
+      cy.get(homePage.orgNameInput).click({ force: true });
       cy.get(homePage.orgNameInput).clear();
       cy.get(homePage.orgNameInput).type(orgid);
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -46,11 +47,11 @@ describe("Update Organization", function() {
       .scrollIntoView()
       .should("be.visible")
       .within(() => {
-        cy.get(".t--org-name")
+        cy.get(".t--org-name span")
           .first()
-          .click();
+          .click({ force: true });
+        cy.get(homePage.orgSettingOption).click();
       });
-    cy.get(homePage.orgSettingOption).click();
     cy.get(homePage.orgEmailInput).clear();
     cy.get(homePage.orgEmailInput).type(Cypress.env("TESTUSERNAME2"));
     cy.wait("@updateOrganization").should(
