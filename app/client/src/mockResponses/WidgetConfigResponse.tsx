@@ -265,12 +265,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "",
       selectionType: "SINGLE_SELECT",
       options: [
-        { label: "Vegetarian", value: "VEG" },
-        { label: "Non-Vegetarian", value: "NON_VEG" },
-        { label: "Vegan", value: "VEGAN" },
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
       ],
       widgetName: "Dropdown",
-      defaultOptionValue: "VEG",
+      defaultOptionValue: "GREEN",
       version: 1,
       isRequired: false,
       isDisabled: false,
@@ -291,10 +291,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 3,
       label: "",
       options: [
-        { label: "Male", value: "M" },
-        { label: "Female", value: "F" },
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
       ],
-      defaultOptionValue: "M",
+      defaultOptionValue: "Y",
       widgetName: "RadioGroup",
       version: 1,
       isRequired: false,
@@ -408,7 +408,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     size: { rows: 1, cols: 10 },
                     props: {
                       text: "Modal Title",
-                      textStyle: "HEADING",
+                      fontSize: "HEADING1",
                       version: 1,
                     },
                   },
@@ -476,7 +476,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 6,
       widgetName: "Chart",
       chartType: "LINE_CHART",
-      chartName: "Sales on working days",
+      chartName: "Last week's revenue",
       allowHorizontalScroll: false,
       version: 1,
       chartData: {
@@ -546,11 +546,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 view: [
                   {
                     type: "TEXT_WIDGET",
-                    size: { rows: 1, cols: 12 },
+                    size: { rows: 1, cols: 6 },
                     position: { top: 0, left: 0 },
                     props: {
                       text: "Form",
-                      textStyle: "HEADING",
+                      fontSize: "HEADING1",
                       version: 1,
                     },
                   },
@@ -595,8 +595,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       zoomLevel: 50,
       enablePickLocation: true,
       allowZoom: true,
-      mapCenter: { lat: -34.397, long: 150.644 },
-      defaultMarkers: [{ lat: -34.397, long: 150.644, title: "Test A" }],
+      mapCenter: { lat: 25.122, long: 50.132 },
+      defaultMarkers: [{ lat: 25.122, long: 50.132, title: "Test A" }],
       version: 1,
     },
     SKELETON_WIDGET: {
