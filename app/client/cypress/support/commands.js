@@ -31,9 +31,7 @@ Cypress.Commands.add("createOrg", () => {
 });
 
 Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
-  cy.contains(orgName)
-    .should("be.visible")
-    .click({ force: true });
+  cy.contains(orgName).click({ force: true });
   cy.get(".t--org-rename-input")
     .should("be.visible")
     .type(newOrgName)

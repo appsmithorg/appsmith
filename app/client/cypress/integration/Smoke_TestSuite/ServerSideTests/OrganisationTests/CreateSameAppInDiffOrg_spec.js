@@ -32,7 +32,6 @@ describe("Create app same name in different org", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.reload();
     const newOrgName = orgid + "1";
     cy.createOrg();
     cy.wait("@createOrg").then((interception) => {
