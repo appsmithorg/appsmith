@@ -140,6 +140,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
       )}
       <ButtonWrapper>
         <ForkButton
+          cypressSelector={"t--fork-app-to-org-button"}
           disabled={!organizationId}
           isLoading={forkingApplication}
           onClick={forkApplication}
