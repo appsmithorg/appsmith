@@ -44,6 +44,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { PluginType } from "entities/Action";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -123,6 +124,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
       } else {
         this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
+      AnalyticsUtil.logEvent("GSHEET_AUTH_COMPLETE", {
+        applicationId: _.get(this.props, "match.params.applicationId"),
+        datasourceId: _.get(this.props, "match.params.datasourceId"),
+        pageId: _.get(this.props, "match.params.pageId"),
+      });
     }
   }
 
@@ -162,7 +168,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
   saasInfoForm = (options: any) => {
     const {
       match: {
-        params: { datasourceId, pageId },
+        params: { applicationId, datasourceId, pageId },
       },
       isSaving,
     } = this.props;
@@ -194,15 +200,20 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             filled
             intent="primary"
             loading={isSaving}
-            onClick={() =>
+            onClick={() => {
+              AnalyticsUtil.logEvent("GSHEET_AUTH_INIT", {
+                applicationId,
+                datasourceId,
+                pageId,
+              });
               this.save(
                 redirectAuthorizationCode(
                   pageId,
                   datasourceId,
                   PluginType.SAAS,
                 ),
-              )
-            }
+              );
+            }}
             size="small"
             text="Continue"
           />
