@@ -4,6 +4,11 @@ import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
 import { waitFor } from "@testing-library/dom";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
+jest.mock("react-redux", () => ({
+  ...jest.requireActual("react-redux"),
+  useDispatch: () => jest.fn(),
+}));
+
 const sampleProps = {
   url:
     "/applications/606ad816c7a35467ac887f87/pages/606ad816c7a35467ac887f89/edit",
