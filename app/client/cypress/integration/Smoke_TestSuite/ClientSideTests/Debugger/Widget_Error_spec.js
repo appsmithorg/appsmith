@@ -10,7 +10,7 @@ describe("Widget error state", function() {
     cy.get(".t--property-control-visible")
       .find(".t--js-toggle")
       .click();
-    cy.testJsontext("isVisible", "Test");
+    cy.testJsontext("visible", "Test");
 
     cy.contains(".t--widget-error-count", 1);
   });
