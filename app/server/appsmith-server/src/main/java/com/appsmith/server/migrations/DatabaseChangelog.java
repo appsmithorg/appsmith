@@ -2113,7 +2113,7 @@ public class DatabaseChangelog {
         plugin.setName("Google Sheets");
         plugin.setType(PluginType.SAAS);
         plugin.setPackageName("google-sheets-plugin");
-        plugin.setUiComponent("DbEditorForm");
+        plugin.setUiComponent("SaaSEditorForm");
         plugin.setDatasourceComponent("OAuth2DatasourceForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
