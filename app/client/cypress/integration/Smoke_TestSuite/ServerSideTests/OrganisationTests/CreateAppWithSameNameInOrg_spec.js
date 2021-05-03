@@ -3,6 +3,7 @@
 describe("Create org and a new app / delete and recreate app", function() {
   let orgid;
   let appid;
+  let newOrganizationName;
 
   it("create app within an org and delete and re-create another app with same name", function() {
     cy.NavigateToHome();
@@ -11,7 +12,10 @@ describe("Create org and a new app / delete and recreate app", function() {
       appid = uid;
       localStorage.setItem("OrgName", orgid);
       cy.createOrg();
-      cy.renameRandomOrg(orgid);
+      cy.wait("@createOrg").then((interception) => {
+        newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgid);
+      });
       cy.CreateAppForOrg(orgid, appid);
       cy.DeleteAppByApi();
       cy.NavigateToHome();

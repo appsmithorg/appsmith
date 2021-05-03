@@ -2,6 +2,7 @@ const homePage = require("../../../../locators/HomePage.json");
 
 describe("Update Organization", function() {
   let orgid;
+  let newOrganizationName;
 
   it("Open the org general settings and update org name. The update should reflect in the org. It should also reflect in the org names on the left side and the org dropdown.	", function() {
     cy.NavigateToHome();
@@ -9,7 +10,10 @@ describe("Update Organization", function() {
       orgid = uid;
       localStorage.setItem("OrgName", orgid);
       cy.createOrg();
-      cy.renameRandomOrg(orgid);
+      cy.wait("@createOrg").then((interception) => {
+        newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgid);
+      });
       cy.get(homePage.orgList.concat(orgid).concat(")"))
         .scrollIntoView()
         .should("be.visible")
