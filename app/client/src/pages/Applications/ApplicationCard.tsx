@@ -45,7 +45,6 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
-// import ForkApplicationAcrossOrganisationsModal from "pages/Applications/ForkApplicationAcrossOrganisationsModal";
 import ForkApplicationModal from "./ForkApplicationModal";
 
 type NameWrapperProps = {
