@@ -40,6 +40,7 @@ describe("EntityDefinitions", () => {
         "!doc": "Boolean value indicating if the widget is in visible state",
       },
       selectedItem: { id: "number", name: "string" },
+      gridGap: "number",
     };
 
     expect(listWidgetEntityDefinitions).toStrictEqual(output);

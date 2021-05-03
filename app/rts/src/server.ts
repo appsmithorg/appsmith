@@ -155,7 +155,7 @@ async function watchMongoDB(io) {
 					"_class",
 				].map(f => "fullDocument." + f)
 			},
-		]
+		],
 		{ fullDocument: "updateLookup" }
 	);
 
