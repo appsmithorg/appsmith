@@ -250,7 +250,7 @@ export const renderEmptyRows = (
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
   position: relative;
-  top: 18px;
+  top: 12px;
   cursor: pointer;
   transform: rotate(180deg);
   && svg {

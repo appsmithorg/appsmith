@@ -17,7 +17,7 @@ const SearchInputWrapper = styled(InputGroup)`
   &&& svg {
     opacity: 0.6;
   }
-  margin: 5px 20px;
+  margin: 5px 16px;
   width: 250px;
   min-width: 150px;
 `;
