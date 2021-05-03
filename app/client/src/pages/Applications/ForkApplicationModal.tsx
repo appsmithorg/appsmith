@@ -25,20 +25,30 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import Spinner from "components/ads/Spinner";
 import { IconSize } from "components/ads/Icon";
 
-function ForkApplicationModal(props: any) {
-  const { isDeployedApp, applicationId, setModalClose, isModalOpen } = props;
+type ForkApplicationModalProps = {
+  applicationId: string;
+  // to check if this is a public
+  // fork button or for forking internal
+  // apps across organizations
+  isDeployedApp: boolean;
+  isModalOpen?: boolean;
+  setModalClose?: (isOpen: boolean) => void;
+};
+
+function ForkApplicationModal(props: ForkApplicationModalProps) {
+  const { isDeployedApp, setModalClose, isModalOpen } = props;
   const [organizationId, selectOrganizationId] = useState("");
   const dispatch = useDispatch();
   const userOrgs = useSelector(getUserApplicationsOrgs);
   const forkingApplication = useSelector(
     (state: AppState) => state.ui.applications.forkingApplication,
   );
-  let showForkModal = props.isModalOpen;
+  let showForkModal = isModalOpen;
   useEffect(() => {
     if (!isDeployedApp) {
-      showForkModal = props.isModalOpen;
+      showForkModal = isModalOpen;
     }
-  }, [props.isModalOpen]);
+  }, [isModalOpen]);
 
   useEffect(() => {
     if (isDeployedApp) {
