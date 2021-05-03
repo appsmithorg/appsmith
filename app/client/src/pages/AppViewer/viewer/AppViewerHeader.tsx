@@ -33,6 +33,7 @@ import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
+import ToggleCommentModeButton from "comments/ToggleCommentModeButton";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -175,6 +176,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             )}
           </HeaderSection>
           <HeaderSection justify={"flex-end"}>
+            <ToggleCommentModeButton />
             {currentApplicationDetails && (
               <>
                 <FormDialogComponent
