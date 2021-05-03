@@ -466,7 +466,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
         })}
         <ForkApplicationModal
           applicationId={props.application.id}
-          isDeployedApp={false}
           isModalOpen={isForkApplicationModalopen}
           setModalClose={setForkApplicationModalOpen}
         />

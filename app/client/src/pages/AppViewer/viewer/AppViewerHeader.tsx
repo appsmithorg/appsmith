@@ -32,7 +32,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import getAppViewerHeaderCTA from "./getAppViewerHeaderCTA";
+import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -150,7 +150,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}/fork`;
   const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
-  const CTA = getAppViewerHeaderCTA({
+  const CTA = GetAppViewerHeaderCTA({
     url: props.url,
     canEdit,
     currentApplicationDetails,

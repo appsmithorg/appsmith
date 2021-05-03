@@ -12,12 +12,9 @@ import {
   ForkButton,
   OrganizationList,
   ButtonWrapper,
-  TriggerButton,
   SpinnerWrapper,
 } from "./ForkModalStyles";
 import Divider from "components/editorComponents/Divider";
-import { createMessage, FORK_APP } from "constants/messages";
-import { getAllApplications } from "actions/applicationActions";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
 import { getApplicationViewerPageURL } from "constants/routes";
@@ -27,16 +24,15 @@ import { IconSize } from "components/ads/Icon";
 
 type ForkApplicationModalProps = {
   applicationId: string;
-  // to check if this is a public
-  // fork button or for forking internal
-  // apps across organizations
-  isDeployedApp: boolean;
+  // if a trigger is passed
+  // it renders that component
+  trigger?: any;
   isModalOpen?: boolean;
   setModalClose?: (isOpen: boolean) => void;
 };
 
 function ForkApplicationModal(props: ForkApplicationModalProps) {
-  const { isDeployedApp, setModalClose, isModalOpen } = props;
+  const { setModalClose, isModalOpen } = props;
   const [organizationId, selectOrganizationId] = useState("");
   const dispatch = useDispatch();
   const userOrgs = useSelector(getUserApplicationsOrgs);
@@ -45,26 +41,17 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   );
   let showForkModal = isModalOpen;
   useEffect(() => {
-    if (!isDeployedApp) {
-      showForkModal = isModalOpen;
-    }
+    showForkModal = isModalOpen;
   }, [isModalOpen]);
 
-  useEffect(() => {
-    if (isDeployedApp) {
-      dispatch(getAllApplications());
-    }
-  }, [dispatch, getAllApplications]);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const currentPageId = useSelector(getCurrentPageId);
   const { pathname } = useLocation();
+  const showBasedOnURL =
+    pathname ===
+    `${getApplicationViewerPageURL(props.applicationId, currentPageId)}/fork`;
 
-  if (isDeployedApp) {
-    showForkModal =
-      pathname ===
-      `${getApplicationViewerPageURL(props.applicationId, currentPageId)}/fork`;
-  }
-
+  console.log("user orgs: ", userOrgs);
   const forkApplication = () => {
     dispatch({
       type: ReduxActionTypes.FORK_APPLICATION_INIT,
@@ -100,34 +87,19 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     <StyledDialog
       canOutsideClickClose
       className={"fork-modal"}
-      isOpen={showForkModal}
+      isOpen={showForkModal || showBasedOnURL}
       maxHeight={"540px"}
       setModalClose={setModalClose}
       title={"Choose where to fork the app"}
-      trigger={
-        isDeployedApp ? (
-          <TriggerButton
-            className="t--fork-app"
-            icon="fork"
-            onClick={() => dispatch(getAllApplications())}
-            size={Size.small}
-            text={createMessage(FORK_APP)}
-          />
-        ) : null
-      }
+      trigger={props.trigger ? props.trigger : null}
     >
       <Divider />
-      {isDeployedApp && isFetchingApplications && (
+      {isFetchingApplications && (
         <SpinnerWrapper>
           <Spinner size={IconSize.XXXL} />
         </SpinnerWrapper>
       )}
-      {!isDeployedApp && !organizationList.length && (
-        <SpinnerWrapper>
-          <Spinner size={IconSize.XXXL} />
-        </SpinnerWrapper>
-      )}
-      {organizationList.length && (
+      {!isFetchingApplications && organizationList.length && (
         <OrganizationList>
           <StyledRadioComponent
             className={"radio-group"}

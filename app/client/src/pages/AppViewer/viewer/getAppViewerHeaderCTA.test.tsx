@@ -1,6 +1,6 @@
 import { unmountComponentAtNode } from "react-dom";
 import { render } from "test/testUtils";
-import getAppViewerHeaderCTA from "./getAppViewerHeaderCTA";
+import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
 import { waitFor } from "@testing-library/dom";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
@@ -65,7 +65,7 @@ describe("get app viewer header CTA", () => {
     document.body.appendChild(container);
   });
   it("renders the edit app button and does not render the fork app button", async () => {
-    const CTA = getAppViewerHeaderCTA(sampleProps);
+    const CTA = GetAppViewerHeaderCTA(sampleProps);
     if (CTA) {
       render(CTA);
       const result = await waitFor(() =>
@@ -80,7 +80,7 @@ describe("get app viewer header CTA", () => {
     }
   });
   it("renders the fork app button", async () => {
-    const CTA = getAppViewerHeaderCTA({
+    const CTA = GetAppViewerHeaderCTA({
       ...sampleProps,
       canEdit: false,
       currentApplicationDetails: {
@@ -102,7 +102,7 @@ describe("get app viewer header CTA", () => {
     }
   });
   it("renders the fork app link", async () => {
-    const CTA = getAppViewerHeaderCTA({
+    const CTA = GetAppViewerHeaderCTA({
       ...sampleProps,
       canEdit: false,
       currentApplicationDetails: {
@@ -120,7 +120,7 @@ describe("get app viewer header CTA", () => {
     }
   });
   it("renders the sign in link", async () => {
-    const CTA = getAppViewerHeaderCTA({
+    const CTA = GetAppViewerHeaderCTA({
       ...sampleProps,
       canEdit: false,
       currentApplicationDetails: {
