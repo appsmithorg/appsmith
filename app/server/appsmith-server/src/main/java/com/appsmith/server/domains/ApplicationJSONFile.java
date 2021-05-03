@@ -5,13 +5,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class ExportFile {
-    Map<String, String> pluginMap;
+public class ApplicationJSONFile {
     Application exportedApplication;
     List<Datasource> datasourceList;
     List<NewPage> pageList;
