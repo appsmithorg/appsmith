@@ -31,7 +31,7 @@ type DebugCTAProps = {
   source?: string;
 };
 
-const DebugCTA = (props: DebugCTAProps) => {
+function DebugCTA(props: DebugCTAProps) {
   const dispatch = useDispatch();
   const appMode = useSelector(getAppMode);
 
@@ -46,24 +46,24 @@ const DebugCTA = (props: DebugCTAProps) => {
   };
 
   return <DebugButton className={props.className} onClick={onClick} />;
-};
+}
 
 type DebugButtonProps = {
   className?: string;
   onClick: () => void;
 };
 
-export const DebugButton = (props: DebugButtonProps) => {
+export function DebugButton(props: DebugButtonProps) {
   return (
     <StyledButton
       className={props.className}
-      onClick={props.onClick}
       icon="bug"
-      text="Debug"
+      onClick={props.onClick}
       tag="button"
+      text="Debug"
       variant={Variant.danger}
     />
   );
-};
+}
 
 export default DebugCTA;

@@ -25,10 +25,10 @@ export function InputText(props: {
         {label} {isRequired && "*"}
       </FormLabel>
       <DynamicTextField
+        dataTreePath={dataTreePath}
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}
-        dataTreePath={dataTreePath}
       />
     </div>
   );
@@ -40,10 +40,10 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
 
     return (
       <InputText
-        name={configProperty}
-        label={label}
-        placeholder={placeholderText}
         actionName={actionName}
+        label={label}
+        name={configProperty}
+        placeholder={placeholderText}
       />
     );
   }

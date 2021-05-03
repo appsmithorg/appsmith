@@ -741,18 +741,15 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     value: any,
     props: WidgetProps,
   ): ValidationResponse => {
-    const tabs =
-      props.tabs && isString(props.tabs)
-        ? JSON.parse(props.tabs)
-        : props.tabs && Array.isArray(props.tabs)
-        ? props.tabs
-        : [];
+    const tabs: any = props.tabsObj
+      ? Object.values(props.tabsObj)
+      : props.tabs || [];
     const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
     const isValidTabName = tabNames.includes(value);
     return {
       isValid: isValidTabName,
-      parsed: value,
-      message: isValidTabName ? "" : `Invalid tab name.`,
+      parsed: isValidTabName ? value : "",
+      message: isValidTabName ? "" : `Tab name provided does not exist.`,
     };
   },
   [VALIDATION_TYPES.DEFAULT_OPTION_VALUE]: (
@@ -764,7 +761,9 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
 
     if (props) {
       if (props.selectionType === "SINGLE_SELECT") {
-        return VALIDATORS[VALIDATION_TYPES.TEXT](value, props, dataTree);
+        const defaultValue =
+          value && !Array.isArray(value) ? value.trim() : value;
+        return VALIDATORS[VALIDATION_TYPES.TEXT](defaultValue, props, dataTree);
       } else if (props.selectionType === "MULTI_SELECT") {
         if (typeof value === "string") {
           try {
@@ -911,6 +910,51 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       isValid: true,
       parsed: value,
     };
+  },
+  [VALIDATION_TYPES.IMAGE]: (value: any): ValidationResponse => {
+    let parsed = value;
+    const base64ImageRegex = /^data:image\/.*;base64/;
+    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+    if (isUndefined(value) || value === null) {
+      return {
+        isValid: true,
+        parsed: value,
+        message: "",
+      };
+    }
+    if (isObject(value)) {
+      return {
+        isValid: false,
+        parsed: JSON.stringify(value, null, 2),
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+      };
+    }
+    if (imageUrlRegex.test(value)) {
+      return {
+        isValid: true,
+        parsed: value,
+        message: "",
+      };
+    }
+    let isValid = base64ImageRegex.test(value);
+    if (!isValid) {
+      try {
+        parsed =
+          btoa(atob(value)) === value
+            ? "data:image/png;base64," + value
+            : value;
+        isValid = true;
+      } catch (err) {
+        console.error(`Error when parsing ${value} to string`);
+        console.error(err);
+        return {
+          isValid: false,
+          parsed: "",
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+        };
+      }
+    }
+    return { isValid, parsed };
   },
   // If we keep adding these here there will be a huge unmaintainable list
   // TODO(abhinav: WIDGET DEV API):

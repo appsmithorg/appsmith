@@ -31,7 +31,7 @@ const StyledContainerComponent = styled.div<
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}
 }`;
 
-const ContainerComponent = (props: ContainerComponentProps) => {
+function ContainerComponent(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
 
@@ -51,18 +51,18 @@ const ContainerComponent = (props: ContainerComponentProps) => {
   return (
     <StyledContainerComponent
       {...props}
-      ref={containerRef}
-      containerStyle={containerStyle}
-      // Before you remove: generateClassName is used for bounding the resizables within this canvas
-      // getCanvasClassName is used to add a scrollable parent.
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)}`}
+      containerStyle={containerStyle}
+      // Before you remove: generateClassName is used for bounding the resizables within this canvas
+      // getCanvasClassName is used to add a scrollable parent.
+      ref={containerRef}
     >
       {props.children}
     </StyledContainerComponent>
   );
-};
+}
 
 export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
 

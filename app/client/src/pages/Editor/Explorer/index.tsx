@@ -5,7 +5,7 @@ import { inOnboarding, isAddWidgetComplete } from "sagas/OnboardingSagas";
 import EntityExplorer from "./EntityExplorer";
 import OnboardingExplorer from "./Onboarding";
 
-const ExplorerContent = (props: IPanelProps) => {
+function ExplorerContent(props: IPanelProps) {
   const isInOnboarding = useSelector(inOnboarding);
   const addWidgetComplete = useSelector(isAddWidgetComplete);
 
@@ -14,6 +14,6 @@ const ExplorerContent = (props: IPanelProps) => {
   }
 
   return <EntityExplorer {...props} />;
-};
+}
 
 export default ExplorerContent;

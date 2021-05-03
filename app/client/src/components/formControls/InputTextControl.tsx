@@ -41,12 +41,12 @@ export function InputText(props: {
   } = props;
 
   return (
-    <div style={{ width: "50vh" }} data-cy={name}>
+    <div data-cy={name} style={{ width: "50vh" }}>
       <FormLabel>
         {label} {isRequired && "*"}{" "}
         {encrypted && (
           <>
-            <FormIcons.LOCK_ICON width={12} height={12} keepColors />
+            <FormIcons.LOCK_ICON height={12} keepColors width={12} />
             <StyledInfo>Encrypted</StyledInfo>
           </>
         )}
@@ -58,11 +58,11 @@ export function InputText(props: {
         )}
       </FormLabel>
       <TextField
+        disabled={disabled || false}
         name={name}
         placeholder={placeholder}
-        type={dataType}
-        disabled={disabled || false}
         showError
+        type={dataType}
       />
     </div>
   );
@@ -84,16 +84,16 @@ class InputTextControl extends BaseControl<InputControlProps> {
 
     return (
       <InputText
-        name={configProperty}
-        label={label}
-        value={propertyValue}
-        isValid={isValid}
-        validationMessage={validationMessage}
-        placeholder={placeholderText}
         dataType={this.getType(dataType)}
-        encrypted={this.props.encrypted}
         disabled={disabled}
+        encrypted={this.props.encrypted}
+        isValid={isValid}
+        label={label}
+        name={configProperty}
+        placeholder={placeholderText}
         subtitle={subtitle}
+        validationMessage={validationMessage}
+        value={propertyValue}
       />
     );
   }

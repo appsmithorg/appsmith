@@ -41,8 +41,10 @@ const PropertyPaneConfig = [
         propertyName: "gridGap",
         label: "Item Spacing (px)",
         controlType: "INPUT_TEXT",
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
+        inputType: "INTEGER",
+        validation: VALIDATION_TYPES.NUMBER,
       },
       {
         propertyName: "isVisible",

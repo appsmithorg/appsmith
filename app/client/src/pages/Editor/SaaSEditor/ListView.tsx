@@ -129,18 +129,18 @@ class ListView extends React.Component<Props> {
 
         <AddDatasource
           className="t--add-datasource"
-          onClick={() => this.handleCreateNewDatasource(plugin.id)}
           fill
-          minimal
-          text="New Datasource"
           icon={"plus"}
+          minimal
+          onClick={() => this.handleCreateNewDatasource(plugin.id)}
+          text="New Datasource"
         />
 
         {datasources.map((datasource) => {
           return (
             <DatasourceCard
-              key={datasource.id}
               datasource={datasource}
+              key={datasource.id}
               onCreate={this.handleCreateNewAPI}
             />
           );
@@ -167,11 +167,11 @@ class ListView extends React.Component<Props> {
     return (
       <IntegrationHomePage>
         <NotFound
-          title="Integration Not found"
           buttonText="Go back to Integrations"
           onBackButton={() =>
             history.push(API_EDITOR_URL(applicationId, pageId))
           }
+          title="Integration Not found"
         />
       </IntegrationHomePage>
     );

@@ -15,7 +15,7 @@ const ListWrapper = styled.div`
   height: 100%;
 `;
 
-const Errors = (props: { hasShortCut?: boolean }) => {
+function Errors(props: { hasShortCut?: boolean }) {
   const errors = useSelector(getDebuggerErrors);
   const expandId = useSelector((state: any) => state.ui.debugger.expandId);
 
@@ -41,6 +41,6 @@ const Errors = (props: { hasShortCut?: boolean }) => {
       </ListWrapper>
     </ContainerWrapper>
   );
-};
+}
 
 export default Errors;

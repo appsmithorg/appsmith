@@ -170,7 +170,6 @@ export const entityDefinitions = {
   },
   TABS_WIDGET: {
     isVisible: isVisible,
-    tabs: "[tabs]",
     selectedTab: "string",
   },
   MODAL_WIDGET: {
@@ -233,6 +232,7 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
     },
     isVisible: isVisible,
+    gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
   }),
 };

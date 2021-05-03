@@ -303,25 +303,25 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
     return (
       <InputComponent
-        value={value}
-        isInvalid={isInvalid}
-        onValueChange={this.onValueChange}
-        widgetId={this.props.widgetId}
-        inputType={this.props.inputType}
-        disabled={this.props.isDisabled}
-        label={this.props.label}
         defaultValue={this.props.defaultText}
-        placeholder={this.props.placeholderText}
+        disableNewLineOnPressEnterKey={!!this.props.onSubmit}
+        disabled={this.props.isDisabled}
+        inputType={this.props.inputType}
+        isInvalid={isInvalid}
         isLoading={this.props.isLoading}
+        label={this.props.label}
         multiline={
           this.props.bottomRow - this.props.topRow > 1 &&
           this.props.inputType === "TEXT"
         }
-        stepSize={1}
         onFocusChange={this.handleFocusChange}
-        showError={!!this.props.isFocused}
-        disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         onKeyDown={this.handleKeyDown}
+        onValueChange={this.onValueChange}
+        placeholder={this.props.placeholderText}
+        showError={!!this.props.isFocused}
+        stepSize={1}
+        value={value}
+        widgetId={this.props.widgetId}
         {...conditionalProps}
       />
     );

@@ -52,7 +52,7 @@ const Container = styled.div<{ errorCount: number }>`
   }
 `;
 
-const Debugger = () => {
+function Debugger() {
   const dispatch = useDispatch();
   const errorCount = useSelector(
     (state: AppState) => Object.keys(state.ui.debugger.errors).length,
@@ -71,15 +71,15 @@ const Debugger = () => {
   if (!showDebugger)
     return (
       <Container
-        onClick={onClick}
-        errorCount={errorCount}
         className="t--debugger"
+        errorCount={errorCount}
+        onClick={onClick}
       >
         <Icon name="bug" size={IconSize.XXXL} />
         <div className="debugger-count">{errorCount}</div>
       </Container>
     );
   return <DebuggerTabs defaultIndex={errorCount ? 0 : 1} />;
-};
+}
 
 export default Debugger;

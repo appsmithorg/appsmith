@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const CopyToClipboard = (props: any) => {
+function CopyToClipboard(props: any) {
   const { copyText } = props;
   const copyURLInput = createRef<HTMLInputElement>();
   const [isCopied, setIsCopied] = useState(false);
@@ -36,25 +36,25 @@ const CopyToClipboard = (props: any) => {
   return (
     <Wrapper>
       <TextInput
+        defaultValue={copyText}
         fill
-        ref={copyURLInput}
-        readOnly
         onChange={() => {
           selectText();
         }}
-        defaultValue={copyText}
+        readOnly
+        ref={copyURLInput}
       />
 
       <Button
-        text={isCopied ? "Copied" : "Copy"}
         category={Category.tertiary}
         onClick={() => {
           copyToClipboard(copyText);
         }}
         size={Size.large}
+        text={isCopied ? "Copied" : "Copy"}
       />
     </Wrapper>
   );
-};
+}
 
 export default CopyToClipboard;

@@ -31,6 +31,7 @@ import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/Incorr
 import * as Sentry from "@sentry/react";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
+import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -333,6 +334,111 @@ const rteDefaultValueMigration = (
   return currentDSL;
 };
 
+function migrateTabsDataUsingMigrator(
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) {
+  if (currentDSL.type === WidgetTypes.TABS_WIDGET && currentDSL.version === 1) {
+    try {
+      currentDSL.type = WidgetTypes.TABS_MIGRATOR_WIDGET;
+      currentDSL.version = 1;
+    } catch (error) {
+      Sentry.captureException({
+        message: "Tabs Migration Failed",
+        oldData: currentDSL.tabs,
+      });
+      currentDSL.tabsObj = {};
+      delete currentDSL.tabs;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(migrateTabsDataUsingMigrator);
+  }
+  return currentDSL;
+}
+
+export function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
+  if (
+    [WidgetTypes.TABS_WIDGET, WidgetTypes.TABS_MIGRATOR_WIDGET].includes(
+      currentDSL.type as any,
+    ) &&
+    currentDSL.version === 1
+  ) {
+    try {
+      currentDSL.type = WidgetTypes.TABS_WIDGET;
+      const isTabsDataBinded = isString(currentDSL.tabs);
+      currentDSL.dynamicPropertyPathList =
+        currentDSL.dynamicPropertyPathList || [];
+      currentDSL.dynamicBindingPathList =
+        currentDSL.dynamicBindingPathList || [];
+
+      if (isTabsDataBinded) {
+        const tabsString = currentDSL.tabs.replace(
+          DATA_BIND_REGEX_GLOBAL,
+          (word: any) => `"${word}"`,
+        );
+        try {
+          currentDSL.tabs = JSON.parse(tabsString);
+        } catch (error) {
+          return migrateTabsDataUsingMigrator(currentDSL);
+        }
+        const dynamicPropsList = currentDSL.tabs
+          .filter((each: any) => DATA_BIND_REGEX_GLOBAL.test(each.isVisible))
+          .map((each: any) => {
+            return { key: `tabsObj.${each.id}.isVisible` };
+          });
+        const dynamicBindablePropsList = currentDSL.tabs.map((each: any) => {
+          return { key: `tabsObj.${each.id}.isVisible` };
+        });
+        currentDSL.dynamicPropertyPathList = [
+          ...currentDSL.dynamicPropertyPathList,
+          ...dynamicPropsList,
+        ];
+        currentDSL.dynamicBindingPathList = [
+          ...currentDSL.dynamicBindingPathList,
+          ...dynamicBindablePropsList,
+        ];
+      }
+      currentDSL.dynamicPropertyPathList = currentDSL.dynamicPropertyPathList.filter(
+        (each) => {
+          return each.key !== "tabs";
+        },
+      );
+      currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList.filter(
+        (each) => {
+          return each.key !== "tabs";
+        },
+      );
+      currentDSL.tabsObj = currentDSL.tabs.reduce(
+        (obj: any, tab: any, index: number) => {
+          obj = {
+            ...obj,
+            [tab.id]: {
+              ...tab,
+              isVisible: tab.isVisible === undefined ? true : tab.isVisible,
+              index,
+            },
+          };
+          return obj;
+        },
+        {},
+      );
+      currentDSL.version = 2;
+      delete currentDSL.tabs;
+    } catch (error) {
+      Sentry.captureException({
+        message: "Tabs Migration Failed",
+        oldData: currentDSL.tabs,
+      });
+      currentDSL.tabsObj = {};
+      delete currentDSL.tabs;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(migrateTabsData);
+  }
+  return currentDSL;
+}
+
 // A rudimentary transform function which updates the DSL based on its version.
 function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
   if (currentDSL.type === WidgetTypes.CHART_WIDGET) {
@@ -541,6 +647,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 16) {
     currentDSL = migrateChartDataFromArrayToObject(currentDSL);
     currentDSL.version = 17;
+  }
+
+  if (currentDSL.version === 17) {
+    currentDSL = migrateTabsData(currentDSL);
+    currentDSL.version = 18;
   }
 
   return currentDSL;

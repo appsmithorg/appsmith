@@ -12,3 +12,4 @@ node_modules
 **/.project
 **/.factorypath
 *.env
+dependency-reduced-pom.xml
