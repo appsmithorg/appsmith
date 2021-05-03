@@ -117,7 +117,7 @@ function EmojiReactions({
             key={reaction.reactionEmoji.native}
             onClick={(e) => handleSelectReaction(e, reaction.reactionEmoji)}
           >
-            <span>{reaction.reactionEmoji.native}</span>
+            <span style={{ width: 20 }}>{reaction.reactionEmoji.native}</span>
             {reaction.count > 1 && (
               <Count active={reaction.active}>{reaction.count}</Count>
             )}

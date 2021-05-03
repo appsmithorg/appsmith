@@ -898,8 +898,9 @@ type ColorType = {
     sendButton: string;
     addCommentInputBackground: string;
     pin: string;
-    commentModeButtonIcon: string;
-    commentModeButtonBackground: string;
+    activeModeBackground: string;
+    activeModeIcon: string;
+    modeIcon: string;
     emojiPicker: string;
     resolved: string;
     unresolved: string;
@@ -930,6 +931,11 @@ type ColorType = {
     visibleThreadBackground: string;
     cardOptionsIcon: string;
     appCommentsPlaceholderText: string;
+  };
+  mentionSuggestion: {
+    nameText: string;
+    usernameText: string;
+    hover: string;
   };
   reactionsComponent: {
     reactionBackground: string;
@@ -1021,6 +1027,12 @@ const reactionsComponent = {
   borderActive: "#BF4109",
 };
 
+const mentionSuggestion = {
+  nameText: "#090707",
+  usernameText: "#716E6E",
+  hover: "#EBEBEB",
+};
+
 const comments = {
   commentsFilter: "#6A86CE",
   profileUserName: darkShades[11],
@@ -1033,8 +1045,7 @@ const comments = {
   sendButton: "#6A86CE",
   addCommentInputBackground: "#FAFAFA",
   pin: "#EF4141",
-  commentModeButtonIcon: "#6A86CE",
-  commentModeButtonBackground: "#262626",
+  activeModeBackground: "#090707",
   emojiPicker: lightShades[5],
   resolved: Colors.BLACK,
   unresolved: lightShades[5],
@@ -1064,6 +1075,8 @@ const comments = {
   visibleThreadBackground: "#FBEED0",
   cardOptionsIcon: "#777272",
   appCommentsPlaceholderText: lightShades[8],
+  activeModeIcon: "#F0F0F0",
+  modeIcon: "#6D6D6D",
 };
 
 const auth: any = {
@@ -1133,6 +1146,7 @@ const mentionsInput = {
 };
 
 export const dark: ColorType = {
+  mentionSuggestion,
   reactionsComponent,
   mentionsInput,
   helpModal,
@@ -1579,14 +1593,12 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  mentionSuggestion,
   reactionsComponent,
   mentionsInput,
   helpModal,
   globalSearch,
-  comments: {
-    ...comments,
-    commentModeButtonBackground: "#FAFAFA",
-  },
+  comments,
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
