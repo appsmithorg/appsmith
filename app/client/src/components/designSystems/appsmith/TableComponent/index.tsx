@@ -68,10 +68,42 @@ interface ReactTableComponentProps {
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
+  const {
+    applyFilter,
+    columns,
+    columnSizeMap,
+    compactMode,
+    disableDrag,
+    editMode,
+    filters,
+    handleReorderColumn,
+    handleResizeColumn,
+    height,
+    isLoading,
+    nextPageClick,
+    onRowClick,
+    pageNo,
+    pageSize,
+    prevPageClick,
+    searchKey,
+    searchTableData,
+    selectedRowIndex,
+    selectedRowIndices,
+    serverSidePaginationEnabled,
+    sortTableColumn: _sortTableColumn,
+    tableData,
+    triggerRowSelection,
+    updateCompactMode,
+    updatePageNo,
+    widgetId,
+    widgetName,
+    width,
+  } = props;
+
   const { columnOrder, hiddenColumns } = useMemo(() => {
     const order: string[] = [];
     const hidden: string[] = [];
-    props.columns.forEach((item) => {
+    columns.forEach((item) => {
       if (item.isHidden) {
         hidden.push(item.accessor);
       } else {
@@ -79,12 +111,12 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       }
     });
     return { columnOrder: order, hiddenColumns: hidden };
-  }, [props.columns]);
+  }, [columns]);
 
   useEffect(() => {
     let dragged = -1;
     const headers = Array.prototype.slice.call(
-      document.querySelectorAll(`#table${props.widgetId} .draggable-header`),
+      document.querySelectorAll(`#table${widgetId} .draggable-header`),
     );
     headers.forEach((header, i) => {
       header.setAttribute("draggable", true);
@@ -149,7 +181,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
           if (movedColumnName && movedColumnName.length === 1) {
             newColumnOrder.splice(i, 0, movedColumnName[0]);
           }
-          props.handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
+          handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
         } else {
           dragged = -1;
         }
@@ -159,15 +191,15 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
     if (columnIndex === -1) {
-      props.sortTableColumn("", asc);
+      _sortTableColumn("", asc);
     } else {
-      const column = props.columns[columnIndex];
+      const column = columns[columnIndex];
       const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
       if (
         columnType !== ColumnTypes.IMAGE &&
         columnType !== ColumnTypes.VIDEO
       ) {
-        props.sortTableColumn(column.accessor, asc);
+        _sortTableColumn(column.accessor, asc);
       }
     }
   };
@@ -176,48 +208,48 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     original: Record<string, unknown>;
     index: number;
   }) => {
-    props.onRowClick(row.original, row.index);
+    onRowClick(row.original, row.index);
   };
 
   return (
     <Table
-      applyFilter={props.applyFilter}
-      columnSizeMap={props.columnSizeMap}
-      columns={props.columns}
-      compactMode={props.compactMode}
-      data={props.tableData}
+      applyFilter={applyFilter}
+      columnSizeMap={columnSizeMap}
+      columns={columns}
+      compactMode={compactMode}
+      data={tableData}
       disableDrag={() => {
-        props.disableDrag(true);
+        disableDrag(true);
       }}
-      editMode={props.editMode}
+      editMode={editMode}
       enableDrag={() => {
-        props.disableDrag(false);
+        disableDrag(false);
       }}
-      filters={props.filters}
-      handleResizeColumn={props.handleResizeColumn}
-      height={props.height}
-      isLoading={props.isLoading}
+      filters={filters}
+      handleResizeColumn={handleResizeColumn}
+      height={height}
+      isLoading={isLoading}
       nextPageClick={() => {
-        props.nextPageClick();
+        nextPageClick();
       }}
-      pageNo={props.pageNo - 1}
-      pageSize={props.pageSize || 1}
+      pageNo={pageNo - 1}
+      pageSize={pageSize || 1}
       prevPageClick={() => {
-        props.prevPageClick();
+        prevPageClick();
       }}
-      searchKey={props.searchKey}
-      searchTableData={props.searchTableData}
+      searchKey={searchKey}
+      searchTableData={searchTableData}
       selectTableRow={selectTableRow}
-      selectedRowIndex={props.selectedRowIndex}
-      selectedRowIndices={props.selectedRowIndices}
-      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+      selectedRowIndex={selectedRowIndex}
+      selectedRowIndices={selectedRowIndices}
+      serverSidePaginationEnabled={serverSidePaginationEnabled}
       sortTableColumn={sortTableColumn}
-      triggerRowSelection={props.triggerRowSelection}
-      updateCompactMode={props.updateCompactMode}
-      updatePageNo={props.updatePageNo}
-      widgetId={props.widgetId}
-      widgetName={props.widgetName}
-      width={props.width}
+      triggerRowSelection={triggerRowSelection}
+      updateCompactMode={updateCompactMode}
+      updatePageNo={updatePageNo}
+      widgetId={widgetId}
+      widgetName={widgetName}
+      width={width}
     />
   );
 }
