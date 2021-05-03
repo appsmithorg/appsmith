@@ -169,16 +169,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     return (
       <div>
         <WarningContainer>
+          <span>
+            The integration is yet to be verified by google, so you will be
+            shown a safety warning. To continue authorization, please first
+            click on &quot;Show Advanced&quot;, and second &quot;Go to
+            Appsmith.com&quot;
+          </span>
           <img
             alt="Google Sheet Warning"
             src={GSheetWarning}
             style={{ width: "100%" }}
           />
-          <span>
-            The integration is yet to be verified by google, so you will be
-            shown a safety warning from google. To continue authorization,
-            please click on Advanced, and then &quot;Go to Appsmith.com&quot;
-          </span>
         </WarningContainer>
         <ButtonsContainer>
           <ActionButton
