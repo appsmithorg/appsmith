@@ -15,6 +15,7 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getDatasource, getPluginImages } from "selectors/entitiesSelector";
 import { ReduxAction } from "constants/ReduxActionConstants";
+import GSheetWarning from "assets/images/GSheet-warning.png";
 import {
   deleteDatasource,
   getOAuthAccessToken,
@@ -42,6 +43,7 @@ import {
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { PluginType } from "entities/Action";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -85,6 +87,21 @@ const CreateApiButton = styled(BaseButton)`
     align-self: center;
     min-height: 32px;
   }
+`;
+
+const ButtonsContainer = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px;
+`;
+
+const WarningContainer = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  flex-direction: column;
 `;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props> {
@@ -141,6 +158,57 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     const content = this.renderDataSourceConfigForm(formConfig);
     return this.renderForm(content);
   }
+
+  saasInfoForm = (options: any) => {
+    const {
+      match: {
+        params: { datasourceId, pageId },
+      },
+      isSaving,
+    } = this.props;
+    return (
+      <div>
+        <WarningContainer>
+          <img
+            alt="Google Sheet Warning"
+            src={GSheetWarning}
+            style={{ width: "100%" }}
+          />
+          <span>
+            The integration is yet to be verified by google, so you will be
+            shown a safety warning from google. To continue authorization,
+            please click on Advanced, and then &quot;Go to Appsmith.com&quot;
+          </span>
+        </WarningContainer>
+        <ButtonsContainer>
+          <ActionButton
+            accent="secondary"
+            className="t--test-datasource"
+            onClick={options.onCancel}
+            text="Cancel"
+          />
+          <StyledButton
+            className="t--save-datasource"
+            disabled={this.validate()}
+            filled
+            intent="primary"
+            loading={isSaving}
+            onClick={() =>
+              this.save(
+                redirectAuthorizationCode(
+                  pageId,
+                  datasourceId,
+                  PluginType.SAAS,
+                ),
+              )
+            }
+            size="small"
+            text="Continue"
+          />
+        </ButtonsContainer>
+      </div>
+    );
+  };
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
@@ -201,24 +269,21 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             }
             text="Delete"
           />
-
-          <StyledButton
-            className="t--save-datasource"
-            disabled={this.validate()}
-            filled
-            intent="primary"
-            loading={isSaving}
-            onClick={() =>
-              this.save(
-                redirectAuthorizationCode(
-                  pageId,
-                  datasourceId,
-                  PluginType.SAAS,
-                ),
-              )
+          <FormDialogComponent
+            Form={this.saasInfoForm}
+            canOutsideClickClose
+            title="Google Sheets integration is still in beta"
+            trigger={
+              <StyledButton
+                className="t--save-datasource"
+                disabled={this.validate()}
+                filled
+                intent="primary"
+                loading={isSaving}
+                size="small"
+                text="Save and Authorize"
+              />
             }
-            size="small"
-            text="Save and Authorize"
           />
         </SaveButtonContainer>
       </form>
