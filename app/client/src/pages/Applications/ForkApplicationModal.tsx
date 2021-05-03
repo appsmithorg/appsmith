@@ -39,10 +39,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const forkingApplication = useSelector(
     (state: AppState) => state.ui.applications.forkingApplication,
   );
-  let showForkModal = isModalOpen;
-  useEffect(() => {
-    showForkModal = isModalOpen;
-  }, [isModalOpen]);
+  const showForkModal = isModalOpen;
 
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const currentPageId = useSelector(getCurrentPageId);
@@ -90,7 +87,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
       maxHeight={"540px"}
       setModalClose={setModalClose}
       title={"Choose where to fork the app"}
-      trigger={props.trigger ? props.trigger : null}
+      trigger={props.trigger}
     >
       <Divider />
       {isFetchingApplications && (
