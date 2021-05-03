@@ -232,6 +232,7 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
     },
     isVisible: isVisible,
+    gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
   }),
 };

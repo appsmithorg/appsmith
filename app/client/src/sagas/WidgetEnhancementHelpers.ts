@@ -33,15 +33,17 @@ export enum WidgetEnhancementType {
   HIDE_EVALUATED_VALUE = "child.hideEvaluatedValue",
 }
 
-function getParentWithEnhancementFn(
+export function getParentWithEnhancementFn(
   widgetId: string,
   widgets: CanvasWidgetsReduxState,
 ) {
   let widget = get(widgets, widgetId, undefined);
+
   // While this widget has a parent
   while (widget?.parentId) {
     // Get parent widget props
     const parent = get(widgets, widget.parentId, undefined);
+
     // If parent has enhancements property
     // enhancements property is a new widget property which tells us that
     // the property pane, properties or actions of this widget or its children
