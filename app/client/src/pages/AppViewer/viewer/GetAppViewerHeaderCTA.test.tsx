@@ -1,6 +1,6 @@
 import { unmountComponentAtNode } from "react-dom";
 import { render } from "test/testUtils";
-import GetAppViewerHeaderCTA from "./getAppViewerHeaderCTA";
+import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
 import { waitFor } from "@testing-library/dom";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
