@@ -4,8 +4,11 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJSONFile;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -57,7 +60,7 @@ public class ImportExportApplicationFromJSONFile {
     Mono<ApplicationJSONFile> getApplicationFileById(String applicationId) {
         ApplicationJSONFile file = new ApplicationJSONFile();
         Map<String, String> pluginMap = new HashMap<>();
-        return pluginRepository
+        List<Datasource> dsList = pluginRepository
                 .findAll()
                 .map(plugin -> pluginMap.put(plugin.getId(), plugin.getPackageName()))
                 .flatMap(ignore -> applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS))
@@ -69,71 +72,65 @@ public class ImportExportApplicationFromJSONFile {
                     application.setId(null);
                     String applicationName = application.getName();
                     file.setExportedApplication(application);
-                    return application
-                            .getPages()
-                            .parallelStream()
-                            .map(applicationPage -> newPageRepository.findByApplicationId(applicationPage.getId()))
-                            .map(newPageFlux -> newPageFlux
-                                    .map(newPage -> {
-                                        newPage.setApplicationId(applicationName);
-                                        newPage.setPolicies(null);
-                                        newPage.setId(null);
-                                        if (file.getPageList().isEmpty()) {
-                                            file.setPageList(Arrays.asList(newPage));
-                                        } else {
-                                            file.getPageList().add(file.getPageList().size(), newPage);
-                                        }
-                                        //Remove action ids
-                                        return newPage;
-                                    })
-                                    .collectList()
-                                    .map(ignored -> newActionRepository.findByApplicationId(applicationId)))
-                            .map(newActionFlux -> newActionFlux
-                                    .block()
-                                    .map(newAction -> {
-                                        newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
-                                        newAction.setOrganizationId(null);
-                                        newAction.setPolicies(null);
-                                        newAction.setApplicationId(applicationName);
-                                        if (file.getActionList().isEmpty()) {
-                                            file.setActionList(Arrays.asList(newAction));
-                                        } else {
-                                            file.getActionList().add(file.getPageList().size(), newAction);
-                                        }
-                                        return newAction;
-                                    })
-                                    .collectList()
-                                    .map(ignored -> datasourceRepository.findAllByOrganizationId(organizationId)))
-                            .map(datasourceMonoFlux -> {
-                                //Only export those are used in the app instead of org level
-                                return datasourceMonoFlux
-                                        .block()
-                                        .map(datasource -> {
-                                            //decrypt all the fields in authentication object
-                                            AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-                                            Map<String, String> decryptedFields = authentication
-                                                    .getEncryptionFields()
-                                                    .entrySet()
-                                                    .stream()
-                                                    .filter(e -> e.getValue() != null && !e.getValue().isBlank())
-                                                    .collect(Collectors.toMap(
-                                                            Map.Entry::getKey,
-                                                            e -> encryptionService.decryptString(e.getValue())));
-                                            authentication.setEncryptionFields(decryptedFields);
-                                            authentication.setIsEncrypted(false);
-                                            datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
-                                            datasource.setOrganizationId(null);
-                                            datasource.setPolicies(null);
-                                            if (file.getDatasourceList().isEmpty()) {
-                                                file.setDatasourceList(Arrays.asList(datasource));
-                                            } else {
-                                                file.getDatasourceList().add(file.getDatasourceList().size(), datasource);
-                                            }
-                                            return datasource;
-                                        });
+                    return Flux.fromIterable(application.getPages())
+                            .flatMap(applicationPage -> newPageRepository.findByApplicationId(applicationPage.getId()))
+                            .collectList()
+                            .map(newPageList -> {
+                                newPageList.forEach(newPage -> {
+                                    newPage.setApplicationId(applicationName);
+                                    newPage.setPolicies(null);
+                                    newPage.setId(null);
+                                    if (file.getPageList().isEmpty()) {
+                                        file.setPageList(Arrays.asList(newPage));
+                                    } else {
+                                        file.getPageList().add(file.getPageList().size(), newPage);
+                                    }
+                                    //Remove action ids
+                                });
+                                return newActionRepository.findByApplicationId(applicationId);
                             })
-                            .map(datasourceFlux -> datasourceFlux.collectList())
-                            .map(ignore -> Mono.just(file));
+                            .flatMap(newActionFlux -> newActionFlux.collectList())
+                            .map(newActionList -> {
+                                newActionList.forEach(newAction -> {
+                                    newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
+                                    newAction.setOrganizationId(null);
+                                    newAction.setPolicies(null);
+                                    newAction.setApplicationId(applicationName);
+                                    if (file.getActionList().isEmpty()) {
+                                        file.setActionList(Arrays.asList(newAction));
+                                    } else {
+                                        file.getActionList().add(file.getPageList().size(), newAction);
+                                    }
+                                });
+                                return datasourceRepository.findAllByOrganizationId(organizationId);
+                            })
+                            .flatMap(datasourceFlux -> datasourceFlux.collectList())
+                            .map(datasourceList -> {
+                                //Only export those are used in the app instead of org level
+                                datasourceList.forEach(datasource -> {
+                                    //decrypt all the fields in authentication object
+                                    AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
+                                    Map<String, String> decryptedFields = authentication
+                                            .getEncryptionFields()
+                                            .entrySet()
+                                            .stream()
+                                            .filter(e -> e.getValue() != null && !e.getValue().isBlank())
+                                            .collect(Collectors.toMap(
+                                                    Map.Entry::getKey,
+                                                    e -> encryptionService.decryptString(e.getValue())));
+                                    authentication.setEncryptionFields(decryptedFields);
+                                    authentication.setIsEncrypted(false);
+                                    datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
+                                    datasource.setOrganizationId(null);
+                                    datasource.setPolicies(null);
+                                    if (file.getDatasourceList().isEmpty()) {
+                                        file.setDatasourceList(Arrays.asList(datasource));
+                                    } else {
+                                        file.getDatasourceList().add(file.getDatasourceList().size(), datasource);
+                                    }
+                                });
+                                return datasourceList;
+                            });
                 });
     }
 
