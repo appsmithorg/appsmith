@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
@@ -39,7 +39,6 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const forkingApplication = useSelector(
     (state: AppState) => state.ui.applications.forkingApplication,
   );
-  const showForkModal = isModalOpen;
 
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const currentPageId = useSelector(getCurrentPageId);
@@ -83,7 +82,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     <StyledDialog
       canOutsideClickClose
       className={"fork-modal"}
-      isOpen={showForkModal || showBasedOnURL}
+      isOpen={isModalOpen || showBasedOnURL}
       maxHeight={"540px"}
       setModalClose={setModalClose}
       title={"Choose where to fork the app"}
