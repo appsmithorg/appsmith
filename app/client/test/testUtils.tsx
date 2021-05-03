@@ -10,6 +10,11 @@ import { AppState } from "reducers";
 import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
 
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  useDispatch: () => jest.fn(),
+}));
+
 const customRender = (
   ui: ReactElement,
   state?: {
