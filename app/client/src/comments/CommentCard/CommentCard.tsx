@@ -8,13 +8,13 @@ import {
   RawDraftContentState,
 } from "draft-js";
 import styled from "styled-components";
-import ProfileImage from "pages/common/ProfileImage";
+import ProfileImage, { Profile } from "pages/common/ProfileImage";
 import { Comment } from "entities/Comments/CommentsInterfaces";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import CommentContextMenu from "./CommentContextMenu";
 import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
 import { MentionComponent } from "components/ads/MentionsInput";
-import Icon from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import EmojiReactions, { Reactions } from "components/ads/EmojiReactions";
 import { Toaster } from "components/ads/Toast";
 
@@ -39,14 +39,9 @@ import { BaseEmoji } from "emoji-mart";
 const StyledContainer = styled.div`
   width: 100%;
   padding: ${(props) =>
-    `${props.theme.spaces[7]}px ${props.theme.spaces[5]}px`};
+    `${props.theme.spaces[6]}px ${props.theme.spaces[5]}px`};
   border-radius: 0;
 `;
-
-// ${(props) => getTypographyByKey(props, "p1")};
-// line-height: 24px;
-// color: ${(props) => props.theme.colors.comments.commentBody};
-// margin-top: ${(props) => props.theme.spaces[3]}px;
 
 const CommentBodyContainer = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[4]}px;
@@ -65,11 +60,20 @@ const UserName = styled.span`
   margin-left: ${(props) => props.theme.spaces[4]}px;
   display: flex;
   align-items: center;
+  overflow: hidden;
+   text-overflow: ellipsis;
+   display: -webkit-box;
+   -webkit-line-clamp: 2; /* number of lines to show */
+   -webkit-box-orient: vertical;
 `;
 
 const HeaderSection = styled.div`
   display: flex;
   align-items: center;
+
+  & ${Profile} {
+    flex-shrink: 0;
+  }
 `;
 
 const CommentTime = styled.div`
@@ -134,8 +138,9 @@ const UnreadIndicator = styled.div`
 
 const ReactionsRow = styled.div`
   display: flex;
-  margin-bottom: ${(props) => props.theme.spaces[4]}px;
 `;
+
+const EmojiReactionsBtnContainer = styled.div``;
 
 const mentionPlugin = createMentionPlugin({
   mentionComponent: MentionComponent,
@@ -160,7 +165,7 @@ function StopClickPropagation({ children }: { children: React.ReactNode }) {
 
 const replyText = (replies?: number) => {
   if (!replies) return "";
-  return replies > 1 ? `${replies} replies` : `1 reply`;
+  return replies > 1 ? `${replies} Replies` : `1 Reply`;
 };
 
 function CommentCard({
@@ -186,6 +191,7 @@ function CommentCard({
   unread?: boolean;
   inline?: boolean;
 }) {
+  const [isHovered, setIsHovered] = useState(false);
   const dispatch = useDispatch();
   const { authorName, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
@@ -263,10 +269,17 @@ function CommentCard({
     setReactions(updatedReactions);
   };
 
+  const showResolveBtn =
+    (isHovered || !!resolved) && isParentComment && toggleResolved;
+
+  const hasReactions = !!reactions;
+
   return (
     <StyledContainer
       data-cy={`t--comment-card-${comment.id}`}
       onClick={handleCardClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {showSubheader && (
         <CommentSubheader>
@@ -291,17 +304,30 @@ function CommentCard({
           <UserName>{authorName}</UserName>
         </HeaderSection>
         <HeaderSection>
-          <StopClickPropagation>
-            {isParentComment && toggleResolved && (
+          {isHovered && (
+            <StopClickPropagation>
+              <EmojiReactionsBtnContainer>
+                <EmojiReactions
+                  hideReactions
+                  iconSize={IconSize.XXL}
+                  onSelectReaction={handleReaction}
+                />
+              </EmojiReactionsBtnContainer>
+            </StopClickPropagation>
+          )}
+          {showResolveBtn && (
+            <StopClickPropagation>
               <ResolveCommentButton
-                handleClick={toggleResolved}
+                handleClick={toggleResolved as () => void}
                 resolved={!!resolved}
               />
-            )}
-          </StopClickPropagation>
-          <StopClickPropagation>
-            <CommentContextMenu {...contextMenuProps} />
-          </StopClickPropagation>
+            </StopClickPropagation>
+          )}
+          {isHovered && (
+            <StopClickPropagation>
+              <CommentContextMenu {...contextMenuProps} />
+            </StopClickPropagation>
+          )}
         </HeaderSection>
       </CommentHeader>
       <CommentBodyContainer>
@@ -316,14 +342,17 @@ function CommentCard({
         <span>{moment(comment.creationTime).fromNow()}</span>
         <span>{showReplies && replyText(numberOfReplies)}</span>
       </CommentTime>
-      <ReactionsRow>
-        <StopClickPropagation>
-          <EmojiReactions
-            onSelectReaction={handleReaction}
-            reactions={reactions}
-          />
-        </StopClickPropagation>
-      </ReactionsRow>
+      {hasReactions && (
+        <ReactionsRow>
+          <StopClickPropagation>
+            <EmojiReactions
+              iconSize={IconSize.LARGE}
+              onSelectReaction={handleReaction}
+              reactions={reactions}
+            />
+          </StopClickPropagation>
+        </ReactionsRow>
+      )}
     </StyledContainer>
   );
 }

@@ -8,23 +8,23 @@ import { Theme } from "constants/DefaultTheme";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "emoji-mart/css/emoji-mart.css";
 
-// TODO remove: (trigger tests)
 const EmojiPicker = withTheme(
   ({
     iconName,
     theme,
     onSelectEmoji,
+    iconSize,
   }: {
     iconName?: IconName;
     theme: Theme;
     onSelectEmoji: (e: React.MouseEvent, emojiObject: BaseEmoji) => void;
+    iconSize?: IconSize;
   }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const handleSelectEmoji = useCallback(
       (emoji, event) => {
         onSelectEmoji(event, emoji);
-        setIsOpen(false);
       },
       [onSelectEmoji],
     );
@@ -44,7 +44,7 @@ const EmojiPicker = withTheme(
           fillColor={theme.colors.comments.emojiPicker}
           keepColors
           name={iconName || "emoji"}
-          size={IconSize.LARGE}
+          size={iconSize || IconSize.XXXL}
         />
       </Popover2>
     );

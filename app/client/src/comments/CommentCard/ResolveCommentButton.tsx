@@ -6,7 +6,7 @@ import { Theme } from "constants/DefaultTheme";
 const Container = styled.div`
   display: flex;
   cursor: pointer;
-  margin-right: ${(props) => props.theme.spaces[4]}px;
+  margin-left: ${(props) => props.theme.spaces[2]}px;
 `;
 
 type Props = {

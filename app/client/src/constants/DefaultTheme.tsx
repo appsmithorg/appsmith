@@ -928,6 +928,8 @@ type ColorType = {
     pinnedByText: string;
     pinnedThreadBackground: string;
     visibleThreadBackground: string;
+    cardOptionsIcon: string;
+    appCommentsPlaceholderText: string;
   };
   reactionsComponent: {
     reactionBackground: string;
@@ -1016,6 +1018,7 @@ const reactionsComponent = {
   reactionBackgroundActive: "#FEEDE5",
   text: lightShades[7],
   textActive: "#BF4109",
+  borderActive: "#BF4109",
 };
 
 const comments = {
@@ -1059,6 +1062,8 @@ const comments = {
   pinnedByText: lightShades[7],
   pinnedThreadBackground: "#FFFAE9",
   visibleThreadBackground: "#FBEED0",
+  cardOptionsIcon: "#777272",
+  appCommentsPlaceholderText: lightShades[8],
 };
 
 const auth: any = {

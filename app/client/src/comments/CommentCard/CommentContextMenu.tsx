@@ -29,7 +29,9 @@ const MenuItem = styled.div`
   }
 `;
 
-const StyledIcon = styled(Icon)``;
+const StyledIcon = styled(Icon)`
+  margin-left: ${(props) => props.theme.spaces[2]}px;
+`;
 
 const MenuIcon = styled.div`
   padding: ${(props) =>

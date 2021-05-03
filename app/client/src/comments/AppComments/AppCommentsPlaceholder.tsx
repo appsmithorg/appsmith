@@ -5,7 +5,6 @@ import {
   createMessage,
 } from "constants/messages";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Colors } from "constants/Colors";
 
 const Container = styled.div`
   display: flex;
@@ -18,12 +17,13 @@ const Container = styled.div`
   & .message {
     text-align: center;
   }
+  color: ${(props) => props.theme.colors.comments.appCommentsPlaceholderText};
 `;
 
 function AppCommentsPlaceholder() {
   return (
     <Container>
-      <Icon fillColor={Colors.BLACK} name="chat" size={IconSize.XXL} />
+      <Icon keepColors name="chat" size={IconSize.XXL} />
       <span className="message">
         {createMessage(NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD)}
       </span>

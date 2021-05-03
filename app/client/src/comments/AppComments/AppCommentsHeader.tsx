@@ -15,6 +15,7 @@ const Header = styled.div`
   padding: ${(props) => props.theme.spaces[6]}px;
   width: 100%;
   justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid
     ${(props) => props.theme.colors.comments.appCommentsHeaderBorder};
 `;
