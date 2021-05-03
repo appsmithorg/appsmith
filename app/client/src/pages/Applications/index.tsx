@@ -77,8 +77,6 @@ import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-// testing
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 
 const OrgDropDown = styled.div`
