@@ -42,7 +42,7 @@ export const useClickOpenPropPane = () => {
       (!isPropPaneVisible && selectedWidgetId === focusedWidget) ||
       selectedWidgetId !== focusedWidget
     ) {
-      selectWidget(focusedWidget, e.metaKey);
+      selectWidget(focusedWidget, e.metaKey || e.ctrlKey);
       showPropertyPane(focusedWidget, undefined, true);
       e.stopPropagation();
     }

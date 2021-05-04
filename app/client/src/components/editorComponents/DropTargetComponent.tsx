@@ -249,7 +249,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const handleFocus = (e: any) => {
     if (!isResizing && !isDragging) {
       if (!props.parentId) {
-        selectWidgetIfUnSelected(props.widgetId, e.metaKey);
+        selectWidgetIfUnSelected(props.widgetId, e.metaKey || e.ctrlKey);
         focusWidget && focusWidget(props.widgetId);
         showPropertyPane && showPropertyPane();
       }
