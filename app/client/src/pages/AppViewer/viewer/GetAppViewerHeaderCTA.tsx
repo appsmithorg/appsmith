@@ -1,10 +1,14 @@
 import React from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Button from "components/ads/Button";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
+import { TriggerButton } from "pages/Applications/ForkModalStyles";
+import { Size } from "components/ads/Button";
+import { getAllApplications } from "actions/applicationActions";
 
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
@@ -18,15 +22,17 @@ const ForkButton = styled(Cta)`
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
 `;
 
-const getAppViewerHeaderCTA = ({
-  url,
-  canEdit,
-  currentApplicationDetails,
-  currentUser,
-  forkUrl,
-  loginUrl,
-}: any) => {
+function GetAppViewerHeaderCTA(props: any) {
+  const {
+    url,
+    canEdit,
+    currentApplicationDetails,
+    currentUser,
+    forkUrl,
+    loginUrl,
+  } = props;
   let CTA = null;
+  const dispatch = useDispatch();
 
   if (url && canEdit) {
     CTA = (
@@ -53,7 +59,18 @@ const getAppViewerHeaderCTA = ({
     } else {
       CTA = (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
-          <ForkApplicationModal applicationId={currentApplicationDetails.id} />
+          <ForkApplicationModal
+            applicationId={currentApplicationDetails.id}
+            trigger={
+              <TriggerButton
+                className="t--fork-app"
+                icon="fork"
+                onClick={() => dispatch(getAllApplications())}
+                size={Size.small}
+                text={createMessage(FORK_APP)}
+              />
+            }
+          />
         </div>
       );
     }
@@ -71,6 +88,6 @@ const getAppViewerHeaderCTA = ({
   }
 
   return CTA;
-};
+}
 
-export default getAppViewerHeaderCTA;
+export default GetAppViewerHeaderCTA;
