@@ -137,11 +137,28 @@ async function watchMongoDB(io) {
 	interface Comment {
 		threadId: string
 		policies: Policy[]
+		createdAt: string
+		updatedAt: string
+		creationTime: string
+		updationTime: string
 	}
 
 	const threadCollection: mongodb.Collection<CommentThread> = db.collection("commentThread")
 
-	const commentChangeStream = db.collection("comment").watch();
+	const commentChangeStream = db.collection("comment").watch(
+		[
+			// Prevent server-internal fields from being sent to the client.
+			{
+				$unset: [
+					"deletedAt",
+					"deleted",
+					"_class",
+				].map(f => "fullDocument." + f)
+			},
+		],
+		{ fullDocument: "updateLookup" }
+	);
+
 	commentChangeStream.on("change", async (event: mongodb.ChangeEventCR<Comment>) => {
 		console.log("comment event", event)
 		const comment: Comment = event.fullDocument
@@ -149,6 +166,11 @@ async function watchMongoDB(io) {
 			{ _id: new ObjectId(comment.threadId) },
 			{ projection: { applicationId: 1 } },
 		)
+
+		comment.creationTime = comment.createdAt
+		comment.updationTime = comment.updatedAt
+		delete comment.createdAt
+		delete comment.updatedAt
 
 		let target = io
 		let shouldEmit = false
@@ -171,8 +193,6 @@ async function watchMongoDB(io) {
 			// Prevent server-internal fields from being sent to the client.
 			{
 				$unset: [
-					"createdAt",
-					"updatedAt",
 					"deletedAt",
 					"deleted",
 					"_class",
@@ -190,6 +210,12 @@ async function watchMongoDB(io) {
 			console.error("Null document recieved for comment change event", event)
 			return
 		}
+
+		thread.creationTime = thread.createdAt
+		thread.updationTime = thread.updatedAt
+		delete thread.createdAt
+		delete thread.updatedAt
+		thread.isViewed = false
 
 		let target = io
 		let shouldEmit = false

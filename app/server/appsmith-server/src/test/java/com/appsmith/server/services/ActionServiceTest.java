@@ -8,7 +8,7 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.constants.ActionResultDataType;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
@@ -48,6 +48,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -120,7 +121,7 @@ public class ActionServiceTest {
     @Autowired
     ActionCollectionService actionCollectionService;
 
-    @Autowired
+    @SpyBean
     PluginService pluginService;
 
     @Autowired
@@ -454,7 +455,7 @@ public class ActionServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(ActionResultDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -482,7 +483,7 @@ public class ActionServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(ActionResultDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -508,7 +509,7 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -841,6 +842,7 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void executeActionWithExternalDatasource() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("Default Database");
@@ -1227,8 +1229,8 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.TABLE), new ParsedDataType(ActionResultDataType.JSON)
-                        , new ParsedDataType(ActionResultDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.TABLE), new ParsedDataType(DisplayDataType.JSON)
+                        , new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1266,7 +1268,7 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.JSON), new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1287,7 +1289,7 @@ public class ActionServiceTest {
                 " }");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(ActionResultDataType.RAW)));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1305,7 +1307,7 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test

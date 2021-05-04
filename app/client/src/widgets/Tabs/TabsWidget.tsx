@@ -21,7 +21,6 @@ class TabsWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText: "Takes an array of tab names to render tabs",
             propertyName: "tabsObj",
             isJSConvertible: false,
             label: "Tabs",
@@ -51,7 +50,7 @@ class TabsWidget extends BaseWidget<
                     {
                       propertyName: "isVisible",
                       label: "Visible",
-                      helpText: "Controls the visibility of the widget",
+                      helpText: "Controls the visibility of the tab",
                       controlType: "SWITCH",
                       useValidationMessage: true,
                       isJSConvertible: true,

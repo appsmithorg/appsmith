@@ -38,6 +38,7 @@ type Props = {
   widgetIds: string[];
   selectedWidget?: string;
   selectedWidgets: string[];
+  isDebuggerOpen: boolean;
   children: React.ReactNode;
 };
 
@@ -99,6 +100,11 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Open Debugger"
           onKeyDown={() => {
             this.props.openDebugger();
+            if (this.props.isDebuggerOpen) {
+              AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+                source: "CANVAS",
+              });
+            }
           }}
           preventDefault
         />
@@ -189,6 +195,7 @@ const mapStateToProps = (state: AppState) => ({
   selectedWidget: getSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
   widgetIds: getWidgetChildren(state, MAIN_CONTAINER_WIDGET_ID),
+  isDebuggerOpen: state.ui.debugger.isOpen,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
