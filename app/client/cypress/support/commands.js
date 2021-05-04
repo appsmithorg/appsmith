@@ -32,28 +32,12 @@ Cypress.Commands.add("createOrg", () => {
 
 Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
   cy.contains(orgName).click({ force: true });
-  cy.get(".t--org-rename-input")
+  cy.get(homePage.renameOrgInput)
     .should("be.visible")
     .type(newOrgName)
     .type("{enter}");
   cy.contains(newOrgName);
 });
-
-// Cypress.Commands.add("renameRandomOrg", (orgName) => {
-//   cy.get(".t--org-name")
-//     .should("be.visible")
-//     .first()
-//     .click({ force: true });
-//   cy.get(".t--org-rename-input")
-//     .should("be.visible")
-//     .type(orgName)
-//     .type("{enter}");
-//   cy.get(".t--org-name")
-//     .should("be.visible")
-//     .first()
-//     .click({ force: true });
-//   cy.contains(orgName);
-// });
 
 Cypress.Commands.add(
   "dragTo",

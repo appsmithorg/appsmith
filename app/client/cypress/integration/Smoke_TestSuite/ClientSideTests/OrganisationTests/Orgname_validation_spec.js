@@ -5,12 +5,21 @@ const homePage = require("../../../../locators/HomePage.json");
 describe("Org name validation spec", function() {
   let orgid;
   let newOrganizationName;
-
-  it("creates org and checks that orgname is visible", function() {
+  it("create org with leading space validation", function() {
     cy.NavigateToHome();
     cy.createOrg();
+    cy.wait("@createOrg").then((interception) => {
+      newOrganizationName = interception.response.body.data.name;
+      cy.NavigateToHome();
+      cy.contains(newOrganizationName).click({ force: true });
+      cy.get(homePage.renameOrgInput)
+        .should("be.visible")
+        .type(" ");
+      cy.get(".error-message").should("be.visible");
+    });
   });
   it("creates org and checks that orgname is editable", function() {
+    cy.createOrg();
     cy.generateUUID().then((uid) => {
       orgid =
         "kadjhfkjadsjkfakjdscajdsnckjadsnckadsjcnanakdjsnckjdscnakjdscnnadjkncakjdsnckjadsnckajsdfkjadshfkjsdhfjkasdhfkjasdhfjkasdhjfasdjkfhjhdsfjhdsfjhadasdfasdfadsasdf" +
@@ -29,17 +38,5 @@ describe("Org name validation spec", function() {
       newOrganizationName = interception.response.body.data.name;
       cy.renameOrg(newOrganizationName, "Test & Org");
     });
-  });
-  it("creates org with leading space validation and ensures error", function() {
-    cy.get(".t--org-name")
-      .should("be.visible")
-      .first()
-      .click({ force: true });
-    cy.get(".t--org-rename-input")
-      .first()
-      .should("be.visible")
-      .click({ force: true })
-      .type(" ");
-    cy.get(".error-message").should("be.visible");
   });
 });

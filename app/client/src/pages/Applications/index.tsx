@@ -632,7 +632,7 @@ function ApplicationsSection(props: any) {
                   })}
                 >
                   <OrgRename
-                    className="t--org-rename-input"
+                    cypressSelector="t--org-rename-input"
                     defaultValue={organization.name}
                     editInteractionKind={EditInteractionKind.SINGLE}
                     fill
