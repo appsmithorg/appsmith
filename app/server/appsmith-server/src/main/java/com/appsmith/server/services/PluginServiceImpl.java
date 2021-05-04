@@ -380,6 +380,10 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                 .flatMap(formMap -> {
                     Map<String, String> labelMap = new LinkedHashMap(); // need to keep the key value pairs in order
                     List editorMap = (List) formMap.get(KEY_EDITOR);
+                    if (editorMap == null) {
+                        return Mono.just(new HashMap());
+                    }
+                    
                     editorMap.stream()
                             .map(item -> ((Map) item).get(KEY_CHILDREN))
                             .forEach(item ->
