@@ -34,9 +34,8 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import { Theme } from "constants/DefaultTheme";
 import { getPluginSettingConfigs } from "selectors/entitiesSelector";
+import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -57,7 +56,6 @@ interface ReduxStateProps {
   apiAction: Action | ActionData | RapidApiAction | undefined;
   paginationType: PaginationType;
   isEditorInitialized: boolean;
-  lightTheme: Theme;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -173,10 +171,10 @@ class ApiEditor extends React.Component<Props> {
     const apiHomeScreen = (
       <ApiHomeScreen
         applicationId={this.props.match.params.applicationId}
-        pageId={this.props.match.params.pageId}
         history={this.props.history}
         location={this.props.location}
         match={this.props.match}
+        pageId={this.props.match.params.pageId}
       />
     );
     return (
@@ -190,39 +188,49 @@ class ApiEditor extends React.Component<Props> {
           <>
             {formUiComponent === "ApiEditorForm" && (
               <ApiEditorForm
-                pluginId={pluginId}
-                paginationType={paginationType}
-                isRunning={isRunning}
-                isDeleting={isDeleting}
-                onDeleteClick={this.handleDeleteClick}
-                onRunClick={this.handleRunClick}
+                apiName={this.props.apiName}
                 appName={
                   this.props.currentApplication
                     ? this.props.currentApplication.name
                     : ""
                 }
-                apiName={this.props.apiName}
+                isDeleting={isDeleting}
+                isRunning={isRunning}
+                onDeleteClick={this.handleDeleteClick}
+                onRunClick={this.handleRunClick}
+                paginationType={paginationType}
+                pluginId={pluginId}
                 settingsConfig={this.props.settingsConfig}
               />
             )}
 
             {formUiComponent === "RapidApiEditorForm" && (
               <RapidApiEditorForm
-                apiName={this.props.apiName}
                 apiId={this.props.match.params.apiId}
-                paginationType={paginationType}
-                isRunning={isRunning}
-                isDeleting={isDeleting}
-                onDeleteClick={this.handleDeleteClick}
-                onRunClick={this.handleRunClick}
+                apiName={this.props.apiName}
                 appName={
                   this.props.currentApplication
                     ? this.props.currentApplication.name
                     : ""
                 }
+                isDeleting={isDeleting}
+                isRunning={isRunning}
                 location={this.props.location}
+                onDeleteClick={this.handleDeleteClick}
+                onRunClick={this.handleRunClick}
+                paginationType={paginationType}
               />
             )}
+
+            {formUiComponent === "SaaSEditorForm" &&
+              this.props.history.push(
+                SAAS_EDITOR_API_ID_URL(
+                  this.props.match.params.applicationId,
+                  this.props.match.params.pageId,
+                  this.props.plugins[this.props.pluginId]?.packageName ?? "",
+                  this.props.match.params.apiId,
+                ),
+              )}
           </>
         ) : (
           apiHomeScreen
@@ -253,7 +261,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDeleting: isDeleting[props.match.params.apiId],
     isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
-    lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
   };
 };
 

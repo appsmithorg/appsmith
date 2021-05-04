@@ -77,15 +77,15 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
     const pageNotFound = (
       <Centered>
         <NonIdealState
+          description={appsmithEditorLink}
           icon={
             <Icon
-              iconSize={theme.fontSizes[9]}
-              icon="page-layout"
               color={theme.colors.primaryOld}
+              icon="page-layout"
+              iconSize={theme.fontSizes[9]}
             />
           }
           title="This page seems to be blank"
-          description={appsmithEditorLink}
         />
       </Centered>
     );
@@ -109,8 +109,8 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
       return (
         <Section>
           <AppPage
-            dsl={this.props.widgets}
             appName={this.props.currentAppName}
+            dsl={this.props.widgets}
             pageId={this.props.match.params.pageId}
             pageName={this.props.currentPageName}
           />

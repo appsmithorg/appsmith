@@ -3,7 +3,7 @@ import styled from "styled-components";
 import AppIcon, { AppIconName, AppIconCollection } from "./AppIcon";
 import { Size } from "./Button";
 import { CommonComponentProps, Classes } from "./common";
-import ScrollIndicator from "./ScrollIndicator";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 type IconSelectorProps = CommonComponentProps & {
   onSelect?: (icon: AppIconName) => void;
@@ -58,7 +58,7 @@ const IconBox = styled.div<{ selectedColor?: string }>`
       : null};
 `;
 
-const IconSelector = (props: IconSelectorProps) => {
+function IconSelector(props: IconSelectorProps) {
   const iconRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<AppIconName>(firstSelectedIcon());
   const iconPaletteRef = React.createRef<HTMLDivElement>();
@@ -87,8 +87,8 @@ const IconSelector = (props: IconSelectorProps) => {
 
   return (
     <IconPalette
-      fill={props.fill}
       data-cy={props.cypressSelector}
+      fill={props.fill}
       ref={iconPaletteRef}
     >
       {props.iconPalette &&
@@ -96,19 +96,19 @@ const IconSelector = (props: IconSelectorProps) => {
           return (
             <IconBox
               {...(selected === iconName ? { ref: iconRef } : {})}
-              key={index}
-              selectedColor={selected === iconName ? props.selectedColor : ""}
               className={
                 selected === iconName
                   ? "t--icon-selected"
                   : "t--icon-not-selected"
               }
+              key={index}
               onClick={() => {
                 if (iconName !== selected) {
                   setSelected(iconName);
                   props.onSelect && props.onSelect(iconName);
                 }
               }}
+              selectedColor={selected === iconName ? props.selectedColor : ""}
             >
               <AppIcon name={iconName} size={Size.small} />
             </IconBox>
@@ -117,7 +117,7 @@ const IconSelector = (props: IconSelectorProps) => {
       <ScrollIndicator containerRef={iconPaletteRef} mode="DARK" />
     </IconPalette>
   );
-};
+}
 
 IconSelector.defaultProps = {
   fill: false,

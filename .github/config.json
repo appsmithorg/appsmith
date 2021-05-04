@@ -185,6 +185,11 @@
       "color": "79e53b",
       "description": "An unexpected or annoying bug"
     },
+    "List Widget": {
+      "name": "List Widget",
+      "color": "79e53b",
+      "description": "Issues Related to the list widget"
+    },
     "Map Widget": {
       "name": "Map Widget",
       "color": "7eef7a",
@@ -561,6 +566,11 @@
               },
               {
                 "label": "Input Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "List Widget",
                 "type": "hasLabel",
                 "value": true
               },

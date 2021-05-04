@@ -46,7 +46,7 @@ interface PostDataProps {
 
 type Props = PostDataProps;
 
-const PostBodyData = (props: Props) => {
+function PostBodyData(props: Props) {
   const {
     displayFormat,
     dataTreePath,
@@ -58,6 +58,9 @@ const PostBodyData = (props: Props) => {
   return (
     <PostBodyContainer>
       <MultiSwitch
+        onSelect={(title: ApiContentTypes) =>
+          updateBodyContentType(title, apiId)
+        }
         selected={displayFormat}
         tabs={POST_BODY_FORMAT_TITLES_NO_MULTI_PART.map((el) => {
           let component = (
@@ -66,16 +69,16 @@ const PostBodyData = (props: Props) => {
               key={el.key}
             >
               <DynamicTextField
-                name="actionConfiguration.body"
+                dataTreePath={`${dataTreePath}.body`}
                 expected={FIELD_VALUES.API_ACTION.body}
-                showLineNumbers
-                tabBehaviour={TabBehaviour.INDENT}
-                size={EditorSize.EXTENDED}
                 mode={EditorModes.JSON_WITH_BINDING}
+                name="actionConfiguration.body"
                 placeholder={
                   '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
                 }
-                dataTreePath={`${dataTreePath}.body`}
+                showLineNumbers
+                size={EditorSize.EXTENDED}
+                tabBehaviour={TabBehaviour.INDENT}
                 theme={theme}
               />
             </JSONEditorFieldWrapper>
@@ -83,10 +86,10 @@ const PostBodyData = (props: Props) => {
           if (el.title === ApiContentTypes.FORM_URLENCODED) {
             component = (
               <KeyValueFieldArray
-                key={el.key}
-                name="actionConfiguration.bodyFormData"
                 dataTreePath={`${dataTreePath}.bodyFormData`}
+                key={el.key}
                 label=""
+                name="actionConfiguration.bodyFormData"
                 theme={theme}
               />
             );
@@ -94,11 +97,11 @@ const PostBodyData = (props: Props) => {
             component = (
               <JSONEditorFieldWrapper key={el.key}>
                 <DynamicTextField
-                  name="actionConfiguration.body"
-                  tabBehaviour={TabBehaviour.INDENT}
-                  size={EditorSize.EXTENDED}
-                  mode={EditorModes.TEXT_WITH_BINDING}
                   dataTreePath={`${dataTreePath}.body`}
+                  mode={EditorModes.TEXT_WITH_BINDING}
+                  name="actionConfiguration.body"
+                  size={EditorSize.EXTENDED}
+                  tabBehaviour={TabBehaviour.INDENT}
                   theme={theme}
                 />
               </JSONEditorFieldWrapper>
@@ -106,13 +109,10 @@ const PostBodyData = (props: Props) => {
           }
           return { key: el.key, title: el.title, panelComponent: component };
         })}
-        onSelect={(title: ApiContentTypes) =>
-          updateBodyContentType(title, apiId)
-        }
       />
     </PostBodyContainer>
   );
-};
+}
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 

@@ -24,36 +24,36 @@ interface Props {
   flushErrors?: any;
 }
 
-const ClientError: React.FC<Props> = (props: Props) => {
+function ClientError(props: Props) {
   const { flushErrors } = props;
 
   return (
     <Wrapper>
       <img
-        src={PageUnavailableImage}
         alt="Page Unavailable"
         className="page-unavailable-img"
+        src={PageUnavailableImage}
       />
       <div>
         <p className="bold-text">Whoops something went wrong!</p>
         <p>This is embarrassing, please contact Appsmith support for help</p>
         <Button
+          className="button-position"
           filled
-          text="Contact us on discord"
-          intent="primary"
           icon="arrow-right"
           iconAlignment="right"
-          size="small"
-          className="button-position"
+          intent="primary"
           onClick={() => {
             flushErrors();
             window.open("https://discord.gg/rBTTVJp", "_blank");
           }}
+          size="small"
+          text="Contact us on discord"
         />
       </div>
     </Wrapper>
   );
-};
+}
 
 export default connect(null, {
   flushErrors,

@@ -1,4 +1,7 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,
@@ -7,7 +10,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
-  getValidatedTree,
+  getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
@@ -73,7 +76,7 @@ ctx.addEventListener(
             });
             console.error(e);
           }
-          dataTree = getValidatedTree(widgetTypeConfigMap, unevalTree);
+          dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
         }
         return {
@@ -109,6 +112,7 @@ ctx.addEventListener(
         const triggers = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
+          EvaluationSubstitutionType.TEMPLATE,
           true,
           callbackData,
         );
@@ -148,21 +152,9 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const {
-          widgetType,
-          widgetTypeConfigMap,
-          property,
-          value,
-          props,
-        } = requestData;
+        const { property, value, props, validation } = requestData;
         return removeFunctions(
-          validateWidgetProperty(
-            widgetTypeConfigMap,
-            widgetType,
-            property,
-            value,
-            props,
-          ),
+          validateWidgetProperty(property, value, props, validation),
         );
       }
       default: {

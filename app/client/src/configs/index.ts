@@ -41,6 +41,7 @@ export type INJECTED_CONFIGS = {
   intercomAppID: string;
   mailEnabled: boolean;
   disableTelemetry: boolean;
+  cloudServicesBaseUrl: string;
 };
 declare global {
   interface Window {
@@ -113,6 +114,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
     disableTelemetry: true,
+    cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
   };
 };
 
@@ -263,5 +265,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
     mailEnabled: ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS.mailEnabled,
     disableTelemetry: APPSMITH_FEATURE_CONFIGS.disableTelemetry,
+    commentsTestModeEnabled: false,
+    cloudServicesBaseUrl:
+      ENV_CONFIG.cloudServicesBaseUrl ||
+      APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
   };
 };

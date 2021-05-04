@@ -331,15 +331,16 @@ export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
   }
 }
 
-export function* logoutSaga() {
+export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
   try {
+    const redirectURL = action.payload?.redirectURL;
     const response: ApiResponse = yield call(UserApi.logoutUser);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       AnalyticsUtil.reset();
       yield put(logoutUserSuccess());
       localStorage.clear();
-      yield put(flushErrorsAndRedirect(AUTH_LOGIN_URL));
+      yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
     }
   } catch (error) {
     log.error(error);
