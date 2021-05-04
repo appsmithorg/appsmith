@@ -31,8 +31,8 @@ const WrappedDragLayer = styled.div<{
   );
   background-size: ${(props) => props.columnWidth}px
     ${(props) => props.rowHeight}px;
-  background-position: -${(props) => props.columnWidth / 2}px -${(props) =>
-      props.rowHeight / 2}px;
+  background-position: -${(props) => props.columnWidth / 2 - 1}px -${(props) =>
+      props.rowHeight / 2 - 1}px;
 `;
 
 type DragLayerProps = {

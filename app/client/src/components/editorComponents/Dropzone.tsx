@@ -124,6 +124,7 @@ export const DropZone = forwardRef(
           height={props.height * props.parentRowHeight}
           ref={ref}
           style={{
+            zIndex: 5,
             transform: interpolate(
               [X, Y],
               (x: number, y: number) => `translate3d(${x}px,${y}px,0)`,
@@ -135,6 +136,7 @@ export const DropZone = forwardRef(
           candrop={props.canDrop}
           height={props.height * props.parentRowHeight}
           style={{
+            zIndex: 4,
             transform: interpolate(
               [snappedX, snappedY],
               (x: number, y: number) => `translate3d(${x}px,${y}px,0)`,

@@ -42,6 +42,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
       height: props.style.componentHeight + (props.style.heightUnit || "px"),
       width: props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
+      zIndex: 3,
+      backgroundColor: "inherit",
     };
   }, [props.style]);
 
