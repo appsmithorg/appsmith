@@ -307,6 +307,14 @@ export const CANCEL = () => "Cancel";
 export const NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD = () =>
   `No comments. \n Click anywhere on the canvas \nto start a conversation.`;
 export const LINK_COPIED_SUCCESSFULLY = () => "Link copied to clipboard";
+export const FULL_NAME = () => "Full Name";
+export const DISPLAY_NAME = () => "Display Name";
+export const EMAIL_ADDRESS = () => "Email Address";
+export const FIRST_AND_LAST_NAME = () => "First and last name";
+
+// Showcase Carousel
+export const NEXT = () => "NEXT";
+export const BACK = () => "BACK";
 
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
