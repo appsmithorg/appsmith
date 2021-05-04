@@ -30,6 +30,10 @@ export type CreateCommentThreadRequest = {
     active: boolean;
     authorName?: string;
     authorUsername?: string;
+    updationTime?: {
+      epochSecond: number;
+      nano: number;
+    };
   };
   isViewed?: boolean;
 };

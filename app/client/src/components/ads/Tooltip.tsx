@@ -19,6 +19,8 @@ type TooltipProps = CommonComponentProps & {
   minimal?: boolean;
 };
 
+const portalContainer = document.getElementById("tooltip-root");
+
 function TooltipComponent(props: TooltipProps) {
   return (
     <Tooltip
@@ -32,6 +34,7 @@ function TooltipComponent(props: TooltipProps) {
       }}
       openOnTargetFocus={props.openOnTargetFocus}
       popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
+      portalContainer={portalContainer as HTMLDivElement}
       position={props.position}
       usePortal
     >

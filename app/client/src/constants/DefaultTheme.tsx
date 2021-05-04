@@ -931,6 +931,7 @@ type ColorType = {
     visibleThreadBackground: string;
     cardOptionsIcon: string;
     appCommentsPlaceholderText: string;
+    cardHoverBackground: string;
   };
   mentionSuggestion: {
     nameText: string;
@@ -1077,6 +1078,7 @@ const comments = {
   appCommentsPlaceholderText: lightShades[8],
   activeModeIcon: "#F0F0F0",
   modeIcon: "#6D6D6D",
+  cardHoverBackground: "#FAFAFA",
 };
 
 const auth: any = {

@@ -41,6 +41,10 @@ const StyledContainer = styled.div`
   padding: ${(props) =>
     `${props.theme.spaces[6]}px ${props.theme.spaces[5]}px`};
   border-radius: 0;
+  &:hover {
+    background-color: ${(props) =>
+      props.theme.colors.comments.cardHoverBackground};
+  }
 `;
 
 const CommentBodyContainer = styled.div`

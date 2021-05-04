@@ -22,6 +22,8 @@ import {
 import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 import { showDebugger } from "actions/debuggerActions";
 
+import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
+
 type Props = {
   copySelectedWidget: () => void;
   pasteCopiedWidget: () => void;
@@ -149,6 +151,18 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Escape"
           onKeyDown={this.props.resetCommentMode}
+        />
+        <Hotkey
+          combo="v"
+          global
+          label="Edit Mode"
+          onKeyDown={this.props.resetCommentMode}
+        />
+        <Hotkey
+          combo="c"
+          global
+          label="Comment Mode"
+          onKeyDown={() => setCommentModeInUrl(true)}
         />
       </Hotkeys>
     );

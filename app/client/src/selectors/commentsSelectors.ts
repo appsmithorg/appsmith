@@ -63,9 +63,9 @@ const getSortIndexBool = (a: boolean, b: boolean) => {
   else return 0;
 };
 
-const getSortIndexNumber = (
-  a = new Date().toISOString(),
-  b = new Date().toISOString(),
+const getSortIndexTime = (
+  a: string | number = new Date().toISOString(),
+  b: string | number = new Date().toISOString(),
 ) => {
   if (moment(a).isSame(moment(b))) return 0;
   if (moment(a).isAfter(moment(b))) return -1;
@@ -99,13 +99,17 @@ export const getSortedAndFilteredAppCommentThreadIds = (
         updationTime: updationTimeB,
       } = commentThreadsMap[b];
 
-      const sortIdx = getSortIndexBool(
-        !!isAPinned?.active,
-        !!isBPinned?.active,
-      );
+      let sortIdx = getSortIndexBool(!!isAPinned?.active, !!isBPinned?.active);
       if (sortIdx !== 0) return sortIdx;
 
-      return getSortIndexNumber(updationTimeA, updationTimeB);
+      sortIdx = getSortIndexTime(
+        isAPinned?.updationTime?.epochSecond,
+        isBPinned?.updationTime?.epochSecond,
+      );
+
+      if (sortIdx !== 0) return sortIdx;
+
+      return getSortIndexTime(updationTimeA, updationTimeB);
     })
     .filter((threadId: string) => {
       const thread = commentThreadsMap[threadId];

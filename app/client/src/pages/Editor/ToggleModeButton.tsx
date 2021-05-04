@@ -83,7 +83,7 @@ const useUpdateCommentMode = () => {
   }, [isCommentMode]);
 };
 
-const setCommentModeInUrl = (isCommentMode: boolean) => {
+export const setCommentModeInUrl = (isCommentMode: boolean) => {
   const currentURL = new URL(window.location.href);
   const searchParams = currentURL.searchParams;
   searchParams.set("isCommentMode", `${isCommentMode}`);
@@ -115,7 +115,14 @@ function ToggleCommentModeButton() {
         active={!isCommentMode}
         onClick={() => setCommentModeInUrl(false)}
       >
-        <TooltipComponent content={"Edit Mode"} position={Position.BOTTOM}>
+        <TooltipComponent
+          content={
+            <>
+              Edit Mode<span style={{ color: "#fff", marginLeft: 20 }}>V</span>
+            </>
+          }
+          position={Position.BOTTOM}
+        >
           <Pen />
         </TooltipComponent>
       </ModeButton>
@@ -123,7 +130,15 @@ function ToggleCommentModeButton() {
         active={isCommentMode}
         onClick={() => setCommentModeInUrl(true)}
       >
-        <TooltipComponent content={"Comment Mode"} position={Position.BOTTOM}>
+        <TooltipComponent
+          content={
+            <>
+              Comment Mode
+              <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
+            </>
+          }
+          position={Position.BOTTOM}
+        >
           <CommentModeIcon />
         </TooltipComponent>
       </ModeButton>
