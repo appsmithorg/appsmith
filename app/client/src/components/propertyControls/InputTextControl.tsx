@@ -50,10 +50,10 @@ export function InputText(props: {
           value: value,
           onChange: onChange,
         }}
+        jsErrorMessage={jsErrorMessage}
         meta={{
           error: isValid ? "" : errorMessage,
           touched: true,
-          jsError: jsErrorMessage,
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
