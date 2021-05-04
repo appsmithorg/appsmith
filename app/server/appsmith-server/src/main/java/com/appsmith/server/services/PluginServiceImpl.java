@@ -383,7 +383,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     if (editorMap == null) {
                         return Mono.just(new HashMap());
                     }
-                    
+
                     editorMap.stream()
                             .map(item -> ((Map) item).get(KEY_CHILDREN))
                             .forEach(item ->
