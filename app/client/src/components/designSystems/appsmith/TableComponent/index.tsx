@@ -7,6 +7,8 @@ import {
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import usePrevious from "utils/hooks/usePrevious";
+import _ from "lodash";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -254,4 +256,38 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   );
 }
 
-export default ReactTableComponent;
+export default React.memo(ReactTableComponent, (prev, next) => {
+  return (
+    prev.applyFilter === next.applyFilter &&
+    prev.columnSizeMap === next.columnSizeMap &&
+    prev.compactMode === next.compactMode &&
+    prev.disableDrag === next.disableDrag &&
+    prev.editMode === next.editMode &&
+    prev.filters === next.filters &&
+    prev.handleReorderColumn === next.handleReorderColumn &&
+    prev.handleResizeColumn === next.handleResizeColumn &&
+    prev.height === next.height &&
+    prev.isLoading === next.isLoading &&
+    prev.nextPageClick === next.nextPageClick &&
+    prev.onRowClick === next.onRowClick &&
+    prev.pageNo === next.pageNo &&
+    prev.pageSize === next.pageSize &&
+    prev.prevPageClick === next.prevPageClick &&
+    prev.searchKey === next.searchKey &&
+    prev.searchTableData === next.searchTableData &&
+    prev.selectedRowIndex === next.selectedRowIndex &&
+    prev.selectedRowIndices === next.selectedRowIndices &&
+    prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&
+    prev.sortTableColumn === next.sortTableColumn &&
+    prev.triggerRowSelection === next.triggerRowSelection &&
+    prev.updateCompactMode === next.updateCompactMode &&
+    prev.updatePageNo === next.updatePageNo &&
+    prev.widgetId === next.widgetId &&
+    prev.widgetName === next.widgetName &&
+    prev.width === next.width &&
+    _.isEqual(prev.tableData, next.tableData) &&
+    // TODO(Satish) // Check why _.isEqual is not working as expected
+    (JSON.stringify(prev.columns) === JSON.stringify(next.columns) ||
+      _.isEqual(prev.columns, next.columns))
+  );
+});
