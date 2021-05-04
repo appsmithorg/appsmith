@@ -202,6 +202,24 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
+                  propertyName: "displayText",
+                  label: "Display Text",
+                  controlType: "INPUT_TEXT",
+                  customJSControl: "COMPUTE_VALUE",
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "url";
+                  },
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                },
+                {
                   propertyName: "computedValue",
                   label: "Computed Value",
                   controlType: "COMPUTE_VALUE",
