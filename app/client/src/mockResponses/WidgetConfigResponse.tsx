@@ -547,6 +547,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 10,
       columns: 8,
       gridType: "vertical",
+      template: {},
       enhancements: {
         child: {
           autocomplete: (parentProps: any) => {

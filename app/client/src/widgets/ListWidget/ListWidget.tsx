@@ -98,23 +98,29 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   }
 
-  static getDefaultPropertiesMap(props: WidgetProps): Record<string, string> {
+  static getDefaultPropertiesMap(): Record<string, string> {
+    /* eslint-disable */
+    const props = arguments[0];
     const template = props.template;
     let childrenDefaultPropertiesMap = {};
 
-    Object.keys(template).map((key: string) => {
-      const currentTemplate = template[key];
-      const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
-        currentTemplate.type,
-      )(currentTemplate);
+    if (template) {
+      Object.keys(template).map((key: string) => {
+        const currentTemplate = template[key];
+        const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
+          currentTemplate.type,
+        )(currentTemplate);
 
-      Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
-        childrenDefaultPropertiesMap = {
-          ...childrenDefaultPropertiesMap,
-          [`${key}.${defaultPropertyKey}`]: currentTemplate[defaultPropertyKey],
-        };
+        Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
+          childrenDefaultPropertiesMap = {
+            ...childrenDefaultPropertiesMap,
+            [`${key}.${defaultPropertyKey}`]: currentTemplate[
+              defaultPropertyKey
+            ],
+          };
+        });
       });
-    });
+    }
 
     return {
       itemBackgroundColor: "#FFFFFF",
@@ -126,19 +132,21 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const template = props.template;
     let childrenMetaPropertiesMap = {};
 
-    Object.keys(template).map((key: string) => {
-      const currentTemplate = template[key];
-      const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
-        currentTemplate.type,
-      )(currentTemplate);
+    if (template) {
+      Object.keys(template).map((key: string) => {
+        const currentTemplate = template[key];
+        const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
+          currentTemplate.type,
+        )(currentTemplate);
 
-      Object.keys(metaProperties).map((metaPropertyKey: string) => {
-        childrenMetaPropertiesMap = {
-          ...childrenMetaPropertiesMap,
-          [`${key}.${metaPropertyKey}`]: currentTemplate[metaPropertyKey],
-        };
+        Object.keys(metaProperties).map((metaPropertyKey: string) => {
+          childrenMetaPropertiesMap = {
+            ...childrenMetaPropertiesMap,
+            [`${key}.${metaPropertyKey}`]: currentTemplate[metaPropertyKey],
+          };
+        });
       });
-    });
+    }
 
     return {
       ...childrenMetaPropertiesMap,

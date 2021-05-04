@@ -8,7 +8,6 @@ import {
   isPathADynamicBinding,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import {
   DataTree,
   DataTreeAction,
@@ -43,7 +42,17 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluate, { EvalResult } from "workers/evaluate";
+import WidgetFactory from "utils/WidgetFactory";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
+
+type WidgetTypeConfigMap = Record<
+  string,
+  {
+    derivedProperties: any;
+    defaultProperties: string;
+    metaProperties: string;
+  }
+>;
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -333,8 +342,23 @@ export default class DataTreeEvaluator {
     }
     if (isWidget(entity)) {
       // Set default property dependency
-      const defaultProperties = this.widgetConfigMap[entity.type]
-        .defaultProperties;
+      const defaultPropertiesFn = this.widgetConfigMap[entity.type]
+        .defaultProperties as string;
+
+      const body = defaultPropertiesFn.slice(
+        defaultPropertiesFn.indexOf("{") + 1,
+        defaultPropertiesFn.lastIndexOf("}"),
+      );
+
+      /* eslint-disable */
+      let defaultProperties = {};
+
+      eval(
+        `defaultProperties = (function (props) { ${body} })(${JSON.stringify(
+          entity,
+        )});`,
+      );
+
       Object.entries(defaultProperties).forEach(
         ([property, defaultPropertyPath]) => {
           dependencies[`${entityName}.${property}`] = [
@@ -408,9 +432,23 @@ export default class DataTreeEvaluator {
           // debugger;
           if (isWidget(entity)) {
             const widgetEntity = entity;
-            const defaultPropertyMap = this.widgetConfigMap[
-              widgetEntity.type
-            ].defaultProperties(entity);
+            const defaultPropertiesFn = this.widgetConfigMap[entity.type]
+              .defaultProperties as string;
+
+            const body = defaultPropertiesFn.slice(
+              defaultPropertiesFn.indexOf("{") + 1,
+              defaultPropertiesFn.lastIndexOf("}"),
+            );
+
+            /* eslint-disable */
+            let defaultPropertyMap: any = {};
+
+            eval(
+              `defaultPropertyMap = (function (props) { ${body} })(${JSON.stringify(
+                entity,
+              )});`,
+            );
+
             const isDefaultProperty = !!Object.values(
               defaultPropertyMap,
             ).filter(

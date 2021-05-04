@@ -79,6 +79,7 @@ class WidgetFactory {
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
+    console.log({ defaultPropertiesMap });
     propertyPaneConfig &&
       this.propertyPaneConfigsMap.set(
         widgetType,
