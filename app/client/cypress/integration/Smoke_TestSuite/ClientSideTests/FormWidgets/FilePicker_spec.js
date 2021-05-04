@@ -43,6 +43,29 @@ describe("FilePicker Widget Functionality", function() {
     cy.get("button").contains("1 files selected");
   });
 
+  it("It checks the deletion of filepicker works as expected", function() {
+    cy.get(commonlocators.filePickerButton).click();
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .attachFile("testFile.mov");
+    cy.get(commonlocators.filePickerUploadButton).click();
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+    cy.get("button").contains("1 files selected");
+    cy.get(commonlocators.filePickerButton).click();
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(200);
+    cy.get("button.uppy-Dashboard-Item-action--remove").click();
+    cy.get("button.uppy-Dashboard-browse").click();
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .attachFile("testFile2.mov");
+    cy.get(commonlocators.filePickerUploadButton).click();
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+    cy.get("button").contains("1 files selected");
+  });
+
   afterEach(() => {
     // put your clean up code if any
   });

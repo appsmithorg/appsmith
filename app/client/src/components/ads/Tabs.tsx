@@ -17,9 +17,6 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   user-select: none;
   border-radius: 0px;
   height: 100%;
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
-  }
   .react-tabs {
     height: 100%;
   }
@@ -104,6 +101,9 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
 const TabTitleWrapper = styled.div`
   display: flex;
   align-items: center;
+  .${Classes.ICON} {
+    margin-right: ${(props) => props.theme.spaces[3]}px;
+  }
 `;
 
 const TabTitle = styled.span`
@@ -130,17 +130,17 @@ type TabbedViewComponentType = CommonComponentProps & {
   overflow?: boolean;
 };
 
-export const TabComponent = (props: TabbedViewComponentType) => {
+export function TabComponent(props: TabbedViewComponentType) {
   return (
     <TabsWrapper
-      shouldOverflow={props.overflow}
       data-cy={props.cypressSelector}
+      shouldOverflow={props.overflow}
     >
       <Tabs
-        selectedIndex={props.selectedIndex}
         onSelect={(index: number) => {
           props.onSelect && props.onSelect(index);
         }}
+        selectedIndex={props.selectedIndex}
       >
         <TabList>
           {props.tabs.map((tab) => (
@@ -163,4 +163,4 @@ export const TabComponent = (props: TabbedViewComponentType) => {
       </Tabs>
     </TabsWrapper>
   );
-};
+}

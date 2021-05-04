@@ -12,6 +12,12 @@ describe("Form reset functionality", function() {
       .click()
       .should("have.class", "selected-row");
 
+    cy.get(".t--draggable-dropdownwidget").click({ force: true });
+    cy.get(".t--draggable-dropdownwidget").type("Option");
+    cy.dropdownDynamic("Option 1");
+    cy.dropdownDynamic("Option 2");
+    cy.dropdownDynamic("Option 3");
+
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", "lindsay.ferguson@reqres.in");
@@ -25,6 +31,12 @@ describe("Form reset functionality", function() {
     cy.get(".tr")
       .eq(2)
       .should("not.have.class", "selected-row");
+
+    cy.get(".t-draggable-dropdownwidget .bp3-tag-input-values .bp3-tag").should(
+      ($span) => {
+        expect($span).to.have.length(0);
+      },
+    );
 
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")

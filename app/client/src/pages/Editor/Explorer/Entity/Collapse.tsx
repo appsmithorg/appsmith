@@ -18,20 +18,20 @@ const CollapsedContainer = styled.div<{ step: number; active?: boolean }>`
     position: absolute;
   }
 `;
-export const EntityCollapse = (props: {
+export function EntityCollapse(props: {
   children: ReactNode;
   isOpen: boolean;
   step: number;
   active?: boolean;
-}) => {
+}) {
   if (!props.children) return null;
   return (
     <Collapse isOpen={props.isOpen}>
-      <CollapsedContainer step={props.step} active={props.active}>
+      <CollapsedContainer active={props.active} step={props.step}>
         {props.children}
       </CollapsedContainer>
     </Collapse>
   );
-};
+}
 
 export default EntityCollapse;

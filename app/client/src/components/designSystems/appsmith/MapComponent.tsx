@@ -115,6 +115,12 @@ const MyMapComponent = withGoogleMap((props: any) => {
   }, [props.center, props.selectedMarker]);
   return (
     <GoogleMap
+      center={mapCenter}
+      onClick={(e) => {
+        if (props.enableCreateMarker) {
+          props.saveMarker(e.latLng.lat(), e.latLng.lng());
+        }
+      }}
       options={{
         zoomControl: props.allowZoom,
         fullscreenControl: false,
@@ -124,12 +130,6 @@ const MyMapComponent = withGoogleMap((props: any) => {
         streetViewControl: false,
       }}
       zoom={props.zoom}
-      center={mapCenter}
-      onClick={(e) => {
-        if (props.enableCreateMarker) {
-          props.saveMarker(e.latLng.lat(), e.latLng.lng());
-        }
-      }}
     >
       {props.enableSearch && (
         <SearchBox
@@ -137,36 +137,37 @@ const MyMapComponent = withGoogleMap((props: any) => {
           onPlacesChanged={onPlacesChanged}
           ref={searchBox}
         >
-          <StyledInput type="text" placeholder="Enter location to search" />
+          <StyledInput placeholder="Enter location to search" type="text" />
         </SearchBox>
       )}
-      {props.markers.map((marker: any, index: number) => (
-        <Marker
-          key={index}
-          title={marker.title}
-          position={{ lat: marker.lat, lng: marker.long }}
-          clickable
-          draggable={
-            props.selectedMarker &&
-            props.selectedMarker.lat === marker.lat &&
-            props.selectedMarker.long === marker.long
-          }
-          onClick={() => {
-            setMapCenter({
-              ...marker,
-              lng: marker.long,
-            });
-            props.selectMarker(marker.lat, marker.long, marker.title);
-          }}
-          onDragEnd={(de) => {
-            props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
-          }}
-        />
-      ))}
+      {Array.isArray(props.markers) &&
+        props.markers.map((marker: MarkerProps, index: number) => (
+          <Marker
+            clickable
+            draggable={
+              props.selectedMarker &&
+              props.selectedMarker.lat === marker.lat &&
+              props.selectedMarker.long === marker.long
+            }
+            key={index}
+            onClick={() => {
+              setMapCenter({
+                ...marker,
+                lng: marker.long,
+              });
+              props.selectMarker(marker.lat, marker.long, marker.title);
+            }}
+            onDragEnd={(de) => {
+              props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
+            }}
+            position={{ lat: marker.lat, lng: marker.long }}
+            title={marker.title}
+          />
+        ))}
       {props.enablePickLocation && (
         <PickMyLocationWrapper
-          title="Pick My Location"
           allowZoom={props.allowZoom}
+          title="Pick My Location"
         >
           <PickMyLocation updateCenter={props.updateCenter} />
         </PickMyLocationWrapper>
@@ -175,7 +176,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
   );
 });
 
-const MapComponent = (props: MapComponentProps) => {
+function MapComponent(props: MapComponentProps) {
   const zoom = Math.floor(props.zoomLevel / 5);
   const status = useScript(
     `https://maps.googleapis.com/maps/api/js?key=${props.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
@@ -185,8 +186,8 @@ const MapComponent = (props: MapComponentProps) => {
     <MapWrapper onMouseLeave={props.enableDrag}>
       {status === ScriptStatus.READY && (
         <MyMapComponent
-          loadingElement={<MapContainerWrapper />}
           containerElement={<MapContainerWrapper />}
+          loadingElement={<MapContainerWrapper />}
           mapElement={<MapContainerWrapper />}
           {...props}
           zoom={zoom}
@@ -194,6 +195,6 @@ const MapComponent = (props: MapComponentProps) => {
       )}
     </MapWrapper>
   );
-};
+}
 
 export default MapComponent;

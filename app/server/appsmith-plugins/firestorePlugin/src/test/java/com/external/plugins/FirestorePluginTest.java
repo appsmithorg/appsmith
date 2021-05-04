@@ -10,11 +10,11 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
-import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.Blob;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -33,7 +33,6 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +41,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -145,6 +147,17 @@ public class FirestorePluginTest {
                     assertEquals(1L, first.remove("value"));
                     assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("_ref"));
                     assertEquals(Collections.emptyMap(), first);
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "GET_DOCUMENT", null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null)); // Path
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -277,6 +290,19 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "SET_DOCUMENT", null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -298,6 +324,19 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "CREATE_DOCUMENT", null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -348,6 +387,17 @@ public class FirestorePluginTest {
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "DELETE_DOCUMENT", null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null)); // Path
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -371,6 +421,19 @@ public class FirestorePluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(firestoreConnection.document("changing/" + ((Map) result.getBody()).get("id")));
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "ADD_TO_COLLECTION", null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -557,6 +620,31 @@ public class FirestorePluginTest {
                             names
                     );
 
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "GET_COLLECTION", null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1),
+                            "[\"firm\", \"name\"]", null, null)); // Order by
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(6), "{}", null,
+                            null)); // Start after
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(7), "{}", null,
+                            null)); // End before
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(2), "15", null,
+                            null)); // Limit
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(3), "", null,
+                            null)); // Field Path
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(4), "", null,
+                            null)); // Operator
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(5), "", null,
+                            null)); // Value
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+
                 })
                 .verifyComplete();
     }
@@ -688,6 +776,21 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "UPDATE_DOCUMENT", null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(9),
+                            "[\"value\"]", null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
 

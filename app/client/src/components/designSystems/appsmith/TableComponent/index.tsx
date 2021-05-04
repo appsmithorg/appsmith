@@ -67,7 +67,7 @@ interface ReactTableComponentProps {
   updateCompactMode: (compactMode: CompactMode) => void;
 }
 
-const ReactTableComponent = (props: ReactTableComponentProps) => {
+function ReactTableComponent(props: ReactTableComponentProps) {
   const { columnOrder, hiddenColumns } = useMemo(() => {
     const order: string[] = [];
     const hidden: string[] = [];
@@ -181,45 +181,45 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
 
   return (
     <Table
-      isLoading={props.isLoading}
-      width={props.width}
-      height={props.height}
-      pageSize={props.pageSize || 1}
-      widgetId={props.widgetId}
-      widgetName={props.widgetName}
-      searchKey={props.searchKey}
-      columns={props.columns}
+      applyFilter={props.applyFilter}
       columnSizeMap={props.columnSizeMap}
+      columns={props.columns}
+      compactMode={props.compactMode}
       data={props.tableData}
-      editMode={props.editMode}
-      handleResizeColumn={props.handleResizeColumn}
-      sortTableColumn={sortTableColumn}
-      selectTableRow={selectTableRow}
-      pageNo={props.pageNo - 1}
-      updatePageNo={props.updatePageNo}
-      triggerRowSelection={props.triggerRowSelection}
-      nextPageClick={() => {
-        props.nextPageClick();
-      }}
-      prevPageClick={() => {
-        props.prevPageClick();
-      }}
-      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-      selectedRowIndex={props.selectedRowIndex}
-      selectedRowIndices={props.selectedRowIndices}
       disableDrag={() => {
         props.disableDrag(true);
       }}
+      editMode={props.editMode}
       enableDrag={() => {
         props.disableDrag(false);
       }}
-      searchTableData={props.searchTableData}
       filters={props.filters}
-      applyFilter={props.applyFilter}
-      compactMode={props.compactMode}
+      handleResizeColumn={props.handleResizeColumn}
+      height={props.height}
+      isLoading={props.isLoading}
+      nextPageClick={() => {
+        props.nextPageClick();
+      }}
+      pageNo={props.pageNo - 1}
+      pageSize={props.pageSize || 1}
+      prevPageClick={() => {
+        props.prevPageClick();
+      }}
+      searchKey={props.searchKey}
+      searchTableData={props.searchTableData}
+      selectTableRow={selectTableRow}
+      selectedRowIndex={props.selectedRowIndex}
+      selectedRowIndices={props.selectedRowIndices}
+      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+      sortTableColumn={sortTableColumn}
+      triggerRowSelection={props.triggerRowSelection}
       updateCompactMode={props.updateCompactMode}
+      updatePageNo={props.updatePageNo}
+      widgetId={props.widgetId}
+      widgetName={props.widgetName}
+      width={props.width}
     />
   );
-};
+}
 
 export default ReactTableComponent;

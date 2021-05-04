@@ -35,7 +35,7 @@ const StyledManageUsers = styled("a")`
   }
 `;
 
-const ManageUsers = ({ orgId }: { orgId: string }) => {
+function ManageUsers({ orgId }: { orgId: string }) {
   const currentPath = useLocation().pathname;
   const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
 
@@ -50,5 +50,5 @@ const ManageUsers = ({ orgId }: { orgId: string }) => {
       <Icon name="manage" size={IconSize.XXS} />
     </StyledManageUsers>
   ) : null;
-};
+}
 export default ManageUsers;
