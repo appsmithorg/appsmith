@@ -296,7 +296,7 @@ jobs:
       - run: echo "All ui-test matrices completed"
 
   package:
-    needs: ui-test
+    needs: build
     runs-on: ubuntu-latest
     defaults:
       run:
