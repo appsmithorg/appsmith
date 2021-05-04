@@ -117,7 +117,9 @@ export type EventName =
   | "CORRECT_BAD_BINDING"
   | "OPEN_DEBUGGER"
   | "DEBUGGER_TAB_SWITCH"
-  | "DEBUGGER_ENTITY_NAVIGATION";
+  | "DEBUGGER_ENTITY_NAVIGATION"
+  | "GSHEET_AUTH_INIT"
+  | "GSHEET_AUTH_COMPLETE";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
