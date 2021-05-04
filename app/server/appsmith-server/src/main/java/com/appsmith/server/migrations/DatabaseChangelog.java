@@ -110,7 +110,7 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 
 @Slf4j
 @ChangeLog(order = "001")
-public class DatabaseChangelog {
+public class LDatabaseChangelog {
 
     /**
      * A private, pure utility function to create instances of Index objects to pass to `IndexOps.ensureIndex` method.

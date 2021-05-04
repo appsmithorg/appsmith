@@ -4,14 +4,14 @@
       "sectionName": "Connection",
       "children": [
         {
-          "label": "Import from Srv Url Key",
+          "label": "Use Mongo Connection String URI Key",
           "configProperty": "datasourceConfiguration.properties[0].key",
           "controlType": "INPUT_TEXT",
-          "initialValue": "Import from Srv Url",
+          "initialValue": "Use Mongo Connection String URI",
           "hidden": true
         },
         {
-          "label": "Import from Srv Url",
+          "label": "Use Mongo Connection String URI",
           "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "DROP_DOWN",
           "initialValue": "No",
@@ -27,14 +27,14 @@
           ]
         },
         {
-          "label": "Srv Url Key",
+          "label": "Connection String URI Key",
           "configProperty": "datasourceConfiguration.properties[1].key",
           "controlType": "INPUT_TEXT",
-          "initialValue": "Srv Url",
+          "initialValue": "Connection String URI",
           "hidden": true
         },
         {
-          "label": "Srv Url",
+          "label": "Connection String URI",
           "placeholderText": "mongodb+srv://<username>:<password>@test-db.swrsq.mongodb.net/myDatabase",
           "configProperty": "datasourceConfiguration.properties[1].value",
           "controlType": "INPUT_TEXT",

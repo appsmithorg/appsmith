@@ -89,6 +89,10 @@ public class MongoPlugin extends BasePlugin {
 
     private static final int SMART_BSON_SUBSTITUTION_INDEX = 0;
 
+    /*
+     * - The regex matches the following pattern: mongodb+srv://user:pass@some-url/some-db....
+     * - It has been grouped like this: (mongodb+srv://)((user):(pass))(@some-url/some-db....)
+     */
     private static final String SRV_URL_REGEX = "^(mongodb\\+srv:\\/\\/)((.+):(.+))?(@.+\\/.+)$";
 
     private static final int REGEX_GROUP_HEAD = 1;
@@ -99,13 +103,19 @@ public class MongoPlugin extends BasePlugin {
 
     private static final int REGEX_GROUP_TAIL = 5;
 
+    private static final String KEY_USERNAME = "username";
+
+    private static final String KEY_PASSWORD = "password";
+
+    private static final String KEY_URI_HEAD = "uriHead";
+
+    private static final String KEY_URI_TAIL = "uriTail";
+
     private static final String YES = "Yes";
 
     private static final int DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX = 0;
 
     private static final int DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX = 1;
-
-
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -380,14 +390,48 @@ public class MongoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        public static String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+        private boolean isUsingUrl(DatasourceConfiguration datasourceConfiguration) {
             List<Property> properties = datasourceConfiguration.getProperties();
             if (properties != null && properties.size() > DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX
                     && properties.get(DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX) != null
                     && YES.equals(properties.get(DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX).getValue())) {
-                if (properties.size() > DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX
-                        && properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX) != null
-                        && !StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue())) {
+                return true;
+            }
+
+            return false;
+        }
+
+        private boolean hasNonEmptyUrl(DatasourceConfiguration datasourceConfiguration) {
+            List<Property> properties = datasourceConfiguration.getProperties();
+            if (properties != null && properties.size() > DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX
+                    && properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX) != null
+                    && !StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue())) {
+                return true;
+            }
+
+            return false;
+        }
+
+        private void extractInfoFromConnectionStringURI(String uri, Map infoMap, String regex) {
+            if (uri.matches(regex)) {
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(uri);
+                if (matcher.find()) {
+                    String urlHead = matcher.group(REGEX_GROUP_HEAD);
+                    String username = matcher.group(REGEX_GROUP_USERNAME);
+                    String password = ((DBAuth)datasourceConfiguration.getAuthentication()).getPassword();
+                    String urlTail = matcher.group(REGEX_GROUP_TAIL);
+                    return urlHead + (username == null ? "" : username + ":") +
+                            (password == null ? "" : password) + urlTail;
+                }
+            }
+        }
+
+        public String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+            List<Property> properties = datasourceConfiguration.getProperties();
+            if (isUsingUrl(datasourceConfiguration)) {
+                if (hasNonEmptyUrl(datasourceConfiguration)) {
+                    // TODO: check if any place srv is used.
                     String srvUrlWithHiddenPassword = (String)properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue();
                     if (srvUrlWithHiddenPassword.matches(SRV_URL_REGEX)) {
                         Pattern pattern = Pattern.compile(SRV_URL_REGEX);
@@ -403,24 +447,24 @@ public class MongoPlugin extends BasePlugin {
                         else {
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Appsmith server has failed to parse the mongo srv url. Please check if the srv " +
-                                            "url has the correct format."
+                                    "Appsmith server has failed to parse the Mongo Connection String URI. Please " +
+                                            "check if the URI has the correct format."
                             );
                         }
                     }
                     else {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                "Appsmith server has failed to parse the mongo srv url. Please check if the srv " +
-                                        "url has the correct format."
+                                "Appsmith server has failed to parse the Mongo connection string URI. Please check " +
+                                        "if the URI has the correct format."
                         );
                     }
                 }
                 else {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            "Could not find any srv url. Please edit the 'Srv Url' field to provide the srv url to " +
-                                    "connect to."
+                            "Could not find any Mongo connection string URI. Please edit the 'Mongo Connection String" +
+                                    " URI' field to provide the URI to connect to."
                     );
                 }
             }
@@ -540,28 +584,24 @@ public class MongoPlugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
             List<Property> properties = datasourceConfiguration.getProperties();
-            if (properties != null && properties.size() > DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX
-                    && properties.get(DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX) != null
-                    && YES.equals(properties.get(DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX).getValue())) {
-                if (properties.size() <= DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX
-                        || properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX) == null
-                        || StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue())) {
-                    invalids.add("'Srv Url' field is empty. Please edit the 'Srv Url' field to provide an srv url to " +
-                            "connect with.");
+            if (isUsingUrl(datasourceConfiguration)) {
+                if (!hasNonEmptyUrl(datasourceConfiguration)) {
+                    invalids.add("'Mongo Connection String URI' field is empty. Please edit the 'Mongo Connection " +
+                            "URI' field to provide a connection uri to connect with.");
                 }
                 else {
                     String srvUrl = (String)properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue();
                     if (!srvUrl.matches(SRV_URL_REGEX)) {
-                        invalids.add("Srv url does not seem to be in the correct format. Please check the " +
-                                "srv url once.");
+                        invalids.add("Mongo Connection String URI does not seem to be in the correct format. Please " +
+                                "check the URI once.");
                     }
                     else {
                         Pattern pattern = Pattern.compile(SRV_URL_REGEX);
                         Matcher matcher = pattern.matcher(srvUrl);
 
                         if (!matcher.find()) {
-                            invalids.add("Srv url does not seem to be in the correct format. Please check the " +
-                                    "srv url once.");
+                            invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
+                                    "Please check the URI once.");
                         }
                         else {
                             String urlHead = matcher.group(REGEX_GROUP_HEAD);
@@ -598,7 +638,11 @@ public class MongoPlugin extends BasePlugin {
                             .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
 
                     if (usingSrvUrl) {
-                        invalids.add("Please use import from srv url option from the dropdown to connect via srv url.");
+                        invalids.add("It seems that you are trying to use an SRV URL. Please extract relevant fields" +
+                                " and set the `Connection Type` field to replica set. For details, please check out " +
+                                "the Appsmith's documentation for Mongo database. Alternatively, you may use 'Import " +
+                                "from Connection String URI' option from the dropdown to use the SRV connection " +
+                                "string directly.");
                     }
                 }
 
