@@ -4,17 +4,12 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJSONFile;
-import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -25,23 +20,24 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ImportExportApplicationFromJSONFile {
-    private final OrganizationRepository organizationRepository;
+public class ImportExportApplicationService {
     private final DatasourceService datasourceService;
     private final DatasourceRepository datasourceRepository;
     private final ConfigService configService;
@@ -57,12 +53,17 @@ public class ImportExportApplicationFromJSONFile {
     private final LayoutActionService layoutActionService;
     private final EncryptionService encryptionService;
 
-    Mono<ApplicationJSONFile> getApplicationFileById(String applicationId) {
+    public Mono<ApplicationJSONFile> getApplicationFileById(String applicationId) {
         ApplicationJSONFile file = new ApplicationJSONFile();
         Map<String, String> pluginMap = new HashMap<>();
-        List<Datasource> dsList = pluginRepository
+
+        return pluginRepository
                 .findAll()
-                .map(plugin -> pluginMap.put(plugin.getId(), plugin.getPackageName()))
+                .collectList()
+                .map(pluginList -> {
+                    pluginList.forEach(plugin -> pluginMap.put(plugin.getId(), plugin.getPackageName()));
+                    return pluginList;
+                })
                 .flatMap(ignore -> applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application -> {
@@ -72,36 +73,37 @@ public class ImportExportApplicationFromJSONFile {
                     application.setId(null);
                     String applicationName = application.getName();
                     file.setExportedApplication(application);
-                    return Flux.fromIterable(application.getPages())
-                            .flatMap(applicationPage -> newPageRepository.findByApplicationId(applicationPage.getId()))
+//                    log.debug("Exported Application : {}",file.getExportedApplication());
+                    return newPageRepository.findByApplicationId(applicationId)
                             .collectList()
                             .map(newPageList -> {
                                 newPageList.forEach(newPage -> {
                                     newPage.setApplicationId(applicationName);
                                     newPage.setPolicies(null);
                                     newPage.setId(null);
-                                    if (file.getPageList().isEmpty()) {
-                                        file.setPageList(Arrays.asList(newPage));
-                                    } else {
-                                        file.getPageList().add(file.getPageList().size(), newPage);
-                                    }
+                                    newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                                        layout.setId(null);
+
+                                        layout.getLayoutOnLoadActions();
+                                        layout.getPublishedLayoutOnLoadActions();
+                                        layout.getAllOnPageLoadActionEdges();
+                                    });
+
                                     //Remove action ids
                                 });
+                                file.setPageList(newPageList);
                                 return newActionRepository.findByApplicationId(applicationId);
                             })
-                            .flatMap(newActionFlux -> newActionFlux.collectList())
+                            .flatMap(Flux::collectList)
                             .map(newActionList -> {
                                 newActionList.forEach(newAction -> {
                                     newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
                                     newAction.setOrganizationId(null);
                                     newAction.setPolicies(null);
                                     newAction.setApplicationId(applicationName);
-                                    if (file.getActionList().isEmpty()) {
-                                        file.setActionList(Arrays.asList(newAction));
-                                    } else {
-                                        file.getActionList().add(file.getPageList().size(), newAction);
-                                    }
                                 });
+                                file.setActionList(newActionList);
+//                                log.debug("Exported Actions : {}",file.getActionList());
                                 return datasourceRepository.findAllByOrganizationId(organizationId);
                             })
                             .flatMap(datasourceFlux -> datasourceFlux.collectList())
@@ -123,15 +125,33 @@ public class ImportExportApplicationFromJSONFile {
                                     datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                                     datasource.setOrganizationId(null);
                                     datasource.setPolicies(null);
-                                    if (file.getDatasourceList().isEmpty()) {
-                                        file.setDatasourceList(Arrays.asList(datasource));
-                                    } else {
-                                        file.getDatasourceList().add(file.getDatasourceList().size(), datasource);
-                                    }
                                 });
-                                return datasourceList;
+                                file.setDatasourceList(datasourceList);
+//                                log.debug("Exported datasources : {}",file.getDatasourceList());
+//                                log.debug("Exported file : {}",file.toString());
+                                return file;
+                            })
+                            .flatMap(applicationJSONFile -> {
+                                File applicationFile = new File(applicationId+".json");
+                                try {
+                                    log.debug(applicationFile.getAbsolutePath());
+                                    ObjectMapper mapper = new ObjectMapper();
+                                    //Converting the Object to JSONString
+                                    String jsonStringifiedFile = mapper.writeValueAsString(applicationJSONFile);
+
+                                    applicationFile.createNewFile();
+                                    FileWriter writer = new FileWriter(applicationFile.getAbsolutePath());
+                                    writer.write(jsonStringifiedFile);
+                                    writer.flush();
+                                    writer.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                return Mono.just(file);
                             });
-                });
+                })
+                .then()
+                .thenReturn(file);
     }
 
     ApplicationJSONFile removePoliciesAndDecryptPasswords(ApplicationJSONFile file) {
@@ -146,7 +166,7 @@ public class ImportExportApplicationFromJSONFile {
                 .stream()
                 .filter(datasource -> datasource.getDatasourceConfiguration() != null
                         && datasource.getDatasourceConfiguration().getAuthentication().isEncrypted() != null
-                        && datasource.getDatasourceConfiguration().getAuthentication().isEncrypted() == true)
+                        && datasource.getDatasourceConfiguration().getAuthentication().isEncrypted())
                 .forEach(datasource -> {
                     AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
                     Map<String, String> decryptedFields = authentication
