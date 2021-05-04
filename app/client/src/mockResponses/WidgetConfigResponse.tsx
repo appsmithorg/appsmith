@@ -235,25 +235,25 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       tableData: [
         {
           step: "#1",
-          task: "Drag a Table",
+          task: "Drop a table",
           status: "✅",
           action: "",
         },
         {
           step: "#2",
-          task: "Create a Query fetch_users with the Mock DB",
+          task: "Create a query fetch_users with the Mock DB",
           status: "--",
           action: "",
         },
         {
           step: "#3",
-          task: "Bind the query to the table {{fetch_users.data}}",
+          task: "Bind the query using {{fetch_users.data}}",
           status: "--",
           action: "",
         },
       ],
       columnSizeMap: {
-        task: 347,
+        task: 245,
         step: 62,
         status: 75,
       },
