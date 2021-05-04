@@ -31,7 +31,13 @@ const EmojiPicker = withTheme(
 
     return (
       <Popover2
-        content={<Picker onClick={handleSelectEmoji} />}
+        content={
+          <Picker
+            onClick={handleSelectEmoji}
+            showPreview={false}
+            showSkinTones={false}
+          />
+        }
         isOpen={isOpen}
         minimal
         onInteraction={(nextOpenState) => {
