@@ -150,6 +150,7 @@ class DatePickerComponent extends React.Component<
               onChange={this.onDateSelected}
               parseDate={this.parseDate}
               placeholder={"Select Date"}
+              popoverProps={{ position: "bottom" }}
               showActionsBar
               timePrecision={TimePrecision.MINUTE}
               value={value}
