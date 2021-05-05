@@ -4,7 +4,8 @@ import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { TextAlign } from "widgets/TextWidget";
 import Interweave from "interweave";
-import { UrlMatcher, EmailMatcher } from "interweave-autolink";
+import { UrlMatcher } from "interweave-autolink";
+import EmailMatcher, { EMAIL_PATTERN } from "./EmailMatcher";
 import {
   FontStyleTypes,
   TextSize,
@@ -83,6 +84,10 @@ class TextComponent extends React.Component<TextComponentProps> {
       textColor,
       backgroundColor,
     } = this.props;
+    let matchers = [new UrlMatcher("url"), new EmailMatcher("email")];
+    if (text && EMAIL_PATTERN.test(text)) {
+      matchers = [new EmailMatcher("email")];
+    }
     return (
       <TextContainer>
         <StyledText
@@ -95,10 +100,7 @@ class TextComponent extends React.Component<TextComponentProps> {
           backgroundColor={backgroundColor}
           className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
         >
-          <Interweave
-            content={text}
-            matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
-          />
+          <Interweave content={text} matchers={matchers} />
         </StyledText>
       </TextContainer>
     );
