@@ -8,7 +8,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
 import { Colors } from "constants/Colors";
-import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
@@ -106,10 +105,6 @@ const FlexContainer = styled.div`
   align-items: flex-start;
 `;
 
-const StyledDebugButton = styled(DebugButton)`
-  margin-left: auto;
-`;
-
 function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
   const dispatch = useDispatch();
 
@@ -131,9 +126,6 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
         ) : null}
         <div>
           <Text type={TextType.P1}>{props.text}</Text>
-          {props.variant === Variant.danger ? (
-            <StyledDebugButton source={"TOAST"} />
-          ) : null}
         </div>
       </FlexContainer>
       <div className="undo-section">
