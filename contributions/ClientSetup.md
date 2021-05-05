@@ -10,6 +10,7 @@ On your development machine, please ensure that:
 1. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details. For `mkcert` to work with Firefox you may require the `nss` utility to be installed. Details are in the link above.
 1. You have `envsubst` installed. use `brew install gettext` on MacOS. Linux machines usually have this installed.
 1. You have cloned the repo in your local machine.
+1. You have yarn installed as a global npm package i.e. `npm install -g yarn`
 
 ### Create local HTTPS certificates:
 
@@ -50,9 +51,7 @@ On your development machine, please ensure that:
 
 ### Steps to build & run the code:
 
-1. Install npm and node if not installed already
-2. Install yarn with `npm install -g yarn`
-3. Run `yarn`
+1. Run `yarn`
 
     Note:
 
@@ -62,7 +61,7 @@ On your development machine, please ensure that:
         echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
         ```
 
-4. Run `yarn start`
+2. Run `yarn start`
 
     🎉 Your Appsmith client is now running on https://dev.appsmith.com.
 
@@ -80,7 +79,7 @@ This error occurs because the node version is not compatible with the app enviro
 node versions to be used in different projects. Check below for installation and usage details:
 
 1. Install a node version manager. For eg: check [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
-2. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
+1. In the root of the project, run `nvm use 10.16.3` or `fnm use 10.16.3`.
 
 #### If you would like to hit a different Appsmith server:
 
