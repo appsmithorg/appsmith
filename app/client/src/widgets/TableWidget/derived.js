@@ -360,7 +360,10 @@ export default {
       },
     };
 
-    const searchKey = props.searchText ? props.searchText.toLowerCase() : "";
+    const searchKey =
+      props.searchText && !props.onSearchTextChanged
+        ? props.searchText.toLowerCase()
+        : "";
 
     const finalTableData = sortedTableData.filter((item) => {
       const searchFound = searchKey
