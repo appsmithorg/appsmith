@@ -489,7 +489,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { items, children } = this.props;
     const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
-    const templateHeight = templateBottomRow * 40;
+    const templateHeight =
+      templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
     try {
       gridGap = parseInt(gridGap);
