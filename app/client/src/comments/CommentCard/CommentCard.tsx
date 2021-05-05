@@ -35,6 +35,8 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { BaseEmoji } from "emoji-mart";
+import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
+import { TourType } from "entities/Tour";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -172,6 +174,10 @@ const replyText = (replies?: number) => {
   return replies > 1 ? `${replies} Replies` : `1 Reply`;
 };
 
+const ResolveButtonContainer = styled.div`
+  margin-left: ${(props) => props.theme.spaces[2]}px;
+`;
+
 function CommentCard({
   comment,
   isParentComment,
@@ -183,6 +189,7 @@ function CommentCard({
   showSubheader,
   unread = true,
   inline,
+  visible,
 }: {
   comment: Comment;
   isParentComment?: boolean;
@@ -194,6 +201,7 @@ function CommentCard({
   showSubheader?: boolean;
   unread?: boolean;
   inline?: boolean;
+  visible?: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const dispatch = useDispatch();
@@ -278,6 +286,8 @@ function CommentCard({
 
   const hasReactions = !!reactions;
 
+  const showOptions = isHovered || visible;
+
   return (
     <StyledContainer
       data-cy={`t--comment-card-${comment.id}`}
@@ -308,7 +318,7 @@ function CommentCard({
           <UserName>{authorName}</UserName>
         </HeaderSection>
         <HeaderSection>
-          {isHovered && (
+          {showOptions && (
             <StopClickPropagation>
               <EmojiReactionsBtnContainer>
                 <EmojiReactions
@@ -319,15 +329,29 @@ function CommentCard({
               </EmojiReactionsBtnContainer>
             </StopClickPropagation>
           )}
-          {showResolveBtn && (
+          {(showOptions || showResolveBtn) && (
             <StopClickPropagation>
-              <ResolveCommentButton
-                handleClick={toggleResolved as () => void}
-                resolved={!!resolved}
-              />
+              <ResolveButtonContainer>
+                {inline ? (
+                  <TourTooltipWrapper
+                    tourIndex={2}
+                    tourType={TourType.COMMENTS_TOUR}
+                  >
+                    <ResolveCommentButton
+                      handleClick={toggleResolved as () => void}
+                      resolved={!!resolved}
+                    />
+                  </TourTooltipWrapper>
+                ) : (
+                  <ResolveCommentButton
+                    handleClick={toggleResolved as () => void}
+                    resolved={!!resolved}
+                  />
+                )}
+              </ResolveButtonContainer>
             </StopClickPropagation>
           )}
-          {isHovered && (
+          {(showOptions || isHovered) && (
             <StopClickPropagation>
               <CommentContextMenu {...contextMenuProps} />
             </StopClickPropagation>

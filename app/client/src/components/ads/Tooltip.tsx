@@ -8,7 +8,7 @@ type Variant = "dark" | "light";
 type TooltipProps = CommonComponentProps & {
   content: JSX.Element | string;
   position?: Position;
-  children: JSX.Element;
+  children: JSX.Element | React.ReactNode;
   variant?: Variant;
   maxWidth?: string;
   boundary?: PopperBoundary;
@@ -17,6 +17,7 @@ type TooltipProps = CommonComponentProps & {
   autoFocus?: boolean;
   hoverOpenDelay?: number;
   minimal?: boolean;
+  isOpen?: boolean;
 };
 
 const portalContainer = document.getElementById("tooltip-root");
@@ -28,6 +29,7 @@ function TooltipComponent(props: TooltipProps) {
       boundary={props.boundary || "scrollParent"}
       content={props.content}
       hoverOpenDelay={props.hoverOpenDelay}
+      isOpen={props.isOpen}
       minimal={props.minimal}
       modifiers={{
         preventOverflow: { enabled: false },

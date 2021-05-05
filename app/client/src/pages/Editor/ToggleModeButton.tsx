@@ -2,9 +2,11 @@ import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import TooltipComponent from "components/ads/Tooltip";
+import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { ReactComponent as Pen } from "assets/icons/comments/pen.svg";
 import { ReactComponent as CommentModeUnread } from "assets/icons/comments/comment-mode-unread-indicator.svg";
 import { ReactComponent as CommentMode } from "assets/icons/comments/chat.svg";
+
 import {
   setCommentMode as setCommentModeAction,
   fetchApplicationCommentsRequest,
@@ -17,6 +19,8 @@ import {
 import { useLocation } from "react-router";
 import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { TourType } from "entities/Tour";
+import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 
 const ModeButton = styled.div<{ active: boolean }>`
   position: relative;
@@ -104,6 +108,10 @@ function ToggleCommentModeButton() {
   const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
 
   useUpdateCommentMode();
+  const proceedToNextTourStep = useProceedToNextTourStep(
+    TourType.COMMENTS_TOUR,
+    0,
+  );
 
   if (!commentsEnabled) return null;
 
@@ -118,7 +126,8 @@ function ToggleCommentModeButton() {
         <TooltipComponent
           content={
             <>
-              Edit Mode<span style={{ color: "#fff", marginLeft: 20 }}>V</span>
+              Edit Mode
+              <span style={{ color: "#fff", marginLeft: 20 }}>V</span>
             </>
           }
           position={Position.BOTTOM}
@@ -126,22 +135,27 @@ function ToggleCommentModeButton() {
           <Pen />
         </TooltipComponent>
       </ModeButton>
-      <ModeButton
-        active={isCommentMode}
-        onClick={() => setCommentModeInUrl(true)}
-      >
-        <TooltipComponent
-          content={
-            <>
-              Comment Mode
-              <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
-            </>
-          }
-          position={Position.BOTTOM}
+      <TourTooltipWrapper tourIndex={0} tourType={TourType.COMMENTS_TOUR}>
+        <ModeButton
+          active={isCommentMode}
+          onClick={() => {
+            setCommentModeInUrl(true);
+            proceedToNextTourStep();
+          }}
         >
-          <CommentModeIcon />
-        </TooltipComponent>
-      </ModeButton>
+          <TooltipComponent
+            content={
+              <>
+                Comment Mode
+                <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
+              </>
+            }
+            position={Position.BOTTOM}
+          >
+            <CommentModeIcon />
+          </TooltipComponent>
+        </ModeButton>
+      </TourTooltipWrapper>
     </Container>
   );
 }

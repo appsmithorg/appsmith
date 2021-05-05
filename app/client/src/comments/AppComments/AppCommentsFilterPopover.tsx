@@ -18,6 +18,10 @@ import {
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
+import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
+import { TourType } from "entities/Tour";
+import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
+
 export const options = [
   { label: "Show all comments", value: "show-all" },
   { label: "Show only pinned", value: "show-only-pinned" },
@@ -74,6 +78,11 @@ const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
 });
 
 function AppCommentsFilterPopover() {
+  const proceedToNextTourStep = useProceedToNextTourStep(
+    TourType.COMMENTS_TOUR,
+    3,
+  );
+
   return (
     <Popover2
       content={<AppCommentsFilter />}
@@ -91,7 +100,13 @@ function AppCommentsFilterPopover() {
       placement={"bottom-end"}
       portalClassName="comment-context-menu"
     >
-      <Icon name="filter" size={IconSize.LARGE} />
+      <TourTooltipWrapper
+        onClick={proceedToNextTourStep}
+        tourIndex={3}
+        tourType={TourType.COMMENTS_TOUR}
+      >
+        <Icon name="filter" size={IconSize.LARGE} />
+      </TourTooltipWrapper>
     </Popover2>
   );
 }
