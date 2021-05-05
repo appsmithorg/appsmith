@@ -1,9 +1,10 @@
 import React, { CSSProperties, ReactNode, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { LayersByzIndex, WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
+import { stopEventPropagation } from "utils/AppsmithUtils";
 
 const PositionedWidget = styled.div`
   &.allow-hover:hover {
@@ -42,7 +43,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       height: props.style.componentHeight + (props.style.heightUnit || "px"),
       width: props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
-      zIndex: 3,
+      zIndex: LayersByzIndex.PositionedWidget,
       backgroundColor: "inherit",
     };
   }, [props.style]);
@@ -51,9 +52,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
     <PositionedWidget
       className={containerClassName}
       id={props.widgetId}
-      onClick={(e) => {
-        e.stopPropagation();
-      }}
+      onClick={stopEventPropagation}
+      // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
       onClickCapture={(e) => openPropertyPane(e, props.widgetId)}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}

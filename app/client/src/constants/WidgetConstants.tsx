@@ -142,4 +142,12 @@ export const TEXT_SIZES = {
   PARAGRAPH2: "12px",
 };
 
+export const LayersByzIndex = {
+  // All Widgets Parent layer
+  PositionedWidget: 3,
+  // Layers when dragging
+  AnimatedSnappingDropZone: 4,
+  AnimatedDropZone: 5,
+};
+
 export type TextSize = keyof typeof TextSizes;
