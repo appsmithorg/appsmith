@@ -2253,7 +2253,8 @@ public class DatabaseChangelog {
 
         mongoDatasources.stream()
                 .forEach(datasource -> {
-                    datasource.getDatasourceConfiguration().setProperties(List.of(new Property("Import from URI", "No")));
+                    datasource.getDatasourceConfiguration().setProperties(List.of(new Property("Use Mongo Connection " +
+                            "String URI", "No")));
                     mongoTemplate.save(datasource);
                 });
     }
