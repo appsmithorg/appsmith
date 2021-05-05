@@ -190,6 +190,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        // If Authentication Details are present in the datasource, encrypt the details before saving
+        if (datasource.getDatasourceConfiguration() != null) {
+            datasource.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(datasource.getDatasourceConfiguration().getAuthentication()));
+        }
+
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
 
@@ -299,7 +304,13 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
                 .flatMap(ds -> {
-                    // If Authentication Details are present in the datasource, encrypt the details before saving
+                   /*
+                    * - Authentication field gets populated as part of validate datasource for Mongo plugin in case
+                    * of uri connection string - which invalidates the earlier encrypted password, if any. Hence, need
+                    * for encryption again.
+                    * - For every other case, the isEncrypted value will be true, hence this encryption attempt will
+                    * return without doing anything.
+                    */
                     if (ds.getDatasourceConfiguration() != null) {
                         ds.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(ds.getDatasourceConfiguration().getAuthentication()));
                     }

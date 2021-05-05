@@ -610,9 +610,13 @@ public class MongoPlugin extends BasePlugin {
                                     extractedInfo.get(KEY_URI_HEAD) + (extractedInfo.get(KEY_USERNAME) == null ? "" :
                                     extractedInfo.get(KEY_USERNAME) + ":" + "****") + extractedInfo.get(KEY_URI_TAIL);
                             properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
-                            DBAuth authentication = new DBAuth();
+                            DBAuth authentication = datasourceConfiguration.getAuthentication() == null ?
+                                    new DBAuth() : (DBAuth) datasourceConfiguration.getAuthentication();
+                            authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
                             authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
                             authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DBNAME));
+                            // To trigger encryption as the password field has been freshly populated above.
+                            authentication.setIsEncrypted(false);
                             datasourceConfiguration.setAuthentication(authentication);
 
                             // remove any default db set via form auto-fill via browser
