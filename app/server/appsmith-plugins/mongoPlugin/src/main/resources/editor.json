@@ -98,6 +98,106 @@
               "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
               "initialValue" : "{name : 1}"
+            },
+            {
+              "label": "Projection",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "{name : 1}"
+            },
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "10"
+            },
+            {
+              "label": "Skip",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "0"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 3,
+          "serverLabel": "updateOne",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "FORM"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "UPDATE_ONE"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Sort",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "{name : 1}"
+            },
+            {
+              "label": "Update",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "{ $inc: { score: 1 } }"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 4,
+          "serverLabel": "updateMany",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "FORM"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "UPDATE_MANY"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Update",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[12].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "{ $inc: { score: 1 } }"
             }
           ]
         },
