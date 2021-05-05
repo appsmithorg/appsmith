@@ -97,7 +97,7 @@ public class MongoPlugin extends BasePlugin {
      *   - mongodb://user:pass@some-url:port,some-url:port,../some-db....
      * - It has been grouped like this: (mongodb+srv://)((user):(pass))(@some-url/(some-db....))
      */
-    private static final String MONGO_URI_REGEX = "^(mongodb(\\+srv)?:\\/\\/)((.+):(.+))?(@.+\\/(.+))$";
+    private static final String MONGO_URI_REGEX = "^(mongodb(\\+srv)?:\\/\\/)((.+):(.+))(@.+\\/(.+))$";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
