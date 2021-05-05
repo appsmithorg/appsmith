@@ -27,7 +27,12 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
   const dataTree: DataTree = yield select(getDataTree);
   const widget = dataTree[payload.source.name];
 
-  if (!isWidget(widget) || !widget.validationMessages) return;
+  if (
+    !isWidget(widget) ||
+    !widget.validationMessages ||
+    !widget.jsErrorMessages
+  )
+    return;
 
   // Ignore canvas widget updates
   if (widget.type === WidgetTypes.CANVAS_WIDGET) {
@@ -41,7 +46,7 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
 
     const validationMessages = widget.validationMessages;
     const validationMessage = validationMessages[propertyPath];
-    const jsErrorMessages = dataTree[payload.source.name].jsErrorMessages;
+    const jsErrorMessages = widget.jsErrorMessages;
     const jsErrorMessage = jsErrorMessages[propertyPath];
     const errors = yield select(getDebuggerErrors);
     const errorId = `${source.id}-${propertyPath}`;
