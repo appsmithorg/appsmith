@@ -90,18 +90,20 @@ public class MongoPlugin extends BasePlugin {
     private static final int SMART_BSON_SUBSTITUTION_INDEX = 0;
 
     /*
-     * - The regex matches the following pattern: mongodb+srv://user:pass@some-url/some-db....
+     * - The regex matches the following two pattern types:
+     *   - mongodb+srv://user:pass@some-url/some-db....
+     *   - mongodb://user:pass@some-url:port,some-url:port,../some-db....
      * - It has been grouped like this: (mongodb+srv://)((user):(pass))(@some-url/some-db....)
      */
-    private static final String SRV_URL_REGEX = "^(mongodb\\+srv:\\/\\/)((.+):(.+))?(@.+\\/.+)$";
+    private static final String MONGO_URI_REGEX = "^(mongodb(\\+srv)?:\\/\\/)((.+):(.+))?(@.+\\/.+)$";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
-    private static final int REGEX_GROUP_USERNAME = 3;
+    private static final int REGEX_GROUP_USERNAME = 4;
 
-    private static final int REGEX_GROUP_PASSWORD = 4;
+    private static final int REGEX_GROUP_PASSWORD = 5;
 
-    private static final int REGEX_GROUP_TAIL = 5;
+    private static final int REGEX_GROUP_TAIL = 6;
 
     private static final String KEY_USERNAME = "username";
 
@@ -113,9 +115,9 @@ public class MongoPlugin extends BasePlugin {
 
     private static final String YES = "Yes";
 
-    private static final int DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX = 0;
+    private static final int DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX = 0;
 
-    private static final int DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX = 1;
+    private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -390,11 +392,11 @@ public class MongoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private boolean isUsingUrl(DatasourceConfiguration datasourceConfiguration) {
+        private boolean isUsingUri(DatasourceConfiguration datasourceConfiguration) {
             List<Property> properties = datasourceConfiguration.getProperties();
-            if (properties != null && properties.size() > DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX
-                    && properties.get(DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX) != null
-                    && YES.equals(properties.get(DATASOURCE_CONFIG_USE_SRV_URL_PROPERTY_INDEX).getValue())) {
+            if (properties != null && properties.size() > DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX
+                    && properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX) != null
+                    && YES.equals(properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX).getValue())) {
                 return true;
             }
 
@@ -403,54 +405,45 @@ public class MongoPlugin extends BasePlugin {
 
         private boolean hasNonEmptyUrl(DatasourceConfiguration datasourceConfiguration) {
             List<Property> properties = datasourceConfiguration.getProperties();
-            if (properties != null && properties.size() > DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX
-                    && properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX) != null
-                    && !StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue())) {
+            if (properties != null && properties.size() > DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX
+                    && properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX) != null
+                    && !StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue())) {
                 return true;
             }
 
             return false;
         }
 
-        private void extractInfoFromConnectionStringURI(String uri, Map infoMap, String regex) {
+        private Map extractInfoFromConnectionStringURI(String uri, String regex) {
             if (uri.matches(regex)) {
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(uri);
                 if (matcher.find()) {
-                    String urlHead = matcher.group(REGEX_GROUP_HEAD);
-                    String username = matcher.group(REGEX_GROUP_USERNAME);
-                    String password = ((DBAuth)datasourceConfiguration.getAuthentication()).getPassword();
-                    String urlTail = matcher.group(REGEX_GROUP_TAIL);
-                    return urlHead + (username == null ? "" : username + ":") +
-                            (password == null ? "" : password) + urlTail;
+                    Map extractedInfoMap = new HashMap();
+                    extractedInfoMap.put(KEY_USERNAME, matcher.group(REGEX_GROUP_USERNAME));
+                    extractedInfoMap.put(KEY_PASSWORD, matcher.group(REGEX_GROUP_PASSWORD));
+                    extractedInfoMap.put(KEY_URI_HEAD, matcher.group(REGEX_GROUP_HEAD));
+                    extractedInfoMap.put(KEY_URI_TAIL, matcher.group(REGEX_GROUP_TAIL));
+                    return extractedInfoMap;
                 }
             }
+
+            return null;
         }
 
         public String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
             List<Property> properties = datasourceConfiguration.getProperties();
-            if (isUsingUrl(datasourceConfiguration)) {
+            if (isUsingUri(datasourceConfiguration)) {
                 if (hasNonEmptyUrl(datasourceConfiguration)) {
                     // TODO: check if any place srv is used.
-                    String srvUrlWithHiddenPassword = (String)properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue();
-                    if (srvUrlWithHiddenPassword.matches(SRV_URL_REGEX)) {
-                        Pattern pattern = Pattern.compile(SRV_URL_REGEX);
-                        Matcher matcher = pattern.matcher(srvUrlWithHiddenPassword);
-                        if (matcher.find()) {
-                            String urlHead = matcher.group(REGEX_GROUP_HEAD);
-                            String username = matcher.group(REGEX_GROUP_USERNAME);
+                    String uriWithHiddenPassword =
+                            (String)properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
+                    Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
+                    if (extractedInfo != null) {
                             String password = ((DBAuth)datasourceConfiguration.getAuthentication()).getPassword();
-                            String urlTail = matcher.group(REGEX_GROUP_TAIL);
-                            return urlHead + (username == null ? "" : username + ":") +
-                                    (password == null ? "" : password) + urlTail;
-                        }
-                        else {
-                            throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Appsmith server has failed to parse the Mongo Connection String URI. Please " +
-                                            "check if the URI has the correct format."
-                            );
-                        }
+                            return extractedInfo.get(KEY_URI_HEAD) + (extractedInfo.get(KEY_USERNAME) == null ? "" :
+                                    extractedInfo.get(KEY_USERNAME) + ":") + (password == null ? "" : password)
+                                    + extractedInfo.get(KEY_URI_TAIL);
                     }
                     else {
                         throw new AppsmithPluginException(
@@ -584,36 +577,30 @@ public class MongoPlugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
             List<Property> properties = datasourceConfiguration.getProperties();
-            if (isUsingUrl(datasourceConfiguration)) {
+            if (isUsingUri(datasourceConfiguration)) {
                 if (!hasNonEmptyUrl(datasourceConfiguration)) {
                     invalids.add("'Mongo Connection String URI' field is empty. Please edit the 'Mongo Connection " +
                             "URI' field to provide a connection uri to connect with.");
                 }
                 else {
-                    String srvUrl = (String)properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).getValue();
-                    if (!srvUrl.matches(SRV_URL_REGEX)) {
+                    String mongoUri = (String)properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
+                    if (!mongoUri.matches(MONGO_URI_REGEX)) {
                         invalids.add("Mongo Connection String URI does not seem to be in the correct format. Please " +
                                 "check the URI once.");
                     }
                     else {
-                        Pattern pattern = Pattern.compile(SRV_URL_REGEX);
-                        Matcher matcher = pattern.matcher(srvUrl);
-
-                        if (!matcher.find()) {
+                        Map extractedInfo = extractInfoFromConnectionStringURI(mongoUri, MONGO_URI_REGEX);
+                        if (extractedInfo == null) {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
                                     "Please check the URI once.");
                         }
                         else {
-                            String urlHead = matcher.group(REGEX_GROUP_HEAD);
-                            String username = matcher.group(REGEX_GROUP_USERNAME);
-                            String password = matcher.group(REGEX_GROUP_PASSWORD);
-                            String urlTail = matcher.group(REGEX_GROUP_TAIL);
-                            String srvUrlWithHiddenPassword = urlHead + (username == null ? "" : username + ":") +
-                                    (password == null ? "" : "****") + urlTail;
-                            properties.get(DATASOURCE_CONFIG_SRV_URL_PROPERTY_INDEX).setValue(srvUrlWithHiddenPassword);
+                            String mongoUriWithHiddenPassword =
+                                    extractedInfo.get(KEY_URI_HEAD) + (extractedInfo.get(KEY_USERNAME) == null ? "" :
+                                    extractedInfo.get(KEY_USERNAME) + ":" + "****") + extractedInfo.get(KEY_URI_TAIL);
+                            properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
                             DBAuth authentication = new DBAuth();
-                            authentication.setUsername(username);
-                            authentication.setPassword(password);
+                            authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
                             datasourceConfiguration.setAuthentication(authentication);
                         }
                     }
@@ -633,16 +620,16 @@ public class MongoPlugin extends BasePlugin {
                 }
 
                 if (!CollectionUtils.isEmpty(endpoints)) {
-                    boolean usingSrvUrl = endpoints
+                    boolean usingUri = endpoints
                             .stream()
-                            .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
+                            .anyMatch(endPoint -> endPoint.getHost().contains("mongodb"));
 
-                    if (usingSrvUrl) {
-                        invalids.add("It seems that you are trying to use an SRV URL. Please extract relevant fields" +
-                                " and set the `Connection Type` field to replica set. For details, please check out " +
-                                "the Appsmith's documentation for Mongo database. Alternatively, you may use 'Import " +
-                                "from Connection String URI' option from the dropdown to use the SRV connection " +
-                                "string directly.");
+                    if (usingUri) {
+                        invalids.add("It seems that you are trying to use a mongo connection string URI. Please " +
+                                "extract relevant fields and fill the form with extracted values. For " +
+                                "details, please check out the Appsmith's documentation for Mongo database. " +
+                                "Alternatively, you may use 'Import from Connection String URI' option from the " +
+                                "dropdown to use the URI connection string directly.");
                     }
                 }
 

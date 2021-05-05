@@ -449,7 +449,7 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testErrorMessageOnSrvUrl() {
+    public void testErrorMessageOnSrvUri() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("mongodb+srv:://url.net");
         dsConfig.setProperties(List.of(new Property("Import from Srv Url", "No")));
@@ -466,7 +466,7 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testInvalidsOnMissingSrvUrl() {
+    public void testInvalidsOnMissingSrvUri() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("mongodb+srv:://url.net");
         dsConfig.setProperties(List.of(new Property("Import from Srv Url", "Yes")));
@@ -483,7 +483,7 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testInvalidsOnBadSrvUrlFormat() {
+    public void testInvalidsOnBadSrvUriFormat() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("Import from Srv Url", "Yes"));
@@ -502,7 +502,7 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testInvalidsOnCorrectSrvUrlFormat() {
+    public void testInvalidsOnCorrectSrvUriFormat() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("Import from Srv Url", "Yes"));
