@@ -1,14 +1,13 @@
-import React, { useEffect, useMemo } from "react";
-import Table from "components/designSystems/appsmith/TableComponent/Table";
 import {
   ColumnTypes,
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableComponent/Constants";
+import Table from "components/designSystems/appsmith/TableComponent/Table";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import usePrevious from "utils/hooks/usePrevious";
 import _ from "lodash";
+import React, { useEffect, useMemo } from "react";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -286,8 +285,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.widgetName === next.widgetName &&
     prev.width === next.width &&
     _.isEqual(prev.tableData, next.tableData) &&
-    // TODO(Satish) // Check why _.isEqual is not working as expected
-    (JSON.stringify(prev.columns) === JSON.stringify(next.columns) ||
-      _.isEqual(prev.columns, next.columns))
+    _.isEqual(prev.columns, next.columns)
   );
 });
