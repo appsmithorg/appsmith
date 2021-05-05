@@ -112,15 +112,9 @@ export const renderCell = (
           tableWidth={tableWidth}
           title={value.toString()}
         >
-          {value &&
-          columnType === ColumnTypes.URL &&
-          cellProperties.displayText ? (
-            <a href={value.toString()} rel="noreferrer" target="_blank">
-              {cellProperties.displayText}
-            </a>
-          ) : (
-            value.toString()
-          )}
+          {value && columnType === ColumnTypes.URL && cellProperties.displayText
+            ? cellProperties.displayText
+            : value.toString()}
         </AutoToolTipComponent>
       );
   }

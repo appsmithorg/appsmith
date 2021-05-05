@@ -123,6 +123,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       displayText: this.getPropertyValue(
         columnProperties.displayText,
         rowIndex,
+        true,
       ),
     };
     return cellProperties;
