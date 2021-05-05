@@ -553,6 +553,7 @@ export function* executeActionSaga(
       Toaster.show({
         text: createMessage(ERROR_API_EXECUTE, api.name),
         variant: Variant.danger,
+        showDebugButton: true,
       });
     } else {
       PerformanceTracker.stopAsyncTracking(
@@ -607,6 +608,7 @@ export function* executeActionSaga(
     Toaster.show({
       text: createMessage(ERROR_API_EXECUTE, api.name),
       variant: Variant.danger,
+      showDebugButton: true,
     });
     if (onError) {
       yield put(
