@@ -646,7 +646,8 @@ public class MongoPlugin extends BasePlugin {
                                 "extract relevant fields and fill the form with extracted values. For " +
                                 "details, please check out the Appsmith's documentation for Mongo database. " +
                                 "Alternatively, you may use 'Import from Connection String URI' option from the " +
-                                "dropdown to use the URI connection string directly.");
+                                "dropdown labelled 'Use Mongo Connection String URI' to use the URI connection string" +
+                                " directly.");
                     }
                 }
 
