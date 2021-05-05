@@ -712,36 +712,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
-
-<<<<<<< HEAD
-        if (result.getBody() == null) {
-            result.setDataTypes(new ArrayList<>());
-            return result;
-        }
-
-        if (result.getBody() == null) {
-            result.setDataTypes(new ArrayList<>());
-            return result;
-        }
-
-        List<ParsedDataType> parsedDataTypeList = new ArrayList<>();
-        Stream.of(ActionResultDataType.values())
-                .parallel()
-                .map(type -> {
-                    try {
-                        return parseActionResultDataType(result.getBody().toString(), type);
-                    } catch (AppsmithException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .filter(type -> type != null)
-                .forEachOrdered(type -> parsedDataTypeList.add(type));
-
-        result.setDataTypes(parsedDataTypeList);
-
-=======
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
->>>>>>> origin/release
         return result;
     }
 
