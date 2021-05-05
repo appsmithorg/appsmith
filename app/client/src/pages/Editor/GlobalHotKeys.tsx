@@ -177,7 +177,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
-            this.props.resetCommentMode;
+            this.props.resetCommentMode();
             this.props.selectAllWidgets([]);
             this.props.closeProppane();
             e.preventDefault();
