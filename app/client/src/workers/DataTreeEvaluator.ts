@@ -126,6 +126,7 @@ export default class DataTreeEvaluator {
   }
 
   updateDataTree(unEvalTree: DataTree) {
+    debugger;
     const totalStart = performance.now();
     // Calculate diff
     const diffCheckTimeStart = performance.now();
@@ -346,9 +347,17 @@ export default class DataTreeEvaluator {
     if (isAction(entity)) {
       Object.entries(entity.dependencyMap).forEach(
         ([dependent, entityDependencies]) => {
-          dependencies[`${entityName}.${dependent}`] = entityDependencies.map(
-            (propertyPath) => `${entityName}.${propertyPath}`,
-          );
+          const actionDependentPaths: Array<string> = [];
+          // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
+          // a cyclical dependency.
+          entityDependencies.forEach((dependentPath) => {
+            debugger;
+            const completePath = `${entityName}.${dependentPath}`;
+            if (this.allKeys.hasOwnProperty(completePath)) {
+              actionDependentPaths.push(completePath);
+            }
+          });
+          dependencies[`${entityName}.${dependent}`] = actionDependentPaths;
         },
       );
     }
@@ -819,6 +828,7 @@ export default class DataTreeEvaluator {
             }
 
             case DataTreeDiffEvent.EDIT: {
+              debugger;
               // We only care if the difference is in dynamic bindings since static values do not need
               // an evaluation.
               if (
@@ -855,21 +865,28 @@ export default class DataTreeEvaluator {
                     delete this.dependencyMap[fullPropertyPath];
                   }
                   if (isAction(entity)) {
+                    debugger;
                     // Actions have a defined dependency map that should always be maintained
                     if (entityPropertyPath in entity.dependencyMap) {
                       const entityDependenciesName = entity.dependencyMap[
                         entityPropertyPath
                       ].map((dep) => `${entityName}.${dep}`);
+                      const filteredEntityDependencies: Array<string> = [];
+                      for (const path of entityDependenciesName) {
+                        if (this.allKeys.hasOwnProperty(path)) {
+                          filteredEntityDependencies.push(path);
+                        }
+                      }
                       if (fullPropertyPath in this.dependencyMap) {
                         this.dependencyMap[
                           fullPropertyPath
                         ] = this.dependencyMap[fullPropertyPath].concat(
-                          entityDependenciesName,
+                          filteredEntityDependencies,
                         );
                       } else {
                         this.dependencyMap[
                           fullPropertyPath
-                        ] = entityDependenciesName;
+                        ] = filteredEntityDependencies;
                       }
                     }
                   }
@@ -886,6 +903,7 @@ export default class DataTreeEvaluator {
     const diffCalcEnd = performance.now();
     const subDepCalcStart = performance.now();
     if (didUpdateDependencyMap) {
+      debugger;
       // TODO Optimise
       Object.keys(this.dependencyMap).forEach((key) => {
         this.dependencyMap[key] = _.uniq(
@@ -1090,11 +1108,13 @@ export default class DataTreeEvaluator {
 }
 
 const extractReferencesFromBinding = (
-  path: string,
+  dependentPath: string,
   all: Record<string, true>,
 ): Array<string> => {
   const subDeps: Array<string> = [];
-  const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [path];
+  const identifiers = dependentPath.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [
+    dependentPath,
+  ];
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
     if (all.hasOwnProperty(identifier)) {
