@@ -80,7 +80,7 @@ export function ModalComponent(props: ModalComponentProps) {
       left={props.left}
       top={props.top}
       width={props.width}
-      zIndex={props.zIndex !== undefined ? props.zIndex : 2}
+      zIndex={props.zIndex !== undefined ? props.zIndex : 3}
     >
       <Overlay
         canEscapeKeyClose={props.canEscapeKeyClose}
