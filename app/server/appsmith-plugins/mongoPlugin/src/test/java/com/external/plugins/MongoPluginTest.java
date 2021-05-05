@@ -476,32 +476,54 @@ public class MongoPluginTest {
     public void testErrorMessageOnSrvUri() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("mongodb+srv:://url.net");
-        dsConfig.setProperties(List.of(new Property("Import from Srv Url", "No")));
+        dsConfig.setProperties(List.of(new Property("Import from URI", "No")));
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("Please use import from srv url option from the " +
-                                    "dropdown to connect via srv url.")));
+                            .anyMatch(error -> error.contains("It seems that you are trying to use a mongo connection" +
+                                    " string URI. Please extract relevant fields and fill the form with extracted " +
+                                    "values. For details, please check out the Appsmith's documentation for Mongo " +
+                                    "database. Alternatively, you may use 'Import from Connection String URI' option " +
+                                    "from the dropdown to use the URI connection string directly.")));
                 })
                 .verifyComplete();
     }
 
     @Test
-    public void testInvalidsOnMissingSrvUri() {
+    public void testErrorMessageOnNonSrvUri() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.getEndpoints().get(0).setHost("mongodb+srv:://url.net");
-        dsConfig.setProperties(List.of(new Property("Import from Srv Url", "Yes")));
+        dsConfig.getEndpoints().get(0).setHost("mongodb:://url.net");
+        dsConfig.setProperties(List.of(new Property("Import from URI", "No")));
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("'Srv Url' field is empty. Please edit the 'Srv Url' " +
-                                    "field to provide an srv url to connect with.")));
+                            .anyMatch(error -> error.contains("It seems that you are trying to use a mongo connection" +
+                                    " string URI. Please extract relevant fields and fill the form with extracted " +
+                                    "values. For details, please check out the Appsmith's documentation for Mongo " +
+                                    "database. Alternatively, you may use 'Import from Connection String URI' option " +
+                                    "from the dropdown to use the URI connection string directly.")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidsOnMissingUri() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.setProperties(List.of(new Property("Import from URI", "Yes")));
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> error.contains("'Mongo Connection String URI' field is empty. Please " +
+                                    "edit the 'Mongo Connection URI' field to provide a connection uri to connect with.")));
                 })
                 .verifyComplete();
     }
@@ -510,7 +532,7 @@ public class MongoPluginTest {
     public void testInvalidsOnBadSrvUriFormat() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         List<Property> properties = new ArrayList<>();
-        properties.add(new Property("Import from Srv Url", "Yes"));
+        properties.add(new Property("Import from URI", "Yes"));
         properties.add(new Property("Srv Url", "mongodb+srv::username:password//url.net"));
         dsConfig.setProperties(properties);
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
@@ -519,8 +541,27 @@ public class MongoPluginTest {
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("Srv url does not seem to be in the correct format. " +
-                                    "Please check the srv url once.")));
+                            .anyMatch(error -> error.contains("Mongo Connection String URI does not seem to be in the" +
+                                    " correct format. Please check the URI once.")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidsOnBadNonSrvUriFormat() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("Import from URI", "Yes"));
+        properties.add(new Property("Srv Url", "mongodb::username:password//url.net"));
+        dsConfig.setProperties(properties);
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> error.contains("Mongo Connection String URI does not seem to be in the" +
+                                    " correct format. Please check the URI once.")));
                 })
                 .verifyComplete();
     }
@@ -529,8 +570,24 @@ public class MongoPluginTest {
     public void testInvalidsOnCorrectSrvUriFormat() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         List<Property> properties = new ArrayList<>();
-        properties.add(new Property("Import from Srv Url", "Yes"));
+        properties.add(new Property("Import from URI", "Yes"));
         properties.add(new Property("Srv Url", "mongodb+srv://username:password@url.net/dbname"));
+        dsConfig.setProperties(properties);
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids.isEmpty());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidsOnCorrectNonSrvUriFormat() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("Import from URI", "Yes"));
+        properties.add(new Property("Srv Url", "mongodb://username:password@url-1.net:1234,url-2:1234/dbname"));
         dsConfig.setProperties(properties);
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 

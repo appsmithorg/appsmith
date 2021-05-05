@@ -130,18 +130,18 @@
     },
     {
       "sectionName": "Authentication",
+      "hidden": {
+        "path": "datasourceConfiguration.properties[0].value",
+        "comparison": "EQUALS",
+        "value": "Yes"
+      },
       "children": [
         {
           "label": "Database Name",
           "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Database name",
-          "initialValue": "admin",
-          "hidden": {
-            "path": "datasourceConfiguration.properties[0].value",
-            "comparison": "EQUALS",
-            "value": "Yes"
-          }
+          "initialValue": "admin"
         },
         {
           "label": "Authentication Type",
@@ -161,12 +161,7 @@
               "label": "MONGODB-CR",
               "value": "MONGODB_CR"
             }
-          ],
-          "hidden": {
-            "path": "datasourceConfiguration.properties[0].value",
-            "comparison": "EQUALS",
-            "value": "Yes"
-          }
+          ]
         },
         {
           "sectionName": null,
@@ -175,12 +170,7 @@
               "label": "Username",
               "configProperty": "datasourceConfiguration.authentication.username",
               "controlType": "INPUT_TEXT",
-              "placeholderText": "Username",
-              "hidden": {
-                "path": "datasourceConfiguration.properties[0].value",
-                "comparison": "EQUALS",
-                "value": "Yes"
-              }
+              "placeholderText": "Username"
             },
             {
               "label": "Password",
@@ -188,19 +178,19 @@
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",
-              "encrypted": true,
-              "hidden": {
-                "path": "datasourceConfiguration.properties[0].value",
-                "comparison": "EQUALS",
-                "value": "Yes"
+              "encrypted": true
               }
-            }
           ]
         }
       ]
     },
     {
       "sectionName": "SSL (optional)",
+      "hidden": {
+        "path": "datasourceConfiguration.properties[0].value",
+        "comparison": "EQUALS",
+        "value": "Yes"
+      },
       "children": [
         {
           "label": "SSL Mode",
@@ -220,12 +210,7 @@
               "label": "Disabled",
               "value": "DISABLED"
             }
-          ],
-          "hidden": {
-            "path": "datasourceConfiguration.properties[0].value",
-            "comparison": "EQUALS",
-            "value": "Yes"
-          }
+          ]
         }
       ]
     }
