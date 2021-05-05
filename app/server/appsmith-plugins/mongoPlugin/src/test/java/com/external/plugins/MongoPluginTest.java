@@ -496,7 +496,7 @@ public class MongoPluginTest {
     @Test
     public void testErrorMessageOnNonSrvUri() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.getEndpoints().get(0).setHost("mongodb:://url.net");
+        dsConfig.getEndpoints().get(0).setHost("mongodb://user:pass@url.net:1234,url.net:1234/dbName");
         dsConfig.setProperties(List.of(new Property("Import from URI", "No")));
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
@@ -508,7 +508,8 @@ public class MongoPluginTest {
                                     " string URI. Please extract relevant fields and fill the form with extracted " +
                                     "values. For details, please check out the Appsmith's documentation for Mongo " +
                                     "database. Alternatively, you may use 'Import from Connection String URI' option " +
-                                    "from the dropdown to use the URI connection string directly.")));
+                                    "from the dropdown labelled 'Use Mongo Connection String URI' to use the URI " +
+                                    "connection string directly.")));
                 })
                 .verifyComplete();
     }
