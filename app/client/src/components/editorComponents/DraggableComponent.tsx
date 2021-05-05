@@ -96,7 +96,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isDraggingDisabled: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
-  // const { isCurrentWidgetDragging, drag } = useContext(DragContext);
 
   const [{ isCurrentWidgetDragging }, drag] = useDrag({
     item: props as WidgetProps,

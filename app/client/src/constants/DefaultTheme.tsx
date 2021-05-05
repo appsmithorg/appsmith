@@ -2151,7 +2151,7 @@ export const theme: Theme = {
     paneTextUnderline: Colors.LIGHT_GREYISH_BLUE,
     paneSectionLabel: Colors.CADET_BLUE,
     navBG: Colors.SHARK,
-    grid: Colors.DARK_GRAY,
+    grid: Colors.ALTO2,
     containerBorder: Colors.FRENCH_PASS,
     menuButtonBGInactive: Colors.JUNGLE_MIST,
     menuIconColorInactive: Colors.OXFORD_BLUE,

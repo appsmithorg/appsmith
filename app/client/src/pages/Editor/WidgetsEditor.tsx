@@ -53,7 +53,7 @@ const CanvasContainer = styled.section`
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
-  const { focusWidget, selectWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget, deselectAll } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
 
@@ -98,8 +98,8 @@ function WidgetsEditor() {
 
   const handleWrapperClick = useCallback(() => {
     focusWidget && focusWidget();
-    selectWidget && selectWidget();
-  }, [focusWidget, selectWidget]);
+    deselectAll && deselectAll();
+  }, [focusWidget, deselectAll]);
 
   const pageLoading = (
     <Centered>
@@ -121,13 +121,7 @@ function WidgetsEditor() {
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
         <MainContainerLayoutControl />
-        <CanvasContainer
-          className={getCanvasClassName()}
-          key={currentPageId}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
+        <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
           {node}
         </CanvasContainer>
         <Debugger />

@@ -102,7 +102,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const [rows, setRows] = useState(snapRows);
 
   const showPropertyPane = useShowPropertyPane();
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { selectWidget, focusWidget, deselectAll } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
   useEffect(() => {
@@ -249,7 +249,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const handleFocus = (e: any) => {
     if (!isResizing && !isDragging) {
       if (!props.parentId) {
-        selectWidgetIfUnSelected(props.widgetId, e.metaKey || e.ctrlKey);
+        deselectAll();
         focusWidget && focusWidget(props.widgetId);
         showPropertyPane && showPropertyPane();
       }

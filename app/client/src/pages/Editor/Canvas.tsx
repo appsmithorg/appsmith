@@ -16,7 +16,13 @@ const Canvas = memo((props: CanvasProps) => {
     return (
       <>
         <PropertyPane />
-        <ArtBoard className="t--canvas-artboard" width={props.dsl.rightColumn}>
+        <ArtBoard
+          className="t--canvas-artboard"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          width={props.dsl.rightColumn}
+        >
           {props.dsl.widgetId &&
             WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
         </ArtBoard>
