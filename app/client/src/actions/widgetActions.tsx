@@ -71,28 +71,12 @@ export const selectWidget = (
   payload: { widgetId, isMultiSelect },
 });
 
-export const selectWidgets = (
-  widgetId?: string[],
-): ReduxAction<{ widgetId?: string[] }> => ({
-  type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS,
-  payload: { widgetId },
-});
-
 export const selectAllWidgets = (
   widgetIds?: string[],
 ): ReduxAction<{ widgetIds?: string[] }> => {
   return {
     type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS,
     payload: { widgetIds },
-  };
-};
-
-export const multiSelect = (
-  start: boolean,
-): ReduxAction<{ start: boolean }> => {
-  return {
-    type: ReduxActionTypes.MULTI_SELECT,
-    payload: { start },
   };
 };
 

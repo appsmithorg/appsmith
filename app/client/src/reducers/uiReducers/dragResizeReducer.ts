@@ -1,5 +1,6 @@
 import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
@@ -34,6 +35,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }>,
   ) => {
+    if (action.payload.widgetId === MAIN_CONTAINER_WIDGET_ID) return;
     if (action.payload.isMultiSelect) {
       state.selectedWidget = "";
       const widgetId = action.payload.widgetId || "";
