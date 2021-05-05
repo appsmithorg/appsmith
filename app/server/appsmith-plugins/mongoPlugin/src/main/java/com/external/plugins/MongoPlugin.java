@@ -403,7 +403,7 @@ public class MongoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private boolean isUsingUri(DatasourceConfiguration datasourceConfiguration) {
+        private boolean isUsingURI(DatasourceConfiguration datasourceConfiguration) {
             List<Property> properties = datasourceConfiguration.getProperties();
             if (properties != null && properties.size() > DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX
                     && properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX) != null
@@ -414,7 +414,7 @@ public class MongoPlugin extends BasePlugin {
             return false;
         }
 
-        private boolean hasNonEmptyUrl(DatasourceConfiguration datasourceConfiguration) {
+        private boolean hasNonEmptyURI(DatasourceConfiguration datasourceConfiguration) {
             List<Property> properties = datasourceConfiguration.getProperties();
             if (properties != null && properties.size() > DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX
                     && properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX) != null
@@ -445,9 +445,8 @@ public class MongoPlugin extends BasePlugin {
 
         public String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
             List<Property> properties = datasourceConfiguration.getProperties();
-            if (isUsingUri(datasourceConfiguration)) {
-                if (hasNonEmptyUrl(datasourceConfiguration)) {
-                    // TODO: check if any place srv is used.
+            if (isUsingURI(datasourceConfiguration)) {
+                if (hasNonEmptyURI(datasourceConfiguration)) {
                     String uriWithHiddenPassword =
                             (String)properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
                     Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
@@ -589,8 +588,8 @@ public class MongoPlugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
             List<Property> properties = datasourceConfiguration.getProperties();
-            if (isUsingUri(datasourceConfiguration)) {
-                if (!hasNonEmptyUrl(datasourceConfiguration)) {
+            if (isUsingURI(datasourceConfiguration)) {
+                if (!hasNonEmptyURI(datasourceConfiguration)) {
                     invalids.add("'Mongo Connection String URI' field is empty. Please edit the 'Mongo Connection " +
                             "URI' field to provide a connection uri to connect with.");
                 }
