@@ -10,11 +10,11 @@ import { AppState } from "reducers";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 
-export const WidgetContextMenu = (props: {
+export function WidgetContextMenu(props: {
   widgetId: string;
   pageId: string;
   className?: string;
-}) => {
+}) {
   const { widgetId } = props;
   const parentId = useSelector((state: AppState) => {
     // console.log(state.ui.pageWidgets[props.pageId], props.widgetId);
@@ -33,16 +33,15 @@ export const WidgetContextMenu = (props: {
     // If the widget is a tab we are updating the `tabs` of the property of the widget
     // This is similar to deleting a tab from the property pane
     if (widget.tabName && parentWidget.type === WidgetTypes.TABS_WIDGET) {
-      const filteredTabs = parentWidget.tabs.filter(
-        (tab: any) => tab.widgetId !== widgetId,
-      );
-
+      const tabsObj = { ...parentWidget.tabsObj };
+      delete tabsObj[widget.tabId];
+      const filteredTabs = Object.values(tabsObj);
       if (widget.parentId && !!filteredTabs.length) {
         dispatch(
           updateWidgetPropertyRequest(
             widget.parentId,
-            "tabs",
-            filteredTabs,
+            "tabsObj",
+            tabsObj,
             RenderModes.CANVAS,
           ),
         );
@@ -68,10 +67,9 @@ export const WidgetContextMenu = (props: {
   return (
     <TreeDropdown
       className={props.className}
-      modifiers={ContextMenuPopoverModifiers}
       defaultText=""
+      modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      selectedValue=""
       optionTree={[
         {
           value: "rename",
@@ -85,9 +83,10 @@ export const WidgetContextMenu = (props: {
           intent: "danger",
         },
       ]}
+      selectedValue=""
       toggle={<ContextMenuTrigger />}
     />
   );
-};
+}
 
 export default WidgetContextMenu;

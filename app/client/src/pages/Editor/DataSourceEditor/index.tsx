@@ -24,6 +24,8 @@ import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -88,28 +90,30 @@ class DataSourceEditor extends React.Component<Props> {
       viewMode,
       setDatasourceEditorMode,
       pluginType,
+      openOmnibarReadMore,
     } = this.props;
 
     return (
       <DataSourceEditorForm
-        pluginImage={pluginImages[pluginId]}
         applicationId={this.props.match.params.applicationId}
-        pageId={this.props.match.params.pageId}
-        isSaving={isSaving}
-        isTesting={isTesting}
+        datasourceId={datasourceId}
+        formConfig={formConfig}
+        formData={formData}
+        formName={DATASOURCE_DB_FORM}
+        handleDelete={deleteDatasource}
         isDeleting={isDeleting}
         isNewDatasource={isNewDatasource}
-        onSubmit={this.handleSubmit}
+        isSaving={isSaving}
+        isTesting={isTesting}
         onSave={this.handleSave}
+        onSubmit={this.handleSubmit}
         onTest={this.props.testDatasource}
-        datasourceId={datasourceId}
-        formData={formData}
-        formConfig={formConfig}
-        handleDelete={deleteDatasource}
-        viewMode={viewMode}
-        setDatasourceEditorMode={setDatasourceEditorMode}
+        openOmnibarReadMore={openOmnibarReadMore}
+        pageId={this.props.match.params.pageId}
+        pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
-        formName={DATASOURCE_DB_FORM}
+        setDatasourceEditorMode={setDatasourceEditorMode}
+        viewMode={viewMode}
       />
     );
   }
@@ -150,6 +154,10 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
   switchDatasource: (id: string) => dispatch(switchDatasource(id)),
   setDatasourceEditorMode: (id: string, viewMode: boolean) =>
     dispatch(setDatsourceEditorMode({ id, viewMode })),
+  openOmnibarReadMore: (text: string) => {
+    dispatch(setGlobalSearchQuery(text));
+    dispatch(toggleShowGlobalSearchModal());
+  },
 });
 
 export interface DatasourcePaneFunctions {
@@ -159,6 +167,7 @@ export interface DatasourcePaneFunctions {
   deleteDatasource: (id: string) => void;
   switchDatasource: (id: string) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  openOmnibarReadMore: (text: string) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props> {
@@ -183,11 +192,11 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (!datasourceId) {
       return (
         <DatasourceHome
-          isSaving={isSaving}
           applicationId={applicationId}
-          pageId={pageId}
           history={history}
+          isSaving={isSaving}
           location={location}
+          pageId={pageId}
         />
       );
     }
@@ -196,18 +205,18 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (pluginDatasourceForm === "RestAPIDatasourceForm") {
       return (
         <RestAPIDatasourceForm
-          pluginImage={pluginImages[pluginId]}
           applicationId={this.props.match.params.applicationId}
           datasourceId={datasourceId}
-          pageId={this.props.match.params.pageId}
-          isSaving={isSaving}
           isDeleting={isDeleting}
           isNewDatasource={isNewDatasource}
+          isSaving={isSaving}
           location={location}
+          pageId={this.props.match.params.pageId}
+          pluginImage={pluginImages[pluginId]}
         />
       );
     }
-    if (pluginDatasourceForm === "SaaSDatasourceForm") {
+    if (pluginDatasourceForm === "DatasourceSaaSForm") {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
           applicationId,

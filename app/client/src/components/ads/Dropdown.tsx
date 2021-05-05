@@ -185,22 +185,24 @@ const SelectedIcon = styled(Icon)`
   }
 `;
 
-const DefaultDropDownValueNode = ({
+function DefaultDropDownValueNode({
   selected,
   showLabelOnly,
 }: {
   selected: DropdownOption;
   showLabelOnly?: boolean;
-}) => (
-  <SelectedDropDownHolder>
-    {selected.icon ? (
-      <SelectedIcon name={selected.icon} size={IconSize.XXS} />
-    ) : null}
-    <Text type={TextType.P1}>
-      {showLabelOnly ? selected.label : selected.value}
-    </Text>
-  </SelectedDropDownHolder>
-);
+}) {
+  return (
+    <SelectedDropDownHolder>
+      {selected.icon ? (
+        <SelectedIcon name={selected.icon} size={IconSize.XXS} />
+      ) : null}
+      <Text type={TextType.P1}>
+        {showLabelOnly ? selected.label : selected.value}
+      </Text>
+    </SelectedDropDownHolder>
+  );
+}
 
 export default function Dropdown(props: DropdownProps) {
   const {
@@ -226,25 +228,25 @@ export default function Dropdown(props: DropdownProps) {
   );
   return (
     <DropdownContainer
-      tabIndex={0}
       data-cy={props.cypressSelector}
-      width={props.width || "260px"}
       height={props.height || "38px"}
+      tabIndex={0}
+      width={props.width || "260px"}
     >
       <Popover
+        boundary="scrollParent"
+        isOpen={isOpen && !props.disabled}
         minimal
+        onInteraction={(state) => setIsOpen(state)}
         popoverClassName={props.className}
         position={Position.BOTTOM_LEFT}
-        isOpen={isOpen && !props.disabled}
-        onInteraction={(state) => setIsOpen(state)}
-        boundary="scrollParent"
       >
         <Selected
-          isOpen={isOpen}
-          disabled={props.disabled}
-          onClick={() => setIsOpen(!isOpen)}
           className={props.className}
+          disabled={props.disabled}
           height={props.height || "38px"}
+          isOpen={isOpen}
+          onClick={() => setIsOpen(!isOpen)}
         >
           <SelectedValueNode
             selected={selected}
@@ -256,15 +258,15 @@ export default function Dropdown(props: DropdownProps) {
           {props.options.map((option: DropdownOption, index: number) => {
             return (
               <OptionWrapper
-                key={index}
-                selected={selected.value === option.value}
-                onClick={() => optionClickHandler(option)}
                 className="t--dropdown-option"
+                key={index}
+                onClick={() => optionClickHandler(option)}
+                selected={selected.value === option.value}
               >
                 {option.icon ? (
                   <SelectedIcon
-                    name={option.icon}
                     fillColor={option?.iconColor}
+                    name={option.icon}
                     size={option.iconSize || IconSize.XXS}
                   />
                 ) : null}

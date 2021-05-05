@@ -30,6 +30,7 @@ import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getLayoutOnLoadActions,
   getPageList,
 } from "selectors/editorSelectors";
 import _, { get, isString } from "lodash";
@@ -979,9 +980,9 @@ function* executePageLoadAction(pageAction: PageAction) {
   }
 }
 
-function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
+function* executePageLoadActionsSaga() {
   try {
-    const pageActions = action.payload;
+    const pageActions: PageAction[][] = yield select(getLayoutOnLoadActions);
     const actionCount = _.flatten(pageActions).length;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,

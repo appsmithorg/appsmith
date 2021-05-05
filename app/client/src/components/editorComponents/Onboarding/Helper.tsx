@@ -181,7 +181,7 @@ const SubStepContainer = styled.div`
   }
 `;
 
-const Helper = () => {
+function Helper() {
   const showHelper = useSelector(
     (state: AppState) => state.ui.onBoarding.showHelper,
   );
@@ -246,9 +246,9 @@ const Helper = () => {
                     >
                       <span>{helperConfig.hint?.snippet}</span>
                       <Icon
+                        color={Colors.MINE_SHAFT}
                         icon="duplicate"
                         iconSize={14}
-                        color={Colors.MINE_SHAFT}
                       />
                     </Snippet>
                   </>
@@ -263,10 +263,10 @@ const Helper = () => {
             steps.map((stepper) => {
               return (
                 <Stepper
-                  key={stepper}
                   completed={
                     helperConfig.step ? helperConfig.step >= stepper : false
                   }
+                  key={stepper}
                 />
               );
             })}
@@ -322,6 +322,6 @@ const Helper = () => {
       </BottomContainer>
     </StyledContainer>
   );
-};
+}
 
 export default Helper;

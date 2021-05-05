@@ -18,7 +18,7 @@ import { FilePickerWidgetProps } from "../../widgets/FilepickerWidget";
 import {
   TabsWidgetProps,
   TabContainerWidgetProps,
-} from "../../widgets/TabsWidget";
+} from "../../widgets/Tabs/TabsWidget";
 import { ChartWidgetProps } from "widgets/ChartWidget";
 import { FormWidgetProps } from "widgets/FormWidget";
 import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
@@ -69,6 +69,8 @@ export interface WidgetConfigReducerState {
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
     FILE_PICKER_WIDGET: Partial<FilePickerWidgetProps> & WidgetConfigProps;
     TABS_WIDGET: Partial<TabsWidgetProps<TabContainerWidgetProps>> &
+      WidgetConfigProps;
+    TABS_MIGRATOR_WIDGET: Partial<TabsWidgetProps<TabContainerWidgetProps>> &
       WidgetConfigProps;
     MODAL_WIDGET: Partial<ModalWidgetProps> & WidgetConfigProps;
     CHART_WIDGET: Partial<ChartWidgetProps> & WidgetConfigProps;

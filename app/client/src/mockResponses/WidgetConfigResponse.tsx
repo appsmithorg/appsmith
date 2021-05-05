@@ -114,10 +114,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       datePickerType: "DATE_PICKER",
       rows: 1,
       label: "",
-      dateFormat: "DD/MM/YYYY HH:mm",
+      dateFormat: "YYYY-MM-DD HH:mm",
       columns: 5,
       widgetName: "DatePicker",
-      defaultDate: moment().format("DD/MM/YYYY HH:mm"),
+      defaultDate: moment().format("YYYY-MM-DD HH:mm"),
       version: 1,
     },
     DATE_PICKER_WIDGET2: {
@@ -125,7 +125,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       datePickerType: "DATE_PICKER",
       rows: 1,
       label: "",
-      dateFormat: "DD/MM/YYYY HH:mm",
+      dateFormat: "YYYY-MM-DD HH:mm",
       columns: 5,
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(),
@@ -149,31 +149,114 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
-      primaryColumns: {},
+      dynamicBindingPathList: [
+        {
+          key: "primaryColumns.step.computedValue",
+        },
+        {
+          key: "primaryColumns.task.computedValue",
+        },
+        {
+          key: "primaryColumns.status.computedValue",
+        },
+        {
+          key: "primaryColumns.action.computedValue",
+        },
+      ],
+      primaryColumns: {
+        step: {
+          index: 0,
+          width: 150,
+          id: "step",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "step",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.step})}}",
+        },
+        task: {
+          index: 1,
+          width: 150,
+          id: "task",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "task",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.task})}}",
+        },
+        status: {
+          index: 2,
+          width: 150,
+          id: "status",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "status",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.status})}}",
+        },
+        action: {
+          index: 3,
+          width: 150,
+          id: "action",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "button",
+          textSize: "PARAGRAPH",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "action",
+          onClick:
+            "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
+          computedValue:
+            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.action})}}",
+        },
+      },
       derivedColumns: {},
       tableData: [
         {
-          id: 2381224,
-          email: "michael.lawson@reqres.in",
-          userName: "Michael Lawson",
-          productName: "Chicken Sandwich",
-          orderAmount: 4.99,
+          step: "#1",
+          task: "Drop a table",
+          status: "✅",
+          action: "",
         },
         {
-          id: 2736212,
-          email: "lindsay.ferguson@reqres.in",
-          userName: "Lindsay Ferguson",
-          productName: "Tuna Salad",
-          orderAmount: 9.99,
+          step: "#2",
+          task: "Create a query fetch_users with the Mock DB",
+          status: "--",
+          action: "",
         },
         {
-          id: 6788734,
-          email: "tobias.funke@reqres.in",
-          userName: "Tobias Funke",
-          productName: "Beef steak",
-          orderAmount: 19.99,
+          step: "#3",
+          task: "Bind the query using {{fetch_users.data}}",
+          status: "--",
+          action: "",
         },
       ],
+      columnSizeMap: {
+        task: 245,
+        step: 62,
+        status: 75,
+      },
       version: 1,
     },
     DROP_DOWN_WIDGET: {
@@ -182,12 +265,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "",
       selectionType: "SINGLE_SELECT",
       options: [
-        { label: "Vegetarian", value: "VEG" },
-        { label: "Non-Vegetarian", value: "NON_VEG" },
-        { label: "Vegan", value: "VEGAN" },
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
       ],
       widgetName: "Dropdown",
-      defaultOptionValue: "VEG",
+      defaultOptionValue: "GREEN",
       version: 1,
       isRequired: false,
       isDisabled: false,
@@ -208,10 +291,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 3,
       label: "",
       options: [
-        { label: "Male", value: "M" },
-        { label: "Female", value: "F" },
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
       ],
-      defaultOptionValue: "M",
+      defaultOptionValue: "Y",
       widgetName: "RadioGroup",
       version: 1,
       isRequired: false,
@@ -236,10 +319,22 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8,
       shouldScrollContents: false,
       widgetName: "Tabs",
-      tabs: [
-        { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
-        { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
-      ],
+      tabsObj: {
+        tab1: {
+          label: "Tab 1",
+          id: "tab1",
+          widgetId: "",
+          isVisible: true,
+          index: 0,
+        },
+        tab2: {
+          label: "Tab 2",
+          id: "tab2",
+          widgetId: "",
+          isVisible: true,
+          index: 1,
+        },
+      },
       shouldShowTabs: true,
       defaultTab: "Tab 1",
       blueprint: {
@@ -247,18 +342,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           {
             type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const tabs = [...widget.tabs];
-
-              const newTabs = tabs.map((tab: any) => {
+              const tabs = Object.values({ ...widget.tabsObj });
+              const tabsObj = tabs.reduce((obj: any, tab: any) => {
                 const newTab = { ...tab };
                 newTab.widgetId = generateReactKey();
-                return newTab;
-              });
+                obj[newTab.id] = newTab;
+                return obj;
+              }, {});
               const updatePropertyMap = [
                 {
                   widgetId: widget.widgetId,
-                  propertyName: "tabs",
-                  propertyValue: newTabs,
+                  propertyName: "tabsObj",
+                  propertyValue: tabsObj,
                 },
               ];
               return updatePropertyMap;
@@ -266,7 +361,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
-      version: 1,
+      version: 2,
     },
     MODAL_WIDGET: {
       rows: 6,
@@ -313,7 +408,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     size: { rows: 1, cols: 10 },
                     props: {
                       text: "Modal Title",
-                      textStyle: "HEADING",
+                      fontSize: "HEADING1",
                       version: 1,
                     },
                   },
@@ -381,11 +476,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 6,
       widgetName: "Chart",
       chartType: "LINE_CHART",
-      chartName: "Sales on working days",
+      chartName: "Last week's revenue",
       allowHorizontalScroll: false,
       version: 1,
-      chartData: [
-        {
+      chartData: {
+        [generateReactKey()]: {
           seriesName: "Sales",
           data: [
             {
@@ -418,7 +513,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             },
           ],
         },
-      ],
+      },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
     },
@@ -451,11 +546,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 view: [
                   {
                     type: "TEXT_WIDGET",
-                    size: { rows: 1, cols: 12 },
+                    size: { rows: 1, cols: 6 },
                     position: { top: 0, left: 0 },
                     props: {
                       text: "Form",
-                      textStyle: "HEADING",
+                      fontSize: "HEADING1",
                       version: 1,
                     },
                   },
@@ -500,11 +595,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       zoomLevel: 50,
       enablePickLocation: true,
       allowZoom: true,
-      mapCenter: { lat: -34.397, long: 150.644 },
-      defaultMarkers: [{ lat: -34.397, long: 150.644, title: "Test A" }],
+      mapCenter: { lat: 25.122, long: 50.132 },
+      defaultMarkers: [{ lat: 25.122, long: 50.132, title: "Test A" }],
       version: 1,
     },
     SKELETON_WIDGET: {
+      isLoading: true,
+      rows: 1,
+      columns: 1,
+      widgetName: "Skeleton",
+      version: 1,
+    },
+    TABS_MIGRATOR_WIDGET: {
       isLoading: true,
       rows: 1,
       columns: 1,

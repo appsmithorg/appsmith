@@ -7,7 +7,6 @@ import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
 } from "selectors/entitiesSelector";
-
 import { EditorJSONtoForm, EditorJSONtoFormProps } from "./EditorJSONtoForm";
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);

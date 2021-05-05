@@ -2139,6 +2139,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
+  cy.route("GET", "/api/v1/applications/*/pages/*/edit").as("getAppPageEdit");
   cy.route("GET", "/api/v1/actions*").as("getActions");
   cy.route("GET", "api/v1/providers/categories").as("getCategories");
   cy.route("GET", "api/v1/import/templateCollections").as(
@@ -2198,6 +2199,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
   cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
+  cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
 });
 
 Cypress.Commands.add("alertValidate", (text) => {

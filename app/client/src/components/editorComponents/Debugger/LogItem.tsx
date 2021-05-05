@@ -170,7 +170,7 @@ type LogItemProps = {
   expand?: boolean;
 };
 
-const LogItem = (props: LogItemProps) => {
+function LogItem(props: LogItemProps) {
   const [isOpen, setIsOpen] = useState(!!props.expand);
   const reactJsonProps = {
     name: null,
@@ -203,7 +203,7 @@ const LogItem = (props: LogItemProps) => {
       collapsed={!isOpen}
       onClick={() => setIsOpen(!isOpen)}
     >
-      <Icon name={props.icon} size={IconSize.XL} keepColors />
+      <Icon keepColors name={props.icon} size={IconSize.XL} />
       <span className="debugger-time">{props.timestamp}</span>
       <div className="debugger-description">
         {showToggleIcon && (
@@ -216,9 +216,9 @@ const LogItem = (props: LogItemProps) => {
         )}
         {props.source && (
           <EntityLink
-            type={props.source.type}
-            name={props.source.name}
             id={props.source.id}
+            name={props.source.name}
+            type={props.source.type}
             uiComponent={DebuggerLinkUI.ENTITY_TYPE}
           />
         )}
@@ -228,20 +228,20 @@ const LogItem = (props: LogItemProps) => {
         )}
         {props.severity !== Severity.INFO && (
           <TooltipComponent
-            minimal
-            position={Position.BOTTOM_LEFT}
             content={
-              <Text type={TextType.P3} style={{ color: "#ffffff" }}>
+              <Text style={{ color: "#ffffff" }} type={TextType.P3}>
                 {createMessage(TROUBLESHOOT_ISSUE)}
               </Text>
             }
+            minimal
+            position={Position.BOTTOM_LEFT}
           >
             <StyledSearchIcon
               className={Classes.ICON}
-              name={"wand"}
-              size={IconSize.MEDIUM}
               fillColor={props.iconColor}
+              name={"wand"}
               onClick={openHelpModal}
+              size={IconSize.MEDIUM}
             />
           </TooltipComponent>
         )}
@@ -257,8 +257,8 @@ const LogItem = (props: LogItemProps) => {
             )}
             {props.state && (
               <JsonWrapper
-                onClick={(e) => e.stopPropagation()}
                 className="t--debugger-log-state"
+                onClick={(e) => e.stopPropagation()}
               >
                 <ReactJson src={props.state} {...reactJsonProps} />
               </JsonWrapper>
@@ -268,14 +268,14 @@ const LogItem = (props: LogItemProps) => {
       </div>
       {props.source && (
         <EntityLink
-          type={props.source.type}
-          name={props.source.name}
           id={props.source.id}
+          name={props.source.name}
+          type={props.source.type}
           uiComponent={DebuggerLinkUI.ENTITY_NAME}
         />
       )}
     </Log>
   );
-};
+}
 
 export default LogItem;

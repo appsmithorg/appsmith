@@ -6,8 +6,11 @@ import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import { PluginType } from "entities/Action";
 import { waitFor } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
-const TestForm = (props: any) => <div>{props.children}</div>;
+function TestForm(props: any) {
+  return <div>{props.children}</div>;
+}
 
 const ReduxFormDecorator = reduxForm({
   form: "TestForm",
@@ -22,17 +25,18 @@ describe("DynamicTextFieldControl", () => {
     render(
       <ReduxFormDecorator>
         <DynamicTextFieldControl
-          controlType="DYNAMIC_TEXT_FIELD_CONTROL"
           actionName="TestAction"
-          formName="TestForm"
           configProperty="actionConfiguration.body"
+          controlType="DYNAMIC_TEXT_FIELD_CONTROL"
           createTemplate={jest.fn()}
-          onPropertyChange={jest.fn()}
-          label={"TestAction body"}
-          responseType={"TABLE"}
+          evaluationSubstitutionType={EvaluationSubstitutionType.TEMPLATE}
+          formName="TestForm"
           id={"test"}
-          isValid={true}
+          isValid
+          label={"TestAction body"}
+          onPropertyChange={jest.fn()}
           pluginId="123"
+          responseType={"TABLE"}
         />
       </ReduxFormDecorator>,
       {

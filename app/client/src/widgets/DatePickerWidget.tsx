@@ -176,16 +176,16 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   getPageView() {
     return (
       <DatePickerComponent
-        label={`${this.props.label}`}
         dateFormat={this.props.dateFormat}
-        widgetId={this.props.widgetId}
-        isDisabled={this.props.isDisabled}
         datePickerType={"DATE_PICKER"}
+        isDisabled={this.props.isDisabled}
+        isLoading={this.props.isLoading}
+        label={`${this.props.label}`}
+        maxDate={this.props.maxDate}
+        minDate={this.props.minDate}
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.selectedDate}
-        isLoading={this.props.isLoading}
-        minDate={this.props.minDate}
-        maxDate={this.props.maxDate}
+        widgetId={this.props.widgetId}
       />
     );
   }

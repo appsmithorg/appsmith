@@ -46,17 +46,17 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ChartComponent
-          key={this.props.widgetId}
-          isVisible={this.props.isVisible}
+          allowHorizontalScroll={this.props.allowHorizontalScroll}
+          chartData={this.props.chartData}
+          chartName={this.props.chartName}
           chartType={this.props.chartType}
+          customFusionChartConfig={this.props.customFusionChartConfig}
+          isVisible={this.props.isVisible}
+          key={this.props.widgetId}
+          onDataPointClick={this.onDataPointClick}
+          widgetId={this.props.widgetId}
           xAxisName={this.props.xAxisName}
           yAxisName={this.props.yAxisName}
-          chartName={this.props.chartName}
-          chartData={this.props.chartData}
-          customFusionChartConfig={this.props.customFusionChartConfig}
-          widgetId={this.props.widgetId}
-          onDataPointClick={this.onDataPointClick}
-          allowHorizontalScroll={this.props.allowHorizontalScroll}
         />
       </Suspense>
     );
@@ -81,6 +81,9 @@ export interface ChartDataPoint {
   y: any;
 }
 
+export interface AllChartData {
+  [key: string]: ChartData;
+}
 export interface ChartData {
   seriesName?: string;
   data: ChartDataPoint[];
@@ -88,7 +91,7 @@ export interface ChartData {
 
 export interface ChartWidgetProps extends WidgetProps, WithMeta {
   chartType: ChartType;
-  chartData: ChartData[];
+  chartData: AllChartData;
   customFusionChartConfig: { config: CustomFusionChartConfig };
   xAxisName: string;
   yAxisName: string;

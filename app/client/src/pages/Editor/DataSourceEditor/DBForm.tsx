@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
@@ -11,7 +12,6 @@ import FormTitle from "./FormTitle";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 
-import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps } from "redux-form";
@@ -23,6 +23,9 @@ import BackButton from "./BackButton";
 import { PluginType } from "entities/Action";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import Callout from "components/ads/Callout";
+import { Variant } from "components/ads/common";
+import { AppState } from "reducers";
 import {
   ActionButton,
   FormTitleContainer,
@@ -40,6 +43,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   onTest: (formValus: Datasource) => void;
   handleDelete: (id: string) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  openOmnibarReadMore: (text: string) => void;
   isSaving: boolean;
   isDeleting: boolean;
   datasourceId: string;
@@ -50,6 +54,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   pluginImage: string;
   viewMode: boolean;
   pluginType: string;
+  messages?: Array<string>;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -90,6 +95,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     this.props.onSave(normalizedValues);
   };
 
+  openOmnibarReadMore = () => {
+    const { openOmnibarReadMore } = this.props;
+    openOmnibarReadMore("connect to databases");
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "READ_MORE_DATASOURCE" });
+  };
+
   test = () => {
     const normalizedValues = this.normalizeValues();
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
@@ -115,9 +126,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       datasourceId,
       handleDelete,
       pluginType,
+      messages,
     } = this.props;
     const { viewMode } = this.props;
-
     return (
       <form
         onSubmit={(e) => {
@@ -132,36 +143,36 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         <br />
         <Header>
           <FormTitleContainer>
-            <PluginImage src={this.props.pluginImage} alt="Datasource" />
+            <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
           {viewMode && (
             <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
               <ActionButton
-                className="t--edit-datasource"
-                text="EDIT"
                 accent="secondary"
+                className="t--edit-datasource"
                 onClick={() => {
                   this.props.setDatasourceEditorMode(
                     this.props.datasourceId,
                     false,
                   );
                 }}
+                text="EDIT"
               />
             </Boxed>
           )}
         </Header>
+        {messages &&
+          messages.map((msg, i) => (
+            <Callout fill key={i} text={msg} variant={Variant.warning} />
+          ))}
         {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
               <span>{`Whitelist the IP ${convertArrayToSentence(
                 APPSMITH_IP_ADDRESSES,
               )}  on your database instance to connect to it. `}</span>
-              <a
-                href={`${HelpBaseURL}${HelpMap["DATASOURCE_FORM"].path}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a onClick={this.openOmnibarReadMore}>
                 {"Read more "}
                 <StyledOpenDocsIcon icon="document-open" />
               </a>
@@ -175,29 +186,29 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               : undefined}
             <SaveButtonContainer>
               <ActionButton
-                className="t--delete-datasource"
-                text="Delete"
                 accent="error"
+                className="t--delete-datasource"
                 loading={isDeleting}
                 onClick={() => handleDelete(datasourceId)}
+                text="Delete"
               />
 
               <ActionButton
-                className="t--test-datasource"
-                text="Test"
-                loading={isTesting}
                 accent="secondary"
+                className="t--test-datasource"
+                loading={isTesting}
                 onClick={this.test}
+                text="Test"
               />
               <StyledButton
                 className="t--save-datasource"
-                onClick={this.save}
-                text="Save"
                 disabled={this.validate()}
-                loading={isSaving}
-                intent="primary"
                 filled
+                intent="primary"
+                loading={isSaving}
+                onClick={this.save}
                 size="small"
+                text="Save"
               />
             </SaveButtonContainer>
           </>
@@ -209,6 +220,20 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   };
 }
 
-export default reduxForm<Datasource, DatasourceDBEditorProps>({
-  form: DATASOURCE_DB_FORM,
-})(DatasourceDBEditor);
+const mapStateToProps = (state: AppState, props: any) => {
+  const datasource = state.entities.datasources.list.find(
+    (e) => e.id === props.datasourceId,
+  ) as Datasource;
+
+  const hintMessages = datasource && datasource.messages;
+
+  return {
+    messages: hintMessages,
+  };
+};
+
+export default connect(mapStateToProps)(
+  reduxForm<Datasource, DatasourceDBEditorProps>({
+    form: DATASOURCE_DB_FORM,
+  })(DatasourceDBEditor),
+);
