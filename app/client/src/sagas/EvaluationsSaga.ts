@@ -69,10 +69,8 @@ const evalErrorHandler = (errors: EvalError[]) => {
           });
           // Log an analytics event for cyclical dep errors
           AnalyticsUtil.logEvent("CYCLICAL_DEPENDENCY_ERROR", {
-            tags: {
-              node,
-              entityType,
-            },
+            node,
+            entityType,
             // Level is warning because it could be a user error
             level: Sentry.Severity.Warning,
           });
