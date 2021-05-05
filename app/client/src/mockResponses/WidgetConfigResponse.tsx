@@ -9,6 +9,10 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+/*
+ ********************************{Grid Density Migration}*********************************
+ */
+export const GRID_SCALE_FACTOR_V1 = 4;
 
 /**
  * this config sets the default values of properties being used in the widget
@@ -18,8 +22,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     BUTTON_WIDGET: {
       text: "Submit",
       buttonStyle: "PRIMARY_BUTTON",
-      rows: 1 * 4,
-      columns: 2 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
+      columns: 2 * GRID_SCALE_FACTOR_V1,
       widgetName: "Button",
       isDisabled: false,
       isVisible: true,
@@ -32,15 +36,15 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       fontStyle: "BOLD",
       textAlign: "LEFT",
       textColor: Colors.THUNDER,
-      rows: 1 * 4,
-      columns: 4 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
+      columns: 4 * GRID_SCALE_FACTOR_V1,
       widgetName: "Text",
       version: 1,
     },
     RICH_TEXT_EDITOR_WIDGET: {
       defaultText: "This is the initial <b>content</b> of the editor",
-      rows: 5 * 4,
-      columns: 8 * 4,
+      rows: 5 * GRID_SCALE_FACTOR_V1,
+      columns: 8 * GRID_SCALE_FACTOR_V1,
       isDisabled: false,
       isVisible: true,
       widgetName: "RichTextEditor",
@@ -54,16 +58,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
       image: "",
-      rows: 3 * 4,
-      columns: 4 * 4,
+      rows: 3 * GRID_SCALE_FACTOR_V1,
+      columns: 4 * GRID_SCALE_FACTOR_V1,
       widgetName: "Image",
       version: 1,
     },
     INPUT_WIDGET: {
       inputType: "TEXT",
-      rows: 1 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
       label: "",
-      columns: 5 * 4,
+      columns: 5 * GRID_SCALE_FACTOR_V1,
       widgetName: "Input",
       version: 1,
       resetOnSubmit: true,
@@ -72,8 +76,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     SWITCH_WIDGET: {
       label: "Label",
-      rows: 1 * 4,
-      columns: 2 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
+      columns: 2 * GRID_SCALE_FACTOR_V1,
       defaultSwitchState: true,
       widgetName: "Switch",
       alignWidget: "LEFT",
@@ -82,14 +86,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     ICON_WIDGET: {
       widgetName: "Icon",
-      rows: 1 * 4,
-      columns: 1 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
+      columns: 1 * GRID_SCALE_FACTOR_V1,
       version: 1,
     },
     CONTAINER_WIDGET: {
       backgroundColor: "#FFFFFF",
-      rows: 10 * 4,
-      columns: 8 * 4,
+      rows: 10 * GRID_SCALE_FACTOR_V1,
+      columns: 8 * GRID_SCALE_FACTOR_V1,
       widgetName: "Container",
       containerStyle: "card",
       children: [],
@@ -112,10 +116,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     DATE_PICKER_WIDGET: {
       isDisabled: false,
       datePickerType: "DATE_PICKER",
-      rows: 1 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
       label: "",
       dateFormat: "YYYY-MM-DD HH:mm",
-      columns: 5 * 4,
+      columns: 5 * GRID_SCALE_FACTOR_V1,
       widgetName: "DatePicker",
       defaultDate: moment().format("YYYY-MM-DD HH:mm"),
       version: 1,
@@ -123,26 +127,26 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     DATE_PICKER_WIDGET2: {
       isDisabled: false,
       datePickerType: "DATE_PICKER",
-      rows: 1 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
       label: "",
       dateFormat: "YYYY-MM-DD HH:mm",
-      columns: 5 * 4,
+      columns: 5 * GRID_SCALE_FACTOR_V1,
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(),
       version: 2,
       isRequired: false,
     },
     VIDEO_WIDGET: {
-      rows: 7 * 4,
-      columns: 7 * 4,
+      rows: 7 * GRID_SCALE_FACTOR_V1,
+      columns: 7 * GRID_SCALE_FACTOR_V1,
       widgetName: "Video",
       url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
       autoPlay: false,
       version: 1,
     },
     TABLE_WIDGET: {
-      rows: 7 * 4,
-      columns: 8 * 4,
+      rows: 7 * GRID_SCALE_FACTOR_V1,
+      columns: 8 * GRID_SCALE_FACTOR_V1,
       label: "Data",
       widgetName: "Table",
       searchKey: "",
@@ -260,8 +264,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     DROP_DOWN_WIDGET: {
-      rows: 1 * 4,
-      columns: 5 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
+      columns: 5 * GRID_SCALE_FACTOR_V1,
       label: "",
       selectionType: "SINGLE_SELECT",
       options: [
@@ -276,8 +280,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
     },
     CHECKBOX_WIDGET: {
-      rows: 1 * 4,
-      columns: 3 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
+      columns: 3 * GRID_SCALE_FACTOR_V1,
       label: "Label",
       defaultCheckedState: true,
       widgetName: "Checkbox",
@@ -287,8 +291,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isRequired: false,
     },
     RADIO_GROUP_WIDGET: {
-      rows: 2 * 4,
-      columns: 3 * 4,
+      rows: 2 * GRID_SCALE_FACTOR_V1,
+      columns: 3 * GRID_SCALE_FACTOR_V1,
       label: "",
       options: [
         { label: "Yes", value: "Y" },
@@ -301,10 +305,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
     },
     FILE_PICKER_WIDGET: {
-      rows: 1 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
       files: [],
       label: "Select Files",
-      columns: 4 * 4,
+      columns: 4 * GRID_SCALE_FACTOR_V1,
       maxNumFiles: 1,
       maxFileSize: 5,
       fileDataType: FileDataTypes.Base64,
@@ -315,8 +319,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
     },
     TABS_WIDGET: {
-      rows: 7 * 4,
-      columns: 8 * 4,
+      rows: 7 * GRID_SCALE_FACTOR_V1,
+      columns: 8 * GRID_SCALE_FACTOR_V1,
       shouldScrollContents: false,
       widgetName: "Tabs",
       tabsObj: {
@@ -364,8 +368,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 2,
     },
     MODAL_WIDGET: {
-      rows: 6 * 4,
-      columns: 6 * 4,
+      rows: 6 * GRID_SCALE_FACTOR_V1,
+      columns: 6 * GRID_SCALE_FACTOR_V1,
       size: "MODAL_SMALL",
       canEscapeKeyClose: true,
       // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
@@ -393,8 +397,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 view: [
                   {
                     type: "ICON_WIDGET",
-                    position: { left: 14 * 4, top: 1 },
-                    size: { rows: 1 * 4, cols: 2 * 4 },
+                    position: { left: 14 * GRID_SCALE_FACTOR_V1, top: 1 },
+                    size: {
+                      rows: 1 * GRID_SCALE_FACTOR_V1,
+                      cols: 2 * GRID_SCALE_FACTOR_V1,
+                    },
                     props: {
                       iconName: "cross",
                       iconSize: 24,
@@ -405,7 +412,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   {
                     type: "TEXT_WIDGET",
                     position: { left: 1, top: 1 },
-                    size: { rows: 1 * 4, cols: 10 * 4 },
+                    size: {
+                      rows: 1 * GRID_SCALE_FACTOR_V1,
+                      cols: 10 * GRID_SCALE_FACTOR_V1,
+                    },
                     props: {
                       text: "Modal Title",
                       fontSize: "HEADING1",
@@ -414,8 +424,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 9 * 4, top: 4 * 4 },
-                    size: { rows: 1 * 4, cols: 3 * 4 },
+                    position: {
+                      left: 9 * GRID_SCALE_FACTOR_V1,
+                      top: 4 * GRID_SCALE_FACTOR_V1,
+                    },
+                    size: {
+                      rows: 1 * GRID_SCALE_FACTOR_V1,
+                      cols: 3 * GRID_SCALE_FACTOR_V1,
+                    },
                     props: {
                       text: "Cancel",
                       buttonStyle: "SECONDARY_BUTTON",
@@ -424,8 +440,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 12 * 4, top: 4 * 4 },
-                    size: { rows: 1 * 4, cols: 4 * 4 },
+                    position: {
+                      left: 12 * GRID_SCALE_FACTOR_V1,
+                      top: 4 * GRID_SCALE_FACTOR_V1,
+                    },
+                    size: {
+                      rows: 1 * GRID_SCALE_FACTOR_V1,
+                      cols: 4 * GRID_SCALE_FACTOR_V1,
+                    },
                     props: {
                       text: "Confirm",
                       buttonStyle: "PRIMARY_BUTTON",
@@ -472,8 +494,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     CHART_WIDGET: {
-      rows: 8 * 4,
-      columns: 6 * 4,
+      rows: 8 * GRID_SCALE_FACTOR_V1,
+      columns: 6 * GRID_SCALE_FACTOR_V1,
       widgetName: "Chart",
       chartType: "LINE_CHART",
       chartName: "Last week's revenue",
@@ -518,16 +540,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       yAxisName: "Total Order Revenue $",
     },
     FORM_BUTTON_WIDGET: {
-      rows: 1 * 4,
-      columns: 3 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
+      columns: 3 * GRID_SCALE_FACTOR_V1,
       widgetName: "FormButton",
       text: "Submit",
       isDefaultClickDisabled: true,
       version: 1,
     },
     FORM_WIDGET: {
-      rows: 13 * 4,
-      columns: 7 * 4,
+      rows: 13 * GRID_SCALE_FACTOR_V1,
+      columns: 7 * GRID_SCALE_FACTOR_V1,
       widgetName: "Form",
       backgroundColor: "white",
       children: [],
@@ -546,7 +568,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 view: [
                   {
                     type: "TEXT_WIDGET",
-                    size: { rows: 1 * 4, cols: 6 * 4 },
+                    size: {
+                      rows: 1 * GRID_SCALE_FACTOR_V1,
+                      cols: 6 * GRID_SCALE_FACTOR_V1,
+                    },
                     position: { top: 1, left: 1.5 },
                     props: {
                       text: "Form",
@@ -556,8 +581,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "FORM_BUTTON_WIDGET",
-                    size: { rows: 1 * 4, cols: 4 * 4 },
-                    position: { top: 11.25 * 4, left: 11.6 * 4 },
+                    size: {
+                      rows: 1 * GRID_SCALE_FACTOR_V1,
+                      cols: 4 * GRID_SCALE_FACTOR_V1,
+                    },
+                    position: {
+                      top: 11.25 * GRID_SCALE_FACTOR_V1,
+                      left: 11.6 * GRID_SCALE_FACTOR_V1,
+                    },
                     props: {
                       text: "Submit",
                       buttonStyle: "PRIMARY_BUTTON",
@@ -568,8 +599,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "FORM_BUTTON_WIDGET",
-                    size: { rows: 1 * 4, cols: 4 * 4 },
-                    position: { top: 11.25 * 4, left: 7.5 * 4 },
+                    size: {
+                      rows: 1 * GRID_SCALE_FACTOR_V1,
+                      cols: 4 * GRID_SCALE_FACTOR_V1,
+                    },
+                    position: {
+                      top: 11.25 * GRID_SCALE_FACTOR_V1,
+                      left: 7.5 * GRID_SCALE_FACTOR_V1,
+                    },
                     props: {
                       text: "Reset",
                       buttonStyle: "SECONDARY_BUTTON",
@@ -586,8 +623,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
     },
     MAP_WIDGET: {
-      rows: 12 * 4,
-      columns: 8 * 4,
+      rows: 12 * GRID_SCALE_FACTOR_V1,
+      columns: 8 * GRID_SCALE_FACTOR_V1,
       isDisabled: false,
       isVisible: true,
       widgetName: "Map",
@@ -601,8 +638,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     SKELETON_WIDGET: {
       isLoading: true,
-      rows: 1 * 4,
-      columns: 1 * 4,
+      rows: 1 * GRID_SCALE_FACTOR_V1,
+      columns: 1 * GRID_SCALE_FACTOR_V1,
       widgetName: "Skeleton",
       version: 1,
     },
@@ -616,8 +653,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     [WidgetTypes.LIST_WIDGET]: {
       backgroundColor: "",
       itemBackgroundColor: "white",
-      rows: 10 * 4,
-      columns: 8 * 4,
+      rows: 10 * GRID_SCALE_FACTOR_V1,
+      columns: 8 * GRID_SCALE_FACTOR_V1,
       gridType: "vertical",
       enhancements: {
         child: {
@@ -716,7 +753,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 view: [
                   {
                     type: "CONTAINER_WIDGET",
-                    size: { rows: 4 * 4, cols: 16 * 4 },
+                    size: {
+                      rows: 4 * GRID_SCALE_FACTOR_V1,
+                      cols: 16 * GRID_SCALE_FACTOR_V1,
+                    },
                     position: { top: 0, left: 0 },
                     props: {
                       backgroundColor: "white",
@@ -741,7 +781,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                 view: [
                                   {
                                     type: "IMAGE_WIDGET",
-                                    size: { rows: 3 * 4, cols: 4 * 4 },
+                                    size: {
+                                      rows: 3 * GRID_SCALE_FACTOR_V1,
+                                      cols: 4 * GRID_SCALE_FACTOR_V1,
+                                    },
                                     position: { top: 0, left: 0 },
                                     props: {
                                       defaultImage:
@@ -759,8 +802,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                   },
                                   {
                                     type: "TEXT_WIDGET",
-                                    size: { rows: 1 * 4, cols: 6 * 4 },
-                                    position: { top: 0, left: 4 * 4 },
+                                    size: {
+                                      rows: 1 * GRID_SCALE_FACTOR_V1,
+                                      cols: 6 * GRID_SCALE_FACTOR_V1,
+                                    },
+                                    position: {
+                                      top: 0,
+                                      left: 4 * GRID_SCALE_FACTOR_V1,
+                                    },
                                     props: {
                                       text: "{{currentItem.name}}",
                                       textStyle: "HEADING",
@@ -775,8 +824,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                   },
                                   {
                                     type: "TEXT_WIDGET",
-                                    size: { rows: 1 * 4, cols: 6 * 4 },
-                                    position: { top: 1 * 4, left: 4 * 4 },
+                                    size: {
+                                      rows: 1 * GRID_SCALE_FACTOR_V1,
+                                      cols: 6 * GRID_SCALE_FACTOR_V1,
+                                    },
+                                    position: {
+                                      top: 1 * GRID_SCALE_FACTOR_V1,
+                                      left: 4 * GRID_SCALE_FACTOR_V1,
+                                    },
                                     props: {
                                       text: "{{currentItem.num}}",
                                       textStyle: "BODY",

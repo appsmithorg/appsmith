@@ -32,6 +32,7 @@ import * as Sentry from "@sentry/react";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { GRID_SCALE_FACTOR_V1 } from "mockResponses/WidgetConfigResponse";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -667,10 +668,10 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
 export const migrateToNewLayout = (dsl: ContainerWidgetProps<WidgetProps>) => {
   const scaleWidget = (widgetProps: WidgetProps) => {
-    widgetProps.bottomRow *= 4;
-    widgetProps.topRow *= 4;
-    widgetProps.leftColumn *= 4;
-    widgetProps.rightColumn *= 4;
+    widgetProps.bottomRow *= GRID_SCALE_FACTOR_V1;
+    widgetProps.topRow *= GRID_SCALE_FACTOR_V1;
+    widgetProps.leftColumn *= GRID_SCALE_FACTOR_V1;
+    widgetProps.rightColumn *= GRID_SCALE_FACTOR_V1;
     if (widgetProps.children && widgetProps.children.length) {
       widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
         scaleWidget(eachWidgetProp);
