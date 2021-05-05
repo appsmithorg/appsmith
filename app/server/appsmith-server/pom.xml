@@ -131,7 +131,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>2.3.4.RELEASE</version>
+            <version>2.4.4</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
