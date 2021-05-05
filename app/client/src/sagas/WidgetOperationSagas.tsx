@@ -535,6 +535,23 @@ export function* deleteAllSelectedWidgetsSaga(
   }
 }
 
+export function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
+  const selectedWidget = yield select(getSelectedWidget);
+  const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  if (selectedWidgets.length > 1) {
+    yield put({
+      type: ReduxActionTypes.WIDGET_BULK_DELETE,
+      payload: deleteAction.payload,
+    });
+  }
+  if (!!selectedWidget) {
+    yield put({
+      type: ReduxActionTypes.WIDGET_SINGLE_DELETE,
+      payload: deleteAction.payload,
+    });
+  }
+}
+
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     let { widgetId, parentId } = deleteAction.payload;
@@ -1849,8 +1866,12 @@ export default function* widgetOperationSagas() {
       addTableWidgetFromQuerySaga,
     ),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
-    takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteSaga),
-    takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteAllSelectedWidgetsSaga),
+    takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteSagaInit),
+    takeEvery(ReduxActionTypes.WIDGET_SINGLE_DELETE, deleteSaga),
+    takeEvery(
+      ReduxActionTypes.WIDGET_BULK_DELETE,
+      deleteAllSelectedWidgetsSaga,
+    ),
     takeLatest(ReduxActionTypes.WIDGET_MOVE, moveSaga),
     takeLatest(ReduxActionTypes.WIDGET_RESIZE, resizeSaga),
     takeEvery(

@@ -22,7 +22,7 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
-import { getSnapColumns } from "utils/WidgetPropsUtils";
+import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
   LeftHandleStyles,
@@ -37,6 +37,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
+import { getOccupiedSpaces } from "selectors/editorSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -47,6 +48,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
+  const occupiedSpaces = useSelector(getOccupiedSpaces);
 
   const { updateDropTargetRows, persistDropTargetRows } = useContext(
     DropTargetContext,
@@ -71,6 +73,11 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
+
+  const occupiedSpacesBySiblingWidgets =
+    occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
+      ? occupiedSpaces[props.parentId]
+      : undefined;
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
@@ -171,7 +178,16 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       }
     }
     // Check if new row cols are occupied by sibling widgets
-    return false;
+    return isDropZoneOccupied(
+      {
+        left: newRowCols.leftColumn,
+        top: newRowCols.topRow,
+        bottom: newRowCols.bottomRow,
+        right: newRowCols.rightColumn,
+      },
+      props.widgetId,
+      occupiedSpacesBySiblingWidgets,
+    );
   };
 
   // onResizeStop handler

@@ -74,7 +74,7 @@ export const selectWidget = (
 export const selectWidgets = (
   widgetId?: string[],
 ): ReduxAction<{ widgetId?: string[] }> => ({
-  type: ReduxActionTypes.SELECT_WIDGETS,
+  type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS,
   payload: { widgetId },
 });
 
@@ -82,7 +82,7 @@ export const selectAllWidgets = (
   widgetIds?: string[],
 ): ReduxAction<{ widgetIds?: string[] }> => {
   return {
-    type: ReduxActionTypes.SELECT_WIDGETS,
+    type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS,
     payload: { widgetIds },
   };
 };

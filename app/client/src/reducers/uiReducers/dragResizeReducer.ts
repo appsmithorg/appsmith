@@ -1,11 +1,6 @@
 import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
-export const SINGLE_SELECT: "SINGLE_SELECT" = "SINGLE_SELECT" as const;
-export const MULTI_SELECT: "MULTI_SELECT" = "MULTI_SELECT" as const;
-
-export type SELECTION_MODES = typeof SINGLE_SELECT | typeof MULTI_SELECT;
-
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
   isDragging: false,
@@ -14,7 +9,6 @@ const initialState: WidgetDragResizeState = {
   selectedWidgets: [],
   focusedWidget: undefined,
   selectedWidgetAncestory: [],
-  selectionMode: SINGLE_SELECT,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -60,13 +54,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       }
     }
   },
-  [ReduxActionTypes.MULTI_SELECT]: (
-    state: WidgetDragResizeState,
-    action: ReduxAction<{ start: boolean }>,
-  ) => {
-    state.selectionMode = action.payload.start ? MULTI_SELECT : SINGLE_SELECT;
-  },
-  [ReduxActionTypes.SELECT_WIDGETS]: (
+  [ReduxActionTypes.SELECT_MULTIPLE_WIDGETS]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetIds?: string[] }>,
   ) => {
@@ -95,7 +83,6 @@ export type WidgetDragResizeState = {
   focusedWidget?: string;
   selectedWidgetAncestory: string[];
   selectedWidgets: string[];
-  selectionMode: SELECTION_MODES;
 };
 
 export default widgetDraggingReducer;
