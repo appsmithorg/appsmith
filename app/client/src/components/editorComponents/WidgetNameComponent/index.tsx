@@ -14,9 +14,10 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
-const PositionStyle = styled.div`
+const PositionStyle = styled.div<{ topRow: number }>`
   position: absolute;
-  top: -${(props) => props.theme.spaces[10]}px;
+  top: ${(props) =>
+    props.topRow > 2 ? `${-1 * props.theme.spaces[10]}px` : "calc(100%)"};
   height: ${(props) => props.theme.spaces[10]}px;
   width: 100%;
   left: 0;
@@ -41,6 +42,7 @@ type WidgetNameComponentProps = {
   parentId?: string;
   type: WidgetType;
   showControls?: boolean;
+  topRow: number;
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
@@ -114,7 +116,10 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     currentActivity = Activities.ACTIVE;
 
   return showWidgetName ? (
-    <PositionStyle data-testid="t--settings-controls-positioned-wrapper">
+    <PositionStyle
+      data-testid="t--settings-controls-positioned-wrapper"
+      topRow={props.topRow}
+    >
       <ControlGroup>
         <SettingsControl
           activity={currentActivity}
