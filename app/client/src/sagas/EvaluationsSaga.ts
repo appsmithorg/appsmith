@@ -40,6 +40,7 @@ import {
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -59,6 +60,15 @@ const evalErrorHandler = (errors: EvalError[]) => {
           });
           // Send the generic error message to sentry for better grouping
           Sentry.captureException(new Error(error.message), {
+            tags: {
+              node,
+              entityType,
+            },
+            // Level is warning because it could be a user error
+            level: Sentry.Severity.Warning,
+          });
+          // Log an analytics event for cyclical dep errors
+          AnalyticsUtil.logEvent("CYCLICAL_DEPENDENCY_ERROR", {
             tags: {
               node,
               entityType,
