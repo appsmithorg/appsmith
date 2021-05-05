@@ -190,11 +190,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        // If Authentication Details are present in the datasource, encrypt the details before saving
-        if (datasource.getDatasourceConfiguration() != null) {
-            datasource.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(datasource.getDatasourceConfiguration().getAuthentication()));
-        }
-
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
 
@@ -214,7 +209,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(this::populateHintMessages);
     }
-
+    
     @Override
     public AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
         if (authentication != null
@@ -303,6 +298,14 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return Mono.just(datasource)
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
+                .flatMap(ds -> {
+                    // If Authentication Details are present in the datasource, encrypt the details before saving
+                    if (ds.getDatasourceConfiguration() != null) {
+                        ds.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(ds.getDatasourceConfiguration().getAuthentication()));
+                    }
+
+                    return Mono.just(ds);
+                })
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {
                     Datasource savedDatasource = tuple.getT1();

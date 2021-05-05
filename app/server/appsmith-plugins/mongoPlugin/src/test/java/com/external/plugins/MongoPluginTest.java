@@ -567,7 +567,7 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testInvalidsOnCorrectSrvUriFormat() {
+    public void testInvalidsEmptyOnCorrectSrvUriFormat() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("Import from URI", "Yes"));
@@ -583,7 +583,7 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testInvalidsOnCorrectNonSrvUriFormat() {
+    public void testInvalidsEmptyOnCorrectNonSrvUriFormat() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("Import from URI", "Yes"));

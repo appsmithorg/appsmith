@@ -95,9 +95,9 @@ public class MongoPlugin extends BasePlugin {
      * - The regex matches the following two pattern types:
      *   - mongodb+srv://user:pass@some-url/some-db....
      *   - mongodb://user:pass@some-url:port,some-url:port,../some-db....
-     * - It has been grouped like this: (mongodb+srv://)((user):(pass))(@some-url/some-db....)
+     * - It has been grouped like this: (mongodb+srv://)((user):(pass))(@some-url/(some-db....))
      */
-    private static final String MONGO_URI_REGEX = "^(mongodb(\\+srv)?:\\/\\/)((.+):(.+))?(@.+\\/.+)$";
+    private static final String MONGO_URI_REGEX = "^(mongodb(\\+srv)?:\\/\\/)((.+):(.+))?(@.+\\/(.+))$";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
@@ -107,6 +107,8 @@ public class MongoPlugin extends BasePlugin {
 
     private static final int REGEX_GROUP_TAIL = 6;
 
+    private static final int REGEX_GROUP_DBNAME = 7;
+
     private static final String KEY_USERNAME = "username";
 
     private static final String KEY_PASSWORD = "password";
@@ -114,6 +116,8 @@ public class MongoPlugin extends BasePlugin {
     private static final String KEY_URI_HEAD = "uriHead";
 
     private static final String KEY_URI_TAIL = "uriTail";
+
+    private static final String KEY_URI_DBNAME = "dbName";
 
     private static final String YES = "Yes";
 
@@ -431,6 +435,7 @@ public class MongoPlugin extends BasePlugin {
                     extractedInfoMap.put(KEY_PASSWORD, matcher.group(REGEX_GROUP_PASSWORD));
                     extractedInfoMap.put(KEY_URI_HEAD, matcher.group(REGEX_GROUP_HEAD));
                     extractedInfoMap.put(KEY_URI_TAIL, matcher.group(REGEX_GROUP_TAIL));
+                    extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME).split("\\?")[0]);
                     return extractedInfoMap;
                 }
             }
@@ -608,7 +613,13 @@ public class MongoPlugin extends BasePlugin {
                             properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
                             DBAuth authentication = new DBAuth();
                             authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
+                            authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DBNAME));
                             datasourceConfiguration.setAuthentication(authentication);
+
+                            // remove any default db set via form auto-fill via browser
+                            if (datasourceConfiguration.getConnection() != null) {
+                                datasourceConfiguration.getConnection().setDefaultDatabaseName(null);
+                            }
                         }
                     }
                 }
@@ -629,7 +640,7 @@ public class MongoPlugin extends BasePlugin {
                 if (!CollectionUtils.isEmpty(endpoints)) {
                     boolean usingUri = endpoints
                             .stream()
-                            .anyMatch(endPoint -> endPoint.getHost().contains("mongodb"));
+                            .anyMatch(endPoint -> endPoint.getHost().matches(MONGO_URI_REGEX));
 
                     if (usingUri) {
                         invalids.add("It seems that you are trying to use a mongo connection string URI. Please " +
@@ -715,6 +726,7 @@ public class MongoPlugin extends BasePlugin {
             final DatasourceStructure structure = new DatasourceStructure();
             List<DatasourceStructure.Table> tables = new ArrayList<>();
             structure.setTables(tables);
+
             final MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
             return Flux.from(database.listCollectionNames())
