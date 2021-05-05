@@ -12,7 +12,7 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME, SAAS_EDITOR_FORM } from "constants/forms";
 import {
   DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS,
@@ -214,7 +214,9 @@ function* initializeExtraFormDataSaga() {
   }
 }
 
-function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
+function* changeApiSaga(
+  actionPayload: ReduxAction<{ id: string; isSaas: boolean }>,
+) {
   // // Typescript says Element does not have blur function but it does;
   // document.activeElement &&
   //   "blur" in document.activeElement &&
@@ -222,31 +224,35 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   //   // @ts-ignore: No types available
   //   document.activeElement.blur();
   PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
-  const { id } = actionPayload.payload;
+  const { id, isSaas } = actionPayload.payload;
   const action = yield select(getAction, id);
   if (!action) return;
+  if (isSaas) {
+    yield put(initialize(SAAS_EDITOR_FORM, action));
+  } else {
+    yield put(initialize(API_EDITOR_FORM_NAME, action));
 
-  yield put(initialize(API_EDITOR_FORM_NAME, action));
+    yield call(initializeExtraFormDataSaga);
 
-  yield call(initializeExtraFormDataSaga);
-
-  if (
-    action.actionConfiguration &&
-    action.actionConfiguration.queryParameters?.length
-  ) {
-    // Sync the api params my mocking a change action
-    yield call(
-      syncApiParamsSaga,
-      {
-        type: ReduxFormActionTypes.ARRAY_REMOVE,
-        payload: action.actionConfiguration.queryParameters,
-        meta: {
-          field: "actionConfiguration.queryParameters",
+    if (
+      action.actionConfiguration &&
+      action.actionConfiguration.queryParameters?.length
+    ) {
+      // Sync the api params my mocking a change action
+      yield call(
+        syncApiParamsSaga,
+        {
+          type: ReduxFormActionTypes.ARRAY_REMOVE,
+          payload: action.actionConfiguration.queryParameters,
+          meta: {
+            field: "actionConfiguration.queryParameters",
+          },
         },
-      },
-      id,
-    );
+        id,
+      );
+    }
   }
+
   PerformanceTracker.stopTracking();
 }
 

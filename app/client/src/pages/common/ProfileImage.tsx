@@ -3,9 +3,9 @@ import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import Text, { TextType } from "components/ads/Text";
 import styled, { ThemeContext } from "styled-components";
 
-export const Profile = styled.div<{ backgroundColor?: string }>`
-  width: 34px;
-  height: 34px;
+export const Profile = styled.div<{ backgroundColor?: string; side?: number }>`
+  width: ${(props) => props.side || 34}px;
+  height: ${(props) => props.side || 34}px;
   display: flex;
   align-items: center;
   border-radius: 50%;
@@ -21,6 +21,7 @@ export default function ProfileImage(props: {
   userName?: string;
   className?: string;
   commonName?: string;
+  side?: number;
 }) {
   const theme = useContext(ThemeContext);
 
@@ -33,6 +34,7 @@ export default function ProfileImage(props: {
     <Profile
       backgroundColor={initialsAndColorCode[1]}
       className={props.className}
+      side={props.side} // side since it's a square
     >
       <Text highlight type={TextType.H6}>
         {props.commonName || initialsAndColorCode[0]}

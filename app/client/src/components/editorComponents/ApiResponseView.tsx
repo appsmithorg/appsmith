@@ -226,16 +226,30 @@ function ApiResponseView(props: Props) {
       ),
     },
     {
-      key: "error-logs",
+      key: "ERROR",
       title: "Errors",
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "logs",
+      key: "LOGS",
       title: "Logs",
       panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
     },
   ];
+
+  const onTabSelect = (index: number) => {
+    const debuggerTabKeys = ["ERROR", "LOGS"];
+    if (
+      debuggerTabKeys.includes(tabs[index].key) &&
+      debuggerTabKeys.includes(tabs[selectedIndex].key)
+    ) {
+      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
+        tabName: tabs[index].key,
+      });
+    }
+
+    setSelectedIndex(index);
+  };
 
   return (
     <ResponseContainer ref={panelRef}>
@@ -277,11 +291,21 @@ function ApiResponseView(props: Props) {
                   </Text>
                 </Flex>
               )}
+              {!_.isEmpty(response.body) && Array.isArray(response.body) && (
+                <Flex>
+                  <Text type={TextType.P3}>Result: </Text>
+                  <Text type={TextType.H5}>
+                    {`${response.body.length} Record${
+                      response.body.length > 1 ? "s" : ""
+                    }`}
+                  </Text>
+                </Flex>
+              )}
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
         <TabComponent
-          onSelect={setSelectedIndex}
+          onSelect={onTabSelect}
           selectedIndex={selectedIndex}
           tabs={tabs}
         />

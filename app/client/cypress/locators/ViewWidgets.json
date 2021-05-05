@@ -26,6 +26,7 @@
     "mapSearch": ".t--draggable-mapwidget input",
     "createMarker": ".t--property-control-createnewmarker [type='checkbox']",
     "zoomLevel": ".t--property-control-zoomlevel  svg",
+    "sourceImage": ".t--property-control-image .CodeMirror-code",
     "defaultImage": ".t--property-control-defaultimage .CodeMirror-code",
     "Chartlabel": ".t--draggable-chartwidget g:nth-child(5) text",
     "pickMyLocation": ".t--draggable-mapwidget div[title='Pick My Location']"

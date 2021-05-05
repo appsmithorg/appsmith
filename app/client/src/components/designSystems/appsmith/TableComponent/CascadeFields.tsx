@@ -563,7 +563,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {showDateInput ? (
         <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
-            dateFormat="DD/MM/YYYY"
+            dateFormat="YYYY-MM-DD HH:mm"
             datePickerType="DATE_PICKER"
             enableTimePicker={false}
             isDisabled={false}

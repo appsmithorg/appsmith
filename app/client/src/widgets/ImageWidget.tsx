@@ -24,7 +24,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             placeholderText: "Enter URL / Base64",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: VALIDATION_TYPES.IMAGE,
           },
           {
             helpText: "Renders the url or Base64 when no image is provided",
@@ -97,6 +97,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
       },
     ];
   }
+
   getPageView() {
     const { maxZoomLevel } = this.props;
     return (
@@ -105,7 +106,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         disableDrag={(disable: boolean) => {
           this.disableDrag(disable);
         }}
-        imageUrl={this.props.image || ""}
+        imageUrl={this.props.image}
         isLoading={this.props.isLoading}
         maxZoomLevel={maxZoomLevel}
         onClick={this.props.onClick ? this.onImageClick : undefined}
