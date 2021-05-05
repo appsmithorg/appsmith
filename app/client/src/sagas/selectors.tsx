@@ -123,7 +123,7 @@ export const getPluginIdOfPackageName = (
 };
 
 export const getSelectedWidget = (state: AppState) => {
-  const selectedWidgetId = state.ui.widgetDragResize.selectedWidget;
+  const selectedWidgetId = state.ui.widgetDragResize.lastSelectedWidget;
   if (!selectedWidgetId) return;
   return state.entities.canvasWidgets[selectedWidgetId];
 };

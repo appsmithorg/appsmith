@@ -58,7 +58,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,

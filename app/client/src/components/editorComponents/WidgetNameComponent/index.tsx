@@ -53,7 +53,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     (state: AppState) => state.ui.propertyPane,
   );
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
   const selectedWidgets = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgets,

@@ -74,10 +74,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
-  );
-  const selectedWidgets = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -235,15 +232,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         y: rect.y,
       });
     }
-  };
-
-  const selectWidgetIfUnSelected = (
-    widgetId: string,
-    isMultiSelect: boolean,
-  ) => {
-    ((selectedWidget && selectedWidget !== props.widgetId) ||
-      !(selectedWidgets && selectedWidgets.includes(props.widgetId))) &&
-      selectWidget(widgetId, isMultiSelect);
   };
 
   const handleFocus = (e: any) => {

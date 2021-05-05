@@ -68,7 +68,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   // This state tells us which widget is selected
   // The value is the widgetId of the selected widget
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
 
   const selectedWidgets = useSelector(

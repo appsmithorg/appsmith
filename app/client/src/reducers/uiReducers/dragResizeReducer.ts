@@ -6,7 +6,7 @@ const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
   isDragging: false,
   isResizing: false,
-  selectedWidget: undefined,
+  lastSelectedWidget: undefined,
   selectedWidgets: [],
   focusedWidget: undefined,
   selectedWidgetAncestory: [],
@@ -37,7 +37,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     if (action.payload.widgetId === MAIN_CONTAINER_WIDGET_ID) return;
     if (action.payload.isMultiSelect) {
-      state.selectedWidget = "";
+      state.lastSelectedWidget = "";
       const widgetId = action.payload.widgetId || "";
       const removeSelection = state.selectedWidgets.includes(widgetId);
       if (removeSelection) {
@@ -48,7 +48,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
         state.selectedWidgets = [...state.selectedWidgets, widgetId];
       }
     } else {
-      state.selectedWidget = action.payload.widgetId;
+      state.lastSelectedWidget = action.payload.widgetId;
       if (action.payload.widgetId) {
         state.selectedWidgets = [action.payload.widgetId];
       } else {
@@ -61,7 +61,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     action: ReduxAction<{ widgetIds?: string[] }>,
   ) => {
     state.selectedWidgets = action.payload.widgetIds || [];
-    state.selectedWidget = "";
+    state.lastSelectedWidget = "";
   },
   [ReduxActionTypes.FOCUS_WIDGET]: (
     state: WidgetDragResizeState,
@@ -81,7 +81,7 @@ export type WidgetDragResizeState = {
   isDraggingDisabled: boolean;
   isDragging: boolean;
   isResizing: boolean;
-  selectedWidget?: string;
+  lastSelectedWidget?: string;
   focusedWidget?: string;
   selectedWidgetAncestory: string[];
   selectedWidgets: string[];

@@ -84,7 +84,7 @@ function WidgetCard(props: CardProps) {
   const { selectWidget } = useWidgetSelection();
 
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
 
   // Generate a new widgetId which can be used in the future for this widget.
