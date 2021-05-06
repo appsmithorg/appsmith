@@ -121,6 +121,7 @@ function ToggleCommentModeButton() {
               Edit Mode<span style={{ color: "#fff", marginLeft: 20 }}>V</span>
             </>
           }
+          hoverOpenDelay={1000}
           position={Position.BOTTOM}
         >
           <Pen />
@@ -137,6 +138,7 @@ function ToggleCommentModeButton() {
               <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
             </>
           }
+          hoverOpenDelay={1000}
           position={Position.BOTTOM}
         >
           <CommentModeIcon />
