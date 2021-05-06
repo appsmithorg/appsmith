@@ -66,9 +66,18 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
     location /login {
         proxy_pass http://appsmith-internal-server:8080;
     }
+
+    location /socket.io {
+        proxy_pass http://rts:8091;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Upgrade \$http_upgrade;
+    }
+
 }
 
-$NGINX_SSL_CMNT server {
+${NGINX_SSL_CMNT}server {
 $NGINX_SSL_CMNT    listen 443 ssl;
 $NGINX_SSL_CMNT    server_name $custom_domain;
 $NGINX_SSL_CMNT    client_max_body_size 100m;
@@ -124,5 +133,13 @@ $NGINX_SSL_CMNT    location /login {
 $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
-$NGINX_SSL_CMNT }
+$NGINX_SSL_CMNT    location /socket.io {
+$NGINX_SSL_CMNT        proxy_pass http://rts:8091;
+$NGINX_SSL_CMNT        proxy_http_version 1.1;
+$NGINX_SSL_CMNT        proxy_set_header Host \$host;
+$NGINX_SSL_CMNT        proxy_set_header Connection 'upgrade';
+$NGINX_SSL_CMNT        proxy_set_header Upgrade \$http_upgrade;
+$NGINX_SSL_CMNT    }
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT}
 EOF

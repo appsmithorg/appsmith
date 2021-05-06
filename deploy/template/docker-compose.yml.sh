@@ -65,6 +65,8 @@ services:
     volumes:
       - ./data/mongo/db:/data/db
       - ./data/mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
+      - ./data/mongo/key:/key:ro
+    command: mongod --replSet mr1 --keyFile /key --bind_ip localhost,mongo
     networks:
       - appsmith
 
@@ -72,6 +74,19 @@ services:
     image: redis
     expose:
       - "6379"
+    networks:
+      - appsmith
+
+  rts:
+    image: index.docker.io/appsmith/appsmith-rts
+    env_file:
+      - ./docker.env
+    environment:
+      APPSMITH_API_BASE_URL: "http://appsmith-internal-server:8080/api/v1"
+    expose:
+      - "8091"
+    depends_on:
+      - mongo
     networks:
       - appsmith
 

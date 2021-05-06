@@ -60,7 +60,6 @@ install_docker() {
         $apt_cmd update
         echo "Installing docker"
         $apt_cmd install docker-ce docker-ce-cli containerd.io
-
     elif [[ $package_manager == zypper ]]; then
         zypper_cmd="sudo zypper --quiet --no-gpg-checks --non-interactive"
         echo "Installing docker"
@@ -71,7 +70,6 @@ install_docker() {
         fi
         $zypper_cmd install docker docker-runc containerd
         sudo systemctl enable docker.service
-
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
@@ -385,7 +383,11 @@ bye() {  # Prints a friendly good bye message and exits the script.
             }
         }' > /dev/null
         echo ""
-        echo -e "\nWe will reach out to you at the email provided shortly, Exiting for now. Bye! 👋 \n"
+        if [[ -n $email ]]; then
+            echo -e "\nWe will reach out to you at the email provided shortly, exiting for now. Bye! 👋 \n"
+        else
+            echo -e "\nThank you for trying Appsmith. Bye! 👋 \n"
+        fi
         exit 0
     fi
 }
@@ -789,8 +791,23 @@ rm -rf "$templates_dir"
 echo ""
 echo "Pulling the latest container images"
 sudo docker-compose pull
+
+# Start the MongoDB container and initiate the replica set. This is needed since RTS won't work with MongoDB instances
+# that are not configured to be a replica set.
 echo ""
-echo "Starting the Appsmith containers"
+echo "Setting up MongoDB"
+openssl rand -base64 756 > "$install_dir/data/mongo/key"
+chmod go-rwx,u-wx "$install_dir/data/mongo/key"
+sudo chown 999:0 "$install_dir/data/mongo/key"
+sudo docker-compose up --detach --remove-orphans mongo || true
+sleep 3
+echo "Initiating MongoDB replica set"
+sudo docker-compose exec mongo \
+    mongo \
+    "mongodb://$encoded_mongo_root_user:$encoded_mongo_root_password@$mongo_host/appsmith?authSource=admin&retryWrites=true" \
+    --eval \
+    'rs.initiate()'
+
 # The docker-compose command does some nasty stuff for the `--detach` functionality. So we add a `|| true` so that the
 # script doesn't exit because this command looks like it failed to do it's thing.
 sudo docker-compose up --detach --remove-orphans || true

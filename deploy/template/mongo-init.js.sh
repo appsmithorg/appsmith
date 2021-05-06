@@ -9,6 +9,9 @@ cat << EOF
 let error = false
 print("**** Going to start Mongo seed ****")
 
+var admin = db.getSiblingDB("admin")
+admin.auth("$mongo_root_user", "$mongo_root_password")
+
 let res = [
     db.createUser(
         {
