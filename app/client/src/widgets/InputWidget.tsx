@@ -137,6 +137,16 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.BOOLEAN,
           },
+          {
+            propertyName: "isReactive",
+            label: "Reactive",
+            helpText: "Makes the component reactive",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
         ],
       },
       {

@@ -181,6 +181,32 @@ export default class DataTreeEvaluator {
       return false;
     });
 
+    console.log("kaushik updateDataTree unEvalTree: ", unEvalTree);
+    // kaushik, here the unEvalTree holds apiId
+    // check from inverseDependencyMap to see
+    // which api has changed, get name from there
+    // get its apiID from here and call the func
+    // To know that it is an API, it has entity
+    // type = "ACTION"
+    // the following is the unEvalTree structure:
+    //
+    // ENTITY_TYPE: "ACTION"
+    // actionId: "6092fa540dad380f90e7a951"
+    // bindingPaths: {data: "TEMPLATE", isLoading: "TEMPLATE", config.path: "TEMPLATE", config.body: "TEMPLATE", config.queryParameters[0].key: "TEMPLATE", …}
+    // config: {timeoutInMillisecond: 10000, paginationType: "NONE", path: "/todos", headers: Array(2), encodeParamsToggle: true, …}
+    // data: {}
+    // dependencyMap: {config.body: Array(1)}
+    // dynamicBindingPathList: []
+    // isLoading: false
+    // name: "Api1"
+    // pluginType: "API"
+    // run: {}
+    // __proto__: Object
+    console.log(
+      "kaushik updateDataTree evaluationOrder : ",
+      evaluationOrder,
+      unEvalTree,
+    );
     // Remove any deleted paths from the eval tree
     removedPaths.forEach((removedPath) => {
       _.unset(this.evalTree, removedPath);
@@ -310,6 +336,7 @@ export default class DataTreeEvaluator {
       );
     });
     dependencyMap = makeParentsDependOnChildren(dependencyMap);
+    console.log("kaushik createDependencyMap dependencyMap", dependencyMap);
     return dependencyMap;
   }
 

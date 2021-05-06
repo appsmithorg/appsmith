@@ -60,6 +60,10 @@ ctx.addEventListener(
           // If functions exist, it will crash the web worker
           dataTree = JSON.parse(JSON.stringify(dataTree));
           dependencies = dataTreeEvaluator.inverseDependencyMap;
+          console.log(
+            "kaushik From messageEventListener dependencies: ",
+            dependencies,
+          );
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
           logs = dataTreeEvaluator.logs;

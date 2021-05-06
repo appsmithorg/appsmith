@@ -51,6 +51,7 @@ function ActionForm(props: Props) {
   };
 
   const onRunClick = () => {
+    console.log("kaushik onRunClick: ", apiId);
     dispatch(runActionInit(apiId));
   };
   const onCreateDatasourceClick = () => {

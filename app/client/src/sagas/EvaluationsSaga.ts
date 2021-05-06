@@ -142,6 +142,8 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
     },
   );
+
+  console.log("kaushik evaluateTreeSaga workerResponse: ", workerResponse);
   const { errors, dataTree, dependencies, logs } = workerResponse;
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
@@ -159,6 +161,7 @@ function* evaluateTreeSaga(
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+  console.log("Kaushik SET_EVALUATION_INVERSE_DEPENDENCY_MAP: ", dependencies);
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap: dependencies },
