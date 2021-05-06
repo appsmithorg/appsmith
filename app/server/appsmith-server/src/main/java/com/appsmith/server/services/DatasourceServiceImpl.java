@@ -103,29 +103,35 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     });
         }
 
-        return datasourceMono
-                .flatMap(datasource1 ->
-                        sessionUserService.getCurrentUser()
-                                .flatMap(user -> {
-                                    // Create policies for this datasource -> This datasource should inherit its permissions and policies from
-                                    // the organization and this datasource should also allow the current user to crud this datasource.
-                                    return organizationService.findById(datasource1.getOrganizationId(), AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
-                                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource1.getOrganizationId())))
-                                            .map(org -> {
-                                                Set<Policy> policySet = org.getPolicies().stream()
-                                                        .filter(policy ->
-                                                                policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
-                                                                        policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
-                                                        ).collect(Collectors.toSet());
+        Mono<Datasource> datasourceWithPoliciesMono = datasourceMono
+                .flatMap(datasource1 -> {
+                    Mono<User> userMono = sessionUserService.getCurrentUser();
+                    return generateAndSetDatasourcePolicies(userMono, datasource1);
+                });
 
-                                                Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Datasource.class);
-                                                datasource1.setPolicies(documentPolicies);
-                                                return datasource1;
-                                            });
-                                })
-                )
+        return datasourceWithPoliciesMono
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(this::populateHintMessages); // For REST API datasource create flow.
+    }
+
+    private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
+        return userMono
+                .flatMap(user -> {
+                    Mono<Organization> orgMono = organizationService.findById(datasource.getOrganizationId(), ORGANIZATION_MANAGE_APPLICATIONS)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource.getOrganizationId())));
+
+                    return orgMono.map(org -> {
+                        Set<Policy> policySet = org.getPolicies().stream()
+                                .filter(policy ->
+                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
+                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
+                                ).collect(Collectors.toSet());
+
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Datasource.class);
+                        datasource.setPolicies(documentPolicies);
+                        return datasource;
+                    });
+                });
     }
 
     public Mono<Datasource> populateHintMessages(Datasource datasource) {
