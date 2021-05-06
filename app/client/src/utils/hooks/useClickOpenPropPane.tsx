@@ -42,9 +42,12 @@ export const useClickOpenPropPane = () => {
       (!isPropPaneVisible && selectedWidgetId === focusedWidget) ||
       selectedWidgetId !== focusedWidget
     ) {
-      selectWidget(focusedWidget, e.metaKey || e.ctrlKey);
+      const isMultiSelect = e.metaKey || e.ctrlKey;
+      selectWidget(focusedWidget, isMultiSelect);
       showPropertyPane(focusedWidget, undefined, true);
-      e.stopPropagation();
+      if (isMultiSelect) {
+        e.stopPropagation();
+      }
     }
   };
   return openPropertyPane;

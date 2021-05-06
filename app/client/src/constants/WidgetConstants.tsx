@@ -144,14 +144,15 @@ export const TEXT_SIZES = {
 
 // ToDO(Ashok): Need to clean up these layers to produce an appropriate and preformant stack.
 export const LayersByzIndex = {
-  // Modal and Proppane need to be in the highest layer
-  ModalWidget: 4,
-  PropertyPane: 4,
-  // All Widgets Parent layer
-  PositionedWidget: 3,
+  SideBar: 3,
+  // Modal and Proppane need to be in the highest layer in the Editor/Canvas
+  ModalWidget: 2,
+  PropertyPane: 2,
   // Layers when dragging
-  AnimatedSnappingDropZone: 4,
-  AnimatedDropZone: 5,
+  AnimatedDropZone: 3,
+  AnimatedSnappingDropZone: 2,
+  // All Widgets Parent layer
+  PositionedWidget: 1,
 };
 
 export type TextSize = keyof typeof TextSizes;
