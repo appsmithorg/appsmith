@@ -36,6 +36,10 @@ const EmojiPicker = withTheme(
             onClick={handleSelectEmoji}
             showPreview={false}
             showSkinTones={false}
+            style={{
+              border: "none",
+              borderRadius: 0,
+            }}
           />
         }
         isOpen={isOpen}

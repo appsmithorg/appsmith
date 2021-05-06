@@ -1,12 +1,7 @@
-import { Classes } from "@blueprintjs/core";
 import { createGlobalStyle } from "styled-components";
 import { Layers } from "constants/Layers";
 
 export const CommentThreadPopoverStyles = createGlobalStyle`
-  .comment-thread .${Classes.POPOVER_CONTENT} {
-    border-radius: 0px;
-  }
-
   .bp3-portal.comment-context-menu {
     z-index: ${Layers.max};
   }
