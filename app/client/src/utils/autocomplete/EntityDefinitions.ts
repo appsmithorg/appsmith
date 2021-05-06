@@ -14,6 +14,7 @@ const isVisible = {
 export const entityDefinitions = {
   ACTION: (entity: DataTreeAction) => {
     const dataDef = generateTypeDef(entity.data);
+    const responseMetaDef = generateTypeDef(entity.responseMeta);
     let data: Record<string, any> = {
       "!doc": "The response of the action",
     };
@@ -22,12 +23,21 @@ export const entityDefinitions = {
     } else {
       data = { ...data, ...dataDef };
     }
+    let responseMeta: Record<string, any> = {
+      "!doc": "The response meta of the action",
+    };
+    if (_.isString(responseMetaDef)) {
+      responseMeta["!type"] = responseMetaDef;
+    } else {
+      responseMeta = { ...responseMeta, ...responseMetaDef };
+    }
     return {
       "!doc":
         "Actions allow you to connect your widgets to your backend data in a secure manner.",
       "!url": "https://docs.appsmith.com/v/v1.2.1/framework-reference/run",
       isLoading: "bool",
       data,
+      responseMeta,
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
     };
   },
