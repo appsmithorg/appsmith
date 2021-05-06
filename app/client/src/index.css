@@ -60,7 +60,7 @@ div.bp3-popover-arrow {
 }
 
 .bp3-portal {
-  z-index: 10;
+  z-index: 2;
 }
 
 .bp3-popover .bp3-input {
