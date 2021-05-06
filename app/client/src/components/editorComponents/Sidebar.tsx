@@ -7,13 +7,13 @@ import * as Sentry from "@sentry/react";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { LayersByzIndex } from "constants/WidgetConstants";
+import { Layers } from "constants/Layers";
 
 const SidebarWrapper = styled.div`
   background-color: ${Colors.MINE_SHAFT};
   padding: 0;
   width: ${(props) => props.theme.sidebarWidth};
-  z-index: ${LayersByzIndex.SideBar};
+  z-index: ${Layers.sideBar};
 
   color: ${(props) => props.theme.colors.textOnDarkBG};
   overflow-y: auto;

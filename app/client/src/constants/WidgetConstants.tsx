@@ -142,17 +142,4 @@ export const TEXT_SIZES = {
   PARAGRAPH2: "12px",
 };
 
-// ToDO(Ashok): Need to clean up these layers to produce an appropriate and preformant stack.
-export const LayersByzIndex = {
-  SideBar: 3,
-  // Modal and Proppane need to be in the highest layer in the Editor/Canvas
-  ModalWidget: 2,
-  PropertyPane: 2,
-  // Layers when dragging
-  AnimatedDropZone: 3,
-  AnimatedSnappingDropZone: 2,
-  // All Widgets Parent layer
-  PositionedWidget: 1,
-};
-
 export type TextSize = keyof typeof TextSizes;

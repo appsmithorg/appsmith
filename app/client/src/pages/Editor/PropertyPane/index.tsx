@@ -39,7 +39,7 @@ import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
-import { LayersByzIndex } from "constants/WidgetConstants";
+import { Layers } from "constants/Layers";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -205,7 +205,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           position={this.props?.propPanePreference?.position}
           targetNode={el}
           themeMode={this.getPopperTheme()}
-          zIndex={LayersByzIndex.PropertyPane}
+          zIndex={Layers.propertyPane}
         >
           {content}
         </Popper>

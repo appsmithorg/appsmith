@@ -1,10 +1,11 @@
 import React, { CSSProperties, ReactNode, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
-import { LayersByzIndex, WIDGET_PADDING } from "constants/WidgetConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 import { stopEventPropagation } from "utils/AppsmithUtils";
+import { Layers } from "constants/Layers";
 
 const PositionedWidget = styled.div`
   &:hover {
@@ -43,7 +44,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       height: props.style.componentHeight + (props.style.heightUnit || "px"),
       width: props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
-      zIndex: LayersByzIndex.PositionedWidget,
+      zIndex: Layers.positionedWidget,
       backgroundColor: "inherit",
     };
   }, [props.style]);

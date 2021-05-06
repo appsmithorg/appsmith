@@ -5,7 +5,6 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
-import { stopEventPropagation } from "utils/AppsmithUtils";
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
@@ -17,12 +16,7 @@ const Canvas = memo((props: CanvasProps) => {
     return (
       <>
         <PropertyPane />
-        <ArtBoard
-          className="t--canvas-artboard"
-          // Clicks inside canvas should not be propogated outside to porcess
-          onClick={stopEventPropagation}
-          width={props.dsl.rightColumn}
-        >
+        <ArtBoard className="t--canvas-artboard" width={props.dsl.rightColumn}>
           {props.dsl.widgetId &&
             WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
         </ArtBoard>

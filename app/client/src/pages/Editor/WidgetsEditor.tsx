@@ -25,6 +25,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import Debugger from "components/editorComponents/Debugger";
+import { closePropertyPane } from "actions/widgetActions";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -99,6 +100,7 @@ function WidgetsEditor() {
   const handleWrapperClick = useCallback(() => {
     focusWidget && focusWidget();
     deselectAll && deselectAll();
+    dispatch(closePropertyPane());
   }, [focusWidget, deselectAll]);
 
   const pageLoading = (
