@@ -15,9 +15,7 @@ import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import { Popover2 } from "@blueprintjs/popover2";
 
 // render over popover portals
-const Container = styled.div`
-  z-index: 11;
-`;
+const Container = styled.div``;
 
 const MenuItem = styled.div`
   display: flex;
@@ -114,7 +112,7 @@ function CommentContextMenu({
           {options.map((option) => (
             <MenuItem key={option.icon} onClick={() => handleClick(option)}>
               <MenuIcon>
-                <StyledIcon
+                <Icon
                   keepColors
                   name={option.icon as IconName}
                   size={IconSize.XL}

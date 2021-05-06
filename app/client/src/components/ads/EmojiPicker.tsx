@@ -47,7 +47,6 @@ const EmojiPicker = withTheme(
         onInteraction={(nextOpenState) => {
           setIsOpen(nextOpenState);
         }}
-        placement="bottom-end"
         portalClassName="emoji-picker-portal"
       >
         <Icon
