@@ -2,7 +2,6 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import MapComponent from "components/designSystems/appsmith/MapComponent";
-import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getAppsmithConfigs } from "configs";
@@ -52,6 +51,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             controlType: "LOCATION_SEARCH",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.LAT_LONG,
           },
           {
             propertyName: "defaultMarkers",
@@ -62,6 +62,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             placeholderText: 'Enter [{ "lat": "val1", "long": "val2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.MARKERS,
           },
           {
             propertyName: "enableSearch",
@@ -104,6 +105,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -129,19 +131,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         ],
       },
     ];
-  }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      defaultMarkers: VALIDATION_TYPES.MARKERS,
-      isDisabled: VALIDATION_TYPES.BOOLEAN,
-      isVisible: VALIDATION_TYPES.BOOLEAN,
-      enableSearch: VALIDATION_TYPES.BOOLEAN,
-      enablePickLocation: VALIDATION_TYPES.BOOLEAN,
-      enableCreateMarker: VALIDATION_TYPES.BOOLEAN,
-      allowZoom: VALIDATION_TYPES.BOOLEAN,
-      zoomLevel: VALIDATION_TYPES.NUMBER,
-      mapCenter: VALIDATION_TYPES.LAT_LONG,
-    };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
@@ -187,6 +176,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     markers.push(marker);
     this.props.updateWidgetMetaProperty("markers", markers);
     this.props.updateWidgetMetaProperty("selectedMarker", marker, {
+      triggerPropertyName: "onCreateMarker",
       dynamicString: this.props.onCreateMarker,
       event: {
         type: EventType.ON_CREATE_MARKER,
@@ -206,6 +196,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       title: title,
     };
     this.props.updateWidgetMetaProperty("selectedMarker", selectedMarker, {
+      triggerPropertyName: "onMarkerClick",
       dynamicString: this.props.onMarkerClick,
       event: {
         type: EventType.ON_MARKER_CLICK,
@@ -237,9 +228,9 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             <p>
               {"See our"}
               <a
-                target="_blank"
-                rel="noopener noreferrer"
                 href="https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 {" documentation "}
               </a>
@@ -249,26 +240,26 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         )}
         {google.enabled && (
           <MapComponent
-            apiKey={google.apiKey}
-            widgetId={this.props.widgetId}
-            isVisible={this.props.isVisible}
-            zoomLevel={this.props.zoomLevel}
             allowZoom={this.props.allowZoom}
+            apiKey={google.apiKey}
             center={this.getCenter()}
             enableCreateMarker={this.props.enableCreateMarker}
-            selectedMarker={this.props.selectedMarker}
-            updateCenter={this.updateCenter}
-            isDisabled={this.props.isDisabled}
-            enableSearch={this.props.enableSearch}
-            enablePickLocation={this.props.enablePickLocation}
-            saveMarker={this.onCreateMarker}
-            updateMarker={this.updateMarker}
-            selectMarker={this.onMarkerClick}
-            unselectMarker={this.unselectMarker}
-            markers={this.props.markers}
             enableDrag={() => {
               this.disableDrag(false);
             }}
+            enablePickLocation={this.props.enablePickLocation}
+            enableSearch={this.props.enableSearch}
+            isDisabled={this.props.isDisabled}
+            isVisible={this.props.isVisible}
+            markers={this.props.markers}
+            saveMarker={this.onCreateMarker}
+            selectMarker={this.onMarkerClick}
+            selectedMarker={this.props.selectedMarker}
+            unselectMarker={this.unselectMarker}
+            updateCenter={this.updateCenter}
+            updateMarker={this.updateMarker}
+            widgetId={this.props.widgetId}
+            zoomLevel={this.props.zoomLevel}
           />
         )}
       </>

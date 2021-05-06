@@ -21,9 +21,14 @@ import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 import evaluationsSaga from "./EvaluationsSaga";
 import onboardingSaga from "./OnboardingSagas";
+import utilSagas from "./UtilSagas";
+import saaSPaneSagas from "./SaaSPaneSagas";
 import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
 import recentEntitiesSagas from "./RecentEntitiesSagas";
+import commentSagas from "./CommentSagas";
+import websocketSagas from "./WebsocketSagas";
+import debuggerSagas from "./DebuggerSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 
@@ -52,8 +57,15 @@ export function* rootSaga() {
     evaluationsSaga,
     onboardingSaga,
     actionExecutionChangeListeners,
+    utilSagas,
+    saaSPaneSagas,
     globalSearchSagas,
     recentEntitiesSagas,
+    commentSagas,
+    websocketSagas,
+    debuggerSagas,
+    utilSagas,
+    saaSPaneSagas,
   ];
   yield all(
     sagas.map((saga) =>

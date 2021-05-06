@@ -8,9 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
+import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -31,8 +30,16 @@ public class AuthenticationDTO implements AppsmithDomain {
     // routines choke on identifying the correct class to instantiate and ends up trying to instantiate this abstract
     // class and fails.
 
+    public enum AuthenticationStatus {
+        NONE,
+        IN_PROGRESS,
+        SUCCESS
+    };
+
     @Transient
     String authenticationType;
+
+    AuthenticationStatus authenticationStatus;
 
     Set<Property> customAuthenticationParameters;
 
@@ -44,23 +51,8 @@ public class AuthenticationDTO implements AppsmithDomain {
     @JsonIgnore
     AuthenticationResponse authenticationResponse;
 
-    @JsonIgnore
-    public Map<String, String> getEncryptionFields() {
-        return Collections.emptyMap();
-    }
-
-    public void setEncryptionFields(Map<String, String> encryptedFields) {
-        // This is supposed to be overridden by implementations.
-    }
-
-    @JsonIgnore
-    public Set<String> getEmptyEncryptionFields() {
-        return Collections.emptySet();
-    }
-
-    @JsonIgnore
-    public Boolean isEncrypted() {
-        return this.isEncrypted;
+    public Mono<Boolean> hasExpired() {
+        return Mono.just(Boolean.FALSE);
     }
 
 }

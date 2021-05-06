@@ -3,9 +3,7 @@ import {
   isChildPropertyPath,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
-import { WidgetType } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { VALIDATORS } from "./validations";
 import { Diff } from "deep-diff";
 import {
@@ -16,6 +14,8 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -57,8 +57,17 @@ export const convertPathToString = (arrPath: Array<string | number>) => {
 // Todo: improve the logic here
 // Right now NaN, Infinity, floats, everything works
 function isInt(val: string | number): boolean {
-  if (typeof val === "number") return true;
-  return !isNaN(parseInt(val));
+  return Number.isInteger(val) || (_.isString(val) && /^\d+$/.test(val));
+}
+
+// Removes the entity name from the property path
+export function getEntityNameAndPropertyPath(
+  fullPath: string,
+): { entityName: string; propertyPath: string } {
+  const indexOfFirstDot = fullPath.indexOf(".");
+  const entityName = fullPath.substring(0, indexOfFirstDot);
+  const propertyPath = fullPath.substring(fullPath.indexOf(".") + 1);
+  return { entityName, propertyPath };
 }
 
 export const translateDiffEventToDataTreeDiffEvent = (
@@ -244,73 +253,53 @@ export const getImmediateParentsOfPropertyPaths = (
 };
 
 export function validateWidgetProperty(
-  widgetConfigMap: WidgetTypeConfigMap,
-  widgetType: WidgetType,
   property: string,
   value: any,
   props: WidgetProps,
+  validation?: VALIDATION_TYPES,
   dataTree?: DataTree,
 ) {
-  const propertyValidationTypes = widgetConfigMap[widgetType].validations;
-  const validationTypeOrValidator = propertyValidationTypes[property];
-  let validator;
-
-  if (typeof validationTypeOrValidator === "function") {
-    validator = validationTypeOrValidator;
-  } else {
-    validator = VALIDATORS[validationTypeOrValidator];
-  }
-  if (validator) {
-    return validator(value, props, dataTree);
-  } else {
+  if (!validation) {
     return { isValid: true, parsed: value };
   }
+  const validator = VALIDATORS[validation];
+  if (!validator) {
+    return { isValid: true, parsed: value };
+  }
+  return validator(value, props, dataTree);
 }
 
-export function getValidatedTree(
-  widgetConfigMap: WidgetTypeConfigMap,
-  tree: DataTree,
-) {
+export function getValidatedTree(tree: DataTree) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
       return tree;
     }
     const parsedEntity = { ...entity };
-    Object.keys(entity).forEach((property: string) => {
-      const validationProperties = widgetConfigMap[entity.type].validations;
-
-      if (property in validationProperties) {
-        const value = _.get(entity, property);
-        // Pass it through parse
-        const {
-          parsed,
-          isValid,
-          message,
-          transformed,
-        } = validateWidgetProperty(
-          widgetConfigMap,
-          entity.type,
-          property,
-          value,
-          entity,
-          tree,
-        );
-        parsedEntity[property] = parsed;
-        const evaluatedValue = isValid
-          ? parsed
-          : _.isUndefined(transformed)
-          ? value
-          : transformed;
-        const safeEvaluatedValue = removeFunctions(evaluatedValue);
-        _.set(parsedEntity, `evaluatedValues.${property}`, safeEvaluatedValue);
-        if (!isValid) {
-          _.set(parsedEntity, `invalidProps.${property}`, true);
-          _.set(parsedEntity, `validationMessages.${property}`, message);
-        } else {
-          _.set(parsedEntity, `invalidProps.${property}`, false);
-          _.set(parsedEntity, `validationMessages.${property}`, "");
-        }
+    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
+      const value = _.get(entity, property);
+      // Pass it through parse
+      const { parsed, isValid, message, transformed } = validateWidgetProperty(
+        property,
+        value,
+        entity,
+        validation,
+        tree,
+      );
+      _.set(parsedEntity, property, parsed);
+      const evaluatedValue = isValid
+        ? parsed
+        : _.isUndefined(transformed)
+        ? value
+        : transformed;
+      const safeEvaluatedValue = removeFunctions(evaluatedValue);
+      _.set(parsedEntity, `evaluatedValues.${property}`, safeEvaluatedValue);
+      if (!isValid) {
+        _.set(parsedEntity, `invalidProps.${property}`, true);
+        _.set(parsedEntity, `validationMessages.${property}`, message);
+      } else {
+        _.set(parsedEntity, `invalidProps.${property}`, false);
+        _.set(parsedEntity, `validationMessages.${property}`, "");
       }
     });
     return { ...tree, [entityKey]: parsedEntity };
@@ -471,3 +460,36 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
 
   return withFunction;
 };
+
+export function getSafeToRenderDataTree(
+  tree: DataTree,
+  widgetTypeConfigMap: WidgetTypeConfigMap,
+) {
+  return Object.keys(tree).reduce((tree, entityKey: string) => {
+    const entity = tree[entityKey] as DataTreeWidget;
+    if (!isWidget(entity)) {
+      return tree;
+    }
+    const safeToRenderEntity = { ...entity };
+    // Set user input values to their parsed values
+    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
+      const value = _.get(entity, property);
+      // Pass it through parse
+      const { parsed } = validateWidgetProperty(
+        property,
+        value,
+        entity,
+        validation,
+        tree,
+      );
+      _.set(safeToRenderEntity, property, parsed);
+    });
+    // Set derived values to undefined or else they would go as bindings
+    Object.keys(widgetTypeConfigMap[entity.type].derivedProperties).forEach(
+      (property) => {
+        _.set(safeToRenderEntity, property, undefined);
+      },
+    );
+    return { ...tree, [entityKey]: safeToRenderEntity };
+  }, tree);
+}

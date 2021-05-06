@@ -9,8 +9,9 @@ import {
   VerifyTokenRequest,
 } from "api/UserApi";
 
-export const logoutUser = () => ({
+export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,
+  payload,
 });
 
 export const logoutUserSuccess = () => ({

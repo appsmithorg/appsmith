@@ -11,7 +11,7 @@ interface FormControlProps {
   multipleConfig?: ControlProps[];
 }
 
-const FormControl = (props: FormControlProps) => {
+function FormControl(props: FormControlProps) {
   const formValues = useSelector((state) =>
     getFormValues(props.formName)(state),
   );
@@ -28,6 +28,6 @@ const FormControl = (props: FormControlProps) => {
       )}
     </div>
   );
-};
+}
 
 export default FormControl;

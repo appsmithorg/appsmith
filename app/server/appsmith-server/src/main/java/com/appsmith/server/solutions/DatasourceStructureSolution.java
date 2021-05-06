@@ -1,11 +1,11 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -14,7 +14,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.CustomDatasourceRepository;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.services.PluginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +22,7 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.Map;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -59,6 +56,11 @@ public class DatasourceStructureSolution {
                     }
 
                     return e;
+                })
+                .onErrorResume(error -> {
+                    DatasourceStructure dsStructure = new DatasourceStructure();
+                    dsStructure.setErrorInfo(error);
+                    return Mono.just(dsStructure);
                 });
     }
 
@@ -72,8 +74,6 @@ public class DatasourceStructureSolution {
             // Return the cached structure if available.
             return Mono.just(datasource.getStructure());
         }
-
-        decryptEncryptedFieldsInDatasource(datasource);
 
         // This mono, when computed, will load the structure of the datasource by calling the plugin method.
         return pluginExecutorHelper
@@ -91,14 +91,16 @@ public class DatasourceStructureSolution {
                         TimeoutException.class,
                         error -> new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR,
-                                "Timed out when fetching structure"
+                                "Appsmith server timed out when fetching structure. Please reach out to appsmith " +
+                                        "customer support to resolve this."
                         )
                 )
                 .onErrorMap(
                         StaleConnectionException.class,
                         error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                                "Secondary stale connection error."
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server found a secondary stale connection. Please reach out to appsmith " +
+                                        "customer support to resolve this."
                         )
                 )
                 .onErrorMap(
@@ -123,23 +125,4 @@ public class DatasourceStructureSolution {
                         : datasourceRepository.saveStructure(datasource.getId(), structure).thenReturn(structure)
                 );
     }
-
-    private Datasource decryptEncryptedFieldsInDatasource(Datasource datasource) {
-        // If datasource has encrypted fields, decrypt and set it in the datasource.
-        if (datasource.getDatasourceConfiguration() != null) {
-            AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-            if (authentication != null && authentication.isEncrypted()) {
-                Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
-                        .filter(e -> e.getValue() != null)
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                e -> encryptionService.decryptString(e.getValue())));
-                authentication.setEncryptionFields(decryptedFields);
-                authentication.setIsEncrypted(false);
-            }
-        }
-
-        return datasource;
-    }
-
 }

@@ -43,33 +43,33 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
 
   const contextMenu = (
     <ActionEntityContextMenu
+      className={EntityClassNames.CONTEXT_MENU}
       id={props.action.config.id}
       name={props.action.config.name}
-      className={EntityClassNames.CONTEXT_MENU}
       pageId={props.pageId}
     />
   );
   return (
     <Entity
-      key={props.action.config.id}
-      icon={props.icon}
-      name={props.action.config.name}
       action={switchToAction}
       active={props.active}
+      className="action"
+      contextMenu={contextMenu}
       entityId={props.action.config.id}
+      icon={props.icon}
+      key={props.action.config.id}
+      name={props.action.config.name}
+      searchKeyword={props.searchKeyword}
       step={props.step}
       updateEntityName={getUpdateActionNameReduxAction}
-      searchKeyword={props.searchKeyword}
-      contextMenu={contextMenu}
-      className="action"
     >
       <EntityProperties
+        entity={props.action}
+        entityId={props.action.config.id}
         entityName={props.action.config.name}
         entityType={ENTITY_TYPE.ACTION}
         pageId={props.pageId}
         step={props.step + 1}
-        entity={props.action}
-        entityId={props.action.config.id}
       />
     </Entity>
   );

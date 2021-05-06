@@ -119,9 +119,9 @@ export const ControlIcons: {
   PLAY_VIDEO: (props: IconProps) => (
     <IconWrapper {...props}>
       <img
+        alt="Datasource"
         src={PlayIcon}
         style={{ height: "30px", width: "30px" }}
-        alt="Datasource"
       />
     </IconWrapper>
   ),

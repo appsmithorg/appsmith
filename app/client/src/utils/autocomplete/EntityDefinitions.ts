@@ -170,7 +170,6 @@ export const entityDefinitions = {
   },
   TABS_WIDGET: {
     isVisible: isVisible,
-    tabs: "[tabs]",
     selectedTab: "string",
   },
   MODAL_WIDGET: {
@@ -224,6 +223,18 @@ export const entityDefinitions = {
     isDisabled: "bool",
     uploadedFileUrls: "string",
   },
+  LIST_WIDGET: (widget: any) => ({
+    "!doc":
+      "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+    "!url": "https://docs.appsmith.com/widget-reference/list",
+    backgroundColor: {
+      "!type": "string",
+      "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+    },
+    isVisible: isVisible,
+    gridGap: "number",
+    selectedItem: generateTypeDef(widget.selectedItem),
+  }),
 };
 
 export const GLOBAL_DEFS = {
