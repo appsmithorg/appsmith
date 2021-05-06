@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
@@ -51,6 +52,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 
 public class DynamoPlugin extends BasePlugin {
 
@@ -280,6 +284,7 @@ public class DynamoPlugin extends BasePlugin {
 
             final Map<String, Object> requestData = new HashMap<>();
             final String body = actionConfiguration.getBody();
+            List<RequestParamDTO> requestParams = new ArrayList<>();
 
             return Mono.fromCallable(() -> {
                 ActionExecutionResult result = new ActionExecutionResult();
@@ -292,7 +297,8 @@ public class DynamoPlugin extends BasePlugin {
                     );
                 }
                 requestData.put("action", action);
-
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, action, null, null));
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null));
 
                 Map<String, Object> parameters = null;
                 try {
@@ -340,10 +346,7 @@ public class DynamoPlugin extends BasePlugin {
                     .onErrorResume(error  -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        result.setBody(error.getMessage());
+                        result.setErrorInfo(error);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -351,6 +354,7 @@ public class DynamoPlugin extends BasePlugin {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setProperties(requestData);
                         actionExecutionRequest.setQuery(body);
+                        actionExecutionRequest.setRequestParams(requestParams);
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         return actionExecutionResult;
                     })

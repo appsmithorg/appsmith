@@ -887,6 +887,35 @@ type ColorType = {
     iconPath: string;
     iconCircle: string;
   };
+  comments: {
+    profileUserName: string;
+    threadTitle: string;
+    commentBody: string;
+    profileImageBorder: string;
+    mention: string;
+    threadContainerBorder: string;
+    addCommentInputBorder: string;
+    sendButton: string;
+    addCommentInputBackground: string;
+    pin: string;
+    commentModeButtonIcon: string;
+    commentModeButtonBackground: string;
+    emojiPicker: string;
+    resolved: string;
+    unresolved: string;
+    childCommentsIndent: string;
+    commentBackground: string;
+    contextMenuTrigger: string;
+    contextMenuItemHover: ShadeColor;
+    contextMenuIcon: ShadeColor;
+    contextMenuIconHover: ShadeColor;
+    contextMenuIconStroke: ShadeColor;
+    contextMenuIconStrokeHover: ShadeColor;
+    contextMenuTitle: ShadeColor;
+    contextMenuTitleHover: ShadeColor;
+    appCommentsHeaderTitle: ShadeColor;
+    appCommentsClose: ShadeColor;
+  };
   treeDropdown: {
     targetBg: string;
     targetIcon: {
@@ -924,10 +953,73 @@ type ColorType = {
   };
   scrollbar: string;
   scrollbarBG: string;
+  debugger: {
+    background: string;
+    messageTextColor: string;
+    time: string;
+    label: string;
+    entity: string;
+    entityLink: string;
+    floatingButton: {
+      background: string;
+      color: string;
+      shadow: string;
+      errorCount: string;
+      noErrorCount: string;
+    };
+    blankState: {
+      shortcut: string;
+      color: string;
+    };
+    info: {
+      borderBottom: string;
+    };
+    warning: {
+      borderBottom: string;
+      backgroundColor: string;
+    };
+    error: {
+      borderBottom: string;
+      backgroundColor: string;
+    };
+    jsonIcon: string;
+    message: string;
+  };
   helpModal: {
     itemHighlight: string;
     background: string;
   };
+  mentionsInput: Record<string, string>;
+};
+
+const comments = {
+  profileUserName: darkShades[11],
+  threadTitle: darkShades[8],
+  commentBody: darkShades[8],
+  profileImageBorder: Colors.JAFFA_DARK,
+  mention: "#F86A2B",
+  threadContainerBorder: lightShades[5],
+  addCommentInputBorder: lightShades[13],
+  sendButton: "#6A86CE",
+  addCommentInputBackground: "#FAFAFA",
+  pin: "#EF4141",
+  commentModeButtonIcon: "#6A86CE",
+  commentModeButtonBackground: "#262626",
+  emojiPicker: lightShades[5],
+  resolved: Colors.GREEN,
+  unresolved: lightShades[5],
+  childCommentsIndent: lightShades[13],
+  commentBackground: lightShades[2],
+  contextMenuTrigger: darkShades[6],
+  contextMenuItemHover: lightShades[2],
+  contextMenuIcon: darkShades[6],
+  contextMenuIconHover: darkShades[11],
+  contextMenuIconStroke: darkShades[6],
+  contextMenuIconStrokeHover: darkShades[11],
+  contextMenuTitle: lightShades[8],
+  contextMenuTitleHover: darkShades[11],
+  appCommentsHeaderTitle: darkShades[11],
+  appCommentsClose: lightShades[15],
 };
 
 const auth: any = {
@@ -988,9 +1080,19 @@ const globalSearch = {
   navigateToEntityEnterkey: "#3DA5D9",
 };
 
+const mentionsInput = {
+  suggestionsListBackground: "#fff",
+  suggestionsListBorder: "rgba(0,0,0,0.15)",
+  focusedItemBackground: "#cee4e5",
+  itemBorderBottom: "#cee4e5",
+  mentionBackground: "#cee4e5",
+};
+
 export const dark: ColorType = {
+  mentionsInput,
   helpModal,
   globalSearch,
+  comments,
   selected: darkShades[10],
   header: {
     separator: darkShades[4],
@@ -1397,11 +1499,48 @@ export const dark: ColorType = {
   },
   scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
   scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
+  debugger: {
+    background: darkShades[11],
+    messageTextColor: "#D4D4D4",
+    time: "#D4D4D4",
+    label: "#D4D4D4",
+    entity: "rgba(212, 212, 212, 0.5)",
+    entityLink: "#D4D4D4",
+    jsonIcon: "#9F9F9F",
+    message: "#D4D4D4",
+    floatingButton: {
+      background: "#2b2b2b",
+      color: "#d4d4d4",
+      shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
+      errorCount: "#F22B2B",
+      noErrorCount: "#03B365",
+    },
+    blankState: {
+      color: "#D4D4D4",
+      shortcut: "#D4D4D4",
+    },
+    info: {
+      borderBottom: "black",
+    },
+    warning: {
+      borderBottom: "black",
+      backgroundColor: "#29251A",
+    },
+    error: {
+      borderBottom: "black",
+      backgroundColor: "#291B1D",
+    },
+  },
 };
 
 export const light: ColorType = {
+  mentionsInput,
   helpModal,
   globalSearch,
+  comments: {
+    ...comments,
+    commentModeButtonBackground: "#FAFAFA",
+  },
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
@@ -1809,6 +1948,38 @@ export const light: ColorType = {
   },
   scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
   scrollbarBG: "transparent",
+  debugger: {
+    background: "#FFFFFF",
+    messageTextColor: "#716e6e",
+    time: "#4b4848",
+    label: "#4b4848",
+    entity: "rgba(75, 72, 72, 0.7)",
+    entityLink: "#6d6d6d",
+    jsonIcon: "#a9a7a7",
+    message: "#4b4848",
+    floatingButton: {
+      background: "#2b2b2b",
+      color: "#d4d4d4",
+      shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
+      errorCount: "#F22B2B",
+      noErrorCount: "#03B365",
+    },
+    blankState: {
+      color: "#716e6e",
+      shortcut: "black",
+    },
+    info: {
+      borderBottom: "rgba(0, 0, 0, 0.05)",
+    },
+    warning: {
+      borderBottom: "white",
+      backgroundColor: "rgba(254, 184, 17, 0.1)",
+    },
+    error: {
+      borderBottom: "white",
+      backgroundColor: "rgba(242, 43, 43, 0.08)",
+    },
+  },
 };
 
 export const theme: Theme = {

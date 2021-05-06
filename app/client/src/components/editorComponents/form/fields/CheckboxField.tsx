@@ -11,24 +11,24 @@ type RenderComponentProps = CheckboxProps & {
   };
 };
 
-const RenderComponent = (props: RenderComponentProps) => {
+function RenderComponent(props: RenderComponentProps) {
   const onChangeHandler = (value: boolean) => {
     props.input && props.input.onChange && props.input.onChange(value);
   };
 
   return (
     <Checkbox
+      cypressSelector={props.input?.name}
+      info={props.info}
       isDefaultChecked={props.input?.checked}
       label={props.label}
       onCheckChange={onChangeHandler}
-      info={props.info}
-      cypressSelector={props.input?.name}
     />
   );
-};
+}
 
-export const CheckboxField = (props: BaseFieldProps & CheckboxProps) => {
-  return <Field type="checkbox" component={RenderComponent} {...props} />;
-};
+export function CheckboxField(props: BaseFieldProps & CheckboxProps) {
+  return <Field component={RenderComponent} type="checkbox" {...props} />;
+}
 
 export default CheckboxField;

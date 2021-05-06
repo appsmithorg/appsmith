@@ -19,23 +19,26 @@ type TooltipProps = CommonComponentProps & {
   minimal?: boolean;
 };
 
-const TooltipComponent = (props: TooltipProps) => {
+function TooltipComponent(props: TooltipProps) {
   return (
     <Tooltip
+      autoFocus={props.autoFocus}
+      boundary={props.boundary || "scrollParent"}
       content={props.content}
+      hoverOpenDelay={props.hoverOpenDelay}
+      minimal={props.minimal}
+      modifiers={{
+        preventOverflow: { enabled: false },
+      }}
+      openOnTargetFocus={props.openOnTargetFocus}
+      popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
       position={props.position}
       usePortal
-      boundary={props.boundary || "scrollParent"}
-      autoFocus={props.autoFocus}
-      hoverOpenDelay={props.hoverOpenDelay}
-      openOnTargetFocus={props.openOnTargetFocus}
-      minimal={props.minimal}
-      popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
     >
       {props.children}
     </Tooltip>
   );
-};
+}
 
 TooltipComponent.defaultProps = {
   position: Position.TOP,

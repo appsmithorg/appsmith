@@ -28,20 +28,20 @@ public class SequenceServiceImpl implements SequenceService {
                 .findAndModify(
                         query(where("name").is(name)),
                         new Update().inc("nextNumber", 1),
-                        options().upsert(true),
+                        options().returnNew(true).upsert(true),
                         Sequence.class
                 )
                 .map(Sequence::getNextNumber);
     }
 
     @Override
-    public Mono<Long> getNext(Class<? extends BaseDomain> domainClass) {
-        return getNext(mongoTemplate.getCollectionName(domainClass));
+    public Mono<Long> getNext(Class<? extends BaseDomain> domainClass, String suffix) {
+        return getNext(mongoTemplate.getCollectionName(domainClass) + suffix);
     }
 
     @Override
-    public Mono<String> getNextAsSuffix(Class<? extends BaseDomain> domainClass) {
-        return getNext(mongoTemplate.getCollectionName(domainClass))
+    public Mono<String> getNextAsSuffix(Class<? extends BaseDomain> domainClass, String suffix) {
+        return getNext(mongoTemplate.getCollectionName(domainClass) + suffix)
                 .map(number -> number > 1 ? " " + number : "");
     }
 

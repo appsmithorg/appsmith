@@ -16,7 +16,10 @@ import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
@@ -45,6 +48,8 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
+import * as Sentry from "@sentry/react";
+import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -82,6 +87,7 @@ export type EditorStyleProps = {
   hoverInteraction?: boolean;
   fill?: boolean;
   useValidationMessage?: boolean;
+  evaluationSubstitutionType?: EvaluationSubstitutionType;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -90,6 +96,7 @@ export type EditorProps = EditorStyleProps &
   } & {
     additionalDynamicData?: Record<string, Record<string, unknown>>;
     promptMessage?: React.ReactNode | string;
+    hideEvaluatedValue?: boolean;
   };
 
 type Props = ReduxStateProps & EditorProps;
@@ -174,16 +181,13 @@ class CodeEditor extends Component<Props, State> {
       }
 
       // Set value of the editor
-      let inputValue = this.props.input.value || "";
-      if (typeof inputValue === "object") {
-        inputValue = JSON.stringify(inputValue, null, 2);
-      } else if (
-        typeof inputValue === "number" ||
-        typeof inputValue === "string"
-      ) {
-        inputValue += "";
+      const inputValue = getInputValue(this.props.input.value || "");
+      if (this.props.size === EditorSize.COMPACT) {
+        this.editor.setValue(removeNewLineChars(inputValue));
+      } else {
+        this.editor.setValue(inputValue);
       }
-      this.editor.setValue(inputValue);
+
       this.updateMarkings();
 
       this.startAutocomplete();
@@ -195,18 +199,14 @@ class CodeEditor extends Component<Props, State> {
     if (!this.state.isFocused) {
       // const currentMode = this.editor.getOption("mode");
       const editorValue = this.editor.getValue();
-      let inputValue = this.props.input.value;
       // Safe update of value of the editor when value updated outside the editor
-      if (typeof inputValue === "object") {
-        inputValue = JSON.stringify(inputValue, null, 2);
-      } else if (
-        typeof inputValue === "number" ||
-        typeof inputValue === "string"
-      ) {
-        inputValue += "";
-      }
-      if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
-        this.editor.setValue(inputValue);
+      const inputValue = getInputValue(this.props.input.value);
+      if (!!inputValue || inputValue === "") {
+        if (this.props.size === EditorSize.COMPACT) {
+          this.editor.setValue(removeNewLineChars(inputValue));
+        } else if (inputValue !== editorValue) {
+          this.editor.setValue(inputValue);
+        }
       }
       this.updateMarkings();
 
@@ -265,7 +265,10 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ isFocused: true });
     this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
+      const inputValue = this.props.input.value;
       this.editor.setOption("lineWrapping", true);
+      this.editor.setValue(inputValue);
+      this.editor.setCursor(inputValue.length);
     }
   };
 
@@ -287,7 +290,11 @@ class CodeEditor extends Component<Props, State> {
       });
     }
     const inputValue = this.props.input.value;
-    if (this.props.input.onChange && value !== inputValue) {
+    if (
+      this.props.input.onChange &&
+      value !== inputValue &&
+      this.state.isFocused
+    ) {
       this.props.input.onChange(value);
     }
     this.updateMarkings();
@@ -348,6 +355,8 @@ class CodeEditor extends Component<Props, State> {
       hoverInteraction,
       fill,
       useValidationMessage,
+      hideEvaluatedValue,
+      evaluationSubstitutionType,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
@@ -361,53 +370,55 @@ class CodeEditor extends Component<Props, State> {
 
     return (
       <DynamicAutocompleteInputWrapper
-        theme={this.props.theme}
-        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
-        isError={hasError}
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
+        isError={hasError}
         isNotHover={this.state.isFocused || this.state.isOpened}
+        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
+        theme={this.props.theme}
       >
         {showLightningMenu !== false && !this.state.isFocused && (
           <Suspense fallback={<div />}>
             <LightningMenu
+              isFocused={this.state.isFocused}
+              isOpened={this.state.isOpened}
+              onCloseLightningMenu={() => {
+                this.setState({ isOpened: false });
+              }}
+              onOpenLightningMenu={() => {
+                this.setState({ isOpened: true });
+              }}
               skin={
                 this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT
               }
               updateDynamicInputValue={this.updatePropertyValue}
-              isFocused={this.state.isFocused}
-              isOpened={this.state.isOpened}
-              onOpenLightningMenu={() => {
-                this.setState({ isOpened: true });
-              }}
-              onCloseLightningMenu={() => {
-                this.setState({ isOpened: false });
-              }}
             />
           </Suspense>
         )}
         <EvaluatedValuePopup
-          theme={theme || EditorTheme.LIGHT}
-          isOpen={showEvaluatedValue}
+          error={meta?.error}
           evaluatedValue={evaluated}
+          evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
           hasError={hasError}
-          error={meta?.error}
+          hideEvaluatedValue={hideEvaluatedValue}
+          isOpen={showEvaluatedValue}
+          theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >
           <EditorWrapper
-            editorTheme={this.props.theme}
-            hasError={hasError}
-            size={size}
-            isFocused={this.state.isFocused}
-            disabled={disabled}
-            className={className}
-            height={height}
-            borderLess={borderLess}
             border={border}
-            isNotHover={this.state.isFocused || this.state.isOpened}
-            hoverInteraction={hoverInteraction}
+            borderLess={borderLess}
+            className={className}
+            disabled={disabled}
+            editorTheme={this.props.theme}
             fill={fill}
+            hasError={hasError}
+            height={height}
+            hoverInteraction={hoverInteraction}
+            isFocused={this.state.isFocused}
+            isNotHover={this.state.isFocused || this.state.isOpened}
             ref={this.editorWrapperRef}
+            size={size}
           >
             <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (
@@ -416,9 +427,9 @@ class CodeEditor extends Component<Props, State> {
 
             {this.props.leftImage && (
               <img
-                src={this.props.leftImage}
                 alt="img"
                 className="leftImageStyles"
+                src={this.props.leftImage}
               />
             )}
             <textarea
@@ -428,24 +439,22 @@ class CodeEditor extends Component<Props, State> {
               placeholder={placeholder}
             />
             {this.props.link && (
-              <React.Fragment>
-                <a
-                  href={this.props.link}
-                  target="_blank"
-                  className="linkStyles"
-                  rel="noopener noreferrer"
-                >
-                  API documentation
-                </a>
-              </React.Fragment>
+              <a
+                className="linkStyles"
+                href={this.props.link}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                API documentation
+              </a>
             )}
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
             <BindingPrompt
+              editorTheme={this.props.theme}
               isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
               promptMessage={this.props.promptMessage}
-              editorTheme={this.props.theme}
             />
             <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
@@ -459,4 +468,4 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
 });
 
-export default connect(mapStateToProps)(CodeEditor);
+export default Sentry.withProfiler(connect(mapStateToProps)(CodeEditor));

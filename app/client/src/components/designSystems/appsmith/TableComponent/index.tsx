@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import Table from "components/designSystems/appsmith/TableComponent/Table";
 import {
   ColumnTypes,
@@ -42,12 +42,10 @@ interface ReactTableComponentProps {
   height: number;
   pageSize: number;
   tableData: Array<Record<string, unknown>>;
-  columnOrder?: string[];
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
-  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
   nextPageClick: () => void;
   prevPageClick: () => void;
@@ -69,7 +67,20 @@ interface ReactTableComponentProps {
   updateCompactMode: (compactMode: CompactMode) => void;
 }
 
-const ReactTableComponent = (props: ReactTableComponentProps) => {
+function ReactTableComponent(props: ReactTableComponentProps) {
+  const { columnOrder, hiddenColumns } = useMemo(() => {
+    const order: string[] = [];
+    const hidden: string[] = [];
+    props.columns.forEach((item) => {
+      if (item.isHidden) {
+        hidden.push(item.accessor);
+      } else {
+        order.push(item.accessor);
+      }
+    });
+    return { columnOrder: order, hiddenColumns: hidden };
+  }, [props.columns]);
+
   useEffect(() => {
     let dragged = -1;
     const headers = Array.prototype.slice.call(
@@ -130,13 +141,15 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
         header.parentElement.className = "th header-reorder";
         if (i !== dragged && dragged !== -1) {
           e.preventDefault();
-          const columnOrder = props.columnOrder
-            ? [...props.columnOrder]
-            : props.columns.map((item) => item.accessor);
-          const draggedColumn = props.columns[dragged].accessor;
-          columnOrder.splice(dragged, 1);
-          columnOrder.splice(i, 0, draggedColumn);
-          props.handleReorderColumn(columnOrder);
+          const newColumnOrder = [...columnOrder];
+          // The dragged column
+          const movedColumnName = newColumnOrder.splice(dragged, 1);
+
+          // If the dragged column exists
+          if (movedColumnName && movedColumnName.length === 1) {
+            newColumnOrder.splice(i, 0, movedColumnName[0]);
+          }
+          props.handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
         } else {
           dragged = -1;
         }
@@ -168,48 +181,45 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
 
   return (
     <Table
-      isLoading={props.isLoading}
-      width={props.width}
-      height={props.height}
-      pageSize={props.pageSize || 1}
-      widgetId={props.widgetId}
-      widgetName={props.widgetName}
-      searchKey={props.searchKey}
-      columns={props.columns}
-      hiddenColumns={props.hiddenColumns}
+      applyFilter={props.applyFilter}
       columnSizeMap={props.columnSizeMap}
-      updateHiddenColumns={props.updateHiddenColumns}
+      columns={props.columns}
+      compactMode={props.compactMode}
       data={props.tableData}
-      editMode={props.editMode}
-      handleResizeColumn={props.handleResizeColumn}
-      sortTableColumn={sortTableColumn}
-      selectTableRow={selectTableRow}
-      pageNo={props.pageNo - 1}
-      updatePageNo={props.updatePageNo}
-      // columnActions={props.columnActions}
-      triggerRowSelection={props.triggerRowSelection}
-      nextPageClick={() => {
-        props.nextPageClick();
-      }}
-      prevPageClick={() => {
-        props.prevPageClick();
-      }}
-      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-      selectedRowIndex={props.selectedRowIndex}
-      selectedRowIndices={props.selectedRowIndices}
       disableDrag={() => {
         props.disableDrag(true);
       }}
+      editMode={props.editMode}
       enableDrag={() => {
         props.disableDrag(false);
       }}
-      searchTableData={props.searchTableData}
       filters={props.filters}
-      applyFilter={props.applyFilter}
-      compactMode={props.compactMode}
+      handleResizeColumn={props.handleResizeColumn}
+      height={props.height}
+      isLoading={props.isLoading}
+      nextPageClick={() => {
+        props.nextPageClick();
+      }}
+      pageNo={props.pageNo - 1}
+      pageSize={props.pageSize || 1}
+      prevPageClick={() => {
+        props.prevPageClick();
+      }}
+      searchKey={props.searchKey}
+      searchTableData={props.searchTableData}
+      selectTableRow={selectTableRow}
+      selectedRowIndex={props.selectedRowIndex}
+      selectedRowIndices={props.selectedRowIndices}
+      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+      sortTableColumn={sortTableColumn}
+      triggerRowSelection={props.triggerRowSelection}
       updateCompactMode={props.updateCompactMode}
+      updatePageNo={props.updatePageNo}
+      widgetId={props.widgetId}
+      widgetName={props.widgetName}
+      width={props.width}
     />
   );
-};
+}
 
 export default ReactTableComponent;

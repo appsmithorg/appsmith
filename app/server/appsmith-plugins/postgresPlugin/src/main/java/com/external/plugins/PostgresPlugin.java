@@ -16,6 +16,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -24,6 +25,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariProxyConnection;
+import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -61,6 +63,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static java.lang.Boolean.FALSE;
@@ -170,8 +173,17 @@ public class PostgresPlugin extends BasePlugin {
                  * is no longer in beta.
                  */
                 isPreparedStatement = false;
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
+                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
+                if (psValue instanceof  Boolean) {
+                    isPreparedStatement = (Boolean) psValue;
+                } else if (psValue instanceof String) {
+                    isPreparedStatement = Boolean.parseBoolean((String) psValue);
+                } else {
+                    isPreparedStatement = false;
+                }
             } else {
-                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+                isPreparedStatement = false;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
@@ -200,6 +212,8 @@ public class PostgresPlugin extends BasePlugin {
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+                    , null));
 
             return Mono.fromCallable(() -> {
 
@@ -384,10 +398,7 @@ public class PostgresPlugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        result.setBody(error.getMessage());
+                        result.setErrorInfo(error);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -395,6 +406,7 @@ public class PostgresPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
                         request.setProperties(requestData);
+                        request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -793,9 +805,14 @@ public class PostgresPlugin extends BasePlugin {
                 }
 
             } catch (SQLException | IllegalArgumentException | IOException e) {
-                String message = "Query preparation failed while inserting value: "
-                        + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+                if ((e instanceof SQLException) && e.getMessage().contains("The column index is out of range:")) {
+                    // In case the parameter being set is out of range, then this must be getting set in the commented part of
+                    // the query. Ignore the exception
+                } else {
+                    String message = "Query preparation failed while inserting value: "
+                            + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+                }
             }
 
             return preparedStatement;
@@ -887,6 +904,7 @@ public class PostgresPlugin extends BasePlugin {
         SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
             case ALLOW:
+            case PREFER:
             case REQUIRE:
                 config.addDataSourceProperty("ssl", "true");
                 config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
@@ -904,8 +922,8 @@ public class PostgresPlugin extends BasePlugin {
             default:
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
-                                "customer support to resolve this."
+                        "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                " Appsmith customer support to resolve this."
                 );
         }
 
@@ -917,7 +935,15 @@ public class PostgresPlugin extends BasePlugin {
         config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
 
         // Now create the connection pool from the configuration
-        HikariDataSource datasource = new HikariDataSource(config);
+        HikariDataSource datasource = null;
+        try {
+            datasource = new HikariDataSource(config);
+        } catch (PoolInitializationException e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    e.getMessage()
+            );
+        }
 
         return datasource;
     }
@@ -929,7 +955,8 @@ public class PostgresPlugin extends BasePlugin {
      * @param connectionPool
      * @return SQL Connection
      */
-    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool, DatasourceConfiguration datasourceConfiguration) throws SQLException {
+    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
+                                                         DatasourceConfiguration datasourceConfiguration) throws SQLException {
 
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
             System.out.println(Thread.currentThread().getName() +

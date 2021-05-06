@@ -1,21 +1,30 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.ParsedDataType;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
@@ -46,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,6 +63,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
+
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -74,15 +87,95 @@ public class MongoPlugin extends BasePlugin {
 
     private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
+    private static final int SMART_BSON_SUBSTITUTION_INDEX = 0;
+
+    private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
+
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Slf4j
     @Extension
-    public static class MongoPluginExecutor implements PluginExecutor<MongoClient> {
+    public static class MongoPluginExecutor implements PluginExecutor<MongoClient>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.elastic();
+
+        /**
+         * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
+         * also update the datasource and action configuration for pagination and some minor cleanup of the configuration before execution
+         *
+         * @param mongoClient             : This is the connection that is established to the data source. This connection is according
+         *                                to the parameters in Datasource Configuration
+         * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
+         *                                which would be used for substitution
+         * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
+         * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
+         * @return
+         */
+        @Override
+        public Mono<ActionExecutionResult> executeParameterized(MongoClient mongoClient,
+                                                                ExecuteActionDTO executeActionDTO,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
+
+            Boolean smartBsonSubstitution;
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+
+            if (CollectionUtils.isEmpty(properties)) {
+                /**
+                 * TODO :
+                 * In case the smart bson substitution configuration is missing, default to true once smart bson
+                 * substitution is no longer in beta.
+                 */
+                smartBsonSubstitution = false;
+
+                // Since properties is not empty, we are guaranteed to find the first property.
+            } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null){
+                Object ssubValue = properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue();
+                if (ssubValue instanceof  Boolean) {
+                    smartBsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartBsonSubstitution = false;
+                }
+            } else {
+                smartBsonSubstitution = false;
+            }
+
+            // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
+            if (TRUE.equals(smartBsonSubstitution)) {
+                // Do smart replacements in BSON body
+                if (actionConfiguration.getBody() != null) {
+
+                    // First extract all the bindings in order
+                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
+                    // Replace all the bindings with a ? as expected in a prepared statement.
+                    String updatedBody = MustacheHelper.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
+
+                    try {
+                        updatedBody = (String) smartSubstitutionOfBindings(updatedBody,
+                                mustacheKeysInOrder,
+                                executeActionDTO.getParams(),
+                                parameters);
+                    } catch (AppsmithPluginException e) {
+                        ActionExecutionResult errorResult = new ActionExecutionResult();
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                        errorResult.setIsExecutionSuccess(false);
+                        errorResult.setBody(e.getMessage());
+                        return Mono.just(errorResult);
+                    }
+
+                    actionConfiguration.setBody(updatedBody);
+                }
+            }
+
+            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+
+            return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters);
+        }
 
         /**
          * For reference on creating the json queries for Mongo please head to
@@ -94,10 +187,10 @@ public class MongoPlugin extends BasePlugin {
          * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
          * @return Result data from executing the action's query.
          */
-        @Override
-        public Mono<ActionExecutionResult> execute(MongoClient mongoClient,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> executeCommon(MongoClient mongoClient,
+                                                         DatasourceConfiguration datasourceConfiguration,
+                                                         ActionConfiguration actionConfiguration,
+                                                         List<Map.Entry<String, String>> parameters) {
 
             if (mongoClient == null) {
                 log.info("Encountered null connection in MongoDB plugin. Reporting back.");
@@ -111,12 +204,21 @@ public class MongoPlugin extends BasePlugin {
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+                    , null));
 
             return mongoOutputMono
                     .onErrorMap(
+                            MongoTimeoutException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                                    error.getMessage()
+                            )
+                    )
+                    .onErrorMap(
                             MongoCommandException.class,
                             error -> new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
                     )
@@ -130,6 +232,10 @@ public class MongoPlugin extends BasePlugin {
 
                             if (BigInteger.ONE.equals(status)) {
                                 result.setIsExecutionSuccess(true);
+                                result.setDataTypes(List.of(
+                                        new ParsedDataType(DisplayDataType.JSON),
+                                        new ParsedDataType(DisplayDataType.RAW)
+                                ));
 
                                 /**
                                  * For the `findAndModify` command, we don't get the count of modifications made. Instead,
@@ -188,22 +294,25 @@ public class MongoPlugin extends BasePlugin {
 
                         return Mono.just(result);
                     })
-                    .onErrorResume(error  -> {
+                    .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            actionExecutionResult.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        actionExecutionResult.setBody(error.getMessage());
+                        actionExecutionResult.setErrorInfo(error);
                         return Mono.just(actionExecutionResult);
                     })
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
+                        if (!parameters.isEmpty()) {
+                            final Map<String, Object> requestData = new HashMap<>();
+                            requestData.put("smart-substitution-parameters", parameters);
+                            request.setProperties(requestData);
+                        }
+                        request.setRequestParams(requestParams);
                         actionExecutionResult.setRequest(request);
                         return actionExecutionResult;
                     })
@@ -275,17 +384,18 @@ public class MongoPlugin extends BasePlugin {
                 builder.append("mongodb://");
             }
 
+            boolean hasUsername = false;
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null) {
-                final boolean hasUsername = StringUtils.hasText(authentication.getUsername());
+                hasUsername = StringUtils.hasText(authentication.getUsername());
                 final boolean hasPassword = StringUtils.hasText(authentication.getPassword());
-                if (hasUsername)  {
+                if (hasUsername) {
                     builder.append(urlEncode(authentication.getUsername()));
                 }
-                if (hasPassword)  {
+                if (hasPassword) {
                     builder.append(':').append(urlEncode(authentication.getPassword()));
                 }
-                if (hasUsername || hasPassword)  {
+                if (hasUsername || hasPassword) {
                     builder.append('@');
                 }
             }
@@ -312,7 +422,7 @@ public class MongoPlugin extends BasePlugin {
             /*
              * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
              */
-            if(datasourceConfiguration.getConnection() == null
+            if (datasourceConfiguration.getConnection() == null
                     || datasourceConfiguration.getConnection().getSsl() == null
                     || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
                 throw new AppsmithPluginException(
@@ -342,12 +452,12 @@ public class MongoPlugin extends BasePlugin {
                 default:
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
-                                    "customer support to resolve this."
+                            "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                    " Appsmith customer support to resolve this."
                     );
             }
 
-            if (authentication != null && authentication.getAuthType() != null) {
+            if (hasUsername && authentication.getAuthType() != null) {
                 queryParams.add("authMechanism=" + authentication.getAuthType().name().replace('_', '-'));
             }
 
@@ -386,7 +496,7 @@ public class MongoPlugin extends BasePlugin {
 
             }
 
-            if(!CollectionUtils.isEmpty(endpoints)) {
+            if (!CollectionUtils.isEmpty(endpoints)) {
                 boolean usingSrvUrl = endpoints
                         .stream()
                         .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
@@ -414,7 +524,7 @@ public class MongoPlugin extends BasePlugin {
             /*
              * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
              */
-            if(datasourceConfiguration.getConnection() == null
+            if (datasourceConfiguration.getConnection() == null
                     || datasourceConfiguration.getConnection().getSsl() == null
                     || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
                 invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration " +
@@ -504,6 +614,20 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .collectList()
                     .thenReturn(structure)
+                    .onErrorMap(
+                            MongoCommandException.class,
+                            error -> {
+                                if (MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE.equals(error.getErrorCode())) {
+                                    return new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                            "Appsmith has failed to get database structure. Please provide read permission on" +
+                                                    " the database to fix this."
+                                    );
+                                }
+
+                                return error;
+                            }
+                    )
                     .subscribeOn(scheduler);
         }
 
@@ -644,6 +768,25 @@ public class MongoPlugin extends BasePlugin {
                                     "}\n"
                     )
             );
+        }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) {
+            String jsonBody = (String) input;
+            return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value, insertedParams);
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> execute(MongoClient mongoClient,
+                                                   DatasourceConfiguration datasourceConfiguration,
+                                                   ActionConfiguration actionConfiguration) {
+            // Unused function
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
     }
 

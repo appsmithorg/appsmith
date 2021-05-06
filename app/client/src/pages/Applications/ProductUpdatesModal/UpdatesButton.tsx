@@ -49,20 +49,24 @@ const UpdatesButtonTextContainer = styled.div`
 
 const UpdatesIcon = withTheme(({ theme }) => (
   <HelpIcons.UPDATES
+    color={theme.colors.floatingBtn.iconColor}
     height={12}
     width={13}
-    color={theme.colors.floatingBtn.iconColor}
   />
 ));
 
-const UpdatesButton = ({ newReleasesCount }: { newReleasesCount: string }) => (
-  <StyledUpdatesButton data-cy="t--product-updates-btn">
-    <div style={{ display: "flex" }}>
-      <UpdatesIcon />
-      <UpdatesButtonTextContainer>What&apos;s New?</UpdatesButtonTextContainer>
-    </div>
-    {newReleasesCount && <StyledTag>{newReleasesCount}</StyledTag>}
-  </StyledUpdatesButton>
-);
+function UpdatesButton({ newReleasesCount }: { newReleasesCount: string }) {
+  return (
+    <StyledUpdatesButton data-cy="t--product-updates-btn">
+      <div style={{ display: "flex" }}>
+        <UpdatesIcon />
+        <UpdatesButtonTextContainer>
+          What&apos;s New?
+        </UpdatesButtonTextContainer>
+      </div>
+      {newReleasesCount && <StyledTag>{newReleasesCount}</StyledTag>}
+    </StyledUpdatesButton>
+  );
+}
 
 export default UpdatesButton;

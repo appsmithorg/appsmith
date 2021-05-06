@@ -19,12 +19,15 @@ import {
   fetchPluginFormConfigSuccess,
 } from "actions/pluginActions";
 import {
+  defaultActionDependenciesConfig,
   defaultActionEditorConfigs,
   defaultActionSettings,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { GenericApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
+import { PluginType } from "entities/Action";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 
 function* fetchPluginsSaga() {
   try {
@@ -52,11 +55,18 @@ function* fetchPluginFormConfigsSaga() {
   try {
     const datasources: Datasource[] = yield select(getDatasources);
     const plugins: Plugin[] = yield select(getPlugins);
-    const pluginIds = new Set(
+    const pluginFormRequests = [];
+    // Add plugins of all the datasources of their org
+    const pluginIdFormsToFetch = new Set(
       datasources.map((datasource) => datasource.pluginId),
     );
-    const pluginFormRequests = [];
-    for (const id of pluginIds) {
+    // Add the api plugin id by default because it is the only type of action that
+    // can exist without a saved datasource
+    const apiPlugin = plugins.find((plugin) => plugin.type === PluginType.API);
+    if (apiPlugin) {
+      pluginIdFormsToFetch.add(apiPlugin.id);
+    }
+    for (const id of pluginIdFormsToFetch) {
       pluginFormRequests.push(yield call(PluginsApi.fetchFormConfig, id));
     }
     const pluginFormData: PluginFormPayload[] = [];
@@ -69,19 +79,29 @@ function* fetchPluginFormConfigsSaga() {
     const formConfigs: Record<string, any[]> = {};
     const editorConfigs: Record<string, any[]> = {};
     const settingConfigs: Record<string, any[]> = {};
+    const dependencies: Record<string, DependencyMap> = {};
 
-    Array.from(pluginIds).forEach((pluginId, index) => {
+    Array.from(pluginIdFormsToFetch).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
+      // Datasource form always use server's copy
       formConfigs[pluginId] = pluginFormData[index].form;
+      // Action editor form if not available use default
       if (plugin && !pluginFormData[index].editor) {
         editorConfigs[pluginId] = defaultActionEditorConfigs[plugin.type];
       } else {
         editorConfigs[pluginId] = pluginFormData[index].editor;
       }
+      // Action settings form if not available use default
       if (plugin && !pluginFormData[index].setting) {
         settingConfigs[pluginId] = defaultActionSettings[plugin.type];
       } else {
         settingConfigs[pluginId] = pluginFormData[index].setting;
+      }
+      // Action dependencies config if not available use default
+      if (plugin && !pluginFormData[index].dependencies) {
+        dependencies[pluginId] = defaultActionDependenciesConfig[plugin.type];
+      } else {
+        dependencies[pluginId] = pluginFormData[index].dependencies;
       }
     });
 
@@ -90,9 +110,11 @@ function* fetchPluginFormConfigsSaga() {
         formConfigs,
         editorConfigs,
         settingConfigs,
+        dependencies,
       }),
     );
   } catch (error) {
+    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR,
       payload: { error },
@@ -115,6 +137,10 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
       if (!formConfigResponse.data.editor) {
         formConfigResponse.data.editor =
           defaultActionEditorConfigs[plugin.type];
+      }
+      if (!formConfigResponse.data.dependencies) {
+        formConfigResponse.data.dependencies =
+          defaultActionDependenciesConfig[plugin.type];
       }
       yield put(
         fetchPluginFormConfigSuccess({

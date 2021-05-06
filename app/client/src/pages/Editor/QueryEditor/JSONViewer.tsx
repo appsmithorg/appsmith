@@ -17,6 +17,9 @@ const ResponseContent = styled.div`
 
 const Record = styled(Card)`
   margin: 5px;
+  span.string-value {
+    overflow-wrap: anywhere;
+  }
 `;
 
 type JSONOutputProps = {

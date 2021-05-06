@@ -17,6 +17,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -46,7 +47,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -59,6 +59,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
@@ -166,9 +167,19 @@ public class MySqlPlugin extends BasePlugin {
                  * is no longer in beta.
                  */
                 isPreparedStatement = false;
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
+                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
+                if (psValue instanceof  Boolean) {
+                    isPreparedStatement = (Boolean) psValue;
+                } else if (psValue instanceof String) {
+                    isPreparedStatement = Boolean.parseBoolean((String) psValue);
+                } else {
+                    isPreparedStatement = false;
+                }
             } else {
-                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+                isPreparedStatement = false;
             }
+
             requestData.put("preparedStatement", TRUE.equals(isPreparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
@@ -179,6 +190,7 @@ public class MySqlPlugin extends BasePlugin {
                 errorResult.setIsExecutionSuccess(false);
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Missing required " +
                         "parameter: Query."));
+                errorResult.setTitle(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle());
                 ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                 actionExecutionRequest.setProperties(requestData);
                 errorResult.setRequest(actionExecutionRequest);
@@ -216,6 +228,8 @@ public class MySqlPlugin extends BasePlugin {
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final List<String> columnsList = new ArrayList<>();
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+                    , null));
 
             Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
                     .flatMapMany(isValid -> {
@@ -280,10 +294,7 @@ public class MySqlPlugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        result.setBody(error.getMessage());
+                        result.setErrorInfo(error);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -291,6 +302,7 @@ public class MySqlPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
                         request.setProperties(requestData);
+                        request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -514,8 +526,8 @@ public class MySqlPlugin extends BasePlugin {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
-                                    "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
-                                            "customer support to resolve this."
+                                    "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                            " Appsmith customer support to resolve this."
                             )
                     );
             }

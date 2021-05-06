@@ -23,6 +23,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -62,6 +63,7 @@ public class ExamplesOrganizationCloner {
     private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
+    private final LayoutActionService layoutActionService;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -85,11 +87,12 @@ public class ExamplesOrganizationCloner {
 
         return configService.getTemplateOrganizationId()
                 .doOnError(error -> log.error("Error loading template organization id config.", error))
-                .flatMap(templateOrganizationId -> cloneOrganizationForUser(templateOrganizationId, user));
-    }
-
-    public Mono<Organization> cloneOrganizationForUser(String templateOrganizationId, User user) {
-        return cloneOrganizationForUser(templateOrganizationId, user, null);
+                .flatMap(templateOrganizationId -> cloneOrganizationForUser(
+                        templateOrganizationId,
+                        user,
+                        configService.getTemplateApplications(),
+                        configService.getTemplateDatasources()
+                ));
     }
 
     /**
@@ -101,7 +104,13 @@ public class ExamplesOrganizationCloner {
      * @param user                   The user who will own the new cloned organization.
      * @return Publishes the newly created organization.
      */
-    public Mono<Organization> cloneOrganizationForUser(String templateOrganizationId, User user, Flux<Application> applicationsFlux) {
+    public Mono<Organization> cloneOrganizationForUser(
+            String templateOrganizationId,
+            User user,
+            Flux<Application> applicationFlux,
+            Flux<Datasource> datasourceFlux
+    ) {
+
         log.info("Cloning organization id {}", templateOrganizationId);
 
         if (!StringUtils.hasText(templateOrganizationId)) {
@@ -136,17 +145,15 @@ public class ExamplesOrganizationCloner {
                     return Mono
                             .when(
                                     userService.update(user.getId(), userUpdate),
-                                    applicationsFlux == null
-                                            ? cloneApplications(newOrganization.getId())
-                                            : cloneApplications(newOrganization.getId(), applicationsFlux)
+                                    cloneApplications(newOrganization.getId(), applicationFlux, datasourceFlux)
                             )
                             .thenReturn(newOrganization);
                 })
                 .doOnError(error -> log.error("Error cloning examples organization.", error));
     }
 
-    private Mono<List<String>> cloneApplications(String toOrganizationId) {
-        return cloneApplications(toOrganizationId, configService.getTemplateApplications());
+    public Mono<List<String>> cloneApplications(String toOrganizationId, Flux<Application> applicationFlux) {
+        return cloneApplications(toOrganizationId, applicationFlux, Flux.empty());
     }
 
     /**
@@ -156,14 +163,25 @@ public class ExamplesOrganizationCloner {
      * @param toOrganizationId   ID of the organization that is the target to copy objects to.
      * @return Empty Mono.
      */
-    public Mono<List<String>> cloneApplications(String toOrganizationId, Flux<Application> applicationsFlux) {
+    public Mono<List<String>> cloneApplications(
+            String toOrganizationId,
+            Flux<Application> applicationFlux,
+            Flux<Datasource> datasourceFlux
+    ) {
         final List<NewPage> clonedPages = new ArrayList<>();
         final List<String> newApplicationIds = new ArrayList<>();
 
         // A map of datasourceId => {a cached Mono that clones this datasource and yields the new datasource }.
         final Map<String, Mono<Datasource>> cloneDatasourceMonos = new HashMap<>();
 
-        return applicationsFlux
+        return datasourceFlux
+                .flatMap(datasource -> {
+                    final String datasourceId = datasource.getId();
+                    final Mono<Datasource> clonerMono = cloneDatasource(datasourceId, toOrganizationId);
+                    cloneDatasourceMonos.put(datasourceId, clonerMono.cache());
+                    return clonerMono;
+                })
+                .thenMany(applicationFlux)
                 .flatMap(application -> {
                     application.setOrganizationId(toOrganizationId);
 
@@ -242,7 +260,7 @@ public class ExamplesOrganizationCloner {
                         }
                     }
                     return actionMono
-                            .flatMap(newActionService::createAction)
+                            .flatMap(layoutActionService::createAction)
                             .map(ActionDTO::getId)
                             .zipWith(Mono.justOrEmpty(originalActionId));
                 })
@@ -386,9 +404,6 @@ public class ExamplesOrganizationCloner {
                                 makePristine(templateDatasource);
 
                                 templateDatasource.setOrganizationId(toOrganizationId);
-                                if (authentication != null) {
-                                    datasourceContextService.decryptSensitiveFields(authentication);
-                                }
 
                                 return createSuffixedDatasource(templateDatasource);
                             }));

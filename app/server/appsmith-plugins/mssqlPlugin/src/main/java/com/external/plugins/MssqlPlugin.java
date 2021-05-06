@@ -15,6 +15,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -55,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
@@ -122,8 +124,17 @@ public class MssqlPlugin extends BasePlugin {
                  * is no longer in beta.
                  */
                 isPreparedStatement = false;
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
+                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
+                if (psValue instanceof  Boolean) {
+                    isPreparedStatement = (Boolean) psValue;
+                } else if (psValue instanceof String) {
+                    isPreparedStatement = Boolean.parseBoolean((String) psValue);
+                } else {
+                    isPreparedStatement = false;
+                }
             } else {
-                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+                isPreparedStatement = false;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
@@ -151,6 +162,8 @@ public class MssqlPlugin extends BasePlugin {
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+                    , null));
 
             return Mono.fromCallable(() -> {
                 try {
@@ -298,10 +311,7 @@ public class MssqlPlugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        result.setBody(error.getMessage());
+                        result.setErrorInfo(error);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -309,6 +319,7 @@ public class MssqlPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
                         request.setProperties(requestData);
+                        request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;

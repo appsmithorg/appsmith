@@ -8,10 +8,10 @@ import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import {
-  reduxForm,
-  InjectedFormProps,
-  getFormValues,
   getFormMeta,
+  getFormValues,
+  InjectedFormProps,
+  reduxForm,
 } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -24,7 +24,7 @@ import DropDownControl from "components/formControls/DropDownControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { ApiActionConfig } from "entities/Action";
+import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -46,16 +46,16 @@ import {
   GrantType,
 } from "entities/Datasource/RestAPIForm";
 import {
-  REST_API_AUTHORIZATION_SUCCESSFUL,
-  REST_API_AUTHORIZATION_FAILED,
-  REST_API_AUTHORIZATION_APPSMITH_ERROR,
   createMessage,
+  REST_API_AUTHORIZATION_APPSMITH_ERROR,
+  REST_API_AUTHORIZATION_FAILED,
+  REST_API_AUTHORIZATION_SUCCESSFUL,
 } from "constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-
+import Callout from "components/ads/Callout";
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
     formValues: Datasource,
@@ -76,6 +76,7 @@ interface DatasourceRestApiEditorProps {
   formData: ApiDatasourceForm;
   actions: ActionDataState;
   formMeta: any;
+  messages?: Array<string>;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -233,11 +234,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return true;
   };
 
-  disableSave = () => {
+  disableSave = (): boolean => {
     const { formData } = this.props;
     if (!formData) return true;
-    if (!formData.url) return true;
-    return false;
+    return !formData.url;
   };
 
   save = (onSuccess?: ReduxAction<unknown>) => {
@@ -324,19 +324,19 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <br />
         <Header>
           <FormTitleContainer>
-            <PluginImage src={pluginImage} alt="Datasource" />
+            <PluginImage alt="Datasource" src={pluginImage} />
             <FormTitle focusOnMount={isNewDatasource} />
           </FormTitleContainer>
 
           <CreateApiButton
-            className="t--create-query"
-            icon={"plus"}
-            text="New API"
-            filled
             accent="primary"
+            className="t--create-query"
             disabled={this.disableSave()}
+            filled
+            icon={"plus"}
             loading={isSaving}
             onClick={() => this.createApiAction()}
+            text="New API"
           />
         </Header>
       </>
@@ -348,57 +348,58 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <SaveButtonContainer>
         <ActionButton
-          className="t--delete-datasource"
-          text="Delete"
           accent="error"
+          className="t--delete-datasource"
           loading={isDeleting}
           onClick={() => deleteDatasource(datasourceId)}
+          text="Delete"
         />
 
         <StyledButton
           className="t--save-datasource"
-          onClick={() => this.save()}
-          text="Save"
           disabled={this.disableSave()}
-          loading={isSaving}
-          intent="primary"
           filled
+          intent="primary"
+          loading={isSaving}
+          onClick={() => this.save()}
           size="small"
+          text="Save"
         />
       </SaveButtonContainer>
     );
   };
 
   renderEditor = () => {
-    const { formData } = this.props;
+    const { formData, messages } = this.props;
     if (!formData) return;
     return (
       <>
+        {messages &&
+          messages.map((msg, i) => (
+            <Callout fill key={i} text={msg} variant={Variant.warning} />
+          ))}
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
-            label="URL"
             configProperty="url"
-            isRequired={true}
+            isRequired
+            label="URL"
             placeholderText="https://example.com"
           />
         </FormInputContainer>
         <FormInputContainer>
           <KeyValueInputControl
             {...COMMON_INPUT_PROPS}
-            label="Headers"
             configProperty="headers"
+            label="Headers"
           />
         </FormInputContainer>
         <FormInputContainer>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
-            label="Send Appsmith signature header"
-            subtitle="Header key: X-APPSMITH-SIGNATURE"
             configProperty="isSendSessionEnabled"
-            isRequired={true}
-            placeholderText=""
-            propertyValue=""
+            isRequired
+            label="Send Appsmith signature header"
             options={[
               {
                 label: "Yes",
@@ -409,14 +410,17 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 value: false,
               },
             ]}
+            placeholderText=""
+            propertyValue=""
+            subtitle="Header key: X-APPSMITH-SIGNATURE"
           />
         </FormInputContainer>
         {formData.isSendSessionEnabled && (
           <FormInputContainer>
             <InputTextControl
               {...COMMON_INPUT_PROPS}
-              label="Session Details Signature Key"
               configProperty="sessionSignatureKey"
+              label="Session Details Signature Key"
               placeholderText=""
             />
           </FormInputContainer>
@@ -424,10 +428,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
-            label="Authentication Type"
             configProperty="authType"
-            placeholderText=""
-            propertyValue=""
+            label="Authentication Type"
             options={[
               {
                 label: "None",
@@ -438,6 +440,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 value: AuthType.OAuth2,
               },
             ]}
+            placeholderText=""
+            propertyValue=""
           />
         </FormInputContainer>
         {this.renderAuthFields()}
@@ -454,7 +458,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
     if (content) {
       return (
-        <Collapsible title="Authentication" defaultIsOpen={true}>
+        <Collapsible defaultIsOpen title="Authentication">
           {content}
         </Collapsible>
       );
@@ -479,10 +483,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
-            label="Grant Type"
             configProperty="authentication.grantType"
-            placeholderText=""
-            propertyValue=""
+            label="Grant Type"
             options={[
               {
                 label: "Client Credentials",
@@ -493,6 +495,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 value: GrantType.AuthorizationCode,
               },
             ]}
+            placeholderText=""
+            propertyValue=""
           />
         </FormInputContainer>
         {content}
@@ -507,8 +511,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
-            label="Add Access Token To"
             configProperty="authentication.isTokenHeader"
+            label="Add Access Token To"
             options={[
               {
                 label: "Request Header",
@@ -525,8 +529,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           <FormInputContainer>
             <InputTextControl
               {...COMMON_INPUT_PROPS}
-              label="Header Prefix"
               configProperty="authentication.headerPrefix"
+              label="Header Prefix"
               placeholderText="eg: Bearer "
             />
           </FormInputContainer>
@@ -534,34 +538,34 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
-            label="Access Token URL"
             configProperty="authentication.accessTokenUrl"
+            label="Access Token URL"
             placeholderText="https://example.com/login/oauth/access_token"
           />
         </FormInputContainer>
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
-            label="Client ID"
             configProperty="authentication.clientId"
+            label="Client ID"
             placeholderText="Client ID"
           />
         </FormInputContainer>
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
-            label="Client Secret"
-            dataType="PASSWORD"
-            encrypted={true}
             configProperty="authentication.clientSecret"
+            dataType="PASSWORD"
+            encrypted
+            label="Client Secret"
             placeholderText="Client Secret"
           />
         </FormInputContainer>
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
-            label="Scope(s)"
             configProperty="authentication.scopeString"
+            label="Scope(s)"
             placeholderText="e.g. read, write"
           />
         </FormInputContainer>
@@ -588,8 +592,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
-            label="Authorization URL"
             configProperty="authentication.authorizationUrl"
+            label="Authorization URL"
             placeholderText="https://example.com/login/oauth/authorize"
           />
         </FormInputContainer>
@@ -608,15 +612,15 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <KeyValueInputControl
             {...COMMON_INPUT_PROPS}
-            label="Custom Authentication Parameters"
             configProperty="authentication.customAuthenticationParameters"
+            label="Custom Authentication Parameters"
           />
         </FormInputContainer>
         <FormInputContainer>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
-            label="Client Authentication"
             configProperty="authentication.isAuthorizationHeader"
+            label="Client Authentication"
             options={[
               {
                 label: "Send as Basic Auth header",
@@ -631,15 +635,17 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </FormInputContainer>
         <FormInputContainer>
           <AuthorizeButton
-            onClick={() =>
-              this.save(redirectAuthorizationCode(pageId, datasourceId))
-            }
-            text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
-            intent="primary"
-            loading={isSaving}
             disabled={this.disableSave()}
             filled
+            intent="primary"
+            loading={isSaving}
+            onClick={() =>
+              this.save(
+                redirectAuthorizationCode(pageId, datasourceId, PluginType.API),
+              )
+            }
             size="small"
+            text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
           />
         </FormInputContainer>
       </>
@@ -652,6 +658,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
+  const hintMessages = datasource && datasource.messages;
+
   return {
     initialValues: datasourceToFormValues(datasource),
     datasource: datasource,
@@ -660,6 +668,7 @@ const mapStateToProps = (state: AppState, props: any) => {
       state,
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
+    messages: hintMessages,
   };
 };
 

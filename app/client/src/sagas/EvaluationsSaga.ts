@@ -12,6 +12,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
@@ -23,7 +24,6 @@ import {
   EvalErrorTypes,
 } from "utils/DynamicBindingUtils";
 import log from "loglevel";
-import { WidgetType } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -38,6 +38,9 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
+import AppsmithConsole from "utils/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -61,6 +64,13 @@ const evalErrorHandler = (errors: EvalError[]) => {
               node,
               entityType,
             },
+            // Level is warning because it could be a user error
+            level: Sentry.Severity.Warning,
+          });
+          // Log an analytics event for cyclical dep errors
+          AnalyticsUtil.logEvent("CYCLICAL_DEPENDENCY_ERROR", {
+            node,
+            entityType,
             // Level is warning because it could be a user error
             level: Sentry.Severity.Warning,
           });
@@ -91,6 +101,15 @@ const evalErrorHandler = (errors: EvalError[]) => {
         log.debug(error);
         break;
       }
+      case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
+        AppsmithConsole.error({
+          logType: LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR,
+          text: `The value at ${error.context?.source.propertyPath} is invalid`,
+          message: error.message,
+          source: error.context?.source,
+        });
+        break;
+      }
       default: {
         Sentry.captureException(error);
         log.debug(error);
@@ -99,19 +118,22 @@ const evalErrorHandler = (errors: EvalError[]) => {
   });
 };
 
-function* postEvalActionDispatcher(actions: ReduxAction<unknown>[]) {
+function* postEvalActionDispatcher(
+  actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+) {
   for (const action of actions) {
     yield put(action);
   }
 }
 
-function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
+function* evaluateTreeSaga(
+  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+) {
+  const unevalTree = yield select(getUnevaluatedDataTree);
+  log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  const unevalTree = yield select(getUnevaluatedDataTree);
-  log.debug({ unevalTree });
-
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
@@ -120,22 +142,27 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
       widgetTypeConfigMap,
     },
   );
-
   const { errors, dataTree, dependencies, logs } = workerResponse;
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   evalErrorHandler(errors);
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.SET_EVALUATED_TREE,
+  );
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: dataTree,
   });
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.SET_EVALUATED_TREE,
+  );
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap: dependencies },
   });
-  PerformanceTracker.stopAsyncTracking(
-    PerformanceTransactionName.DATA_TREE_EVALUATION,
-  );
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
@@ -205,17 +232,17 @@ export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
 }
 
 export function* validateProperty(
-  widgetType: WidgetType,
   property: string,
   value: any,
   props: WidgetProps,
 ) {
+  const unevalTree = yield select(getUnevaluatedDataTree);
+  const validation = unevalTree[props.widgetName].validationPaths[property];
   return yield call(worker.request, EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY, {
-    widgetTypeConfigMap,
-    widgetType,
     property,
     value,
     props,
+    validation,
   });
 }
 

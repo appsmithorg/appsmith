@@ -58,6 +58,10 @@ export const HintStyles = createGlobalStyle<{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    &.invalid {
+      color: ${(props) => props.theme.colors.errorMessage};
+    }
   }
   .CodeMirror-Tern-completion {
     padding-left: ${(props) => props.theme.spaces[11]}px !important;

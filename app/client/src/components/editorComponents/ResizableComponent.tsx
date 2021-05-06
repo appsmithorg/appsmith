@@ -249,7 +249,9 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
 
   return (
     <Resizable
-      ref={resizableRef}
+      componentHeight={dimensions.height}
+      componentWidth={dimensions.width}
+      enable={!isDragging && isWidgetFocused && !props.resizeDisabled}
       handles={{
         left: LeftHandleStyles,
         top: TopHandleStyles,
@@ -260,17 +262,15 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
         topRight: TopRightHandleStyles,
         bottomLeft: BottomLeftHandleStyles,
       }}
-      componentHeight={dimensions.height}
-      componentWidth={dimensions.width}
+      isColliding={isColliding}
       onStart={handleResizeStart}
       onStop={updateSize}
+      ref={resizableRef}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
-      enable={!isDragging && isWidgetFocused}
-      isColliding={isColliding}
     >
       <VisibilityContainer
-        visible={!!props.isVisible}
         padding={props.paddingOffset}
+        visible={!!props.isVisible}
       >
         {props.children}
       </VisibilityContainer>

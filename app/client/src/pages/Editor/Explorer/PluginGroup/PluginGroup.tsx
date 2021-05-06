@@ -54,21 +54,21 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
 
   return (
     <Entity
-      entityId={props.page.pageId + "_" + props.actionConfig?.type}
-      step={props.step}
+      active={props.actionConfig?.isGroupActive(params, props.page.pageId)}
       className={`group ${props.actionConfig?.groupName
         .toLowerCase()
         .replace(/ /g, "")}`}
-      name={props.actionConfig?.groupName || "Plugin Group"}
+      disabled={disableGroup}
+      entityId={props.page.pageId + "_" + props.actionConfig?.types.join("_")}
       icon={props.actionConfig?.icon}
-      active={props.actionConfig?.isGroupActive(params, props.page.pageId)}
       isDefaultExpanded={
         props.actionConfig?.isGroupExpanded(params, props.page.pageId) ||
         !!props.searchKeyword ||
         !!props.datasources.length
       }
-      disabled={disableGroup}
+      name={props.actionConfig?.groupName || "Plugin Group"}
       onCreate={switchToCreateActionPage}
+      step={props.step}
     >
       {isEmpty ? (
         emptyNode
@@ -76,21 +76,21 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
         <>
           <ExplorerActionsGroup
             actions={props.actions}
-            step={props.step}
-            page={props.page}
-            searchKeyword={props.searchKeyword}
             config={props.actionConfig}
+            page={props.page}
             plugins={pluginGroups}
+            searchKeyword={props.searchKeyword}
+            step={props.step}
           />
           {props.datasources.map((datasource: Datasource) => {
             return (
               <ExplorerDatasourceEntity
-                key={datasource.id}
-                plugin={pluginGroups[datasource.pluginId]}
                 datasource={datasource}
-                step={props.step + 1}
-                searchKeyword={props.searchKeyword}
+                key={datasource.id}
                 pageId={props.page.pageId}
+                plugin={pluginGroups[datasource.pluginId]}
+                searchKeyword={props.searchKeyword}
+                step={props.step + 1}
               />
             );
           })}

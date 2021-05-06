@@ -1,12 +1,21 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
+import com.appsmith.external.models.ParsedDataType;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -15,7 +24,9 @@ import com.mongodb.MongoCommandException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
+import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.bson.Document;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -26,11 +37,15 @@ import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static com.appsmith.external.constants.DisplayDataType.JSON;
+import static com.appsmith.external.constants.DisplayDataType.RAW;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -122,6 +137,16 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testConnectToMongoWithoutUsername() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.setAuthentication(new DBAuth(DBAuth.Type.SCRAM_SHA_1, "", "", "admin"));
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(Assert::assertNotNull)
+                .verifyComplete();
+    }
+
     /**
      * 1. Test "testDatasource" method in MongoPluginExecutor class.
      */
@@ -184,12 +209,12 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("{\n" +
                 "      find: \"users\",\n" +
-                "      filter: { age: { $gte: 30 } },\n" +
+                "      filter: { \"age\": { \"$gte\": 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
@@ -198,6 +223,20 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -215,7 +254,7 @@ public class MongoPluginTest {
                 "      limit: 10,\n" +
                 "    }");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
@@ -224,6 +263,16 @@ public class MongoPluginTest {
                     assertFalse(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals("unknown top level operator: $is", result.getBody());
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -245,7 +294,7 @@ public class MongoPluginTest {
                 "        },\n" +
                 "      ],\n" +
                 "    }");
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
@@ -253,6 +302,10 @@ public class MongoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -271,7 +324,7 @@ public class MongoPluginTest {
                 " },\n" +
                 "  update: { $set: { gender: \"F\" }}\n" +
                 "}");
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
@@ -284,6 +337,10 @@ public class MongoPluginTest {
                     assertEquals("M", value.get("gender").asText());
                     assertEquals("Alden Cantrell", value.get("name").asText());
                     assertEquals(30, value.get("age").asInt());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -299,7 +356,7 @@ public class MongoPluginTest {
                 "      limit: 1,\n" +
                 "    }");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
@@ -314,6 +371,10 @@ public class MongoPluginTest {
                     assertTrue(node.get("luckyNumber").isNumber());
                     assertEquals("2018-12-31T00:00:00Z", node.get("dob").asText());
                     assertEquals("123456.789012", node.get("netWorth").toString());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -484,7 +545,8 @@ public class MongoPluginTest {
                 "    }");
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn,
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(),
                 datasourceConfiguration,
                 actionConfiguration));
 
@@ -495,6 +557,10 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -513,7 +579,8 @@ public class MongoPluginTest {
                 "    }");
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn,
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(),
                 datasourceConfiguration,
                 actionConfiguration));
 
@@ -524,6 +591,10 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
                 })
                 .verifyComplete();
     }
@@ -542,7 +613,8 @@ public class MongoPluginTest {
                 "    }");
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn,
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(),
                 datasourceConfiguration,
                 actionConfiguration));
 
@@ -551,7 +623,111 @@ public class MongoPluginTest {
          * - Expect error here because testcontainer does not support SSL connection.
          */
         StepVerifier.create(executeMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getTitle(), result.getTitle());
+                })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testBsonSmartSubstitution() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("{\n" +
+                "      find: {{Input4.text}},\n" +
+                "      filter: \"{{Input1.text}}\",\n" +
+                "      sort: { id: {{Input2.text}} },\n" +
+                "      limit: {{Input3.text}}\n" +
+                "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("{ age: { \"$gte\": 30 } }");
+        params.add(param1);
+        Param param3 = new Param();
+        param3.setKey("Input2.text");
+        param3.setValue("1");
+        params.add(param3);
+        Param param4 = new Param();
+        param4.setKey("Input3.text");
+        param4.setValue("10");
+        params.add(param4);
+        Param param5 = new Param();
+        param5.setKey("Input4.text");
+        param5.setValue("users");
+        params.add(param5);
+        executeActionDTO.setParams(params);
+
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+
+                    // Assert the debug request parameters are getting set.
+                    ActionExecutionRequest request = result.getRequest();
+                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    assertEquals(parameters.size(), 4);
+
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "users");
+                    assertEquals(parameterEntry.getValue(), "STRING");
+
+                    parameterEntry = parameters.get(1);
+                    assertEquals(parameterEntry.getKey(),"{ age: { \"$gte\": 30 } }");
+                    assertEquals(parameterEntry.getValue(), "BSON");
+
+                    parameterEntry = parameters.get(2);
+                    assertEquals(parameterEntry.getKey(),"1");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
+
+                    parameterEntry = parameters.get(3);
+                    assertEquals(parameterEntry.getKey(),"10");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
+
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetStructureReadPermissionError() {
+        MongoClient mockConnection = mock(MongoClient.class);
+        MongoDatabase mockDatabase = mock(MongoDatabase.class);
+        when(mockConnection.getDatabase(any())).thenReturn(mockDatabase);
+
+        MongoCommandException mockMongoCmdException = mock(MongoCommandException.class);
+        when(mockDatabase.listCollectionNames()).thenReturn(Mono.error(mockMongoCmdException));
+        when(mockMongoCmdException.getErrorCode()).thenReturn(13);
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(mockConnection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .verifyErrorSatisfies(error -> {
+                   assertTrue(error instanceof AppsmithPluginException);
+                   String expectedMessage = "Appsmith has failed to get database structure. Please provide read permission on" +
+                           " the database to fix this.";
+                   assertTrue(expectedMessage.equals(error.getMessage()));
+                });
     }
 }

@@ -22,17 +22,12 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "selectors/entitiesSelector";
 
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { WidgetTypes } from "../constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 const getPageListState = (state: AppState) => state.entities.pageList;
-export const getDataSources = (state: AppState) =>
-  state.entities.datasources.list;
 
 export const getProviderCategories = (state: AppState) =>
   state.ui.providers.providerCategories;
@@ -67,6 +62,9 @@ export const getIsPageSaving = (state: AppState) => {
 export const getPageSavingError = (state: AppState) => {
   return state.ui.editor.loadingStates.savingError;
 };
+
+export const getLayoutOnLoadActions = (state: AppState) =>
+  state.ui.editor.pageActions || [];
 
 export const getIsPublishingApplication = (state: AppState) =>
   state.ui.editor.loadingStates.publishing;
@@ -150,9 +148,6 @@ export const getCanvasWidgetDsl = createSelector(
     evaluatedDataTree,
     loadingEntities,
   ): ContainerWidgetProps<WidgetProps> => {
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.CONSTRUCT_CANVAS_DSL,
-    );
     const widgets: Record<string, DataTreeWidget> = {};
     Object.keys(canvasWidgets).forEach((widgetKey) => {
       const canvasWidget = canvasWidgets[widgetKey];
@@ -169,11 +164,9 @@ export const getCanvasWidgetDsl = createSelector(
       );
     });
 
-    const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
+    return CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets: widgets,
     });
-    PerformanceTracker.stopTracking();
-    return denormalizedWidgets;
   },
 );
 
@@ -270,6 +263,7 @@ const createLoadingWidget = (
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
     triggerPaths: {},
+    validationPaths: {},
     isLoading: true,
   };
 };

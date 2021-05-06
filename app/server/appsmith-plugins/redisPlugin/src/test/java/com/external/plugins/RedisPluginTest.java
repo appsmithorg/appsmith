@@ -1,11 +1,13 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +21,13 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import redis.clients.jedis.Jedis;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static org.junit.Assert.assertEquals;
 
 @Slf4j
 public class RedisPluginTest {
@@ -155,6 +162,7 @@ public class RedisPluginTest {
                 .assertNext(result -> {
                     Assert.assertNotNull(result);
                     Assert.assertFalse(result.getIsExecutionSuccess());
+                    Assert.assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -174,6 +182,7 @@ public class RedisPluginTest {
                 .assertNext(result -> {
                     Assert.assertNotNull(result);
                     Assert.assertFalse(result.getIsExecutionSuccess());
+                    Assert.assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -214,6 +223,18 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
                     Assert.assertEquals("null", node.get("result").asText());
+
+                    /*
+                     * - Adding only in this test as the query editor form for Redis plugin is exactly same for each
+                     *  query type. Hence, checking with only one query should suffice.
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            getActionConfiguration.getBody(), null, null));
+                    assertEquals(actionExecutionResult.getRequest().getRequestParams().toString(),
+                            expectedRequestParams.toString());
                 }).verifyComplete();
 
         // Setting a key

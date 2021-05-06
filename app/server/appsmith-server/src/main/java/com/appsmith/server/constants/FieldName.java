@@ -59,8 +59,14 @@ public class FieldName {
     public static String ACTION = "action";
     public static String ASSET = "asset";
     public static String APPLICATION = "application";
+    public static String COMMENT = "comment";
     public static String PUBLISHED_APPLICATION = "deployed application";
     public static final String TOKEN = "token";
     public static String WIDGET_TYPE = "type";
-    public static String PATH = "path";
+    public static String TABLE_WIDGET = "TABLE_WIDGET";
+    public static String PRIMARY_COLUMNS = "primaryColumns";
+    public static String MONGO_ESCAPE_ID = "appsmith_mongo_escape_id";
+    public static String MONGO_ESCAPE_CLASS = "appsmith_mongo_escape_class";
+    public static String MONGO_UNESCAPED_ID = "_id";
+    public static String MONGO_UNESCAPED_CLASS = "_class";
 }

@@ -41,6 +41,7 @@ export type INJECTED_CONFIGS = {
   intercomAppID: string;
   mailEnabled: boolean;
   disableTelemetry: boolean;
+  cloudServicesBaseUrl: string;
 };
 declare global {
   interface Window {
@@ -113,10 +114,11 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
     disableTelemetry: true,
+    cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
   };
 };
 
-const getConfig = (fromENV: string, fromWindow: string) => {
+const getConfig = (fromENV: string, fromWindow = "") => {
   if (fromWindow.length > 0) return { enabled: true, value: fromWindow };
   else if (fromENV.length > 0) return { enabled: true, value: fromENV };
   return { enabled: false, value: "" };
@@ -127,7 +129,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const { APPSMITH_FEATURE_CONFIGS } = window;
   const ENV_CONFIG = getConfigsFromEnvVars();
   const getFeatureFlags = (
-    optimizelyApiKey: string,
+    optimizelyApiKey = "",
   ): FeatureFlagConfig | undefined => {
     if (optimizelyApiKey.length > 0) {
       return {
@@ -216,7 +218,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
           routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
         }),
       ],
-      tracesSampleRate: 0.5,
+      tracesSampleRate: 0.1,
     },
     smartLook: {
       enabled: smartLook.enabled,
@@ -263,5 +265,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
     mailEnabled: ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS.mailEnabled,
     disableTelemetry: APPSMITH_FEATURE_CONFIGS.disableTelemetry,
+    commentsTestModeEnabled: false,
+    cloudServicesBaseUrl:
+      ENV_CONFIG.cloudServicesBaseUrl ||
+      APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
   };
 };
