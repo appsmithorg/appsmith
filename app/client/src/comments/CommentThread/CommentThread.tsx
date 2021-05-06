@@ -141,6 +141,7 @@ function CommentThreadContainer({
               showSubheader={showSubheader}
               toggleResolved={resolveCommentThread}
               unread={!commentThread.isViewed}
+              visible={isVisible}
             />
           )}
           {!hideChildren && childComments && childComments.length > 0 && (
@@ -151,6 +152,7 @@ function CommentThreadContainer({
                   commentThreadId={commentThreadId}
                   inline={inline}
                   key={comment.id}
+                  visible={isVisible}
                 />
               ))}
             </ChildComments>

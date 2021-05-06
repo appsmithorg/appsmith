@@ -183,6 +183,7 @@ function CommentCard({
   showSubheader,
   unread = true,
   inline,
+  visible,
 }: {
   comment: Comment;
   isParentComment?: boolean;
@@ -194,6 +195,7 @@ function CommentCard({
   showSubheader?: boolean;
   unread?: boolean;
   inline?: boolean;
+  visible?: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const dispatch = useDispatch();
@@ -273,8 +275,10 @@ function CommentCard({
     setReactions(updatedReactions);
   };
 
+  const showOptions = visible || isHovered;
+
   const showResolveBtn =
-    (isHovered || !!resolved) && isParentComment && toggleResolved;
+    (showOptions || !!resolved) && isParentComment && toggleResolved;
 
   const hasReactions = !!reactions;
 
@@ -308,7 +312,7 @@ function CommentCard({
           <UserName>{authorName}</UserName>
         </HeaderSection>
         <HeaderSection>
-          {isHovered && (
+          {showOptions && (
             <StopClickPropagation>
               <EmojiReactionsBtnContainer>
                 <EmojiReactions
@@ -327,7 +331,7 @@ function CommentCard({
               />
             </StopClickPropagation>
           )}
-          {isHovered && (
+          {showOptions && (
             <StopClickPropagation>
               <CommentContextMenu {...contextMenuProps} />
             </StopClickPropagation>
