@@ -7,16 +7,16 @@ export const CommentThreadPopoverStyles = createGlobalStyle`
     border-radius: 0px;
   }
 
-  .comment-context-menu {
+  .bp3-portal.comment-context-menu {
     z-index: ${Layers.max};
   }
 
-  .emoji-picker-portal {
+  .bp3-portal.emoji-picker-portal {
     z-index: ${Layers.max};
   }
 
   .inline-comment-thread {
-    // unable to reference headerHeight here
+    /* unable to reference headerHeight here */
     margin-top: 35px;
   }
 `;
