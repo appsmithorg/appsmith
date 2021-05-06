@@ -615,8 +615,6 @@ public class MongoPlugin extends BasePlugin {
                             authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
                             authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
                             authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DBNAME));
-                            // To trigger encryption as the password field has been freshly populated above.
-                            authentication.setIsEncrypted(false);
                             datasourceConfiguration.setAuthentication(authentication);
 
                             // remove any default db set via form auto-fill via browser

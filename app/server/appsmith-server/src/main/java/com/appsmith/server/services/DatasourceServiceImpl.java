@@ -270,20 +270,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return Mono.just(datasource)
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
-                .flatMap(ds -> {
-                   /*
-                    * - Authentication field gets populated as part of validate datasource for Mongo plugin in case
-                    * of uri connection string - which invalidates the earlier encrypted password, if any. Hence, need
-                    * for encryption again.
-                    * - For every other case, the isEncrypted value will be true, hence this encryption attempt will
-                    * return without doing anything.
-                    */
-                    if (ds.getDatasourceConfiguration() != null) {
-                        ds.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(ds.getDatasourceConfiguration().getAuthentication()));
-                    }
-
-                    return Mono.just(ds);
-                })
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {
                     Datasource savedDatasource = tuple.getT1();
