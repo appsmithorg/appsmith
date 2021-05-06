@@ -142,10 +142,13 @@ export const TEXT_SIZES = {
   PARAGRAPH2: "12px",
 };
 
+// ToDO(Ashok): Need to clean up these layers to produce an appropriate and preformant stack.
 export const LayersByzIndex = {
+  // Modal and Proppane need to be in the highest layer
+  ModalWidget: 4,
+  PropertyPane: 4,
   // All Widgets Parent layer
   PositionedWidget: 3,
-  ModalWidget: 4,
   // Layers when dragging
   AnimatedSnappingDropZone: 4,
   AnimatedDropZone: 5,
