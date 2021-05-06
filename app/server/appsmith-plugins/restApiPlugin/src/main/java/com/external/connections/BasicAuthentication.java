@@ -16,7 +16,7 @@ import java.util.Base64;
 public class BasicAuthentication extends APIConnection {
 
     private String encodedAuthorizationHeader;
-    final private static String HEADER_PREFIX = "Basic";
+    final private static String HEADER_PREFIX = "Basic ";
 
     private BasicAuthentication() {
     }
