@@ -204,7 +204,7 @@ export default [
                 {
                   propertyName: "displayText",
                   label: "Display Text",
-                  controlType: "INPUT_TEXT",
+                  controlType: "COMPUTE_VALUE",
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
