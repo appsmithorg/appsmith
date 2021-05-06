@@ -166,7 +166,10 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<string>,
   ) => ({
     ...state,
-    // for race cond, explicitly hide a visible thread
+    /**
+     * To solve race cond, explicitly hide a visible thread using it's id
+     * so that we don't accidently hide another thread
+     */
     visibleCommentThreadId:
       action.payload === state.visibleCommentThreadId
         ? ""

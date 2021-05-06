@@ -9,6 +9,7 @@ enum Indices {
   Layer5,
   Layer6,
   Layer7,
+  Layer8,
   LayerMax = 99999,
 }
 
@@ -21,6 +22,7 @@ export const Layers = {
   dynamicAutoComplete: Indices.Layer5,
   debugger: Indices.Layer6,
   productUpdates: Indices.Layer7,
+  appComments: Indices.Layer8,
   max: Indices.LayerMax,
 };
 

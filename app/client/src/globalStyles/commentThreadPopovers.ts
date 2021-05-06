@@ -1,5 +1,6 @@
 import { Classes } from "@blueprintjs/core";
 import { createGlobalStyle } from "styled-components";
+import { Layers } from "constants/Layers";
 
 export const CommentThreadPopoverStyles = createGlobalStyle`
   .comment-thread .${Classes.POPOVER_CONTENT} {
@@ -7,11 +8,11 @@ export const CommentThreadPopoverStyles = createGlobalStyle`
   }
 
   .comment-context-menu {
-    z-index: 13;
+    z-index: ${Layers.max};
   }
 
   .emoji-picker-portal {
-    z-index: 14;
+    z-index: ${Layers.max};
   }
 
   .inline-comment-thread {
