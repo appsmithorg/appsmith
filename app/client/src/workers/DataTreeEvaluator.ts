@@ -305,7 +305,7 @@ export default class DataTreeEvaluator {
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
         dependencyMap[key].map((path) =>
-          extractReferencesFromBinding(path, this.allKeys),
+          extractReferencesFromBinding(key, path, this.allKeys),
         ),
       );
     });
@@ -417,7 +417,6 @@ export default class DataTreeEvaluator {
             evalPropertyValue = unEvalPropertyValue;
           }
 
-          // debugger;
           if (isWidget(entity)) {
             const widgetEntity = entity;
             const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
@@ -912,7 +911,7 @@ export default class DataTreeEvaluator {
         this.dependencyMap[key] = _.uniq(
           _.flatten(
             this.dependencyMap[key].map((path) =>
-              extractReferencesFromBinding(path, this.allKeys),
+              extractReferencesFromBinding(key, path, this.allKeys),
             ),
           ),
         );
@@ -1049,7 +1048,7 @@ export default class DataTreeEvaluator {
           const propertyBindings = entityPropertyBindings[path];
           const references = _.flatten(
             propertyBindings.map((binding) =>
-              extractReferencesFromBinding(binding, this.allKeys),
+              extractReferencesFromBinding(path, binding, this.allKeys),
             ),
           );
           references.forEach((value) => {
@@ -1121,7 +1120,7 @@ const extractReferencesFromBinding = (
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
     if (all.hasOwnProperty(identifier)) {
-      subDeps.push(identifier);
+      subDeps.push(dependentPath);
       return;
     }
     const subpaths = _.toPath(identifier);
@@ -1134,7 +1133,7 @@ const extractReferencesFromBinding = (
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
       if (all.hasOwnProperty(current)) {
-        subDeps.push(current);
+        subDeps.push(dependentPath);
         return;
       }
       subpaths.pop();
