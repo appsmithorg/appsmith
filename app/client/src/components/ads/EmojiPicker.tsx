@@ -25,6 +25,7 @@ const EmojiPicker = withTheme(
     const handleSelectEmoji = useCallback(
       (emoji, event) => {
         onSelectEmoji(event, emoji);
+        setIsOpen(false);
       },
       [onSelectEmoji],
     );
