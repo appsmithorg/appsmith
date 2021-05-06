@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -10,9 +9,9 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Param;
-import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -37,7 +36,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +58,8 @@ import javax.validation.Validator;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -70,9 +70,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -512,6 +512,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
+
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = Mono
                 .zip(
@@ -616,9 +617,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                         });
                                     }
                             );
-                });
-
-        return actionExecutionResultMono
+                })
                 .onErrorResume(AppsmithException.class, error -> {
                     ActionExecutionResult result = new ActionExecutionResult();
                     result.setIsExecutionSuccess(false);
@@ -626,15 +625,58 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setBody(error.getMessage());
                     result.setTitle(error.getTitle());
                     return Mono.just(result);
-                })
-                .map(result -> {
+                });
+
+        Mono<Map> editorConfigLabelMapMono = datasourceMono
+                .flatMap(datasource -> {
+                    if (datasource.getId() != null) {
+                        return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
+                    }
+
+                    return Mono.just(new HashMap());
+                });
+
+        return Mono.zip(actionExecutionResultMono, editorConfigLabelMapMono)
+                .flatMap(tuple -> {
+                    ActionExecutionResult result = tuple.getT1();
                     // In case the action was executed in view mode, do not return the request object
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
                         result.setRequest(null);
+                        return Mono.just(result);
                     }
-                    return result;
+
+                    if (result.getRequest() == null || result.getRequest().getRequestParams() == null) {
+                        return Mono.just(result);
+                    }
+
+                    Map labelMap = tuple.getT2();
+                    transformRequestParams(result, labelMap);
+
+                    return Mono.just(result);
                 })
                 .map(result -> addDataTypes(result));
+    }
+
+    // Add label and data types to request param entities.
+    private void transformRequestParams(ActionExecutionResult result, Map<String, String> labelMap) {
+        List<RequestParamDTO> transformedParams = new ArrayList<>();
+        Map<String, RequestParamDTO> requestParamsConfigMap = new HashMap();
+        result.getRequest().getRequestParams().stream()
+                .forEach(param -> requestParamsConfigMap.put(param.getConfigProperty(), param));
+
+        labelMap.entrySet().stream()
+                .forEach(e -> {
+                    String configProperty = e.getKey();
+                    if(requestParamsConfigMap.containsKey(configProperty)) {
+                        RequestParamDTO param = requestParamsConfigMap.get(configProperty);
+                        param.setTypes(param.getValue() != null ?
+                                getDisplayDataTypes(param.getValue()) : new ArrayList<>());
+                        param.setLabel(e.getValue());
+                        transformedParams.add(param);
+                    }
+                });
+
+        result.getRequest().setRequestParams(transformedParams);
     }
 
     private ActionExecutionResult addDataTypes(ActionExecutionResult result) {
@@ -646,66 +688,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return result;
         }
 
-        if (result.getBody() == null) {
-            result.setDataTypes(new ArrayList<>());
-            return result;
-        }
-
-        List<ParsedDataType> parsedDataTypeList = new ArrayList<>();
-        Stream.of(ActionResultDataType.values())
-                .parallel()
-                .map(type -> {
-                    try {
-                        return parseActionResultDataType(result.getBody().toString(), type);
-                    } catch (AppsmithException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .filter(type -> type != null)
-                .forEachOrdered(type -> parsedDataTypeList.add(type));
-
-        result.setDataTypes(parsedDataTypeList);
-
+        result.setDataTypes(getDisplayDataTypes(result.getBody()));
         return result;
-    }
-
-    private ParsedDataType parseActionResultDataType(String body, ActionResultDataType expectedType) throws AppsmithException {
-
-        switch (expectedType) {
-            case TABLE:
-                try {
-                    /*
-                     * - Check and return if the returned data is a valid table - i.e. an array of simple json objects.
-                     */
-                    objectMapper.readValue(body, new TypeReference<ArrayList<HashMap<String, String>>>() {
-                    });
-                    return new ParsedDataType(ActionResultDataType.TABLE);
-                } catch (JsonProcessingException e) {
-                    return null;
-                }
-
-            case JSON:
-                try {
-                    /*
-                     * - Check and return if the returned data is a valid json.
-                     */
-                    objectMapper.readTree(body);
-                    return new ParsedDataType(ActionResultDataType.JSON);
-                } catch (JsonProcessingException e) {
-                    return null;
-                }
-
-            case RAW:
-                /*
-                 * - Any data is by default categorized as raw.
-                 */
-                return new ParsedDataType(ActionResultDataType.RAW);
-            default:
-                throw new AppsmithException(
-                        AppsmithError.UNKNOWN_ACTION_RESULT_DATA_TYPE,
-                        expectedType.toString()
-                );
-        }
     }
 
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
@@ -734,7 +718,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     actionExecutionRequest.getHttpMethod(),
                     actionExecutionRequest.getUrl(),
                     actionExecutionRequest.getProperties(),
-                    actionExecutionRequest.getExecutionParameters()
+                    actionExecutionRequest.getExecutionParameters(),
+                    null
             );
         } else {
             request = new ActionExecutionRequest();

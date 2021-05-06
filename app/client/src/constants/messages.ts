@@ -276,6 +276,8 @@ export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
   "Error saving a key in localStorage. You have run out of disk space";
+export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
+  "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
   "Search Widgets, Queries, Documentation";
@@ -289,9 +291,20 @@ export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
 export const PAGE_NOT_FOUND = () => "Page not found";
 
+export const RESOLVE = () => "Resolve";
+export const UNRESOLVE = () => "Unresolve";
+
+// comments
+export const ADD_COMMENT_PLACEHOLDER = () => "Add a comment. Use @ to mention";
+export const PIN_COMMENT = () => "Pin Comment";
+export const COPY_LINK = () => "Copy Link";
+export const DELETE_COMMENT = () => "Delete Comment";
+export const COMMENTS = () => "Comments";
+
+// Debugger
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
-export const OPEN_THE_DEBUGGER = () => " to open the issue in debugger";
+export const OPEN_THE_DEBUGGER = () => " to open the debugger";
 export const NO_LOGS = () => "No logs to show";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";

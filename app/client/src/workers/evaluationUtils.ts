@@ -15,6 +15,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -56,8 +57,7 @@ export const convertPathToString = (arrPath: Array<string | number>) => {
 // Todo: improve the logic here
 // Right now NaN, Infinity, floats, everything works
 function isInt(val: string | number): boolean {
-  if (typeof val === "number") return true;
-  return !isNaN(parseInt(val));
+  return Number.isInteger(val) || (_.isString(val) && /^\d+$/.test(val));
 }
 
 // Removes the entity name from the property path
@@ -460,3 +460,36 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
 
   return withFunction;
 };
+
+export function getSafeToRenderDataTree(
+  tree: DataTree,
+  widgetTypeConfigMap: WidgetTypeConfigMap,
+) {
+  return Object.keys(tree).reduce((tree, entityKey: string) => {
+    const entity = tree[entityKey] as DataTreeWidget;
+    if (!isWidget(entity)) {
+      return tree;
+    }
+    const safeToRenderEntity = { ...entity };
+    // Set user input values to their parsed values
+    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
+      const value = _.get(entity, property);
+      // Pass it through parse
+      const { parsed } = validateWidgetProperty(
+        property,
+        value,
+        entity,
+        validation,
+        tree,
+      );
+      _.set(safeToRenderEntity, property, parsed);
+    });
+    // Set derived values to undefined or else they would go as bindings
+    Object.keys(widgetTypeConfigMap[entity.type].derivedProperties).forEach(
+      (property) => {
+        _.set(safeToRenderEntity, property, undefined);
+      },
+    );
+    return { ...tree, [entityKey]: safeToRenderEntity };
+  }, tree);
+}

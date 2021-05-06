@@ -305,7 +305,7 @@ export default class DataTreeEvaluator {
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
         dependencyMap[key].map((path) =>
-          extractReferencesFromBinding(path, this.allKeys),
+          extractReferencesFromBinding(key, path, this.allKeys),
         ),
       );
     });
@@ -404,6 +404,7 @@ export default class DataTreeEvaluator {
           } else {
             evalPropertyValue = unEvalPropertyValue;
           }
+
           if (isWidget(entity)) {
             const widgetEntity = entity;
             const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
@@ -889,7 +890,7 @@ export default class DataTreeEvaluator {
         this.dependencyMap[key] = _.uniq(
           _.flatten(
             this.dependencyMap[key].map((path) =>
-              extractReferencesFromBinding(path, this.allKeys),
+              extractReferencesFromBinding(key, path, this.allKeys),
             ),
           ),
         );
@@ -1026,7 +1027,7 @@ export default class DataTreeEvaluator {
           const propertyBindings = entityPropertyBindings[path];
           const references = _.flatten(
             propertyBindings.map((binding) =>
-              extractReferencesFromBinding(binding, this.allKeys),
+              extractReferencesFromBinding(path, binding, this.allKeys),
             ),
           );
           references.forEach((value) => {
@@ -1089,14 +1090,17 @@ export default class DataTreeEvaluator {
 
 const extractReferencesFromBinding = (
   path: string,
+  dependentPath: string,
   all: Record<string, true>,
 ): Array<string> => {
   const subDeps: Array<string> = [];
-  const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [path];
+  const identifiers = dependentPath.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [
+    dependentPath,
+  ];
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
     if (all.hasOwnProperty(identifier)) {
-      subDeps.push(identifier);
+      pushDependentsInSubDependencyArray(subDeps, path, identifier);
       return;
     }
     const subpaths = _.toPath(identifier);
@@ -1109,13 +1113,26 @@ const extractReferencesFromBinding = (
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
       if (all.hasOwnProperty(current)) {
-        subDeps.push(current);
+        pushDependentsInSubDependencyArray(subDeps, path, current);
         return;
       }
       subpaths.pop();
     }
   });
   return _.uniq(subDeps);
+};
+
+const pushDependentsInSubDependencyArray = (
+  subDeps: string[],
+  path: string,
+  dependentPath: string,
+): string[] => {
+  // Only add if path is not a child of dependentPath which ensures that cyclical dependency is not introduced
+  // when adding parent-child relationships later
+  if (!isChildPropertyPath(dependentPath, path)) {
+    subDeps.push(dependentPath);
+  }
+  return subDeps;
 };
 
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function

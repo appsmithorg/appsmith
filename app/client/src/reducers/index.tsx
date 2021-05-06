@@ -41,6 +41,8 @@ import { OnboardingState } from "./uiReducers/onBoardingReducer";
 import { GlobalSearchReduxState } from "./uiReducers/globalSearchReducer";
 import { ReleasesState } from "./uiReducers/releasesReducer";
 import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
+import { CommentsReduxState } from "./uiReducers/commentsReducer/interfaces";
+import { WebsocketReduxState } from "./uiReducers/websocketReducer";
 import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 
 const appReducer = combineReducers({
@@ -81,6 +83,8 @@ export interface AppState {
     onBoarding: OnboardingState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
+    comments: CommentsReduxState;
+    websocket: WebsocketReduxState;
     debugger: DebuggerReduxState;
   };
   entities: {

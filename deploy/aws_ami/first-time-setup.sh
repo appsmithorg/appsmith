@@ -36,7 +36,7 @@ bye() {  # Prints a friendly good bye message and exits the script.
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Support",
             "data": {
-                "os": "Ubuntu",
+                "os": "ubuntu",
                 "platform" : "aws_ami"
             }
         }' > /dev/null
@@ -88,7 +88,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Installation Started",
   "data": {
-    "os": "Ubuntu",
+    "os": "ubuntu",
     "platform": "aws_ami"
    }
 }' > /dev/null
@@ -163,7 +163,7 @@ if [[ $status_code -eq 401 ]]; then
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Success",
       "data": {
-          "os": "Ubuntu",
+          "os": "ubuntu",
           "platform": "aws_ami"
        }
     }' > /dev/null

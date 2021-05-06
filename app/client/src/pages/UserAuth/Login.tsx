@@ -84,7 +84,7 @@ const SocialLoginList: string[] = [];
 if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
-export const Login = (props: LoginFormProps) => {
+export function Login(props: LoginFormProps) {
   const { error, valid, emailValue: email } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
@@ -115,16 +115,14 @@ export const Login = (props: LoginFormProps) => {
       <SignUpLinkSection>
         {createMessage(NEW_TO_APPSMITH)}
         <AuthCardNavLink
-          to={signupURL}
           style={{ marginLeft: props.theme.spaces[3] }}
+          to={signupURL}
         >
           {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
         </AuthCardNavLink>
       </SignUpLinkSection>
       {showError && (
         <FormMessage
-          intent="warning"
-          message={createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)}
           actions={[
             {
               url: FORGOT_PASSWORD_URL,
@@ -134,21 +132,23 @@ export const Login = (props: LoginFormProps) => {
               intent: "success",
             },
           ]}
+          intent="warning"
+          message={createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)}
         />
       )}
       {SocialLoginList.length > 0 && (
-        <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
+        <ThirdPartyAuth logins={SocialLoginList} type={"SIGNIN"} />
       )}
-      <SpacedSubmitForm method="POST" action={loginURL}>
+      <SpacedSubmitForm action={loginURL} method="POST">
         <FormGroup
           intent={error ? "danger" : "none"}
           label={createMessage(LOGIN_PAGE_EMAIL_INPUT_LABEL)}
         >
           <FormTextField
-            name={LOGIN_FORM_EMAIL_FIELD_NAME}
-            type="email"
-            placeholder={createMessage(LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER)}
             autoFocus
+            name={LOGIN_FORM_EMAIL_FIELD_NAME}
+            placeholder={createMessage(LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER)}
+            type="email"
           />
         </FormGroup>
         <FormGroup
@@ -156,20 +156,16 @@ export const Login = (props: LoginFormProps) => {
           label={createMessage(LOGIN_PAGE_PASSWORD_INPUT_LABEL)}
         >
           <FormTextField
-            type="password"
             name={LOGIN_FORM_PASSWORD_FIELD_NAME}
             placeholder={createMessage(LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER)}
+            type="password"
           />
         </FormGroup>
 
         <FormActions>
           <Button
-            tag="button"
-            type="submit"
             disabled={!isFormValid}
-            text={createMessage(LOGIN_PAGE_LOGIN_BUTTON_TEXT)}
             fill
-            size={Size.large}
             onClick={() => {
               PerformanceTracker.startTracking(
                 PerformanceTransactionName.LOGIN_CLICK,
@@ -178,6 +174,10 @@ export const Login = (props: LoginFormProps) => {
                 loginMethod: "EMAIL",
               });
             }}
+            size={Size.large}
+            tag="button"
+            text={createMessage(LOGIN_PAGE_LOGIN_BUTTON_TEXT)}
+            type="submit"
           />
         </FormActions>
       </SpacedSubmitForm>
@@ -188,7 +188,7 @@ export const Login = (props: LoginFormProps) => {
       </ForgotPasswordLink>
     </>
   );
-};
+}
 
 const selector = formValueSelector(LOGIN_FORM_NAME);
 export default connect((state) => ({

@@ -30,33 +30,33 @@ const FooterActions = styled.div`
 
 const FormFooterContainer = styled.div``;
 
-export const FormFooter = (props: FormFooterProps) => {
+export function FormFooter(props: FormFooterProps) {
   return (
     <FormFooterContainer>
       {props.divider && <Divider />}
       <FooterActions>
         {props.onCancel && (
           <Button
-            text={props.cancelText || "Cancel"}
-            type="button"
+            filled
             onClick={props.onCancel}
             size={props.size}
-            filled
+            text={props.cancelText || "Cancel"}
+            type="button"
           />
         )}
         <Button
+          disabled={props.canSubmit === false}
+          filled
+          intent="primary"
+          loading={props.submitting}
+          onClick={props.onSubmit}
+          size={props.size}
           text={props.submitText || "Submit"}
           type={props.submitOnEnter ? "submit" : "button"}
-          intent="primary"
-          onClick={props.onSubmit}
-          disabled={props.canSubmit === false}
-          loading={props.submitting}
-          size={props.size}
-          filled
         />
       </FooterActions>
     </FormFooterContainer>
   );
-};
+}
 
 export default FormFooter;

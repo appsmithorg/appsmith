@@ -133,8 +133,8 @@ export const Button = (props: ButtonProps) => {
   } else
     return (
       <StyledButton
-        rightIcon={rightIcon}
         icon={icon}
+        rightIcon={rightIcon}
         {...baseProps}
         onClick={props.onClick}
       />

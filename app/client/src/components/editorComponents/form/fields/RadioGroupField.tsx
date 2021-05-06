@@ -16,16 +16,12 @@ interface RadioFieldProps {
 const renderComponent = (
   componentProps: RadioFieldProps & RadioGroupWrapperProps,
 ) => {
-  return (
-    <React.Fragment>
-      <RadioGroupWrapper {...componentProps} />
-    </React.Fragment>
-  );
+  return <RadioGroupWrapper {...componentProps} />;
 };
 
-const RadioFieldGroup = (
+function RadioFieldGroup(
   props: RadioFieldProps & Partial<RadioGroupWrapperProps>,
-) => {
+) {
   return (
     <Field
       className={props.className}
@@ -35,6 +31,6 @@ const RadioFieldGroup = (
       {...props}
     />
   );
-};
+}
 
 export default RadioFieldGroup;

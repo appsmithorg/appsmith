@@ -17,13 +17,17 @@ import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { isWidget } from "workers/evaluationUtils";
 
 function* onWidgetUpdateSaga(payload: LogActionPayload) {
   if (!payload.source) return;
   // Wait for data tree update
   yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-  const dataTree = yield select(getDataTree);
+  const dataTree: DataTree = yield select(getDataTree);
   const widget = dataTree[payload.source.name];
+
+  if (!isWidget(widget) || !widget.validationMessages) return;
 
   // Ignore canvas widget updates
   if (widget.type === WidgetTypes.CANVAS_WIDGET) {
@@ -35,7 +39,7 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
   if (payload.state) {
     const propertyPath = Object.keys(payload.state)[0];
 
-    const validationMessages = dataTree[payload.source.name].validationMessages;
+    const validationMessages = widget.validationMessages;
     const validationMessage = validationMessages[propertyPath];
     const errors = yield select(getDebuggerErrors);
     const errorId = `${source.id}-${propertyPath}`;

@@ -117,7 +117,10 @@ export type EventName =
   | "CORRECT_BAD_BINDING"
   | "OPEN_DEBUGGER"
   | "DEBUGGER_TAB_SWITCH"
-  | "DEBUGGER_ENTITY_NAVIGATION";
+  | "DEBUGGER_ENTITY_NAVIGATION"
+  | "GSHEET_AUTH_INIT"
+  | "GSHEET_AUTH_COMPLETE"
+  | "CYCLICAL_DEPENDENCY_ERROR";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -237,6 +240,8 @@ class AnalyticsUtil {
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
+    } else {
+      log.debug("Event fired locally", eventName, finalEventData);
     }
   }
 

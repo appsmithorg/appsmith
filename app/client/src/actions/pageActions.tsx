@@ -227,12 +227,23 @@ export type WidgetAddChildren = {
   }>;
 };
 
+export type WidgetUpdateProperty = {
+  widgetId: string;
+  propertyPath: string;
+  propertyValue: any;
+};
+
 export const updateWidget = (
   operation: WidgetOperation,
   widgetId: string,
   payload: any,
 ): ReduxAction<
-  WidgetAddChild | WidgetMove | WidgetResize | WidgetDelete | WidgetAddChildren
+  | WidgetAddChild
+  | WidgetMove
+  | WidgetResize
+  | WidgetDelete
+  | WidgetAddChildren
+  | WidgetUpdateProperty
 > => {
   return {
     type: ReduxActionTypes["WIDGET_" + operation],

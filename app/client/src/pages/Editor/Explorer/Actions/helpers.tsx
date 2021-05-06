@@ -164,13 +164,13 @@ export const getPluginGroups = (
 
     return (
       <PluginGroup
-        key={page.pageId + "_" + config.types.join("_")}
+        actionConfig={config}
         actions={entries}
         datasources={filteredDatasources}
-        step={step}
-        searchKeyword={searchKeyword}
+        key={page.pageId + "_" + config.types.join("_")}
         page={page}
-        actionConfig={config}
+        searchKeyword={searchKeyword}
+        step={step}
       />
     );
   });
