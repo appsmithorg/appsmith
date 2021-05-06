@@ -206,7 +206,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     if (!this.props.formData) return;
     const { authentication } = this.props.formData;
 
-    if (!authentication || !authentication.grantType) {
+    if (!authentication || !_.get(authentication, "grantType")) {
       this.props.change(
         "authentication.grantType",
         GrantType.ClientCredentials,
@@ -225,7 +225,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       return false;
     }
 
-    if (authentication.grantType === GrantType.AuthorizationCode) {
+    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (_.get(authentication, "isAuthorizationHeader") === undefined) {
         this.props.change("authentication.isAuthorizationHeader", true);
         return false;
@@ -436,6 +436,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 value: AuthType.NONE,
               },
               {
+                label: "Basic",
+                value: AuthType.basic,
+              },
+              {
                 label: "OAuth 2.0",
                 value: AuthType.OAuth2,
               },
@@ -455,6 +459,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     let content;
     if (authType === AuthType.OAuth2) {
       content = this.renderOauth2();
+    } else if (authType === AuthType.basic) {
+      content = this.renderBasic();
     }
     if (content) {
       return (
@@ -465,11 +471,36 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
   };
 
+  renderBasic = () => {
+    return (
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.username"
+            label="Username"
+            placeholderText="Username"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.password"
+            dataType="PASSWORD"
+            encrypted
+            label="Password"
+            placeholderText="Password"
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+
   renderOauth2 = () => {
     const { authentication } = this.props.formData;
     if (!authentication) return;
     let content;
-    switch (authentication?.grantType) {
+    switch (_.get(authentication, "grantType")) {
       case GrantType.AuthorizationCode:
         content = this.renderOauth2AuthorizationCode();
         break;
@@ -525,7 +556,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             ]}
           />
         </FormInputContainer>
-        {formData.authentication?.isTokenHeader && (
+        {_.get(formData.authentication, "isTokenHeader") && (
           <FormInputContainer>
             <InputTextControl
               {...COMMON_INPUT_PROPS}
