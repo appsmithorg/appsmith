@@ -237,6 +237,7 @@ const BASE_ACTION: DataTreeAction = {
   pluginType: PluginType.API,
   run: {},
   data: {},
+  responseMeta: { isExecutionSuccess: false },
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
   bindingPaths: {
     isLoading: EvaluationSubstitutionType.TEMPLATE,
