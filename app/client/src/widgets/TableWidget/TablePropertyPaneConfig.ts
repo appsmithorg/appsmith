@@ -224,6 +224,10 @@ export default [
                   controlType: "DROP_DOWN",
                   options: [
                     {
+                      label: "No Selection",
+                      value: "",
+                    },
+                    {
                       label: "UNIX timestamp (s)",
                       value: "Epoch",
                     },
@@ -304,6 +308,7 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
+                  defaultValue: "YYYY-MM-DD HH:mm",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnsHook,
@@ -327,6 +332,10 @@ export default [
                   isJSConvertible: true,
                   options: [
                     {
+                      label: "No Selection",
+                      value: "",
+                    },
+                    {
                       label: "UNIX timestamp (s)",
                       value: "Epoch",
                     },
@@ -407,6 +416,7 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
+                  defaultValue: "YYYY-MM-DD HH:mm",
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     const baseProperty = getBasePropertyPath(propertyPath);
