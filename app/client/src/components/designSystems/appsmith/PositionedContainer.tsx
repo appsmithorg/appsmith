@@ -7,7 +7,7 @@ import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 
 const PositionedWidget = styled.div`
-  &.allow-hover:hover {
+  &:hover {
     z-index: 1;
   }
 `;

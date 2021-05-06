@@ -145,6 +145,7 @@ export const TEXT_SIZES = {
 export const LayersByzIndex = {
   // All Widgets Parent layer
   PositionedWidget: 3,
+  ModalWidget: 4,
   // Layers when dragging
   AnimatedSnappingDropZone: 4,
   AnimatedDropZone: 5,

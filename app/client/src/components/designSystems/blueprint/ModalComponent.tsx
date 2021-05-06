@@ -2,6 +2,7 @@ import React, { ReactNode, RefObject, useRef, useEffect } from "react";
 import { Overlay, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
+import { LayersByzIndex } from "constants/WidgetConstants";
 
 const Container = styled.div<{
   width: number;
@@ -80,7 +81,9 @@ export function ModalComponent(props: ModalComponentProps) {
       left={props.left}
       top={props.top}
       width={props.width}
-      zIndex={props.zIndex !== undefined ? props.zIndex : 3}
+      zIndex={
+        props.zIndex !== undefined ? props.zIndex : LayersByzIndex.ModalWidget
+      }
     >
       <Overlay
         canEscapeKeyClose={props.canEscapeKeyClose}

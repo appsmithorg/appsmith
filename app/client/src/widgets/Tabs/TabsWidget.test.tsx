@@ -2,38 +2,11 @@ import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { render, fireEvent } from "test/testUtils";
-
+import { render, fireEvent, SetCanvas } from "test/testUtils";
 import Canvas from "pages/Editor/Canvas";
 import React from "react";
-import { useDispatch } from "react-redux";
 import { editorInitializer } from "utils/EditorUtils";
-import { initCanvasLayout } from "actions/pageActions";
-import { getCanvasWidgetsPayload } from "sagas/PageSagas";
-import { noop } from "utils/AppsmithUtils";
 
-Element.prototype.scrollTo = noop;
-function SetCanvas({ dsl, children }: any) {
-  const dispatch = useDispatch();
-  const mockResp: any = {
-    data: {
-      id: "asa",
-      name: "App",
-      applicationId: "asa",
-      layouts: [
-        {
-          id: "w323",
-          dsl,
-          layoutOnLoadActions: [],
-          layoutActions: [],
-        },
-      ],
-    },
-  };
-  const canvasWidgetsPayload = getCanvasWidgetsPayload(mockResp);
-  dispatch(initCanvasLayout(canvasWidgetsPayload));
-  return children;
-}
 describe("Tabs widget functional cases", () => {
   it("Should render 2 tabs by default", () => {
     editorInitializer();
