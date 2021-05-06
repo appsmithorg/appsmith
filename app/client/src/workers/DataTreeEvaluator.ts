@@ -126,7 +126,6 @@ export default class DataTreeEvaluator {
   }
 
   updateDataTree(unEvalTree: DataTree) {
-    debugger;
     const totalStart = performance.now();
     // Calculate diff
     const diffCheckTimeStart = performance.now();
@@ -346,18 +345,22 @@ export default class DataTreeEvaluator {
     }
     if (isAction(entity)) {
       Object.entries(entity.dependencyMap).forEach(
-        ([dependent, entityDependencies]) => {
+        ([path, entityDependencies]) => {
           const actionDependentPaths: Array<string> = [];
-          // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
-          // a cyclical dependency.
-          entityDependencies.forEach((dependentPath) => {
-            debugger;
-            const completePath = `${entityName}.${dependentPath}`;
-            if (this.allKeys.hasOwnProperty(completePath)) {
-              actionDependentPaths.push(completePath);
-            }
-          });
-          dependencies[`${entityName}.${dependent}`] = actionDependentPaths;
+          const mainPath = `${entityName}.${path}`;
+          // Only add dependencies for paths which exist at the moment in appsmith world
+          if (this.allKeys.hasOwnProperty(mainPath)) {
+            // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
+            // a cyclical dependency.
+            entityDependencies.forEach((dependentPath) => {
+              debugger;
+              const completePath = `${entityName}.${dependentPath}`;
+              if (this.allKeys.hasOwnProperty(completePath)) {
+                actionDependentPaths.push(completePath);
+              }
+            });
+            dependencies[mainPath] = actionDependentPaths;
+          }
         },
       );
     }
