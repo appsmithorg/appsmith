@@ -69,14 +69,14 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
+          const items = get(props, "evaluatedValues.items", []).filter(Boolean);
+
           return {
             currentItem: Object.assign(
               {},
-              ...Object.keys(get(props, "evaluatedValues.items.0", {})).map(
-                (key) => ({
-                  [key]: "",
-                }),
-              ),
+              ...Object.keys(get(items, "0", {})).map((key) => ({
+                [key]: "",
+              })),
             ),
           };
         },
