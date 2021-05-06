@@ -211,7 +211,7 @@ abstract class BaseWidget<
           <WidgetNameComponent
             parentId={this.props.parentId}
             showControls={showControls}
-            topRow={this.props.topRow}
+            topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
             type={this.props.type}
             widgetId={this.props.widgetId}
             widgetName={this.props.widgetName}
