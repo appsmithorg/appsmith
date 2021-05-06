@@ -872,14 +872,11 @@ export default class DataTreeEvaluator {
                       ].map((dep) => `${entityName}.${dep}`);
 
                       // Filter only the paths which exist in the appsmith world to avoid cyclical dependencies
-                      const filteredEntityDependencies: Array<string> = [];
-                      for (const path of entityDependenciesName) {
-                        if (this.allKeys.hasOwnProperty(path)) {
-                          filteredEntityDependencies.push(path);
-                        }
-                      }
+                      const filteredEntityDependencies = entityDependenciesName.filter(
+                        (path) => this.allKeys.hasOwnProperty(path),
+                      );
 
-                      // Now assign these existing depedent paths to the property path in dependencyMap
+                      // Now assign these existing dependent paths to the property path in dependencyMap
                       if (fullPropertyPath in this.dependencyMap) {
                         this.dependencyMap[
                           fullPropertyPath
