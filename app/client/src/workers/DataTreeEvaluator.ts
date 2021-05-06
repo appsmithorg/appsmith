@@ -353,7 +353,6 @@ export default class DataTreeEvaluator {
             // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
             // a cyclical dependency.
             entityDependencies.forEach((dependentPath) => {
-              debugger;
               const completePath = `${entityName}.${dependentPath}`;
               if (this.allKeys.hasOwnProperty(completePath)) {
                 actionDependentPaths.push(completePath);
@@ -830,7 +829,6 @@ export default class DataTreeEvaluator {
             }
 
             case DataTreeDiffEvent.EDIT: {
-              debugger;
               // We only care if the difference is in dynamic bindings since static values do not need
               // an evaluation.
               if (
@@ -867,18 +865,21 @@ export default class DataTreeEvaluator {
                     delete this.dependencyMap[fullPropertyPath];
                   }
                   if (isAction(entity)) {
-                    debugger;
                     // Actions have a defined dependency map that should always be maintained
                     if (entityPropertyPath in entity.dependencyMap) {
                       const entityDependenciesName = entity.dependencyMap[
                         entityPropertyPath
                       ].map((dep) => `${entityName}.${dep}`);
+
+                      // Filter only the paths which exist in the appsmith world to avoid cyclical dependencies
                       const filteredEntityDependencies: Array<string> = [];
                       for (const path of entityDependenciesName) {
                         if (this.allKeys.hasOwnProperty(path)) {
                           filteredEntityDependencies.push(path);
                         }
                       }
+
+                      // Now assign these existing depedent paths to the property path in dependencyMap
                       if (fullPropertyPath in this.dependencyMap) {
                         this.dependencyMap[
                           fullPropertyPath
@@ -905,7 +906,6 @@ export default class DataTreeEvaluator {
     const diffCalcEnd = performance.now();
     const subDepCalcStart = performance.now();
     if (didUpdateDependencyMap) {
-      debugger;
       // TODO Optimise
       Object.keys(this.dependencyMap).forEach((key) => {
         this.dependencyMap[key] = _.uniq(
