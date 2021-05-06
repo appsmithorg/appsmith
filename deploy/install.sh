@@ -60,6 +60,7 @@ install_docker() {
         $apt_cmd update
         echo "Installing docker"
         $apt_cmd install docker-ce docker-ce-cli containerd.io
+
     elif [[ $package_manager == zypper ]]; then
         zypper_cmd="sudo zypper --quiet --no-gpg-checks --non-interactive"
         echo "Installing docker"
@@ -70,6 +71,7 @@ install_docker() {
         fi
         $zypper_cmd install docker docker-runc containerd
         sudo systemctl enable docker.service
+
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
