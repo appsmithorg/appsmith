@@ -1120,7 +1120,7 @@ const extractReferencesFromBinding = (
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
     if (all.hasOwnProperty(identifier)) {
-      subDeps.push(dependentPath);
+      subDeps.push(identifier);
       return;
     }
     const subpaths = _.toPath(identifier);
@@ -1133,7 +1133,7 @@ const extractReferencesFromBinding = (
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
       if (all.hasOwnProperty(current)) {
-        subDeps.push(dependentPath);
+        subDeps.push(current);
         return;
       }
       subpaths.pop();
