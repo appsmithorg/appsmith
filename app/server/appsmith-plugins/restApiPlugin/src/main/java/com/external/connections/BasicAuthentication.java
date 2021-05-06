@@ -31,6 +31,7 @@ public class BasicAuthentication extends APIConnection {
         return Mono.just(basicAuthentication);
     }
 
+
     @Override
     public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
         return Mono.justOrEmpty(ClientRequest.from(request)
