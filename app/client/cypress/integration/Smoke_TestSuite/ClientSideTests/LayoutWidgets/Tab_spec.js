@@ -40,6 +40,7 @@ describe("Tab widget test", function() {
     cy.get(Layoutpage.tabWidget)
       .contains("Day")
       .should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);
     cy.openPropertyPane("tabswidget");
     /**

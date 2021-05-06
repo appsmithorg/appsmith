@@ -11,13 +11,11 @@ import {
   ColumnTypes,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
-  FontStyleTypes,
   ColumnProperties,
   CellLayoutProperties,
-  TextSizes,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import { isString, isEmpty, findIndex, without } from "lodash";
+import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
@@ -28,6 +26,7 @@ import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
+import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 
 export const renderCell = (
   value: any,
@@ -264,7 +263,7 @@ const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   top: 18px;
   cursor: pointer;
   transform: rotate(180deg);
-  svg {
+  && svg {
     path {
       fill: ${(props) => props.theme.colors.secondary};
     }
@@ -276,7 +275,7 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   position: relative;
   top: 3px;
   cursor: pointer;
-  svg {
+  && svg {
     path {
       fill: ${(props) => props.theme.colors.secondary};
     }
@@ -328,7 +327,7 @@ export const TableHeaderCell = (props: {
             : "hidden-header"
         }
       >
-        {column.render("Header")}
+        {props.columnName}
       </div>
       <div
         {...column.getResizerProps()}
@@ -340,28 +339,6 @@ export const TableHeaderCell = (props: {
       />
     </div>
   );
-};
-
-export const reorderColumns = (
-  columns: Record<string, ColumnProperties>,
-  columnOrder: string[],
-) => {
-  const newColumnsInOrder: Record<string, ColumnProperties> = {};
-
-  columnOrder.forEach((id: string, index: number) => {
-    if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
-  });
-  const remaining = without(
-    Object.keys(columns),
-    ...Object.keys(newColumnsInOrder),
-  );
-  const len = Object.keys(newColumnsInOrder).length;
-  if (remaining && remaining.length > 0) {
-    remaining.forEach((id: string, index: number) => {
-      newColumnsInOrder[id] = { ...columns[id], index: len + index };
-    });
-  }
-  return newColumnsInOrder;
 };
 
 export function getDefaultColumnProperties(

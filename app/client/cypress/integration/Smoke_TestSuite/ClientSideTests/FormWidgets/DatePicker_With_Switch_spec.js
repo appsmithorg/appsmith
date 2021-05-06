@@ -26,6 +26,7 @@ describe("Switch Widget within Form widget Functionality", function() {
   it("Date Widget with Reset widget being switch widget", function() {
     cy.SearchEntityandOpen("DatePicker1");
     cy.get(formWidgetsPage.defaultDate).click();
+    cy.SetDateToToday();
     cy.setDate(1, "ddd MMM DD YYYY");
     const nextDay = Cypress.moment()
       .add(1, "days")
@@ -56,7 +57,7 @@ describe("Switch Widget within Form widget Functionality", function() {
 
   it("DatePicker-Date change and validate switch widget status", function() {
     cy.get(widgetsPage.datepickerInput).click({ force: true });
-    cy.get(widgetsPage.selectToday).click({ force: true });
+    cy.SetDateToToday();
     cy.get(widgetsPage.switchWidgetActive).should("be.visible");
     cy.get(".t--toast-action span")
       .last()
