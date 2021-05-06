@@ -615,7 +615,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   };
 
-  disableDrag = (disable: boolean) => {
+  toggleDrag = (disable: boolean) => {
     this.disableDrag(disable);
   };
 
@@ -632,7 +632,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
-          disableDrag={this.disableDrag}
+          disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           filters={this.props.filters}
           handleReorderColumn={this.handleReorderColumn}
