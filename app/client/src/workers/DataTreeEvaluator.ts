@@ -305,7 +305,7 @@ export default class DataTreeEvaluator {
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
         dependencyMap[key].map((path) =>
-          extractReferencesFromBinding(key, path, this.allKeys),
+          extractReferencesFromBinding(path, this.allKeys),
         ),
       );
     });
@@ -911,7 +911,7 @@ export default class DataTreeEvaluator {
         this.dependencyMap[key] = _.uniq(
           _.flatten(
             this.dependencyMap[key].map((path) =>
-              extractReferencesFromBinding(key, path, this.allKeys),
+              extractReferencesFromBinding(path, this.allKeys),
             ),
           ),
         );
@@ -1048,7 +1048,7 @@ export default class DataTreeEvaluator {
           const propertyBindings = entityPropertyBindings[path];
           const references = _.flatten(
             propertyBindings.map((binding) =>
-              extractReferencesFromBinding(path, binding, this.allKeys),
+              extractReferencesFromBinding(binding, this.allKeys),
             ),
           );
           references.forEach((value) => {
