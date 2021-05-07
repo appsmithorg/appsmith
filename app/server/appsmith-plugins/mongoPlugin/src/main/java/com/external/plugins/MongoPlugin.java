@@ -433,7 +433,6 @@ public class MongoPlugin extends BasePlugin {
                     Map extractedInfoMap = new HashMap();
                     String username = matcher.group(REGEX_GROUP_USERNAME);
                     extractedInfoMap.put(KEY_USERNAME, username == null ? "" : username);
-
                     String password = matcher.group(REGEX_GROUP_PASSWORD);
                     extractedInfoMap.put(KEY_PASSWORD, password == null ? "" : password);
                     extractedInfoMap.put(KEY_URI_HEAD, matcher.group(REGEX_GROUP_HEAD));
