@@ -9,7 +9,7 @@ import {
   useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetType } from "constants/WidgetConstants";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -19,10 +19,10 @@ const PositionStyle = styled.div<{ topRow: number }>`
   top: ${(props) =>
     props.topRow > 2 ? `${-1 * props.theme.spaces[10]}px` : "calc(100%)"};
   height: ${(props) => props.theme.spaces[10]}px;
-  width: 100%;
   left: 0;
   display: flex;
   padding: 0 4px;
+  cursor: pointer;
 `;
 
 const ControlGroup = styled.div`
@@ -105,7 +105,10 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       !isDragging &&
       !isResizing);
 
-  let currentActivity = Activities.NONE;
+  let currentActivity =
+    props.type === WidgetTypes.MODAL_WIDGET
+      ? Activities.HOVERING
+      : Activities.NONE;
   if (focusedWidget === props.widgetId) currentActivity = Activities.HOVERING;
   if (showAsSelected) currentActivity = Activities.SELECTED;
   if (
