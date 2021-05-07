@@ -431,8 +431,11 @@ public class MongoPlugin extends BasePlugin {
                 Matcher matcher = pattern.matcher(uri);
                 if (matcher.find()) {
                     Map extractedInfoMap = new HashMap();
-                    extractedInfoMap.put(KEY_USERNAME, matcher.group(REGEX_GROUP_USERNAME));
-                    extractedInfoMap.put(KEY_PASSWORD, matcher.group(REGEX_GROUP_PASSWORD));
+                    String username = matcher.group(REGEX_GROUP_USERNAME);
+                    extractedInfoMap.put(KEY_USERNAME, username == null ? "" : username);
+
+                    String password = matcher.group(REGEX_GROUP_PASSWORD);
+                    extractedInfoMap.put(KEY_PASSWORD, password == null ? "" : password);
                     extractedInfoMap.put(KEY_URI_HEAD, matcher.group(REGEX_GROUP_HEAD));
                     extractedInfoMap.put(KEY_URI_TAIL, matcher.group(REGEX_GROUP_TAIL));
                     extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME).split("\\?")[0]);
@@ -441,6 +444,12 @@ public class MongoPlugin extends BasePlugin {
             }
 
             return null;
+        }
+
+        private String buildURIfromExtractedInfo(Map extractedInfo, String password) {
+            return extractedInfo.get(KEY_URI_HEAD) + (extractedInfo.get(KEY_USERNAME) == null ? "" :
+                    extractedInfo.get(KEY_USERNAME) + ":") + (password == null ? "" : password)
+                    + extractedInfo.get(KEY_URI_TAIL);
         }
 
         public String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
@@ -452,9 +461,7 @@ public class MongoPlugin extends BasePlugin {
                     Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
                     if (extractedInfo != null) {
                             String password = ((DBAuth)datasourceConfiguration.getAuthentication()).getPassword();
-                            return extractedInfo.get(KEY_URI_HEAD) + (extractedInfo.get(KEY_USERNAME) == null ? "" :
-                                    extractedInfo.get(KEY_USERNAME) + ":") + (password == null ? "" : password)
-                                    + extractedInfo.get(KEY_URI_TAIL);
+                            return buildURIfromExtractedInfo(extractedInfo, password);
                     }
                     else {
                         throw new AppsmithPluginException(
@@ -606,9 +613,7 @@ public class MongoPlugin extends BasePlugin {
                                     "Please check the URI once.");
                         }
                         else {
-                            String mongoUriWithHiddenPassword =
-                                    extractedInfo.get(KEY_URI_HEAD) + (extractedInfo.get(KEY_USERNAME) == null ? "" :
-                                    extractedInfo.get(KEY_USERNAME) + ":" + "****") + extractedInfo.get(KEY_URI_TAIL);
+                            String mongoUriWithHiddenPassword = buildURIfromExtractedInfo(extractedInfo, "****");
                             properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
                             DBAuth authentication = datasourceConfiguration.getAuthentication() == null ?
                                     new DBAuth() : (DBAuth) datasourceConfiguration.getAuthentication();
