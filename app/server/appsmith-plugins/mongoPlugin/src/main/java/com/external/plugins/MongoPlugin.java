@@ -603,8 +603,7 @@ public class MongoPlugin extends BasePlugin {
                     if (!mongoUri.matches(MONGO_URI_REGEX)) {
                         invalids.add("Mongo Connection String URI does not seem to be in the correct format. Please " +
                                 "check the URI once.");
-                    }
-                    else {
+                    } else {
                         Map extractedInfo = extractInfoFromConnectionStringURI(mongoUri, MONGO_URI_REGEX);
                         if (extractedInfo == null) {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
