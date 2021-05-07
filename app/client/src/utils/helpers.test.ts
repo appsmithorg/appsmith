@@ -63,6 +63,20 @@ describe("flattenObject test", () => {
           "color.header": "red",
         },
       },
+      {
+        input: {
+          name: null,
+          color: { header: {} },
+          users: {
+            id: undefined,
+          },
+        },
+        output: {
+          "color.header": {},
+          name: null,
+          "users.id": undefined,
+        },
+      },
     ];
 
     tests.map((test) =>
