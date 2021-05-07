@@ -221,7 +221,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       !this.isDirty("authentication.headerPrefix") &&
       _.get(authentication, "headerPrefix") === undefined
     ) {
-      this.props.change("authentication.headerPrefix", "Bearer ");
+      this.props.change("authentication.headerPrefix", "Bearer");
       return false;
     }
 
