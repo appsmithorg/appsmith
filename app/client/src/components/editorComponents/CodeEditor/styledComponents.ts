@@ -14,7 +14,7 @@ export const HintStyles = createGlobalStyle<{
   .CodeMirror-hints {
     position: absolute;
     z-index: 20;
-    overflow: hidden;
+    // overflow: hidden;
     list-style: none;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: 0px 0px;
@@ -34,7 +34,7 @@ export const HintStyles = createGlobalStyle<{
       props.editorTheme === EditorTheme.LIGHT ? "#090707" : "#FFFFFF"};
     cursor: pointer;
     display: flex;
-    width: 220px;
+    min-width: 220px;
     align-items: center;
     font-size: 12px;
     line-height: 15px;
