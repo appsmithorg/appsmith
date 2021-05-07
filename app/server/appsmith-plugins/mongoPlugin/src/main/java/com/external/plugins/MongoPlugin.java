@@ -625,8 +625,7 @@ public class MongoPlugin extends BasePlugin {
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
                 if (CollectionUtils.isEmpty(endpoints)) {
                     invalids.add("Missing endpoint(s).");
