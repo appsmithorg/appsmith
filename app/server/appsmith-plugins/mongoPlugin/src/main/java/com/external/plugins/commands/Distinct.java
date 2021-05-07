@@ -2,13 +2,15 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
-import com.external.plugins.constants.ConfigurationIndex;
 import lombok.Getter;
 import lombok.Setter;
+import org.pf4j.util.StringUtils;
 
 import java.util.List;
 
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_KEY;
+import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
 
 @Getter
 @Setter
@@ -21,12 +23,22 @@ public class Distinct extends BaseCommand{
 
         List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, ConfigurationIndex.DISTINCT_QUERY)) {
-            this.query = (String) pluginSpecifiedTemplates.get(ConfigurationIndex.DISTINCT_QUERY).getValue();
+        if (validConfigurationPresent(pluginSpecifiedTemplates, DISTINCT_QUERY)) {
+            this.query = (String) pluginSpecifiedTemplates.get(DISTINCT_QUERY).getValue();
         }
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, ConfigurationIndex.DISTINCT_KEY)) {
-            this.key = (String) pluginSpecifiedTemplates.get(ConfigurationIndex.DISTINCT_KEY).getValue();
+        if (validConfigurationPresent(pluginSpecifiedTemplates, DISTINCT_KEY)) {
+            this.key = (String) pluginSpecifiedTemplates.get(DISTINCT_KEY).getValue();
         }
+    }
+
+    @Override
+    public Boolean isValid() {
+        if (super.isValid()) {
+            if (!StringUtils.isNullOrEmpty(query) && !StringUtils.isNullOrEmpty(key)) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
     }
 }

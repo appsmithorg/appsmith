@@ -2,13 +2,14 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
-import com.external.plugins.constants.ConfigurationIndex;
 import lombok.Getter;
 import lombok.Setter;
+import org.pf4j.util.StringUtils;
 
 import java.util.List;
 
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELINE;
 
 @Getter
 @Setter
@@ -20,8 +21,18 @@ public class Aggregate extends BaseCommand {
 
         List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, ConfigurationIndex.AGGREGATE_PIPELINE)) {
-            this.pipeline = (String) pluginSpecifiedTemplates.get(ConfigurationIndex.AGGREGATE_PIPELINE).getValue();
+        if (validConfigurationPresent(pluginSpecifiedTemplates, AGGREGATE_PIPELINE)) {
+            this.pipeline = (String) pluginSpecifiedTemplates.get(AGGREGATE_PIPELINE).getValue();
         }
+    }
+
+    @Override
+    public Boolean isValid() {
+        if (super.isValid()) {
+            if (!StringUtils.isNullOrEmpty(pipeline)) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
     }
 }

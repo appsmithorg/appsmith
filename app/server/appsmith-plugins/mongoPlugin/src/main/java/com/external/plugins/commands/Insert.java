@@ -2,13 +2,14 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
-import com.external.plugins.constants.ConfigurationIndex;
 import lombok.Getter;
 import lombok.Setter;
+import org.pf4j.util.StringUtils;
 
 import java.util.List;
 
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
 
 @Getter
 @Setter
@@ -20,8 +21,18 @@ public class Insert extends BaseCommand{
 
         List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, ConfigurationIndex.INSERT_DOCUMENT)) {
-            this.documents = (String) pluginSpecifiedTemplates.get(ConfigurationIndex.INSERT_DOCUMENT).getValue();
+        if (validConfigurationPresent(pluginSpecifiedTemplates, INSERT_DOCUMENT)) {
+            this.documents = (String) pluginSpecifiedTemplates.get(INSERT_DOCUMENT).getValue();
         }
+    }
+
+    @Override
+    public Boolean isValid() {
+        if (super.isValid()) {
+            if (!StringUtils.isNullOrEmpty(documents)) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
     }
 }
