@@ -110,8 +110,14 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       isValid: `{{this.isRequired ? this.selectionType === 'SINGLE_SELECT' ? !!this.selectedOption : !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
       selectedOption: `{{ this.selectionType === 'SINGLE_SELECT' ? _.find(this.options, { value:  this.selectedOptionValue }) : undefined}}`,
       selectedOptionArr: `{{this.selectionType === "MULTI_SELECT" ? this.options.filter(opt => _.includes(this.selectedOptionValueArr, opt.value)) : undefined}}`,
-      selectedIndex: `{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}`,
-      selectedIndexArr: `{{ this.selectedOptionValueArr.map(o => _.findIndex(this.options, { value: o })) }}`,
+      selectedIndex: `{{(() => {
+        const seletedOption = this.selectedOption !== undefined ? this.selectedOption.value : this.defaultOptionValue;
+        return _.findIndex(this.options, { value: selectedOption } )
+      })()}}`,
+      selectedIndexArr: `{{(() => {
+        const selectedOptions = this.selectedOptionValueArr !== undefined ? this.selectedOptionValueArr : this.defaultOptionValue;
+        return selectedOptions.map(o => _.findIndex(this.options, { value: o }));
+      })()}}`,
       value: `{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}`,
       selectedOptionValues: `{{ this.selectionType === 'MULTI_SELECT' ? this.selectedOptionValueArr : [] }}`,
       selectedOptionLabels: `{{ this.selectionType === "MULTI_SELECT" ? this.selectedOptionValueArr.map(o => { const index = _.findIndex(this.options, { value: o }); return this.options[index]?.label; }) : [] }}`,
