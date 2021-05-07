@@ -404,9 +404,6 @@ public class ExamplesOrganizationCloner {
                                 makePristine(templateDatasource);
 
                                 templateDatasource.setOrganizationId(toOrganizationId);
-                                if (authentication != null) {
-                                    datasourceContextService.decryptSensitiveFields(authentication);
-                                }
 
                                 return createSuffixedDatasource(templateDatasource);
                             }));

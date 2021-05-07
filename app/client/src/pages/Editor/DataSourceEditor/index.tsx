@@ -216,7 +216,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
         />
       );
     }
-    if (pluginDatasourceForm === "SaaSDatasourceForm") {
+    if (pluginDatasourceForm === "DatasourceSaaSForm") {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
           applicationId,

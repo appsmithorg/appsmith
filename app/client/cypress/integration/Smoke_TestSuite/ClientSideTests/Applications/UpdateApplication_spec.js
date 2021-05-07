@@ -92,7 +92,7 @@ describe("Update Application", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.applicationName).type(veryLongAppName + "{enter}");
-    cy.get(homePage.appsContainer).click();
+    cy.get(homePage.appsContainer).click({ force: true });
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -663,4 +663,39 @@ public class LayoutActionServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void simpleWidgetNameRefactor() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "Table1");
+        dsl.put("type", "TABLE_WIDGET");
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(layout.getId());
+        refactorNameDTO.setOldName("Table1");
+        refactorNameDTO.setNewName("NewNameTable1");
+
+        Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
+
+        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+
+        StepVerifier
+                .create(Mono.zip(widgetRenameMono, pageFromRepoMono))
+                .assertNext(tuple -> {
+                    LayoutDTO updatedLayout = tuple.getT1();
+                    PageDTO pageFromRepo = tuple.getT2();
+
+                    String widgetName = (String) updatedLayout.getDsl().get("widgetName");
+                    assertThat(widgetName).isEqualTo("NewNameTable1");
+                })
+                .verifyComplete();
+    }
 }
