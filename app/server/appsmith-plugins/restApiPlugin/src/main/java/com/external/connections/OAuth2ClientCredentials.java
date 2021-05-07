@@ -6,7 +6,9 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -31,6 +33,7 @@ import java.util.Map;
 
 @Setter
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OAuth2ClientCredentials extends APIConnection implements UpdatableConnection {
 
     private final Clock clock = Clock.systemUTC();
@@ -40,9 +43,6 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
     private Instant expiresAt;
     private Object tokenResponse;
     private static final int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
-
-    private OAuth2ClientCredentials() {
-    }
 
     public static Mono<OAuth2ClientCredentials> create(OAuth2 oAuth2) {
         if (oAuth2 == null) {
