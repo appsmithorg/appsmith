@@ -838,7 +838,7 @@ function* runActionSaga(
 
         Toaster.show({
           text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
-          variant: Variant.warning,
+          variant: Variant.danger,
         });
       }
     } else {
