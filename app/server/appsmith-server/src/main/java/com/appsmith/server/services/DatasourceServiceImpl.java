@@ -198,7 +198,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(this::populateHintMessages);
     }
-    
+
     @Override
     public Mono<Datasource> validateDatasource(Datasource datasource) {
         Set<String> invalids = new HashSet<>();
