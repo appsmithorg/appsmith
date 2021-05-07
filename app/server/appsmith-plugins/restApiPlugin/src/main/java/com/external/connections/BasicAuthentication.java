@@ -1,7 +1,9 @@
 package com.external.connections;
 
 import com.appsmith.external.models.BasicAuth;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -13,13 +15,11 @@ import java.util.Base64;
 
 @Setter
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BasicAuthentication extends APIConnection {
 
     private String encodedAuthorizationHeader;
     final private static String HEADER_PREFIX = "Basic ";
-
-    private BasicAuthentication() {
-    }
 
     public static Mono<BasicAuthentication> create(BasicAuth basicAuth) {
         final BasicAuthentication basicAuthentication = new BasicAuthentication();

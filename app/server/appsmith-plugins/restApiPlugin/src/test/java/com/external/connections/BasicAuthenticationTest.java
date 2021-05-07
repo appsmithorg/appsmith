@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BasicAuthenticationTest {
 
     @Test
-    public void test_Create_encodedValue() {
+    public void testCreate_validCredentials_ReturnsWithEncodedValue() {
         BasicAuth basicAuth = new BasicAuth();
         basicAuth.setUsername("test");
         basicAuth.setPassword("password");
