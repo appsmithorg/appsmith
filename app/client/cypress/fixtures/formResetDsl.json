@@ -157,7 +157,8 @@
                 "type": "DROP_DOWN_WIDGET",
                 "version": 1,
                 "widgetId": "dwh49bulj9",
-                "widgetName": "Dropdown1"
+                "widgetName": "Dropdown1",
+                "defaultOptionValue": "1,2"
               }
             ],
             "blueprint": {

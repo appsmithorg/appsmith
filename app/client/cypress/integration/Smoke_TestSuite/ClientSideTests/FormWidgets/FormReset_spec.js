@@ -14,9 +14,8 @@ describe("Form reset functionality", function() {
 
     cy.get(".t--draggable-dropdownwidget").click({ force: true });
     cy.get(".t--draggable-dropdownwidget").type("Option");
-    cy.dropdownDynamic("Option 1");
-    cy.dropdownDynamic("Option 2");
     cy.dropdownDynamic("Option 3");
+    cy.dropdownDynamic("Option 4");
 
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
@@ -32,11 +31,7 @@ describe("Form reset functionality", function() {
       .eq(2)
       .should("not.have.class", "selected-row");
 
-    cy.get(".t-draggable-dropdownwidget .bp3-tag-input-values .bp3-tag").should(
-      ($span) => {
-        expect($span).to.have.length(0);
-      },
-    );
+    cy.get(".t--draggable-dropdownwidget .bp3-tag").should("have.length", 2);
 
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
