@@ -48,6 +48,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private final ApplicationService applicationService;
 
     private final PolicyGenerator policyGenerator;
+    private static final DateTimeFormatter ISO_FORMATTER =
+            DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
     private final PolicyUtils policyUtils;
 
     public CommentServiceImpl(
