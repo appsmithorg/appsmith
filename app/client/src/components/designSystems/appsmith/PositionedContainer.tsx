@@ -5,11 +5,8 @@ import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 
-const PositionedWidget = styled.div`
-  &:hover {
-    z-index: 1;
-  }
-`;
+const PositionedWidget = styled.div``;
+
 type PositionedContainerProps = {
   style: BaseStyle;
   children: ReactNode;

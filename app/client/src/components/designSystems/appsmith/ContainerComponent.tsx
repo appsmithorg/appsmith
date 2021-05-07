@@ -1,5 +1,6 @@
 import React, { ReactNode, useRef, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
+import tinycolor from "tinycolor2";
 import { ComponentProps } from "./BaseComponent";
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
@@ -23,12 +24,29 @@ const StyledContainerComponent = styled.div<
   height: 100%;
   width: 100%;
   background: ${(props) => props.backgroundColor};
-
-  ${(props) => (!props.isVisible ? invisible : "")};
+  position: relative;
   opacity: ${(props) => (props.resizeDisabled ? "0.5" : "1")};
-  pointer-events: ${(props) => (props.resizeDisabled ? "none" : "inherit")};
+  ${(props) => (!props.isVisible ? invisible : "")};
   overflow: hidden;
+  box-shadow: ${(props) =>
+    props.selected ? "0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
+  z-index: ${(props) => (props.selected ? "2" : "1")};
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}
+
+  &:hover {
+    z-index: ${(props) => (props.onClick ? "2" : "1")};
+    cursor: ${(props) => (props.onClick ? "pointer" : "inherit")};
+    background: ${(props) =>
+      props.onClick
+        ? tinycolor(props.backgroundColor)
+            .darken(5)
+            .toString()
+        : props.backgroundColor};
+  }
+
+  &:active {
+    transform: ${(props) => (props.onClick ? "scale(0.98)" : "scale(1)")};
+  }
 }`;
 
 function ContainerComponent(props: ContainerComponentProps) {
@@ -73,6 +91,7 @@ export interface ContainerComponentProps extends ComponentProps {
   backgroundColor?: Color;
   shouldScrollContents?: boolean;
   resizeDisabled?: boolean;
+  selected?: boolean;
 }
 
 export default ContainerComponent;

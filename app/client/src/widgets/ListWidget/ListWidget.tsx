@@ -390,6 +390,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       return {
         ...child,
         onClick: () => this.onItemClick(index, this.props.onListItemClick),
+        selected: this.props.selectedItemIndex === index,
       };
     });
   };

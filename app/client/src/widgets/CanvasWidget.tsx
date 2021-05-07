@@ -66,7 +66,7 @@ class CanvasWidget extends ContainerWidget {
 
     const style: CSSProperties = {
       width: "100%",
-      height: `${height}px`,
+      height: "100%", // TODO(pawan): should we use height or 100%?
       background: "none",
       position: "relative",
     };
