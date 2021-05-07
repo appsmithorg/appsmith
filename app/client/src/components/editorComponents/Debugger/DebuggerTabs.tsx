@@ -8,6 +8,7 @@ import { showDebugger } from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import EntityDeps from "./EntityDeps";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -48,6 +49,11 @@ const DEBUGGER_TABS = [
     key: "LOGS",
     title: "Logs",
     panelComponent: <DebuggerLogs hasShortCut />,
+  },
+  {
+    key: "INSPECT_ELEMENTS",
+    title: "Inspect Elements",
+    panelComponent: <EntityDeps />,
   },
 ];
 
