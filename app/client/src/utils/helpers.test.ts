@@ -51,6 +51,18 @@ describe("flattenObject test", () => {
           "settings.color": true,
         },
       },
+      {
+        input: {
+          numbers: [1, 2, 3],
+          color: { header: "red" },
+        },
+        output: {
+          "numbers[0]": 1,
+          "numbers[1]": 2,
+          "numbers[2]": 3,
+          "color.header": "red",
+        },
+      },
     ];
 
     tests.map((test) =>
