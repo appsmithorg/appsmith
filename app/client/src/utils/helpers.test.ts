@@ -12,21 +12,49 @@ describe("flattenObject test", () => {
   });
 
   it("Check if nested objects are returned correctly", () => {
-    const input = {
-      isVisible: true,
-      isDisabled: false,
-      tableData: false,
-      settings: {
-        color: true,
+    const tests = [
+      {
+        input: {
+          isVisible: true,
+          isDisabled: false,
+          tableData: false,
+          settings: {
+            color: [
+              {
+                headers: {
+                  left: true,
+                },
+              },
+            ],
+          },
+        },
+        output: {
+          isVisible: true,
+          isDisabled: false,
+          tableData: false,
+          "settings.color[0].headers.left": true,
+        },
       },
-    };
-    const output = {
-      isVisible: true,
-      isDisabled: false,
-      tableData: false,
-      "settings.color": true,
-    };
+      {
+        input: {
+          isVisible: true,
+          isDisabled: false,
+          tableData: false,
+          settings: {
+            color: true,
+          },
+        },
+        output: {
+          isVisible: true,
+          isDisabled: false,
+          tableData: false,
+          "settings.color": true,
+        },
+      },
+    ];
 
-    expect(flattenObject(input)).toStrictEqual(output);
+    tests.map((test) =>
+      expect(flattenObject(test.input)).toStrictEqual(test.output),
+    );
   });
 });
