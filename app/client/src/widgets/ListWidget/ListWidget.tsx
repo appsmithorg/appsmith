@@ -570,7 +570,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     if (Array.isArray(this.props.items) && this.props.items.length === 0) {
-      return <ListComponentEmpty>No data to display</ListComponentEmpty>;
+      return <ListComponentEmpty />;
     }
 
     return (
