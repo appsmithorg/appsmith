@@ -598,8 +598,7 @@ public class MongoPlugin extends BasePlugin {
                 if (!hasNonEmptyURI(datasourceConfiguration)) {
                     invalids.add("'Mongo Connection String URI' field is empty. Please edit the 'Mongo Connection " +
                             "URI' field to provide a connection uri to connect with.");
-                }
-                else {
+                } else {
                     String mongoUri = (String)properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
                     if (!mongoUri.matches(MONGO_URI_REGEX)) {
                         invalids.add("Mongo Connection String URI does not seem to be in the correct format. Please " +
