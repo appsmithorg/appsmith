@@ -36,7 +36,7 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
   },
   {
     type: "DROP_DOWN_WIDGET",
-    widgetCardName: "Dropdown",
+    widgetCardName: "Select",
     key: generateReactKey(),
   },
   {
