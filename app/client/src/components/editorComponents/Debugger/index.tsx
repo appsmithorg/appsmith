@@ -18,7 +18,7 @@ const Container = styled.div<{ errorCount: number }>`
   right: 20px;
   bottom: 20px;
   cursor: pointer;
-  padding: 15px;
+  padding: ${(props) => props.theme.spaces[6]}px;
   color: ${(props) => props.theme.colors.debugger.floatingButton.color};
   border-radius: 50px;
   box-shadow: ${(props) => props.theme.colors.debugger.floatingButton.shadow};
@@ -35,7 +35,7 @@ const Container = styled.div<{ errorCount: number }>`
     color: ${Colors.WHITE};
     ${(props) => getTypographyByKey(props, "h6")}
     height: 16px;
-    padding: 5px;
+    padding: ${(props) => props.theme.spaces[1]}px;
     background-color: ${(props) =>
       !!props.errorCount
         ? props.theme.colors.debugger.floatingButton.errorCount

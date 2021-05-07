@@ -35,8 +35,8 @@ const SettingsWrapper = styled.div`
 `;
 
 const WidgetName = styled.span`
-  margin-right: 5px;
-  margin-left: 8px;
+  margin-right: ${(props) => props.theme.spaces[1] + 1}px;
+  margin-left: ${(props) => props.theme.spaces[3]}px;
 `;
 
 const StyledErrorIcon = styled(Icon)`
@@ -47,7 +47,7 @@ const StyledErrorIcon = styled(Icon)`
       }
     }
   }
-  margin-right: 3px;
+  margin-right: ${(props) => props.theme.spaces[1]}px;
 `;
 
 type SettingsControlProps = {
