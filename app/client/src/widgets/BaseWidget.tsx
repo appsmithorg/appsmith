@@ -178,13 +178,9 @@ abstract class BaseWidget<
     };
   }
 
-  getErrorCount = () => {
-    const invalidProps = this.props?.invalidProps ?? {};
-
-    const memoizedFlatterObject = memoize(flattenObject);
-    return Object.values(memoizedFlatterObject(invalidProps)).filter((e) => !!e)
-      .length;
-  };
+  getErrorCount = memoize((invalidProps) => {
+    return Object.values(flattenObject(invalidProps)).filter((e) => !!e).length;
+  }, JSON.stringify);
 
   render() {
     return this.getWidgetView();
@@ -219,7 +215,7 @@ abstract class BaseWidget<
       <>
         {!this.props.disablePropertyPane && (
           <WidgetNameComponent
-            errorCount={this.getErrorCount()}
+            errorCount={this.getErrorCount(this.props.invalidProps)}
             parentId={this.props.parentId}
             showControls={showControls}
             type={this.props.type}
