@@ -214,7 +214,7 @@
         <dependency>
             <groupId>com.github.cloudyrock.mongock</groupId>
             <artifactId>mongock-spring</artifactId>
-            <version>3.2.5</version>
+            <version>3.3.2</version>
         </dependency>
 
         <dependency>
