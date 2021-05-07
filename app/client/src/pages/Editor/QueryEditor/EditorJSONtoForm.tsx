@@ -459,7 +459,7 @@ export function EditorJSONtoForm(props: Props) {
 
   const renderEachConfig = (formName: string) => (section: any): any => {
     return section.children.map((formControlOrSection: ControlProps) => {
-      if (isHidden(props.formData, formControlOrSection.hidden)) return null;
+      if (isHidden(props.formData, section.hidden)) return null;
       if ("children" in formControlOrSection) {
         return renderEachConfig(formName)(formControlOrSection);
       } else {
