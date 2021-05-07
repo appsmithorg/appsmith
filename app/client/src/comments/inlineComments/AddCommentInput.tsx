@@ -38,9 +38,11 @@ const StyledEmojiTrigger = styled.div`
   margin-right: ${(props) => props.theme.spaces[4]}px;
 `;
 
-const PaddingContainer = styled.div`
+const PaddingContainer = styled.div<{ removePadding?: boolean }>`
   padding: ${(props) =>
-    `${props.theme.spaces[7]}px ${props.theme.spaces[5]}px`};
+    !props.removePadding
+      ? `${props.theme.spaces[7]}px ${props.theme.spaces[5]}px`
+      : 0};
 
   & .cancel-button {
     margin-right: ${(props) => props.theme.spaces[5]}px;
@@ -109,16 +111,22 @@ const useUserSuggestions = (
 };
 
 function AddCommentInput({
+  removePadding,
+  initialEditorState,
   onSave,
   onCancel,
 }: {
+  removePadding?: boolean;
+  initialEditorState?: EditorState;
   onSave: (state: RawDraftContentState) => void;
   onCancel?: () => void;
 }) {
   const users = useOrgUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
   useUserSuggestions(users, setSuggestions);
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const [editorState, setEditorState] = useState(
+    initialEditorState || EditorState.createEmpty(),
+  );
   const [suggestionsQuery, setSuggestionsQuery] = useState("");
 
   const clearEditor = useCallback(() => {
@@ -172,7 +180,7 @@ function AddCommentInput({
   }, [suggestionsQuery, suggestions]);
 
   return (
-    <PaddingContainer>
+    <PaddingContainer removePadding={removePadding}>
       <Row>
         <StyledInputContainer>
           <MentionsInput

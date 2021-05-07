@@ -26,6 +26,7 @@ import {
   updateCommentThreadSuccess,
   deleteCommentSuccess,
   setVisibleThread,
+  updateCommentSuccess,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -48,6 +49,7 @@ import {
   CreateCommentThreadPayload,
   CreateCommentThreadRequest,
 } from "entities/Comments/CommentsInterfaces";
+import { RawDraftContentState } from "draft-js";
 
 // const { commentsTestModeEnabled } = getAppsmithConfigs();
 // export function* initCommentThreads() {
@@ -226,6 +228,27 @@ function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
   }
 }
 
+function* editComment(
+  action: ReduxAction<{
+    commentId: string;
+    commentThreadId: string;
+    body: RawDraftContentState;
+  }>,
+) {
+  try {
+    const { commentId, commentThreadId, body } = action.payload;
+    const response = yield CommentsApi.updateComment({ body }, commentId);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(
+        updateCommentSuccess({ comment: response.data, commentThreadId }),
+      );
+    }
+  } catch (e) {
+    console.log(e, "handle error");
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     // takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
@@ -253,5 +276,6 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
     takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),
     takeLatest(ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST, markThreadAsRead),
+    takeLatest(ReduxActionTypes.EDIT_COMMENT_REQUEST, editComment),
   ]);
 }

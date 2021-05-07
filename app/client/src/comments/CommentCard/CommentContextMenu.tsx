@@ -7,6 +7,7 @@ import {
   DELETE_COMMENT,
   UNPIN_COMMENT,
   createMessage,
+  EDIT_COMMENT,
 } from "constants/messages";
 import { noop } from "lodash";
 
@@ -48,6 +49,7 @@ type Props = {
   pin: typeof noop;
   copyCommentLink: typeof noop;
   deleteComment: typeof noop;
+  switchToEditCommentMode: typeof noop;
   isParentComment?: boolean;
   isCreatedByMe?: boolean;
   isPinned?: boolean;
@@ -60,6 +62,7 @@ function CommentContextMenu({
   isParentComment,
   isCreatedByMe,
   isPinned,
+  switchToEditCommentMode,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -83,11 +86,19 @@ function CommentContextMenu({
       );
     }
 
-    if (isCreatedByMe && !isParentComment) {
+    if (isCreatedByMe) {
+      if (!isParentComment) {
+        options.push({
+          icon: "trash",
+          display: createMessage(DELETE_COMMENT),
+          onClick: deleteComment,
+        });
+      }
+
       options.push({
-        icon: "trash",
-        display: createMessage(DELETE_COMMENT),
-        onClick: deleteComment,
+        icon: "edit",
+        display: createMessage(EDIT_COMMENT),
+        onClick: switchToEditCommentMode,
       });
     }
 

@@ -17,6 +17,7 @@ import { MentionComponent } from "components/ads/MentionsInput";
 import Icon, { IconSize } from "components/ads/Icon";
 import EmojiReactions, { Reactions } from "components/ads/EmojiReactions";
 import { Toaster } from "components/ads/Toast";
+import AddCommentInput from "comments/inlineComments/AddCommentInput";
 
 import createMentionPlugin from "@draft-js-plugins/mention";
 import { flattenDeep, noop } from "lodash";
@@ -28,6 +29,7 @@ import {
   deleteCommentRequest,
   markThreadAsReadRequest,
   pinCommentThreadRequest,
+  editCommentRequest,
 } from "actions/commentActions";
 import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
@@ -65,10 +67,10 @@ const UserName = styled.span`
   display: flex;
   align-items: center;
   overflow: hidden;
-   text-overflow: ellipsis;
-   display: -webkit-box;
-   -webkit-line-clamp: 2; /* number of lines to show */
-   -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* number of lines to show */
+  -webkit-box-orient: vertical;
 `;
 
 const HeaderSection = styled.div`
@@ -172,6 +174,11 @@ const replyText = (replies?: number) => {
   return replies > 1 ? `${replies} Replies` : `1 Reply`;
 };
 
+enum CommentCardModes {
+  EDIT = "EDIT",
+  VIEW = "VIEW",
+}
+
 function CommentCard({
   comment,
   isParentComment,
@@ -186,6 +193,7 @@ function CommentCard({
   visible,
 }: {
   comment: Comment;
+  isEditMode?: boolean;
   isParentComment?: boolean;
   resolved?: boolean;
   toggleResolved?: () => void;
@@ -198,6 +206,7 @@ function CommentCard({
   visible?: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [cardMode, setCardMode] = useState(CommentCardModes.VIEW);
   const dispatch = useDispatch();
   const { authorName, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
@@ -245,7 +254,16 @@ function CommentCard({
 
   const isCreatedByMe = currentUserUsername === comment.authorUsername;
 
+  const switchToEditCommentMode = () => setCardMode(CommentCardModes.EDIT);
+  const switchToViewCommentMode = () => setCardMode(CommentCardModes.VIEW);
+
+  const onSaveComment = (body: RawDraftContentState) => {
+    dispatch(editCommentRequest({ commentId, commentThreadId, body }));
+    setCardMode(CommentCardModes.VIEW);
+  };
+
   const contextMenuProps = {
+    switchToEditCommentMode,
     pin,
     copyCommentLink,
     deleteComment,
@@ -339,12 +357,21 @@ function CommentCard({
         </HeaderSection>
       </CommentHeader>
       <CommentBodyContainer>
-        <Editor
-          editorState={editorState}
-          onChange={noop}
-          plugins={plugins}
-          readOnly
-        />
+        {cardMode === CommentCardModes.EDIT ? (
+          <AddCommentInput
+            initialEditorState={editorState}
+            onCancel={switchToViewCommentMode}
+            onSave={onSaveComment}
+            removePadding
+          />
+        ) : (
+          <Editor
+            editorState={editorState}
+            onChange={noop}
+            plugins={plugins}
+            readOnly
+          />
+        )}
       </CommentBodyContainer>
       <CommentTime>
         <span>{moment(comment.creationTime).fromNow()}</span>

@@ -9,6 +9,8 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  EDIT_COMMENT_REQUEST: "EDIT_COMMENT_REQUEST",
+  EDIT_COMMENT_SUCCESS: "EDIT_COMMENT_SUCCESS",
   MARK_THREAD_AS_READ_REQUEST: "MARK_THREAD_AS_READ_REQUEST",
   SET_VISIBLE_THREAD: "SET_VISIBLE_THREAD",
   RESET_VISIBLE_THREAD: "RESET_VISIBLE_THREAD",

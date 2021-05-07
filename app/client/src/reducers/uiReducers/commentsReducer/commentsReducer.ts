@@ -15,6 +15,7 @@ import {
   CreateCommentThreadRequest,
   NewCommentEventPayload,
   NewCommentThreadPayload,
+  Comment,
 } from "entities/Comments/CommentsInterfaces";
 
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
@@ -189,6 +190,29 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     appCommentsFilter: action.payload,
   }),
+  [ReduxActionTypes.EDIT_COMMENT_SUCCESS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{ comment: Comment; commentThreadId: string }>,
+  ) => {
+    const { comment, commentThreadId } = action.payload;
+    const { id: commentId } = comment;
+    const commentThread = state.commentThreadsMap[commentThreadId];
+
+    if (!commentThread) return state;
+
+    const commentIdx = commentThread.comments.findIndex(
+      (comment: Comment) => comment.id === commentId,
+    );
+
+    commentThread.comments.splice(commentIdx, 1, comment);
+
+    // propagate changes
+    state.commentThreadsMap[commentThreadId] = {
+      ...state.commentThreadsMap[commentThreadId],
+    };
+
+    return { ...state };
+  },
 });
 
 export default commentsReducer;
