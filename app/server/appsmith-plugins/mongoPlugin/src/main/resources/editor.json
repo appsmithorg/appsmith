@@ -202,6 +202,158 @@
           ]
         },
         {
+          "sectionName": "",
+          "id": 5,
+          "serverLabel": "delete",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "FORM"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "DELETE"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "{rating : {$gte : 9}}"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 6,
+          "serverLabel": "count",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "FORM"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "COUNT"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "{rating : {$gte : 9}}"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 7,
+          "serverLabel": "distinct",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "FORM"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "DISTINCT"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[15].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Key/Field",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[16].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "name"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 8,
+          "serverLabel": "aggregate",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "FORM"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "AGGREGATE"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Array of Pipelines",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[17].value",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "[\n      { $project: { tags: 1 } },\n      { $unwind: \"$tags\" },\n      { $group: { _id: \"$tags\", count: { $sum : 1 } } }\n   ]"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 9,
+          "serverLabel": "insert",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "FORM"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "INSERT"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Document(s)",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[18].value",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue" : "[ { _id: 1, user: \"abc123\", status: \"A\" } ]"
+            }
+          ]
+        },
+        {
           "label": "",
           "internalLabel": "Query",
           "configProperty": "actionConfiguration.body",
