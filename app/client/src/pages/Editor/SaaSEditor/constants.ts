@@ -40,7 +40,7 @@ export const SAAS_EDITOR_API_ID_URL = (
     applicationId,
     pageId,
     pluginPackageName,
-  )}/api/${apiId}${queryParams}`;
+  )}api/${apiId}${queryParams}`;
 };
 
 export const APPSMITH_TOKEN_STORAGE_KEY = "APPSMITH_AUTH_TOKEN";

@@ -81,6 +81,37 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.closePropertyPane();
   });
 
+  it("Datepicker input value changes to work with selected date formats", function() {
+    cy.openPropertyPane("datepickerwidget2");
+    cy.get(".t--property-control-mindate .bp3-input")
+      .clear()
+      .type("2021-01-01");
+    cy.closePropertyPane();
+    cy.openPropertyPane("datepickerwidget2");
+    cy.get(".t--property-control-maxdate .bp3-input")
+      .clear()
+      .type("2021-10-10");
+    cy.closePropertyPane();
+    cy.openPropertyPane("datepickerwidget2");
+    cy.get(".t--property-control-defaultdate .bp3-input").clear();
+    cy.selectDateFormat("DD/MM/YYYY HH:mm");
+    cy.get(formWidgetsPage.toggleJsDefaultDate).click();
+    cy.testJsontext(
+      "defaultdate",
+      '{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
+    );
+    cy.get(".t--draggable-datepickerwidget2 .bp3-input")
+      .clear({
+        force: true,
+      })
+      .type("04/05/2021 06:25");
+    cy.selectDateFormat("LLL");
+    cy.wait("@updateLayout");
+    cy.get(".t--draggable-textwidget .bp3-ui-text")
+      .first()
+      .should("have.text", "May 4, 2021 6:25 AM");
+  });
+
   it("Datepicker default date validation with js binding", function() {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
