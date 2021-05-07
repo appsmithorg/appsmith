@@ -300,6 +300,7 @@ export const PIN_COMMENT = () => "Pin Comment";
 export const UNPIN_COMMENT = () => "Unpin Comment";
 export const COPY_LINK = () => "Copy Link";
 export const DELETE_COMMENT = () => "Delete Comment";
+export const EDIT_COMMENT = () => "Edit Comment";
 export const COMMENTS = () => "Comments";
 export const VIEW_LATEST = () => "View Latest";
 export const POST = () => "Post";
@@ -319,7 +320,7 @@ export const BACK = () => "BACK";
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
-export const OPEN_THE_DEBUGGER = () => " to open the issue in debugger";
+export const OPEN_THE_DEBUGGER = () => " to open the debugger";
 export const NO_LOGS = () => "No logs to show";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";

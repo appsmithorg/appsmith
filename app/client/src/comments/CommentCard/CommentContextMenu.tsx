@@ -7,6 +7,7 @@ import {
   DELETE_COMMENT,
   UNPIN_COMMENT,
   createMessage,
+  EDIT_COMMENT,
 } from "constants/messages";
 import { noop } from "lodash";
 
@@ -15,9 +16,7 @@ import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import { Popover2 } from "@blueprintjs/popover2";
 
 // render over popover portals
-const Container = styled.div`
-  z-index: 11;
-`;
+const Container = styled.div``;
 
 const MenuItem = styled.div`
   display: flex;
@@ -50,6 +49,7 @@ type Props = {
   pin: typeof noop;
   copyCommentLink: typeof noop;
   deleteComment: typeof noop;
+  switchToEditCommentMode: typeof noop;
   isParentComment?: boolean;
   isCreatedByMe?: boolean;
   isPinned?: boolean;
@@ -62,6 +62,7 @@ function CommentContextMenu({
   isParentComment,
   isCreatedByMe,
   isPinned,
+  switchToEditCommentMode,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -85,11 +86,19 @@ function CommentContextMenu({
       );
     }
 
-    if (isCreatedByMe && !isParentComment) {
+    if (isCreatedByMe) {
+      if (!isParentComment) {
+        options.push({
+          icon: "trash",
+          display: createMessage(DELETE_COMMENT),
+          onClick: deleteComment,
+        });
+      }
+
       options.push({
-        icon: "trash",
-        display: createMessage(DELETE_COMMENT),
-        onClick: deleteComment,
+        icon: "edit",
+        display: createMessage(EDIT_COMMENT),
+        onClick: switchToEditCommentMode,
       });
     }
 
@@ -114,7 +123,7 @@ function CommentContextMenu({
           {options.map((option) => (
             <MenuItem key={option.icon} onClick={() => handleClick(option)}>
               <MenuIcon>
-                <StyledIcon
+                <Icon
                   keepColors
                   name={option.icon as IconName}
                   size={IconSize.XL}

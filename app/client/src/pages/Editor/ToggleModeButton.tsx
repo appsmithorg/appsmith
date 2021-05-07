@@ -130,18 +130,22 @@ function ToggleCommentModeButton() {
               <span style={{ color: "#fff", marginLeft: 20 }}>V</span>
             </>
           }
+          hoverOpenDelay={1000}
           position={Position.BOTTOM}
         >
           <Pen />
         </TooltipComponent>
       </ModeButton>
-      <TourTooltipWrapper tourIndex={0} tourType={TourType.COMMENTS_TOUR}>
+      <TourTooltipWrapper
+        onClick={() => {
+          proceedToNextTourStep();
+        }}
+        tourIndex={0}
+        tourType={TourType.COMMENTS_TOUR}
+      >
         <ModeButton
           active={isCommentMode}
-          onClick={() => {
-            setCommentModeInUrl(true);
-            proceedToNextTourStep();
-          }}
+          onClick={() => setCommentModeInUrl(true)}
         >
           <TooltipComponent
             content={
@@ -150,6 +154,7 @@ function ToggleCommentModeButton() {
                 <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
               </>
             }
+            hoverOpenDelay={1000}
             position={Position.BOTTOM}
           >
             <CommentModeIcon />

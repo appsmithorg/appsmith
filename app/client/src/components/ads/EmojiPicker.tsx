@@ -25,6 +25,7 @@ const EmojiPicker = withTheme(
     const handleSelectEmoji = useCallback(
       (emoji, event) => {
         onSelectEmoji(event, emoji);
+        setIsOpen(false);
       },
       [onSelectEmoji],
     );
@@ -36,6 +37,10 @@ const EmojiPicker = withTheme(
             onClick={handleSelectEmoji}
             showPreview={false}
             showSkinTones={false}
+            style={{
+              border: "none",
+              borderRadius: 0,
+            }}
           />
         }
         isOpen={isOpen}
@@ -43,7 +48,6 @@ const EmojiPicker = withTheme(
         onInteraction={(nextOpenState) => {
           setIsOpen(nextOpenState);
         }}
-        placement="bottom-end"
         portalClassName="emoji-picker-portal"
       >
         <Icon

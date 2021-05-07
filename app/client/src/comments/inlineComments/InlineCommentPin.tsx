@@ -22,6 +22,10 @@ import { AppState } from "reducers";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import { Popover2 } from "@blueprintjs/popover2";
 
+/**
+ * The relavent pixel position is bottom right for the comment cursor
+ * instead of the top left for the default arrow cursor
+ */
 const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   position: absolute;
   bottom: calc(${(props) => 100 - props.top}% - 2px);

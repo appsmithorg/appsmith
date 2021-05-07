@@ -13,6 +13,8 @@ import {
   NewCommentThreadPayload,
 } from "entities/Comments/CommentsInterfaces";
 
+import { RawDraftContentState } from "draft-js";
+
 export const setCommentThreadsRequest = () => ({
   type: ReduxActionTypes.SET_COMMENT_THREADS_REQUEST,
 });
@@ -181,4 +183,29 @@ export const setVisibleThread = (threadId: string) => ({
 export const markThreadAsReadRequest = (threadId: string) => ({
   type: ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST,
   payload: { threadId },
+});
+
+export const editCommentRequest = ({
+  commentThreadId,
+  commentId,
+  body,
+}: {
+  commentThreadId: string;
+  commentId: string;
+  body: RawDraftContentState;
+}) => ({
+  type: ReduxActionTypes.EDIT_COMMENT_REQUEST,
+  payload: {
+    body,
+    commentId,
+    commentThreadId,
+  },
+});
+
+export const updateCommentSuccess = (payload: {
+  comment: Comment;
+  commentThreadId: string;
+}) => ({
+  type: ReduxActionTypes.EDIT_COMMENT_SUCCESS,
+  payload,
 });

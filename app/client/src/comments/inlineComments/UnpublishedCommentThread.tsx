@@ -78,12 +78,7 @@ function UnpublishedCommentThread({
           popoverClassName="comment-thread"
           position={Position.RIGHT_TOP}
         >
-          <Icon
-            // fillColor={theme.colors.comments.pin}
-            keepColors
-            name="unread-pin"
-            // size={IconSize.XXL}
-          />
+          <Icon keepColors name="unread-pin" />
           <ThreadContainer tabIndex={0}>
             <AddCommentInput
               onCancel={onClosing}

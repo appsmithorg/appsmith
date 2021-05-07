@@ -20,6 +20,8 @@ const handleUpdateCommentThreadEvent = (
 
   const showUnreadIndicator = !state.isCommentMode;
 
+  // Need to do this to update the app comments section
+  // TODO: handle this at the thread level for better perf
   state.applicationCommentThreadsByRef[commentThreadInStore.applicationId] = {
     ...state.applicationCommentThreadsByRef[commentThreadInStore.applicationId],
   };

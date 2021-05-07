@@ -33,11 +33,21 @@ class CommentsApi extends Api {
   }
 
   static updateCommentThread(
-    updateCommentRequest: Partial<CreateCommentThreadRequest>,
+    updateCommentThreadRequest: Partial<CreateCommentThreadRequest>,
     threadId: string,
   ): AxiosPromise<ApiResponse> {
-    return Api.patch(
+    return Api.put(
       `${CommentsApi.getThreadsAPI}/${threadId}`,
+      updateCommentThreadRequest,
+    );
+  }
+
+  static updateComment(
+    updateCommentRequest: Partial<CreateCommentRequest>,
+    commentId: string,
+  ): AxiosPromise<ApiResponse> {
+    return Api.put(
+      `${CommentsApi.getCommentsAPI}/${commentId}`,
       updateCommentRequest,
     );
   }

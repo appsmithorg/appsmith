@@ -10,7 +10,7 @@ export const useShowPropertyPane = () => {
 
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
-      // Don't show propert pane in comment mode
+      // Don't show property pane in comment mode
       if (isCommentMode) return;
 
       dispatch(
