@@ -78,4 +78,11 @@ public class CommentController extends BaseController<CommentService, Comment, S
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
+    @DeleteMapping("/threads/{threadId}")
+    public Mono<ResponseDTO<CommentThread>> deleteThread(@PathVariable String threadId) {
+        log.debug("Going to delete thread with id: {}", threadId);
+        return service.deleteThread(threadId)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
 }
