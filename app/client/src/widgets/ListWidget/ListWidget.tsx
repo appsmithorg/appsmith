@@ -1,6 +1,15 @@
 import React from "react";
 import log from "loglevel";
-import { compact, get, set, xor, isPlainObject, isNumber, round } from "lodash";
+import {
+  compact,
+  get,
+  set,
+  xor,
+  isPlainObject,
+  isNumber,
+  round,
+  range,
+} from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -11,7 +20,10 @@ import {
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import ListComponent, { ListComponentEmpty } from "./ListComponent";
+import ListComponent, {
+  ListComponentEmpty,
+  ListComponentLoading,
+} from "./ListComponent";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 import { ContainerWidgetProps } from "../ContainerWidget";
 import propertyPaneConfig from "./ListPropertyPaneConfig";
@@ -522,9 +534,38 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const children = this.renderChildren();
     const { shouldPaginate, perPage } = this.shouldPaginate();
 
+    if (this.props.isLoading) {
+      return (
+        <ListComponentLoading className="">
+          {range(10).map((i) => (
+            <div className="bp3-card bp3-skeleton" key={`skeleton-${i}`}>
+              <h5 className="bp3-heading">
+                <a className=".modifier" href="#">
+                  Card heading
+                </a>
+              </h5>
+              <p className=".modifier">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
+                eget tortor felis. Fusce dapibus metus in dapibus mollis.
+                Quisque eget ex diam.
+              </p>
+              <button
+                className="bp3-button bp3-icon-add .modifier"
+                type="button"
+              >
+                Submit
+              </button>
+            </div>
+          ))}
+        </ListComponentLoading>
+      );
+    }
+
     if (!isNumber(perPage) || perPage === 0) {
       return (
-        <>Please make sure the list widget size is greater than the template</>
+        <ListComponentEmpty>
+          Please make sure the list widget size is greater than the template
+        </ListComponentEmpty>
       );
     }
 

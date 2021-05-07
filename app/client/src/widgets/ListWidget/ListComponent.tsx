@@ -49,11 +49,13 @@ function ListComponent(props: GridComponentProps) {
   );
 }
 
-export const ListComponentEmpty = styled.div`
+export const ListComponentEmpty = styled.div<{
+  backgroundColor?: string;
+}>`
   height: 100%;
   width: 100%;
   position: relative;
-  background: white;
+  background: ${(props) => props.backgroundColor ?? "white"};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,6 +64,21 @@ export const ListComponentEmpty = styled.div`
   text-anchor: middle;
   color: rgb(102, 102, 102);
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+`;
+
+export const ListComponentLoading = styled.div<{
+  backgroundColor?: string;
+}>`
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+
+  & > div {
+    background: ${(props) => props.backgroundColor ?? "white"};
+    margin: 8px;
+  }
 `;
 
 export default ListComponent;
