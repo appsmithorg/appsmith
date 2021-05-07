@@ -929,7 +929,8 @@ public class ExamplesOrganizationClonerTests {
                                         .thenReturn(targetOrg1);
                             });
                 })
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadOrganizationData)
+                .doOnError(error -> log.error("Error in test", error));
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
