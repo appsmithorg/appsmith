@@ -38,7 +38,6 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 // import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
-import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
 import {
   DropdownOnSelectActions,
@@ -78,6 +77,7 @@ import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { createOrganizationSubmitHandler } from "../organization/helpers";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -318,15 +318,6 @@ const textIconStyles = (props: { color: string; hover: string }) => {
   `;
 };
 
-const NewWorkspaceWrapper = styled.div`
-  ${(props) => {
-    return `${textIconStyles({
-      color: props.theme.colors.applications.textColor,
-      hover: props.theme.colors.applications.hover.textColor,
-    })}`;
-  }}
-`;
-
 const ApplicationAddCardWrapper = styled(Card)`
   display: flex;
   flex-direction: column;
@@ -383,20 +374,14 @@ function OrgMenuItem({ org, isFetchingApplications, selected }: any) {
   );
 }
 
+const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
+  const result = await createOrganizationSubmitHandler(data, dispatch);
+  return result;
+};
 function LeftPane() {
+  const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const NewWorkspaceTrigger = (
-    <NewWorkspaceWrapper>
-      <MenuItem
-        className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
-        data-cy="create-organisation-link"
-        icon="plus"
-        key={"new-workspace"}
-        text={"Create Organization"}
-      />
-    </NewWorkspaceWrapper>
-  );
   let userOrgs;
   if (!isFetchingApplications) {
     userOrgs = fetchedUserOrgs;
@@ -416,11 +401,24 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          <FormDialogComponent
-            Form={CreateOrganizationForm}
-            title={CREATE_ORGANIZATION_FORM_NAME}
-            trigger={NewWorkspaceTrigger}
-          />
+          {!isFetchingApplications && fetchedUserOrgs && (
+            <MenuItem
+              cypressSelector="t--org-new-organization-auto-create"
+              icon="plus"
+              onSelect={() =>
+                submitCreateOrganizationForm(
+                  {
+                    name: getNextEntityName(
+                      "Untitled organization ",
+                      fetchedUserOrgs.map((el: any) => el.organization.name),
+                    ),
+                  },
+                  dispatch,
+                )
+              }
+              text={CREATE_ORGANIZATION_FORM_NAME}
+            />
+          )}
           {userOrgs &&
             userOrgs.map((org: any) => (
               <OrgMenuItem
@@ -624,6 +622,7 @@ function ApplicationsSection(props: any) {
               {(currentUser || isFetchingApplications) && (
                 <Menu
                   className="t--org-name"
+                  cypressSelector="t--org-name"
                   disabled={!hasManageOrgPermissions || isFetchingApplications}
                   position={Position.BOTTOM_RIGHT}
                   target={OrgMenuTarget({
@@ -633,6 +632,7 @@ function ApplicationsSection(props: any) {
                   })}
                 >
                   <OrgRename
+                    cypressSelector="t--org-rename-input"
                     defaultValue={organization.name}
                     editInteractionKind={EditInteractionKind.SINGLE}
                     fill

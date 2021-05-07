@@ -23,20 +23,20 @@ const datasource = require("../locators/DatasourcesEditor.json");
 
 let pageidcopy = " ";
 
-Cypress.Commands.add("createOrg", (orgName) => {
+Cypress.Commands.add("createOrg", () => {
   cy.get(homePage.createOrg)
     .should("be.visible")
     .first()
     .click({ force: true });
-  cy.xpath(homePage.inputOrgName)
+});
+
+Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
+  cy.contains(orgName).click({ force: true });
+  cy.get(homePage.renameOrgInput)
     .should("be.visible")
-    .type(orgName);
-  cy.xpath(homePage.submitBtn).click();
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+    .type(newOrgName)
+    .type("{enter}");
+  cy.contains(newOrgName);
 });
 
 Cypress.Commands.add(
