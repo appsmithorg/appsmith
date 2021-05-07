@@ -288,9 +288,6 @@ class CodeEditor extends Component<Props, State> {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         searchString: changeObj.text[0],
       });
-      const cursor = this.editor.getCursor().ch;
-      const val = [value.slice(0, cursor), ".", value.slice(cursor)].join("");
-      this.updatePropertyValue(val, cursor + 1);
     }
     const inputValue = this.props.input.value;
     if (

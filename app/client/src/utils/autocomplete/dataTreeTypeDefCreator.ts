@@ -9,6 +9,7 @@ import {
 import { getType, Types } from "utils/TypeHelpers";
 
 let extraDefs: any = {};
+const skipProperties = ["!doc", "!url"];
 
 export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
   const def: any = {
@@ -22,17 +23,32 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
         if (widgetType in entityDefinitions) {
           const definition = _.get(entityDefinitions, widgetType);
           if (_.isFunction(definition)) {
-            def[entityName] = definition(entity);
-          } else {
-            def[entityName] = definition;
+            const data = definition(entity);
+            Object.keys(data).forEach((item: any) => {
+              if (!skipProperties.includes(item)) {
+                def[entityName + "." + item] = entityName + "." + item;
+              }
+            });
+            def[entityName] = entityName + "." + definition(entity);
           }
         }
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        def[entityName] = entityDefinitions.ACTION(entity);
+        const actionDefs = entityDefinitions.ACTION(entity);
+        def[entityName] = actionDefs;
+        Object.keys(actionDefs).forEach((item: any) => {
+          if (!skipProperties.includes(item)) {
+            def[entityName + "." + item] = entityName + "." + item;
+          }
+        });
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
-        def.appsmith = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
+        const options: any = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
+        def.appsmith = options;
+        const flattenedObjects = flattenObjKeys(options, "appsmith");
+        flattenedObjects.forEach((option: string) => {
+          def[option] = option;
+        });
       }
     }
   });
@@ -72,3 +88,18 @@ export function generateTypeDef(
       return "?";
   }
 }
+
+export const flattenObjKeys = (
+  options: any,
+  parentKey: string,
+  results: Array<string> = [],
+): Array<string> => {
+  const r: Array<string> = results;
+  for (const [key, value] of Object.entries(options)) {
+    if (_.isObject(value)) {
+      flattenObjKeys(value, parentKey + "." + key, r);
+    }
+    r.push(parentKey + "." + key);
+  }
+  return r;
+};
