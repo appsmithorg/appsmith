@@ -608,8 +608,7 @@ public class MongoPlugin extends BasePlugin {
                         if (extractedInfo == null) {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
                                     "Please check the URI once.");
-                        }
-                        else {
+                        } else {
                             String mongoUriWithHiddenPassword = buildURIfromExtractedInfo(extractedInfo, "****");
                             properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
                             DBAuth authentication = datasourceConfiguration.getAuthentication() == null ?
