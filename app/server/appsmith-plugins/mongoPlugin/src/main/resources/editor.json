@@ -66,6 +66,17 @@
           }
         },
         {
+          "label": "Collection Name",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[19].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+            "comparison": "EQUALS",
+            "value": "RAW"
+          }
+        },
+        {
           "sectionName": "",
           "id": 2,
           "serverLabel": "findCommandForm",
@@ -318,7 +329,7 @@
             {
               "label": "Array of Pipelines",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[17].value",
-              "controlType": "QUERY_DYNAMIC_TEXT",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
               "initialValue" : "[\n      { $project: { tags: 1 } },\n      { $unwind: \"$tags\" },\n      { $group: { _id: \"$tags\", count: { $sum : 1 } } }\n   ]"
             }
@@ -347,7 +358,7 @@
             {
               "label": "Document(s)",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[18].value",
-              "controlType": "QUERY_DYNAMIC_TEXT",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
               "initialValue" : "[ { _id: 1, user: \"abc123\", status: \"A\" } ]"
             }
