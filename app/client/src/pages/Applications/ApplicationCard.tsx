@@ -45,6 +45,7 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
+import ForkApplicationModal from "./ForkApplicationModal";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -255,6 +256,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isForkApplicationModalopen, setForkApplicationModalOpen] = useState(
+    false,
+  );
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -282,6 +286,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
         text: "Duplicate",
         icon: "duplicate",
         cypressSelector: "t--duplicate",
+      });
+    }
+    // add fork app option to menu
+    if (hasEditPermission) {
+      moreActionItems.push({
+        onSelect: forkApplicationInitiate,
+        text: "Fork",
+        icon: "fork",
+        cypressSelector: "t--fork-app",
       });
     }
     setMoreActionItems(moreActionItems);
@@ -317,6 +330,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
   const shareApp = () => {
     props.share && props.share(props.application.id);
+  };
+  const forkApplicationInitiate = () => {
+    // open fork application modal
+    // on click on an organisation, create app and take to app
+    setForkApplicationModalOpen(true);
   };
   const deleteApp = () => {
     setShowOverlay(false);
@@ -446,6 +464,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
         {moreActionItems.map((item: MenuItemProps) => {
           return <MenuItem key={item.text} {...item} />;
         })}
+        <ForkApplicationModal
+          applicationId={props.application.id}
+          isModalOpen={isForkApplicationModalopen}
+          setModalClose={setForkApplicationModalOpen}
+        />
       </Menu>
     </ContextDropdownWrapper>
   );

@@ -32,13 +32,15 @@ Cypress.Commands.add("createOrg", (orgName) => {
     .should("be.visible")
     .first()
     .click({ force: true });
-  cy.xpath(homePage.inputOrgName)
+});
+
+Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
+  cy.contains(orgName).click({ force: true });
+  cy.get(homePage.renameOrgInput)
     .should("be.visible")
-    .type(orgName);
-  cy.xpath(homePage.submitBtn).click();
-  cy.wait("@applications").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
-  });
+    .type(newOrgName)
+    .type("{enter}");
+  cy.contains(newOrgName);
 });
 
 Cypress.Commands.add(
@@ -1086,7 +1088,7 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(inputcss)
     .first()
     .trigger("mouseover", { force: true });
-  cy.get(innercss).should("have.text", text);
+  cy.contains(innercss, text);
 });
 
 Cypress.Commands.add("editColName", (text) => {
@@ -2067,6 +2069,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/datasources?organizationId=*").as(
     "getDataSources",
   );
+  cy.intercept("GET", "/api/v1/applications/*/pages/*/edit").as(
+    "getAppPageEdit",
+  );
   cy.intercept("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
   cy.intercept("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
 
@@ -2131,6 +2136,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/pages/view/application/*").as("viewApp");
   //cy.intercept("POST", "/api/v1/organizations/*/logo").as("updateLogo");
   cy.intercept("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
+  cy.intercept("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
 });
 
 Cypress.Commands.add("alertValidate", (text) => {
