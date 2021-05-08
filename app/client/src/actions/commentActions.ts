@@ -222,3 +222,13 @@ export const deleteCommentThreadSuccess = (payload: {
   type: ReduxActionTypes.DELETE_THREAD_SUCCESS,
   payload,
 });
+
+export const showCommentsIntroCarousel = () => ({
+  type: ReduxActionTypes.SHOW_COMMENTS_INTRO_CAROUSEL,
+  payload: undefined,
+});
+
+export const hideCommentsIntroCarousel = () => ({
+  type: ReduxActionTypes.HIDE_COMMENTS_INTRO_CAROUSEL,
+  payload: undefined,
+});

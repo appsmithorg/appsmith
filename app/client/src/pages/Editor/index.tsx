@@ -32,6 +32,7 @@ import GlobalHotKeys from "./GlobalHotKeys";
 import { handlePathUpdated } from "actions/recentEntityActions";
 import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
+import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 
 import history from "utils/history";
 
@@ -127,6 +128,7 @@ class Editor extends Component<Props> {
               <MainContainer />
               <AppComments />
               <AddCommentTourComponent />
+              <CommentShowCaseCarousel />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />

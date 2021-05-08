@@ -10,17 +10,21 @@ import { ReactComponent as CommentMode } from "assets/icons/comments/chat.svg";
 import {
   setCommentMode as setCommentModeAction,
   fetchApplicationCommentsRequest,
+  showCommentsIntroCarousel,
 } from "actions/commentActions";
 import {
   commentModeSelector,
   areCommentsEnabledForUser as areCommentsEnabledForUserSelector,
   showUnreadIndicator as showUnreadIndicatorSelector,
 } from "../../selectors/commentsSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { useLocation } from "react-router";
 import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { TourType } from "entities/Tour";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
+import { getCommentsIntroSeen } from "utils/storage";
+import { User } from "constants/userConstants";
 
 const ModeButton = styled.div<{ active: boolean }>`
   position: relative;
@@ -56,7 +60,8 @@ const Container = styled.div`
  * Sync comment mode in store with comment mode in URL
  * Fetch app comments when comment mode is selected
  */
-const useUpdateCommentMode = () => {
+// eslint-disable-next-line
+const useUpdateCommentMode = async (currentUser?: User) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
@@ -67,15 +72,24 @@ const useUpdateCommentMode = () => {
     [],
   );
 
+  const handleLocationUpdate = async () => {
+    const searchParams = new URL(window.location.href).searchParams;
+    const isCommentMode = searchParams.get("isCommentMode");
+    const isCommentsIntroSeen = await getCommentsIntroSeen();
+    const updatedIsCommentMode = isCommentMode === "true" ? true : false;
+
+    // TODO add check for !currentUser?.name here
+    if (updatedIsCommentMode && !isCommentsIntroSeen) {
+      dispatch(showCommentsIntroCarousel());
+    } else {
+      setCommentModeInStore(updatedIsCommentMode);
+    }
+  };
+
   // sync comment mode in store with comment mode in URL
   useEffect(() => {
     if (window.location.href) {
-      const searchParams = new URL(window.location.href).searchParams;
-      const isCommentMode = searchParams.get("isCommentMode");
-      if (isCommentMode) {
-        const updatedIsCommentMode = isCommentMode === "true" ? true : false;
-        setCommentModeInStore(updatedIsCommentMode);
-      }
+      handleLocationUpdate();
     }
   }, [location]);
 
@@ -106,8 +120,9 @@ function ToggleCommentModeButton() {
   const commentsEnabled = useSelector(areCommentsEnabledForUserSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
+  const currentUser = useSelector(getCurrentUser);
 
-  useUpdateCommentMode();
+  useUpdateCommentMode(currentUser);
   const proceedToNextTourStep = useProceedToNextTourStep(
     TourType.COMMENTS_TOUR,
     0,

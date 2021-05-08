@@ -12,7 +12,15 @@ import CommentsOnboardingStep4 from "assets/images/comments-onboarding/step-4.pn
 import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
-import { getFormSyncErrors, submit } from "redux-form";
+// import { getFormSyncErrors } from "redux-form";
+import { getFormValues } from "redux-form";
+
+import { isIntroCarouselVisibleSelector } from "selectors/commentsSelectors";
+
+import { setActiveTour } from "actions/tourActions";
+import { TourType } from "entities/Tour";
+import { hideCommentsIntroCarousel } from "actions/commentActions";
+import { setCommentsIntroSeen } from "utils/storage";
 
 const title1 = "Introducing Live Comments";
 const title2 = "Give feedback";
@@ -66,9 +74,9 @@ function IntroStep(props: {
 const IntroStepThemed = withTheme(IntroStep);
 
 const getSteps = (
-  onSubmit: any,
-  triggerSubmit: any,
-  isSubmitDisabled: boolean,
+  onSubmitProfileForm: any,
+  isSubmitProfileFormDisabled: boolean,
+  startTutorial: () => void,
 ) => [
   {
     component: IntroStepThemed,
@@ -98,9 +106,8 @@ const getSteps = (
   {
     component: ProfileForm,
     props: {
-      isSubmitDisabled,
-      onSubmit,
-      triggerSubmit,
+      isSubmitDisabled: isSubmitProfileFormDisabled,
+      onSubmit: onSubmitProfileForm,
     },
   },
   {
@@ -111,21 +118,30 @@ const getSteps = (
       banner: CommentsOnboardingStep4,
       hideBackBtn: true,
       nextBtnText: "Start Tutorial",
+      onSubmit: startTutorial,
     },
   },
 ];
 
 export default function CommentsShowcaseCarousel() {
   const dispatch = useDispatch();
-  const triggerSubmit = () => dispatch(submit(PROFILE_FORM));
-
-  const formErrors = useSelector(getFormSyncErrors("PROFILE_FORM"));
-  const isSubmitDisabled = Object.keys(formErrors).length !== 0;
-  const onSubmit = (result: any) => {
-    console.log(result, "handle submit");
+  const isIntroCarouselVisible = useSelector(isIntroCarouselVisibleSelector);
+  const profileFormValues = useSelector(getFormValues(PROFILE_FORM));
+  // const profileFormErrors = useSelector(getFormSyncErrors("PROFILE_FORM"));
+  const isSubmitDisabled = false; // Object.keys(profileFormErrors).length !== 0;
+  const onSubmitProfileForm = () => {
+    console.log(profileFormValues, "handle submit");
   };
 
-  const steps = getSteps(onSubmit, triggerSubmit, isSubmitDisabled);
+  const startTutorial = () => {
+    dispatch(setActiveTour(TourType.COMMENTS_TOUR));
+    dispatch(hideCommentsIntroCarousel());
+    setCommentsIntroSeen(true);
+  };
+
+  const steps = getSteps(onSubmitProfileForm, isSubmitDisabled, startTutorial);
+
+  if (!isIntroCarouselVisible) return null;
 
   return (
     <CommentsCarouselModal>

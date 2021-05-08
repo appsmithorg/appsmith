@@ -15,6 +15,7 @@ const tourReducer = createReducer(initialState, {
   ) => ({
     ...state,
     activeTourType: action.payload,
+    activeTourIndex: 0,
   }),
   [ReduxActionTypes.RESET_ACTIVE_TOUR]: (state: TourReducerState) => ({
     ...state,

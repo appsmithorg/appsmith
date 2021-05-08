@@ -9,6 +9,8 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  HIDE_COMMENTS_INTRO_CAROUSEL: "HIDE_COMMENTS_INTRO_CAROUSEL",
+  SHOW_COMMENTS_INTRO_CAROUSEL: "SHOW_COMMENTS_INTRO_CAROUSEL",
   PROCEED_TO_NEXT_TOUR_STEP: "PROCEED_TO_NEXT_TOUR_STEP",
   SET_ACTIVE_TOUR: "SET_ACTIVE_TOUR",
   RESET_ACTIVE_TOUR: "RESET_ACTIVE_TOUR",

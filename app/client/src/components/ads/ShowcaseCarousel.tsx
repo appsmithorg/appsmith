@@ -88,8 +88,8 @@ export default function ShowcaseCarousel(props: Props) {
             disabled={componentProps.isSubmitDisabled}
             onClick={() => {
               setCurrentIdx(Math.min(length - 1, activeIndex + 1));
-              if (typeof componentProps.triggerSubmit === "function") {
-                componentProps.triggerSubmit();
+              if (typeof componentProps.onSubmit === "function") {
+                componentProps.onSubmit();
               }
             }}
             size={Size.large}
