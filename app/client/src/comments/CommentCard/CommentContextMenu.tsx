@@ -5,6 +5,7 @@ import {
   PIN_COMMENT,
   COPY_LINK,
   DELETE_COMMENT,
+  DELETE_THREAD,
   UNPIN_COMMENT,
   createMessage,
   EDIT_COMMENT,
@@ -49,6 +50,7 @@ type Props = {
   pin: typeof noop;
   copyCommentLink: typeof noop;
   deleteComment: typeof noop;
+  deleteThread: typeof noop;
   switchToEditCommentMode: typeof noop;
   isParentComment?: boolean;
   isCreatedByMe?: boolean;
@@ -59,6 +61,7 @@ function CommentContextMenu({
   pin,
   copyCommentLink,
   deleteComment,
+  deleteThread,
   isParentComment,
   isCreatedByMe,
   isPinned,
@@ -92,6 +95,12 @@ function CommentContextMenu({
           icon: "trash",
           display: createMessage(DELETE_COMMENT),
           onClick: deleteComment,
+        });
+      } else {
+        options.push({
+          icon: "trash",
+          display: createMessage(DELETE_THREAD),
+          onClick: deleteThread,
         });
       }
 

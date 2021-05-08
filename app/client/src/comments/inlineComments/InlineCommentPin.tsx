@@ -128,7 +128,7 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
 
   const shouldShowResolved = useSelector(shouldShowResolvedSelector);
   const isPinVisible =
-    shouldShowResolved || !commentThread.resolvedState?.active;
+    shouldShowResolved || !commentThread?.resolvedState?.active;
   const isCommentThreadVisible = useSelector(
     (state: AppState) =>
       state.ui.comments.visibleCommentThreadId === commentThreadId,
@@ -142,10 +142,12 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
   });
 
   const handlePinClick = () => {
-    if (!commentThread.isViewed) {
+    if (!commentThread?.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
   };
+
+  if (!commentThread) return null;
 
   return (
     <>

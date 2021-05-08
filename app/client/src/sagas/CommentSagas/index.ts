@@ -27,6 +27,7 @@ import {
   deleteCommentSuccess,
   setVisibleThread,
   updateCommentSuccess,
+  deleteCommentThreadSuccess,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
@@ -249,6 +250,24 @@ function* editComment(
   }
 }
 
+function* deleteCommentThread(action: ReduxAction<string>) {
+  try {
+    yield CommentsApi.deleteCommentThread(action.payload);
+    // const isValidResponse = yield validateResponse(response);
+    // if (isValidResponse) {
+    const applicationId = yield select(getCurrentApplicationId);
+    yield put(
+      deleteCommentThreadSuccess({
+        commentThreadId: action.payload,
+        appId: applicationId,
+      }),
+    );
+    // }
+  } catch (e) {
+    console.log(e, "handle error");
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     // takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
@@ -277,5 +296,6 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),
     takeLatest(ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST, markThreadAsRead),
     takeLatest(ReduxActionTypes.EDIT_COMMENT_REQUEST, editComment),
+    takeLatest(ReduxActionTypes.DELETE_THREAD_REQUEST, deleteCommentThread),
   ]);
 }

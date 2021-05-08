@@ -55,6 +55,10 @@ class CommentsApi extends Api {
   static deleteComment(commentId: string): AxiosPromise<ApiResponse> {
     return Api.delete(`${CommentsApi.getCommentsAPI}/${commentId}`);
   }
+
+  static deleteCommentThread(threadId: string): AxiosPromise<ApiResponse> {
+    return Api.delete(`${CommentsApi.getThreadsAPI}/${threadId}`);
+  }
 }
 
 export default CommentsApi;

@@ -66,7 +66,7 @@ function CommentThreadContainer({
   showSubheader?: boolean;
 }) {
   const dispatch = useDispatch();
-  const { comments, id: commentThreadId } = commentThread;
+  const { comments, id: commentThreadId } = commentThread || {};
   const messagesBottomRef = useRef<HTMLDivElement>(null);
   const commentsContainerRef = useRef<HTMLDivElement>(null);
 
@@ -105,8 +105,8 @@ function CommentThreadContainer({
   const resolveCommentThread = () => {
     dispatch(
       setCommentResolutionRequest({
-        threadId: commentThread.id,
-        resolved: !commentThread.resolvedState?.active,
+        threadId: commentThread?.id,
+        resolved: !commentThread?.resolvedState?.active,
       }),
     );
   };
@@ -117,6 +117,8 @@ function CommentThreadContainer({
     (Array.isArray(childComments) && childComments.length) || 0;
 
   const handleCancel = () => dispatch(resetVisibleThread(commentThreadId));
+
+  if (!commentThread) return null;
 
   return (
     <ThreadContainer

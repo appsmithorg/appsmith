@@ -300,6 +300,7 @@ export const PIN_COMMENT = () => "Pin Comment";
 export const UNPIN_COMMENT = () => "Unpin Comment";
 export const COPY_LINK = () => "Copy Link";
 export const DELETE_COMMENT = () => "Delete Comment";
+export const DELETE_THREAD = () => "Delete Thread";
 export const EDIT_COMMENT = () => "Edit Comment";
 export const COMMENTS = () => "Comments";
 export const VIEW_LATEST = () => "View Latest";
