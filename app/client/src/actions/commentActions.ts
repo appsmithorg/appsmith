@@ -209,3 +209,16 @@ export const updateCommentSuccess = (payload: {
   type: ReduxActionTypes.EDIT_COMMENT_SUCCESS,
   payload,
 });
+
+export const deleteCommentThreadRequest = (commentThreadId: string) => ({
+  type: ReduxActionTypes.DELETE_THREAD_REQUEST,
+  payload: commentThreadId,
+});
+
+export const deleteCommentThreadSuccess = (payload: {
+  commentThreadId: string;
+  appId: string;
+}) => ({
+  type: ReduxActionTypes.DELETE_THREAD_SUCCESS,
+  payload,
+});

@@ -213,6 +213,26 @@ const commentsReducer = createReducer(initialState, {
 
     return { ...state };
   },
+  [ReduxActionTypes.DELETE_THREAD_SUCCESS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{ commentThreadId: string; appId: string }>,
+  ) => {
+    const { commentThreadId, appId } = action.payload;
+    if (!state.applicationCommentThreadsByRef[appId]) return false;
+
+    const { refId } = state.commentThreadsMap[commentThreadId];
+
+    let refComments = state.applicationCommentThreadsByRef[appId][refId];
+    if (refComments) {
+      refComments = refComments.filter(
+        (threadId: string) => threadId !== commentThreadId,
+      );
+    }
+
+    delete state.commentThreadsMap[commentThreadId];
+
+    return { ...state };
+  },
 });
 
 export default commentsReducer;

@@ -30,6 +30,7 @@ import {
   markThreadAsReadRequest,
   pinCommentThreadRequest,
   editCommentRequest,
+  deleteCommentThreadRequest,
 } from "actions/commentActions";
 import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
@@ -257,6 +258,10 @@ function CommentCard({
     dispatch(deleteCommentRequest({ threadId: commentThreadId, commentId }));
   }, []);
 
+  const deleteThread = () => {
+    dispatch(deleteCommentThreadRequest(commentThreadId));
+  };
+
   const isCreatedByMe = currentUserUsername === comment.authorUsername;
 
   const switchToEditCommentMode = () => setCardMode(CommentCardModes.EDIT);
@@ -272,6 +277,7 @@ function CommentCard({
     pin,
     copyCommentLink,
     deleteComment,
+    deleteThread,
     isParentComment,
     isCreatedByMe,
     isPinned,
