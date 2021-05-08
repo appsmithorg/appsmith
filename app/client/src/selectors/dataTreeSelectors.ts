@@ -30,6 +30,15 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
   ) => {
     const pageList = pageListPayload || [];
+    console.log(
+      actions,
+      widgets,
+      widgetsMeta,
+      pageListPayload,
+      appData,
+      editorConfigs,
+      pluginDependencyConfig,
+    );
     return DataTreeFactory.create({
       actions,
       widgets,

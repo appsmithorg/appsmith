@@ -2,22 +2,20 @@ import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { render, fireEvent, SetCanvas } from "test/testUtils";
+import { render, fireEvent, MockPageDSL } from "test/testUtils";
 import Canvas from "pages/Editor/Canvas";
 import React from "react";
-import { editorInitializer } from "utils/EditorUtils";
 
 describe("Tabs widget functional cases", () => {
   it("Should render 2 tabs by default", () => {
-    editorInitializer();
     const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
     const component = render(
-      <SetCanvas dsl={dsl}>
+      <MockPageDSL dsl={dsl}>
         <Canvas dsl={dsl} />
-      </SetCanvas>,
+      </MockPageDSL>,
     );
     const tab1 = component.queryByText("Tab 1");
     const tab2 = component.queryByText("Tab 2");
@@ -26,7 +24,6 @@ describe("Tabs widget functional cases", () => {
   });
 
   it("Should render components inside tabs by default", () => {
-    editorInitializer();
     const tab1Children = buildChildren([
       { type: "SWITCH_WIDGET", label: "Tab1 Switch" },
       { type: "CHECKBOX_WIDGET", label: "Tab1 Checkbox" },
@@ -42,9 +39,9 @@ describe("Tabs widget functional cases", () => {
       children,
     });
     const component = render(
-      <SetCanvas dsl={dsl}>
+      <MockPageDSL dsl={dsl}>
         <Canvas dsl={dsl} />
-      </SetCanvas>,
+      </MockPageDSL>,
     );
     const tab1 = component.queryByText("Tab 1");
     const tab2: any = component.queryByText("Tab 2");

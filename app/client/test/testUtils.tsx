@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import { render, RenderOptions, queries } from "@testing-library/react";
-import { Provider, useDispatch } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import { ThemeProvider } from "../src/constants/DefaultTheme";
 import store, { testStore } from "../src/store";
 import { getCurrentThemeDetails } from "../src/selectors/themeSelectors";
@@ -11,7 +11,13 @@ import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
 import { noop } from "utils/AppsmithUtils";
 import { getCanvasWidgetsPayload } from "sagas/PageSagas";
-import { initCanvasLayout } from "actions/pageActions";
+import { initCanvasLayout, updateCurrentPage } from "actions/pageActions";
+import { editorInitializer } from "utils/EditorUtils";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { initEditor } from "actions/initActions";
+import WidgetFactory from "utils/WidgetFactory";
+import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 
 const customRender = (
   ui: ReactElement,
@@ -49,12 +55,12 @@ const customRender = (
 
 // jest events doesnt seem to be handling scrollTo
 Element.prototype.scrollTo = noop;
-export function SetCanvas({ dsl, children }: any) {
+export const useMockDsl = (dsl: any) => {
   const dispatch = useDispatch();
   const mockResp: any = {
     data: {
-      id: "jest_test",
-      name: "Mock App",
+      id: "page_id",
+      name: "Page1",
       applicationId: "app_id",
       layouts: [
         {
@@ -67,7 +73,42 @@ export function SetCanvas({ dsl, children }: any) {
     },
   };
   const canvasWidgetsPayload = getCanvasWidgetsPayload(mockResp);
-  dispatch(initCanvasLayout(canvasWidgetsPayload));
+  dispatch({
+    type: "UPDATE_LAYOUT",
+    payload: { widgets: canvasWidgetsPayload.widgets },
+  });
+
+  dispatch(updateCurrentPage(mockResp.data.id));
+  const tree = useSelector(getUnevaluatedDataTree);
+  const widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
+  const dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
+  // dataTreeEvaluator.createFirstTree(tree);
+  // const dataTree = dataTreeEvaluator.evalTree;
+  // dispatch({
+  //   type: ReduxActionTypes.SET_EVALUATED_TREE,
+  //   payload: dataTree,
+  // });
+};
+export function MockPageDSL({ dsl, children }: any) {
+  editorInitializer();
+  useMockDsl(dsl);
+  return children;
+}
+export function MockApplication({ children }: any) {
+  editorInitializer();
+  const dispatch = useDispatch();
+  dispatch(initEditor("app_id", "page_id"));
+  const mockResp: any = {
+    organizationId: "org_id",
+    pages: [{ id: "page_id", name: "Page1", isDefault: true }],
+    id: "app_id",
+    isDefault: true,
+    name: "Page1",
+  };
+  dispatch({
+    type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+    payload: mockResp,
+  });
   return children;
 }
 
