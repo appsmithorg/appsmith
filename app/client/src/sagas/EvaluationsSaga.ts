@@ -58,6 +58,9 @@ const evalErrorHandler = (errors: EvalError[]) => {
             text: `${error.message} Node was: ${node}`,
             variant: Variant.danger,
           });
+          AppsmithConsole.error({
+            text: `${error.message} Node was: ${node}`,
+          });
           // Send the generic error message to sentry for better grouping
           Sentry.captureException(new Error(error.message), {
             tags: {
