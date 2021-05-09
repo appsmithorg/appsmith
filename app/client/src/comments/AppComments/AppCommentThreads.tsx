@@ -1,7 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { useTransition } from "react-spring";
 
 import {
   getSortedAndFilteredAppCommentThreadIds,
@@ -16,6 +15,9 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import CommentThread from "comments/CommentThread/connectedCommentThread";
 import AppCommentsPlaceholder from "./AppCommentsPlaceholder";
 import { getCurrentUser } from "selectors/usersSelectors";
+
+import useResizeObserver from "utils/hooks/useResizeObserver";
+import { get } from "lodash";
 
 const Container = styled.div`
   display: flex;
@@ -37,6 +39,15 @@ function AppCommentThreads() {
   const currentUser = useSelector(getCurrentUser);
   const currentUsername = currentUser?.username;
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [appThreadsHeightEqZero, setAppThreadsHeightEqZero] = useState(true);
+
+  useResizeObserver(containerRef.current, (entries) => {
+    const { height } = get(entries, "0.contentRect", {});
+    setAppThreadsHeightEqZero(height === 0);
+  });
+
   const commentThreadIds = useMemo(
     () =>
       getSortedAndFilteredAppCommentThreadIds(
@@ -55,28 +66,20 @@ function AppCommentThreads() {
     ],
   );
 
-  const commentsExist = commentThreadIds.length > 0;
-
-  const transition = useTransition(commentThreadIds, (s) => s, {
-    from: { opacity: 0, transform: "translateX(-100%)" },
-    enter: { opacity: 1, transform: "translateX(0)" },
-    leave: { opacity: 0, transform: "translateX(-100%)" },
-    config: { duration: 300 },
-  });
-
   return (
     <Container>
-      {transition.map(({ item: commentThreadId, props, key }) => (
-        <CommentThread
-          commentThreadId={commentThreadId}
-          hideChildren
-          hideInput
-          key={key}
-          showSubheader
-          transition={props}
-        />
-      ))}
-      {!commentsExist && <AppCommentsPlaceholder />}
+      <div ref={containerRef}>
+        {commentThreadIds.map((commentThreadId: string) => (
+          <CommentThread
+            commentThreadId={commentThreadId}
+            hideChildren
+            hideInput
+            key={commentThreadId}
+            showSubheader
+          />
+        ))}
+      </div>
+      {appThreadsHeightEqZero && <AppCommentsPlaceholder />}
     </Container>
   );
 }
