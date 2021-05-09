@@ -205,6 +205,7 @@
     "@types/react-window": "^1.8.2",
     "@types/redux-form": "^8.1.9",
     "@types/redux-mock-store": "^1.0.2",
+    "@types/resize-observer-browser": "^0.1.5",
     "@types/styled-system": "^5.1.9",
     "@types/tern": "0.22.0",
     "@types/toposort": "^2.0.3",
