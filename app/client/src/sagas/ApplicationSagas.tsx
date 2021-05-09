@@ -502,6 +502,16 @@ export function* forkApplicationSaga(
   }
 }
 
+export function* exportApplicationSaga(
+  action: ReduxAction<{
+    applicationId: string;
+  }>,
+) {
+  console.log("from export application sagas: ", action);
+  // try to query API to get the app json file
+  // else show an error and fire action
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(
@@ -530,5 +540,6 @@ export default function* applicationSagas() {
       ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
       duplicateApplicationSaga,
     ),
+    takeLatest(ReduxActionTypes.EXPORT_APPLICATION_INIT, exportApplicationSaga),
   ]);
 }

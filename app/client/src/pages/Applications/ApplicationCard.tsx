@@ -46,6 +46,7 @@ import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
+import ExportApplicationModal from "./ExportApplicationModal";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -220,6 +221,7 @@ type ApplicationCardProps = {
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
+  export?: (applicationId: string) => void;
 };
 
 const EditButton = styled(Button)`
@@ -259,6 +261,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [isForkApplicationModalopen, setForkApplicationModalOpen] = useState(
     false,
   );
+  const [
+    isExportApplicationModalOpen,
+    setExportApplicationModalOpen,
+  ] = useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -297,6 +303,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
         cypressSelector: "t--fork-app",
       });
     }
+    // add export app option to menu
+    if (props.export) {
+      moreActionItems.push({
+        onSelect: exportApplicationAsJSONFile,
+        text: "Export",
+        icon: "rocket",
+        cypressSelector: "t--export-app",
+      });
+    }
     setMoreActionItems(moreActionItems);
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -330,6 +345,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
   const shareApp = () => {
     props.share && props.share(props.application.id);
+  };
+  const exportApplicationAsJSONFile = () => {
+    // props.export && props.export(props.application.id);
+    setExportApplicationModalOpen(true);
   };
   const forkApplicationInitiate = () => {
     // open fork application modal
@@ -469,6 +488,14 @@ export function ApplicationCard(props: ApplicationCardProps) {
           isModalOpen={isForkApplicationModalopen}
           setModalClose={setForkApplicationModalOpen}
         />
+        {props.export && (
+          <ExportApplicationModal
+            applicationId={props.application.id}
+            export={props.export}
+            isModalOpen={isExportApplicationModalOpen}
+            setModalClose={setExportApplicationModalOpen}
+          />
+        )}
       </Menu>
     </ContextDropdownWrapper>
   );

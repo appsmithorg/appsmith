@@ -77,6 +77,15 @@ export const duplicateApplication = (applicationId: string) => {
   };
 };
 
+export const exportApplication = (applicationId: string) => {
+  return {
+    type: ReduxActionTypes.EXPORT_APPLICATION_INIT,
+    payload: {
+      applicationId,
+    },
+  };
+};
+
 export const getAllApplications = () => {
   return {
     type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
