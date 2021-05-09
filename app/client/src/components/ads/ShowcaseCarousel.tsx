@@ -3,6 +3,7 @@ import Button, { Category, Size } from "components/ads/Button";
 
 import styled from "styled-components";
 import { createMessage, NEXT, BACK } from "constants/messages";
+import { useTransition, animated } from "react-spring";
 
 const Container = styled.div`
   box-shadow: 1px 0px 10px 5px rgba(0, 0, 0, 0.15);
@@ -69,9 +70,22 @@ export default function ShowcaseCarousel(props: Props) {
   const { component: ContentComponent, props: componentProps } = currentStep;
   const length = steps.length;
 
+  const transition = useTransition(activeIndex, null, {
+    from: { transform: "translateY(+2%)" },
+    enter: { transform: "translateY(0%)" },
+    leave: { transform: "translateY(0%)" },
+    config: { duration: 300 },
+  });
+
   return (
     <Container>
-      <ContentComponent {...componentProps} />
+      {transition.map(
+        ({ props: springProps }: { item: number; props: any }) => (
+          <animated.div key={activeIndex} style={springProps}>
+            <ContentComponent {...componentProps} />
+          </animated.div>
+        ),
+      )}
       <Footer>
         <Dots activeIndex={activeIndex} count={length} />
         <Buttons>
