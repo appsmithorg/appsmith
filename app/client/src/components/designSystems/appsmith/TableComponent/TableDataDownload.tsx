@@ -9,8 +9,9 @@ import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-data-icon.svg";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/TableComponent/Constants";
-import { TableIconWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
-import TableActionIcon from "components/designSystems/appsmith/TableComponent/TableActionIcon";
+import TableAction, {
+  TableIconWrapper,
+} from "components/designSystems/appsmith/TableComponent/TableAction";
 import styled from "styled-components";
 import { transformTableDataIntoCsv } from "./CommonUtilities";
 import zipcelx from "zipcelx";
@@ -178,6 +179,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
         <IconWrapper color={Colors.CADET_BLUE} height={20} width={20}>
           <DownloadIcon />
         </IconWrapper>
+        <span className="action-title">Download</span>
       </TableIconWrapper>
     );
   }
@@ -192,16 +194,16 @@ function TableDataDownload(props: TableDataDownloadProps) {
       }}
       position={Position.BOTTOM}
     >
-      <TableActionIcon
+      <TableAction
         className="t--table-download-btn"
         selectMenu={(selected: boolean) => {
           selectMenu(selected);
         }}
         selected={selected}
-        tooltip="Download"
+        title="Download"
       >
         <DownloadIcon />
-      </TableActionIcon>
+      </TableAction>
       <DropDownWrapper>
         {dowloadOptions.map((item: DownloadOptionProps, index: number) => {
           return (

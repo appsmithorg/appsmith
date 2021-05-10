@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { InputGroup } from "@blueprintjs/core";
 import { debounce } from "lodash";
+import { Colors } from "constants/Colors";
 
 interface SearchProps {
   onSearch: (value: any) => void;
@@ -13,9 +14,12 @@ const SearchInputWrapper = styled(InputGroup)`
   &&& input {
     box-shadow: none;
     font-size: 12px;
+    color: ${Colors.SILVER_CHALICE};
   }
   &&& svg {
-    opacity: 0.6;
+    path {
+      fill: ${Colors.SILVER_CHALICE};
+    }
   }
   margin: 5px 16px;
   width: 250px;
