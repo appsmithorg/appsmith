@@ -76,7 +76,7 @@ export const entityDefinitions = {
   },
   DROP_DOWN_WIDGET: {
     "!doc":
-      "Dropdown is used to capture user input/s from a specified list of permitted inputs. A Dropdown can capture a single choice as well as multiple choices",
+      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     selectedOptionValue: {

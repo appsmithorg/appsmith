@@ -66,6 +66,10 @@
               "value": "dbAuth"
             },
             {
+              "label": "Basic",
+              "value": "basic"
+            },
+            {
               "label": "OAuth2 (Client credentials)",
               "value": "oAuth2"
             }
