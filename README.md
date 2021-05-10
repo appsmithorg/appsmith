@@ -13,7 +13,7 @@
   ·
   <a href="https://discord.gg/rBTTVJp">Discord</a>
   ·
-  <a href="./office_hours.md">Office Hours</a>  
+  <a href="./office_hours.md">Community Events</a>  
   <br>
   <br>
 </p>
