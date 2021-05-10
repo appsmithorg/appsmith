@@ -236,6 +236,9 @@ function CommentCard({
     // url.searchParams.set("commentId", commentId);
     url.searchParams.set("commentThreadId", commentThreadId);
     url.searchParams.set("isCommentMode", "true");
+    if (commentThread.resolvedState?.active) {
+      url.searchParams.set("isResolved", "true");
+    }
     return url;
   };
 
@@ -315,8 +318,8 @@ function CommentCard({
     <StyledContainer
       data-cy={`t--comment-card-${comment.id}`}
       onClick={handleCardClick}
-      onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onMouseOver={() => setIsHovered(true)}
     >
       {showSubheader && (
         <CommentSubheader>

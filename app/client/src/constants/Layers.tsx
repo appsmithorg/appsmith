@@ -1,6 +1,6 @@
 import React from "react";
 
-enum Indices {
+export enum Indices {
   Layer0,
   Layer1,
   Layer2,
