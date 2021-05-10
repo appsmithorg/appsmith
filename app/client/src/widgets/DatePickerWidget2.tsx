@@ -34,7 +34,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "Date Format",
             controlType: "DROP_DOWN",
             isJSConvertible: true,
-            optionWidth: "320px",
+            optionWidth: "340px",
             options: [
               {
                 label: moment().format("YYYY-MM-DDTHH:mm:ss.sssZ"),
@@ -62,9 +62,9 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
                 value: "YYYY-MM-DDTHH:mm:ss",
               },
               {
-                label: moment().format("YYYY-MM-DD hh:mm:ss"),
-                subText: "YYYY-MM-DD hh:mm:ss",
-                value: "YYYY-MM-DD hh:mm:ss",
+                label: moment().format("YYYY-MM-DD hh:mm:ss A"),
+                subText: "YYYY-MM-DD hh:mm:ss A",
+                value: "YYYY-MM-DD hh:mm:ss A",
               },
               {
                 label: moment().format("DD/MM/YYYY HH:mm"),

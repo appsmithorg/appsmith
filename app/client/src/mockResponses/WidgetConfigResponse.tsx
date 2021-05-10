@@ -269,7 +269,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Green", value: "GREEN" },
         { label: "Red", value: "RED" },
       ],
-      widgetName: "Dropdown",
+      widgetName: "Select",
       defaultOptionValue: "GREEN",
       version: 1,
       isRequired: false,
