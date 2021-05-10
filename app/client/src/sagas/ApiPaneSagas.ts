@@ -73,7 +73,11 @@ function* syncApiParamsSaga(
   actionId: string,
 ) {
   const field = actionPayload.meta.field;
-  const value = actionPayload.payload;
+  //Payload here contains the path and query params of a typical url like https://{domain}/{path}?{query_params}
+  let value = actionPayload.payload;
+  // Regular expression to find the query params group
+  const queryParamsRegEx = /(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
+  value = (value.match(queryParamsRegEx) || [])[2] || "";
   const padQueryParams = { key: "", value: "" };
   PerformanceTracker.startTracking(PerformanceTransactionName.SYNC_PARAMS_SAGA);
   if (field === "actionConfiguration.path") {
@@ -121,11 +125,8 @@ function* syncApiParamsSaga(
   } else if (field.includes("actionConfiguration.queryParameters")) {
     const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
     const path = values.actionConfiguration.path || "";
-    const pathHasParams = path.indexOf("?") > -1;
-    const currentPath = path.substring(
-      0,
-      pathHasParams ? path.indexOf("?") : undefined,
-    );
+    const matchGroups = path.match(queryParamsRegEx) || [];
+    const currentPath = matchGroups[1] || "";
     const paramsString = values.actionConfiguration.queryParameters
       .filter((p: Property) => p.key)
       .map(
