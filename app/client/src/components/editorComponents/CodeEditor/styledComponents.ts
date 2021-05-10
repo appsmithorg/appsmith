@@ -14,7 +14,7 @@ export const HintStyles = createGlobalStyle<{
   .CodeMirror-hints {
     position: absolute;
     z-index: 20;
-    // overflow: hidden;
+    overflow: hidden;
     list-style: none;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: 0px 0px;
@@ -35,6 +35,7 @@ export const HintStyles = createGlobalStyle<{
     cursor: pointer;
     display: flex;
     min-width: 220px;
+    width: auto;
     align-items: center;
     font-size: 12px;
     line-height: 15px;
@@ -64,6 +65,7 @@ export const HintStyles = createGlobalStyle<{
     }
   }
   .CodeMirror-Tern-completion {
+    display: flex;
     padding-left: ${(props) => props.theme.spaces[11]}px !important;
     &:hover{
       background: ${(props) =>
@@ -99,9 +101,10 @@ export const HintStyles = createGlobalStyle<{
     background: ${(props) => props.theme.colors.dataTypeBg.number};
   }
   .CodeMirror-Tern-completion:after {
-    position: absolute;
-    right: 8px;
-    bottom: 6px;
+    display: flex;
+    justify-content: flex-end;
+    flex: 1;
+    padding-right: 10px;
     font-style: italic;
     font-weight: normal;
     font-size: 10px;
