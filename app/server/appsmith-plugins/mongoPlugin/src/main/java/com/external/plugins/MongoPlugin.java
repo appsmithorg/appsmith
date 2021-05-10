@@ -62,6 +62,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
@@ -88,6 +90,40 @@ public class MongoPlugin extends BasePlugin {
     private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
     private static final int SMART_BSON_SUBSTITUTION_INDEX = 0;
+
+    /*
+     * - The regex matches the following two pattern types:
+     *   - mongodb+srv://user:pass@some-url/some-db....
+     *   - mongodb://user:pass@some-url:port,some-url:port,../some-db....
+     * - It has been grouped like this: (mongodb+srv://)((user):(pass))(@some-url/(some-db....))
+     */
+    private static final String MONGO_URI_REGEX = "^(mongodb(\\+srv)?:\\/\\/)((.+):(.+))(@.+\\/(.+))$";
+
+    private static final int REGEX_GROUP_HEAD = 1;
+
+    private static final int REGEX_GROUP_USERNAME = 4;
+
+    private static final int REGEX_GROUP_PASSWORD = 5;
+
+    private static final int REGEX_GROUP_TAIL = 6;
+
+    private static final int REGEX_GROUP_DBNAME = 7;
+
+    private static final String KEY_USERNAME = "username";
+
+    private static final String KEY_PASSWORD = "password";
+
+    private static final String KEY_URI_HEAD = "uriHead";
+
+    private static final String KEY_URI_TAIL = "uriTail";
+
+    private static final String KEY_URI_DBNAME = "dbName";
+
+    private static final String YES = "Yes";
+
+    private static final int DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX = 0;
+
+    private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
 
@@ -367,9 +403,83 @@ public class MongoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        public static String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
-            StringBuilder builder = new StringBuilder();
+        private boolean isUsingURI(DatasourceConfiguration datasourceConfiguration) {
+            List<Property> properties = datasourceConfiguration.getProperties();
+            if (properties != null && properties.size() > DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX
+                    && properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX) != null
+                    && YES.equals(properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX).getValue())) {
+                return true;
+            }
 
+            return false;
+        }
+
+        private boolean hasNonEmptyURI(DatasourceConfiguration datasourceConfiguration) {
+            List<Property> properties = datasourceConfiguration.getProperties();
+            if (properties != null && properties.size() > DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX
+                    && properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX) != null
+                    && !StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue())) {
+                return true;
+            }
+
+            return false;
+        }
+
+        private Map extractInfoFromConnectionStringURI(String uri, String regex) {
+            if (uri.matches(regex)) {
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(uri);
+                if (matcher.find()) {
+                    Map extractedInfoMap = new HashMap();
+                    String username = matcher.group(REGEX_GROUP_USERNAME);
+                    extractedInfoMap.put(KEY_USERNAME, username == null ? "" : username);
+                    String password = matcher.group(REGEX_GROUP_PASSWORD);
+                    extractedInfoMap.put(KEY_PASSWORD, password == null ? "" : password);
+                    extractedInfoMap.put(KEY_URI_HEAD, matcher.group(REGEX_GROUP_HEAD));
+                    extractedInfoMap.put(KEY_URI_TAIL, matcher.group(REGEX_GROUP_TAIL));
+                    extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME).split("\\?")[0]);
+                    return extractedInfoMap;
+                }
+            }
+
+            return null;
+        }
+
+        private String buildURIfromExtractedInfo(Map extractedInfo, String password) {
+            return extractedInfo.get(KEY_URI_HEAD) + (extractedInfo.get(KEY_USERNAME) == null ? "" :
+                    extractedInfo.get(KEY_USERNAME) + ":") + (password == null ? "" : password)
+                    + extractedInfo.get(KEY_URI_TAIL);
+        }
+
+        public String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+            List<Property> properties = datasourceConfiguration.getProperties();
+            if (isUsingURI(datasourceConfiguration)) {
+                if (hasNonEmptyURI(datasourceConfiguration)) {
+                    String uriWithHiddenPassword =
+                            (String)properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
+                    Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
+                    if (extractedInfo != null) {
+                            String password = ((DBAuth)datasourceConfiguration.getAuthentication()).getPassword();
+                            return buildURIfromExtractedInfo(extractedInfo, password);
+                    }
+                    else {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                "Appsmith server has failed to parse the Mongo connection string URI. Please check " +
+                                        "if the URI has the correct format."
+                        );
+                    }
+                }
+                else {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            "Could not find any Mongo connection string URI. Please edit the 'Mongo Connection String" +
+                                    " URI' field to provide the URI to connect to."
+                    );
+                }
+            }
+
+            StringBuilder builder = new StringBuilder();
             final Connection connection = datasourceConfiguration.getConnection();
             final List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
 
@@ -483,52 +593,89 @@ public class MongoPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
+            List<Property> properties = datasourceConfiguration.getProperties();
+            if (isUsingURI(datasourceConfiguration)) {
+                if (!hasNonEmptyURI(datasourceConfiguration)) {
+                    invalids.add("'Mongo Connection String URI' field is empty. Please edit the 'Mongo Connection " +
+                            "URI' field to provide a connection uri to connect with.");
+                } else {
+                    String mongoUri = (String)properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
+                    if (!mongoUri.matches(MONGO_URI_REGEX)) {
+                        invalids.add("Mongo Connection String URI does not seem to be in the correct format. Please " +
+                                "check the URI once.");
+                    } else {
+                        Map extractedInfo = extractInfoFromConnectionStringURI(mongoUri, MONGO_URI_REGEX);
+                        if (extractedInfo == null) {
+                            invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
+                                    "Please check the URI once.");
+                        } else {
+                            String mongoUriWithHiddenPassword = buildURIfromExtractedInfo(extractedInfo, "****");
+                            properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
+                            DBAuth authentication = datasourceConfiguration.getAuthentication() == null ?
+                                    new DBAuth() : (DBAuth) datasourceConfiguration.getAuthentication();
+                            authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
+                            authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
+                            authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DBNAME));
+                            datasourceConfiguration.setAuthentication(authentication);
 
-            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
-            if (CollectionUtils.isEmpty(endpoints)) {
-                invalids.add("Missing endpoint(s).");
+                            // remove any default db set via form auto-fill via browser
+                            if (datasourceConfiguration.getConnection() != null) {
+                                datasourceConfiguration.getConnection().setDefaultDatabaseName(null);
+                            }
+                        }
+                    }
+                }
+            } else {
+                List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+                if (CollectionUtils.isEmpty(endpoints)) {
+                    invalids.add("Missing endpoint(s).");
 
-            } else if (Connection.Type.REPLICA_SET.equals(datasourceConfiguration.getConnection().getType())) {
-                if (endpoints.size() == 1 && endpoints.get(0).getPort() != null) {
-                    invalids.add("REPLICA_SET connections should not be given a port." +
-                            " If you are trying to specify all the shards, please add more than one.");
+                } else if (Connection.Type.REPLICA_SET.equals(datasourceConfiguration.getConnection().getType())) {
+                    if (endpoints.size() == 1 && endpoints.get(0).getPort() != null) {
+                        invalids.add("REPLICA_SET connections should not be given a port." +
+                                " If you are trying to specify all the shards, please add more than one.");
+                    }
+
                 }
 
-            }
+                if (!CollectionUtils.isEmpty(endpoints)) {
+                    boolean usingUri = endpoints
+                            .stream()
+                            .anyMatch(endPoint -> endPoint.getHost().matches(MONGO_URI_REGEX));
 
-            if (!CollectionUtils.isEmpty(endpoints)) {
-                boolean usingSrvUrl = endpoints
-                        .stream()
-                        .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
-
-                if (usingSrvUrl) {
-                    invalids.add("MongoDb SRV URLs are not yet supported. Please extract the individual fields from " +
-                            "the SRV URL into the datasource configuration form.");
-                }
-            }
-
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication != null) {
-                DBAuth.Type authType = authentication.getAuthType();
-
-                if (authType == null || !VALID_AUTH_TYPES.contains(authType)) {
-                    invalids.add("Invalid authType. Must be one of " + VALID_AUTH_TYPES_STR);
+                    if (usingUri) {
+                        invalids.add("It seems that you are trying to use a mongo connection string URI. Please " +
+                                "extract relevant fields and fill the form with extracted values. For " +
+                                "details, please check out the Appsmith's documentation for Mongo database. " +
+                                "Alternatively, you may use 'Import from Connection String URI' option from the " +
+                                "dropdown labelled 'Use Mongo Connection String URI' to use the URI connection string" +
+                                " directly.");
+                    }
                 }
 
-                if (StringUtils.isEmpty(authentication.getDatabaseName())) {
-                    invalids.add("Missing database name.");
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (authentication != null) {
+                    DBAuth.Type authType = authentication.getAuthType();
+
+                    if (authType == null || !VALID_AUTH_TYPES.contains(authType)) {
+                        invalids.add("Invalid authType. Must be one of " + VALID_AUTH_TYPES_STR);
+                    }
+
+                    if (StringUtils.isEmpty(authentication.getDatabaseName())) {
+                        invalids.add("Missing database name.");
+                    }
+
                 }
 
-            }
-
-            /*
-             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
-             */
-            if (datasourceConfiguration.getConnection() == null
-                    || datasourceConfiguration.getConnection().getSsl() == null
-                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-                invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration " +
-                        "form. Please reach out to Appsmith customer support to resolve this.");
+                /*
+                 * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+                 */
+                if (datasourceConfiguration.getConnection() == null
+                        || datasourceConfiguration.getConnection().getSsl() == null
+                        || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                    invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration " +
+                            "form. Please reach out to Appsmith customer support to resolve this.");
+                }
             }
 
             return invalids;
@@ -581,6 +728,7 @@ public class MongoPlugin extends BasePlugin {
             final DatasourceStructure structure = new DatasourceStructure();
             List<DatasourceStructure.Table> tables = new ArrayList<>();
             structure.setTables(tables);
+
             final MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
             return Flux.from(database.listCollectionNames())
