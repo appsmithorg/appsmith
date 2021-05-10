@@ -28,6 +28,15 @@ You can find the archives of the calls below with a brief summary of each sessio
 
 ## Archives
 
+<strong>Appsmith Live Demo #2, 6th May 2021: Building a support helpdesk using Gmail and Postgres</strong>
+
+<a href = "https://youtu.be/X_x_nRZf418">Video Link</a>
+
+#### Summary
+
+Nikhil shows the community how to build a ticket support dashboard to assign emails to various org members using the Gmail API and Postgres. Questions from members of our community was also discussed.
+
+------------------
 
 <strong>29th April 2021: List widget, Release roadmap and more</strong>
 
