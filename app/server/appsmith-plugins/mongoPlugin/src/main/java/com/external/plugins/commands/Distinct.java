@@ -16,7 +16,7 @@ import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
 
 @Getter
 @Setter
-public class Distinct extends BaseCommand {
+public class Distinct extends MongoCommand {
     String query;
     String key;
 

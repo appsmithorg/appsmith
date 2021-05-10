@@ -15,7 +15,7 @@ import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
 
 @Getter
 @Setter
-public class Count extends BaseCommand{
+public class Count extends MongoCommand {
     String query;
 
     public Count(ActionConfiguration actionConfiguration) {

@@ -14,7 +14,7 @@ import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
 
 @Getter
 @Setter
-public class Insert extends BaseCommand{
+public class Insert extends MongoCommand {
     String documents;
 
     public Insert(ActionConfiguration actionConfiguration) {

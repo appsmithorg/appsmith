@@ -15,7 +15,7 @@ import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELI
 
 @Getter
 @Setter
-public class Aggregate extends BaseCommand {
+public class Aggregate extends MongoCommand {
     String pipeline;
 
     public Aggregate(ActionConfiguration actionConfiguration) {

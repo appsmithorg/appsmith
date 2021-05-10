@@ -24,7 +24,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.commands.Aggregate;
-import com.external.plugins.commands.BaseCommand;
+import com.external.plugins.commands.MongoCommand;
 import com.external.plugins.commands.Count;
 import com.external.plugins.commands.Delete;
 import com.external.plugins.commands.Distinct;
@@ -347,7 +347,7 @@ public class MongoPlugin extends BasePlugin {
                                 (templates.get(COMMAND) != null) &&
                                 (templates.get(COMMAND).getValue() != null)) {
 
-                            BaseCommand command = null;
+                            MongoCommand command = null;
                             switch ((String) templates.get(COMMAND).getValue()) {
                                 case "INSERT":
                                     command = new Insert(actionConfiguration);

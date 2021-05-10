@@ -19,7 +19,7 @@ import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
 
 @Getter
 @Setter
-public class Find extends BaseCommand {
+public class Find extends MongoCommand {
     String query;
     String sort;
     String projection;

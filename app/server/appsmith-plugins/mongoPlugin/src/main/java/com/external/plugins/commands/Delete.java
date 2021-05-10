@@ -16,7 +16,7 @@ import static com.external.plugins.constants.ConfigurationIndex.DELETE_QUERY;
 
 @Getter
 @Setter
-public class Delete extends BaseCommand{
+public class Delete extends MongoCommand {
     String query;
 
     public Delete(ActionConfiguration actionConfiguration) {

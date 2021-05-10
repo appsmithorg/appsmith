@@ -29,7 +29,7 @@ public class MongoPluginUtils {
             Document document = Document.parse(input);
             return document;
         } catch (JsonParseException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Field " + fieldName + " could not be parsed into expected BSON format." );
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, fieldName + " could not be parsed into expected JSON format." );
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.external.plugins.commands;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import lombok.Getter;
@@ -15,11 +17,11 @@ import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
 
 @Getter
 @Setter
-public abstract class BaseCommand {
+public abstract class MongoCommand {
     String collection;
     List<String> fieldNamesWithNoConfiguration;
 
-    public BaseCommand(ActionConfiguration actionConfiguration) {
+    public MongoCommand(ActionConfiguration actionConfiguration) {
 
         this.fieldNamesWithNoConfiguration = new ArrayList<>();
 
@@ -39,6 +41,6 @@ public abstract class BaseCommand {
     }
 
     public Document parseCommand() {
-        return null;
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo commands must implement parseCommand");
     }
 }

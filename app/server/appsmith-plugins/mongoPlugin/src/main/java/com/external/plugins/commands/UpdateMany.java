@@ -17,7 +17,7 @@ import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_UPDA
 
 @Getter
 @Setter
-public class UpdateMany extends BaseCommand{
+public class UpdateMany extends MongoCommand {
     String query;
     String update;
 
