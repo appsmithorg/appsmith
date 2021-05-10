@@ -7,7 +7,7 @@ import {
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
-import { ReactComponent as DownloadIcon } from "assets/icons/control/download-table.svg";
+import { ReactComponent as DownloadIcon } from "assets/icons/control/download-data-icon.svg";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableIconWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
 import TableActionIcon from "components/designSystems/appsmith/TableComponent/TableActionIcon";
@@ -21,33 +21,32 @@ const DropDownWrapper = styled.div`
   background: white;
   z-index: 1;
   border-radius: 4px;
-  border: 1px solid ${Colors.ATHENS_GRAY};
-  padding: 8px;
+  box-shadow: 0px 12px 28px -8px rgba(0, 0, 0, 0.1);
+  padding: 0;
 `;
 
 const OptionWrapper = styled.div`
   display: flex;
-  width: calc(100% - 20px);
+  width: 100%;
   justify-content: space-between;
   align-items: center;
   height: 32px;
   box-sizing: border-box;
-  padding: 8px;
-  color: ${Colors.OXFORD_BLUE};
-  opacity: 0.7;
+  padding: 6px 12px;
+  color: ${Colors.CHARCOAL};
   min-width: 200px;
   cursor: pointer;
-  margin-bottom: 4px;
   background: ${Colors.WHITE};
   border-left: none;
-  border-radius: 4px;
+  border-radius: none;
   .option-title {
     font-weight: 500;
-    font-size: 14px;
-    line-height: 24px;
+    font-size: 13px;
+    line-height: 20px;
   }
   &:hover {
-    background: ${Colors.POLAR};
+    background: ${Colors.SEA_SHELL};
+    color: ${Colors.CODE_GRAY};
   }
 `;
 interface TableDataDownloadProps {
