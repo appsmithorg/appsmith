@@ -510,6 +510,14 @@ export function* exportApplicationSaga(
   console.log("from export application sagas: ", action);
   // try to query API to get the app json file
   // else show an error and fire action
+  try {
+    const response: ApiResponse = yield call(
+      ApplicationApi.exportApplication,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    console.log("response, isValidResponse: ", response, isValidResponse);
+  } catch (error) {}
 }
 
 export default function* applicationSagas() {

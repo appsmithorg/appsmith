@@ -70,6 +70,10 @@ export interface ForkApplicationRequest {
   organizationId: string;
 }
 
+export interface ExportApplicationRequest {
+  applicationId: string;
+}
+
 export interface GetAllApplicationResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
 }
@@ -211,6 +215,11 @@ class ApplicationApi extends Api {
         "/fork/" +
         request.organizationId,
     );
+  }
+  static exportApplication(
+    request: ExportApplicationRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.post("v1/applications/" + request.applicationId + "/fork/");
   }
 }
 

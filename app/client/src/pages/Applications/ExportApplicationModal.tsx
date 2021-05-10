@@ -1,24 +1,16 @@
-import React, { useState, useMemo } from "react";
-import { useSelector } from "store";
-import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
-import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
-import { AppState } from "reducers";
+import React, { useState } from "react";
+import styled from "styled-components";
 import { Size } from "components/ads/Button";
-import {
-  StyledDialog,
-  StyledRadioComponent,
-  ForkButton,
-  OrganizationList,
-  ButtonWrapper,
-  SpinnerWrapper,
-} from "./ForkModalStyles";
-import Divider from "components/editorComponents/Divider";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
-import { useLocation } from "react-router";
-import { getApplicationViewerPageURL } from "constants/routes";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import Spinner from "components/ads/Spinner";
-import { IconSize } from "components/ads/Icon";
+import { StyledDialog, ForkButton, ButtonWrapper } from "./ForkModalStyles";
+import Checkbox from "components/ads/Checkbox";
+import Text, { TextType } from "components/ads/Text";
+
+const CheckboxDiv = styled.div`
+  overflow: auto;
+  max-height: 250px;
+  margin-bottom: 10px;
+  margin-top: 20px;
+`;
 
 type ExportApplicationModalProps = {
   export: (applicationId: string) => void;
@@ -29,78 +21,37 @@ type ExportApplicationModalProps = {
 
 function ExportApplicationModal(props: ExportApplicationModalProps) {
   const { setModalClose, isModalOpen } = props;
-  const [organizationId, selectOrganizationId] = useState("");
-  const userOrgs = useSelector(getUserApplicationsOrgs);
-  const forkingApplication = useSelector(
-    (state: AppState) => state.ui.applications.forkingApplication,
-  );
-
-  const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const currentPageId = useSelector(getCurrentPageId);
-  const { pathname } = useLocation();
-  const showBasedOnURL =
-    pathname ===
-    `${getApplicationViewerPageURL(props.applicationId, currentPageId)}/fork`;
-
   const exportApplication = () => {
     props.export(props.applicationId);
   };
 
-  const organizationList = useMemo(() => {
-    const filteredUserOrgs = userOrgs.filter((item) => {
-      const permitted = isPermitted(
-        item.organization.userPermissions ?? [],
-        PERMISSION_TYPE.CREATE_APPLICATION,
-      );
-      return permitted;
-    });
-
-    if (filteredUserOrgs.length) {
-      selectOrganizationId(filteredUserOrgs[0].organization.id);
-    }
-
-    return filteredUserOrgs.map((org) => {
-      return {
-        label: org.organization.name,
-        value: org.organization.id,
-      };
-    });
-  }, [userOrgs]);
-
+  const [isChecked, setIsCheckedToTrue] = useState(false);
   return (
     <StyledDialog
       canOutsideClickClose
       className={"fork-modal"}
-      isOpen={isModalOpen || showBasedOnURL}
+      isOpen={isModalOpen}
       maxHeight={"540px"}
       setModalClose={setModalClose}
       title={"Be sure to read the data policy"}
     >
-      <Divider />
-      {isFetchingApplications && (
-        <SpinnerWrapper>
-          <Spinner size={IconSize.XXXL} />
-        </SpinnerWrapper>
-      )}
-      {!isFetchingApplications && organizationList.length && (
-        <OrganizationList>
-          <StyledRadioComponent
-            className={"radio-group"}
-            columns={1}
-            defaultValue={organizationList[0].value}
-            onSelect={(value) => selectOrganizationId(value)}
-            options={organizationList}
+      <CheckboxDiv>
+        <Text type={TextType.P1}>
+          <Checkbox
+            label="By clicking on this you agree that your application credentials can be stored inside a file"
+            onCheckChange={(checked: boolean) => {
+              setIsCheckedToTrue(checked);
+            }}
           />
-        </OrganizationList>
-      )}
+        </Text>
+      </CheckboxDiv>
       <ButtonWrapper>
         <ForkButton
           cypressSelector={"t--fork-app-to-org-button"}
-          disabled={!organizationId}
-          isLoading={forkingApplication}
+          disabled={!isChecked}
           onClick={exportApplication}
           size={Size.large}
-          text={"FORK"}
+          text={"EXPORT"}
         />
       </ButtonWrapper>
     </StyledDialog>
