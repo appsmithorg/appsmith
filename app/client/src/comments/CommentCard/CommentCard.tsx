@@ -231,6 +231,9 @@ function CommentCard({
     // url.searchParams.set("commentId", commentId);
     url.searchParams.set("commentThreadId", commentThreadId);
     url.searchParams.set("isCommentMode", "true");
+    if (commentThread.resolvedState?.active) {
+      url.searchParams.set("isResolved", "true");
+    }
     return url;
   };
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -43,6 +43,19 @@ const Row = styled.div`
   }
 `;
 
+const useSetResolvedFilterFromQuery = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const searchParams = url.searchParams;
+    console.log(window.location.href, "window.location.href");
+    if (searchParams.get("isResolved")) {
+      dispatch(setShouldShowResolvedComments(true));
+    }
+  }, []);
+};
+
 const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
   const dispatch = useDispatch();
   const shouldShowResolved = useSelector(shouldShowResolvedSelector);
@@ -74,6 +87,8 @@ const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
 });
 
 function AppCommentsFilterPopover() {
+  useSetResolvedFilterFromQuery();
+
   return (
     <Popover2
       content={<AppCommentsFilter />}
