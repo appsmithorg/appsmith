@@ -1,8 +1,10 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.views.BaseView;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,14 +28,18 @@ import java.util.List;
 @Document
 public class Application extends BaseDomain {
 
+    @JsonView(BaseView.Summary.class)
     @NotNull
     String name;
 
+    @JsonView(BaseView.Summary.class)
     String organizationId;
 
+    @JsonView(BaseView.Summary.class)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Boolean isPublic = false;
 
+    @JsonView(BaseView.Summary.class)
     List<ApplicationPage> pages;
 
     @JsonIgnore
@@ -43,14 +49,17 @@ public class Application extends BaseDomain {
     @Transient
     Boolean viewMode = false;
 
+    @JsonView(BaseView.Summary.class)
     @Transient
     boolean appIsExample = false;
 
     @JsonIgnore
     String clonedFromApplicationId;
 
+    @JsonView(BaseView.Summary.class)
     String color;
 
+    @JsonView(BaseView.Summary.class)
     String icon;
 
     @JsonIgnore
@@ -59,6 +68,7 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppLayout publishedAppLayout;
 
+    @JsonView(BaseView.Summary.class)
     Boolean forkingEnabled;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either

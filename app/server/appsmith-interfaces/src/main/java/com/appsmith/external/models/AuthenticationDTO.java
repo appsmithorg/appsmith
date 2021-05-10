@@ -2,9 +2,11 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.views.BaseView;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,7 +55,7 @@ public class AuthenticationDTO implements AppsmithDomain {
     @JsonIgnore
     AuthenticationResponse authenticationResponse;
 
-    @JsonIgnore
+    @JsonView(BaseView.Detail.class)
     public Map<String, String> getEncryptionFields() {
         return Collections.emptyMap();
     }
