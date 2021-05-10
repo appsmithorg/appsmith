@@ -1294,16 +1294,24 @@ function getNextWidgetName(
   widgets: CanvasWidgetsReduxState,
   type: WidgetType,
   evalTree: Record<string, unknown>,
+  options?: Record<string, unknown>,
 ) {
   // Compute the new widget's name
   const defaultConfig: any = WidgetConfigResponse.config[type];
   const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
   const entityNames = Object.keys(evalTree);
+  let prefix = defaultConfig.widgetName;
+  if (options && options.prefix) {
+    prefix = `${options.prefix}${
+      widgetNames.indexOf(options.prefix as string) > -1 ? "Copy" : ""
+    }`;
+  }
 
-  return getNextEntityName(defaultConfig.widgetName, [
-    ...widgetNames,
-    ...entityNames,
-  ]);
+  return getNextEntityName(
+    prefix,
+    [...widgetNames, ...entityNames],
+    options?.startWithoutIndex as boolean,
+  );
 }
 
 /**
@@ -1493,12 +1501,7 @@ function* pasteWidgetSaga() {
         } catch (error) {
           log.debug("Error updating table widget properties", error);
         }
-      } else {
-        // Generate a new unique widget name
-        widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
       }
-
-      widgetNameMap[oldWidgetName] = widget.widgetName;
 
       // If it is the copied widget, update position properties
       if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
@@ -1555,7 +1558,11 @@ function* pasteWidgetSaga() {
         if (newParentId) widget.parentId = newParentId;
       }
       // Generate a new unique widget name
-      widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
+      widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree, {
+        prefix: oldWidgetName,
+        startWithoutIndex: true,
+      });
+      widgetNameMap[oldWidgetName] = widget.widgetName;
       // Add the new widget to the canvas widgets
       widgets[widget.widgetId] = widget;
     }
