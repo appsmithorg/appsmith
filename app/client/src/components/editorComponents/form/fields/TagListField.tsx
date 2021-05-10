@@ -13,11 +13,7 @@ const renderComponent = (
     input: Partial<WrappedFieldInputProps>;
   },
 ) => {
-  return (
-    <React.Fragment>
-      <TagInputComponent {...componentProps} />
-    </React.Fragment>
-  );
+  return <TagInputComponent {...componentProps} />;
 };
 
 type TagListFieldProps = {
@@ -29,12 +25,8 @@ type TagListFieldProps = {
   customError: (err: string) => void;
 };
 
-const TagListField = (props: TagListFieldProps) => {
-  return (
-    <React.Fragment>
-      <Field component={renderComponent} {...props} />
-    </React.Fragment>
-  );
-};
+function TagListField(props: TagListFieldProps) {
+  return <Field component={renderComponent} {...props} />;
+}
 
 export default TagListField;

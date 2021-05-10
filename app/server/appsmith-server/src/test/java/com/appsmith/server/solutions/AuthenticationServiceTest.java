@@ -36,6 +36,7 @@ import reactor.test.StepVerifier;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,7 +70,7 @@ public class AuthenticationServiceTest {
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
         Mono<String> authorizationCodeUrlMono = authenticationService
-                .getAuthorizationCodeURL("invalidId", "irrelevantPageId", null);
+                .getAuthorizationCodeURLForGenericOauth2("invalidId", "irrelevantPageId", null);
 
         StepVerifier
                 .create(authorizationCodeUrlMono)
@@ -101,7 +102,7 @@ public class AuthenticationServiceTest {
         }).flatMap(datasourceService::create).cache();
 
         Mono<String> authorizationCodeUrlMono = datasourceMono.map(BaseDomain::getId)
-                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURL(datasourceId, "irrelevantPageId", null));
+                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId, "irrelevantPageId", null));
 
         StepVerifier
                 .create(authorizationCodeUrlMono)
@@ -160,18 +161,18 @@ public class AuthenticationServiceTest {
 
         final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
 
-        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURL(datasourceId1, pageDto.getId(), httpRequest);
+        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId1, pageDto.getId(), httpRequest);
 
         StepVerifier
                 .create(authorizationCodeUrlMono)
                 .assertNext(url -> {
-                    assertThat(url).matches("AuthorizationURL" +
+                    assertThat(url).matches(Pattern.compile("AuthorizationURL" +
                             "\\?client_id=ClientId" +
                             "&response_type=code" +
                             "&redirect_uri=https://mock.origin.com/api/v1/datasources/authorize" +
                             "&state=" + String.join(",", pageDto.getId(), datasourceId1, "https://mock.origin.com") +
-                            "&scope=Scope\\d,Scope\\d" +
-                            "&key=value");
+                            "&scope=Scope\\d%20Scope\\d" +
+                            "&key=value"));
                 })
                 .verifyComplete();
     }

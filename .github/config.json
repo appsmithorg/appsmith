@@ -185,6 +185,11 @@
       "color": "79e53b",
       "description": "An unexpected or annoying bug"
     },
+    "List Widget": {
+      "name": "List Widget",
+      "color": "79e53b",
+      "description": "Issues Related to the list widget"
+    },
     "Map Widget": {
       "name": "Map Widget",
       "color": "7eef7a",
@@ -565,6 +570,11 @@
                 "value": true
               },
               {
+                "label": "List Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
                 "label": "Map Widget",
                 "type": "hasLabel",
                 "value": true
@@ -637,6 +647,11 @@
               {
                 "type": "hasLabel",
                 "label": "UI Building",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "UI Performance",
                 "value": true
               }
             ]

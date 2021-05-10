@@ -59,19 +59,19 @@ const data = [
     col2: "dustin_01@jlegue.com",
     col3: (
       <TableDropdown
-        position={Position.BOTTOM}
-        options={options}
         onSelect={(selectedValue) => console.log(selectedValue)}
+        options={options}
+        position={Position.BOTTOM}
         selectedIndex={0}
-      ></TableDropdown>
+      />
     ),
     col4: "App Access",
     col5: (
       <Button
         category={Category.primary}
-        variant={Variant.info}
         size={Size.small}
         text={"approve"}
+        variant={Variant.info}
       />
     ),
     col6: <Icon name="delete" size={IconSize.LARGE} />,
@@ -81,19 +81,19 @@ const data = [
     col2: "dustin_02@jlegue.com",
     col3: (
       <TableDropdown
-        position={Position.BOTTOM}
-        options={options}
         onSelect={(selectedValue) => console.log(selectedValue)}
+        options={options}
+        position={Position.BOTTOM}
         selectedIndex={1}
-      ></TableDropdown>
+      />
     ),
     col4: "Map Access",
     col5: (
       <Button
         category={Category.primary}
-        variant={Variant.success}
         size={Size.small}
         text={"accepted"}
+        variant={Variant.success}
       />
     ),
     col6: <Icon name="delete" size={IconSize.LARGE} />,
@@ -103,27 +103,29 @@ const data = [
     col2: "dustin_03@jlegue.com",
     col3: (
       <TableDropdown
-        position={Position.BOTTOM}
-        options={options}
         onSelect={(selectedValue) => console.log(selectedValue)}
+        options={options}
+        position={Position.BOTTOM}
         selectedIndex={2}
-      ></TableDropdown>
+      />
     ),
     col4: "Dm Access",
     col5: (
       <Button
         category={Category.primary}
-        variant={Variant.warning}
         size={Size.small}
         text={"on hold"}
+        variant={Variant.warning}
       />
     ),
     col6: <Icon name="delete" size={IconSize.LARGE} />,
   },
 ];
 
-export const TableStory = () => (
-  <StoryWrapper>
-    <Table columns={columns} data={data}></Table>
-  </StoryWrapper>
-);
+export function TableStory() {
+  return (
+    <StoryWrapper>
+      <Table columns={columns} data={data} />
+    </StoryWrapper>
+  );
+}

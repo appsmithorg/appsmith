@@ -115,6 +115,7 @@ jobs:
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
             yarn build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
@@ -282,6 +283,17 @@ jobs:
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
+
+  ui-test-result:
+    needs: ui-test
+    # Only run if the ui-test with matrices step is successful
+    if: success()
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - run: echo "All ui-test matrices completed"
 
   package:
     needs: ui-test

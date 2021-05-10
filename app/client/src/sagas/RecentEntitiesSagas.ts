@@ -60,8 +60,12 @@ function* handleSelectWidget(action: ReduxAction<{ widgetId: string }>) {
     );
 }
 
-function* handlePathUpdated(action: ReduxAction<{ pathName: string }>) {
-  const { type, id, params } = getRecentEntity(action.payload.pathName);
+function* handlePathUpdated(
+  action: ReduxAction<{ location: typeof window.location }>,
+) {
+  const { type, id, params } = getRecentEntity(
+    action.payload.location.pathname,
+  );
   if (type && id && id.indexOf(":") === -1) {
     yield put(updateRecentEntity({ type, id, params }));
   }

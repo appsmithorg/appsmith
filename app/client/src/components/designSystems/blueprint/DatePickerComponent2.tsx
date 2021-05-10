@@ -142,17 +142,17 @@ class DatePickerComponent extends React.Component<
           >
             <DateInput
               className={this.props.isLoading ? "bp3-skeleton" : ""}
+              closeOnSelection
+              disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              maxDate={maxDate}
+              minDate={minDate}
+              onChange={this.onDateSelected}
               parseDate={this.parseDate}
               placeholder={"Select Date"}
-              disabled={this.props.isDisabled}
-              showActionsBar={true}
+              showActionsBar
               timePrecision={TimePrecision.MINUTE}
-              closeOnSelection
-              onChange={this.onDateSelected}
               value={value}
-              minDate={minDate}
-              maxDate={maxDate}
             />
           </ErrorTooltip>
         }
@@ -194,8 +194,8 @@ class DatePickerComponent extends React.Component<
 
   parseDate = (dateStr: string): Date => {
     const date = moment(dateStr);
-
-    if (date.isValid()) return moment(dateStr).toDate();
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
     else return moment().toDate();
   };
 

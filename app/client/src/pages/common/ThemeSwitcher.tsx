@@ -12,17 +12,17 @@ export default function ThemeSwitcher(props: { className?: string }) {
 
   return (
     <MenuItem
-      text="Theme"
       label={
         <Switch
           className={props.className}
-          value={switchedOn}
           onSwitch={(value) => {
             setSwitchOn(value);
             dispatch(setThemeMode(value ? ThemeMode.DARK : ThemeMode.LIGHT));
           }}
+          value={switchedOn}
         />
       }
+      text="Theme"
     />
   );
 }

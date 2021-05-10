@@ -91,6 +91,10 @@
   "switchInputName": "Switch1",
   "defaultimage": "https://i0.wp.com/www.heyuguys.com/images/2016/04/The-Joker.png?fit=1920%2C960",
   "NewImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
+  "base64image": {
+    "withoutPrefix": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==",
+    "withPrefix": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg=="
+  },
   "textfun": "{{Table1.selectedRow.userName}}",
   "textfunID": "{{Table1.selectedRow.id}}",
   "textfunemail": "{{Table1.selectedRow.email}}",
@@ -102,6 +106,7 @@
   "AlertModalName": "Alert_Modal",
   "FormModalName": "Form_Modal",
   "TextLabelValue": "Test Text Label",
+  "TextLabelValueScrollable": "Test Text Label to check scroll feature",
   "TextName": "TestTextBox",
   "TextLabel": "Paragraph",
   "TextBody": "Heading 2",

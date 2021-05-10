@@ -26,6 +26,9 @@ import pageWidgetsReducer from "./pageWidgetsReducer";
 import onBoardingReducer from "./onBoardingReducer";
 import globalSearchReducer from "./globalSearchReducer";
 import releasesReducer from "./releasesReducer";
+import commentsReducer from "./commentsReducer/commentsReducer";
+import websocketReducer from "./websocketReducer";
+import debuggerReducer from "./debuggerReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -55,5 +58,9 @@ const uiReducer = combineReducers({
   onBoarding: onBoardingReducer,
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
+  comments: commentsReducer,
+  websocket: websocketReducer,
+  debugger: debuggerReducer,
 });
+
 export default uiReducer;

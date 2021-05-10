@@ -72,32 +72,32 @@ export const ActionsContainer = styled.div`
   }
 `;
 
-export const ActionButton = (props: MessageAction) => {
+export function ActionButton(props: MessageAction) {
   if (props.url) {
     return (
       <Button
         className="appsmith-message-action-button"
-        href={props.url}
-        text={props.text}
-        intent="primary"
         filled
+        href={props.url}
+        intent="primary"
         size="small"
+        text={props.text}
       />
     );
   } else if (props.onClick) {
     return (
       <Button
         className="appsmith-message-action-button"
-        onClick={props.onClick}
-        text={props.text}
-        intent="primary"
         filled
+        intent="primary"
+        onClick={props.onClick}
         size="small"
+        text={props.text}
       />
     );
   }
   return null;
-};
+}
 
 export type FormMessageProps = {
   intent: Intent;
@@ -105,7 +105,7 @@ export type FormMessageProps = {
   actions?: MessageAction[];
 };
 
-export const FormMessage = (props: FormMessageProps) => {
+export function FormMessage(props: FormMessageProps) {
   const actions =
     props.actions &&
     props.actions.map((action) => (
@@ -119,12 +119,12 @@ export const FormMessage = (props: FormMessageProps) => {
   return (
     <StyledMessage>
       <MessageContainer iconbgcolor={iconbgcolor}>
-        <Icon color={IntentColors[props.intent]} width={20} height={20} />
+        <Icon color={IntentColors[props.intent]} height={20} width={20} />
         <p>{props.message}</p>
       </MessageContainer>
       {actions && <ActionsContainer>{actions}</ActionsContainer>}
     </StyledMessage>
   );
-};
+}
 
 export default FormMessage;

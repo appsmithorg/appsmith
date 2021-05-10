@@ -2,8 +2,10 @@ import styled, { css } from "styled-components";
 import {
   TableSizes,
   CellLayoutProperties,
+  CellAlignment,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors, Color } from "constants/Colors";
+import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
 
 export const TableWrapper = styled.div<{
@@ -25,7 +27,18 @@ export const TableWrapper = styled.div<{
   .tableWrap {
     height: 100%;
     display: block;
-    overflow: auto;
+    position: relative;
+    width: ${(props) => props.width - 8}px;
+    overflow-x: auto;
+    ${hideScrollbar};
+    .thumb-horizontal {
+      height: 4px !important;
+      border-radius: ${(props) => props.theme.radii[3]}px;
+      background: ${(props) => props.theme.colors.scrollbarLight} !important;
+      &:hover {
+        height: 6px !important;
+      }
+    }
   }
   .table {
     border-spacing: 0;
@@ -34,16 +47,25 @@ export const TableWrapper = styled.div<{
     background: ${Colors.ATHENS_GRAY_DARKER};
     display: table;
     width: 100%;
+    ${hideScrollbar};
+    .tr {
+      width: 100%;
+    }
     .thead,
     .tbody {
       overflow: hidden;
     }
     .tbody {
+      height: ${(props) => props.height - 80}px;
+      width: 100%;
+      overflow-y: auto;
+      ${hideScrollbar};
       .tr {
         width: 100%;
       }
     }
     .tr {
+      width: calc(100% - 8px);
       overflow: hidden;
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
@@ -103,6 +125,11 @@ export const TableWrapper = styled.div<{
       top: 0;
       z-index: 1;
     }
+    .thead {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
   }
   .draggable-header,
   .hidden-header {
@@ -119,7 +146,7 @@ export const TableWrapper = styled.div<{
   .draggable-header {
     cursor: pointer;
     display: inline-block;
-    width: calc(100% - 20px);
+    width: 100%;
     height: 38px;
     &.reorder-line {
       width: 1px;
@@ -270,10 +297,28 @@ const JUSTIFY_CONTENT = {
   RIGHT: "flex-end",
 };
 
+const TEXT_ALIGN = {
+  LEFT: "left",
+  CENTER: "center",
+  RIGHT: "right",
+};
+
 const ALIGN_ITEMS = {
   TOP: "flex-start",
   CENTER: "center",
   BOTTOM: "flex-end",
+};
+
+const IMAGE_HORIZONTAL_ALIGN = {
+  LEFT: "left",
+  CENTER: "center",
+  RIGHT: "right",
+};
+
+const IMAGE_VERTICAL_ALIGN = {
+  TOP: "top",
+  CENTER: "center",
+  BOTTOM: "bottom",
 };
 
 export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
@@ -300,6 +345,13 @@ export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
   font-size: ${(props) =>
     props?.cellProperties?.textSize &&
     TEXT_SIZES[props?.cellProperties?.textSize]};
+`;
+
+export const DraggableHeaderWrapper = styled.div<{
+  horizontalAlignment?: CellAlignment;
+}>`
+  text-align: ${(props) =>
+    props?.horizontalAlignment && TEXT_ALIGN[props?.horizontalAlignment]};
 `;
 
 export const CellWrapper = styled.div<{
@@ -329,7 +381,12 @@ export const CellWrapper = styled.div<{
     height: 100%;
     margin: 0 5px 0 0;
     border-radius: 4px;
-    background-position: start;
+    background-position-x: ${(props) =>
+      props?.cellProperties?.horizontalAlignment &&
+      IMAGE_HORIZONTAL_ALIGN[props?.cellProperties?.horizontalAlignment]};
+    background-position-y: ${(props) =>
+      props?.cellProperties?.verticalAlignment &&
+      IMAGE_VERTICAL_ALIGN[props?.cellProperties?.verticalAlignment]};
     background-repeat: no-repeat;
     background-size: contain;
   }
@@ -373,16 +430,37 @@ export const TableHeaderWrapper = styled.div<{
   tableSizes: TableSizes;
   backgroundColor?: Color;
 }>`
+  position: relative;
   display: flex;
-  border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-  width: ${(props) => props.width}px;
+  width: ${(props) => props.width - 8}px;
   .show-page-items {
     display: ${(props) => (props.width < 700 ? "none" : "flex")};
   }
-  overflow-x: auto;
-  overflow-y: hidden;
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
+  overflow-x: auto;
+  ${hideScrollbar};
+  .thumb-horizontal {
+    height: 4px !important;
+    border-radius: ${(props) => props.theme.radii[3]}px;
+    background: ${(props) => props.theme.colors.scrollbarLight};
+    &:hover {
+      height: 6px !important;
+    }
+  }
+`;
+
+export const TableHeaderInnerWrapper = styled.div<{
+  serverSidePaginationEnabled: boolean;
+  width: number;
+  tableSizes: TableSizes;
+  backgroundColor?: Color;
+}>`
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div<{
@@ -413,7 +491,7 @@ export const TableIconWrapper = styled.div<{
   box-shadow: ${(props) =>
     props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
   width: 48px;
-  height: 42px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -427,8 +505,8 @@ export const TableIconWrapper = styled.div<{
 
 export const SortIconWrapper = styled.div`
   display: inline-block;
-  height: 38px;
-  line-height: 38px;
+  height: 32px;
+  line-height: 32px;
 `;
 
 export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
@@ -436,7 +514,6 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
   justify-content: space-between;
   align-items: center;
   width: 150px;
-  background: ${(props) => props.selected && Colors.GREEN};
   position: relative;
   .title {
     color: ${(props) => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
