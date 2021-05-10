@@ -4,10 +4,12 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
 import java.util.List;
 
+import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
 import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
 
@@ -16,7 +18,7 @@ import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
 public class Count extends BaseCommand{
     String query;
 
-    Count(ActionConfiguration actionConfiguration) {
+    public Count(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
         List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
@@ -34,5 +36,16 @@ public class Count extends BaseCommand{
             }
         }
         return Boolean.FALSE;
+    }
+
+    @Override
+    public Document parseCommand() {
+        Document document = new Document();
+
+        document.put("count", this.collection);
+
+        document.put("query", parseSafely("Query", this.query));
+
+        return document;
     }
 }

@@ -4,10 +4,12 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
 import java.util.List;
 
+import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
 import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELINE;
 
@@ -16,7 +18,7 @@ import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELI
 public class Aggregate extends BaseCommand {
     String pipeline;
 
-    Aggregate(ActionConfiguration actionConfiguration) {
+    public Aggregate(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
         List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
@@ -33,6 +35,18 @@ public class Aggregate extends BaseCommand {
                 return Boolean.TRUE;
             }
         }
+
         return Boolean.FALSE;
+    }
+
+    @Override
+    public Document parseCommand() {
+        Document document = new Document();
+
+        document.put("aggregate", this.collection);
+
+        document.put("pipeline", parseSafely("Array of Pipelines", this.pipeline));
+
+        return document;
     }
 }

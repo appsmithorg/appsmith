@@ -4,10 +4,13 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_UPDATE;
@@ -18,7 +21,7 @@ public class UpdateMany extends BaseCommand{
     String query;
     String update;
 
-    UpdateMany(ActionConfiguration actionConfiguration) {
+    public UpdateMany(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
         List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
@@ -40,5 +43,27 @@ public class UpdateMany extends BaseCommand{
             }
         }
         return Boolean.FALSE;
+    }
+
+    @Override
+    public Document parseCommand() {
+        Document document = new Document();
+
+        document.put("update", this.collection);
+
+        Document queryDocument = parseSafely("Query", this.query);
+
+        Document updateDocument = parseSafely("Update", this.update);
+
+        Document update = new Document();
+        update.put("q", queryDocument);
+        update.put("u", updateDocument);
+
+        List<Document> updates = new ArrayList<>();
+        updates.add(update);
+
+        document.put("updates", updates);
+
+        return document;
     }
 }

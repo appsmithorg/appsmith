@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
 public class Insert extends BaseCommand{
     String documents;
 
-    Insert(ActionConfiguration actionConfiguration) {
+    public Insert(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
         List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
@@ -34,5 +35,16 @@ public class Insert extends BaseCommand{
             }
         }
         return Boolean.FALSE;
+    }
+
+    @Override
+    public Document parseCommand() {
+        Document document = new Document();
+
+        document.put("insert", this.collection);
+
+        document.put("documents", documents);
+
+        return document;
     }
 }

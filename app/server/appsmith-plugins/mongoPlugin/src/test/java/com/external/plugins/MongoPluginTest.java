@@ -1,8 +1,8 @@
 package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -17,6 +17,7 @@ import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.commands.Find;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -43,9 +44,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
-import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -729,5 +730,91 @@ public class MongoPluginTest {
                            " the database to fix this.";
                    assertTrue(expectedMessage.equals(error.getMessage()));
                 });
+    }
+
+    @Test
+    public void testFindFormCommand() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        List<Property> pluginTemplates = new ArrayList<>();
+        pluginTemplates.add(smartBsonIndex(Boolean.FALSE));
+        pluginTemplates.add(inputTypeIndex("FORM"));
+        pluginTemplates.add(commandIndex("FIND"));
+        pluginTemplates.add(findQueryIndex("{ age: { \"$gte\": 30 } }"));
+        pluginTemplates.add(findSortIndex("{ id: 1 }"));
+        pluginTemplates.add(findProjectionIndex(""));
+        pluginTemplates.add(findLimitIndex(""));
+        pluginTemplates.add(findSkipIndex(""));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginTemplates);
+
+        Find find = new Find(actionConfiguration);
+        find.setCollection("users");
+        assertEquals(find.isValid(), Boolean.TRUE);
+        Document document = find.parseCommand();
+        actionConfiguration.setBody(document.toJson());
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    private Property smartBsonIndex(Boolean value) {
+        Property property = new Property();
+        property.setValue(value);
+        return property;
+    }
+
+    private Property inputTypeIndex(String value) {
+        Property property = new Property();
+        property.setValue(value);
+        return property;
+    }
+
+    private Property commandIndex(String value) {
+        Property property = new Property();
+        property.setValue(value);
+        return property;
+    }
+
+    private Property findQueryIndex(String value) {
+        Property property = new Property();
+        property.setValue(value);
+        return property;
+    }
+
+    private Property findSortIndex(String value) {
+        Property property = new Property();
+        property.setValue(value);
+        return property;
+    }
+
+    private Property findProjectionIndex(String value) {
+        Property property = new Property();
+        property.setValue(value);
+        return property;
+    }
+
+    private Property findLimitIndex(String value) {
+        Property property = new Property();
+        property.setValue(value);
+        return property;
+    }
+
+    private Property findSkipIndex(String value) {
+        Property property = new Property();
+        property.setValue(value);
+        return property;
     }
 }

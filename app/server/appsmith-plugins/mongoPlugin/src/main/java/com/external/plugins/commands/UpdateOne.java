@@ -4,10 +4,12 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
 import java.util.List;
 
+import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_SORT;
@@ -20,7 +22,7 @@ public class UpdateOne extends BaseCommand{
     String sort;
     String update;
 
-    UpdateOne(ActionConfiguration actionConfiguration) {
+    public UpdateOne(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
         List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
@@ -46,5 +48,22 @@ public class UpdateOne extends BaseCommand{
             }
         }
         return Boolean.FALSE;
+    }
+
+    @Override
+    public Document parseCommand() {
+        Document document = new Document();
+
+        document.put("findAndModify", this.collection);
+
+        document.put("query", parseSafely("Query", this.query));
+
+        if (!StringUtils.isNullOrEmpty(this.sort)) {
+            document.put("sort", parseSafely("Sort", this.sort));
+        }
+
+        document.put("update", parseSafely("Update", this.update));
+
+        return document;
     }
 }

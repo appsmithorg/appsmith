@@ -2,6 +2,9 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
+import lombok.Getter;
+import lombok.Setter;
+import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
 import java.util.List;
@@ -9,10 +12,12 @@ import java.util.List;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
 import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
 
+@Getter
+@Setter
 public abstract class BaseCommand {
     String collection;
 
-    BaseCommand(ActionConfiguration actionConfiguration) {
+    public BaseCommand(ActionConfiguration actionConfiguration) {
         List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
 
         if (validConfigurationPresent(pluginSpecifiedTemplates, COLLECTION)) {
@@ -25,5 +30,9 @@ public abstract class BaseCommand {
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
+    }
+
+    public Document parseCommand() {
+        return null;
     }
 }

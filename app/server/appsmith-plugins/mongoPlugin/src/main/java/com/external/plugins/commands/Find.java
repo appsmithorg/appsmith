@@ -4,10 +4,12 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
 import java.util.List;
 
+import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_LIMIT;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_PROJECTION;
@@ -22,9 +24,9 @@ public class Find extends BaseCommand{
     String sort;
     String projection;
     String limit;
-    Long skip;
+    String skip;
 
-    Find(ActionConfiguration actionConfiguration) {
+    public Find(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
         List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
@@ -46,7 +48,7 @@ public class Find extends BaseCommand{
         }
 
         if (validConfigurationPresent(pluginSpecifiedTemplates, FIND_SKIP)) {
-            this.skip = Long.parseLong((String) pluginSpecifiedTemplates.get(FIND_SKIP).getValue());
+            this.skip = (String) pluginSpecifiedTemplates.get(FIND_SKIP).getValue();
         }
     }
 
@@ -58,5 +60,36 @@ public class Find extends BaseCommand{
             }
         }
         return Boolean.FALSE;
+    }
+
+    @Override
+    public Document parseCommand() {
+        Document document = new Document();
+
+        document.put("find", this.collection);
+
+        document.put("filter", parseSafely("Query", this.query));
+
+        if (!StringUtils.isNullOrEmpty(this.sort)) {
+            document.put("sort", parseSafely("Sort", this.sort));
+        }
+
+        if (!StringUtils.isNullOrEmpty(this.projection)) {
+            document.put("projection", this.projection);
+        }
+
+        // Default to returning 10 documents if not mentioned
+        int limit = 10;
+        if (!StringUtils.isNullOrEmpty(this.limit)) {
+            limit = Integer.parseInt(this.limit);
+        }
+        document.put("limit", limit);
+        document.put("batchSize", limit);
+
+        if (!StringUtils.isNullOrEmpty(this.skip)) {
+            document.put("skip", Long.parseLong(this.skip));
+        }
+
+        return document;
     }
 }

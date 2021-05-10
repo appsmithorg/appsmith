@@ -1,6 +1,10 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Property;
+import org.bson.Document;
+import org.bson.json.JsonParseException;
 
 import java.util.List;
 
@@ -18,5 +22,14 @@ public class MongoPluginUtils {
         }
 
         return Boolean.FALSE;
+    }
+
+    public static Document parseSafely(String fieldName, String input) {
+        try {
+            Document document = Document.parse(input);
+            return document;
+        } catch (JsonParseException e) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Field " + fieldName + " could not be parsed into expected BSON format." );
+        }
     }
 }
