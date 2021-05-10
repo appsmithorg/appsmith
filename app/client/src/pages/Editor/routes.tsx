@@ -58,8 +58,7 @@ const DrawerWrapper = styled.div<{
   isActionPath: any;
 }>`
   background-color: white;
-  width: ${(props) =>
-    !props.isVisible ? "0px" : props.isActionPath ? "100%" : "75%"};
+  width: ${(props) => (!props.isVisible ? "0" : "100%")};
   height: 100%;
 `;
 
