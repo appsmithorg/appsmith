@@ -97,6 +97,10 @@ const evalErrorHandler = (errors: EvalError[]) => {
         Toaster.show({
           text: createMessage(ERROR_EVAL_TRIGGER, error.message),
           variant: Variant.danger,
+          showDebugButton: true,
+        });
+        AppsmithConsole.error({
+          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
         });
         break;
       }
