@@ -15,6 +15,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PSParamDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
@@ -58,9 +59,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -228,8 +231,9 @@ public class MySqlPlugin extends BasePlugin {
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final List<String> columnsList = new ArrayList<>();
+            Map<String, PSParamDTO> psParams = new LinkedHashMap<>();
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null));
+                    , null, psParams));
 
             Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
                     .flatMapMany(isValid -> {
@@ -239,7 +243,7 @@ public class MySqlPlugin extends BasePlugin {
                                     preparedStatement,
                                     mustacheValuesInOrder,
                                     executeActionDTO,
-                                    requestData);
+                                    psParams);
                         }
                         return Flux.error(new StaleConnectionException());
                     });
@@ -316,7 +320,7 @@ public class MySqlPlugin extends BasePlugin {
                                                                  Boolean preparedStatement,
                                                                  List<String> mustacheValuesInOrder,
                                                                  ExecuteActionDTO executeActionDTO,
-                                                                 Map<String, Object> requestData) {
+                                                                 Map psParams) {
 
             Statement connectionStatement = connection.createStatement(query);
             if (FALSE.equals(preparedStatement) || mustacheValuesInOrder == null || mustacheValuesInOrder.isEmpty()) {
@@ -325,16 +329,16 @@ public class MySqlPlugin extends BasePlugin {
 
             System.out.println("Query : " + query);
 
-            List<Param> params = executeActionDTO.getParams();
-            List<Map.Entry<String, String>> parameters = new ArrayList<>();
-
+            List<PSParamDTO> parameters = new ArrayList<>();
             try {
                 connectionStatement = (Statement) this.smartSubstitutionOfBindings(connectionStatement,
                         mustacheValuesInOrder,
                         executeActionDTO.getParams(),
                         parameters);
 
-                requestData.put("ps-parameters", parameters);
+                IntStream.range(0, parameters.size())
+                        .forEachOrdered(i -> psParams.put(getPSParamLabel(i), parameters.get(i)));
+
             } catch (AppsmithPluginException e) {
                 return Flux.error(e);
             }
@@ -349,14 +353,13 @@ public class MySqlPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<Map.Entry<String, String>> insertedParams,
+                                             List<PSParamDTO> insertedParams,
                                              Object... args) {
 
             Statement connectionStatement = (Statement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
-            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
-            insertedParams.add(parameter);
+            insertedParams.add(new PSParamDTO(value, valueType.toString()));
 
             if (DataType.NULL.equals(valueType)) {
                 try {

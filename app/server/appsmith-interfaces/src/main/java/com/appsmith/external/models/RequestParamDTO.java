@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Setter
 @Getter
@@ -16,6 +18,9 @@ public class RequestParamDTO {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String configProperty; // Only meant for internal use. It won't be returned back to the client.
     private Object value;
-    private String label;
-    private List<ParsedDataType> types;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String label; // Only meant for internal use. It is returned as key for the RequestParamDTO object.
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<ParsedDataType> types; // Not getting used for now but still keeping it here for future use.
+    private Map<String, PSParamDTO> psParams;
 }

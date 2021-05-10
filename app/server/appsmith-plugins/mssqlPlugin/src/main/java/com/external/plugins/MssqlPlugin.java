@@ -14,6 +14,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PSParamDTO;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
@@ -55,10 +56,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -162,8 +165,9 @@ public class MssqlPlugin extends BasePlugin {
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
+            Map<String, PSParamDTO> psParams = new LinkedHashMap<>();
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null));
+                    , null, psParams));
 
             return Mono.fromCallable(() -> {
                 try {
@@ -198,13 +202,15 @@ public class MssqlPlugin extends BasePlugin {
                     } else {
                         preparedQuery = connection.prepareStatement(query);
 
-                        List<Map.Entry<String, String>> parameters = new ArrayList<>();
+                        List<PSParamDTO> parameters = new ArrayList<>();
                         preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
                                 mustacheValuesInOrder,
                                 executeActionDTO.getParams(),
                                 parameters);
 
-                        requestData.put("ps-parameters", parameters);
+                        IntStream.range(0, parameters.size())
+                                .forEachOrdered(i -> psParams.put(getPSParamLabel(i), parameters.get(i)));
+
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
                     }
