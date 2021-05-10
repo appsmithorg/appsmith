@@ -398,19 +398,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         return Mono.just(user)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .zipWith(configService.getTemplateOrganizationId().defaultIfEmpty(""))
-                .flatMap(tuple -> {
-                    final String templateOrganizationId = tuple.getT2();
-
-                    if (!StringUtils.hasText(templateOrganizationId)) {
-                        // Since template organization is not configured, we create an empty default organization.
-                        final User savedUser = tuple.getT1();
-                        log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
-                        return organizationService.createDefault(new Organization(), savedUser);
-                    }
-
-                    return Mono.empty();
-                })
                 .then(repository.findByEmail(user.getUsername()))
                 .flatMap(analyticsService::trackNewUser);
     }
@@ -456,7 +443,23 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     }
                     return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
                 })
-                .switchIfEmpty(Mono.defer(() -> signupIfAllowed(user)))
+                .switchIfEmpty(Mono.defer(() -> {
+                    return signupIfAllowed(user)
+                            .zipWith(configService.getTemplateOrganizationId().defaultIfEmpty(""))
+                            .flatMap(tuple -> {
+                                final User savedUser = tuple.getT1();
+                                final String templateOrganizationId = tuple.getT2();
+
+                                if (!StringUtils.hasText(templateOrganizationId)) {
+                                    // Since template organization is not configured, we create an empty default organization.
+                                    log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
+                                    return organizationService.createDefault(new Organization(), savedUser).thenReturn(savedUser);
+                                }
+
+                                return Mono.just(savedUser);
+                            })
+                            .flatMap(savedUser -> findByEmail(savedUser.getEmail()));
+                }))
                 .flatMap(savedUser ->
                         emailConfig.isWelcomeEmailEnabled()
                                 ? sendWelcomeEmail(savedUser, finalOriginHeader)

@@ -51,7 +51,7 @@ On your development machine, please ensure that:
 
 ### Steps to build & run the code:
 
-1. Run `yarn`
+1. Run `yarn install`
 
     Note:
 
