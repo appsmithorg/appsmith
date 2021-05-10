@@ -258,10 +258,17 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
      */
     @Override
     public Mono<Comment> deleteComment(String id) {
-
         return repository.findById(id, AclPermission.MANAGE_COMMENT)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.COMMENT, id)))
-                .flatMap(comment -> repository.archive(comment));
+                .flatMap(repository::archive)
+                .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    @Override
+    public Mono<CommentThread> deleteThread(String threadId) {
+        return threadRepository.findById(threadId, AclPermission.MANAGE_THREAD)
+                .flatMap(threadRepository::archive)
+                .flatMap(analyticsService::sendDeleteEvent);
     }
 
 }
