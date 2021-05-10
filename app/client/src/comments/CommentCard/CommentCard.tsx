@@ -310,8 +310,8 @@ function CommentCard({
     <StyledContainer
       data-cy={`t--comment-card-${comment.id}`}
       onClick={handleCardClick}
-      onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onMouseOver={() => setIsHovered(true)}
     >
       {showSubheader && (
         <CommentSubheader>
