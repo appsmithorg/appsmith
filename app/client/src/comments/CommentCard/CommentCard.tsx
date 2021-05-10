@@ -133,6 +133,10 @@ const Section = styled.div`
   align-items: center;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  &.pinned-by {
+    cursor: pointer;
+  }
 `;
 
 const UnreadIndicator = styled.div`
@@ -327,7 +331,7 @@ function CommentCard({
             {unread && <UnreadIndicator />}
             <CommentThreadId>{commentThread.sequenceId}</CommentThreadId>
           </Section>
-          <Section className="pinned-by">
+          <Section className="pinned-by" onClick={pin}>
             {isPinned && (
               <>
                 <Icon className="pin" name="pin-3" />
