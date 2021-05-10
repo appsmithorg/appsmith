@@ -34,6 +34,8 @@ public class Delete extends BaseCommand{
         if (super.isValid()) {
             if (!StringUtils.isNullOrEmpty(query)) {
                 return Boolean.TRUE;
+            } else {
+                fieldNamesWithNoConfiguration.add("Query");
             }
         }
         return Boolean.FALSE;

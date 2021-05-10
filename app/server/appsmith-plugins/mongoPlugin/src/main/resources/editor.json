@@ -356,7 +356,7 @@
           },
           "children": [
             {
-              "label": "Document(s)",
+              "label": "Documents",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[18].value",
               "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",

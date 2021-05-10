@@ -32,6 +32,8 @@ public class Insert extends BaseCommand{
         if (super.isValid()) {
             if (!StringUtils.isNullOrEmpty(documents)) {
                 return Boolean.TRUE;
+            } else {
+                fieldNamesWithNoConfiguration.add("Documents");
             }
         }
         return Boolean.FALSE;

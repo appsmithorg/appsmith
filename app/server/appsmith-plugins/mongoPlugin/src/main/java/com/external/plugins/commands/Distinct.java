@@ -16,7 +16,7 @@ import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
 
 @Getter
 @Setter
-public class Distinct extends BaseCommand{
+public class Distinct extends BaseCommand {
     String query;
     String key;
 
@@ -39,8 +39,16 @@ public class Distinct extends BaseCommand{
         if (super.isValid()) {
             if (!StringUtils.isNullOrEmpty(query) && !StringUtils.isNullOrEmpty(key)) {
                 return Boolean.TRUE;
+            } else {
+                if (StringUtils.isNullOrEmpty(query)) {
+                    fieldNamesWithNoConfiguration.add("Query");
+                }
+                if (StringUtils.isNullOrEmpty(key)) {
+                    fieldNamesWithNoConfiguration.add("Key/Field");
+                }
             }
         }
+
         return Boolean.FALSE;
     }
 

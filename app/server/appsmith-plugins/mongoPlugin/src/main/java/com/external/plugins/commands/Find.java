@@ -19,7 +19,7 @@ import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
 
 @Getter
 @Setter
-public class Find extends BaseCommand{
+public class Find extends BaseCommand {
     String query;
     String sort;
     String projection;
@@ -57,8 +57,11 @@ public class Find extends BaseCommand{
         if (super.isValid()) {
             if (!StringUtils.isNullOrEmpty(query)) {
                 return Boolean.TRUE;
+            } else {
+                fieldNamesWithNoConfiguration.add("Query");
             }
         }
+
         return Boolean.FALSE;
     }
 

@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -9,7 +10,6 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -23,6 +23,15 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.commands.Aggregate;
+import com.external.plugins.commands.BaseCommand;
+import com.external.plugins.commands.Count;
+import com.external.plugins.commands.Delete;
+import com.external.plugins.commands.Distinct;
+import com.external.plugins.commands.Find;
+import com.external.plugins.commands.Insert;
+import com.external.plugins.commands.UpdateMany;
+import com.external.plugins.commands.UpdateOne;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
@@ -65,6 +74,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
+import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -132,9 +143,9 @@ public class MongoPlugin extends BasePlugin {
                 smartBsonSubstitution = false;
 
                 // Since properties is not empty, we are guaranteed to find the first property.
-            } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null){
+            } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null) {
                 Object ssubValue = properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue();
-                if (ssubValue instanceof  Boolean) {
+                if (ssubValue instanceof Boolean) {
                     smartBsonSubstitution = (Boolean) ssubValue;
                 } else if (ssubValue instanceof String) {
                     smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
@@ -170,9 +181,14 @@ public class MongoPlugin extends BasePlugin {
 
                     actionConfiguration.setBody(updatedBody);
                 }
-            }
+            } else {
 
-            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+                String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
+                if (parsedRawCommand != null) {
+                    actionConfiguration.setBody(parsedRawCommand);
+                }
+            }
 
             return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters);
         }
@@ -204,7 +220,7 @@ public class MongoPlugin extends BasePlugin {
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
-            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null
                     , null));
 
             return mongoOutputMono
@@ -317,6 +333,61 @@ public class MongoPlugin extends BasePlugin {
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private String convertMongoFormInputToRawCommand(ActionConfiguration actionConfiguration) {
+            List<Property> templates = actionConfiguration.getPluginSpecifiedTemplates();
+            if (templates != null) {
+                if (templates.size() >= (1 + INPUT_TYPE)) {
+                    if ((templates.get(INPUT_TYPE) != null) &&
+                            ("FORM".equals(templates.get(INPUT_TYPE).getValue()))) {
+                        // The user has configured FORM for command input. Parse the commands appropriately
+
+                        if ((templates.size() >= (1 + COMMAND)) &&
+                                (templates.get(COMMAND) != null) &&
+                                (templates.get(COMMAND).getValue() != null)) {
+
+                            BaseCommand command = null;
+                            switch ((String) templates.get(COMMAND).getValue()) {
+                                case "INSERT":
+                                    command = new Insert(actionConfiguration);
+                                    break;
+                                case "FIND":
+                                    command = new Find(actionConfiguration);
+                                    break;
+                                case "UPDATE_ONE":
+                                    command = new UpdateOne(actionConfiguration);
+                                    break;
+                                case "UPDATE_MANY":
+                                    command = new UpdateMany(actionConfiguration);
+                                    break;
+                                case "DELETE":
+                                    command = new Delete(actionConfiguration);
+                                    break;
+                                case "COUNT":
+                                    command = new Count(actionConfiguration);
+                                    break;
+                                case "DISTINCT":
+                                    command = new Distinct(actionConfiguration);
+                                    break;
+                                case "AGGREGATE":
+                                    command = new Aggregate(actionConfiguration);
+                                    break;
+                                default:
+                                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid mongo command found. Please select a command from the \"Command\" dropdown and try again");
+                            }
+                            if (!command.isValid()) {
+                                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Try again after configuring the fields : " + command.getFieldNamesWithNoConfiguration());
+                            }
+
+                            return command.parseCommand().toJson();
+                        }
+
+                    }
+                }
+            }
+            // We reached here. This means either this is a RAW command input or some error has happened in which case, we default to RAW
+            return actionConfiguration.getBody();
         }
 
         private String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {

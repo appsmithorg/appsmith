@@ -40,6 +40,13 @@ public class UpdateMany extends BaseCommand{
         if (super.isValid()) {
             if (!StringUtils.isNullOrEmpty(query) && !StringUtils.isNullOrEmpty(update)) {
                 return Boolean.TRUE;
+            } else {
+                if (StringUtils.isNullOrEmpty(query)) {
+                    fieldNamesWithNoConfiguration.add("Query");
+                }
+                if (StringUtils.isNullOrEmpty(update)) {
+                    fieldNamesWithNoConfiguration.add("Update");
+                }
             }
         }
         return Boolean.FALSE;

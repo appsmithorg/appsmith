@@ -33,6 +33,8 @@ public class Aggregate extends BaseCommand {
         if (super.isValid()) {
             if (!StringUtils.isNullOrEmpty(pipeline)) {
                 return Boolean.TRUE;
+            } else {
+                fieldNamesWithNoConfiguration.add("Array of Pipelines");
             }
         }
 
