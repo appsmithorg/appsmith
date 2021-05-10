@@ -10,23 +10,26 @@ describe("Tab widget test", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Tab Widget Functionality Test", function() {
+  it("Tab Widget Functionality Test with Modal on change of selected tab", function() {
     cy.openPropertyPane("tabswidget");
     cy.widgetText("tab", Layoutpage.tabWidget, Layoutpage.tabInput);
     cy.AddActionWithModal();
     cy.get(".t--widget-buttonwidget:contains('Confirm')").click({
       force: true,
     });
+  });
+
+  it("Publih the app and validate the widgets displayed under each tab", function() {
     cy.PublishtheApp();
-    cy.get(".t--widget-buttonwidget").should("be.visible");
-    cy.get(".t--widget-textwidget").should("be.visible");
-    cy.get(".t--widget-datepickerwidget2").should("be.visible");
-    cy.get(".t--tab-Tab")
+    cy.get(publish.buttonWidget).should("be.visible");
+    cy.get(publish.textWidget).should("be.visible");
+    cy.get(publish.datePickerNew).should("be.visible");
+    cy.get(publish.tab)
       .contains("Tab 2")
       .click({ force: true });
-    cy.get(".t--widget-checkboxwidget").should("be.visible");
-    cy.get(".t--widget-radiogroupwidget").should("be.visible");
-    cy.get(".t--widget-buttonwidget")
+    cy.get(publish.checkboxWidget).should("be.visible");
+    cy.get(publish.radioWidget).should("be.visible");
+    cy.get(publish.buttonWidget)
       .contains("Confirm")
       .click({ force: true });
   });
