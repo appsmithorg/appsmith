@@ -15,7 +15,7 @@ const Container = styled.div<{
       .${Classes.OVERLAY_BACKDROP} {
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
-      position: fixed;
+      position: absolute;
       top: 0;
       right: 0;
       bottom: 0;
