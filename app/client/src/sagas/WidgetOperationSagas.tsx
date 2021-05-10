@@ -536,6 +536,7 @@ export function* deleteAllSelectedWidgetsSaga(
 }
 
 export function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
+  const { widgetId } = deleteAction.payload;
   const selectedWidget = yield select(getSelectedWidget);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   if (selectedWidgets.length > 1) {
@@ -544,7 +545,7 @@ export function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
       payload: deleteAction.payload,
     });
   }
-  if (!!selectedWidget) {
+  if (!!widgetId || !!selectedWidget) {
     yield put({
       type: ReduxActionTypes.WIDGET_SINGLE_DELETE,
       payload: deleteAction.payload,

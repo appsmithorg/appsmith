@@ -79,15 +79,6 @@ export const useMockDsl = (dsl: any) => {
   });
 
   dispatch(updateCurrentPage(mockResp.data.id));
-  const tree = useSelector(getUnevaluatedDataTree);
-  const widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
-  const dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
-  // dataTreeEvaluator.createFirstTree(tree);
-  // const dataTree = dataTreeEvaluator.evalTree;
-  // dispatch({
-  //   type: ReduxActionTypes.SET_EVALUATED_TREE,
-  //   payload: dataTree,
-  // });
 };
 export function MockPageDSL({ dsl, children }: any) {
   editorInitializer();
@@ -110,6 +101,33 @@ export function MockApplication({ children }: any) {
     payload: mockResp,
   });
   return children;
+}
+
+//got it from @blueprintjs/test-commons to dispatch hotkeys events
+export function dispatchTestKeyboardEventWithCode(
+  target: EventTarget,
+  eventType: string,
+  key: string,
+  keyCode: number,
+  shift = false,
+  meta = false,
+) {
+  const event = document.createEvent("KeyboardEvent");
+  (event as any).initKeyboardEvent(
+    eventType,
+    true,
+    true,
+    window,
+    key,
+    0,
+    meta,
+    false,
+    shift,
+  );
+  Object.defineProperty(event, "key", { get: () => key });
+  Object.defineProperty(event, "which", { get: () => keyCode });
+
+  target.dispatchEvent(event);
 }
 
 export * from "@testing-library/react";

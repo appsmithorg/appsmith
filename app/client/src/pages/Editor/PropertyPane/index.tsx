@@ -229,6 +229,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return (
       <PropertyPaneWrapper
         className={"t--propertypane"}
+        data-testid={"t--propertypane"}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
