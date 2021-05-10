@@ -119,7 +119,8 @@ export type EventName =
   | "DEBUGGER_TAB_SWITCH"
   | "DEBUGGER_ENTITY_NAVIGATION"
   | "GSHEET_AUTH_INIT"
-  | "GSHEET_AUTH_COMPLETE";
+  | "GSHEET_AUTH_COMPLETE"
+  | "CYCLICAL_DEPENDENCY_ERROR";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

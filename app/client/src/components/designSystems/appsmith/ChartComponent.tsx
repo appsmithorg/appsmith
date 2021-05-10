@@ -185,7 +185,9 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getSeriesChartData = (data: ChartDataPoint[], categories: string[]) => {
     const dataMap: { [key: string]: string } = {};
-    if (data.length === 0) {
+
+    // if not array or (is array and array length is zero)
+    if (!Array.isArray(data) || (Array.isArray(data) && data.length === 0)) {
       return [
         {
           value: "",
@@ -218,7 +220,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       const seriesChartData: Array<Record<
         string,
         unknown
-      >> = this.getSeriesChartData(item.data, categories);
+      >> = this.getSeriesChartData(get(item, "data", []), categories);
       return {
         seriesName: item.seriesName,
         data: seriesChartData,
