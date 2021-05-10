@@ -173,7 +173,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
               hint: () => {
                 const list = datasourceList
                   .filter((datasource) =>
-                    datasource.datasourceConfiguration.url.includes(
+                    (datasource.datasourceConfiguration?.url || "").includes(
                       parsed.datasourceUrl,
                     ),
                   )
