@@ -26,11 +26,9 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_COMMENT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_THREAD;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_PUBLISH_APPLICATIONS;
@@ -143,11 +141,9 @@ public class PolicyGenerator {
 
     private void createCommentPolicyGraph() {
         hierarchyGraph.addEdge(COMMENT_ON_APPLICATIONS, COMMENT_ON_THREAD);
-        hierarchyGraph.addEdge(COMMENT_ON_APPLICATIONS, MANAGE_THREAD);
 
         lateralGraph.addEdge(COMMENT_ON_THREAD, READ_THREAD);
 
-        hierarchyGraph.addEdge(COMMENT_ON_THREAD, MANAGE_COMMENT);
         hierarchyGraph.addEdge(COMMENT_ON_THREAD, READ_COMMENT);
     }
 

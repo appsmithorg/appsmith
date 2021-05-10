@@ -79,9 +79,9 @@ public class MongoConfig {
         return converter;
     }
 
-//    @Bean
-//    public EncryptionMongoEventListener encryptionMongoEventListener(EncryptionService encryptionService) {
-//        return new EncryptionMongoEventListener(encryptionService);
-//    }
+    @Bean
+    public EncryptionMongoEventListener encryptionMongoEventListener(EncryptionService encryptionService) {
+        return new EncryptionMongoEventListener(encryptionService);
+    }
 
 }
