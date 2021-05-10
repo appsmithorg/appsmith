@@ -18,7 +18,9 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -41,6 +43,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     private final SessionUserService sessionUserService;
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
+    private final UserDataRepository userDataRepository;
     private final PolicyUtils policyUtils;
     private final EmailSender emailSender;
 
@@ -50,12 +53,12 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
     public UserOrganizationServiceImpl(SessionUserService sessionUserService,
                                        OrganizationRepository organizationRepository,
                                        UserRepository userRepository,
-                                       PolicyUtils policyUtils,
-                                       EmailSender emailSender
-    ) {
+                                       UserDataRepository userDataRepository, PolicyUtils policyUtils,
+                                       EmailSender emailSender) {
         this.sessionUserService = sessionUserService;
         this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;
+        this.userDataRepository = userDataRepository;
         this.policyUtils = policyUtils;
         this.emailSender = emailSender;
     }
@@ -310,10 +313,12 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                             } else {
                                 // If the roleName was not present, then it implies that the user is being removed from the org.
                                 // Since at this point we have already removed the user from the organization, we dont need to do anything else.
+                                // remove the organization from recent org list of UserData
+                                finalUpdatedOrganizationMono = userRemovedOrganizationMono.flatMap(userDataRepository
+                                        .removeOrgFromRecentlyUsedList(user.getId(), organization.getId())::thenReturn);
                             }
 
-                            return finalUpdatedOrganizationMono
-                                    .thenReturn(userRole);
+                            return finalUpdatedOrganizationMono.thenReturn(userRole);
                         }
                     }
                     // The user was not found in the organization. Return an error
