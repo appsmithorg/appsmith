@@ -23,6 +23,7 @@ const Container = styled.div`
   }
 
   & .view {
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -38,6 +39,13 @@ const Container = styled.div`
         props.theme.colors.displayImageUpload.background};
       border-radius: 50%;
       margin-bottom: ${(props) => props.theme.spaces[7]}px;
+
+      img {
+        height: 100%;
+        width: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
     }
 
     .label {
@@ -51,25 +59,43 @@ const defaultLabel = "Upload Display Picture";
 
 // WIP
 export default function DisplayImageUpload({
-  input: { onChange },
+  input: { onChange, value },
   label,
   id,
 }: Props) {
+  const _onChange = (e: any) => {
+    e.preventDefault();
+    const reader = new FileReader();
+    const file = e.target.files[0];
+    reader.onloadend = () => {
+      if (onChange) {
+        onChange({
+          file: file,
+          imagePreview: reader.result,
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <Container>
       <label className="view" htmlFor={id}>
         <div className="image-view">
-          <ProfileImagePlaceholder />
+          {!value?.imagePreview ? (
+            <ProfileImagePlaceholder />
+          ) : (
+            <img src={value?.imagePreview} />
+          )}
         </div>
         <input
           className="input-component"
           id={id}
-          onChange={onChange}
+          onChange={_onChange}
           type="file"
         />
-        <span className="label">{defaultLabel}</span>
+        {!value?.imagePreview && <span className="label">{defaultLabel}</span>}
       </label>
-      <span>{label}</span>
     </Container>
   );
 }
