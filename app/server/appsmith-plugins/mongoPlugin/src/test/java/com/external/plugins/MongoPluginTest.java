@@ -97,7 +97,8 @@ public class MongoPluginTest {
                                 "age", 20,
                                 "luckyNumber", 987654321L,
                                 "dob", LocalDate.of(2018, 12, 31),
-                                "netWorth", new BigDecimal("123456.789012")
+                                "netWorth", new BigDecimal("123456.789012"),
+                                "updatedByCommand", false
                         )),
                         new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
                         new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
@@ -393,9 +394,9 @@ public class MongoPluginTest {
                     assertNotNull(structure);
                     assertEquals(1, structure.getTables().size());
 
-                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(0);
-                    assertEquals("users", possessionsTable.getName());
-                    assertEquals(DatasourceStructure.TableType.COLLECTION, possessionsTable.getType());
+                    final DatasourceStructure.Table usersTable = structure.getTables().get(0);
+                    assertEquals("users", usersTable.getName());
+                    assertEquals(DatasourceStructure.TableType.COLLECTION, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
                                     new DatasourceStructure.Column("_id", "ObjectId", null),
@@ -405,13 +406,14 @@ public class MongoPluginTest {
                                     new DatasourceStructure.Column("luckyNumber", "Long", null),
                                     new DatasourceStructure.Column("name", "String", null),
                                     new DatasourceStructure.Column("netWorth", "BigDecimal", null),
+                                    new DatasourceStructure.Column("updatedByCommand", "Object", null),
                             },
-                            possessionsTable.getColumns().toArray()
+                            usersTable.getColumns().toArray()
                     );
 
                     assertArrayEquals(
                             new DatasourceStructure.Key[]{},
-                            possessionsTable.getKeys().toArray()
+                            usersTable.getKeys().toArray()
                     );
 
                     assertArrayEquals(
@@ -443,6 +445,7 @@ public class MongoPluginTest {
                                             "      \"luckyNumber\": NumberLong(\"1\"),\n" +
                                             "      \"name\": \"new value\",\n" +
                                             "      \"netWorth\": NumberDecimal(\"1\"),\n" +
+                                            "      \"updatedByCommand\": {},\n" +
                                             "    }\n" +
                                             "  ]\n" +
                                             "}\n"),
@@ -469,7 +472,7 @@ public class MongoPluginTest {
                                             "  ]\n" +
                                             "}\n"),
                             },
-                            possessionsTable.getTemplates().toArray()
+                            usersTable.getTemplates().toArray()
                     );
                 })
                 .verifyComplete();
