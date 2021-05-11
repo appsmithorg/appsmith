@@ -104,15 +104,18 @@ export const ResizableComponent = memo(function ResizableComponent(
     possibleBoundingElements.length > 0
       ? possibleBoundingElements[0]
       : undefined;
-  const boundingElementClientRect = boundingElement
-    ? boundingElement.getBoundingClientRect()
-    : undefined;
 
   // onResize handler
   // Checks if the current resize position has any collisions
   // If yes, set isColliding flag to true.
   // If no, set isColliding flag to false.
   const isColliding = (newDimensions: UIElementSize, position: XYCoord) => {
+    // Moving the bounding element calculations inside
+    // to make this expensive operation only whne
+    const boundingElementClientRect = boundingElement
+      ? boundingElement.getBoundingClientRect()
+      : undefined;
+
     const bottom =
       props.topRow +
       position.y / props.parentRowSpace +
