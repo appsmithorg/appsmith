@@ -9,17 +9,14 @@ services:
       APPSMITH_MONGODB_URI: "mongodb://mongo:27017/appsmith"
     ports:
       - "8080:8080"
-    links:
-      - mongo
     depends_on:
       - mongo
+      - redis
     networks:
       - appsmith
 
   mongo:
     image: mongo
-    ports:
-      - "27017:27017"
     environment:
       - MONGO_INITDB_DATABASE=appsmith
     volumes:
@@ -29,8 +26,6 @@ services:
 
   redis:
     image: redis
-    ports:
-      - "6379:6379"
     networks:
       - appsmith
 
