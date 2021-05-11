@@ -937,4 +937,93 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testDeleteFormCommandSingleDocument() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        // Insert multiple documents which would match the delete criterion
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "INSERT");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
+
+        // Now that the documents have been inserted, lets delete one of them
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "DELETE");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.DELETE_QUERY, "{tag : \"delete\"}");
+        configMap.put(ConfigurationIndex.DELETE_LIMIT, "SINGLE");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode value = ((ObjectNode) result.getBody()).get("n");
+                    //Assert that only one document out of the two gets deleted
+                    assertEquals(value.asInt(), 1);
+                })
+                .verifyComplete();
+
+        // Run this delete command again to ensure that both the documents added are deleted post this test.
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
+
+    }
+
+    @Test
+    public void testDeleteFormCommandMultipleDocument() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        // Insert multiple documents which would match the delete criterion
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "INSERT");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
+
+        // Now that the documents have been inserted, lets delete both of them
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "DELETE");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.DELETE_QUERY, "{tag : \"delete\"}");
+        configMap.put(ConfigurationIndex.DELETE_LIMIT, "ALL");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode value = ((ObjectNode) result.getBody()).get("n");
+                    assertEquals(value.asInt(), 2);
+                })
+                .verifyComplete();
+    }
+
 }
