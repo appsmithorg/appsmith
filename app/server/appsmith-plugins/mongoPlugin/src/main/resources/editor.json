@@ -238,6 +238,22 @@
               "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
               "initialValue" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[20].value",
+              "controlType": "DROP_DOWN",
+              "initialValue": "SINGLE",
+              "options": [
+                {
+                  "label": "Single Document",
+                  "value": "SINGLE"
+                },
+                {
+                  "label": "All Matching Documents",
+                  "value": "ALL"
+                }
+              ]
             }
           ]
         },

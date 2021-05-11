@@ -768,7 +768,7 @@ public class MongoPluginTest {
 
     private List<Property> generateMongoFormConfigTemplates(Map<Integer, Object> configuration) {
         List<Property> templates = new ArrayList<>();
-        for (int i=0; i<20; i++) {
+        for (int i=0; i<21; i++) {
             Property template = new Property();
             if (configuration.containsKey(i)) {
                 template.setValue(configuration.get(i));
@@ -787,7 +787,7 @@ public class MongoPluginTest {
         configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
         configMap.put(ConfigurationIndex.COMMAND, "INSERT");
         configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "[{\"name\" : \"ZZZ Insert Form Array Test\", \"gender\" : \"F\", \"age\" : 40}]");
+        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "[{\"name\" : \"ZZZ Insert Form Array Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}]");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -807,6 +807,19 @@ public class MongoPluginTest {
                     );
                 })
                 .verifyComplete();
+
+        // Clean up this newly inserted value
+        configMap = new HashMap<>();
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "DELETE");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.DELETE_QUERY, "{\"tag\" : \"test\"}");
+        configMap.put(ConfigurationIndex.DELETE_LIMIT, "ALL");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        // Run the delete command
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
     }
 
     @Test
@@ -818,7 +831,7 @@ public class MongoPluginTest {
         configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
         configMap.put(ConfigurationIndex.COMMAND, "INSERT");
         configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "{\"name\" : \"ZZZ Insert Form Single Test\", \"gender\" : \"F\", \"age\" : 40}");
+        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "{\"name\" : \"ZZZ Insert Form Single Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -838,5 +851,18 @@ public class MongoPluginTest {
                     );
                 })
                 .verifyComplete();
+
+        // Clean up this newly inserted value
+        configMap = new HashMap<>();
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "DELETE");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.DELETE_QUERY, "{\"tag\" : \"test\"}");
+        configMap.put(ConfigurationIndex.DELETE_LIMIT, "ALL");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        // Run the delete command
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
     }
 }

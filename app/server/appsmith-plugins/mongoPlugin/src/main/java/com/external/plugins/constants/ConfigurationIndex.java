@@ -16,6 +16,7 @@ public class ConfigurationIndex {
     public static final int UPDATE_MANY_QUERY = 11;
     public static final int UPDATE_MANY_UPDATE = 12;
     public static final int DELETE_QUERY = 13;
+    public static final int DELETE_LIMIT = 20;
     public static final int COUNT_QUERY = 14;
     public static final int DISTINCT_QUERY = 15;
     public static final int DISTINCT_KEY = 16;

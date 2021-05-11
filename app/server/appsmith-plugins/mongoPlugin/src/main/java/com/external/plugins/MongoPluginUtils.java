@@ -12,7 +12,7 @@ public class MongoPluginUtils {
 
     public static Boolean validConfigurationPresent(List<Property> pluginSpecifiedTemplates, int index) {
         if (pluginSpecifiedTemplates != null) {
-            if (pluginSpecifiedTemplates.size()>=index) {
+            if (pluginSpecifiedTemplates.size()>index) {
                 if (pluginSpecifiedTemplates.get(index) != null) {
                     if (pluginSpecifiedTemplates.get(index).getValue() != null) {
                         return Boolean.TRUE;
