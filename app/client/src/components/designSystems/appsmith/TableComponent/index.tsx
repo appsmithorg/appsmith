@@ -6,7 +6,7 @@ import {
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import Table from "components/designSystems/appsmith/TableComponent/Table";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import _ from "lodash";
+import { isEqual } from "lodash";
 import React, { useEffect, useMemo } from "react";
 
 export interface ColumnMenuOptionProps {
@@ -230,14 +230,10 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleResizeColumn={handleResizeColumn}
       height={height}
       isLoading={isLoading}
-      nextPageClick={() => {
-        nextPageClick();
-      }}
+      nextPageClick={nextPageClick}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
-      prevPageClick={() => {
-        prevPageClick();
-      }}
+      prevPageClick={prevPageClick}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -284,7 +280,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.widgetId === next.widgetId &&
     prev.widgetName === next.widgetName &&
     prev.width === next.width &&
-    _.isEqual(prev.tableData, next.tableData) &&
-    _.isEqual(prev.columns, next.columns)
+    isEqual(prev.tableData, next.tableData) &&
+    isEqual(prev.columns, next.columns)
   );
 });
