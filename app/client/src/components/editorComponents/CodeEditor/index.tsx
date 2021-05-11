@@ -360,7 +360,7 @@ class CodeEditor extends Component<Props, State> {
       evaluationSubstitutionType,
       jsErrorMessage,
     } = this.props;
-    const hasError = !!(meta && meta.error);
+    const hasError = !!(meta && meta.error) || !!jsErrorMessage;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = _.get(dynamicData, dataTreePath);

@@ -391,6 +391,11 @@ export default class DataTreeEvaluator {
           let evalPropertyValue;
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
+          _.set(
+            currentTree,
+            `${entityName}.jsErrorMessages.${propertyPath}`,
+            "",
+          );
           if (requiresEval) {
             const evaluationSubstitutionType =
               entity.bindingPaths[propertyPath] ||
@@ -597,12 +602,6 @@ export default class DataTreeEvaluator {
     callbackData?: Array<any>,
     fullPropertyPath?: string,
   ): EvalResult {
-    if (fullPropertyPath) {
-      const { propertyPath, entityName } = getEntityNameAndPropertyPath(
-        fullPropertyPath,
-      );
-      _.set(data, `${entityName}.jsErrorMessages.${propertyPath}`, "");
-    }
     try {
       return evaluate(js, data, callbackData);
     } catch (e) {
@@ -669,7 +668,7 @@ export default class DataTreeEvaluator {
     _.set(widget, `evaluatedValues.${propertyPath}`, safeEvaluatedValue);
     const jsError = _.get(widget, `jsErrorMessages.${propertyPath}`);
     if (!isValid) {
-      if (jsError.length === 0) {
+      if (!jsError) {
         this.errors.push({
           type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
           message: message || "",
