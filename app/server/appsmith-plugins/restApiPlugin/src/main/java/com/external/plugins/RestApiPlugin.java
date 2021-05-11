@@ -10,6 +10,7 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.PSOrSSParamDTO;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
@@ -63,6 +64,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -122,7 +124,7 @@ public class RestApiPlugin extends BasePlugin {
 
             Boolean smartJsonSubstitution;
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+            List<PSOrSSParamDTO> parameters = new ArrayList<>();
 
             if (CollectionUtils.isEmpty(properties)) {
                 /**
@@ -197,7 +199,7 @@ public class RestApiPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> executeCommon(APIConnection apiConnection,
                                                          DatasourceConfiguration datasourceConfiguration,
                                                          ActionConfiguration actionConfiguration,
-                                                         List<Map.Entry<String, String>> insertedParams) {
+                                                         List<PSOrSSParamDTO> insertedParams) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -690,14 +692,17 @@ public class RestApiPlugin extends BasePlugin {
 
         private ActionExecutionRequest populateRequestFields(ActionConfiguration actionConfiguration,
                                                              URI uri,
-                                                             List<Map.Entry<String, String>> insertedParams) {
+                                                             List<PSOrSSParamDTO> insertedParams) {
 
             ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
 
             if (!insertedParams.isEmpty()) {
+                Map psParams = new LinkedHashMap();
+                insertedParams.stream()
+                        .forEachOrdered(param -> psParams.put(param.getValue(), param.getType()));
                 final Map<String, Object> requestData = new HashMap<>();
-                requestData.put("smart-substitution-parameters", insertedParams);
-                actionExecutionRequest.setProperties(requestData);
+                requestData.put("smart-substitution-parameters", psParams);
+                actionExecutionRequest.setRequestParams(requestData);
             }
 
             if (actionConfiguration.getHeaders() != null) {
@@ -754,7 +759,7 @@ public class RestApiPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<Map.Entry<String, String>> insertedParams,
+                                             List<PSOrSSParamDTO> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
             return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value, insertedParams);

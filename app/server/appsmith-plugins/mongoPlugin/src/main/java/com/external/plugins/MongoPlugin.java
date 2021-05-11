@@ -16,6 +16,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PSOrSSParamDTO;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
@@ -121,7 +122,7 @@ public class MongoPlugin extends BasePlugin {
 
             Boolean smartBsonSubstitution;
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+            List<PSOrSSParamDTO> parameters = new ArrayList<>();
 
             if (CollectionUtils.isEmpty(properties)) {
                 /**
@@ -190,7 +191,7 @@ public class MongoPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> executeCommon(MongoClient mongoClient,
                                                          DatasourceConfiguration datasourceConfiguration,
                                                          ActionConfiguration actionConfiguration,
-                                                         List<Map.Entry<String, String>> parameters) {
+                                                         List<PSOrSSParamDTO> parameters) {
 
             if (mongoClient == null) {
                 log.info("Encountered null connection in MongoDB plugin. Reporting back.");
@@ -204,8 +205,11 @@ public class MongoPlugin extends BasePlugin {
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
+            Map<String, Object> psParams = new LinkedHashMap<>();
+            parameters.stream()
+                    .forEachOrdered(param -> psParams.put(param.getValue(), param.getType()));
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null, null));
+                    , null, psParams));
 
             return mongoOutputMono
                     .onErrorMap(
@@ -775,7 +779,7 @@ public class MongoPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<Map.Entry<String, String>> insertedParams,
+                                             List<PSOrSSParamDTO> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
             return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value, insertedParams);

@@ -15,8 +15,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.PSParamDTO;
-import com.appsmith.external.models.Param;
+import com.appsmith.external.models.PSOrSSParamDTO;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
@@ -48,7 +47,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -62,6 +60,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
@@ -195,7 +194,6 @@ public class MySqlPlugin extends BasePlugin {
                         "parameter: Query."));
                 errorResult.setTitle(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle());
                 ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
-                actionExecutionRequest.setProperties(requestData);
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -231,9 +229,9 @@ public class MySqlPlugin extends BasePlugin {
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final List<String> columnsList = new ArrayList<>();
-            Map<String, PSParamDTO> psParams = new LinkedHashMap<>();
-            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null, psParams));
+            Map<String, Object> psParams = new LinkedHashMap<>();
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                    replaceQuestionMarkWithDollarIndex(query), null, null, psParams));
 
             Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
                     .flatMapMany(isValid -> {
@@ -329,7 +327,7 @@ public class MySqlPlugin extends BasePlugin {
 
             System.out.println("Query : " + query);
 
-            List<PSParamDTO> parameters = new ArrayList<>();
+            List<PSOrSSParamDTO> parameters = new ArrayList<>();
             try {
                 connectionStatement = (Statement) this.smartSubstitutionOfBindings(connectionStatement,
                         mustacheValuesInOrder,
@@ -337,7 +335,7 @@ public class MySqlPlugin extends BasePlugin {
                         parameters);
 
                 IntStream.range(0, parameters.size())
-                        .forEachOrdered(i -> psParams.put(getPSParamLabel(i), parameters.get(i)));
+                        .forEachOrdered(i -> psParams.put(getPSParamLabel(i+1), parameters.get(i)));
 
             } catch (AppsmithPluginException e) {
                 return Flux.error(e);
@@ -353,13 +351,13 @@ public class MySqlPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<PSParamDTO> insertedParams,
+                                             List<PSOrSSParamDTO> insertedParams,
                                              Object... args) {
 
             Statement connectionStatement = (Statement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
-            insertedParams.add(new PSParamDTO(value, valueType.toString()));
+            insertedParams.add(new PSOrSSParamDTO(value, valueType.toString()));
 
             if (DataType.NULL.equals(valueType)) {
                 try {

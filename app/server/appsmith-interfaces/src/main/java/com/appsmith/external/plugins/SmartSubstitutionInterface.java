@@ -2,11 +2,10 @@ package com.appsmith.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.PSParamDTO;
+import com.appsmith.external.models.PSOrSSParamDTO;
 import com.appsmith.external.models.Param;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface SmartSubstitutionInterface {
@@ -25,7 +24,7 @@ public interface SmartSubstitutionInterface {
     default Object smartSubstitutionOfBindings(Object input,
                                                List<String> mustacheValuesInOrder,
                                                List<Param> evaluatedParams,
-                                               List<PSParamDTO> insertedParams,
+                                               List<PSOrSSParamDTO> insertedParams,
                                                Object... args) throws AppsmithPluginException {
 
         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
@@ -52,7 +51,7 @@ public interface SmartSubstitutionInterface {
     // Default implementation does not do any substitution. The plugin doing intelligent substitution is responsible
     // for overriding this function.
     default Object substituteValueInInput(int index, String binding, String value, Object input,
-                                          List<PSParamDTO> insertedParams, Object... args) throws AppsmithPluginException {
+                                          List<PSOrSSParamDTO> insertedParams, Object... args) throws AppsmithPluginException {
         return input;
     }
 }

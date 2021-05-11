@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @AllArgsConstructor
-public class PSParamDTO {
+public class PSOrSSParamDTO {
     String value;
     String type;
 }

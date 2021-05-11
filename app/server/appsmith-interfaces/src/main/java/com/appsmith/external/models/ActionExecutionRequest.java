@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,12 +17,14 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ActionExecutionRequest {
-    String query;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    String query; // Only used for analytics. Not to be returned back to the client.
     Object body;
     Object headers;
     HttpMethod httpMethod;
     String url;
-    Map<String, ?> properties;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    Map<String, ?> properties; // Only used for analytics. Not to be returned back to the client.
     List<String> executionParameters;
     Object requestParams;
 }

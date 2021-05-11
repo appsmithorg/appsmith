@@ -4,6 +4,7 @@ import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.PSOrSSParamDTO;
 import com.appsmith.external.models.ParsedDataType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,7 +30,6 @@ import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -185,12 +185,11 @@ public class DataTypeStringUtils {
 
     public static String jsonSmartReplacementQuestionWithValue(String input,
                                                                String replacement,
-                                                               List<Map.Entry<String, String>> insertedParams) {
+                                                               List<PSOrSSParamDTO> insertedParams) {
 
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
 
-        Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
-        insertedParams.add(parameter);
+        insertedParams.add(new PSOrSSParamDTO(replacement, dataType.toString()));
 
         switch (dataType) {
             case INTEGER:

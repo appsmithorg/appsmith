@@ -15,6 +15,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PSOrSSParamDTO;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
@@ -51,7 +52,6 @@ import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -61,11 +61,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -212,8 +215,9 @@ public class PostgresPlugin extends BasePlugin {
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
-            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null, null));
+            Map<String, Object> psParams = new LinkedHashMap<>();
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                    replaceQuestionMarkWithDollarIndex(query), null, null, psParams));
 
             return Mono.fromCallable(() -> {
 
@@ -257,12 +261,15 @@ public class PostgresPlugin extends BasePlugin {
                     } else {
                         preparedQuery = connectionFromPool.prepareStatement(query);
 
-                        List<Map.Entry<String, String>> parameters = new ArrayList<>();
+                        List<PSOrSSParamDTO> parameters = new ArrayList<>();
                         preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
                                 mustacheValuesInOrder,
                                 executeActionDTO.getParams(),
                                 parameters,
                                 connectionFromPool);
+
+                        IntStream.range(0, parameters.size())
+                                .forEachOrdered(i -> psParams.put(getPSParamLabel(i+1), parameters.get(i)));
 
                         requestData.put("ps-parameters", parameters);
                         isResultSet = preparedQuery.execute();
@@ -725,15 +732,14 @@ public class PostgresPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<Map.Entry<String, String>> insertedParams,
+                                             List<PSOrSSParamDTO> insertedParams,
                                              Object... args) throws AppsmithPluginException {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
             HikariProxyConnection connection = (HikariProxyConnection) args[0];
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
-            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
-            insertedParams.add(parameter);
+            insertedParams.add(new PSOrSSParamDTO(value, valueType.toString()));
 
             try {
                 switch (valueType) {
