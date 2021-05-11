@@ -305,7 +305,7 @@ export default class DataTreeEvaluator {
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
         dependencyMap[key].map((path) =>
-          extractReferencesFromBinding(key, path, this.allKeys),
+          extractReferencesFromBinding(path, this.allKeys),
         ),
       );
     });
@@ -345,10 +345,21 @@ export default class DataTreeEvaluator {
     }
     if (isAction(entity)) {
       Object.entries(entity.dependencyMap).forEach(
-        ([dependent, entityDependencies]) => {
-          dependencies[`${entityName}.${dependent}`] = entityDependencies.map(
-            (propertyPath) => `${entityName}.${propertyPath}`,
-          );
+        ([path, entityDependencies]) => {
+          const actionDependentPaths: Array<string> = [];
+          const mainPath = `${entityName}.${path}`;
+          // Only add dependencies for paths which exist at the moment in appsmith world
+          if (this.allKeys.hasOwnProperty(mainPath)) {
+            // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
+            // a cyclical dependency.
+            entityDependencies.forEach((dependentPath) => {
+              const completePath = `${entityName}.${dependentPath}`;
+              if (this.allKeys.hasOwnProperty(completePath)) {
+                actionDependentPaths.push(completePath);
+              }
+            });
+            dependencies[mainPath] = actionDependentPaths;
+          }
         },
       );
     }
@@ -859,16 +870,23 @@ export default class DataTreeEvaluator {
                       const entityDependenciesName = entity.dependencyMap[
                         entityPropertyPath
                       ].map((dep) => `${entityName}.${dep}`);
+
+                      // Filter only the paths which exist in the appsmith world to avoid cyclical dependencies
+                      const filteredEntityDependencies = entityDependenciesName.filter(
+                        (path) => this.allKeys.hasOwnProperty(path),
+                      );
+
+                      // Now assign these existing dependent paths to the property path in dependencyMap
                       if (fullPropertyPath in this.dependencyMap) {
                         this.dependencyMap[
                           fullPropertyPath
                         ] = this.dependencyMap[fullPropertyPath].concat(
-                          entityDependenciesName,
+                          filteredEntityDependencies,
                         );
                       } else {
                         this.dependencyMap[
                           fullPropertyPath
-                        ] = entityDependenciesName;
+                        ] = filteredEntityDependencies;
                       }
                     }
                   }
@@ -890,7 +908,7 @@ export default class DataTreeEvaluator {
         this.dependencyMap[key] = _.uniq(
           _.flatten(
             this.dependencyMap[key].map((path) =>
-              extractReferencesFromBinding(key, path, this.allKeys),
+              extractReferencesFromBinding(path, this.allKeys),
             ),
           ),
         );
@@ -1027,7 +1045,7 @@ export default class DataTreeEvaluator {
           const propertyBindings = entityPropertyBindings[path];
           const references = _.flatten(
             propertyBindings.map((binding) =>
-              extractReferencesFromBinding(path, binding, this.allKeys),
+              extractReferencesFromBinding(binding, this.allKeys),
             ),
           );
           references.forEach((value) => {
@@ -1089,7 +1107,6 @@ export default class DataTreeEvaluator {
 }
 
 const extractReferencesFromBinding = (
-  path: string,
   dependentPath: string,
   all: Record<string, true>,
 ): Array<string> => {
@@ -1100,7 +1117,7 @@ const extractReferencesFromBinding = (
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
     if (all.hasOwnProperty(identifier)) {
-      pushDependentsInSubDependencyArray(subDeps, path, identifier);
+      subDeps.push(identifier);
       return;
     }
     const subpaths = _.toPath(identifier);
@@ -1113,26 +1130,13 @@ const extractReferencesFromBinding = (
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
       if (all.hasOwnProperty(current)) {
-        pushDependentsInSubDependencyArray(subDeps, path, current);
+        subDeps.push(current);
         return;
       }
       subpaths.pop();
     }
   });
   return _.uniq(subDeps);
-};
-
-const pushDependentsInSubDependencyArray = (
-  subDeps: string[],
-  path: string,
-  dependentPath: string,
-): string[] => {
-  // Only add if path is not a child of dependentPath which ensures that cyclical dependency is not introduced
-  // when adding parent-child relationships later
-  if (!isChildPropertyPath(dependentPath, path)) {
-    subDeps.push(dependentPath);
-  }
-  return subDeps;
 };
 
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function
