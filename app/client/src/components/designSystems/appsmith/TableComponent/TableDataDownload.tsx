@@ -173,6 +173,10 @@ function TableDataDownload(props: TableDataDownloadProps) {
     selectMenu(false);
   };
 
+  const handleCloseMenu = () => {
+    selectMenu(false);
+  };
+
   if (props.columns.length === 0) {
     return (
       <TableIconWrapper disabled>
@@ -189,16 +193,12 @@ function TableDataDownload(props: TableDataDownloadProps) {
       interactionKind={PopoverInteractionKind.CLICK}
       isOpen={selected}
       minimal
-      onClose={() => {
-        selectMenu(false);
-      }}
+      onClose={handleCloseMenu}
       position={Position.BOTTOM}
     >
       <TableAction
         className="t--table-download-btn"
-        selectMenu={(selected: boolean) => {
-          selectMenu(selected);
-        }}
+        selectMenu={selectMenu}
         selected={selected}
         title="Download"
       >

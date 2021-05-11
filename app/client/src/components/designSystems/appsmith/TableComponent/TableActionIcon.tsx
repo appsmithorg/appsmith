@@ -40,7 +40,6 @@ function TableActionIcon(props: TableActionIconProps) {
         >
           {props.children}
         </IconWrapper>
-        {/* {props.icon ? props.icon : null} */}
       </TableIconWrapper>
     </Tooltip>
   );

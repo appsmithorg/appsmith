@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
@@ -36,13 +36,17 @@ export const TableIconWrapper = styled.div<{
 `;
 
 function TableAction(props: TableActionProps) {
+  const handleIconClick = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      props.selectMenu(!props.selected);
+      e.stopPropagation();
+    },
+    [props.selected],
+  );
   return (
     <TableIconWrapper
       className={props.className}
-      onClick={(e) => {
-        props.selectMenu(!props.selected);
-        e.stopPropagation();
-      }}
+      onClick={handleIconClick}
       selected={props.selected}
     >
       <IconWrapper
@@ -53,7 +57,6 @@ function TableAction(props: TableActionProps) {
         {props.children}
       </IconWrapper>
       <span className="action-title">{props.title}</span>
-      {props.icon ? props.icon : null}
     </TableIconWrapper>
   );
 }
