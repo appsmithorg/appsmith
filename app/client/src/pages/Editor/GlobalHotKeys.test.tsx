@@ -1,3 +1,23 @@
+// These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
+const mockGenerator = function*() {
+  yield all([]);
+};
+
+// top avoid the first middleware run which wud initiate all sagas.
+jest.mock("sagas", () => ({
+  rootSaga: mockGenerator,
+}));
+
+// only the deafault exports are mocked to avoid overriding utilities exported out of them. defaults are marked to avoid worker initiation and page api calls in tests.
+jest.mock("sagas/EvaluationsSaga", () => ({
+  ...jest.requireActual("sagas/EvaluationsSaga"),
+  default: mockGenerator,
+}));
+jest.mock("sagas/PageSagas", () => ({
+  ...jest.requireActual("sagas/PageSagas"),
+  default: mockGenerator,
+}));
+
 import React from "react";
 import {
   buildChildren,
@@ -14,6 +34,9 @@ import GlobalHotKeys from "./GlobalHotKeys";
 import MainContainer from "./MainContainer";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
+import store from "store";
+import { sagasToRunForTests } from "test/sagas";
+import { all } from "@redux-saga/core/effects";
 
 const mockGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
 const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
@@ -41,6 +64,7 @@ it("Cmd + A - select all widgets on canvas", () => {
         </GlobalHotKeys>
       </MockApplication>
     </MemoryRouter>,
+    { initialState: store.getState(), sagasToRun: sagasToRunForTests },
   );
   let propPane = component.queryByTestId("t--propertypane");
   expect(propPane).toBeNull();
@@ -80,3 +104,4 @@ it("Cmd + A - select all widgets on canvas", () => {
   selectedWidgets = component.queryAllByTestId("t--widget-propertypane-toggle");
   expect(selectedWidgets.length).toBe(0);
 });
+afterAll(() => jest.resetModules());
