@@ -129,6 +129,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5,
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(),
+      minDate: "2001-01-01 00:00",
+      maxDate: "2041-12-31 23:59",
       version: 2,
       isRequired: false,
     },
@@ -303,6 +305,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     FILE_PICKER_WIDGET: {
       rows: 1,
       files: [],
+      allowedFileTypes: [],
       label: "Select Files",
       columns: 4,
       maxNumFiles: 1,
