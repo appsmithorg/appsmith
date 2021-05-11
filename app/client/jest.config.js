@@ -27,7 +27,7 @@ module.exports = {
     "test/(.*)": "<rootDir>/test/$1",
   },
   globals: {
-    'ts-jest': {
+    "ts-jest": {
       isolatedModules: true,
     },
     APPSMITH_FEATURE_CONFIGS: {
