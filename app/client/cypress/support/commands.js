@@ -1143,7 +1143,7 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(inputcss)
     .first()
     .trigger("mouseover", { force: true });
-  cy.contains(innercss, text);
+  cy.get(innercss).should("have.text", text);
 });
 
 Cypress.Commands.add("editColName", (text) => {
