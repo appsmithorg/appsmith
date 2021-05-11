@@ -61,6 +61,12 @@ class GlobalHotKeys extends React.Component<Props> {
     return false;
   }
 
+  public areMultipleWidgetsSelected() {
+    const multipleWidgetsSelected =
+      this.props.selectedWidgets && this.props.selectedWidgets.length >= 2;
+    return !!multipleWidgetsSelected;
+  }
+
   public renderHotkeys() {
     return (
       <Hotkeys>
@@ -114,7 +120,10 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Copy Widget"
           onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e)) {
+            if (
+              this.stopPropagationIfWidgetSelected(e) &&
+              !this.areMultipleWidgetsSelected()
+            ) {
               this.props.copySelectedWidget();
             }
           }}
@@ -156,7 +165,10 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Cut Widget"
           onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e)) {
+            if (
+              this.stopPropagationIfWidgetSelected(e) &&
+              !this.areMultipleWidgetsSelected()
+            ) {
               this.props.cutSelectedWidget();
             }
           }}
