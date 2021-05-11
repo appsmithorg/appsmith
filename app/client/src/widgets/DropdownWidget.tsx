@@ -116,7 +116,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       })()}}`,
       selectedIndexArr: `{{(() => {
         const selectedOptions = this.selectedOptionValueArr !== undefined ? this.selectedOptionValueArr : this.defaultOptionValue;
-        return selectedOptions.map(o => _.findIndex(this.options, { value: o }));
+        if(Array.isArray(selectedOptions)) {
+          return selectedOptions.map(o => _.findIndex(this.options, { value: o })).filter((index) => {
+            return index > -1;
+          });
+        }
+        return [];
       })()}}`,
       value: `{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}`,
       selectedOptionValues: `{{ this.selectionType === 'MULTI_SELECT' ? this.selectedOptionValueArr : [] }}`,
