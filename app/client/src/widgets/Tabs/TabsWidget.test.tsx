@@ -2,9 +2,10 @@ import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { render, fireEvent, MockPageDSL } from "test/testUtils";
+import { render, fireEvent } from "test/testUtils";
 import Canvas from "pages/Editor/Canvas";
 import React from "react";
+import { MockPageDSL } from "test/testCommon";
 
 describe("Tabs widget functional cases", () => {
   it("Should render 2 tabs by default", () => {

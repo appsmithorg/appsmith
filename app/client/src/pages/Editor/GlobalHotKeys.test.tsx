@@ -23,13 +23,7 @@ import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import {
-  render,
-  MockApplication,
-  useMockDsl,
-  fireEvent,
-  dispatchTestKeyboardEventWithCode,
-} from "test/testUtils";
+import { render, fireEvent } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
 import MainContainer from "./MainContainer";
 import { MemoryRouter } from "react-router-dom";
@@ -37,7 +31,11 @@ import * as utilities from "selectors/editorSelectors";
 import store from "store";
 import { sagasToRunForTests } from "test/sagas";
 import { all } from "@redux-saga/core/effects";
-
+import {
+  dispatchTestKeyboardEventWithCode,
+  MockApplication,
+  useMockDsl,
+} from "test/testCommon";
 const mockGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
 const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
 function UpdatedMainContaner({ dsl }: any) {
