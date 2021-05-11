@@ -13,16 +13,25 @@ const CheckboxDiv = styled.div`
 `;
 
 type ExportApplicationModalProps = {
-  export: (applicationId: string) => void;
-  applicationId: string;
+  import?: (file: any) => void;
+  export?: (applicationId: string) => void;
+  applicationId?: string;
+  organizationId?: string;
   isModalOpen?: boolean;
+  onClose?: () => void;
   setModalClose?: (isOpen: boolean) => void;
 };
 
 function ExportApplicationModal(props: ExportApplicationModalProps) {
   const { setModalClose, isModalOpen } = props;
+  const { onClose } = props;
   const exportApplication = () => {
-    props.export(props.applicationId);
+    props.export && props.applicationId && props.export(props.applicationId);
+    setModalClose && setModalClose(false);
+  };
+  const importApplication = () => {
+    props.organizationId && props.import && props.import("");
+    onClose && onClose();
   };
 
   const [isChecked, setIsCheckedToTrue] = useState(false);
@@ -45,15 +54,28 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
           />
         </Text>
       </CheckboxDiv>
-      <ButtonWrapper>
-        <ForkButton
-          cypressSelector={"t--fork-app-to-org-button"}
-          disabled={!isChecked}
-          onClick={exportApplication}
-          size={Size.large}
-          text={"EXPORT"}
-        />
-      </ButtonWrapper>
+      {props.import && (
+        <ButtonWrapper>
+          <ForkButton
+            cypressSelector={"t--import-app-button"}
+            disabled={!isChecked}
+            onClick={importApplication}
+            size={Size.large}
+            text={"IMPORT"}
+          />
+        </ButtonWrapper>
+      )}
+      {props.export && (
+        <ButtonWrapper>
+          <ForkButton
+            cypressSelector={"t--export-app-button"}
+            disabled={!isChecked}
+            onClick={exportApplication}
+            size={Size.large}
+            text={"EXPORT"}
+          />
+        </ButtonWrapper>
+      )}
     </StyledDialog>
   );
 }

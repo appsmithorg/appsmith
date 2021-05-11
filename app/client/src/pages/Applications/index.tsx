@@ -79,6 +79,7 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
+import ExportApplicationModal from "./ExportApplicationModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -538,6 +539,10 @@ function ApplicationsSection(props: any) {
   };
 
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
+  const [
+    selectedOrgIdForImportApplication,
+    setSelectedOrgIdForImportApplication,
+  ] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
   const OrgNameChange = (newName: string, orgId: string) => {
@@ -589,6 +594,10 @@ function ApplicationsSection(props: any) {
         color,
       },
     });
+  };
+
+  const importApplication = (file: any) => {
+    console.log("import application: ", file);
   };
 
   let updatedOrgs;
@@ -668,6 +677,13 @@ function ApplicationsSection(props: any) {
                     text="Organization Settings"
                   />
                   <MenuItem
+                    icon="rocket"
+                    onSelect={() =>
+                      setSelectedOrgIdForImportApplication(organization.id)
+                    }
+                    text="Import Application"
+                  />
+                  <MenuItem
                     icon="share"
                     onSelect={() => setSelectedOrgId(organization.id)}
                     text="Share"
@@ -683,7 +699,17 @@ function ApplicationsSection(props: any) {
                   />
                 </Menu>
               )}
-
+              {selectedOrgIdForImportApplication !== "" && (
+                <ExportApplicationModal
+                  import={importApplication}
+                  isModalOpen={
+                    selectedOrgIdForImportApplication === organization.id
+                  }
+                  onClose={() => setSelectedOrgIdForImportApplication("")}
+                  organizationId={selectedOrgIdForImportApplication}
+                  setModalClose={() => setSelectedOrgIdForImportApplication("")}
+                />
+              )}
               {hasManageOrgPermissions && (
                 <StyledDialog
                   canEscapeKeyClose={false}
