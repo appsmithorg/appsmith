@@ -215,9 +215,10 @@ public class PostgresPlugin extends BasePlugin {
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
-            Map<String, Object> psParams = new LinkedHashMap<>();
+            Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
+            String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                    replaceQuestionMarkWithDollarIndex(query), null, null, psParams));
+                    transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
 

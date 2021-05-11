@@ -15,6 +15,7 @@ import java.util.Map;
 @Getter
 @ToString
 @AllArgsConstructor
+@JsonPropertyOrder({"value", "psParams", "types", "label", "configProperty"})
 public class RequestParamDTO {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String configProperty; // Only meant for internal use. It won't be returned back to the client.
@@ -23,5 +24,5 @@ public class RequestParamDTO {
     private String label; // Only meant for internal use. It is returned as key for the RequestParamDTO object.
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<ParsedDataType> types; // Not getting used for now but still keeping it here for future use.
-    private Map<String, Object> psParams;
+    private Map<String, Object> substitutedParams;
 }

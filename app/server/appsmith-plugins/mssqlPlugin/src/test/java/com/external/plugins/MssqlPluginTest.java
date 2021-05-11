@@ -8,6 +8,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PSOrSSParamDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
@@ -306,12 +307,12 @@ public class MssqlPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("ps-parameters");
+                    List<PSOrSSParamDTO> parameters = (List<PSOrSSParamDTO>) request.getProperties().get("ps" +
+                            "-parameters");
                     assertEquals(parameters.size(), 1);
-                    Map.Entry<String, String> parameterEntry = parameters.get(0);
-                    assertEquals(parameterEntry.getKey(), "1");
-                    assertEquals(parameterEntry.getValue(), "INTEGER");
-
+                    PSOrSSParamDTO parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getValue(), "1");
+                    assertEquals(parameterEntry.getType(), "INTEGER");
                 })
                 .verifyComplete();
     }
@@ -368,6 +369,24 @@ public class MssqlPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - Check if request params are sent back properly.
+                     * - Not replicating the same to other tests as the overall flow remainst the same w.r.t. request
+                     *  params.
+                     */
+
+                    // check if '?' is replaced by $i.
+                    assertEquals("SELECT * FROM users where id = $1;",
+                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+
+                    PSOrSSParamDTO expectedPsParam = new PSOrSSParamDTO("1", "INTEGER");
+                    PSOrSSParamDTO returnedPsParam =
+                            (PSOrSSParamDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$1");
+                    // Check if prepared stmt param value is correctly sent back.
+                    assertEquals(expectedPsParam.getValue(), returnedPsParam.getValue());
+                    // check if prepared stmt param type is correctly sent back.
+                    assertEquals(expectedPsParam.getType(), returnedPsParam.getType());
 
                 })
                 .verifyComplete();

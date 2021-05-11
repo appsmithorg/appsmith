@@ -697,12 +697,13 @@ public class RestApiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
 
             if (!insertedParams.isEmpty()) {
-                Map psParams = new LinkedHashMap();
+                Map ssParams = new LinkedHashMap();
                 insertedParams.stream()
-                        .forEachOrdered(param -> psParams.put(param.getValue(), param.getType()));
+                        .forEachOrdered(param -> ssParams.put(param.getValue(), param.getType()));
                 final Map<String, Object> requestData = new HashMap<>();
-                requestData.put("smart-substitution-parameters", psParams);
+                requestData.put("smart-substitution-parameters", ssParams);
                 actionExecutionRequest.setRequestParams(requestData);
+                actionExecutionRequest.setProperties(requestData);
             }
 
             if (actionConfiguration.getHeaders() != null) {

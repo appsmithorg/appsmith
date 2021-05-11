@@ -205,11 +205,11 @@ public class MongoPlugin extends BasePlugin {
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
-            Map<String, Object> psParams = new LinkedHashMap<>();
+            Map<String, Object> ssParams = new LinkedHashMap<>();
             parameters.stream()
-                    .forEachOrdered(param -> psParams.put(param.getValue(), param.getType()));
+                    .forEachOrdered(param -> ssParams.put(param.getValue(), param.getType()));
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null, psParams));
+                    , null, ssParams));
 
             return mongoOutputMono
                     .onErrorMap(
