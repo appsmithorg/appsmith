@@ -297,7 +297,7 @@ jobs:
 
       - name: Return status for ui-matrix
         run: |
-          if [[${{ needs.job1.result }} == "success" ]]; then
+          if [[${{ needs.ui-test.result }} == "success" ]]; then
             exit 0
           else 
             exit 1
