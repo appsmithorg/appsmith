@@ -278,7 +278,7 @@ function PopoverContent(props: PopoverContentProps) {
               ? props.jsError
               : props.useValidationMessage && props.error
               ? props.error
-              : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{}}'`}
+              : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
           </span>
           <StyledDebugButton
             className="evaluated-value"
