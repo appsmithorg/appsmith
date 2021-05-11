@@ -13,7 +13,6 @@ import {
   ReduxActionTypes,
   ReduxSagaChannels,
 } from "constants/ReduxActionConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
   WEBSOCKET_EVENTS,
   websocketDisconnectedEvent,

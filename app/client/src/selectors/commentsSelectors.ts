@@ -1,7 +1,5 @@
 import { AppState } from "reducers";
 import { get } from "lodash";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { getCurrentApplication } from "selectors/applicationSelectors";
 import { CommentThread, Comment } from "entities/Comments/CommentsInterfaces";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
 import moment from "moment";
