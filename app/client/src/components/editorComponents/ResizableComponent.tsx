@@ -43,8 +43,9 @@ export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
 };
 
-/* eslint-disable react/display-name */
-export const ResizableComponent = memo((props: ResizableComponentProps) => {
+export const ResizableComponent = memo(function ResizableComponent(
+  props: ResizableComponentProps,
+) {
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
