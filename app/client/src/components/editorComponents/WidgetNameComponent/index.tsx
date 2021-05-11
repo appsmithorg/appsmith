@@ -43,7 +43,6 @@ type WidgetNameComponentProps = {
   type: WidgetType;
   showControls?: boolean;
   topRow: number;
-  errorCount: number;
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
@@ -104,8 +103,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     props.showControls ||
     ((focusedWidget === props.widgetId || showAsSelected) &&
       !isDragging &&
-      !isResizing) ||
-    !!props.errorCount;
+      !isResizing);
 
   let currentActivity =
     props.type === WidgetTypes.MODAL_WIDGET
@@ -128,7 +126,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       <ControlGroup>
         <SettingsControl
           activity={currentActivity}
-          errorCount={props.errorCount}
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
         />

@@ -15,7 +15,6 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getDatasource, getPluginImages } from "selectors/entitiesSelector";
 import { ReduxAction } from "constants/ReduxActionConstants";
-import GSheetWarning from "assets/images/GSheet-warning.png";
 import {
   deleteDatasource,
   getOAuthAccessToken,
@@ -43,7 +42,6 @@ import {
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { PluginType } from "entities/Action";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface StateProps extends JSONtoFormProps {
@@ -88,21 +86,6 @@ const CreateApiButton = styled(BaseButton)`
     align-self: center;
     min-height: 32px;
   }
-`;
-
-const ButtonsContainer = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 10px;
-`;
-
-const WarningContainer = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  flex-direction: column;
 `;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props> {
@@ -165,63 +148,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     return this.renderForm(content);
   }
 
-  saasInfoForm = (options: any) => {
-    const {
-      match: {
-        params: { applicationId, datasourceId, pageId },
-      },
-      isSaving,
-    } = this.props;
-    return (
-      <div>
-        <WarningContainer>
-          <span>
-            The integration is yet to be verified by google, so you will be
-            shown a safety warning. To continue authorization, please first
-            click on &quot;Show Advanced&quot;, and second &quot;Go to
-            Appsmith.com&quot;
-          </span>
-          <img
-            alt="Google Sheet Warning"
-            src={GSheetWarning}
-            style={{ width: "100%" }}
-          />
-        </WarningContainer>
-        <ButtonsContainer>
-          <ActionButton
-            accent="secondary"
-            className="t--test-datasource"
-            onClick={options.onCancel}
-            text="Cancel"
-          />
-          <StyledButton
-            className="t--save-datasource"
-            disabled={this.validate()}
-            filled
-            intent="primary"
-            loading={isSaving}
-            onClick={() => {
-              AnalyticsUtil.logEvent("GSHEET_AUTH_INIT", {
-                applicationId,
-                datasourceId,
-                pageId,
-              });
-              this.save(
-                redirectAuthorizationCode(
-                  pageId,
-                  datasourceId,
-                  PluginType.SAAS,
-                ),
-              );
-            }}
-            size="small"
-            text="Continue"
-          />
-        </ButtonsContainer>
-      </div>
-    );
-  };
-
   renderDataSourceConfigForm = (sections: any) => {
     const {
       match: {
@@ -281,21 +207,28 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             }
             text="Delete"
           />
-          <FormDialogComponent
-            Form={this.saasInfoForm}
-            canOutsideClickClose
-            title="Google Sheets integration is still in beta"
-            trigger={
-              <StyledButton
-                className="t--save-datasource"
-                disabled={this.validate()}
-                filled
-                intent="primary"
-                loading={isSaving}
-                size="small"
-                text="Save and Authorize"
-              />
-            }
+          <StyledButton
+            className="t--save-datasource"
+            disabled={this.validate()}
+            filled
+            intent="primary"
+            loading={isSaving}
+            onClick={() => {
+              AnalyticsUtil.logEvent("GSHEET_AUTH_INIT", {
+                applicationId,
+                datasourceId,
+                pageId,
+              });
+              this.save(
+                redirectAuthorizationCode(
+                  pageId,
+                  datasourceId,
+                  PluginType.SAAS,
+                ),
+              );
+            }}
+            size="small"
+            text="Continue"
           />
         </SaveButtonContainer>
       </form>
