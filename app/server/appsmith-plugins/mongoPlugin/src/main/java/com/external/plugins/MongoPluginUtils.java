@@ -26,8 +26,7 @@ public class MongoPluginUtils {
 
     public static Document parseSafely(String fieldName, String input) {
         try {
-            Document document = Document.parse(input);
-            return document;
+            return Document.parse(input);
         } catch (JsonParseException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, fieldName + " could not be parsed into expected JSON format." );
         }

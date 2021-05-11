@@ -777,4 +777,66 @@ public class MongoPluginTest {
         }
         return templates;
     }
+
+    @Test
+    public void testInsertFormCommandArrayDocuments() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "INSERT");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "[{\"name\" : \"ZZZ Insert Form Array Test\", \"gender\" : \"F\", \"age\" : 40}]");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInsertFormCommandSingleDocument() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "INSERT");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "{\"name\" : \"ZZZ Insert Form Single Test\", \"gender\" : \"F\", \"age\" : 40}");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+    }
 }
