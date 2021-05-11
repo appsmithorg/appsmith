@@ -48,6 +48,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
+import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -764,18 +765,6 @@ public class MongoPluginTest {
                     );
                 })
                 .verifyComplete();
-    }
-
-    private List<Property> generateMongoFormConfigTemplates(Map<Integer, Object> configuration) {
-        List<Property> templates = new ArrayList<>();
-        for (int i=0; i<21; i++) {
-            Property template = new Property();
-            if (configuration.containsKey(i)) {
-                template.setValue(configuration.get(i));
-            }
-            templates.add(template);
-        }
-        return templates;
     }
 
     @Test

@@ -6,7 +6,9 @@ import com.appsmith.external.models.Property;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MongoPluginUtils {
 
@@ -30,5 +32,17 @@ public class MongoPluginUtils {
         } catch (JsonParseException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, fieldName + " could not be parsed into expected JSON format." );
         }
+    }
+
+    public static List<Property> generateMongoFormConfigTemplates(Map<Integer, Object> configuration) {
+        List<Property> templates = new ArrayList<>();
+        for (int i=0; i<21; i++) {
+            Property template = new Property();
+            if (configuration.containsKey(i)) {
+                template.setValue(configuration.get(i));
+            }
+            templates.add(template);
+        }
+        return templates;
     }
 }
