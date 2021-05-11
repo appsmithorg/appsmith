@@ -422,13 +422,20 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   height: 100%;
   flex: 1;
   position: relative;
-  border: 1px solid ${(props) => (!props.isError ? "transparent" : "red")};
+  border-color: ${(props) =>
+    !props.isError && props.isActive && props.skin === Skin.DARK
+      ? Colors.ALABASTER
+      : "transparent"};
   > span:first-of-type {
     width: 30px;
     position: absolute;
     right: 0px;
   }
   &:hover {
+    border-color: ${(props) =>
+      !props.isError && props.skin === Skin.DARK
+        ? Colors.ALABASTER
+        : "transparent"};
     .lightning-menu {
       background: ${(props) => (!props.isNotHover ? "#090707" : "")};
       svg {
@@ -444,6 +451,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
       }
     }
   }
+  border: 0px;
   border-radius: 0px;
   .lightning-menu {
     z-index: 1 !important;
