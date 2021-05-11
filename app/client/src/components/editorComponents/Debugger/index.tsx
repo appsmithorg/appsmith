@@ -18,7 +18,7 @@ const Container = styled.div<{ errorCount: number }>`
   right: 20px;
   bottom: 20px;
   cursor: pointer;
-  padding: ${(props) => props.theme.spaces[6]}px;
+  padding: 19px;
   color: ${(props) => props.theme.colors.debugger.floatingButton.color};
   border-radius: 50px;
   box-shadow: ${(props) => props.theme.colors.debugger.floatingButton.shadow};
@@ -33,9 +33,11 @@ const Container = styled.div<{ errorCount: number }>`
 
   .debugger-count {
     color: ${Colors.WHITE};
+    font-size: 14px;
+    font-weight: 500;
     ${(props) => getTypographyByKey(props, "h6")}
-    height: 16px;
-    padding: ${(props) => props.theme.spaces[1]}px;
+    height: 20px;
+    padding: 6px;
     background-color: ${(props) =>
       !!props.errorCount
         ? props.theme.colors.debugger.floatingButton.errorCount
@@ -73,7 +75,7 @@ function Debugger() {
         errorCount={errorCount}
         onClick={onClick}
       >
-        <Icon name="bug" size={IconSize.XL} />
+        <Icon name="bug" size={IconSize.XXXL} />
         <div className="debugger-count">{errorCount}</div>
       </Container>
     );

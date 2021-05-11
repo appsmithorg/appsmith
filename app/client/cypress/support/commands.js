@@ -286,6 +286,13 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
+  cy.get(datasource.authType).click();
+  cy.xpath(datasource.basic).click();
+  cy.get(datasource.basicUsername).type(username);
+  cy.get(datasource.basicPassword).type(password);
+});
+
 Cypress.Commands.add("firestoreDatasourceForm", () => {
   cy.get(datasourceEditor.datasourceConfigUrl).type(
     datasourceFormData["database-url"],
@@ -474,6 +481,11 @@ Cypress.Commands.add("ResponseCheck", (textTocheck) => {
   cy.get(apiwidget.responseText).should("be.visible");
 });
 
+Cypress.Commands.add("ResponseTextCheck", (textTocheck) => {
+  cy.ResponseCheck();
+  cy.get(apiwidget.responseText).contains(textTocheck);
+});
+
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
   cy.get(pages.addEntityAPI)
     .should("be.visible")
@@ -649,19 +661,18 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
 });
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
-  cy.get(apiwidget.resourceUrl)
-    .first()
-    .click({ force: true })
-    .type(datasource);
-  /*
-  cy.xpath(apiwidget.autoSuggest)
-    .first()
-    .click({ force: true });
-    */
+  cy.enterDatasource(datasource);
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
     .type(path, { parseSpecialCharSequences: false });
+});
+
+Cypress.Commands.add("enterDatasource", (datasource) => {
+  cy.get(apiwidget.resourceUrl)
+    .first()
+    .click({ force: true })
+    .type(datasource);
 });
 
 Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
@@ -1132,7 +1143,7 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(inputcss)
     .first()
     .trigger("mouseover", { force: true });
-  cy.contains(innercss, text);
+  cy.get(innercss).should("have.text", text);
 });
 
 Cypress.Commands.add("editColName", (text) => {
