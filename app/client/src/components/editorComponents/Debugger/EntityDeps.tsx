@@ -5,10 +5,10 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
-import { getSelectedWidget } from "selectors/ui";
 import { getWidget } from "sagas/selectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { Classes } from "components/ads/common";
+import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
 
 const CollapsibleWrapper = styled.div<{ step: number; isOpen: boolean }>`
   margin-left: ${(props) => props.step * 10}px;
@@ -39,7 +39,7 @@ const StyledSpan = styled.div<{ step: number }>`
 
 function EntityDeps() {
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
-  const selectedWidget = useSelector(getSelectedWidget);
+  const selectedWidget = useSelector(getCurrentWidgetId);
   const widget: WidgetProps | null = useSelector((state: AppState) => {
     return selectedWidget ? getWidget(state, selectedWidget) : null;
   });
