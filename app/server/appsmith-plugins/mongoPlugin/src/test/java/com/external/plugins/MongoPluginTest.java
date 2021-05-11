@@ -17,7 +17,7 @@ import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
-import com.external.plugins.commands.Find;
+import com.external.plugins.constants.ConfigurationIndex;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -39,6 +39,7 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -735,22 +736,17 @@ public class MongoPluginTest {
     @Test
     public void testFindFormCommand() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        List<Property> pluginTemplates = new ArrayList<>();
-        pluginTemplates.add(smartBsonIndex(Boolean.FALSE));
-        pluginTemplates.add(inputTypeIndex("FORM"));
-        pluginTemplates.add(commandIndex("FIND"));
-        pluginTemplates.add(findQueryIndex("{ age: { \"$gte\": 30 } }"));
-        pluginTemplates.add(findSortIndex("{ id: 1 }"));
-        pluginTemplates.add(findProjectionIndex(""));
-        pluginTemplates.add(findLimitIndex(""));
-        pluginTemplates.add(findSkipIndex(""));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginTemplates);
 
-        Find find = new Find(actionConfiguration);
-        find.setCollection("users");
-        assertEquals(find.isValid(), Boolean.TRUE);
-        Document document = find.parseCommand();
-        actionConfiguration.setBody(document.toJson());
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "FIND");
+        configMap.put(ConfigurationIndex.FIND_QUERY, "{ age: { \"$gte\": 30 } }");
+        configMap.put(ConfigurationIndex.FIND_SORT, "{ id: 1 }");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -770,51 +766,15 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
-    private Property smartBsonIndex(Boolean value) {
-        Property property = new Property();
-        property.setValue(value);
-        return property;
-    }
-
-    private Property inputTypeIndex(String value) {
-        Property property = new Property();
-        property.setValue(value);
-        return property;
-    }
-
-    private Property commandIndex(String value) {
-        Property property = new Property();
-        property.setValue(value);
-        return property;
-    }
-
-    private Property findQueryIndex(String value) {
-        Property property = new Property();
-        property.setValue(value);
-        return property;
-    }
-
-    private Property findSortIndex(String value) {
-        Property property = new Property();
-        property.setValue(value);
-        return property;
-    }
-
-    private Property findProjectionIndex(String value) {
-        Property property = new Property();
-        property.setValue(value);
-        return property;
-    }
-
-    private Property findLimitIndex(String value) {
-        Property property = new Property();
-        property.setValue(value);
-        return property;
-    }
-
-    private Property findSkipIndex(String value) {
-        Property property = new Property();
-        property.setValue(value);
-        return property;
+    private List<Property> generateMongoFormConfigTemplates(Map<Integer, Object> configuration) {
+        List<Property> templates = new ArrayList<>();
+        for (int i=0; i<20; i++) {
+            Property template = new Property();
+            if (configuration.containsKey(i)) {
+                template.setValue(configuration.get(i));
+            }
+            templates.add(template);
+        }
+        return templates;
     }
 }

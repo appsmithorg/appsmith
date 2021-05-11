@@ -281,7 +281,7 @@ public class MongoPlugin extends BasePlugin {
                                  */
                                 if (outputJson.has("n")) {
                                     JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
-                                    result.setBody(body);
+                                    result.setBody(objectMapper.readTree(body.toString()));
                                     headerArray.put(body);
                                 }
 
@@ -291,7 +291,7 @@ public class MongoPlugin extends BasePlugin {
                                  */
                                 if (outputJson.has(N_MODIFIED)) {
                                     JSONObject body = new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
-                                    result.setBody(body);
+                                    result.setBody(objectMapper.readTree(body.toString()));
                                     headerArray.put(body);
                                 }
 
