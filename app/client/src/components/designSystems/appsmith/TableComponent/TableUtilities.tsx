@@ -56,6 +56,7 @@ export const renderCell = (
         <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
           {value
             .toString()
+            .replaceAll(",", " ,")
             .split(imageSplitRegex)
             .map((item: string, index: number) => {
               if (imageUrlRegex.test(item) || base64ImageRegex.test(item)) {
