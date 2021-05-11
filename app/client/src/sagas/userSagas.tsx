@@ -1,4 +1,4 @@
-import { call, takeLatest, put, all } from "redux-saga/effects";
+import { call, takeLatest, put, all, select, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionWithPromise,
@@ -40,6 +40,8 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
+
+import { getCurrentUser } from "selectors/usersSelectors";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -345,6 +347,13 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
   } catch (error) {
     log.error(error);
     yield put(logoutUserError(error));
+  }
+}
+
+export function* waitForFetchUserSuccess() {
+  const currentUser = yield select(getCurrentUser);
+  if (!currentUser) {
+    yield take(ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS);
   }
 }
 

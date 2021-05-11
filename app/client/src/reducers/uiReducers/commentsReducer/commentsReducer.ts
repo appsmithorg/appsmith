@@ -31,6 +31,7 @@ const initialState: CommentsReduxState = {
   shouldShowResolvedAppCommentThreads: false,
   showUnreadIndicator: false,
   visibleCommentThreadId: "",
+  areCommentsEnabled: false,
 };
 
 /**
@@ -233,6 +234,13 @@ const commentsReducer = createReducer(initialState, {
 
     return { ...state };
   },
+  [ReduxActionTypes.SET_ARE_COMMENTS_ENABLED]: (
+    state: CommentsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    areCommentsEnabled: action.payload,
+  }),
 });
 
 export default commentsReducer;

@@ -11,7 +11,7 @@ import {
 } from "actions/commentActions";
 import {
   commentModeSelector,
-  areCommentsEnabledForUser as areCommentsEnabledForUserSelector,
+  areCommentsEnabledForUserAndApp as areCommentsEnabledForUserAndAppSelector,
   showUnreadIndicator as showUnreadIndicatorSelector,
 } from "../../selectors/commentsSelectors";
 import { useLocation } from "react-router";
@@ -99,7 +99,7 @@ export const setCommentModeInUrl = (isCommentMode: boolean) => {
 };
 
 function ToggleCommentModeButton() {
-  const commentsEnabled = useSelector(areCommentsEnabledForUserSelector);
+  const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
 

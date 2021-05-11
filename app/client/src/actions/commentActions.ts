@@ -222,3 +222,8 @@ export const deleteCommentThreadSuccess = (payload: {
   type: ReduxActionTypes.DELETE_THREAD_SUCCESS,
   payload,
 });
+
+export const setAreCommentsEnabled = (flag: boolean) => ({
+  type: ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
+  payload: flag,
+});
