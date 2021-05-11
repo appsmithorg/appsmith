@@ -66,6 +66,9 @@ public class UpdateMany extends MongoCommand {
         update.put("q", queryDocument);
         update.put("u", updateDocument);
 
+        // Set true to update ALL documents meeting the query criteria
+        update.put("multi", Boolean.TRUE);
+
         List<Document> updates = new ArrayList<>();
         updates.add(update);
 

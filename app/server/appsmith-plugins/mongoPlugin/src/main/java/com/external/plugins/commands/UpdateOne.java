@@ -71,6 +71,9 @@ public class UpdateOne extends MongoCommand {
 
         document.put("update", parseSafely("Update", this.update));
 
+        // Return the newly modified document
+        document.put("new", Boolean.TRUE);
+
         return document;
     }
 }

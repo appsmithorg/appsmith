@@ -865,4 +865,76 @@ public class MongoPluginTest {
         // Run the delete command
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
     }
+
+    @Test
+    public void testUpdateOneFormCommand() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "UPDATE_ONE");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.UPDATE_ONE_QUERY, "{ name: \"Alden Cantrell\" }");
+        configMap.put(ConfigurationIndex.UPDATE_ONE_UPDATE, "{ $set: { age: 31 }}}");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    value = ((ObjectNode) result.getBody()).get("value");
+                    assertNotNull(value);
+                    assertEquals("Alden Cantrell", value.get("name").asText());
+                    assertEquals(31, value.get("age").asInt());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testUpdateManyFormCommand() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "UPDATE_MANY");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        // Query for all the documents in the collection
+        configMap.put(ConfigurationIndex.UPDATE_MANY_QUERY, "{}");
+        configMap.put(ConfigurationIndex.UPDATE_MANY_UPDATE, "{ $set: { updatedByCommand: true }}}");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
+                    assertEquals(value.asText(), "3");
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+    }
+
 }
