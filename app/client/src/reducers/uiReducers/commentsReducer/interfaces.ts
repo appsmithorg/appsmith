@@ -13,4 +13,5 @@ export interface CommentsReduxState {
   showUnreadIndicator: boolean;
   visibleCommentThreadId?: string;
   isIntroCarouselVisible?: boolean;
+  areCommentsEnabled?: boolean;
 }

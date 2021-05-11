@@ -232,3 +232,8 @@ export const hideCommentsIntroCarousel = () => ({
   type: ReduxActionTypes.HIDE_COMMENTS_INTRO_CAROUSEL,
   payload: undefined,
 });
+
+export const setAreCommentsEnabled = (flag: boolean) => ({
+  type: ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
+  payload: flag,
+});

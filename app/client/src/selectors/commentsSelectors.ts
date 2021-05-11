@@ -1,6 +1,7 @@
 import { AppState } from "reducers";
 import { get } from "lodash";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 import { CommentThread, Comment } from "entities/Comments/CommentsInterfaces";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
 import moment from "moment";
@@ -30,12 +31,8 @@ export const applicationCommentsSelector = (applicationId: string) => (
   state: AppState,
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
 
-export const areCommentsEnabledForUser = (state: AppState) => {
-  const user = getCurrentUser(state);
-  const email = get(user, "email", "");
-  const isAppsmithEmail = email.toLowerCase().indexOf("@appsmith.com") !== -1;
-  return isAppsmithEmail;
-};
+export const areCommentsEnabledForUserAndApp = (state: AppState) =>
+  state.ui.comments.areCommentsEnabled;
 
 /**
  * Comments are stored as a map of refs (for example widgetIds)

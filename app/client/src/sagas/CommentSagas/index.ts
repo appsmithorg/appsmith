@@ -3,7 +3,6 @@ import {
   put,
   takeLatest,
   take,
-  race,
   all,
   call,
   actionChannel,
@@ -28,11 +27,16 @@ import {
   setVisibleThread,
   updateCommentSuccess,
   deleteCommentThreadSuccess,
+  setAreCommentsEnabled,
+  setCommentMode,
 } from "actions/commentActions";
 import {
   transformPublishedCommentActionPayload,
   transformUnpublishCommentThreadToCreateNew,
 } from "comments/utils";
+
+import { waitForInit } from "sagas/InitSagas";
+import { waitForFetchUserSuccess } from "sagas/userSagas";
 
 import CommentsApi from "api/CommentsAPI";
 
@@ -40,17 +44,18 @@ import CommentsApi from "api/CommentsAPI";
 
 import { validateResponse } from "../ErrorSagas";
 
-import {
-  getCurrentApplicationId,
-  getIsEditorInitialized,
-} from "selectors/editorSelectors";
-import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import {
   AddCommentToCommentThreadRequestPayload,
   CreateCommentThreadPayload,
   CreateCommentThreadRequest,
 } from "entities/Comments/CommentsInterfaces";
 import { RawDraftContentState } from "draft-js";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { get } from "lodash";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+
+import { commentModeSelector } from "selectors/commentsSelectors";
 
 // const { commentsTestModeEnabled } = getAppsmithConfigs();
 // export function* initCommentThreads() {
@@ -139,15 +144,7 @@ function* addCommentToThread(
 
 function* fetchApplicationComments() {
   try {
-    const isEditorInitialised = yield select(getIsEditorInitialized);
-    const isViewerInitialized = yield select(getIsViewerInitialized);
-    if (!isEditorInitialised && !isViewerInitialized) {
-      yield race([
-        take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS),
-        take(ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS),
-      ]);
-    }
-
+    yield call(waitForInit);
     const applicationId = yield select(getCurrentApplicationId);
     const response = yield CommentsApi.fetchAppCommentThreads(applicationId);
     const isValidResponse = yield validateResponse(response);
@@ -268,6 +265,33 @@ function* deleteCommentThread(action: ReduxAction<string>) {
   }
 }
 
+function* setIfCommentsAreEnabled() {
+  while (true) {
+    // Reset if comments are enabled when appview access is updated
+    yield take([
+      ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+      ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
+    ]);
+
+    yield call(waitForInit);
+    yield call(waitForFetchUserSuccess);
+
+    const user = yield select(getCurrentUser);
+    const email = get(user, "email", "");
+    const isAppsmithEmail = email.toLowerCase().indexOf("@appsmith.com") !== -1;
+
+    const currentApplication = yield select(getCurrentApplication);
+
+    const isModeEnaabledForAppAndUser =
+      isAppsmithEmail && !currentApplication?.isPublic;
+    yield put(setAreCommentsEnabled(isModeEnaabledForAppAndUser));
+
+    const isCommentMode = yield select(commentModeSelector);
+    if (isCommentMode && !isModeEnaabledForAppAndUser)
+      yield put(setCommentMode(false));
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     // takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
@@ -297,5 +321,6 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST, markThreadAsRead),
     takeLatest(ReduxActionTypes.EDIT_COMMENT_REQUEST, editComment),
     takeLatest(ReduxActionTypes.DELETE_THREAD_REQUEST, deleteCommentThread),
+    fork(setIfCommentsAreEnabled),
   ]);
 }

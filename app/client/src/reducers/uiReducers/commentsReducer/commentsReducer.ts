@@ -32,6 +32,7 @@ const initialState: CommentsReduxState = {
   showUnreadIndicator: false,
   visibleCommentThreadId: "",
   isIntroCarouselVisible: false,
+  areCommentsEnabled: false,
 };
 
 /**
@@ -246,6 +247,13 @@ const commentsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isIntroCarouselVisible: false,
+  }),
+  [ReduxActionTypes.SET_ARE_COMMENTS_ENABLED]: (
+    state: CommentsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    areCommentsEnabled: action.payload,
   }),
 });
 

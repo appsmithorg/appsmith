@@ -14,7 +14,7 @@ import {
 } from "actions/commentActions";
 import {
   commentModeSelector,
-  areCommentsEnabledForUser as areCommentsEnabledForUserSelector,
+  areCommentsEnabledForUserAndApp as areCommentsEnabledForUserAndAppSelector,
   showUnreadIndicator as showUnreadIndicatorSelector,
 } from "../../selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -117,7 +117,7 @@ export const setCommentModeInUrl = (isCommentMode: boolean) => {
 };
 
 function ToggleCommentModeButton() {
-  const commentsEnabled = useSelector(areCommentsEnabledForUserSelector);
+  const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const showUnreadIndicator = useSelector(showUnreadIndicatorSelector);
   const currentUser = useSelector(getCurrentUser);
