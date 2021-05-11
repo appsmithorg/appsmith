@@ -680,6 +680,57 @@ export default [
     ],
   },
   {
+    sectionName: "Header options",
+    children: [
+      {
+        helpText: "Toggle visibility of the search box",
+        propertyName: "isVisibleSearch",
+        label: "Search",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
+      {
+        helpText: "Toggle visibility of the filters",
+        propertyName: "isVisibleFilters",
+        label: "Filters",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
+      {
+        helpText: "Toggle visibility of the data download",
+        propertyName: "isVisibleDownload",
+        label: "Download",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
+      {
+        helpText: "Toggle visibility of the compact mode",
+        propertyName: "isVisibleCompactMode",
+        label: "Compact Mode",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
+      {
+        helpText: "Toggle visibility of the pagination",
+        propertyName: "isVisiblePagination",
+        label: "Pagination",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        validation: VALIDATION_TYPES.BOOLEAN,
+      },
+    ],
+  },
+  {
     sectionName: "Actions",
     children: [
       {

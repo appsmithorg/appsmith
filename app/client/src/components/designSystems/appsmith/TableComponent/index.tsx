@@ -65,6 +65,11 @@ interface ReactTableComponentProps {
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
+  isVisibleSearch?: boolean;
+  isVisibleFilters?: boolean;
+  isVisibleDownload?: boolean;
+  isVisibleCompactMode?: boolean;
+  isVisiblePagination?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -197,6 +202,11 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleResizeColumn={props.handleResizeColumn}
       height={props.height}
       isLoading={props.isLoading}
+      isVisibleCompactMode={props.isVisibleCompactMode}
+      isVisibleDownload={props.isVisibleDownload}
+      isVisibleFilters={props.isVisibleFilters}
+      isVisiblePagination={props.isVisiblePagination}
+      isVisibleSearch={props.isVisibleSearch}
       nextPageClick={() => {
         props.nextPageClick();
       }}
