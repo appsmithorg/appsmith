@@ -632,6 +632,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
           isLoading={this.props.isLoading}
+          isVisibleCompactMode={this.props.isVisibleCompactMode}
+          isVisibleDownload={this.props.isVisibleDownload}
+          isVisibleFilters={this.props.isVisibleFilters}
+          isVisiblePagination={this.props.isVisiblePagination}
+          isVisibleSearch={this.props.isVisibleSearch}
           multiRowSelection={this.props.multiRowSelection}
           nextPageClick={this.handleNextPageClick}
           onCommandClick={this.onCommandClick}
