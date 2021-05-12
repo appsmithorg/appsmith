@@ -15,7 +15,7 @@
   ·
   <a href="./office_hours.md">Appsmith Community Events</a>  
   ·
-  <a href="./example_apps.md">Appsmith Application Templates</a>  
+  <a href="./appsmith_templates.md">Appsmith Application Templates</a>  
   <br>
   <br>
 </p>
