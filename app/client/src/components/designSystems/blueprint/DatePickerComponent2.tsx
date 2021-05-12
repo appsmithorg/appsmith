@@ -107,7 +107,7 @@ class DatePickerComponent extends React.Component<
       ? new Date(this.props.maxDate)
       : now
           .clone()
-          .set({ month: 11, date: 31, year: year + 20 })
+          .set({ month: 11, date: 31, year: year + 100 })
           .toDate();
     const isValid = this.state.selectedDate
       ? this.isValidDate(new Date(this.state.selectedDate))
