@@ -2,10 +2,8 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJSONFile;
@@ -13,28 +11,22 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
-import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +37,6 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,10 +44,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ImportExportApplicationService {
     private final DatasourceService datasourceService;
-    private final DatasourceRepository datasourceRepository;
-    private final ConfigService configService;
     private final SessionUserService sessionUserService;
-    private final UserService userService;
     private final NewActionRepository newActionRepository;
     private final PluginRepository pluginRepository;
     private final OrganizationService organizationService;
@@ -66,10 +54,8 @@ public class ImportExportApplicationService {
     private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
-    private final LayoutActionService layoutActionService;
     private final EncryptionService encryptionService;
     private final SequenceService sequenceService;
-    private final PolicyGenerator policyGenerator;
 
     public Mono<ApplicationJSONFile> getApplicationFileById(String applicationId) {
         ApplicationJSONFile file = new ApplicationJSONFile();
@@ -119,11 +105,6 @@ public class ImportExportApplicationService {
                                     newPageIdMap.put(newPage.getId(), newPage.getUnpublishedPage().getName());
                                     newPage.setApplicationId(applicationName);
                                     makePristine(newPage);
-                                    newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
-                                        layout.setId(null);
-                                    });
-
-                                    //TODO Remove action ids
                                 });
                                 file.setPageList(newPageList);
                                 //log.debug("Exported Actions : {}",file.getActionList());
@@ -143,15 +124,6 @@ public class ImportExportApplicationService {
                                     }
 
                                     datasourceContextService.decryptSensitiveFields(authentication);
-//                                    Map<String, String> decryptedFields = authentication
-//                                            .getEncryptionFields()
-//                                            .entrySet()
-//                                            .stream()
-//                                            .filter(e -> e.getValue() != null && !e.getValue().isBlank())
-//                                            .collect(Collectors.toMap(
-//                                                    Map.Entry::getKey,
-//                                                    e -> encryptionService.decryptString(e.getValue())));
-//                                    authentication.setEncryptionFields(decryptedFields);
                                     datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
 
                                     datasourceMap.put(datasource.getId(), datasource.getName());
@@ -185,7 +157,7 @@ public class ImportExportApplicationService {
     public Mono<Application> importApplicationInOrganization(String orgId, ApplicationJSONFile importedDoc) {
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
-        Map<String, String> pageIdMap = new HashMap<>();
+        Map<String, NewPage> pageNameMap = new HashMap<>();
         Map<String, String> actionIdMap = new HashMap<>();
 
         Application importedApplication = importedDoc.getExportedApplication();
@@ -195,7 +167,6 @@ public class ImportExportApplicationService {
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
         log.debug("In importing function");
-        //TODO check for duplicate names before starting any operation
         return organizationService.findById(orgId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
                 .flatMap(organization ->
@@ -207,82 +178,79 @@ public class ImportExportApplicationService {
                             return pluginList;
                         })
                 )
-                .flatMap(pluginList -> Flux
-                        .fromIterable(importedDatasourceList)
+                .flatMap(pluginList -> {
+
+                    return Flux.fromIterable(importedDatasourceList)
+                        //TODO check for duplicate datasources to avoid duplicates in target organization
                         .flatMap(datasource -> {
                             datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                             datasource.setOrganizationId(orgId);
-                            return Mono.zip(
-                                        datasourceService.findByName(datasource.getName(), AclPermission.READ_DATASOURCES),
-                                        Mono.just(datasource)
-                                );
-                        })
-                        .flatMap(tuple -> Mono.zip(
-                                    getUniqueSuffixForDuplicateNameEntity(tuple.getT1().getClass(), orgId),
-                                    Mono.just(tuple.getT2()))
-                        )
-                        .flatMap(tuple -> {
-                            String suffix = tuple.getT1();
-                            Datasource datasource = tuple.getT2();
-                            datasource.setName(datasource.getName() + suffix);
-                            log.debug("Datasource before saving : {}", datasource);
-                            return datasourceService.create(datasource);
+                            return datasourceService.findByName(datasource.getName(), AclPermission.READ_DATASOURCES)
+                                .flatMap(duplicateNameDatasource -> getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, orgId))
+                                .map(suffix -> {
+                                    datasource.setName(datasource.getName() + suffix);
+                                    return datasource;
+                                })
+                                .then(datasourceService.create(datasource));
                         })
                         .map(datasource -> {
                             log.debug("Saved DS : {}", datasource);
-                            return datasourceMap.put(datasource.getName(), datasource.getId());
+                            datasourceMap.put(datasource.getName(), datasource.getId());
+                            return datasource;
                         })
-                        .collectList()
-                )
-                .flatMap(datasourceList -> {
-                    log.debug("Datasource Map : {}", datasourceMap);
-                    return applicationService.findByName(importedApplication.getName(), AclPermission.READ_APPLICATIONS);
+                        .collectList();
                 })
-                .flatMap(duplicateNameApp -> {
-                    log.debug("Duplicate App : {}", duplicateNameApp);
+                .flatMap(ignored -> {
+                    log.debug("Datasource Map : {}", datasourceMap);
                     ApplicationPage defaultPage = importedApplication.getPages()
                             .stream()
                             .filter(app -> app.getIsDefault())
                             .findFirst()
-                            .orElse(null);
+                            .get();
                     importedApplication.setPages(null);
 
                     return applicationPageService.setApplicationPolicies(currUserMono, orgId, importedApplication)
-                            .flatMap(ignored -> getUniqueSuffixForDuplicateNameEntity(importedApplication.getClass(), orgId))
+                            .flatMap(application -> applicationService.findByName(importedApplication.getName(), AclPermission.READ_APPLICATIONS))
+                            .flatMap(duplicateNameApp -> getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, orgId))
                             .map(suffix -> {
                                 importedApplication.setName(importedApplication.getName() + suffix);
-                                log.debug("App before save : {}", importedApplication);
                                 return defaultPage;
-                            });
+                            })
+                            .then(Mono.zip(Mono.just(defaultPage), applicationService.save(importedApplication)));
                 })
-                .zipWith(applicationService.save(importedApplication))
                 .flatMap(tuple -> {
                     String defaultPageName = tuple.getT1().getId();
                     Application savedApp = tuple.getT2();
                     importedApplication.setId(savedApp.getId());
+                    log.debug("Saved application : {}", savedApp);
                     importedNewPageList.forEach(newPage -> {
                         newPage.setApplicationId(savedApp.getId());
-                        newPage.getUnpublishedPage().getLayouts().forEach(layout -> layout.setId(null));
+//                        newPage.getUnpublishedPage().getLayouts().forEach(layout -> layout.setId(null));
+                        log.debug("newPage appId : {}", newPage.getApplicationId());
                     });
-                    return importAndSavePagesInApplication(importedNewPageList, importedApplication)
+                    if(importedNewPageList.isEmpty()) {
+                        new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE, importedNewPageList);
+                    }
+                    return importAndSavePages(importedNewPageList, importedApplication)
                             .map(newPage -> {
-                                log.debug("Saved pages : {}", newPage);
+                                log.debug("Saved page : {}", newPage);
+                                log.debug("Saved unpub Page : {}", newPage.getUnpublishedPage());
                                 ApplicationPage tempPage = new ApplicationPage();
-                                pageIdMap.put(newPage.getUnpublishedPage().getName(), newPage.getId());
+                                pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
                                 tempPage.setIsDefault(StringUtils.equals(newPage.getUnpublishedPage().getName(), defaultPageName));
                                 tempPage.setId(newPage.getId());
                                 return tempPage;
                             })
                             .collectList();
                 })
-                .map(importedApplicationPages -> {
-                    //PublishedPages List is still remaining
+                .flatMap(importedApplicationPages -> {
+                    log.debug("ApplicationPages : {}", importedApplicationPages);
                     importedApplication.setPages(importedApplicationPages);
+
+                    log.debug("PageIdMap: {}", pageNameMap);
                     importedNewActionList.forEach(newAction -> {
-                        NewPage parentPage = importedNewPageList.stream()
-                                .filter(newPage -> newPage.getUnpublishedPage().getName() == pageIdMap.get(newAction.getUnpublishedAction().getPageId()))
-                                .findFirst()
-                                .orElse(null);
+                        NewPage parentPage = pageNameMap.get(newAction.getUnpublishedAction().getPageId());
+                        log.debug("Parent Page for action : {}", parentPage);
                         newAction.setOrganizationId(orgId);
                         newAction.setApplicationId(importedApplication.getId());
                         newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
@@ -294,14 +262,18 @@ public class ImportExportApplicationService {
                     return newActionService.saveAll(importedNewActionList)
                             .map(newAction -> {
                                 log.debug("Saved new action : {}", newAction);
-                                return actionIdMap.put(actionIdMap.get(newAction.getUnpublishedAction().getName()), newAction.getId());
-                            });
+                                actionIdMap.put(actionIdMap.get(newAction.getUnpublishedAction().getName()), newAction.getId());
+                                return newAction;
+                            })
+                            .then(Mono.just(importedApplication));
                 })
                 .flatMap(ignore -> {
+                    log.debug("After empty action list");
                     importedNewPageList.forEach(page -> {
                         setPageLayout(page, actionIdMap);
                     });
-                    return newPageService.saveAll(importedNewPageList)
+                    return Flux.fromIterable(importedNewPageList)
+                        .map(newPage -> newPageService.update(newPage.getId(), newPage))
                         .collectList()
                         .flatMap(finalPageList -> {
                             log.debug("finalPageList : {}", finalPageList);
@@ -312,45 +284,30 @@ public class ImportExportApplicationService {
 
     //TODO use generics if possible
     //Class<? extends BaseDomain> sourceEntity
-    private Mono<String> getUniqueSuffixForDuplicateNameEntity(Class<? extends BaseDomain> sourceEntity, String orgId) {
+    private Mono<String> getUniqueSuffixForDuplicateNameEntity(BaseDomain sourceEntity, String orgId) {
         if(sourceEntity != null) {
-            log.debug("SourceEntity is not null");
+            log.debug("SourceEntity class : {}", sourceEntity.getClass());
             return sequenceService
-                    .getNextAsSuffix(sourceEntity, " for organization with _id : " + orgId)
+                    .getNextAsSuffix(sourceEntity.getClass(), " for organization with _id : " + orgId)
                     .flatMap(sequenceNumber -> Mono.just("#" + sequenceNumber));
         }
         log.debug("sourceEntity is null");
         return Mono.just("");
     }
 
-    private Flux<NewPage> importAndSavePagesInApplication(List<NewPage> pages, Application application) {
+    private Flux<NewPage> importAndSavePages(List<NewPage> pages, Application application) {
 
-        Map<String, Mono<PageDTO>> unplubishedPageDTOs = new HashMap<>(), publishedPageDTOs = new HashMap<>();
         pages.forEach(newPage -> {
-            unplubishedPageDTOs.put(newPage.getId(), applicationPageService.createPage(newPage.getUnpublishedPage()));
-            publishedPageDTOs.put(newPage.getId(), applicationPageService.createPage(newPage.getPublishedPage()));
+            if(newPage.getPublishedPage() != null) {
+                newPage.getPublishedPage().setApplicationId(application.getId());
+                applicationPageService.generateAndSetPagePolicies(application, newPage.getPublishedPage());
+            }
+            newPage.getUnpublishedPage().setApplicationId(application.getId());
+            applicationPageService.generateAndSetPagePolicies(application, newPage.getUnpublishedPage());
+            newPage.setPolicies(newPage.getUnpublishedPage().getPolicies());
         });
 
         return Flux.fromIterable(pages)
-                .flatMap(newPage -> Mono.zip(
-                        unplubishedPageDTOs.get(newPage.getId()),
-                        publishedPageDTOs.get(newPage.getId()),
-                        Mono.just(newPage)
-                        )
-                )
-                .map(tuple -> {
-                    PageDTO unpublishedPageDTO = tuple.getT1();
-                    PageDTO publishedPageDTO = tuple.getT2();
-                    NewPage newPage = tuple.getT3();
-                    newPage.setPublishedPage(publishedPageDTO);
-                    newPage.setUnpublishedPage(unpublishedPageDTO);
-                    return newPage;
-                })
-                .map(newPage -> {
-                    Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
-                    newPage.setPolicies(documentPolicies);
-                    return newPage;
-                })
                 .flatMap(newPageService::save);
     }
 
@@ -377,19 +334,23 @@ public class ImportExportApplicationService {
     }
 
     private void setPageLayout(NewPage page, Map<String, String> actionIdMap) {
-        if(!page.getUnpublishedPage().getLayouts().isEmpty()) {
+        if(page.getUnpublishedPage().getLayouts() != null) {
 
             page.getUnpublishedPage().getLayouts().forEach(layout -> {
-                layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
-                        .forEach(dslActionDTO -> dslActionDTO.setId(actionIdMap.get(dslActionDTO.getId()))));
+                if(layout.getLayoutOnLoadActions() != null) {
+                    layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
+                            .forEach(dslActionDTO -> dslActionDTO.setId(actionIdMap.get(dslActionDTO.getId()))));
+                }
             });
         }
 
-        if(page.getPublishedPage() != null && !page.getPublishedPage().getLayouts().isEmpty()) {
+        if(page.getPublishedPage() != null && page.getPublishedPage().getLayouts() != null) {
 
             page.getPublishedPage().getLayouts().forEach(layout -> {
-                layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
-                        .forEach(dslActionDTO -> dslActionDTO.setId(actionIdMap.get(dslActionDTO.getId()))));
+                if(layout.getLayoutOnLoadActions() != null) {
+                    layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
+                            .forEach(dslActionDTO -> dslActionDTO.setId(actionIdMap.get(dslActionDTO.getId()))));
+                }
             });
         }
     }
