@@ -75,6 +75,7 @@ function* syncApiParamsSaga(
   const field = actionPayload.meta.field;
   //Payload here contains the path and query params of a typical url like https://{domain}/{path}?{query_params}
   let value = actionPayload.payload;
+  value = typeof value !== "string" ? "" : value;
   // Regular expression to find the query params group
   const queryParamsRegEx = /(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
   value = (value.match(queryParamsRegEx) || [])[2] || "";

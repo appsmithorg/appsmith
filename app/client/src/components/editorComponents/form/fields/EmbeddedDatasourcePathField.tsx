@@ -43,10 +43,12 @@ type ReduxStateProps = {
   datasourceList: Datasource[];
   currentPageId?: string;
   applicationId?: string;
+  actionConfigurationHeaders: any;
 };
 
 type ReduxDispatchProps = {
   updateDatasource: (datasource: Datasource | EmbeddedRestDatasource) => void;
+  updateActionHeaders: (headers: unknown) => void;
 };
 
 type Props = EditorProps &
@@ -61,19 +63,28 @@ const DatasourceContainer = styled.div`
   position: relative;
   width: calc(100% - 155px);
 `;
+
+const apiFormValueSelector = formValueSelector(API_EDITOR_FORM_NAME);
 class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
     const { datasource, pluginId, orgId } = this.props;
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
     if (urlHasUpdated) {
-      this.props.updateDatasource({
-        ...DEFAULT_DATASOURCE(pluginId, orgId),
+      const isDatasourceRemoved =
+        datasourceUrl.indexOf(datasource.datasourceConfiguration?.url) === -1;
+      let newDatasource = isDatasourceRemoved
+        ? { ...DEFAULT_DATASOURCE(pluginId, orgId) }
+        : { ...datasource };
+      newDatasource = {
+        ...newDatasource,
         datasourceConfiguration: {
-          ...datasource.datasourceConfiguration,
+          ...newDatasource.datasourceConfiguration,
           url: datasourceUrl,
         },
-      });
+      };
+      this.props.updateDatasource(newDatasource);
+      this.updateHeadersOnDatasourceChange(newDatasource, isDatasourceRemoved);
     }
   };
 
@@ -156,6 +167,23 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     };
   };
 
+  updateHeadersOnDatasourceChange = (datasource: any, remove = false) => {
+    let headers = this.props.actionConfigurationHeaders || [];
+    const headersFromDataSource =
+      _.get(datasource, "datasourceConfiguration.headers") || [];
+    headers = headers.filter((h: any) => {
+      return (
+        headersFromDataSource.find((header: any) => {
+          return header.key === h.key && header.value === h.value;
+        }) === -1
+      );
+    });
+    if (!remove) {
+      headers = headers.concat(headersFromDataSource);
+    }
+    this.props.updateActionHeaders(headers);
+  };
+
   handleDatasourceHint = () => {
     const { datasourceList } = this.props;
     return () => {
@@ -194,6 +222,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                   "pick",
                   (selected: { text: string; data: Datasource }) => {
                     this.props.updateDatasource(selected.data);
+                    this.updateHeadersOnDatasourceChange(selected.data);
                   },
                 );
                 return hints;
@@ -261,8 +290,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   }
 }
 
-const apiFormValueSelector = formValueSelector(API_EDITOR_FORM_NAME);
-
 const mapStateToProps = (
   state: AppState,
   ownProps: { pluginId: string },
@@ -282,6 +309,10 @@ const mapStateToProps = (
       );
     }
   }
+  const actionConfigurationHeaders = apiFormValueSelector(
+    state,
+    "actionConfiguration.headers",
+  );
 
   return {
     orgId: state.ui.orgs.currentOrg.id,
@@ -291,12 +322,17 @@ const mapStateToProps = (
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
+    actionConfigurationHeaders,
   };
 };
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: (datasource) =>
     dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource)),
+  updateActionHeaders: (headers) =>
+    dispatch(
+      change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
+    ),
 });
 
 const EmbeddedDatasourcePathConnectedComponent = connect(
