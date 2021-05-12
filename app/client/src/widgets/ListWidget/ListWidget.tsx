@@ -389,7 +389,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
       return {
         ...child,
-        onClick: () => this.onItemClick(index, this.props.onListItemClick),
+        onClickCapture: () =>
+          this.onItemClick(index, this.props.onListItemClick),
       };
     });
   };

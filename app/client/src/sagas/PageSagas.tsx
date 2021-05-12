@@ -186,6 +186,7 @@ export function* fetchPageSaga(
       id,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
+    const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
 
     if (isValidResponse) {
       // Clear any existing caches
@@ -200,14 +201,13 @@ export function* fetchPageSaga(
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
       yield put(fetchPageSuccess());
-      const isMigrationNeeded = checkIfMigrationIsNeeded(fetchPageResponse);
       const extractedDSL = extractCurrentDSL(fetchPageResponse);
       yield put({
         type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
         payload: extractedDSL,
       });
 
-      if (isMigrationNeeded) {
+      if (willPageBeMigrated) {
         yield put(saveLayout());
       }
 

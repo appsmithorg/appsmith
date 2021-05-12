@@ -69,7 +69,9 @@ import {
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import WidgetConfigResponse, {
+  GRID_DENSITY_MIGRATION_V1,
+} from "mockResponses/WidgetConfigResponse";
 import {
   flushDeletedWidgets,
   getCopiedWidgets,
@@ -1748,8 +1750,8 @@ function* cutWidgetSaga() {
 
 function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
   try {
-    const columns = 8;
-    const rows = 7;
+    const columns = 8 * GRID_DENSITY_MIGRATION_V1;
+    const rows = 7 * GRID_DENSITY_MIGRATION_V1;
     const queryName = action.payload;
     const widgets = yield select(getWidgets);
     const evalTree = yield select(getDataTree);

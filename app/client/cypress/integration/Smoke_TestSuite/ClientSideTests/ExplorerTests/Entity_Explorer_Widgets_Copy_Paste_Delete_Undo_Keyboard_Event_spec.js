@@ -28,7 +28,8 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     cy.wait(500);
     cy.get(commonlocators.toastBody)
       .first()
-      .contains("Copied");
+      .contains("Copied")
+      .click();
     cy.get("body").type(`{${modifierKey}}v`, { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
