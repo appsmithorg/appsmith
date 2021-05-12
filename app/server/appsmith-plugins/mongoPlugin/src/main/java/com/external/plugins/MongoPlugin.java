@@ -24,12 +24,12 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.commands.Aggregate;
-import com.external.plugins.commands.MongoCommand;
 import com.external.plugins.commands.Count;
 import com.external.plugins.commands.Delete;
 import com.external.plugins.commands.Distinct;
 import com.external.plugins.commands.Find;
 import com.external.plugins.commands.Insert;
+import com.external.plugins.commands.MongoCommand;
 import com.external.plugins.commands.UpdateMany;
 import com.external.plugins.commands.UpdateOne;
 import com.mongodb.MongoCommandException;
@@ -74,6 +74,11 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.external.plugins.MongoPluginUtils.generateDeleteTemplate;
+import static com.external.plugins.MongoPluginUtils.generateFindByIdTemplate;
+import static com.external.plugins.MongoPluginUtils.generateFindTemplate;
+import static com.external.plugins.MongoPluginUtils.generateInsertTemplate;
+import static com.external.plugins.MongoPluginUtils.generateUpdateTemplate;
 import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
 import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 import static java.lang.Boolean.TRUE;
@@ -767,88 +772,23 @@ public class MongoPlugin extends BasePlugin {
             columns.sort(Comparator.naturalOrder());
 
             templates.add(
-                    new DatasourceStructure.Template(
-                            "Find",
-                            "{\n" +
-                                    "  \"find\": \"" + collectionName + "\",\n" +
-                                    (
-                                            filterFieldName == null ? "" :
-                                                    "  \"filter\": {\n" +
-                                                            "    \"" + filterFieldName + "\": \"" + filterFieldValue + "\"\n" +
-                                                            "  },\n"
-                                    ) +
-                                    "  \"sort\": {\n" +
-                                    "    \"_id\": 1\n" +
-                                    "  },\n" +
-                                    "  \"limit\": 10\n" +
-                                    "}\n"
-                    )
+                    generateFindTemplate(collectionName, filterFieldName, filterFieldValue)
             );
 
             templates.add(
-                    new DatasourceStructure.Template(
-                            "Find by ID",
-                            "{\n" +
-                                    "  \"find\": \"" + collectionName + "\",\n" +
-                                    "  \"filter\": {\n" +
-                                    "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
-                                    "  }\n" +
-                                    "}\n"
-                    )
-            );
-
-            sampleInsertValues.entrySet().stream()
-                    .map(entry -> "      \"" + entry.getKey() + "\": " + entry.getValue() + ",\n")
-                    .collect(Collectors.joining(""));
-            templates.add(
-                    new DatasourceStructure.Template(
-                            "Insert",
-                            "{\n" +
-                                    "  \"insert\": \"" + collectionName + "\",\n" +
-                                    "  \"documents\": [\n" +
-                                    "    {\n" +
-                                    sampleInsertValues.entrySet().stream()
-                                            .map(entry -> "      \"" + entry.getKey() + "\": " + entry.getValue() + ",\n")
-                                            .sorted()
-                                            .collect(Collectors.joining("")) +
-                                    "    }\n" +
-                                    "  ]\n" +
-                                    "}\n"
-                    )
+                    generateFindByIdTemplate(collectionName)
             );
 
             templates.add(
-                    new DatasourceStructure.Template(
-                            "Update",
-                            "{\n" +
-                                    "  \"update\": \"" + collectionName + "\",\n" +
-                                    "  \"updates\": [\n" +
-                                    "    {\n" +
-                                    "      \"q\": {\n" +
-                                    "        \"_id\": ObjectId(\"id_of_document_to_update\")\n" +
-                                    "      },\n" +
-                                    "      \"u\": { \"$set\": { \"" + filterFieldName + "\": \"new value\" } }\n" +
-                                    "    }\n" +
-                                    "  ]\n" +
-                                    "}\n"
-                    )
+                    generateInsertTemplate(collectionName, sampleInsertValues)
             );
 
             templates.add(
-                    new DatasourceStructure.Template(
-                            "Delete",
-                            "{\n" +
-                                    "  \"delete\": \"" + collectionName + "\",\n" +
-                                    "  \"deletes\": [\n" +
-                                    "    {\n" +
-                                    "      \"q\": {\n" +
-                                    "        \"_id\": \"id_of_document_to_delete\"\n" +
-                                    "      },\n" +
-                                    "      \"limit\": 1\n" +
-                                    "    }\n" +
-                                    "  ]\n" +
-                                    "}\n"
-                    )
+                    generateUpdateTemplate(collectionName, filterFieldName)
+            );
+
+            templates.add(
+                    generateDeleteTemplate(collectionName)
             );
         }
 
