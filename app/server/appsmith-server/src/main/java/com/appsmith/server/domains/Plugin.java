@@ -30,6 +30,10 @@ public class Plugin extends BaseDomain {
 
     String packageName;
 
+    String pluginName;
+
+    String pluginSpecificationId;
+
     String jarLocation;
 
     String iconLocation;

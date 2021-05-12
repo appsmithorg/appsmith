@@ -31,6 +31,9 @@ public class RedisConfig {
 
     @Bean
     ReactiveRedisOperations<String, String> reactiveRedisOperations(ReactiveRedisConnectionFactory factory) {
+        String version = System.getProperty("java.version");
+
+        log.debug("Java version: {}", version);
         Jackson2JsonRedisSerializer<String> serializer = new Jackson2JsonRedisSerializer<>(String.class);
 
         RedisSerializationContext.RedisSerializationContextBuilder<String, String> builder =
