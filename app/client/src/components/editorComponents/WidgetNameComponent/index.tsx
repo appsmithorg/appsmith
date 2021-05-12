@@ -19,7 +19,7 @@ const PositionStyle = styled.div<{ topRow: number }>`
   top: ${(props) =>
     props.topRow > 2 ? `${-1 * props.theme.spaces[10]}px` : "calc(100%)"};
   height: ${(props) => props.theme.spaces[10]}px;
-  left: 0;
+  right: 0;
   display: flex;
   padding: 0 4px;
   cursor: pointer;
