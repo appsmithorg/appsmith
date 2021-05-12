@@ -312,6 +312,19 @@ public class MongoPluginTest {
                     );
                 })
                 .verifyComplete();
+
+        // Clean up this newly inserted value
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "DELETE");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.DELETE_QUERY, "{\"name\": \"John Smith\"}");
+        configMap.put(ConfigurationIndex.DELETE_LIMIT, "SINGLE");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        // Run the delete command
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
     }
 
     @Test
