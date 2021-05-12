@@ -10,6 +10,7 @@ import {
 } from "widgets/BaseWidget";
 import {
   GridDefaults,
+  LATEST_PAGE_VERSION,
   MAIN_CONTAINER_WIDGET_ID,
   RenderMode,
   WidgetType,
@@ -661,7 +662,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
       currentDSL.detachFromLayout || false,
     );
     currentDSL = migrateToNewLayout(currentDSL);
-    currentDSL.version = 19;
+    currentDSL.version = LATEST_PAGE_VERSION;
   }
   return currentDSL;
 };
@@ -680,6 +681,13 @@ export const migrateToNewLayout = (dsl: ContainerWidgetProps<WidgetProps>) => {
   };
   scaleWidget(dsl);
   return dsl;
+};
+
+export const checkIfMigrationIsNeeded = (
+  fetchPageResponse?: FetchPageResponse,
+) => {
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultDSL;
+  return currentDSL.version !== LATEST_PAGE_VERSION;
 };
 
 export const extractCurrentDSL = (
