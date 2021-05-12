@@ -2243,7 +2243,23 @@ public class DatabaseChangelog {
         );
     }
 
-    @ChangeSet(order = "067", id = "delete-mongo-datasource-structures", author = "")
+    @ChangeSet(order = "067", id = "update-mongo-import-from-srv-field", author = "")
+    public void updateMongoImportFromSrvField(MongoTemplate mongoTemplate) {
+        Plugin mongoPlugin = mongoTemplate
+                .findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        List<Datasource> mongoDatasources = mongoTemplate
+                .find(query(where("pluginId").is(mongoPlugin.getId())), Datasource.class);
+
+        mongoDatasources.stream()
+                .forEach(datasource -> {
+                    datasource.getDatasourceConfiguration().setProperties(List.of(new Property("Use Mongo Connection " +
+                            "String URI", "No")));
+                    mongoTemplate.save(datasource);
+                });
+    }
+
+    @ChangeSet(order = "068", id = "delete-mongo-datasource-structures", author = "")
     public void deleteMongoDatasourceStructures(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
 
         // Mongo Form changes requires the query templates in  to change as well. To ensure this, mongo datasources
