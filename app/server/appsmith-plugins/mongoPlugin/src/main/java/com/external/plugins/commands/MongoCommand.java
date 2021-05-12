@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
@@ -20,6 +21,7 @@ import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
 public abstract class MongoCommand {
     String collection;
     List<String> fieldNamesWithNoConfiguration;
+    protected static final ObjectMapper objectMapper = new ObjectMapper();
 
     public MongoCommand(ActionConfiguration actionConfiguration) {
 

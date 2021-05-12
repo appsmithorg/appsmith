@@ -6,7 +6,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
@@ -23,7 +22,6 @@ import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
 @Getter
 @Setter
 public class Insert extends MongoCommand {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     String documents;
 
     public Insert(ActionConfiguration actionConfiguration) {
