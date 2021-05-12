@@ -106,6 +106,12 @@ const evalErrorHandler = (errors: EvalError[]) => {
       }
       case EvalErrorTypes.EVAL_ERROR: {
         log.debug(error);
+        AppsmithConsole.error({
+          logType: LOG_TYPE.EVAL_ERROR,
+          text: `The value at ${error.context?.source.propertyPath} is invalid`,
+          message: error.message,
+          source: error.context?.source,
+        });
         break;
       }
       case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
