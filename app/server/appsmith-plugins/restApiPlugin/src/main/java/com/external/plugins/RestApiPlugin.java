@@ -701,7 +701,7 @@ public class RestApiPlugin extends BasePlugin {
                 insertedParams.stream()
                         .forEachOrdered(param -> ssParams.put(param.getValue(), param.getType()));
                 final Map<String, Object> requestData = new HashMap<>();
-                requestData.put("smart-substitution-parameters", ssParams);
+                requestData.put("smart-substitution-parameters", insertedParams);
                 actionExecutionRequest.setRequestParams(requestData);
                 actionExecutionRequest.setProperties(requestData);
             }

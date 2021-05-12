@@ -209,7 +209,7 @@ public class MongoPlugin extends BasePlugin {
             parameters.stream()
                     .forEachOrdered(param -> ssParams.put(param.getValue(), param.getType()));
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null, ssParams));
+                    , null, ssParams.isEmpty() ? null : ssParams));
 
             return mongoOutputMono
                     .onErrorMap(
