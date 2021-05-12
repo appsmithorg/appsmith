@@ -22,4 +22,10 @@ public class ConfigurationIndex {
     public static final int DISTINCT_KEY = 16;
     public static final int AGGREGATE_PIPELINE = 17;
     public static final int INSERT_DOCUMENT = 18;
+
+    /**
+     * !!! WARNING !!!
+     * Please update the size variable below whenever adding a new property in plugin specified templates
+     */
+    public static final int MAX_SIZE = 21;
 }

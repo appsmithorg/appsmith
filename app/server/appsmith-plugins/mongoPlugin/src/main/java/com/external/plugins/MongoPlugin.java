@@ -543,21 +543,19 @@ public class MongoPlugin extends BasePlugin {
             if (isUsingURI(datasourceConfiguration)) {
                 if (hasNonEmptyURI(datasourceConfiguration)) {
                     String uriWithHiddenPassword =
-                            (String)properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
+                            (String) properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
                     Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
                     if (extractedInfo != null) {
-                            String password = ((DBAuth)datasourceConfiguration.getAuthentication()).getPassword();
-                            return buildURIfromExtractedInfo(extractedInfo, password);
-                    }
-                    else {
+                        String password = ((DBAuth) datasourceConfiguration.getAuthentication()).getPassword();
+                        return buildURIfromExtractedInfo(extractedInfo, password);
+                    } else {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                 "Appsmith server has failed to parse the Mongo connection string URI. Please check " +
                                         "if the URI has the correct format."
                         );
                     }
-                }
-                else {
+                } else {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Could not find any Mongo connection string URI. Please edit the 'Mongo Connection String" +
@@ -686,7 +684,7 @@ public class MongoPlugin extends BasePlugin {
                     invalids.add("'Mongo Connection String URI' field is empty. Please edit the 'Mongo Connection " +
                             "URI' field to provide a connection uri to connect with.");
                 } else {
-                    String mongoUri = (String)properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
+                    String mongoUri = (String) properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
                     if (!mongoUri.matches(MONGO_URI_REGEX)) {
                         invalids.add("Mongo Connection String URI does not seem to be in the correct format. Please " +
                                 "check the URI once.");

@@ -17,7 +17,6 @@ import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
-import com.external.plugins.constants.ConfigurationIndex;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -49,6 +48,23 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
 import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
+import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELINE;
+import static com.external.plugins.constants.ConfigurationIndex.BSON;
+import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
+import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
+import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.DELETE_LIMIT;
+import static com.external.plugins.constants.ConfigurationIndex.DELETE_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_KEY;
+import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
+import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
+import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_UPDATE;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_UPDATE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -86,27 +102,27 @@ public class MongoPluginTest {
         final MongoClient mongoClient = MongoClients.create(uri);
 
         Flux.from(mongoClient.getDatabase("test").listCollectionNames()).collectList().
-        flatMap(collectionNamesList -> {
-            final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
-                    "users");
-            if(collectionNamesList.size() == 0) {
-                Mono.from(usersCollection.insertMany(List.of(
-                        new Document(Map.of(
-                                "name", "Cierra Vega",
-                                "gender", "F",
-                                "age", 20,
-                                "luckyNumber", 987654321L,
-                                "dob", LocalDate.of(2018, 12, 31),
-                                "netWorth", new BigDecimal("123456.789012"),
-                                "updatedByCommand", false
-                        )),
-                        new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
-                        new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
-                ))).block();
-            }
+                flatMap(collectionNamesList -> {
+                    final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
+                            "users");
+                    if (collectionNamesList.size() == 0) {
+                        Mono.from(usersCollection.insertMany(List.of(
+                                new Document(Map.of(
+                                        "name", "Cierra Vega",
+                                        "gender", "F",
+                                        "age", 20,
+                                        "luckyNumber", 987654321L,
+                                        "dob", LocalDate.of(2018, 12, 31),
+                                        "netWorth", new BigDecimal("123456.789012"),
+                                        "updatedByCommand", false
+                                )),
+                                new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
+                                new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
+                        ))).block();
+                    }
 
-            return Mono.just(usersCollection);
-        }).block();
+                    return Mono.just(usersCollection);
+                }).block();
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -186,7 +202,7 @@ public class MongoPluginTest {
          *      - On calling testDatasource(...) -> call the real method.
          *      - On calling datasourceCreate(...) -> throw the mock exception defined above.
          */
-        MongoPlugin.MongoPluginExecutor mongoPluginExecutor    = new MongoPlugin.MongoPluginExecutor();
+        MongoPlugin.MongoPluginExecutor mongoPluginExecutor = new MongoPlugin.MongoPluginExecutor();
         MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(mongoPluginExecutor);
         /* Please check this out before modifying this line: https://stackoverflow
          * .com/questions/11620103/mockito-trying-to-spy-on-method-is-calling-the-original-method
@@ -315,12 +331,12 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "DELETE");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.DELETE_QUERY, "{\"name\": \"John Smith\"}");
-        configMap.put(ConfigurationIndex.DELETE_LIMIT, "SINGLE");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "DELETE");
+        configMap.put(COLLECTION, "users");
+        configMap.put(DELETE_QUERY, "{\"name\": \"John Smith\"}");
+        configMap.put(DELETE_LIMIT, "SINGLE");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
         // Run the delete command
@@ -443,9 +459,9 @@ public class MongoPluginTest {
                             "  },\n" +
                             "  \"limit\": 10\n" +
                             "}\n");
-                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.COMMAND).getValue(), "FIND");
-                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.FIND_QUERY).getValue(), "{ \"gender\": \"F\"}");
-                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.FIND_SORT).getValue(), "{\"_id\": 1}");
+                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "FIND");
+                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(FIND_QUERY).getValue(), "{ \"gender\": \"F\"}");
+                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(FIND_SORT).getValue(), "{\"_id\": 1}");
 
                     //Assert Find By Id command
                     DatasourceStructure.Template findByIdTemplate = templates.get(1);
@@ -456,8 +472,8 @@ public class MongoPluginTest {
                             "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
                             "  }\n" +
                             "}\n");
-                    assertEquals(findByIdTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.COMMAND).getValue(), "FIND");
-                    assertEquals(findByIdTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.FIND_QUERY).getValue(), "{\"_id\": ObjectId(\"id_to_query_with\")}");
+                    assertEquals(findByIdTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "FIND");
+                    assertEquals(findByIdTemplate.getPluginSpecifiedTemplates().get(FIND_QUERY).getValue(), "{\"_id\": ObjectId(\"id_to_query_with\")}");
 
                     // Assert Insert command
                     DatasourceStructure.Template insertTemplate = templates.get(2);
@@ -477,17 +493,17 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(insertTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.COMMAND).getValue(), "INSERT");
-                    assertEquals(insertTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.INSERT_DOCUMENT).getValue(),
+                    assertEquals(insertTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "INSERT");
+                    assertEquals(insertTemplate.getPluginSpecifiedTemplates().get(INSERT_DOCUMENT).getValue(),
                             "[{      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
-                            "      \"age\": 1,\n" +
-                            "      \"dob\": new Date(\"2019-07-01\"),\n" +
-                            "      \"gender\": \"new value\",\n" +
-                            "      \"luckyNumber\": NumberLong(\"1\"),\n" +
-                            "      \"name\": \"new value\",\n" +
-                            "      \"netWorth\": NumberDecimal(\"1\"),\n" +
-                            "      \"updatedByCommand\": {},\n" +
-                            "}]");
+                                    "      \"age\": 1,\n" +
+                                    "      \"dob\": new Date(\"2019-07-01\"),\n" +
+                                    "      \"gender\": \"new value\",\n" +
+                                    "      \"luckyNumber\": NumberLong(\"1\"),\n" +
+                                    "      \"name\": \"new value\",\n" +
+                                    "      \"netWorth\": NumberDecimal(\"1\"),\n" +
+                                    "      \"updatedByCommand\": {},\n" +
+                                    "}]");
 
                     // Assert Update command
                     DatasourceStructure.Template updateTemplate = templates.get(3);
@@ -503,9 +519,9 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.COMMAND).getValue(), "UPDATE_MANY");
-                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.UPDATE_MANY_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.UPDATE_MANY_UPDATE).getValue(), "{ \"$set\": { \"gender\": \"new value\" } }");
+                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "UPDATE_MANY");
+                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(UPDATE_MANY_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
+                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(UPDATE_MANY_UPDATE).getValue(), "{ \"$set\": { \"gender\": \"new value\" } }");
 
                     // Assert Delete Command
                     DatasourceStructure.Template deleteTemplate = templates.get(4);
@@ -521,9 +537,9 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.COMMAND).getValue(), "DELETE");
-                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.DELETE_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
-                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.DELETE_LIMIT).getValue(), "SINGLE");
+                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "DELETE");
+                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(DELETE_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
+                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(DELETE_LIMIT).getValue(), "SINGLE");
                 })
                 .verifyComplete();
     }
@@ -858,15 +874,15 @@ public class MongoPluginTest {
                     assertEquals(parameterEntry.getValue(), "STRING");
 
                     parameterEntry = parameters.get(1);
-                    assertEquals(parameterEntry.getKey(),"{ age: { \"$gte\": 30 } }");
+                    assertEquals(parameterEntry.getKey(), "{ age: { \"$gte\": 30 } }");
                     assertEquals(parameterEntry.getValue(), "BSON");
 
                     parameterEntry = parameters.get(2);
-                    assertEquals(parameterEntry.getKey(),"1");
+                    assertEquals(parameterEntry.getKey(), "1");
                     assertEquals(parameterEntry.getValue(), "INTEGER");
 
                     parameterEntry = parameters.get(3);
-                    assertEquals(parameterEntry.getKey(),"10");
+                    assertEquals(parameterEntry.getKey(), "10");
                     assertEquals(parameterEntry.getValue(), "INTEGER");
 
                     assertEquals(
@@ -893,10 +909,10 @@ public class MongoPluginTest {
 
         StepVerifier.create(structureMono)
                 .verifyErrorSatisfies(error -> {
-                   assertTrue(error instanceof AppsmithPluginException);
-                   String expectedMessage = "Appsmith has failed to get database structure. Please provide read permission on" +
-                           " the database to fix this.";
-                   assertTrue(expectedMessage.equals(error.getMessage()));
+                    assertTrue(error instanceof AppsmithPluginException);
+                    String expectedMessage = "Appsmith has failed to get database structure. Please provide read permission on" +
+                            " the database to fix this.";
+                    assertTrue(expectedMessage.equals(error.getMessage()));
                 });
     }
 
@@ -905,12 +921,12 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "FIND");
-        configMap.put(ConfigurationIndex.FIND_QUERY, "{ age: { \"$gte\": 30 } }");
-        configMap.put(ConfigurationIndex.FIND_SORT, "{ id: 1 }");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "FIND");
+        configMap.put(FIND_QUERY, "{ age: { \"$gte\": 30 } }");
+        configMap.put(FIND_SORT, "{ id: 1 }");
+        configMap.put(COLLECTION, "users");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -938,11 +954,11 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "INSERT");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "[{\"name\" : \"ZZZ Insert Form Array Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}]");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "INSERT");
+        configMap.put(COLLECTION, "users");
+        configMap.put(INSERT_DOCUMENT, "[{\"name\" : \"ZZZ Insert Form Array Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}]");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -965,12 +981,12 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "DELETE");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.DELETE_QUERY, "{\"tag\" : \"test\"}");
-        configMap.put(ConfigurationIndex.DELETE_LIMIT, "ALL");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "DELETE");
+        configMap.put(COLLECTION, "users");
+        configMap.put(DELETE_QUERY, "{\"tag\" : \"test\"}");
+        configMap.put(DELETE_LIMIT, "ALL");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
         // Run the delete command
@@ -982,11 +998,11 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "INSERT");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "{\"name\" : \"ZZZ Insert Form Single Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "INSERT");
+        configMap.put(COLLECTION, "users");
+        configMap.put(INSERT_DOCUMENT, "{\"name\" : \"ZZZ Insert Form Single Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -1009,12 +1025,12 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "DELETE");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.DELETE_QUERY, "{\"tag\" : \"test\"}");
-        configMap.put(ConfigurationIndex.DELETE_LIMIT, "ALL");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "DELETE");
+        configMap.put(COLLECTION, "users");
+        configMap.put(DELETE_QUERY, "{\"tag\" : \"test\"}");
+        configMap.put(DELETE_LIMIT, "ALL");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
         // Run the delete command
@@ -1026,12 +1042,12 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "UPDATE_ONE");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.UPDATE_ONE_QUERY, "{ name: \"Alden Cantrell\" }");
-        configMap.put(ConfigurationIndex.UPDATE_ONE_UPDATE, "{ $set: { age: 31 }}}");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "UPDATE_ONE");
+        configMap.put(COLLECTION, "users");
+        configMap.put(UPDATE_ONE_QUERY, "{ name: \"Alden Cantrell\" }");
+        configMap.put(UPDATE_ONE_UPDATE, "{ $set: { age: 31 }}}");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -1062,13 +1078,13 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "UPDATE_MANY");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "UPDATE_MANY");
+        configMap.put(COLLECTION, "users");
         // Query for all the documents in the collection
-        configMap.put(ConfigurationIndex.UPDATE_MANY_QUERY, "{}");
-        configMap.put(ConfigurationIndex.UPDATE_MANY_UPDATE, "{ $set: { updatedByCommand: true }}}");
+        configMap.put(UPDATE_MANY_QUERY, "{}");
+        configMap.put(UPDATE_MANY_UPDATE, "{ $set: { updatedByCommand: true }}}");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -1101,22 +1117,22 @@ public class MongoPluginTest {
 
         Map<Integer, Object> configMap = new HashMap<>();
         // Insert multiple documents which would match the delete criterion
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "INSERT");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "INSERT");
+        configMap.put(COLLECTION, "users");
+        configMap.put(INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
 
         // Now that the documents have been inserted, lets delete one of them
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "DELETE");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.DELETE_QUERY, "{tag : \"delete\"}");
-        configMap.put(ConfigurationIndex.DELETE_LIMIT, "SINGLE");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "DELETE");
+        configMap.put(COLLECTION, "users");
+        configMap.put(DELETE_QUERY, "{tag : \"delete\"}");
+        configMap.put(DELETE_LIMIT, "SINGLE");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -1148,22 +1164,22 @@ public class MongoPluginTest {
 
         Map<Integer, Object> configMap = new HashMap<>();
         // Insert multiple documents which would match the delete criterion
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "INSERT");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "INSERT");
+        configMap.put(COLLECTION, "users");
+        configMap.put(INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
 
         // Now that the documents have been inserted, lets delete both of them
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "DELETE");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.DELETE_QUERY, "{tag : \"delete\"}");
-        configMap.put(ConfigurationIndex.DELETE_LIMIT, "ALL");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "DELETE");
+        configMap.put(COLLECTION, "users");
+        configMap.put(DELETE_QUERY, "{tag : \"delete\"}");
+        configMap.put(DELETE_LIMIT, "ALL");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -1189,11 +1205,11 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "COUNT");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.COUNT_QUERY, "{}");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "COUNT");
+        configMap.put(COLLECTION, "users");
+        configMap.put(COUNT_QUERY, "{}");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -1219,12 +1235,12 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "DISTINCT");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.DISTINCT_QUERY, "{}");
-        configMap.put(ConfigurationIndex.DISTINCT_KEY, "name");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "DISTINCT");
+        configMap.put(COLLECTION, "users");
+        configMap.put(DISTINCT_QUERY, "{}");
+        configMap.put(DISTINCT_KEY, "name");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -1250,11 +1266,11 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
-        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
-        configMap.put(ConfigurationIndex.COMMAND, "AGGREGATE");
-        configMap.put(ConfigurationIndex.COLLECTION, "users");
-        configMap.put(ConfigurationIndex.AGGREGATE_PIPELINE, "[{\"$count\": \"userCount\"}]");
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "AGGREGATE");
+        configMap.put(COLLECTION, "users");
+        configMap.put(AGGREGATE_PIPELINE, "[{\"$count\": \"userCount\"}]");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
