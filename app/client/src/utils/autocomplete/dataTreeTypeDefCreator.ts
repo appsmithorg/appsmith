@@ -7,9 +7,10 @@ import {
   GLOBAL_FUNCTIONS,
 } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
+import options from "pages/common/CustomizedDropdown/HeaderDropdownData";
 
 let extraDefs: any = {};
-const skipProperties = ["!doc", "!url"];
+const skipProperties = ["!doc", "!url", "!type"];
 
 export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
   const def: any = {
@@ -24,31 +25,35 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
           const definition = _.get(entityDefinitions, widgetType);
           if (_.isFunction(definition)) {
             const data = definition(entity);
-            Object.keys(data).forEach((item: any) => {
-              if (!skipProperties.includes(item)) {
-                def[entityName + "." + item] = entityName + "." + item;
-              }
-            });
-            def[entityName] = entityName + "." + definition(entity);
+            const allData = flattenObjKeys(data, entityName);
+            for (const [key, value] of Object.entries(allData)) {
+              def[key] = value;
+            }
+            def[entityName] = definition(entity);
+          } else {
+            def[entityName] = definition;
+            const allFlattenData = flattenObjKeys(definition, entityName);
+            for (const [key, value] of Object.entries(allFlattenData)) {
+              def[key] = value;
+            }
           }
         }
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
         const actionDefs = entityDefinitions.ACTION(entity);
         def[entityName] = actionDefs;
-        Object.keys(actionDefs).forEach((item: any) => {
-          if (!skipProperties.includes(item)) {
-            def[entityName + "." + item] = entityName + "." + item;
-          }
-        });
+        const finalData = flattenObjKeys(actionDefs, entityName);
+        for (const [key, value] of Object.entries(finalData)) {
+          def[key] = value;
+        }
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
         const options: any = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
-        def.appsmith = options;
+        // def.appsmith = options;
         const flattenedObjects = flattenObjKeys(options, "appsmith");
-        flattenedObjects.forEach((option: string) => {
-          def[option] = option;
-        });
+        for (const [key, value] of Object.entries(flattenedObjects)) {
+          def[key] = value;
+        }
       }
     }
   });
@@ -92,14 +97,16 @@ export function generateTypeDef(
 export const flattenObjKeys = (
   options: any,
   parentKey: string,
-  results: Array<string> = [],
-): Array<string> => {
-  const r: Array<string> = results;
+  results: any = {},
+): any => {
+  const r: any = results;
   for (const [key, value] of Object.entries(options)) {
-    if (_.isObject(value)) {
-      flattenObjKeys(value, parentKey + "." + key, r);
+    if (!skipProperties.includes(key)) {
+      if (_.isObject(value)) {
+        flattenObjKeys(value, parentKey + "." + key, r);
+      }
+      r[parentKey + "." + key] = value;
     }
-    r.push(parentKey + "." + key);
   }
   return r;
 };
