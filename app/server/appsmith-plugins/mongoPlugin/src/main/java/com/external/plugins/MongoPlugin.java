@@ -94,7 +94,9 @@ public class MongoPlugin extends BasePlugin {
 
     public static final String N_MODIFIED = "nModified";
 
-    private static final String VALUE_STR = "value";
+    private static final String VALUE = "value";
+
+    private static final String VALUES = "values";
 
     private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
@@ -258,9 +260,9 @@ public class MongoPlugin extends BasePlugin {
                                  * we either get the modified new value or the pre-modified old value (depending on the
                                  * `new` field in the command. Let's return that value to the user.
                                  */
-                                if (outputJson.has(VALUE_STR)) {
+                                if (outputJson.has(VALUE)) {
                                     result.setBody(objectMapper.readTree(
-                                            cleanUp(new JSONObject().put(VALUE_STR, outputJson.get(VALUE_STR))).toString()
+                                            cleanUp(new JSONObject().put(VALUE, outputJson.get(VALUE))).toString()
                                     ));
                                 }
 
@@ -293,6 +295,15 @@ public class MongoPlugin extends BasePlugin {
                                     JSONObject body = new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
                                     result.setBody(objectMapper.readTree(body.toString()));
                                     headerArray.put(body);
+                                }
+
+                                /**
+                                 * The json contains key "values" when distinct command is used.
+                                 */
+                                if (outputJson.has(VALUES)) {
+                                    JSONArray outputResult = (JSONArray) cleanUp(
+                                            outputJson.getJSONArray("values"));
+                                    result.setBody(objectMapper.readTree(outputResult.toString()));
                                 }
 
                                 /** TODO

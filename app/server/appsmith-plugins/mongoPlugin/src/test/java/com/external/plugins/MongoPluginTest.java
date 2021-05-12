@@ -1018,4 +1018,65 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testCountCommand() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "COUNT");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.COUNT_QUERY, "{}");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode value = ((ObjectNode) result.getBody()).get("n");
+                    assertEquals(value.asInt(), 3);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDistinctCommand() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(ConfigurationIndex.BSON, Boolean.FALSE);
+        configMap.put(ConfigurationIndex.INPUT_TYPE, "FORM");
+        configMap.put(ConfigurationIndex.COMMAND, "DISTINCT");
+        configMap.put(ConfigurationIndex.COLLECTION, "users");
+        configMap.put(ConfigurationIndex.DISTINCT_QUERY, "{}");
+        configMap.put(ConfigurationIndex.DISTINCT_KEY, "name");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    int valuesSize = ((ArrayNode) result.getBody()).size();
+                    assertEquals(valuesSize, 3);
+                })
+                .verifyComplete();
+    }
+
 }
