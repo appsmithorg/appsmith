@@ -2242,4 +2242,23 @@ public class DatabaseChangelog {
                 NewAction.class
         );
     }
+
+    @ChangeSet(order = "067", id = "delete-mongo-datasource-structures", author = "")
+    public void deleteMongoDatasourceStructures(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
+
+        // Mongo Form changes requires the query templates in  to change as well. To ensure this, mongo datasources
+        // must re-compute the structure. The following deletes all the structures. Whenever getStructure API call is
+        // made for these datasources, the server would re-compute the structure.
+        Plugin mongoPlugin = mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        Query query = query(new Criteria().andOperator(
+                where(fieldName(QDatasource.datasource.pluginId)).is(mongoPlugin.getId()),
+                where(fieldName(QDatasource.datasource.structure)).exists(true)
+        ));
+
+        Update update = new Update().set(fieldName(QDatasource.datasource.structure), null);
+
+        // Delete all the existing mongo datasource structures by setting the key to null.
+        mongoOperations.updateMulti(query, update, Datasource.class);
+    }
 }
