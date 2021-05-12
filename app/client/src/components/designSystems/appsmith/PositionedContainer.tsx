@@ -1,6 +1,6 @@
 import React, { CSSProperties, ReactNode, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { WidgetTypes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
@@ -41,7 +41,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
       top: y,
       height: props.style.componentHeight + (props.style.heightUnit || "px"),
       width: props.style.componentWidth + (props.style.widthUnit || "px"),
-      padding: padding + "px",
+      padding:
+        props.widgetType === WidgetTypes.TABLE_WIDGET
+          ? `${padding}px ${padding}px 42px`
+          : padding + "px",
     };
   }, [props.style]);
 
