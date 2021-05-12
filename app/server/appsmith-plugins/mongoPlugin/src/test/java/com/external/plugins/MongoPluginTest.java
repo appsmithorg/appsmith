@@ -12,6 +12,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PSOrSSParamDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
@@ -681,29 +682,40 @@ public class MongoPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    List<PSOrSSParamDTO> parameters = (List<PSOrSSParamDTO>) request.getProperties().get("smart" +
+                            "-substitution-parameters");
                     assertEquals(parameters.size(), 4);
 
-                    Map.Entry<String, String> parameterEntry = parameters.get(0);
-                    assertEquals(parameterEntry.getKey(), "users");
-                    assertEquals(parameterEntry.getValue(), "STRING");
+                    PSOrSSParamDTO parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getValue(), "users");
+                    assertEquals(parameterEntry.getType(), "STRING");
 
                     parameterEntry = parameters.get(1);
-                    assertEquals(parameterEntry.getKey(),"{ age: { \"$gte\": 30 } }");
-                    assertEquals(parameterEntry.getValue(), "BSON");
+                    assertEquals(parameterEntry.getValue(),"{ age: { \"$gte\": 30 } }");
+                    assertEquals(parameterEntry.getType(), "BSON");
 
                     parameterEntry = parameters.get(2);
-                    assertEquals(parameterEntry.getKey(),"1");
-                    assertEquals(parameterEntry.getValue(), "INTEGER");
+                    assertEquals(parameterEntry.getValue(),"1");
+                    assertEquals(parameterEntry.getType(), "INTEGER");
 
                     parameterEntry = parameters.get(3);
-                    assertEquals(parameterEntry.getKey(),"10");
-                    assertEquals(parameterEntry.getValue(), "INTEGER");
+                    assertEquals(parameterEntry.getValue(),"10");
+                    assertEquals(parameterEntry.getType(), "INTEGER");
 
                     assertEquals(
                             List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
+
+                    String expectedQuery = "{\n" +
+                            "      find: \"users\",\n" +
+                            "      filter: { age: { \"$gte\": 30 } },\n" +
+                            "      sort: { id: 1 },\n" +
+                            "      limit: 10\n" +
+                            "    }";
+                    // check that bindings are not replaced with actual values and not '$i' or '?'
+                    assertEquals(expectedQuery,
+                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
                 })
                 .verifyComplete();
     }

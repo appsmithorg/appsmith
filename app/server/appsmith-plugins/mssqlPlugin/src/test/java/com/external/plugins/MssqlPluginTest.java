@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -372,7 +371,7 @@ public class MssqlPluginTest {
 
                     /*
                      * - Check if request params are sent back properly.
-                     * - Not replicating the same to other tests as the overall flow remainst the same w.r.t. request
+                     * - Not replicating the same to other tests as the overall flow remains the same w.r.t. request
                      *  params.
                      */
 
@@ -387,7 +386,6 @@ public class MssqlPluginTest {
                     assertEquals(expectedPsParam.getValue(), returnedPsParam.getValue());
                     // check if prepared stmt param type is correctly sent back.
                     assertEquals(expectedPsParam.getType(), returnedPsParam.getType());
-
                 })
                 .verifyComplete();
     }

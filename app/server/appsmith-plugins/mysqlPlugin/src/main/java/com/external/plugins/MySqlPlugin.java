@@ -243,6 +243,7 @@ public class MySqlPlugin extends BasePlugin {
                                     preparedStatement,
                                     mustacheValuesInOrder,
                                     executeActionDTO,
+                                    requestData,
                                     psParams);
                         }
                         return Flux.error(new StaleConnectionException());
@@ -320,6 +321,7 @@ public class MySqlPlugin extends BasePlugin {
                                                                  Boolean preparedStatement,
                                                                  List<String> mustacheValuesInOrder,
                                                                  ExecuteActionDTO executeActionDTO,
+                                                                 Map<String, Object> requestData,
                                                                  Map psParams) {
 
             Statement connectionStatement = connection.createStatement(query);
@@ -335,6 +337,8 @@ public class MySqlPlugin extends BasePlugin {
                         mustacheValuesInOrder,
                         executeActionDTO.getParams(),
                         parameters);
+
+                requestData.put("ps-parameters", parameters);
 
                 IntStream.range(0, parameters.size())
                         .forEachOrdered(i -> psParams.put(getPSParamLabel(i+1), parameters.get(i)));
