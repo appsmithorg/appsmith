@@ -7,7 +7,6 @@ import {
   GLOBAL_FUNCTIONS,
 } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
-import options from "pages/common/CustomizedDropdown/HeaderDropdownData";
 
 let extraDefs: any = {};
 const skipProperties = ["!doc", "!url", "!type"];
@@ -49,7 +48,7 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
       }
       if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
         const options: any = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
-        // def.appsmith = options;
+        def.appsmith = options;
         const flattenedObjects = flattenObjKeys(options, "appsmith");
         for (const [key, value] of Object.entries(flattenedObjects)) {
           def[key] = value;
