@@ -226,6 +226,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           const evaluatedValue = evaluatedProperty[itemIndex];
           if (isPlainObject(evaluatedValue) || Array.isArray(evaluatedValue))
             set(widget, path, JSON.stringify(evaluatedValue));
+          if (isNumber(evaluatedValue))
+            set(widget, path, evaluatedValue.toString());
           else set(widget, path, evaluatedValue);
         }
       });
