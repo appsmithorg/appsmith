@@ -2011,8 +2011,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousedown", { button: 0 }, { force: true })
     .trigger("mousemove", x, y, { force: true });
   cy.get(explorer.dropHere)
-    .click()
-    .trigger("mouseup", { force: true });
+    .click(x, y + 20)
+    .trigger("mouseup", x, y + 20, { force: true });
 });
 
 Cypress.Commands.add("executeDbQuery", (queryName) => {
