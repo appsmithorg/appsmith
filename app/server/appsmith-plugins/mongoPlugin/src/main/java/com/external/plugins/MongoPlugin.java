@@ -224,13 +224,13 @@ public class MongoPlugin extends BasePlugin {
 
                     actionConfiguration.setBody(updatedBody);
                 }
-            } else {
+            }
 
-                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
-                String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
-                if (parsedRawCommand != null) {
-                    actionConfiguration.setBody(parsedRawCommand);
-                }
+            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+            // In case the input type is form instead of raw, parse the same into BSON command
+            String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
+            if (parsedRawCommand != null) {
+                actionConfiguration.setBody(parsedRawCommand);
             }
 
             return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters);
