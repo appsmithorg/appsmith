@@ -30,8 +30,8 @@ describe("Entity explorer API pane related testcases", function() {
       expect($lis).to.have.length(4);
       expect($lis.eq(0)).to.contain("{{FirstAPI.isLoading}}");
       expect($lis.eq(1)).to.contain("{{FirstAPI.data}}");
-      expect($lis.eq(2)).to.contain("{{FirstAPI.run()}}");
-      expect($lis.eq(3)).to.contain("{{FirstAPI.responseMeta}}");
+      expect($lis.eq(2)).to.contain("{{FirstAPI.responseMeta}}");
+      expect($lis.eq(3)).to.contain("{{FirstAPI.run()}}");
     });
     cy.get(apiwidget.actionlist)
       .contains(testdata.Get)
