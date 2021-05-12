@@ -71,16 +71,17 @@ describe("Entity explorer tests related to copy query", function() {
       .invoke("show")
       .click({ force: true });
     cy.copyEntityToPage(pageid);
-    cy.SearchEntityandOpen("Query1Copy");
+    cy.SearchEntityandOpen("Query1");
     cy.runQuery();
-    cy.get(`.t--entity.action:contains(Query1Copy)`)
+    cy.get(`.t--entity.action:contains(Query1)`).should("have.length", 2);
+    cy.get(`.t--entity.action:contains(Query1)`)
       .find(explorer.collapse)
-      .click();
+      .click({ multiple: true });
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(3);
-      expect($lis.eq(0)).to.contain("{{Query1Copy.isLoading}}");
-      expect($lis.eq(1)).to.contain("{{Query1Copy.data}}");
-      expect($lis.eq(2)).to.contain("{{Query1Copy.run()}}");
+      expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
+      expect($lis.eq(1)).to.contain("{{Query1.data}}");
+      expect($lis.eq(2)).to.contain("{{Query1.run()}}");
     });
   });
 
@@ -109,7 +110,7 @@ describe("Entity explorer tests related to copy query", function() {
       );
     });
 
-    cy.SearchEntityandOpen("Query1Copy");
+    cy.SearchEntityandOpen("Query1");
     cy.deleteQuery();
   });
 });
