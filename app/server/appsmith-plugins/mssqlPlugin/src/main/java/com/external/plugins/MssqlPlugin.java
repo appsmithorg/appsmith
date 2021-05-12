@@ -48,6 +48,7 @@ import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -203,7 +204,7 @@ public class MssqlPlugin extends BasePlugin {
                     } else {
                         preparedQuery = connection.prepareStatement(query);
 
-                        List<PSOrSSParamDTO> parameters = new ArrayList<>();
+                        List<Map.Entry<String, String>> parameters = new ArrayList<>();
                         preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
                                 mustacheValuesInOrder,
                                 executeActionDTO.getParams(),
@@ -212,7 +213,10 @@ public class MssqlPlugin extends BasePlugin {
                         requestData.put("ps-parameters", parameters);
 
                         IntStream.range(0, parameters.size())
-                                .forEachOrdered(i -> psParams.put(getPSParamLabel(i+1), parameters.get(i)));
+                                .forEachOrdered(i ->
+                                        psParams.put(
+                                                getPSParamLabel(i+1),
+                                                new PSOrSSParamDTO(parameters.get(i).getKey(), parameters.get(i).getValue())));
 
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
@@ -496,13 +500,14 @@ public class MssqlPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<PSOrSSParamDTO> insertedParams,
+                                             List<Map.Entry<String, String>> insertedParams,
                                              Object... args) throws AppsmithPluginException {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
-            insertedParams.add(new PSOrSSParamDTO(value, valueType.toString()));
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
 
             try {
                 switch (valueType) {

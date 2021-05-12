@@ -122,7 +122,7 @@ public class MongoPlugin extends BasePlugin {
 
             Boolean smartBsonSubstitution;
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            List<PSOrSSParamDTO> parameters = new ArrayList<>();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             if (CollectionUtils.isEmpty(properties)) {
                 /**
@@ -191,7 +191,7 @@ public class MongoPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> executeCommon(MongoClient mongoClient,
                                                          DatasourceConfiguration datasourceConfiguration,
                                                          ActionConfiguration actionConfiguration,
-                                                         List<PSOrSSParamDTO> parameters) {
+                                                         List<Map.Entry<String, String>> parameters) {
 
             if (mongoClient == null) {
                 log.info("Encountered null connection in MongoDB plugin. Reporting back.");
@@ -205,11 +205,8 @@ public class MongoPlugin extends BasePlugin {
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
-            Map<String, Object> ssParams = new LinkedHashMap<>();
-            parameters.stream()
-                    .forEachOrdered(param -> ssParams.put(param.getValue(), param.getType()));
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null, ssParams.isEmpty() ? null : ssParams));
+                    , null, null));
 
             return mongoOutputMono
                     .onErrorMap(
@@ -779,7 +776,7 @@ public class MongoPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<PSOrSSParamDTO> insertedParams,
+                                             List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
             return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value, insertedParams);

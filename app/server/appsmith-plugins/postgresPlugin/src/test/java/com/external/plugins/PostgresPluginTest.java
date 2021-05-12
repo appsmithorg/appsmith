@@ -536,10 +536,9 @@ public class PostgresPluginTest {
                     ActionExecutionRequest request = result.getRequest();
                     List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("ps-parameters");
                     assertEquals(parameters.size(), 1);
-                    PSOrSSParamDTO parameterEntry = (PSOrSSParamDTO) parameters.get(0);
-                    assertEquals(parameterEntry.getValue(), "1");
-                    assertEquals(parameterEntry.getType(), "INTEGER");
-
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "1");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
                 })
                 .verifyComplete();
     }

@@ -124,7 +124,7 @@ public class RestApiPlugin extends BasePlugin {
 
             Boolean smartJsonSubstitution;
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            List<PSOrSSParamDTO> parameters = new ArrayList<>();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             if (CollectionUtils.isEmpty(properties)) {
                 /**
@@ -199,7 +199,7 @@ public class RestApiPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> executeCommon(APIConnection apiConnection,
                                                          DatasourceConfiguration datasourceConfiguration,
                                                          ActionConfiguration actionConfiguration,
-                                                         List<PSOrSSParamDTO> insertedParams) {
+                                                         List<Map.Entry<String, String>> insertedParams) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -692,17 +692,13 @@ public class RestApiPlugin extends BasePlugin {
 
         private ActionExecutionRequest populateRequestFields(ActionConfiguration actionConfiguration,
                                                              URI uri,
-                                                             List<PSOrSSParamDTO> insertedParams) {
+                                                             List<Map.Entry<String, String>> insertedParams) {
 
             ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
 
             if (!insertedParams.isEmpty()) {
-                Map ssParams = new LinkedHashMap();
-                insertedParams.stream()
-                        .forEachOrdered(param -> ssParams.put(param.getValue(), param.getType()));
                 final Map<String, Object> requestData = new HashMap<>();
                 requestData.put("smart-substitution-parameters", insertedParams);
-                actionExecutionRequest.setRequestParams(requestData);
                 actionExecutionRequest.setProperties(requestData);
             }
 
@@ -760,7 +756,7 @@ public class RestApiPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<PSOrSSParamDTO> insertedParams,
+                                             List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
             return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value, insertedParams);

@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -306,12 +307,11 @@ public class MssqlPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<PSOrSSParamDTO> parameters = (List<PSOrSSParamDTO>) request.getProperties().get("ps" +
-                            "-parameters");
+                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("ps-parameters");
                     assertEquals(parameters.size(), 1);
-                    PSOrSSParamDTO parameterEntry = parameters.get(0);
-                    assertEquals(parameterEntry.getValue(), "1");
-                    assertEquals(parameterEntry.getType(), "INTEGER");
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "1");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
                 })
                 .verifyComplete();
     }

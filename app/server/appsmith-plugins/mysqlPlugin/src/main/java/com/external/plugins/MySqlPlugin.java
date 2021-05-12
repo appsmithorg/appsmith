@@ -16,6 +16,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.PSOrSSParamDTO;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
@@ -47,6 +48,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -331,7 +333,7 @@ public class MySqlPlugin extends BasePlugin {
 
             System.out.println("Query : " + query);
 
-            List<PSOrSSParamDTO> parameters = new ArrayList<>();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
             try {
                 connectionStatement = (Statement) this.smartSubstitutionOfBindings(connectionStatement,
                         mustacheValuesInOrder,
@@ -341,7 +343,10 @@ public class MySqlPlugin extends BasePlugin {
                 requestData.put("ps-parameters", parameters);
 
                 IntStream.range(0, parameters.size())
-                        .forEachOrdered(i -> psParams.put(getPSParamLabel(i+1), parameters.get(i)));
+                        .forEachOrdered(i ->
+                                psParams.put(
+                                        getPSParamLabel(i+1),
+                                        new PSOrSSParamDTO(parameters.get(i).getKey(), parameters.get(i).getValue())));
 
             } catch (AppsmithPluginException e) {
                 return Flux.error(e);
@@ -357,13 +362,14 @@ public class MySqlPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<PSOrSSParamDTO> insertedParams,
+                                             List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
 
             Statement connectionStatement = (Statement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
 
-            insertedParams.add(new PSOrSSParamDTO(value, valueType.toString()));
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
 
             if (DataType.NULL.equals(valueType)) {
                 try {
