@@ -27,7 +27,12 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
   const dataTree: DataTree = yield select(getDataTree);
   const widget = dataTree[payload.source.name];
 
-  if (!isWidget(widget) || !widget.validationMessages) return;
+  if (
+    !isWidget(widget) ||
+    !widget.validationMessages ||
+    !widget.jsErrorMessages
+  )
+    return;
 
   // Ignore canvas widget updates
   if (widget.type === WidgetTypes.CANVAS_WIDGET) {
@@ -41,14 +46,17 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
 
     const validationMessages = widget.validationMessages;
     const validationMessage = validationMessages[propertyPath];
+    const jsErrorMessages = widget.jsErrorMessages;
+    const jsErrorMessage = jsErrorMessages[propertyPath];
     const errors = yield select(getDebuggerErrors);
     const errorId = `${source.id}-${propertyPath}`;
     const widgetErrorLog = errors[errorId];
     if (!widgetErrorLog) return;
 
     const noError = isEmpty(validationMessage);
+    const noJsError = isEmpty(jsErrorMessage);
 
-    if (noError) {
+    if (noError && noJsError) {
       delete errors[errorId];
 
       yield put({
@@ -121,6 +129,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
       yield call(onWidgetUpdateSaga, payload);
       yield put(debuggerLog(payload));
       return;
+    case LOG_TYPE.EVAL_ERROR:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {

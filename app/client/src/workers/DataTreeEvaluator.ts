@@ -331,7 +331,7 @@ export default class DataTreeEvaluator {
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
         dependencyMap[key].map((path) =>
-          extractReferencesFromBinding(key, path, this.allKeys),
+          extractReferencesFromBinding(path, this.allKeys),
         ),
       );
     });
@@ -372,10 +372,21 @@ export default class DataTreeEvaluator {
     }
     if (isAction(entity)) {
       Object.entries(entity.dependencyMap).forEach(
-        ([dependent, entityDependencies]) => {
-          dependencies[`${entityName}.${dependent}`] = entityDependencies.map(
-            (propertyPath) => `${entityName}.${propertyPath}`,
-          );
+        ([path, entityDependencies]) => {
+          const actionDependentPaths: Array<string> = [];
+          const mainPath = `${entityName}.${path}`;
+          // Only add dependencies for paths which exist at the moment in appsmith world
+          if (this.allKeys.hasOwnProperty(mainPath)) {
+            // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
+            // a cyclical dependency.
+            entityDependencies.forEach((dependentPath) => {
+              const completePath = `${entityName}.${dependentPath}`;
+              if (this.allKeys.hasOwnProperty(completePath)) {
+                actionDependentPaths.push(completePath);
+              }
+            });
+            dependencies[mainPath] = actionDependentPaths;
+          }
         },
       );
     }
@@ -407,6 +418,11 @@ export default class DataTreeEvaluator {
           let evalPropertyValue;
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
+          _.set(
+            currentTree,
+            `${entityName}.jsErrorMessages.${propertyPath}`,
+            "",
+          );
           if (requiresEval) {
             const evaluationSubstitutionType =
               entity.bindingPaths[propertyPath] ||
@@ -417,6 +433,8 @@ export default class DataTreeEvaluator {
                 currentTree,
                 evaluationSubstitutionType,
                 false,
+                undefined,
+                fullPropertyPath,
               );
             } catch (e) {
               this.errors.push({
@@ -561,6 +579,7 @@ export default class DataTreeEvaluator {
     evaluationSubstitutionType: EvaluationSubstitutionType,
     returnTriggers: boolean,
     callBackData?: Array<any>,
+    fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
     const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
@@ -569,6 +588,7 @@ export default class DataTreeEvaluator {
         data,
         jsSnippets[0],
         callBackData,
+        fullPropertyPath,
       );
       return result.triggers;
     }
@@ -580,6 +600,7 @@ export default class DataTreeEvaluator {
             data,
             jsSnippet,
             callBackData,
+            fullPropertyPath,
           );
           return result.result;
         } else {
@@ -606,17 +627,32 @@ export default class DataTreeEvaluator {
     data: DataTree,
     js: string,
     callbackData?: Array<any>,
+    fullPropertyPath?: string,
   ): EvalResult {
     try {
       return evaluate(js, data, callbackData);
     } catch (e) {
-      this.errors.push({
-        type: EvalErrorTypes.EVAL_ERROR,
-        message: e.message,
-        context: {
-          binding: js,
-        },
-      });
+      if (fullPropertyPath) {
+        const { propertyPath, entityName } = getEntityNameAndPropertyPath(
+          fullPropertyPath,
+        );
+        _.set(data, `${entityName}.jsErrorMessages.${propertyPath}`, e.message);
+        const entity = data[entityName];
+        if (isWidget(entity)) {
+          this.errors.push({
+            type: EvalErrorTypes.EVAL_ERROR,
+            message: e.message,
+            context: {
+              source: {
+                id: entity.widgetId,
+                name: entity.widgetName,
+                type: ENTITY_TYPE.WIDGET,
+                propertyPath: propertyPath,
+              },
+            },
+          });
+        }
+      }
       return { result: undefined, triggers: [] };
     }
   }
@@ -638,6 +674,7 @@ export default class DataTreeEvaluator {
         EvaluationSubstitutionType.TEMPLATE,
         true,
         undefined,
+        fullPropertyPath,
       );
       valueToValidate = triggers;
     }
@@ -656,19 +693,22 @@ export default class DataTreeEvaluator {
       : transformed;
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
     _.set(widget, `evaluatedValues.${propertyPath}`, safeEvaluatedValue);
+    const jsError = _.get(widget, `jsErrorMessages.${propertyPath}`);
     if (!isValid) {
-      this.errors.push({
-        type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
-        message: message || "",
-        context: {
-          source: {
-            id: widget.widgetId,
-            name: widget.widgetName,
-            type: ENTITY_TYPE.WIDGET,
-            propertyPath: propertyPath,
+      if (!jsError) {
+        this.errors.push({
+          type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
+          message: message || "",
+          context: {
+            source: {
+              id: widget.widgetId,
+              name: widget.widgetName,
+              type: ENTITY_TYPE.WIDGET,
+              propertyPath: propertyPath,
+            },
           },
-        },
-      });
+        });
+      }
       _.set(widget, `invalidProps.${propertyPath}`, true);
       _.set(widget, `validationMessages.${propertyPath}`, message);
     } else {
@@ -886,16 +926,23 @@ export default class DataTreeEvaluator {
                       const entityDependenciesName = entity.dependencyMap[
                         entityPropertyPath
                       ].map((dep) => `${entityName}.${dep}`);
+
+                      // Filter only the paths which exist in the appsmith world to avoid cyclical dependencies
+                      const filteredEntityDependencies = entityDependenciesName.filter(
+                        (path) => this.allKeys.hasOwnProperty(path),
+                      );
+
+                      // Now assign these existing dependent paths to the property path in dependencyMap
                       if (fullPropertyPath in this.dependencyMap) {
                         this.dependencyMap[
                           fullPropertyPath
                         ] = this.dependencyMap[fullPropertyPath].concat(
-                          entityDependenciesName,
+                          filteredEntityDependencies,
                         );
                       } else {
                         this.dependencyMap[
                           fullPropertyPath
-                        ] = entityDependenciesName;
+                        ] = filteredEntityDependencies;
                       }
                     }
                   }
@@ -917,7 +964,7 @@ export default class DataTreeEvaluator {
         this.dependencyMap[key] = _.uniq(
           _.flatten(
             this.dependencyMap[key].map((path) =>
-              extractReferencesFromBinding(key, path, this.allKeys),
+              extractReferencesFromBinding(path, this.allKeys),
             ),
           ),
         );
@@ -1054,7 +1101,7 @@ export default class DataTreeEvaluator {
           const propertyBindings = entityPropertyBindings[path];
           const references = _.flatten(
             propertyBindings.map((binding) =>
-              extractReferencesFromBinding(path, binding, this.allKeys),
+              extractReferencesFromBinding(binding, this.allKeys),
             ),
           );
           references.forEach((value) => {
@@ -1116,7 +1163,6 @@ export default class DataTreeEvaluator {
 }
 
 const extractReferencesFromBinding = (
-  path: string,
   dependentPath: string,
   all: Record<string, true>,
 ): Array<string> => {
@@ -1127,7 +1173,7 @@ const extractReferencesFromBinding = (
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
     if (all.hasOwnProperty(identifier)) {
-      pushDependentsInSubDependencyArray(subDeps, path, identifier);
+      subDeps.push(identifier);
       return;
     }
     const subpaths = _.toPath(identifier);
@@ -1140,26 +1186,13 @@ const extractReferencesFromBinding = (
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
       if (all.hasOwnProperty(current)) {
-        pushDependentsInSubDependencyArray(subDeps, path, current);
+        subDeps.push(current);
         return;
       }
       subpaths.pop();
     }
   });
   return _.uniq(subDeps);
-};
-
-const pushDependentsInSubDependencyArray = (
-  subDeps: string[],
-  path: string,
-  dependentPath: string,
-): string[] => {
-  // Only add if path is not a child of dependentPath which ensures that cyclical dependency is not introduced
-  // when adding parent-child relationships later
-  if (!isChildPropertyPath(dependentPath, path)) {
-    subDeps.push(dependentPath);
-  }
-  return subDeps;
 };
 
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function
