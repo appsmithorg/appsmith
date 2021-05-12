@@ -428,65 +428,102 @@ public class MongoPluginTest {
                             new DatasourceStructure.Key[]{},
                             usersTable.getKeys().toArray()
                     );
+                    List<DatasourceStructure.Template> templates = usersTable.getTemplates();
 
-                    assertArrayEquals(
-                            new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("Find", "{\n" +
-                                            "  \"find\": \"users\",\n" +
-                                            "  \"filter\": {\n" +
-                                            "    \"gender\": \"F\"\n" +
-                                            "  },\n" +
-                                            "  \"sort\": {\n" +
-                                            "    \"_id\": 1\n" +
-                                            "  },\n" +
-                                            "  \"limit\": 10\n" +
-                                            "}\n"),
-                                    new DatasourceStructure.Template("Find by ID", "{\n" +
-                                            "  \"find\": \"users\",\n" +
-                                            "  \"filter\": {\n" +
-                                            "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
-                                            "  }\n" +
-                                            "}\n"),
-                                    new DatasourceStructure.Template("Insert", "{\n" +
-                                            "  \"insert\": \"users\",\n" +
-                                            "  \"documents\": [\n" +
-                                            "    {\n" +
-                                            "      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
-                                            "      \"age\": 1,\n" +
-                                            "      \"dob\": new Date(\"2019-07-01\"),\n" +
-                                            "      \"gender\": \"new value\",\n" +
-                                            "      \"luckyNumber\": NumberLong(\"1\"),\n" +
-                                            "      \"name\": \"new value\",\n" +
-                                            "      \"netWorth\": NumberDecimal(\"1\"),\n" +
-                                            "      \"updatedByCommand\": {},\n" +
-                                            "    }\n" +
-                                            "  ]\n" +
-                                            "}\n"),
-                                    new DatasourceStructure.Template("Update", "{\n" +
-                                            "  \"update\": \"users\",\n" +
-                                            "  \"updates\": [\n" +
-                                            "    {\n" +
-                                            "      \"q\": {\n" +
-                                            "        \"_id\": ObjectId(\"id_of_document_to_update\")\n" +
-                                            "      },\n" +
-                                            "      \"u\": { \"$set\": { \"gender\": \"new value\" } }\n" +
-                                            "    }\n" +
-                                            "  ]\n" +
-                                            "}\n"),
-                                    new DatasourceStructure.Template("Delete", "{\n" +
-                                            "  \"delete\": \"users\",\n" +
-                                            "  \"deletes\": [\n" +
-                                            "    {\n" +
-                                            "      \"q\": {\n" +
-                                            "        \"_id\": \"id_of_document_to_delete\"\n" +
-                                            "      },\n" +
-                                            "      \"limit\": 1\n" +
-                                            "    }\n" +
-                                            "  ]\n" +
-                                            "}\n"),
-                            },
-                            usersTable.getTemplates().toArray()
-                    );
+                    //Assert Find command
+                    DatasourceStructure.Template findTemplate = templates.get(0);
+                    assertEquals(findTemplate.getTitle(), "Find");
+                    assertEquals(findTemplate.getBody(), "{\n" +
+                            "  \"find\": \"users\",\n" +
+                            "  \"filter\": {\n" +
+                            "    \"gender\": \"F\"\n" +
+                            "  },\n" +
+                            "  \"sort\": {\n" +
+                            "    \"_id\": 1\n" +
+                            "  },\n" +
+                            "  \"limit\": 10\n" +
+                            "}\n");
+                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.COMMAND).getValue(), "FIND");
+                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.FIND_QUERY).getValue(), "{ \"gender\": \"F\"}");
+                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.FIND_SORT).getValue(), "{\"_id\": 1}");
+
+                    //Assert Find By Id command
+                    DatasourceStructure.Template findByIdTemplate = templates.get(1);
+                    assertEquals(findByIdTemplate.getTitle(), "Find by ID");
+                    assertEquals(findByIdTemplate.getBody(), "{\n" +
+                            "  \"find\": \"users\",\n" +
+                            "  \"filter\": {\n" +
+                            "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
+                            "  }\n" +
+                            "}\n");
+                    assertEquals(findByIdTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.COMMAND).getValue(), "FIND");
+                    assertEquals(findByIdTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.FIND_QUERY).getValue(), "{\"_id\": ObjectId(\"id_to_query_with\")}");
+
+                    // Assert Insert command
+                    DatasourceStructure.Template insertTemplate = templates.get(2);
+                    assertEquals(insertTemplate.getTitle(), "Insert");
+                    assertEquals(insertTemplate.getBody(), "{\n" +
+                            "  \"insert\": \"users\",\n" +
+                            "  \"documents\": [\n" +
+                            "    {\n" +
+                            "      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
+                            "      \"age\": 1,\n" +
+                            "      \"dob\": new Date(\"2019-07-01\"),\n" +
+                            "      \"gender\": \"new value\",\n" +
+                            "      \"luckyNumber\": NumberLong(\"1\"),\n" +
+                            "      \"name\": \"new value\",\n" +
+                            "      \"netWorth\": NumberDecimal(\"1\"),\n" +
+                            "      \"updatedByCommand\": {},\n" +
+                            "    }\n" +
+                            "  ]\n" +
+                            "}\n");
+                    assertEquals(insertTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.COMMAND).getValue(), "INSERT");
+                    assertEquals(insertTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.INSERT_DOCUMENT).getValue(),
+                            "[{      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
+                            "      \"age\": 1,\n" +
+                            "      \"dob\": new Date(\"2019-07-01\"),\n" +
+                            "      \"gender\": \"new value\",\n" +
+                            "      \"luckyNumber\": NumberLong(\"1\"),\n" +
+                            "      \"name\": \"new value\",\n" +
+                            "      \"netWorth\": NumberDecimal(\"1\"),\n" +
+                            "      \"updatedByCommand\": {},\n" +
+                            "}]");
+
+                    // Assert Update command
+                    DatasourceStructure.Template updateTemplate = templates.get(3);
+                    assertEquals(updateTemplate.getTitle(), "Update");
+                    assertEquals(updateTemplate.getBody(), "{\n" +
+                            "  \"update\": \"users\",\n" +
+                            "  \"updates\": [\n" +
+                            "    {\n" +
+                            "      \"q\": {\n" +
+                            "        \"_id\": ObjectId(\"id_of_document_to_update\")\n" +
+                            "      },\n" +
+                            "      \"u\": { \"$set\": { \"gender\": \"new value\" } }\n" +
+                            "    }\n" +
+                            "  ]\n" +
+                            "}\n");
+                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.COMMAND).getValue(), "UPDATE_MANY");
+                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.UPDATE_MANY_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
+                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.UPDATE_MANY_UPDATE).getValue(), "{ \"$set\": { \"gender\": \"new value\" } }");
+
+                    // Assert Delete Command
+                    DatasourceStructure.Template deleteTemplate = templates.get(4);
+                    assertEquals(deleteTemplate.getTitle(), "Delete");
+                    assertEquals(deleteTemplate.getBody(), "{\n" +
+                            "  \"delete\": \"users\",\n" +
+                            "  \"deletes\": [\n" +
+                            "    {\n" +
+                            "      \"q\": {\n" +
+                            "        \"_id\": \"id_of_document_to_delete\"\n" +
+                            "      },\n" +
+                            "      \"limit\": 1\n" +
+                            "    }\n" +
+                            "  ]\n" +
+                            "}\n");
+                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.COMMAND).getValue(), "DELETE");
+                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.DELETE_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
+                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(ConfigurationIndex.DELETE_LIMIT).getValue(), "SINGLE");
                 })
                 .verifyComplete();
     }
