@@ -79,7 +79,6 @@ export const useWidgetSelection = () => {
     deselectAll: useCallback(() => dispatch(selectAllWidgets([])), [dispatch]),
   };
 };
-selectAllWidgets;
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
   return {
