@@ -57,8 +57,8 @@ describe("Entity explorer tests related to copy query", function() {
         expect($lis).to.have.length(4);
         expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
         expect($lis.eq(1)).to.contain("{{Query1.data}}");
-        expect($lis.eq(2)).to.contain("{{Query1.run()}}");
-        expect($lis.eq(3)).to.contain("{{Query1.responseMeta}}");
+        expect($lis.eq(2)).to.contain("{{Query1.responseMeta}}");
+        expect($lis.eq(3)).to.contain("{{Query1.run()}}");
       });
     });
   });
@@ -81,8 +81,8 @@ describe("Entity explorer tests related to copy query", function() {
       expect($lis).to.have.length(4);
       expect($lis.eq(0)).to.contain("{{Query1Copy.isLoading}}");
       expect($lis.eq(1)).to.contain("{{Query1Copy.data}}");
-      expect($lis.eq(2)).to.contain("{{Query1Copy.run()}}");
-      expect($lis.eq(3)).to.contain("{{Query1.responseMeta}}");
+      expect($lis.eq(2)).to.contain("{{Query1Copy.responseMeta}}");
+      expect($lis.eq(3)).to.contain("{{Query1Copy.run()}}");
     });
   });
 
