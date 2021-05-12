@@ -422,7 +422,9 @@ public class AuthenticationService {
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                return datasourceService.update(datasource.getId(), datasource);
+                                return datasourceService
+                                        .update(datasource.getId(), datasource)
+                                        .thenReturn(datasource);
                             });
                 })
                 .switchIfEmpty(Mono.just(datasource))
