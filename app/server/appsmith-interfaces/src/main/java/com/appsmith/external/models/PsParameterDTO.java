@@ -11,7 +11,6 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @JsonPropertyOrder({"value", "type"})
-// short for PreparedStatementOrSmartSubstitutionParamDTO
 public class PsParameterDTO {
     String value;
     String type;
