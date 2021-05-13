@@ -2,7 +2,6 @@ package com.appsmith.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.PSOrSSParamDTO;
 import com.appsmith.external.models.Param;
 
 import java.util.List;

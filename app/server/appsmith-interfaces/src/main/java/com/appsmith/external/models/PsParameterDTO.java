@@ -12,7 +12,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @JsonPropertyOrder({"value", "type"})
 // short for PreparedStatementOrSmartSubstitutionParamDTO
-public class PSOrSSParamDTO {
+public class PsParameterDTO {
     String value;
     String type;
 }

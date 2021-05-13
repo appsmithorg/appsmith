@@ -15,7 +15,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.PSOrSSParamDTO;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
@@ -274,7 +274,7 @@ public class PostgresPlugin extends BasePlugin {
                                 .forEachOrdered(i ->
                                         psParams.put(
                                                 getPSParamLabel(i+1),
-                                                new PSOrSSParamDTO(parameters.get(i).getKey(),parameters.get(i).getValue())));
+                                                new PsParameterDTO(parameters.get(i).getKey(),parameters.get(i).getValue())));
 
                         requestData.put("ps-parameters", parameters);
                         isResultSet = preparedQuery.execute();

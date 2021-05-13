@@ -8,7 +8,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.PSOrSSParamDTO;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
@@ -379,9 +379,9 @@ public class MssqlPluginTest {
                     assertEquals("SELECT * FROM users where id = $1;",
                             ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
 
-                    PSOrSSParamDTO expectedPsParam = new PSOrSSParamDTO("1", "INTEGER");
-                    PSOrSSParamDTO returnedPsParam =
-                            (PSOrSSParamDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$1");
+                    PsParameterDTO expectedPsParam = new PsParameterDTO("1", "INTEGER");
+                    PsParameterDTO returnedPsParam =
+                            (PsParameterDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$1");
                     // Check if prepared stmt param value is correctly sent back.
                     assertEquals(expectedPsParam.getValue(), returnedPsParam.getValue());
                     // check if prepared stmt param type is correctly sent back.

@@ -6,7 +6,7 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.external.models.PSOrSSParamDTO;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -378,11 +378,11 @@ public class RestApiPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<PSOrSSParamDTO> parameters = (List<PSOrSSParamDTO>) request.getProperties().get("smart" +
+                    List<PsParameterDTO> parameters = (List<PsParameterDTO>) request.getProperties().get("smart" +
                             "-substitution-parameters");
                     assertEquals(parameters.size(), 7);
 
-                    PSOrSSParamDTO parameterEntry = parameters.get(0);
+                    PsParameterDTO parameterEntry = parameters.get(0);
                     assertEquals(parameterEntry.getValue(), "this is a string! Yay :D");
                     assertEquals(parameterEntry.getType(), "STRING");
 
