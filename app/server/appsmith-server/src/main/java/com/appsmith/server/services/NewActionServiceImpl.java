@@ -112,7 +112,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 NewPageService newPageService,
                                 ApplicationService applicationService,
                                 SessionUserService sessionUserService,
-                                PolicyUtils policyUtils, AuthenticationValidator authenticationValidator) {
+                                PolicyUtils policyUtils,
+                                AuthenticationValidator authenticationValidator) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -509,7 +510,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN)));
 
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
-
 
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = Mono
