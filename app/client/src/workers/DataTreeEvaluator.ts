@@ -417,7 +417,6 @@ export default class DataTreeEvaluator {
           }
 
           if (isWidget(entity)) {
-            // In case the widget has a scope, handle replacement of the variable name with the values from the scope.
             const widgetEntity = entity;
             const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
               .defaultProperties;
