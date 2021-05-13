@@ -58,8 +58,8 @@ function EntityDeps() {
     return selectedWidget ? getWidget(state, selectedWidget) : null;
   });
   const entityDependencies: {
-    directDependencies: Record<string, string[]>;
-    inverseDependencies: Record<string, string[]>;
+    directDependencies: string[];
+    inverseDependencies: string[];
   } | null = useMemo(
     () =>
       getDependencies(
@@ -95,24 +95,17 @@ function BlankState() {
 }
 
 function DependencyHierarchy(props: {
-  dependencies: Record<string, string[]>;
+  dependencies: string[];
   entityName: string;
 }) {
   return (
     <DependenciesWrapper>
       <Collapsible label={props.entityName} step={0}>
-        {Object.entries(props.dependencies as any).map((item) => {
-          const [key, values] = item;
+        {props.dependencies.map((item) => {
           return (
-            <Collapsible key={key} label={key} step={1}>
-              {(values as any).map((e: any) => {
-                return (
-                  <StyledSpan key={e} step={2}>
-                    {e}
-                  </StyledSpan>
-                );
-              })}
-            </Collapsible>
+            <StyledSpan key={item} step={2}>
+              {item}
+            </StyledSpan>
           );
         })}
       </Collapsible>
@@ -145,38 +138,35 @@ function Collapsible(props: any) {
 function getDependencies(deps: any, entityName: string | null) {
   if (!entityName) return null;
 
-  let directDependencies: Record<string, string[]> = {};
-  let inverseDependencies: Record<string, string[]> = {};
+  let directDependencies = new Set<string>();
+  let inverseDependencies = new Set<string>();
 
   Object.entries(deps).forEach(([dependant, dependencies]) => {
-    let dependantSplits = dependant.split(".");
-    dependantSplits.shift();
-    const widgetProperty = dependantSplits.join(".");
-
     (dependencies as any).map((dependency: any) => {
       if (!dependant.includes(entityName) && dependency.includes(entityName)) {
-        const splits = dependency.split(".");
-        splits.shift();
-        const key = splits.join(".");
+        const entity = dependant
+          .split(".")
+          .slice(0, 1)
+          .join("");
 
-        const directDependencyValues = directDependencies[key] || [];
-        directDependencyValues.push(dependant);
-        directDependencies[key] = directDependencyValues;
+        directDependencies.add(entity);
       } else if (
         dependant.includes(entityName) &&
         !dependency.includes(entityName)
       ) {
-        const inverseDependencyValues =
-          inverseDependencies[widgetProperty] || [];
-        inverseDependencyValues.push(dependency);
-        inverseDependencies[widgetProperty] = inverseDependencyValues;
+        const entity = dependency
+          .split(".")
+          .slice(0, 1)
+          .join("");
+
+        inverseDependencies.add(entity);
       }
     });
   });
 
   return {
-    inverseDependencies,
-    directDependencies,
+    inverseDependencies: Array.from(inverseDependencies),
+    directDependencies: Array.from(directDependencies),
   };
 }
 
