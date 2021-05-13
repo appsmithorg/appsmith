@@ -660,7 +660,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     /*
      * - Get label for request params.
-     * - Transform request params list: [""] to a map: {"label": "value"}
+     * - Transform request params list: [""] to a map: {"label": {"value": ...}}
      * - Rearrange request params in the order as they appear in query editor form.
      */
     private void transformRequestParams(ActionExecutionResult result, Map<String, String> labelMap) {

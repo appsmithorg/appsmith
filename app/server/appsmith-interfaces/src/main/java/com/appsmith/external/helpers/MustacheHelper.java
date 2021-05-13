@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.isDomainModel;
-import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 
 @Slf4j
 public class MustacheHelper {
