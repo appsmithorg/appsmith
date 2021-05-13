@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.views.BaseView;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJSONFile;
@@ -13,6 +14,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -122,10 +124,19 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
+    @JsonView(BaseView.Detail.class)
     @GetMapping("/export/{id}")
     public Mono<ResponseDTO<ApplicationJSONFile>> getApplicationFile(@PathVariable String id) {
         log.debug("Going to export application with id: {}", id);
         return importExportApplicationService.getApplicationFileById(id)
+                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
+    }
+
+    @PostMapping("/import/{orgId}")
+    public Mono<ResponseDTO<Application>> importApplicationFromFile(
+            @PathVariable String orgId, @RequestBody ApplicationJSONFile jsonFile) {
+        log.debug("Going to import application in organization with Id: {}", orgId);
+        return importExportApplicationService.importApplicationInOrganization(orgId, jsonFile)
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
