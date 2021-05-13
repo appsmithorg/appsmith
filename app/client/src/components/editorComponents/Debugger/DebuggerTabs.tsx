@@ -8,7 +8,7 @@ import { showDebugger } from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import EntityDeps from "./EntityDeps";
+import EntityDeps from "./EntityDependencies";
 
 const TABS_HEADER_HEIGHT = 36;
 

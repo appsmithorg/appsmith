@@ -47,6 +47,7 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { omnibarDocumentationHelper } from "constants/OmnibarDocumentationConstants";
+import EntityDeps from "components/editorComponents/Debugger/EntityDependencies";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -522,6 +523,11 @@ export function EditorJSONtoForm(props: Props) {
       key: "LOGS",
       title: "Logs",
       panelComponent: <DebuggerLogs searchQuery={actionName} />,
+    },
+    {
+      key: "ENTITY_DEPENDENCIES",
+      title: "Dependencies",
+      panelComponent: <EntityDeps />,
     },
   ];
 

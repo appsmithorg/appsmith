@@ -25,6 +25,7 @@ import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
+import EntityDeps from "./Debugger/EntityDependencies";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -235,6 +236,11 @@ function ApiResponseView(props: Props) {
       key: "LOGS",
       title: "Logs",
       panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
+    },
+    {
+      key: "ENTITY_DEPENDENCIES",
+      title: "Dependencies",
+      panelComponent: <EntityDeps />,
     },
   ];
 

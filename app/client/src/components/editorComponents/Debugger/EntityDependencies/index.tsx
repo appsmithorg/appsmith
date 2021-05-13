@@ -5,11 +5,11 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
-import { getWidget } from "sagas/selectors";
-import { WidgetProps } from "widgets/BaseWidget";
 import { Classes } from "components/ads/common";
-import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
 import InspectElement from "assets/images/InspectElement.svg";
+import useSelectedEntity from "./useSelectedEntity";
+import { SourceEntity } from "entities/AppsmithConsole";
+import { useEntityLink } from "./EntityLink";
 
 const CollapsibleWrapper = styled.div<{ step: number; isOpen: boolean }>`
   margin-left: ${(props) => props.step * 10}px;
@@ -36,6 +36,8 @@ const DependenciesWrapper = styled.div`
 const StyledSpan = styled.div<{ step: number }>`
   padding-top: 8px;
   margin-left: calc(${(props) => props.step * 12}px + 7px);
+  text-decoration-line: underline;
+  cursor: pointer;
 `;
 
 const BlankStateContainer = styled.div`
@@ -53,10 +55,9 @@ const BlankStateContainer = styled.div`
 
 function EntityDeps() {
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
-  const selectedWidget = useSelector(getCurrentWidgetId);
-  const widget: WidgetProps | null = useSelector((state: AppState) => {
-    return selectedWidget ? getWidget(state, selectedWidget) : null;
-  });
+  const selectedEntity = useSelectedEntity();
+  console.log(selectedEntity, "selectedEntity");
+
   const entityDependencies: {
     directDependencies: string[];
     inverseDependencies: string[];
@@ -64,22 +65,24 @@ function EntityDeps() {
     () =>
       getDependencies(
         deps.inverseDependencyMap,
-        widget ? widget.widgetName : null,
+        selectedEntity ? selectedEntity.name : null,
       ),
-    [selectedWidget, deps.inverseDependencyMap],
+    [selectedEntity, deps.inverseDependencyMap],
   );
 
-  if (!widget || !entityDependencies) return <BlankState />;
+  if (!selectedEntity || !entityDependencies) return <BlankState />;
 
   return (
     <div>
       <MemoizedDependencyHierarchy
         dependencies={entityDependencies.directDependencies}
-        entityName={`Dependencies of ${widget.widgetName}`}
+        entityName={`Dependencies of ${selectedEntity.name}`}
+        selectedEntity={selectedEntity}
       />
       <MemoizedDependencyHierarchy
         dependencies={entityDependencies.inverseDependencies}
-        entityName={`References of ${widget.widgetName}`}
+        entityName={`References of ${selectedEntity.name}`}
+        selectedEntity={selectedEntity}
       />
     </div>
   );
@@ -97,13 +100,23 @@ function BlankState() {
 function DependencyHierarchy(props: {
   dependencies: string[];
   entityName: string;
+  selectedEntity: SourceEntity;
 }) {
+  const { navigateToEntity } = useEntityLink();
+
   return (
     <DependenciesWrapper>
       <Collapsible label={props.entityName} step={0}>
         {props.dependencies.map((item) => {
           return (
-            <StyledSpan key={item} step={2}>
+            <StyledSpan
+              key={`${props.selectedEntity.id}-${item}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigateToEntity(item);
+              }}
+              step={2}
+            >
               {item}
             </StyledSpan>
           );
