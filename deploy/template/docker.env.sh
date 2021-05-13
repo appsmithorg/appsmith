@@ -59,8 +59,4 @@ APPSMITH_DISABLE_TELEMETRY=$disable_telemetry
 # APPSMITH_CODEC_SIZE=
 # *******************************
 
-# ****** CLOUD SERVICES *******
-APPSMITH_CLOUD_SERVICES_BASE_URL=https://cs.appsmith.com
-# *******************************
-
 EOF
