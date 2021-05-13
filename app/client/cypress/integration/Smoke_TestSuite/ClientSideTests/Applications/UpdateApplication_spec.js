@@ -51,7 +51,7 @@ describe("Update Application", function() {
       });
   });
 
-  it("Check for errors in updating application name", function() {
+  it("Shows local warning if user enters invalid appname", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -66,17 +66,28 @@ describe("Update Application", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.applicationName).type("  ");
-    cy.get(homePage.toastMessage).should(
-      "contain",
-      "Application name can't be empty",
-    );
+    cy.get(".error-message").should("contain", "Please enter a valid name");
+    // cy.get(homePage.applicationName).type("  " + "{enter}");
+    // cy.get(homePage.applicationName).should("contain", appname);
+  });
+
+  it("Reverts app name back to previously saved name if user tries to save invalid app name", function() {
+    cy.get(commonlocators.homeIcon).click({ force: true });
+    cy.get(homePage.searchInput).type(appname);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
+    cy.get(homePage.appEditIcon)
+      .first()
+      .click({ force: true });
+    cy.get("#loading").should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get(homePage.applicationName).type("  ");
     cy.get(homePage.applicationName).type("  " + "{enter}");
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.data.name",
-      `${appname} updated`,
-    );
-    cy.get(homePage.toastMessage).should("contain", "Application name updated");
+    cy.get(homePage.applicationName).should("contain", appname);
   });
 
   it("Updates the name of first application to very long name and checks whether update is reflected in the application card with a popover", function() {
