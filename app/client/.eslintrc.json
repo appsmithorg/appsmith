@@ -35,14 +35,15 @@
     "react/jsx-sort-props": "error",
     "react/jsx-fragments": "error",
     "react/jsx-no-useless-fragment": "error",
-    "sort-destructure-keys/sort-destructure-keys": ["warn", {"caseSensitive": false}],
+    "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}],
     "react/jsx-no-bind": ["warn", {
       "ignoreDOMComponents":  false,
       "ignoreRefs": true,
       "allowArrowFunctions":  false,
       "allowFunctions":  false,
       "allowBind": false
-    }]
+    }],
+    "no-shadow": ["error", { "builtinGlobals": true }]
   },
   "settings": {
     "react": {
