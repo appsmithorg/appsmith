@@ -8,7 +8,6 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
@@ -59,8 +58,6 @@ import javax.validation.Validator;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -243,17 +240,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<Datasource> datasourceMono;
         if (action.getDatasource().getId() == null) {
-            if (action.getDatasource().getDatasourceConfiguration() != null &&
-                    action.getDatasource().getDatasourceConfiguration().getAuthentication() != null) {
-                action.getDatasource()
-                        .getDatasourceConfiguration()
-                        .setAuthentication(datasourceService.encryptAuthenticationFields(action
-                                .getDatasource()
-                                .getDatasourceConfiguration()
-                                .getAuthentication()
-                        ));
-            }
-
             datasourceMono = Mono.just(action.getDatasource())
                     .flatMap(datasourceService::validateDatasource);
         } else {
@@ -540,13 +526,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // Set the action name
                     actionName.set(action.getName());
 
-                    // If authentication exists for the datasource, decrypt the fields
-                    if (datasource.getDatasourceConfiguration() != null &&
-                            datasource.getDatasourceConfiguration().getAuthentication() != null) {
-                        AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-                        datasource.getDatasourceConfiguration().setAuthentication(datasourceContextService.decryptSensitiveFields(authentication));
-                    }
-
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
 
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
@@ -557,17 +536,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource).cache();
 
-
                     Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
                             .flatMap(datasourceContextService::getDatasourceContext)
                             // Now that we have the context (connection details), execute the action.
-                            .flatMap(resourceContext -> validatedDatasourceMono.flatMap(datasource1 -> {
-                                        // Check encryption again
-                                        if (datasource1.getDatasourceConfiguration() != null &&
-                                                datasource1.getDatasourceConfiguration().getAuthentication() != null) {
-                                            AuthenticationDTO authentication = datasource1.getDatasourceConfiguration().getAuthentication();
-                                            datasource1.getDatasourceConfiguration().setAuthentication(datasourceContextService.decryptSensitiveFields(authentication));
-                                        }
+                            .flatMap(resourceContext -> validatedDatasourceMono
+                                    .flatMap(datasource1 -> {
                                         return (Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
                                                 resourceContext.getConnection(),
                                                 executeActionDTO,

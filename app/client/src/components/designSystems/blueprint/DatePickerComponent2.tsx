@@ -194,8 +194,8 @@ class DatePickerComponent extends React.Component<
 
   parseDate = (dateStr: string): Date => {
     const date = moment(dateStr);
-
-    if (date.isValid()) return moment(dateStr).toDate();
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
     else return moment().toDate();
   };
 

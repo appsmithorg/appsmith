@@ -287,7 +287,7 @@ jobs:
   ui-test-result:
     needs: ui-test
     # Only run if the ui-test with matrices step is successful
-    if: success()
+    if: always()
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -295,8 +295,16 @@ jobs:
     steps:
       - run: echo "All ui-test matrices completed"
 
+      - name: Return status for ui-matrix
+        run: |
+          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then
+            exit 0
+          else 
+            exit 1
+          fi
+
   package:
-    needs: build
+    needs: ui-test
     runs-on: ubuntu-latest
     defaults:
       run:

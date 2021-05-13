@@ -1,6 +1,15 @@
 import React from "react";
 import log from "loglevel";
-import { compact, get, set, xor, isPlainObject, isNumber, round } from "lodash";
+import {
+  compact,
+  get,
+  set,
+  xor,
+  isPlainObject,
+  isNumber,
+  round,
+  toString,
+} from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -224,9 +233,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           evaluatedProperty.length > itemIndex
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
-          if (isPlainObject(evaluatedValue))
+          if (isPlainObject(evaluatedValue) || Array.isArray(evaluatedValue))
             set(widget, path, JSON.stringify(evaluatedValue));
-          else set(widget, path, evaluatedValue);
+          else set(widget, path, toString(evaluatedValue));
         }
       });
     }
