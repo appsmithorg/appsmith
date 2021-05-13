@@ -9,6 +9,7 @@ import { getWidget } from "sagas/selectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { Classes } from "components/ads/common";
 import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
+import InspectElement from "assets/images/InspectElement.svg";
 
 const CollapsibleWrapper = styled.div<{ step: number; isOpen: boolean }>`
   margin-left: ${(props) => props.step * 10}px;
@@ -37,6 +38,19 @@ const StyledSpan = styled.div<{ step: number }>`
   margin-left: calc(${(props) => props.step * 12}px + 7px);
 `;
 
+const BlankStateContainer = styled.div`
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  flex-direction: column;
+
+  span {
+    margin-top: 21px;
+  }
+`;
+
 function EntityDeps() {
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
   const selectedWidget = useSelector(getCurrentWidgetId);
@@ -55,7 +69,7 @@ function EntityDeps() {
     [selectedWidget, deps.inverseDependencyMap],
   );
 
-  if (!widget || !entityDependencies) return null;
+  if (!widget || !entityDependencies) return <BlankState />;
 
   return (
     <div>
@@ -68,6 +82,15 @@ function EntityDeps() {
         entityName={`References of ${widget.widgetName}`}
       />
     </div>
+  );
+}
+
+function BlankState() {
+  return (
+    <BlankStateContainer>
+      <img src={InspectElement} />
+      <span>Select an element to inspect</span>
+    </BlankStateContainer>
   );
 }
 
@@ -131,7 +154,6 @@ function getDependencies(deps: any, entityName: string | null) {
     const widgetProperty = dependantSplits.join(".");
 
     (dependencies as any).map((dependency: any) => {
-      console.log("calasdasdasdasac");
       if (!dependant.includes(entityName) && dependency.includes(entityName)) {
         const splits = dependency.split(".");
         splits.shift();
