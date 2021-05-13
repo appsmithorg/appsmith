@@ -7,8 +7,13 @@ import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 //TODO : add currentRow to data ?? currentRow: Object of columns ie first row
-export const bindingHint: HintHelper = (editor, data, additionalData) => {
-  const ternServer = new TernServer(data, additionalData);
+export const bindingHint: HintHelper = (
+  editor,
+  data,
+  additionalData,
+  expected,
+) => {
+  const ternServer = new TernServer(data, additionalData, expected);
   editor.setOption("extraKeys", {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available

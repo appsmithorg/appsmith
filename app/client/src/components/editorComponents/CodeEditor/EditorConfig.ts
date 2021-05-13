@@ -44,6 +44,7 @@ export type HintHelper = (
   editor: CodeMirror.Editor,
   data: DataTree,
   additionalData?: Record<string, Record<string, unknown>>,
+  expected?: string,
 ) => Hinter;
 export type Hinter = {
   showHint: (editor: CodeMirror.Editor) => void;

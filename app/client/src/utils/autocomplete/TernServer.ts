@@ -57,12 +57,15 @@ class TernServer {
   server: Server;
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
+  expected?: string;
 
   constructor(
     dataTree: DataTree,
     additionalDataTree?: Record<string, Record<string, unknown>>,
+    expected?: string,
   ) {
     const dataTreeDef = dataTreeTypeDefCreator(dataTree);
+    this.expected = expected;
     let customDataTreeDef = undefined;
     if (additionalDataTree) {
       customDataTreeDef = customTreeTypeDefCreator(additionalDataTree);
@@ -107,6 +110,7 @@ class TernServer {
     const lineValue = this.lineValue(doc);
     const focusedValue = this.getFocusedDynamicValue(doc);
     const index = lineValue.indexOf(focusedValue);
+    const expectedDataType = this.getExpectedDataType();
     let completions: Completion[] = [];
     let after = "";
     const { start, end } = data;
@@ -129,6 +133,8 @@ class TernServer {
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
+      const dataType = this.getDataType(completion.type);
+      if (dataType === expectedDataType) className += " " + cls + "expected";
       if (data.guess) className += " " + cls + "guess";
       completions.push({
         text: completion.name + after,
@@ -136,7 +142,7 @@ class TernServer {
         className: className,
         data: completion,
         origin: completion.origin,
-        type: this.getDataType(completion.type),
+        type: dataType,
       });
     }
     completions = this.sortCompletions(completions);
@@ -221,9 +227,20 @@ class TernServer {
     else if (type === "number") return "NUMBER";
     else if (type === "string") return "STRING";
     else if (type === "bool") return "BOOLEAN";
+    else if (type === "array") return "ARRAY";
     else if (/^fn\(/.test(type)) return "FUNCTION";
     else if (/^\[/.test(type)) return "ARRAY";
     else return "OBJECT";
+  }
+
+  getExpectedDataType() {
+    const type = this.expected;
+    if (type === "Array<Object>" || type === "Array") return "ARRAY";
+    if (type === "boolean") return "BOOLEAN";
+    if (type === "string") return "STRING";
+    if (type === "number") return "NUMBER";
+    if (type === undefined) return "UNKNOWN";
+    return undefined;
   }
 
   typeToIcon(type: string) {
@@ -361,7 +378,8 @@ class TernServer {
         if (query.start) {
           query.start = Pos(query.start.line - -offsetLines, query.start.ch);
         }
-        query.end = Pos(query.end.line - offsetLines, query.end.ch);
+        // query.end = Pos(query.end.line - offsetLines, query.end.ch);
+        query.end = 20;
       } else {
         files.push({
           type: "full",

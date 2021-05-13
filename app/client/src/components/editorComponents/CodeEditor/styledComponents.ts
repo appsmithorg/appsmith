@@ -51,6 +51,10 @@ export const HintStyles = createGlobalStyle<{
     }
   }
 
+  .CodeMirror-Tern-expected {
+    background-color: #d8ffd8;
+  }
+
   .datasource-hint {
     padding: 10px;
     display: block;

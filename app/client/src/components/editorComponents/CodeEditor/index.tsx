@@ -223,6 +223,7 @@ class CodeEditor extends Component<Props, State> {
         this.editor,
         this.props.dynamicData,
         this.props.additionalDynamicData,
+        this.props.expected,
       );
     });
   }
