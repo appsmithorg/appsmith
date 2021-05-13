@@ -9,6 +9,7 @@ import {
   isNumber,
   round,
   range,
+  toString,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -235,9 +236,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           evaluatedProperty.length > itemIndex
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
-          if (isPlainObject(evaluatedValue))
+          if (isPlainObject(evaluatedValue) || Array.isArray(evaluatedValue))
             set(widget, path, JSON.stringify(evaluatedValue));
-          else set(widget, path, evaluatedValue);
+          else set(widget, path, toString(evaluatedValue));
         }
       });
     }

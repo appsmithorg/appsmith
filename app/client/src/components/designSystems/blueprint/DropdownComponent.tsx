@@ -337,7 +337,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
   };
 
   renderTag = (option: DropdownOption) => {
-    return option.label;
+    return option?.label;
   };
 
   isOptionSelected = (selectedOption: DropdownOption) => {
