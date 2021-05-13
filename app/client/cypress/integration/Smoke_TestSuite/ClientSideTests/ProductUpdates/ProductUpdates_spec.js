@@ -13,7 +13,7 @@ describe("Check for product updates button and modal", function() {
         const { releaseItems, newReleasesCount } = state.ui.releases;
         if (Array.isArray(releaseItems) && releaseItems.length > 0) {
           cy.get("[data-cy=t--product-updates-btn]")
-            .contains(newReleasesCount)
+            .contains("What's New?")
             .click({ force: true });
           //eslint-disable-next-line cypress/no-unnecessary-waiting
           cy.wait(500); // modal transition

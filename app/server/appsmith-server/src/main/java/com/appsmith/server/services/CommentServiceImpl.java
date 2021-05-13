@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
@@ -9,6 +10,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private final ApplicationService applicationService;
 
     private final PolicyGenerator policyGenerator;
+    private final PolicyUtils policyUtils;
 
     public CommentServiceImpl(
             Scheduler scheduler,
@@ -54,13 +57,15 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             CommentThreadRepository threadRepository,
             SessionUserService sessionUserService,
             ApplicationService applicationService,
-            PolicyGenerator policyGenerator
+            PolicyGenerator policyGenerator,
+            PolicyUtils policyUtils
     ) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
         this.sessionUserService = sessionUserService;
         this.applicationService = applicationService;
         this.policyGenerator = policyGenerator;
+        this.policyUtils = policyUtils;
     }
 
     @Override
@@ -70,26 +75,31 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             return Mono.empty();
         }
 
-        return threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD)
+        return Mono.zip(
+                sessionUserService.getCurrentUser(),
+                threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD)
+        )
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
-                .flatMap(thread -> {
+                .flatMap(tuple -> {
+                    final User user = tuple.getT1();
+                    final CommentThread thread = tuple.getT2();
+
                     comment.setThreadId(threadId);
-                    comment.setPolicies(policyGenerator.getAllChildPolicies(
+
+                    final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                             thread.getPolicies(),
                             CommentThread.class,
                             Comment.class
-                    ));
-                    return Mono.zip(
-                            Mono.just(comment),
-                            sessionUserService.getCurrentUser()
                     );
-                })
-                .flatMap(tuple -> {
-                    final Comment comment1 = tuple.getT1();
-                    final User user = tuple.getT2();
+                    policies.add(policyUtils.generatePolicyFromPermission(
+                            Set.of(AclPermission.MANAGE_COMMENT),
+                            user
+                    ).get(AclPermission.MANAGE_COMMENT.getValue()));
+                    comment.setPolicies(policies);
+
                     String authorName = user.getName() != null ? user.getName(): user.getUsername();
-                    comment1.setAuthorName(authorName);
-                    return repository.save(comment1);
+                    comment.setAuthorName(authorName);
+                    return repository.save(comment);
                 });
     }
 
@@ -116,18 +126,28 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .flatMap(count -> {
                     count += 1;
                     commentThread.setSequenceId("#" + count);
-                    return applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS);
+                    return Mono.zip(
+                            sessionUserService.getCurrentUser(),
+                            applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS)
+                    );
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                .flatMap(application -> {
-                    commentThread.setPolicies(policyGenerator.getAllChildPolicies(
+                .flatMap(tuple -> {
+                    final User user = tuple.getT1();
+                    final Application application = tuple.getT2();
+
+                    final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                             application.getPolicies(),
                             Application.class,
                             CommentThread.class
-                    ));
-                    return sessionUserService.getCurrentUser();
-                })
-                .flatMap(user -> {
+                    );
+                    policies.add(policyUtils.generatePolicyFromPermission(
+                            Set.of(AclPermission.MANAGE_THREAD),
+                            user
+                    ).get(AclPermission.MANAGE_THREAD.getValue()));
+
+                    commentThread.setPolicies(policies);
+
                     Set<String> viewedUser = new HashSet<>();
                     viewedUser.add(user.getUsername());
                     commentThread.setViewedByUsers(viewedUser);
@@ -153,6 +173,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     commentThread.setIsViewed(true);
                     return commentThread;
                 });
+    }
+
+    @Override
+    public Mono<Comment> update(String id, Comment comment) {
+        return repository.updateById(id, comment, AclPermission.MANAGE_COMMENT)
+                .flatMap(analyticsService::sendUpdateEvent);
     }
 
     @Override
@@ -232,10 +258,17 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
      */
     @Override
     public Mono<Comment> deleteComment(String id) {
-
         return repository.findById(id, AclPermission.MANAGE_COMMENT)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.COMMENT, id)))
-                .flatMap(comment -> repository.archive(comment));
+                .flatMap(repository::archive)
+                .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    @Override
+    public Mono<CommentThread> deleteThread(String threadId) {
+        return threadRepository.findById(threadId, AclPermission.MANAGE_THREAD)
+                .flatMap(threadRepository::archive)
+                .flatMap(analyticsService::sendDeleteEvent);
     }
 
 }
