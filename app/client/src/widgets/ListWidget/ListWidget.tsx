@@ -199,8 +199,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         bottomRow:
           (index + 1) * children[0].bottomRow +
           index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
-        resizeDisabled:
-          index > 0 && this.props.renderMode === RenderModes.CANVAS,
+        resizeDisabled: this.props.renderMode === RenderModes.CANVAS,
       };
     });
   };

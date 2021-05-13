@@ -710,6 +710,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canExtend: false,
               detachFromLayout: true,
               dropDisabled: true,
+              openParentPropertyPane: true,
               noPad: true,
               children: [],
               blueprint: {
@@ -725,6 +726,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       isDeletable: false,
                       disallowCopy: true,
                       disablePropertyPane: true,
+                      openParentPropertyPane: true,
                       children: [],
                       blueprint: {
                         view: [

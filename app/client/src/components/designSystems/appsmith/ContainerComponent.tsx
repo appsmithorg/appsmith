@@ -25,7 +25,6 @@ const StyledContainerComponent = styled.div<
   width: 100%;
   background: ${(props) => props.backgroundColor};
   position: relative;
-  opacity: ${(props) => (props.resizeDisabled ? "0.5" : "1")};
   ${(props) => (!props.isVisible ? invisible : "")};
   overflow: hidden;
   box-shadow: ${(props) =>
