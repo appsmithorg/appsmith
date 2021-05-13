@@ -55,8 +55,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                 value: "DANGER_BUTTON",
               },
             ],
+            isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.OPTIONS_DATA,
           },
           {
             propertyName: "isVisible",

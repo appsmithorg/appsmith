@@ -20,6 +20,7 @@ class FormWidget extends ContainerWidget {
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             controlType: "INPUT_TEXT",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.TEXT,
