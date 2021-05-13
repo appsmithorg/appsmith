@@ -43,7 +43,10 @@ describe("Chart Widget Functionality", function() {
     cy.get(viewWidgetsPage.chartType)
       .last()
       .should("have.text", "Column Chart");
-    cy.testJsontext("chartseries", JSON.stringify(this.data.chartInput));
+    cy.testJsontext(
+      "chart-series-data-control",
+      JSON.stringify(this.data.chartInput),
+    );
     cy.get(viewWidgetsPage.chartWidget)
       .should("be.visible")
       .and((chart) => {

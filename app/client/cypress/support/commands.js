@@ -2035,7 +2035,9 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
     .first()
     .trigger("mouseover", { force: true })
     .wait(500);
-  cy.get(`${selector}:first-of-type .t--widget-propertypane-toggle`)
+  cy.get(
+    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+  )
     .first()
     .click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
