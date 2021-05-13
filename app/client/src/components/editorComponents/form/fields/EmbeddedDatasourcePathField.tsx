@@ -48,7 +48,6 @@ type ReduxStateProps = {
 
 type ReduxDispatchProps = {
   updateDatasource: (datasource: Datasource | EmbeddedRestDatasource) => void;
-  updateActionHeaders: (headers: unknown) => void;
 };
 
 type Props = EditorProps &
@@ -84,7 +83,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         },
       };
       this.props.updateDatasource(newDatasource);
-      this.updateHeadersOnDatasourceChange(newDatasource, isDatasourceRemoved);
     }
   };
 
@@ -106,7 +104,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         path: "",
       };
     }
-    if ("id" in datasource && datasource.id) {
+    if (datasource && datasource.hasOwnProperty("id")) {
       const datasourceUrl = datasource.datasourceConfiguration.url;
       if (value.includes(datasourceUrl)) {
         return {
@@ -167,23 +165,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     };
   };
 
-  updateHeadersOnDatasourceChange = (datasource: any, remove = false) => {
-    let headers = this.props.actionConfigurationHeaders || [];
-    const headersFromDataSource =
-      _.get(datasource, "datasourceConfiguration.headers") || [];
-    headers = headers.filter((h: any) => {
-      return (
-        headersFromDataSource.find((header: any) => {
-          return header.key === h.key && header.value === h.value;
-        }) === -1
-      );
-    });
-    if (!remove) {
-      headers = headers.concat(headersFromDataSource);
-    }
-    this.props.updateActionHeaders(headers);
-  };
-
   handleDatasourceHint = () => {
     const { datasourceList } = this.props;
     return () => {
@@ -222,7 +203,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                   "pick",
                   (selected: { text: string; data: Datasource }) => {
                     this.props.updateDatasource(selected.data);
-                    this.updateHeadersOnDatasourceChange(selected.data);
                   },
                 );
                 return hints;
@@ -329,10 +309,6 @@ const mapStateToProps = (
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: (datasource) =>
     dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource)),
-  updateActionHeaders: (headers) =>
-    dispatch(
-      change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
-    ),
 });
 
 const EmbeddedDatasourcePathConnectedComponent = connect(
