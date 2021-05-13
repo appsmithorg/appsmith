@@ -254,7 +254,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
     prev.applyFilter === next.applyFilter &&
-    prev.columnSizeMap === next.columnSizeMap &&
     prev.compactMode === next.compactMode &&
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&
@@ -280,7 +279,10 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.widgetId === next.widgetId &&
     prev.widgetName === next.widgetName &&
     prev.width === next.width &&
+    isEqual(prev.columnSizeMap, next.columnSizeMap) &&
     isEqual(prev.tableData, next.tableData) &&
-    isEqual(prev.columns, next.columns)
+    // Using JSON stringify becuase isEqual doesnt work with functions,
+    // and we are not changing the columns manually.
+    JSON.stringify(prev.columns) === JSON.stringify(next.columns)
   );
 });

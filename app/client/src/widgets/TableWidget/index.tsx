@@ -124,58 +124,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return cellProperties;
   };
 
-  cellRenderer = (props: any) => {
-    const allColumnProperties = this.props.tableColumns || [];
-    const index = props.column.columnProperties.index;
-    const columnProperties = allColumnProperties[index];
-    const isHidden = !columnProperties.isVisible;
-    const { componentWidth } = this.getComponentDimensions();
-
-    let rowIndex: number = props.cell.row.index;
-    const data = this.props.filteredTableData[rowIndex];
-    if (data && data.__originalIndex__) rowIndex = data.__originalIndex__;
-
-    const cellProperties = this.getCellProperties(columnProperties, rowIndex);
-    if (columnProperties.columnType === "button") {
-      const buttonProps = {
-        isSelected: !!props.row.isSelected,
-        onCommandClick: (action: string, onComplete: () => void) =>
-          this.onCommandClick(rowIndex, action, onComplete),
-        backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
-        buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
-        columnActions: [
-          {
-            id: columnProperties.id,
-            label: cellProperties.buttonLabel || "Action",
-            dynamicTrigger: columnProperties.onClick || "",
-          },
-        ],
-      };
-      return renderActions(buttonProps, isHidden, cellProperties);
-    } else if (columnProperties.columnType === "dropdown") {
-      let options = [];
-      try {
-        options = JSON.parse(columnProperties.dropdownOptions || "");
-      } catch (e) {}
-      return renderDropdown({
-        options: options,
-        onItemSelect: this.onItemSelect,
-        onOptionChange: columnProperties.onOptionChange || "",
-        selectedIndex: isNumber(props.cell.value)
-          ? props.cell.value
-          : undefined,
-      });
-    } else {
-      return renderCell(
-        props.cell.value,
-        columnProperties.columnType,
-        isHidden,
-        cellProperties,
-        componentWidth,
-      );
-    }
-  };
-
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -212,7 +160,54 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           inputFormat: columnProperties?.inputFormat || "",
         },
         columnProperties: columnProperties,
-        Cell: this.cellRenderer,
+        Cell: (props: any) => {
+          let rowIndex: number = props.cell.row.index;
+          const data = this.props.filteredTableData[rowIndex];
+          if (data && data.__originalIndex__) rowIndex = data.__originalIndex__;
+
+          const cellProperties = this.getCellProperties(
+            columnProperties,
+            rowIndex,
+          );
+          if (columnProperties.columnType === "button") {
+            const buttonProps = {
+              isSelected: !!props.row.isSelected,
+              onCommandClick: (action: string, onComplete: () => void) =>
+                this.onCommandClick(rowIndex, action, onComplete),
+              backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
+              buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
+              columnActions: [
+                {
+                  id: columnProperties.id,
+                  label: cellProperties.buttonLabel || "Action",
+                  dynamicTrigger: columnProperties.onClick || "",
+                },
+              ],
+            };
+            return renderActions(buttonProps, isHidden, cellProperties);
+          } else if (columnProperties.columnType === "dropdown") {
+            let options = [];
+            try {
+              options = JSON.parse(columnProperties.dropdownOptions || "");
+            } catch (e) {}
+            return renderDropdown({
+              options: options,
+              onItemSelect: this.onItemSelect,
+              onOptionChange: columnProperties.onOptionChange || "",
+              selectedIndex: isNumber(props.cell.value)
+                ? props.cell.value
+                : undefined,
+            });
+          } else {
+            return renderCell(
+              props.cell.value,
+              columnProperties.columnType,
+              isHidden,
+              cellProperties,
+              componentWidth,
+            );
+          }
+        },
       };
       if (isHidden) {
         columnData.isHidden = true;
@@ -608,11 +603,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return selectedRowIndices;
   };
 
-  applyFilters = () => {
-    (filters: ReactTableFilter[]) => {
-      this.resetSelectedRowIndex();
-      this.props.updateWidgetMetaProperty("filters", filters);
-    };
+  applyFilters = (filters: ReactTableFilter[]) => {
+    this.resetSelectedRowIndex();
+    this.props.updateWidgetMetaProperty("filters", filters);
   };
 
   toggleDrag = (disable: boolean) => {
