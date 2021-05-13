@@ -47,6 +47,7 @@ describe("Chart Widget Functionality", function() {
       "chart-series-data-control",
       JSON.stringify(this.data.chartInput),
     );
+    cy.get(".t--propertypane").click("right");
     cy.get(viewWidgetsPage.chartWidget)
       .should("be.visible")
       .and((chart) => {
