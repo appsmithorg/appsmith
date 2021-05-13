@@ -496,7 +496,12 @@ public class MongoPluginTest {
     @Test
     public void testErrorMessageOnNonSrvUri() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.getEndpoints().get(0).setHost("mongodb://user:pass@url.net:1234,url.net:1234/dbName");
+        List<Endpoint> endpoints = new ArrayList<>();
+        endpoints.add(new Endpoint("url", 123L));
+        endpoints.add(null);
+        endpoints.add(new Endpoint(null, 123L));
+        endpoints.add(new Endpoint("mongodb://user:pass@url.net:1234,url.net:1234/dbName", 123L));
+        dsConfig.setEndpoints(endpoints);
         dsConfig.setProperties(List.of(new Property("Import from URI", "No")));
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
