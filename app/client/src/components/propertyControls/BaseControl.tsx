@@ -41,7 +41,6 @@ export interface ControlData
   validationMessage?: string;
   widgetProperties: any;
   useValidationMessage?: boolean;
-  jsErrorMessage?: string;
 }
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
