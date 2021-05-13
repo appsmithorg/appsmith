@@ -158,7 +158,6 @@ export interface WidgetEvaluatedProps {
   invalidProps?: Record<string, boolean>;
   validationMessages?: Record<string, string>;
   evaluatedValues?: Record<string, any>;
-  jsErrorMessages?: Record<string, string>;
 }
 
 export interface EntityWithBindings {
