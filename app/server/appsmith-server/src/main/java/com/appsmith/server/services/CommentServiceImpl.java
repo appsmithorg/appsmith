@@ -300,7 +300,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     final User user = tuple.getT2();
                     reaction.setByUsername(user.getUsername());
                     return repository.deleteReaction(commentId, reaction)
-                            .map(result -> result.getModifiedCount() == 1L);
+                            .map(result -> result.getModifiedCount() > 0);
                 });
     }
 
