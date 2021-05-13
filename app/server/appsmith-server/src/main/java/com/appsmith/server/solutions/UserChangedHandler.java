@@ -1,16 +1,12 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.events.UserChangedEvent;
+import com.appsmith.server.repositories.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -23,7 +19,7 @@ public class UserChangedHandler {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    private final ReactiveMongoOperations mongoOperations;
+    private final CommentRepository commentRepository;
 
     public User publish(User user) {
         applicationEventPublisher.publishEvent(new UserChangedEvent(user));
@@ -48,13 +44,7 @@ public class UserChangedHandler {
         }
 
         log.debug("Updating name in comments for user {}", user.getId());
-        return mongoOperations
-                .updateMulti(
-                        Query.query(Criteria.where("authorId").is(user.getId())),
-                        Update.update("authorName", user.getName()),
-                        Comment.class
-                )
-                .then();
+        return commentRepository.updateAuthorNames(user.getId(), user.getName());
     }
 
 }
