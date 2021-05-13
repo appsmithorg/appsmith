@@ -6,7 +6,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.UserDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,14 +30,11 @@ import javax.validation.Valid;
 public class PageController {
     private final ApplicationPageService applicationPageService;
     private final NewPageService newPageService;
-    private final UserDataService userDataService;
 
     @Autowired
-    public PageController(ApplicationPageService applicationPageService,
-                          NewPageService newPageService, UserDataService userDataService) {
+    public PageController(ApplicationPageService applicationPageService, NewPageService newPageService) {
         this.applicationPageService = applicationPageService;
         this.newPageService = newPageService;
-        this.userDataService = userDataService;
     }
 
     @PostMapping
@@ -55,18 +51,12 @@ public class PageController {
     @GetMapping("/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(@PathVariable String applicationId) {
         return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, false)
-                .flatMap(applicationPagesDTO ->
-                        userDataService.updateLastUsedOrgList(applicationPagesDTO.getOrganizationId())
-                        .thenReturn(applicationPagesDTO))
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @GetMapping("/view/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationIdInViewMode(@PathVariable String applicationId) {
         return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, true)
-                .flatMap(applicationPagesDTO ->
-                        userDataService.updateLastUsedOrgList(applicationPagesDTO.getOrganizationId())
-                                .thenReturn(applicationPagesDTO))
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
