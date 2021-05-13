@@ -682,25 +682,25 @@ public class MongoPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<PsParameterDTO> parameters = (List<PsParameterDTO>) request.getProperties().get("smart" +
-                            "-substitution-parameters");
+                    List<Map.Entry<String, String>> parameters =
+                            (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
                     assertEquals(parameters.size(), 4);
 
-                    PsParameterDTO parameterEntry = parameters.get(0);
-                    assertEquals(parameterEntry.getValue(), "users");
-                    assertEquals(parameterEntry.getType(), "STRING");
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "users");
+                    assertEquals(parameterEntry.getValue(), "STRING");
 
                     parameterEntry = parameters.get(1);
-                    assertEquals(parameterEntry.getValue(),"{ age: { \"$gte\": 30 } }");
-                    assertEquals(parameterEntry.getType(), "BSON");
+                    assertEquals(parameterEntry.getKey(),"{ age: { \"$gte\": 30 } }");
+                    assertEquals(parameterEntry.getValue(), "BSON");
 
                     parameterEntry = parameters.get(2);
-                    assertEquals(parameterEntry.getValue(),"1");
-                    assertEquals(parameterEntry.getType(), "INTEGER");
+                    assertEquals(parameterEntry.getKey(),"1");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
 
                     parameterEntry = parameters.get(3);
-                    assertEquals(parameterEntry.getValue(),"10");
-                    assertEquals(parameterEntry.getType(), "INTEGER");
+                    assertEquals(parameterEntry.getKey(),"10");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
 
                     assertEquals(
                             List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),

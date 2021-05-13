@@ -32,6 +32,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -378,29 +379,29 @@ public class RestApiPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<PsParameterDTO> parameters = (List<PsParameterDTO>) request.getProperties().get("smart" +
-                            "-substitution-parameters");
+                    List<Map.Entry<String, String>> parameters =
+                            (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
                     assertEquals(parameters.size(), 7);
 
-                    PsParameterDTO parameterEntry = parameters.get(0);
-                    assertEquals(parameterEntry.getValue(), "this is a string! Yay :D");
-                    assertEquals(parameterEntry.getType(), "STRING");
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "this is a string! Yay :D");
+                    assertEquals(parameterEntry.getValue(), "STRING");
 
                     parameterEntry = parameters.get(1);
-                    assertEquals(parameterEntry.getValue(), "true");
-                    assertEquals(parameterEntry.getType(), "BOOLEAN");
+                    assertEquals(parameterEntry.getKey(), "true");
+                    assertEquals(parameterEntry.getValue(), "BOOLEAN");
 
                     parameterEntry = parameters.get(2);
-                    assertEquals(parameterEntry.getValue(), "0");
-                    assertEquals(parameterEntry.getType(), "INTEGER");
+                    assertEquals(parameterEntry.getKey(), "0");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
 
                     parameterEntry = parameters.get(3);
-                    assertEquals(parameterEntry.getValue(), "12/01/2018");
-                    assertEquals(parameterEntry.getType(), "STRING");
+                    assertEquals(parameterEntry.getKey(), "12/01/2018");
+                    assertEquals(parameterEntry.getValue(), "STRING");
 
                     parameterEntry = parameters.get(4);
-                    assertEquals(parameterEntry.getValue(), "null");
-                    assertEquals(parameterEntry.getType(), "NULL");
+                    assertEquals(parameterEntry.getKey(), "null");
+                    assertEquals(parameterEntry.getValue(), "NULL");
                 })
                 .verifyComplete();
     }
