@@ -590,6 +590,22 @@ public class MongoPlugin extends BasePlugin {
             }
         }
 
+        private boolean hostStringHasConnectionURIHead(String host) {
+            if (!StringUtils.isEmpty(host) && (host.contains("mongodb://") || host.contains("mongodb+srv"))) {
+                return true;
+            }
+
+            return false;
+        }
+
+        private boolean isHostStringConnectionURI(Endpoint endpoint) {
+            if (endpoint != null && hostStringHasConnectionURIHead(endpoint.getHost())) {
+                return true;
+            }
+
+            return false;
+        }
+
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
@@ -641,7 +657,7 @@ public class MongoPlugin extends BasePlugin {
                 if (!CollectionUtils.isEmpty(endpoints)) {
                     boolean usingUri = endpoints
                             .stream()
-                            .anyMatch(endPoint -> endPoint.getHost().matches(MONGO_URI_REGEX));
+                            .anyMatch(endPoint -> isHostStringConnectionURI(endPoint));
 
                     if (usingUri) {
                         invalids.add("It seems that you are trying to use a mongo connection string URI. Please " +
