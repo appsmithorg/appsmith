@@ -237,7 +237,7 @@ export class JSONtoForm<
   };
 
   setupConfig = (config: ControlProps) => {
-    const { controlType, isRequired, configProperty } = config;
+    const { configProperty, controlType, isRequired } = config;
     this.configDetails[configProperty] = controlType;
 
     if (isRequired) {

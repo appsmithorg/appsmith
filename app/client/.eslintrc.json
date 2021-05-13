@@ -43,7 +43,7 @@
       "allowFunctions":  false,
       "allowBind": false
     }],
-    "no-shadow": ["error", { "builtinGlobals": true }]
+    "no-shadow": ["warn", { "builtinGlobals": true }]
   },
   "settings": {
     "react": {
