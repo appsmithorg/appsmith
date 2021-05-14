@@ -37,7 +37,7 @@ import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
-import _ from "lodash";
+import get from "lodash/get";
 import { Icon as ButtonIcon } from "@blueprintjs/core";
 
 const Form = styled.form`
@@ -273,14 +273,10 @@ function ImportedHeaders(props: { headers: any }) {
           <FormRowWithLabel key={index}>
             <FlexContainer>
               <Flex className="key-value disabled" size={1}>
-                <Text case={Case.CAPITALIZE} type={TextType.H6}>
-                  {header.key}
-                </Text>
+                <Text type={TextType.H6}>{header.key}</Text>
               </Flex>
               <Flex className="key-value disabled" size={3}>
-                <Text case={Case.CAPITALIZE} type={TextType.H6}>
-                  {header.value}
-                </Text>
+                <Text type={TextType.H6}>{header.value}</Text>
               </Flex>
             </FlexContainer>
           </FormRowWithLabel>
@@ -557,7 +553,7 @@ export default connect((state: AppState) => {
     );
   }
   const datasourceHeaders =
-    _.get(datasourceFromAction, "datasourceConfiguration.headers") || [];
+    get(datasourceFromAction, "datasourceConfiguration.headers") || [];
   const apiId = selector(state, "id");
   const actionName = getApiName(state, apiId) || "";
   const headers = selector(state, "actionConfiguration.headers");

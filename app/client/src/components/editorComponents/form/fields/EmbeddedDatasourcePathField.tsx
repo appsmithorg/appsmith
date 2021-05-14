@@ -12,7 +12,8 @@ import CodeEditor, {
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
-import _ from "lodash";
+import get from "lodash/get";
+import merge from "lodash/merge";
 import {
   DEFAULT_DATASOURCE,
   EmbeddedRestDatasource,
@@ -221,7 +222,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       datasource,
       input: { value },
     } = this.props;
-    const datasourceUrl = _.get(datasource, "datasourceConfiguration.url", "");
+    const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
     const displayValue = `${datasourceUrl}${value}`;
     const input = {
       ...this.props.input,
@@ -281,7 +282,7 @@ const mapStateToProps = (
       (d) => d.id === datasourceFromAction.id,
     );
     if (datasourceFromDataSourceList) {
-      datasourceMerged = _.merge(
+      datasourceMerged = merge(
         {},
         datasourceFromAction,
         datasourceFromDataSourceList,
