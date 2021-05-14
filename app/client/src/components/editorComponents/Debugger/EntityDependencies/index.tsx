@@ -31,11 +31,17 @@ const CollapsibleWrapper = styled.div<{ step: number; isOpen: boolean }>`
 
 const DependenciesWrapper = styled.div`
   padding: 16px 31px;
+
+  .no-dependencies {
+    margin-left: 10px;
+  }
 `;
 
 const StyledSpan = styled.div<{ step: number }>`
   padding-top: 8px;
-  margin-left: calc(${(props) => props.step * 12}px + 7px);
+  padding-left: 15px;
+  margin-left: 10px;
+  border-left: solid 1px rgba(147, 144, 144, 0.7);
   text-decoration-line: underline;
   cursor: pointer;
 `;
@@ -78,11 +84,13 @@ function EntityDeps() {
         dependencies={entityDependencies.directDependencies}
         entityName={`Dependencies of ${selectedEntity.name}`}
         selectedEntity={selectedEntity}
+        type="dependencies"
       />
       <MemoizedDependencyHierarchy
         dependencies={entityDependencies.inverseDependencies}
         entityName={`References of ${selectedEntity.name}`}
         selectedEntity={selectedEntity}
+        type="references"
       />
     </div>
   );
@@ -101,27 +109,35 @@ function DependencyHierarchy(props: {
   dependencies: string[];
   entityName: string;
   selectedEntity: SourceEntity;
+  type: string;
 }) {
   const { navigateToEntity } = useEntityLink();
+  const label = props.dependencies.length
+    ? props.entityName
+    : `No ${props.type} exist for ${props.selectedEntity.name}`;
 
   return (
     <DependenciesWrapper>
-      <Collapsible label={props.entityName} step={0}>
-        {props.dependencies.map((item) => {
-          return (
-            <StyledSpan
-              key={`${props.selectedEntity.id}-${item}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigateToEntity(item);
-              }}
-              step={2}
-            >
-              {item}
-            </StyledSpan>
-          );
-        })}
-      </Collapsible>
+      {props.dependencies.length ? (
+        <Collapsible label={label} step={0}>
+          {props.dependencies.map((item) => {
+            return (
+              <StyledSpan
+                key={`${props.selectedEntity.id}-${item}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigateToEntity(item);
+                }}
+                step={2}
+              >
+                {item}
+              </StyledSpan>
+            );
+          })}
+        </Collapsible>
+      ) : (
+        <span className="no-dependencies">{label}</span>
+      )}
     </DependenciesWrapper>
   );
 }
