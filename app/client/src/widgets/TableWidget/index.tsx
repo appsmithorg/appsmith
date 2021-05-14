@@ -570,6 +570,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         });
       }
     }
+
+    // If header options are all invisible
+    const isPrevHiddenHeaderOptions =
+      !prevProps.isVisibleSearch &&
+      !prevProps.isVisibleFilters &&
+      !prevProps.isvisibleDownload &&
+      !prevProps.isVisibleCompactMode &&
+      !prevProps.isVisiblePagination;
+
+    const isHiddenHeaderOptions =
+      !this.props.isVisibleSearch &&
+      !this.props.isVisibleFilters &&
+      !this.props.isvisibleDownload &&
+      !this.props.isVisibleCompactMode &&
+      !this.props.isVisiblePagination;
+
+    if (isHiddenHeaderOptions !== isPrevHiddenHeaderOptions) {
+      if (isHiddenHeaderOptions === true) {
+        super.updateWidgetProperty("bottomRow", this.props.bottomRow - 1);
+      } else {
+        super.updateWidgetProperty("bottomRow", this.props.bottomRow + 1);
+      }
+    }
   }
 
   updateSelectedRowIndex = () => {
