@@ -388,7 +388,6 @@ public class AuthenticationService {
                 datasource.getDatasourceConfiguration() != null &&
                 datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2);
         OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
-        assert (!oAuth2.isEncrypted());
         return pluginService.findById(datasource.getPluginId())
                 .filter(plugin -> PluginType.SAAS.equals(plugin.getType()))
                 .zipWith(configService.getInstanceId())
@@ -423,7 +422,11 @@ public class AuthenticationService {
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                return datasourceService.update(datasource.getId(), datasource);
+                                // We return the same object instead of the update value because the updates value
+                                // will be in the encrypted form
+                                return datasourceService
+                                        .update(datasource.getId(), datasource)
+                                        .thenReturn(datasource);
                             });
                 })
                 .switchIfEmpty(Mono.just(datasource))

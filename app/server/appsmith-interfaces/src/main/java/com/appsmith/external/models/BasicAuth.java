@@ -15,20 +15,12 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@DocumentType(Authentication.DB_AUTH)
-public class DBAuth extends AuthenticationDTO {
-
-    public enum Type {
-        SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
-    }
-
-    Type authType;
+@DocumentType(Authentication.BASIC)
+public class BasicAuth extends AuthenticationDTO {
 
     String username;
 
-    @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Encrypted
     String password;
-
-    String databaseName;
 }

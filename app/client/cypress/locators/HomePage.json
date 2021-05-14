@@ -60,6 +60,7 @@
     "applicationBackgroundColor": ".t--application-card-background",
     "orgSettingOption": "[data-cy=t--org-setting]",
     "orgNameInput": "[data-cy=t--org-name-input]",
+    "renameOrgInput": "[data-cy=t--org-rename-input]",
     "orgEmailInput": "[data-cy=t--org-email-input]",
     "orgWebsiteInput": "[data-cy=t--org-website-input]",
     "orgHeaderName": ".t--organization-header",

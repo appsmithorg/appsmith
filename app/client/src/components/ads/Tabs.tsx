@@ -14,7 +14,6 @@ export type TabProp = {
 };
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
-  user-select: none;
   border-radius: 0px;
   height: 100%;
   .react-tabs {
