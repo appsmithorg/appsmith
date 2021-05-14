@@ -179,6 +179,7 @@ export function Table(props: TableProps) {
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
       height={props.height}
       id={`table${props.widgetId}`}
+      isHeaderVisible={isHeaderVisible}
       tableSizes={tableSizes}
       triggerRowSelection={props.triggerRowSelection}
       width={props.width}
@@ -239,7 +240,10 @@ export function Table(props: TableProps) {
       >
         <Scrollbars
           renderThumbHorizontal={ScrollbarHorizontalThumb}
-          style={{ width: props.width, height: props.height - 48 }}
+          style={{
+            width: props.width,
+            height: isHeaderVisible ? props.height - 48 : props.height,
+          }}
         >
           <div {...getTableProps()} className="table">
             <div
@@ -326,7 +330,9 @@ export function Table(props: TableProps) {
               })}
               {props.pageSize > subPage.length &&
                 renderEmptyRows(
-                  props.pageSize - subPage.length,
+                  isHeaderVisible
+                    ? props.pageSize - subPage.length
+                    : props.pageSize - subPage.length + 1,
                   props.columns,
                   props.width,
                   subPage,
