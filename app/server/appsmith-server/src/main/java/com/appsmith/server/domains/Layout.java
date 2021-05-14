@@ -2,9 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.DslActionDTO;
-import com.appsmith.external.views.BaseView;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,13 +19,11 @@ import java.util.Set;
 @NoArgsConstructor
 public class Layout extends BaseDomain {
 
-    @JsonView(BaseView.Summary.class)
     ScreenType screen;
 
     @JsonIgnore
     Boolean viewMode = false;
 
-    @JsonView(BaseView.Summary.class)
     JSONObject dsl;
 
     @JsonIgnore
@@ -36,7 +32,6 @@ public class Layout extends BaseDomain {
     @Deprecated
     Set<DslActionDTO> layoutActions;
 
-    @JsonView(BaseView.Summary.class)
     List<HashSet<DslActionDTO>> layoutOnLoadActions;
 
     @Deprecated
