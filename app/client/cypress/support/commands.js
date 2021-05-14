@@ -1870,11 +1870,11 @@ Cypress.Commands.add("testDatasource", () => {
 
 Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click();
-  cy.wait("@saveDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@saveDatasource")
+    .then((xhr) => {
+      cy.log(JSON.stringify(xhr.response.body));
+    })
+    .should("have.nested.property", "response.body.responseMeta.status", 200);
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
