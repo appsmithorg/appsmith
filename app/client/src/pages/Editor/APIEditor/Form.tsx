@@ -200,11 +200,13 @@ export const NameWrapper = styled.div`
 export const ShowHideImportedHeaders = styled.button`
   background: #ebebeb;
   color: #4b4848;
-  padding: 0.25em 1em;
+  padding: 3px 5px;
   border: none;
   display: flex;
   align-items: center;
   cursor: pointer;
+  font-size: 12px;
+  height: 20px;
 `;
 
 const Flex = styled.div<{ size: number }>`
