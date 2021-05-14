@@ -43,7 +43,6 @@ type ReduxStateProps = {
   datasourceList: Datasource[];
   currentPageId?: string;
   applicationId?: string;
-  actionConfigurationHeaders: any;
 };
 
 type ReduxDispatchProps = {
@@ -289,10 +288,6 @@ const mapStateToProps = (
       );
     }
   }
-  const actionConfigurationHeaders = apiFormValueSelector(
-    state,
-    "actionConfiguration.headers",
-  );
 
   return {
     orgId: state.ui.orgs.currentOrg.id,
@@ -302,7 +297,6 @@ const mapStateToProps = (
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
-    actionConfigurationHeaders,
   };
 };
 
