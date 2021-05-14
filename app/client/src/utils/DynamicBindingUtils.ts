@@ -178,6 +178,10 @@ export const getEntityDynamicBindingPathList = (
   return [];
 };
 
+// kaushik - trisha
+// if entity is of type action and reactive
+// and jsonpathkeys exist and path is jsonpathkeys
+// then return true here
 export const isPathADynamicBinding = (
   entity: EntityWithBindings,
   path: string,

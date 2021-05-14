@@ -393,6 +393,9 @@ export default class DataTreeEvaluator {
     return dependencies;
   }
 
+  // kaushik - trisha : add jsonpathkeys in datatreee for actions
+  // use this so this is available in view
+  // when jsonpathkeys change, update dependency map
   evaluateTree(
     oldUnevalTree: DataTree,
     sortedDependencies: Array<string>,
@@ -583,6 +586,11 @@ export default class DataTreeEvaluator {
   ) {
     // Get the {{binding}} bound values
     const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
+    console.log(
+      "huraaaayyyy, got the getDynamicBindings: ",
+      returnTriggers,
+      stringSegments,
+    );
     if (returnTriggers) {
       const result = this.evaluateDynamicBoundValue(
         data,
@@ -602,12 +610,19 @@ export default class DataTreeEvaluator {
             callBackData,
             fullPropertyPath,
           );
+          console.log("result: ", result, data, fullPropertyPath);
           return result.result;
         } else {
           return stringSegments[index];
         }
       });
-
+      console.log(
+        "huray again, we got the dynamic bindings with values (dynamicBinding, stringSegments, values, evaluationSubstitutionType):",
+        dynamicBinding,
+        stringSegments,
+        values,
+        evaluationSubstitutionType,
+      );
       // if it is just one binding, return that directly
       if (stringSegments.length === 1) return values[0];
       // else return a combined value according to the evaluation type
@@ -768,6 +783,10 @@ export default class DataTreeEvaluator {
     // TODO: Optimise by only getting paths of changed node
     this.allKeys = getAllPaths(unEvalDataTree);
     // Transform the diff library events to Appsmith evaluator events
+    // kaushik
+    // new
+    // update
+    // delete
     differences
       .map(translateDiffEventToDataTreeDiffEvent)
       .forEach((dataTreeDiff) => {
