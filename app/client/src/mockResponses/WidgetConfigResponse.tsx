@@ -848,6 +848,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       dynamicBindingPathList.push({
                         key: `template.${childWidget.widgetName}.${key}`,
                       });
+
+                      updatePropertyMap = updatePropertyMap.concat([
+                        {
+                          widgetId: childWidget.widgetId,
+                          propertyName: "__scope",
+                          propertyValue: {
+                            currentItem: `${widget.widgetName}.items[0]`,
+                          },
+                        },
+                      ]);
                     }
                   }
 
@@ -857,7 +867,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   };
                 });
 
-              updatePropertyMap = [
+              return updatePropertyMap.concat([
                 {
                   widgetId: widget.widgetId,
                   propertyName: "dynamicBindingPathList",
@@ -868,8 +878,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   propertyName: "template",
                   propertyValue: template,
                 },
-              ];
-              return updatePropertyMap;
+              ]);
             },
           },
           {
@@ -921,8 +930,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               };
 
               parent.template = template;
+              widget.__scope = {
+                currentItem: `${parent.widgetName}.items[0]`,
+              };
 
               widgets[parentId] = parent;
+              widgets[widgetId] = widget;
 
               return { widgets };
             },
