@@ -49,8 +49,7 @@ const debuggerReducer = createReducer(initialState, {
 
     const entityId = action.payload.source.id;
     const id =
-      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR ||
-      action.payload.logType === LOG_TYPE.EVAL_ERROR
+      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR
         ? `${entityId}-${action.payload.source.propertyPath}`
         : entityId;
     const previousState = get(state.errors, id, {});
@@ -74,8 +73,7 @@ const debuggerReducer = createReducer(initialState, {
 
     const entityId = action.payload.source.id;
     const isWidgetErrorLog =
-      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR ||
-      action.payload.logType === LOG_TYPE.EVAL_ERROR;
+      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR;
     const id = isWidgetErrorLog
       ? `${entityId}-${action.payload.source.propertyPath}`
       : entityId;

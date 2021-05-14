@@ -244,14 +244,9 @@ const PropertyControl = memo((props: Props) => {
 
   const getPropertyValidation = (
     propertyName: string,
-  ): {
-    isValid: boolean;
-    validationMessage?: string;
-    jsErrorMessage?: string;
-  } => {
+  ): { isValid: boolean; validationMessage?: string } => {
     let isValid = true;
     let validationMessage = "";
-    let jsErrorMessage = "";
     if (widgetProperties) {
       isValid = widgetProperties.invalidProps
         ? !_.has(widgetProperties.invalidProps, propertyName)
@@ -259,17 +254,11 @@ const PropertyControl = memo((props: Props) => {
       const validationMsgPresent =
         widgetProperties.validationMessages &&
         _.has(widgetProperties.validationMessages, propertyName);
-      const jsValidationMessagePresent =
-        widgetProperties.jsErrorMessages &&
-        _.has(widgetProperties.jsErrorMessages, propertyName);
       validationMessage = validationMsgPresent
         ? _.get(widgetProperties.validationMessages, propertyName)
         : "";
-      jsErrorMessage = jsValidationMessagePresent
-        ? _.get(widgetProperties.jsErrorMessages, propertyName)
-        : "";
     }
-    return { isValid, validationMessage, jsErrorMessage };
+    return { isValid, validationMessage };
   };
 
   const { propertyName, label } = props;
@@ -281,18 +270,13 @@ const PropertyControl = memo((props: Props) => {
       `evaluatedValues.${propertyName}`,
     );
 
-    const {
-      isValid,
-      validationMessage,
-      jsErrorMessage,
-    } = getPropertyValidation(propertyName);
+    const { isValid, validationMessage } = getPropertyValidation(propertyName);
     const { additionalAutoComplete, ...rest } = props;
     const config = {
       ...rest,
       isValid,
       propertyValue,
       validationMessage,
-      jsErrorMessage,
       dataTreePath,
       evaluatedValue,
       widgetProperties,
@@ -309,7 +293,6 @@ const PropertyControl = memo((props: Props) => {
       delete config.dataTreePath;
       delete config.evaluatedValue;
       delete config.expected;
-      config.jsErrorMessage = "";
     }
 
     const isDynamic: boolean = isPathADynamicProperty(
