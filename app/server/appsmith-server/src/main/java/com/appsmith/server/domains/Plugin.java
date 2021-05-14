@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -71,4 +72,7 @@ public class Plugin extends BaseDomain {
     @Transient
     Map<String, String> templates;
 
+    private Map<String, String> actionTemplateIds;
+
+    private Map<Class<? extends AuthenticationDTO>, String> datasourceTemplateIds;
 }
