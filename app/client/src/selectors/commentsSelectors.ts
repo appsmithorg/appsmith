@@ -30,7 +30,7 @@ export const applicationCommentsSelector = (applicationId: string) => (
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
 
 export const areCommentsEnabledForUserAndApp = (state: AppState) =>
-  state.ui.comments.areCommentsEnabled;
+  state.ui.comments?.areCommentsEnabled;
 
 /**
  * Comments are stored as a map of refs (for example widgetIds)
@@ -108,6 +108,10 @@ export const getSortedAndFilteredAppCommentThreadIds = (
     })
     .filter((threadId: string) => {
       const thread = commentThreadsMap[threadId];
+
+      // Happens during delete thread
+      if (!thread) return false;
+
       const isResolved = thread.resolvedState?.active;
       const isPinned = thread.pinnedState?.active;
 

@@ -49,7 +49,7 @@ const Count = styled.div<{ active?: boolean }>`
 
 export type Reaction = {
   count: number;
-  reactionEmoji: BaseEmoji;
+  reactionEmoji: string;
   active?: boolean;
 };
 
@@ -62,6 +62,11 @@ const transformReactions = (reactions: Reactions): Array<Reaction> => {
   }));
 };
 
+export enum ReactionOperation {
+  ADD = "ADD",
+  REMOVE = "REMOVE",
+}
+
 function EmojiReactions({
   onSelectReaction,
   reactions = {},
@@ -70,8 +75,9 @@ function EmojiReactions({
 }: {
   onSelectReaction: (
     event: React.MouseEvent,
-    emojiData: BaseEmoji,
+    emojiData: string,
     updatedReactions: Reactions,
+    addOrRemove: ReactionOperation,
   ) => void;
   reactions?: Reactions;
   hideReactions?: boolean;
@@ -79,33 +85,40 @@ function EmojiReactions({
 }) {
   const handleSelectReaction = (
     _event: React.MouseEvent,
-    emojiData: BaseEmoji,
+    emojiData: string,
   ) => {
-    const reactionsObject = reactions[emojiData.native];
+    const reactionsObject = reactions[emojiData];
+    let addOrRemove;
     if (reactionsObject) {
       if (reactionsObject.active) {
-        reactions[emojiData.native] = {
+        addOrRemove = ReactionOperation.REMOVE;
+        reactions[emojiData] = {
           active: false,
           reactionEmoji: emojiData,
           count: reactionsObject.count - 1,
         };
-        if (reactions[emojiData.native].count === 0)
-          delete reactions[emojiData.native];
+        if (reactions[emojiData].count === 0) delete reactions[emojiData];
       } else {
-        reactions[emojiData.native] = {
+        reactions[emojiData] = {
           active: true,
           reactionEmoji: emojiData,
           count: reactionsObject.count + 1,
         };
       }
     } else {
-      reactions[emojiData.native] = {
+      addOrRemove = ReactionOperation.ADD;
+      reactions[emojiData] = {
         active: true,
         reactionEmoji: emojiData,
         count: 1,
       };
     }
-    onSelectReaction(_event, emojiData, { ...reactions });
+    onSelectReaction(
+      _event,
+      emojiData,
+      { ...reactions },
+      addOrRemove as ReactionOperation,
+    );
   };
 
   return (
@@ -114,10 +127,10 @@ function EmojiReactions({
         transformReactions(reactions).map((reaction: Reaction) => (
           <Bubble
             active={reaction.active}
-            key={reaction.reactionEmoji.native}
+            key={reaction.reactionEmoji}
             onClick={(e) => handleSelectReaction(e, reaction.reactionEmoji)}
           >
-            <span style={{ width: 20 }}>{reaction.reactionEmoji.native}</span>
+            <span>{reaction.reactionEmoji}</span>
             {reaction.count > 1 && (
               <Count active={reaction.active}>{reaction.count}</Count>
             )}
@@ -128,14 +141,14 @@ function EmojiReactions({
           <EmojiPicker
             iconName="reaction"
             iconSize={iconSize}
-            onSelectEmoji={handleSelectReaction}
+            onSelectEmoji={(e, emoji) => handleSelectReaction(e, emoji.native)}
           />
         </Bubble>
       ) : (
         <EmojiPicker
           iconName="reaction-2"
           iconSize={iconSize}
-          onSelectEmoji={handleSelectReaction}
+          onSelectEmoji={(e, emoji) => handleSelectReaction(e, emoji.native)}
         />
       )}
     </Container>

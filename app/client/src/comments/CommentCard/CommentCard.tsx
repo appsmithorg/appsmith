@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Editor from "@draft-js-plugins/editor";
 import {
   CompositeDecorator,
@@ -9,13 +9,17 @@ import {
 } from "draft-js";
 import styled from "styled-components";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
-import { Comment } from "entities/Comments/CommentsInterfaces";
+import { Comment, Reaction } from "entities/Comments/CommentsInterfaces";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import CommentContextMenu from "./CommentContextMenu";
 import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
 import { MentionComponent } from "components/ads/MentionsInput";
 import Icon, { IconSize } from "components/ads/Icon";
-import EmojiReactions, { Reactions } from "components/ads/EmojiReactions";
+import EmojiReactions, {
+  Reaction as ComponentReaction,
+  Reactions,
+  ReactionOperation,
+} from "components/ads/EmojiReactions";
 import { Toaster } from "components/ads/Toast";
 import AddCommentInput from "comments/inlineComments/AddCommentInput";
 
@@ -31,6 +35,8 @@ import {
   pinCommentThreadRequest,
   editCommentRequest,
   deleteCommentThreadRequest,
+  addCommentReaction,
+  removeCommentReaction,
 } from "actions/commentActions";
 import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
@@ -180,6 +186,36 @@ enum CommentCardModes {
   VIEW = "VIEW",
 }
 
+const reduceReactions = (
+  reactions: Array<Reaction> | undefined,
+  username?: string,
+) => {
+  return (
+    (Array.isArray(reactions) &&
+      reactions.reduce(
+        (res: Record<string, ComponentReaction>, reaction: Reaction) => {
+          const { emoji, byUsername } = reaction;
+          if (res[reaction.emoji]) {
+            res[reaction.emoji].count++;
+          } else {
+            res[emoji] = {
+              count: 1,
+              reactionEmoji: emoji,
+            } as ComponentReaction;
+          }
+
+          if (byUsername === username) {
+            res[reaction.emoji].active = true;
+          }
+
+          return res;
+        },
+        {},
+      )) ||
+    undefined
+  );
+};
+
 function CommentCard({
   comment,
   isParentComment,
@@ -294,12 +330,22 @@ function CommentCard({
     }
   };
 
+  useEffect(() => {
+    setReactions(reduceReactions(comment.reactions, currentUserUsername));
+  }, [comment.reactions]);
+
   const handleReaction = (
     _event: React.MouseEvent,
-    _emojiData: BaseEmoji,
+    emojiData: string,
     updatedReactions: Reactions,
+    addOrRemove: ReactionOperation,
   ) => {
     setReactions(updatedReactions);
+    if (addOrRemove == ReactionOperation.ADD) {
+      dispatch(addCommentReaction({ emoji: emojiData, commentId }));
+    } else {
+      dispatch(removeCommentReaction({ emoji: emojiData, commentId }));
+    }
   };
 
   const showOptions = visible || isHovered;
@@ -307,7 +353,7 @@ function CommentCard({
   const showResolveBtn =
     (showOptions || !!resolved) && isParentComment && toggleResolved;
 
-  const hasReactions = !!reactions;
+  const hasReactions = !!reactions && Object.keys(reactions).length > 0;
 
   return (
     <StyledContainer
@@ -346,6 +392,7 @@ function CommentCard({
                   hideReactions
                   iconSize={IconSize.XXL}
                   onSelectReaction={handleReaction}
+                  reactions={reactions}
                 />
               </EmojiReactionsBtnContainer>
             </StopClickPropagation>

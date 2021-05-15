@@ -10,6 +10,8 @@ class CommentsApi extends Api {
   static baseURL = "v1/comments";
   static getThreadsAPI = `${CommentsApi.baseURL}/threads`;
   static getCommentsAPI = CommentsApi.baseURL;
+  static getReactionsAPI = (commentId: string) =>
+    `${CommentsApi.getCommentsAPI}/${commentId}/reactions`;
 
   static createNewThread(
     request: CreateCommentThreadRequest,
@@ -58,6 +60,22 @@ class CommentsApi extends Api {
 
   static deleteCommentThread(threadId: string): AxiosPromise<ApiResponse> {
     return Api.delete(`${CommentsApi.getThreadsAPI}/${threadId}`);
+  }
+
+  static addCommentReaction(
+    commentId: string,
+    request: { emoji: string },
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(CommentsApi.getReactionsAPI(commentId), request);
+  }
+
+  static removeCommentReaction(
+    commentId: string,
+    request: { emoji: string },
+  ): AxiosPromise<ApiResponse> {
+    return Api.delete(CommentsApi.getReactionsAPI(commentId), null, {
+      data: request,
+    });
   }
 }
 

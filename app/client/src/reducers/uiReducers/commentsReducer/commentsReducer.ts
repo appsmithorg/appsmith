@@ -7,6 +7,7 @@ import handleFetchApplicationCommentsSuccess from "./handleFetchApplicationComme
 import handleNewCommentThreadEvent from "./handleNewCommentThreadEvent";
 import handleUpdateCommentThreadSuccess from "./handleUpdateCommentThreadSuccess";
 import handleUpdateCommentThreadEvent from "./handleUpdateCommentThreadEvent";
+import handleUpdateCommentEvent from "./handleUpdateCommentEvent";
 
 import { CommentsReduxState } from "./interfaces";
 import {
@@ -241,6 +242,12 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     areCommentsEnabled: action.payload,
   }),
+  [ReduxActionTypes.UPDATE_COMMENT_EVENT]: (
+    state: CommentsReduxState,
+    action: ReduxAction<Comment>,
+  ) => {
+    return handleUpdateCommentEvent(state, action);
+  },
 });
 
 export default commentsReducer;

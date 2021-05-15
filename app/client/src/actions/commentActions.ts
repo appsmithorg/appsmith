@@ -227,3 +227,24 @@ export const setAreCommentsEnabled = (flag: boolean) => ({
   type: ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
   payload: flag,
 });
+
+export const addCommentReaction = (payload: {
+  emoji: string;
+  commentId: string;
+}) => ({
+  type: ReduxActionTypes.ADD_COMMENT_REACTION,
+  payload,
+});
+
+export const removeCommentReaction = (payload: {
+  emoji: string;
+  commentId: string;
+}) => ({
+  type: ReduxActionTypes.REMOVE_COMMENT_REACTION,
+  payload,
+});
+
+export const updateCommentEvent = (payload: Comment) => ({
+  type: ReduxActionTypes.UPDATE_COMMENT_EVENT,
+  payload,
+});
