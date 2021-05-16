@@ -30,6 +30,7 @@ import com.appsmith.server.services.SessionUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -80,6 +81,9 @@ public class ImportExportApplicationService {
                             .findFirst()
                             .orElse(null);
 
+                    if(defaultPage == null) {
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DEFAULT_PAGE_NAME));
+                    }
                     return Mono.zip(
                             newPageRepository.findById(defaultPage.getId(), AclPermission.READ_PAGES),
                             Mono.just(defaultPage),
@@ -157,8 +161,8 @@ public class ImportExportApplicationService {
                                     newAction.setPolicies(null);
                                     newAction.setApplicationId(applicationName);
                                     if(newAction.getPluginType() == PluginType.DB) {
-                                        concernedDBNames.add(mapDatasourceToExportAction(newAction.getPublishedAction(), datasourceMap));
-                                        concernedDBNames.add(mapDatasourceToExportAction(newAction.getUnpublishedAction(), datasourceMap));
+                                        concernedDBNames.add(mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceMap));
+                                        concernedDBNames.add(mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceMap));
                                     }
                                     if(newAction.getUnpublishedAction() != null) {
                                         ActionDTO actionDTO = newAction.getUnpublishedAction();
@@ -280,9 +284,11 @@ public class ImportExportApplicationService {
                         newAction.setApplicationId(importedApplication.getId());
                         newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
                         newAction.getUnpublishedAction().setPageId(parentPage.getId());
+                        mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceMap);
 
                         if(newAction.getPublishedAction() != null) {
                             newAction.getPublishedAction().setPageId(parentPage.getId());
+                            mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceMap);
                         }
                         newActionService.generateAndSetActionPolicies(parentPage, newAction);
 
@@ -324,6 +330,7 @@ public class ImportExportApplicationService {
             if(mongoEscapedWidget != null) {
                 newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
                     layout.setMongoEscapedWidgetNames(mongoEscapedWidget.get(layout.getId()));
+                    layout.setId(new ObjectId().toString());
                 });
             }
 
@@ -333,6 +340,7 @@ public class ImportExportApplicationService {
                 if(mongoEscapedWidget != null) {
                     newPage.getPublishedPage().getLayouts().forEach(layout -> {
                             layout.setMongoEscapedWidgetNames(mongoEscapedWidget.get(layout.getId()));
+                            layout.setId(new ObjectId().toString());
                     });
                 }
             }
@@ -342,14 +350,13 @@ public class ImportExportApplicationService {
                 .flatMap(newPageService::save);
     }
 
-    private String mapDatasourceToExportAction(ActionDTO actionDTO, Map<String, String> datasourceMap) {
+    private String mapDatasourceIdToNewAction(ActionDTO actionDTO, Map<String, String> datasourceMap) {
         if (actionDTO != null
                 && actionDTO.getDatasource() != null
                 && actionDTO.getDatasource().getId() != null) {
 
             Datasource ds = actionDTO.getDatasource();
-            String datasourceId = ds.getId();
-            ds.setId(datasourceMap.get(datasourceId));
+            ds.setId(datasourceMap.get(ds.getId()));
             ds.setOrganizationId(null);
             return ds.getId();
         }
