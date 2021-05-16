@@ -80,7 +80,7 @@ function* syncApiParamsSaga(
   let value = actionPayload.payload;
   // Regular expression to find the query params group
   if (isObject(value)) {
-    value = get(value, "datasourceConfiguration.url") || "";
+    value = get(value, "datasourceConfiguration.url", "");
   }
   const queryParamsRegEx = /(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
   value = (value.match(queryParamsRegEx) || [])[2] || "";
