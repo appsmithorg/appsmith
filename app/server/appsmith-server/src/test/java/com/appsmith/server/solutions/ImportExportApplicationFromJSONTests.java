@@ -5,7 +5,6 @@ import com.appsmith.server.domains.ApplicationJSONFile;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -20,9 +19,7 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,9 +86,6 @@ public class ImportExportApplicationFromJSONTests {
     @Autowired
     private NewPageService newPageService;
 
-    @Autowired
-    private UserService userService;
-
     private Plugin installedPlugin;
 
     private static class OrganizationData {
@@ -99,15 +93,6 @@ public class ImportExportApplicationFromJSONTests {
         List<Application> applications = new ArrayList<>();
         List<Datasource> datasources = new ArrayList<>();
         List<ActionDTO> actions = new ArrayList<>();
-    }
-
-    String orgId;
-
-    @Before
-    @WithUserDetails(value = "api_user")
-    public void setup() {
-        User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
     }
 
     @Test
@@ -162,21 +147,5 @@ public class ImportExportApplicationFromJSONTests {
                 .verifyComplete();
     }
 
-    /*
-    @Test
-    public void testImportApplication() {
-        Organization organization = new Organization();
-        organization.setName("Target Organization");
-        ApplicationJSONFile applicationJSONFile = new ApplicationJSONFile();
-
-        Mono<Application> importedApplicationMono = importExportApplicationService.importApplicationInOrganization(organization.getId(), new ApplicationJSONFile());
-
-        StepVerifier.create(importedApplicationMono)
-                .assertNext(application -> {
-
-                })
-                .verifyComplete();
-    }
-    */
 
 }

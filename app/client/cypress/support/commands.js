@@ -23,20 +23,20 @@ const datasource = require("../locators/DatasourcesEditor.json");
 
 let pageidcopy = " ";
 
-Cypress.Commands.add("createOrg", (orgName) => {
+Cypress.Commands.add("createOrg", () => {
   cy.get(homePage.createOrg)
     .should("be.visible")
     .first()
     .click({ force: true });
-  cy.xpath(homePage.inputOrgName)
+});
+
+Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
+  cy.contains(orgName).click({ force: true });
+  cy.get(homePage.renameOrgInput)
     .should("be.visible")
-    .type(orgName);
-  cy.xpath(homePage.submitBtn).click();
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+    .type(newOrgName)
+    .type("{enter}");
+  cy.contains(newOrgName);
 });
 
 Cypress.Commands.add(
@@ -286,6 +286,13 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
+  cy.get(datasource.authType).click();
+  cy.xpath(datasource.basic).click();
+  cy.get(datasource.basicUsername).type(username);
+  cy.get(datasource.basicPassword).type(password);
+});
+
 Cypress.Commands.add("firestoreDatasourceForm", () => {
   cy.get(datasourceEditor.datasourceConfigUrl).type(
     datasourceFormData["database-url"],
@@ -474,6 +481,11 @@ Cypress.Commands.add("ResponseCheck", (textTocheck) => {
   cy.get(apiwidget.responseText).should("be.visible");
 });
 
+Cypress.Commands.add("ResponseTextCheck", (textTocheck) => {
+  cy.ResponseCheck();
+  cy.get(apiwidget.responseText).contains(textTocheck);
+});
+
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
   cy.get(pages.addEntityAPI)
     .should("be.visible")
@@ -649,19 +661,18 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
 });
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
-  cy.get(apiwidget.resourceUrl)
-    .first()
-    .click({ force: true })
-    .type(datasource);
-  /*
-  cy.xpath(apiwidget.autoSuggest)
-    .first()
-    .click({ force: true });
-    */
+  cy.enterDatasource(datasource);
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
     .type(path, { parseSpecialCharSequences: false });
+});
+
+Cypress.Commands.add("enterDatasource", (datasource) => {
+  cy.get(apiwidget.resourceUrl)
+    .first()
+    .click({ force: true })
+    .type(datasource);
 });
 
 Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
