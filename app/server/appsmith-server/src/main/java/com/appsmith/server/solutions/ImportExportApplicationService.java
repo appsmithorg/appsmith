@@ -77,7 +77,7 @@ public class ImportExportApplicationService {
                 .flatMap(application -> {
                     ApplicationPage defaultPage = application.getPages()
                             .stream()
-                            .filter(page -> page.getIsDefault())
+                            .filter(ApplicationPage::getIsDefault)
                             .findFirst()
                             .orElse(null);
 
@@ -111,17 +111,17 @@ public class ImportExportApplicationService {
                                     examplesOrganizationCloner.makePristine(newPage);
 
                                     if(newPage.getUnpublishedPage().getLayouts() !=  null) {
-                                        newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
-                                            mongoEscapedWidgetsNames.put(layout.getId(), layout.getMongoEscapedWidgetNames());
-                                        });
+                                        newPage.getUnpublishedPage().getLayouts().forEach(layout ->
+                                            mongoEscapedWidgetsNames.put(layout.getId(), layout.getMongoEscapedWidgetNames())
+                                        );
                                     }
 
                                     if(newPage.getPublishedPage() !=  null
                                         && newPage.getPublishedPage().getLayouts() !=  null) {
 
-                                        newPage.getPublishedPage().getLayouts().forEach(layout -> {
-                                            mongoEscapedWidgetsNames.put(layout.getId(), layout.getMongoEscapedWidgetNames());
-                                        });
+                                        newPage.getPublishedPage().getLayouts().forEach(layout ->
+                                            mongoEscapedWidgetsNames.put(layout.getId(), layout.getMongoEscapedWidgetNames())
+                                        );
                                     }
                                 });
                                 file.setPageList(newPageList);
@@ -229,7 +229,7 @@ public class ImportExportApplicationService {
                 .flatMap(ignored -> {
                     ApplicationPage defaultPage = importedApplication.getPages()
                             .stream()
-                            .filter(app -> app.getIsDefault())
+                            .filter(ApplicationPage::getIsDefault)
                             .findFirst()
                             .get();
                     importedApplication.setPages(null);
@@ -258,9 +258,7 @@ public class ImportExportApplicationService {
                     String defaultPageName = tuple.getT1().getId();
                     Application savedApp = tuple.getT2();
                     importedApplication.setId(savedApp.getId());
-                    importedNewPageList.forEach(newPage -> {
-                        newPage.setApplicationId(savedApp.getId());
-                    });
+                    importedNewPageList.forEach(newPage -> newPage.setApplicationId(savedApp.getId()));
 
                     return importAndSavePages(importedNewPageList, importedApplication, importedDoc.getMongoEscapedWidgets())
                             .map(newPage -> {
@@ -301,12 +299,10 @@ public class ImportExportApplicationService {
                             .then(Mono.just(importedApplication));
                 })
                 .flatMap(ignore -> {
-                    importedNewPageList.forEach(page -> {
-                        mapActionIdWithPageLayout(page, actionIdMap);
-                    });
+                    importedNewPageList.forEach(page -> mapActionIdWithPageLayout(page, actionIdMap));
                     return Flux.fromIterable(importedNewPageList)
                             //TODO id for layoutOnLoadActions not updating for save() method
-                            .flatMap(newPage -> newPageService.save(newPage))
+                            .flatMap(newPageService::save)
                             .collectList()
                             .flatMap(finalPageList -> applicationService.update(importedApplication.getId(),importedApplication));
                 });
@@ -402,10 +398,7 @@ public class ImportExportApplicationService {
                     }
                     return ds;
                 })
-                .filter(ds -> {
-                    boolean isEqual = ds.softEquals(datasource);
-                    return isEqual;
-                })
+                .filter(ds -> ds.softEquals(datasource))
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() ->
                         // No matching existing datasource found, so create a new one.
