@@ -13,6 +13,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -27,14 +28,21 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,6 +67,8 @@ public class ImportExportApplicationService {
     private final SequenceService sequenceService;
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
 
+    private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
+
     public Mono<ApplicationJSONFile> getApplicationFileById(String applicationId) {
         ApplicationJSONFile file = new ApplicationJSONFile();
         Map<String, String> pluginMap = new HashMap<>();
@@ -82,7 +92,7 @@ public class ImportExportApplicationService {
                             .orElse(null);
 
                     if(defaultPage == null) {
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DEFAULT_PAGE_NAME));
+                        return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DEFAULT_PAGE_NAME));
                     }
                     return Mono.zip(
                             newPageRepository.findById(defaultPage.getId(), AclPermission.READ_PAGES),
@@ -179,6 +189,40 @@ public class ImportExportApplicationService {
                 .thenReturn(file);
     }
 
+    public Mono<Application> extractFileAndSaveApplication(String orgId, Part filePart) {
+
+        final MediaType contentType = filePart.headers().getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.VALIDATION_FAILURE,
+                    "Please upload a valid application file. Only JSON type is allowed."
+            ));
+        }
+
+        final Flux<DataBuffer> contentCache = filePart.content().cache();
+        Mono<String> stringifiedFile = contentCache.count()
+                .defaultIfEmpty(0L)
+                .flatMap(count -> {
+                    // Default implementation for the BufferFactory used breaks down the FilePart into chunks of 4KB.
+                    // So we multiply the count of chunks with 4 to get an estimate on the file size in KB.
+                    return DataBufferUtils.join(contentCache);
+                })
+                .map(dataBuffer -> {
+                    byte[] data = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(data);
+                    DataBufferUtils.release(dataBuffer);
+                    return new String(data);
+                });
+
+        return stringifiedFile
+                .flatMap(data -> {
+                    Gson gson = new Gson();
+                    Type fileType = new TypeToken<ResponseDTO<ApplicationJSONFile>>() {}.getType();
+                    gson.toJson(data);
+                    ResponseDTO<ApplicationJSONFile> jsonFile = gson.fromJson(data, fileType);
+                    return importApplicationInOrganization(orgId, jsonFile.getData());
+                });
+    }
     public Mono<Application> importApplicationInOrganization(String orgId, ApplicationJSONFile importedDoc) {
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
