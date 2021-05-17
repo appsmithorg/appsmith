@@ -51,7 +51,7 @@ describe("Update Application", function() {
       });
   });
 
-  it("Shows local warning if user enters invalid appname", function() {
+  it("Check for errors in updating application name", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -65,29 +65,14 @@ describe("Update Application", function() {
     cy.get("#loading").should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(homePage.applicationName).type("  ");
-    cy.get(".error-message").should("contain", "Please enter a valid name");
-    // cy.get(homePage.applicationName).type("  " + "{enter}");
-    // cy.get(homePage.applicationName).should("contain", appname);
-  });
-
-  it("Reverts app name back to previously saved name if user tries to save invalid app name", function() {
-    cy.get(commonlocators.homeIcon).click({ force: true });
-    cy.get(homePage.searchInput).type(appname);
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appEditIcon)
-      .first()
-      .click({ force: true });
-    cy.get("#loading").should("not.exist");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.get(homePage.applicationName).type("  ");
+    // If user tryies to save empty appname it'll show an error
+    // and revert the appname back to what it was earlier
     cy.get(homePage.applicationName).type("  " + "{enter}");
     cy.get(homePage.applicationName).should("contain", appname);
+    cy.get(homePage.toastMessage).should(
+      "contain",
+      "Application name can't be empty",
+    );
   });
 
   it("Updates the name of first application to very long name and checks whether update is reflected in the application card with a popover", function() {
