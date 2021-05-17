@@ -186,9 +186,9 @@ export const markThreadAsReadRequest = (threadId: string) => ({
 });
 
 export const editCommentRequest = ({
-  commentThreadId,
-  commentId,
   body,
+  commentId,
+  commentThreadId,
 }: {
   commentThreadId: string;
   commentId: string;

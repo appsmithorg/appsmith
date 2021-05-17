@@ -98,10 +98,10 @@ export function PanelPropertiesEditor(
   }, [dispatch, widgetProperties.type, widgetProperties.widgetId]);
 
   const {
-    panelConfig,
-    panelProps,
     closePanel,
+    panelConfig,
     panelParentPropertyPath,
+    panelProps,
     theme,
   } = props;
 

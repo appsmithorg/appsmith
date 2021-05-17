@@ -547,7 +547,7 @@ export default class DataTreeEvaluator {
     callBackData?: Array<any>,
   ) {
     // Get the {{binding}} bound values
-    const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
+    const { jsSnippets, stringSegments } = getDynamicBindings(dynamicBinding);
     if (returnTriggers) {
       const result = this.evaluateDynamicBoundValue(
         data,
@@ -626,7 +626,7 @@ export default class DataTreeEvaluator {
       valueToValidate = triggers;
     }
     const validation = widget.validationPaths[propertyPath];
-    const { parsed, isValid, message, transformed } = validateWidgetProperty(
+    const { isValid, message, parsed, transformed } = validateWidgetProperty(
       propertyPath,
       valueToValidate,
       widget,

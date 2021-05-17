@@ -10,4 +10,6 @@ public interface CustomCommentRepository extends AppsmithRepository<Comment> {
 
     Mono<UpdateResult> deleteReaction(String commentId, Comment.Reaction reaction);
 
+    Mono<Void> updateAuthorNames(String authorId, String authorName);
+
 }

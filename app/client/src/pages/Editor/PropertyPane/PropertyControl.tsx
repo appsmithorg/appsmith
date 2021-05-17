@@ -53,10 +53,10 @@ const PropertyControl = memo((props: Props) => {
 
   /** get all child enhancments functions */
   const {
-    propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
+    propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
   } = useChildWidgetEnhancementFns(widgetProperties.widgetId);
 
   const toggleDynamicProperty = useCallback(
@@ -160,7 +160,7 @@ const PropertyControl = memo((props: Props) => {
           const allUpdates: Record<string, unknown> = {};
           const triggerPaths: string[] = [];
           hookPropertiesUpdates.forEach(
-            ({ propertyPath, propertyValue, isDynamicTrigger }) => {
+            ({ isDynamicTrigger, propertyPath, propertyValue }) => {
               allUpdates[propertyPath] = propertyValue;
               if (isDynamicTrigger) triggerPaths.push(propertyPath);
             },
@@ -261,7 +261,7 @@ const PropertyControl = memo((props: Props) => {
     return { isValid, validationMessage };
   };
 
-  const { propertyName, label } = props;
+  const { label, propertyName } = props;
   if (widgetProperties) {
     const propertyValue = _.get(widgetProperties, propertyName);
     const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;

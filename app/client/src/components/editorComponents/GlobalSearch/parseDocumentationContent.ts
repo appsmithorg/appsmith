@@ -39,7 +39,7 @@ const getDocumentationCTA = (path: any) => {
  * Append open documentation button to title
  */
 const updateDocumentDescriptionTitle = (documentObj: any, item: any) => {
-  const { rawTitle, path } = item;
+  const { path, rawTitle } = item;
 
   Array.from(documentObj.querySelectorAll("h1")).forEach((match: any) => {
     match.outerHTML = `<h2>${match.innerHTML}</h2>`;

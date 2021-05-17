@@ -36,10 +36,10 @@ const ResolveCommentButton = withTheme(
   ({ handleClick, resolved, theme }: Props) => {
     const {
       resolved: resolvedColor,
-      unresolved: unresolvedColor,
       resolvedFill: resolvedFillColor,
-      unresolvedFill: unresolvedFillColor,
       resolvedPath: resolvedPathColor,
+      unresolved: unresolvedColor,
+      unresolvedFill: unresolvedFillColor,
     } = theme.colors.comments;
 
     const strokeColorCircle = resolved ? resolvedColor : unresolvedColor;
