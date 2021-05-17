@@ -385,55 +385,53 @@ public class MongoPlugin extends BasePlugin {
         private String convertMongoFormInputToRawCommand(ActionConfiguration actionConfiguration) {
             List<Property> templates = actionConfiguration.getPluginSpecifiedTemplates();
             if (templates != null) {
-                if (templates.size() >= (1 + INPUT_TYPE)) {
-                    if ((templates.get(INPUT_TYPE) != null) &&
-                            ("FORM".equals(templates.get(INPUT_TYPE).getValue()))) {
-                        // The user has configured FORM for command input. Parse the commands appropriately
+                if ((templates.size() >= (1 + INPUT_TYPE)) &&
+                        (templates.get(INPUT_TYPE) != null) &&
+                        ("FORM".equals(templates.get(INPUT_TYPE).getValue())) &&
+                        (templates.size() >= (1 + COMMAND)) &&
+                        (templates.get(COMMAND) != null) &&
+                        (templates.get(COMMAND).getValue() != null)) {
+                    // The user has configured FORM for command input. Parse the commands appropriately
 
-                        if ((templates.size() >= (1 + COMMAND)) &&
-                                (templates.get(COMMAND) != null) &&
-                                (templates.get(COMMAND).getValue() != null)) {
-
-                            MongoCommand command = null;
-                            switch ((String) templates.get(COMMAND).getValue()) {
-                                case "INSERT":
-                                    command = new Insert(actionConfiguration);
-                                    break;
-                                case "FIND":
-                                    command = new Find(actionConfiguration);
-                                    break;
-                                case "UPDATE_ONE":
-                                    command = new UpdateOne(actionConfiguration);
-                                    break;
-                                case "UPDATE_MANY":
-                                    command = new UpdateMany(actionConfiguration);
-                                    break;
-                                case "DELETE":
-                                    command = new Delete(actionConfiguration);
-                                    break;
-                                case "COUNT":
-                                    command = new Count(actionConfiguration);
-                                    break;
-                                case "DISTINCT":
-                                    command = new Distinct(actionConfiguration);
-                                    break;
-                                case "AGGREGATE":
-                                    command = new Aggregate(actionConfiguration);
-                                    break;
-                                default:
-                                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid mongo command found. Please select a command from the \"Command\" dropdown and try again");
-                            }
-                            if (!command.isValid()) {
-                                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Try again after configuring the fields : " + command.getFieldNamesWithNoConfiguration());
-                            }
-
-                            return command.parseCommand().toJson();
-                        }
-
+                    MongoCommand command = null;
+                    switch ((String) templates.get(COMMAND).getValue()) {
+                        case "INSERT":
+                            command = new Insert(actionConfiguration);
+                            break;
+                        case "FIND":
+                            command = new Find(actionConfiguration);
+                            break;
+                        case "UPDATE_ONE":
+                            command = new UpdateOne(actionConfiguration);
+                            break;
+                        case "UPDATE_MANY":
+                            command = new UpdateMany(actionConfiguration);
+                            break;
+                        case "DELETE":
+                            command = new Delete(actionConfiguration);
+                            break;
+                        case "COUNT":
+                            command = new Count(actionConfiguration);
+                            break;
+                        case "DISTINCT":
+                            command = new Distinct(actionConfiguration);
+                            break;
+                        case "AGGREGATE":
+                            command = new Aggregate(actionConfiguration);
+                            break;
+                        default:
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid mongo command found. Please select a command from the \"Command\" dropdown and try again");
                     }
+                    if (!command.isValid()) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Try again after configuring the fields : " + command.getFieldNamesWithNoConfiguration());
+                    }
+
+                    return command.parseCommand().toJson();
                 }
             }
-            // We reached here. This means either this is a RAW command input or some error has happened in which case, we default to RAW
+
+            // We reached here. This means either this is a RAW command input or some configuration error has happened
+            // in which case, we default to RAW
             return actionConfiguration.getBody();
         }
 
