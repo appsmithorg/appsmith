@@ -15,6 +15,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
@@ -61,11 +62,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -212,8 +216,10 @@ public class PostgresPlugin extends BasePlugin {
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
-            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null));
+            Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
+            String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                    transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
 
@@ -263,6 +269,12 @@ public class PostgresPlugin extends BasePlugin {
                                 executeActionDTO.getParams(),
                                 parameters,
                                 connectionFromPool);
+
+                        IntStream.range(0, parameters.size())
+                                .forEachOrdered(i ->
+                                        psParams.put(
+                                                getPSParamLabel(i+1),
+                                                new PsParameterDTO(parameters.get(i).getKey(),parameters.get(i).getValue())));
 
                         requestData.put("ps-parameters", parameters);
                         isResultSet = preparedQuery.execute();

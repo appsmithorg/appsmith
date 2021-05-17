@@ -199,8 +199,8 @@ public class DynamoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, "DescribeTable", null,
-                            null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null));
+                            null, null));
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
