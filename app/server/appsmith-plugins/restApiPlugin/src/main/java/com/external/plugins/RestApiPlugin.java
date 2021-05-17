@@ -267,7 +267,9 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            Object requestBodyObj = null;
+            // We initialize this object to an empty string because body can never be empty
+            // Based on the content-type, this Object may be of type MultiValueMap or String
+            Object requestBodyObj = "";
 
             // Add request body only for non GET calls.
             if (!HttpMethod.GET.equals(httpMethod)) {
@@ -417,24 +419,33 @@ public class RestApiPlugin extends BasePlugin {
             return null;
         }
 
+        /**
+         * This function converts the list of properties in bodyFormData to an appropriate data structure for WebClient
+         * to consume. Based on the data type, WebClient creates appropriate logic for making the HTTP request.
+         * This is especially required for data type multipart/form-data
+         * @param bodyFormData
+         * @param reqContentType
+         * @param encodeParamsToggle
+         * @return Object
+         */
         public Object convertPropertyListToReqBody(List<Property> bodyFormData,
                                                    String reqContentType,
                                                    Boolean encodeParamsToggle) {
             if (bodyFormData == null || bodyFormData.isEmpty()) {
-                return null;
+                return "";
             }
 
             Object requestBody = null;
 
             switch (reqContentType) {
                 case MediaType.APPLICATION_FORM_URLENCODED_VALUE:
+                    // The request body should be a urlEncoded string of key-value pairs
                     requestBody = bodyFormData.stream()
                             .map(property -> {
                                 String key = property.getKey();
                                 String value = (String) property.getValue();
 
-                                if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                                        && encodeParamsToggle == true) {
+                                if (encodeParamsToggle == true) {
                                     try {
                                         value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
                                     } catch (UnsupportedEncodingException e) {
@@ -448,6 +459,7 @@ public class RestApiPlugin extends BasePlugin {
                     break;
                     
                 case MediaType.MULTIPART_FORM_DATA_VALUE:
+                    // The request body should be of type MultiValueMap for WebClient to function properly
                     requestBody = bodyFormData.stream()
                             .collect(StreamUtils.toMultiMap(Property::getKey, Property::getValue));
                     break;
