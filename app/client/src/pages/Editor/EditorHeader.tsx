@@ -146,14 +146,14 @@ type EditorHeaderProps = {
 
 export function EditorHeader(props: EditorHeaderProps) {
   const {
-    currentApplication,
-    isSaving,
-    pageSaveError,
-    pageId,
-    orgId,
     applicationId,
-    publishApplication,
+    currentApplication,
     isPublishing,
+    isSaving,
+    orgId,
+    pageId,
+    pageSaveError,
+    publishApplication,
   } = props;
 
   const dispatch = useDispatch();
