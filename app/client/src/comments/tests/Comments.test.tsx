@@ -18,7 +18,7 @@ import { act } from "react-dom/test-utils";
 import { uniqueId } from "lodash";
 
 let container: any = null;
-describe("Comment threads", () => {
+describe("Conversations", () => {
   beforeEach(async () => {
     // setup a DOM element as a render target
     container = document.createElement("div");
