@@ -8,8 +8,8 @@ import { Theme } from "constants/DefaultTheme";
 // TODO remove: (trigger tests)
 const EmojiPicker = withTheme(
   ({
-    theme,
     onSelectEmoji,
+    theme,
   }: {
     theme: Theme;
     onSelectEmoji: (e: React.MouseEvent, emojiObject: IEmojiData) => void;

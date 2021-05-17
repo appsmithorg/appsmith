@@ -115,7 +115,7 @@ function* addCommentToThread(
   action: ReduxAction<AddCommentToCommentThreadRequestPayload>,
 ) {
   const { payload } = action;
-  const { commentBody, commentThread, callback } = payload;
+  const { callback, commentBody, commentThread } = payload;
 
   const response = yield CommentsApi.createNewThreadComment(
     { body: commentBody },
@@ -168,7 +168,7 @@ function* setCommentResolution(
   action: ReduxAction<{ threadId: string; resolved: boolean }>,
 ) {
   try {
-    const { threadId, resolved } = action.payload;
+    const { resolved, threadId } = action.payload;
     const response = yield CommentsApi.updateCommentThread(
       { resolved },
       threadId,

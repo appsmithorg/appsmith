@@ -127,8 +127,8 @@ function* getChildWidgetProps(
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
-  const { leftColumn, topRow, newWidgetId, props, type } = params;
-  let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
+  const { leftColumn, newWidgetId, props, topRow, type } = params;
+  let { columns, parentColumnSpace, parentRowSpace, rows, widgetName } = params;
   let minHeight = undefined;
   /* eslint-disable @typescript-eslint/no-unused-vars */
   const { blueprint = undefined, ...restDefaultConfig } = {
@@ -359,7 +359,7 @@ export function* addChildrenSaga(
   addChildrenAction: ReduxAction<WidgetAddChildren>,
 ) {
   try {
-    const { widgetId, children } = addChildrenAction.payload;
+    const { children, widgetId } = addChildrenAction.payload;
     const stateWidgets = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -450,7 +450,7 @@ const resizeCanvasToLowestWidget = (
 
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
-    let { widgetId, parentId } = deleteAction.payload;
+    let { parentId, widgetId } = deleteAction.payload;
     const { disallowUndo, isShortcut } = deleteAction.payload;
 
     if (!widgetId) {
@@ -700,11 +700,11 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
     Toaster.clear();
     const start = performance.now();
     const {
-      widgetId,
       leftColumn,
-      topRow,
-      parentId,
       newParentId,
+      parentId,
+      topRow,
+      widgetId,
     } = moveAction.payload;
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     let widget = Object.assign({}, stateWidget);
@@ -764,11 +764,11 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     Toaster.clear();
     const start = performance.now();
     const {
-      widgetId,
+      bottomRow,
       leftColumn,
       rightColumn,
       topRow,
-      bottomRow,
+      widgetId,
     } = resizeAction.payload;
 
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
@@ -893,7 +893,7 @@ function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyPath, widgetId },
+    payload: { propertyPath, propertyValue, widgetId },
   } = updateAction;
 
   // Holder object to collect all updates
@@ -1044,9 +1044,9 @@ function* batchUpdateWidgetPropertySaga(
   try {
     if (Object.keys(modify).length > 0) {
       const {
-        propertyUpdates,
-        dynamicTriggerPathList,
         dynamicBindingPathList,
+        dynamicTriggerPathList,
+        propertyUpdates,
       } = getPropertiesToUpdate(widget, modify, triggerPaths);
 
       // We loop over all updates
@@ -1124,7 +1124,7 @@ function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
 function* deleteWidgetPropertySaga(
   action: ReduxAction<DeleteWidgetPropertyPayload>,
 ) {
-  const { widgetId, propertyPaths } = action.payload;
+  const { propertyPaths, widgetId } = action.payload;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;
@@ -1409,10 +1409,10 @@ function* pasteWidgetSaga() {
 
     // Compute the new widget's positional properties
     const {
-      leftColumn,
-      topRow,
-      rightColumn,
       bottomRow,
+      leftColumn,
+      rightColumn,
+      topRow,
     } = yield calculateNewWidgetPosition(
       copiedWidget,
       newWidgetParentId,
@@ -1661,10 +1661,10 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       },
     };
     const {
-      leftColumn,
-      topRow,
-      rightColumn,
       bottomRow,
+      leftColumn,
+      rightColumn,
+      topRow,
     } = yield calculateNewWidgetPosition(
       newWidget,
       MAIN_CONTAINER_WIDGET_ID,

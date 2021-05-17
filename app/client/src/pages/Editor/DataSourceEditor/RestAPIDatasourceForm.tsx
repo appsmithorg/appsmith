@@ -253,7 +253,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   createApiAction = () => {
-    const { datasource, actions, pageId } = this.props;
+    const { actions, datasource, pageId } = this.props;
     if (
       !datasource ||
       !datasource.datasourceConfiguration ||
@@ -308,11 +308,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderHeader = () => {
     const {
-      isSaving,
-      isNewDatasource,
-      pluginImage,
       applicationId,
+      isNewDatasource,
+      isSaving,
       pageId,
+      pluginImage,
     } = this.props;
     return (
       <>
@@ -344,7 +344,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderSave = () => {
-    const { isDeleting, isSaving, datasourceId, deleteDatasource } = this.props;
+    const { datasourceId, deleteDatasource, isDeleting, isSaving } = this.props;
     return (
       <SaveButtonContainer>
         <ActionButton
@@ -609,7 +609,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderOauth2AuthorizationCode = () => {
-    const { pageId, datasourceId, isSaving, datasource } = this.props;
+    const { datasource, datasourceId, isSaving, pageId } = this.props;
     const isAuthorized = _.get(
       datasource,
       "datasourceConfiguration.authentication.isAuthorized",

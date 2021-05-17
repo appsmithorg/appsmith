@@ -13,7 +13,7 @@ import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { noop } from "utils/AppsmithUtils";
 
 Element.prototype.scrollTo = noop;
-function SetCanvas({ dsl, children }: any) {
+function SetCanvas({ children, dsl }: any) {
   const dispatch = useDispatch();
   const mockResp: any = {
     data: {
