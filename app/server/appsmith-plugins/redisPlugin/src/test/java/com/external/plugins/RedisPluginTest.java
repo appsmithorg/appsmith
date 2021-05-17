@@ -232,7 +232,7 @@ public class RedisPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            getActionConfiguration.getBody(), null, null));
+                            getActionConfiguration.getBody(), null, null, null));
                     assertEquals(actionExecutionResult.getRequest().getRequestParams().toString(),
                             expectedRequestParams.toString());
                 }).verifyComplete();
