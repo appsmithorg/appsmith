@@ -446,7 +446,7 @@ export function* executeActionSaga(
   apiAction: RunActionPayload,
   event: ExecuteActionPayloadEvent,
 ) {
-  const { actionId, onSuccess, onError, params } = apiAction;
+  const { actionId, onError, onSuccess, params } = apiAction;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.EXECUTE_ACTION,
     {
@@ -553,6 +553,7 @@ export function* executeActionSaga(
       Toaster.show({
         text: createMessage(ERROR_API_EXECUTE, api.name),
         variant: Variant.danger,
+        showDebugButton: true,
       });
     } else {
       PerformanceTracker.stopAsyncTracking(
@@ -607,6 +608,7 @@ export function* executeActionSaga(
     Toaster.show({
       text: createMessage(ERROR_API_EXECUTE, api.name),
       variant: Variant.danger,
+      showDebugButton: true,
     });
     if (onError) {
       yield put(
@@ -836,7 +838,7 @@ function* runActionSaga(
 
         Toaster.show({
           text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
-          variant: Variant.warning,
+          variant: Variant.danger,
         });
       }
     } else {

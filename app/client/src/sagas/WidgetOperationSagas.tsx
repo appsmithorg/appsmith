@@ -52,7 +52,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set } from "lodash";
+import _, { cloneDeep, isString, set, remove } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -120,14 +120,15 @@ import {
   doesTriggerPathsContainPropertyPath,
   handleSpecificCasesWhilePasting,
 } from "./WidgetOperationUtils";
+import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
-  const { leftColumn, topRow, newWidgetId, props, type } = params;
-  let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
+  const { leftColumn, newWidgetId, props, topRow, type } = params;
+  let { columns, parentColumnSpace, parentRowSpace, rows, widgetName } = params;
   let minHeight = undefined;
   /* eslint-disable @typescript-eslint/no-unused-vars */
   const { blueprint = undefined, ...restDefaultConfig } = {
@@ -358,7 +359,7 @@ export function* addChildrenSaga(
   addChildrenAction: ReduxAction<WidgetAddChildren>,
 ) {
   try {
-    const { widgetId, children } = addChildrenAction.payload;
+    const { children, widgetId } = addChildrenAction.payload;
     const stateWidgets = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -449,7 +450,7 @@ const resizeCanvasToLowestWidget = (
 
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
-    let { widgetId, parentId } = deleteAction.payload;
+    let { parentId, widgetId } = deleteAction.payload;
     const { disallowUndo, isShortcut } = deleteAction.payload;
 
     if (!widgetId) {
@@ -537,8 +538,15 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       yield call(clearEvalPropertyCacheOfWidget, widgetName);
 
-      const finalWidgets: CanvasWidgetsReduxState = _.omit(
+      let finalWidgets: CanvasWidgetsReduxState = yield call(
+        updateListWidgetPropertiesOnChildDelete,
         widgets,
+        widgetId,
+        widgetName,
+      );
+
+      finalWidgets = _.omit(
+        finalWidgets,
         otherWidgetsToDelete.map((widgets) => widgets.widgetId),
       );
 
@@ -556,6 +564,43 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       },
     });
   }
+}
+
+/**
+ * this saga clears out the enhancementMap, template and dynamicBindingPathList when a child
+ * is deleted in list widget
+ *
+ * @param widgets
+ * @param widgetId
+ * @param widgetName
+ * @param parentId
+ */
+export function* updateListWidgetPropertiesOnChildDelete(
+  widgets: CanvasWidgetsReduxState,
+  widgetId: string,
+  widgetName: string,
+) {
+  const clone = JSON.parse(JSON.stringify(widgets));
+
+  const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, clone);
+
+  if (parentWithEnhancementFn?.type === "LIST_WIDGET") {
+    const listWidget = parentWithEnhancementFn;
+
+    // delete widget in template of list
+    if (listWidget && widgetName in listWidget.template) {
+      listWidget.template[widgetName] = undefined;
+    }
+
+    // delete dynamic binding path if any
+    remove(listWidget?.dynamicBindingPathList || [], (path: any) =>
+      path.key.startsWith(`template.${widgetName}`),
+    );
+
+    return clone;
+  }
+
+  return clone;
 }
 
 export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
@@ -655,11 +700,11 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
     Toaster.clear();
     const start = performance.now();
     const {
-      widgetId,
       leftColumn,
-      topRow,
-      parentId,
       newParentId,
+      parentId,
+      topRow,
+      widgetId,
     } = moveAction.payload;
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     let widget = Object.assign({}, stateWidget);
@@ -719,11 +764,11 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     Toaster.clear();
     const start = performance.now();
     const {
-      widgetId,
+      bottomRow,
       leftColumn,
       rightColumn,
       topRow,
-      bottomRow,
+      widgetId,
     } = resizeAction.payload;
 
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
@@ -848,7 +893,7 @@ function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyPath, widgetId },
+    payload: { propertyPath, propertyValue, widgetId },
   } = updateAction;
 
   // Holder object to collect all updates
@@ -999,9 +1044,9 @@ function* batchUpdateWidgetPropertySaga(
   try {
     if (Object.keys(modify).length > 0) {
       const {
-        propertyUpdates,
-        dynamicTriggerPathList,
         dynamicBindingPathList,
+        dynamicTriggerPathList,
+        propertyUpdates,
       } = getPropertiesToUpdate(widget, modify, triggerPaths);
 
       // We loop over all updates
@@ -1079,7 +1124,7 @@ function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
 function* deleteWidgetPropertySaga(
   action: ReduxAction<DeleteWidgetPropertyPayload>,
 ) {
-  const { widgetId, propertyPaths } = action.payload;
+  const { propertyPaths, widgetId } = action.payload;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;
@@ -1249,16 +1294,24 @@ function getNextWidgetName(
   widgets: CanvasWidgetsReduxState,
   type: WidgetType,
   evalTree: Record<string, unknown>,
+  options?: Record<string, unknown>,
 ) {
   // Compute the new widget's name
   const defaultConfig: any = WidgetConfigResponse.config[type];
   const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
   const entityNames = Object.keys(evalTree);
+  let prefix = defaultConfig.widgetName;
+  if (options && options.prefix) {
+    prefix = `${options.prefix}${
+      widgetNames.indexOf(options.prefix as string) > -1 ? "Copy" : ""
+    }`;
+  }
 
-  return getNextEntityName(defaultConfig.widgetName, [
-    ...widgetNames,
-    ...entityNames,
-  ]);
+  return getNextEntityName(
+    prefix,
+    [...widgetNames, ...entityNames],
+    options?.startWithoutIndex as boolean,
+  );
 }
 
 /**
@@ -1356,10 +1409,10 @@ function* pasteWidgetSaga() {
 
     // Compute the new widget's positional properties
     const {
-      leftColumn,
-      topRow,
-      rightColumn,
       bottomRow,
+      leftColumn,
+      rightColumn,
+      topRow,
     } = yield calculateNewWidgetPosition(
       copiedWidget,
       newWidgetParentId,
@@ -1448,12 +1501,7 @@ function* pasteWidgetSaga() {
         } catch (error) {
           log.debug("Error updating table widget properties", error);
         }
-      } else {
-        // Generate a new unique widget name
-        widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
       }
-
-      widgetNameMap[oldWidgetName] = widget.widgetName;
 
       // If it is the copied widget, update position properties
       if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
@@ -1510,7 +1558,11 @@ function* pasteWidgetSaga() {
         if (newParentId) widget.parentId = newParentId;
       }
       // Generate a new unique widget name
-      widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
+      widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree, {
+        prefix: oldWidgetName,
+        startWithoutIndex: true,
+      });
+      widgetNameMap[oldWidgetName] = widget.widgetName;
       // Add the new widget to the canvas widgets
       widgets[widget.widgetId] = widget;
     }
@@ -1609,10 +1661,10 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       },
     };
     const {
-      leftColumn,
-      topRow,
-      rightColumn,
       bottomRow,
+      leftColumn,
+      rightColumn,
+      topRow,
     } = yield calculateNewWidgetPosition(
       newWidget,
       MAIN_CONTAINER_WIDGET_ID,

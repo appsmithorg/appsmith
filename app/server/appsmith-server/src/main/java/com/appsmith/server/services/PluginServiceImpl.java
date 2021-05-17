@@ -64,9 +64,16 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
     private final Map<String, Mono<Map>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
+    private final Map<String, Mono<Map>> labelCache = new HashMap<>();
 
     private static final int CONNECTION_TIMEOUT = 10000;
     private static final int READ_TIMEOUT = 10000;
+    private static final String KEY_EDITOR = "editor";
+    private static final String KEY_CONFIG_PROPERTY = "configProperty";
+    private static final String KEY_LABEL = "label";
+    private static final String KEY_INTERNAL_LABEL = "internalLabel";
+    private static final String KEY_CHILDREN = "children";
+    private static final String DEFAULT_LABEL = "Query";
 
     @Autowired
     public PluginServiceImpl(Scheduler scheduler,
@@ -355,6 +362,56 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         }
 
         return formCache.get(pluginId);
+    }
+
+    @Override
+    public Mono<Map> getEditorConfigLabelMap(String pluginId) {
+        if (labelCache.containsKey(pluginId)) {
+            return labelCache.get(pluginId);
+        }
+
+        Mono<Map> formConfig = getFormConfig(pluginId);
+
+        if (formConfig == null) {
+            return Mono.just(new HashMap());
+        }
+
+        Mono<Map> labelMapMono = formConfig
+                .flatMap(formMap -> {
+                    Map<String, String> labelMap = new LinkedHashMap(); // need to keep the key value pairs in order
+                    List editorMap = (List) formMap.get(KEY_EDITOR);
+                    if (editorMap == null) {
+                        return Mono.just(new HashMap());
+                    }
+                    
+                    editorMap.stream()
+                            .map(item -> ((Map) item).get(KEY_CHILDREN))
+                            .forEach(item ->
+                                    ((List<Map>) item).stream()
+                                            .forEach(queryField -> {
+                                                /*
+                                                 * - First check for "label" key.
+                                                 * - If "label" key has empty value, then get the value against
+                                                 * "internalLabel" key.
+                                                 */
+                                                String label = StringUtils.isEmpty(queryField.get(KEY_LABEL)) ?
+                                                        (StringUtils.isEmpty(queryField.get(KEY_INTERNAL_LABEL)) ?
+                                                                DEFAULT_LABEL : (String) queryField.get(KEY_INTERNAL_LABEL)) :
+                                                        (String) queryField.get(KEY_LABEL);
+                                                String configProperty = (String) queryField.get(KEY_CONFIG_PROPERTY);
+                                                labelMap.put(
+                                                        configProperty,
+                                                        label
+                                                );
+                                            })
+                            );
+
+                    return Mono.just(labelMap);
+                });
+
+        labelCache.put(pluginId, labelMapMono);
+
+        return labelMapMono;
     }
 
     private Mono<Map<String, String>> getTemplates(Plugin plugin) {

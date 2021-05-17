@@ -231,7 +231,7 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
-    const { selectedIndexArr, options } = this.props;
+    const { options, selectedIndexArr } = this.props;
     const selectedItems = selectedIndexArr
       ? _.map(selectedIndexArr, (index) => options[index])
       : [];
@@ -337,7 +337,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
   };
 
   renderTag = (option: DropdownOption) => {
-    return option.label;
+    return option?.label;
   };
 
   isOptionSelected = (selectedOption: DropdownOption) => {

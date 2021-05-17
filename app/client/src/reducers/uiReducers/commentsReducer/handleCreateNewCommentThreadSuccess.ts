@@ -10,7 +10,7 @@ const handleCreateNewCommentThreadSuccess = (
   state: CommentsReduxState,
   action: ReduxAction<any>,
 ) => {
-  const { refId, id, applicationId } = action.payload;
+  const { applicationId, id, refId } = action.payload;
 
   state.commentThreadsMap[id] = action.payload;
 

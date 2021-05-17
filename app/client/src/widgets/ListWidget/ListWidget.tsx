@@ -1,6 +1,15 @@
 import React from "react";
 import log from "loglevel";
-import { compact, get, set, xor, isPlainObject, isNumber, round } from "lodash";
+import {
+  compact,
+  get,
+  set,
+  xor,
+  isPlainObject,
+  isNumber,
+  round,
+  toString,
+} from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -148,7 +157,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   renderChild = (childWidgetData: WidgetProps) => {
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
@@ -195,9 +204,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   updateTemplateWidgetProperties = (widget: WidgetProps, itemIndex: number) => {
     const {
-      template,
       dynamicBindingPathList,
       dynamicTriggerPathList,
+      template,
     } = this.props;
     const { widgetName = "" } = widget;
     // Update properties if they're dynamic
@@ -224,9 +233,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           evaluatedProperty.length > itemIndex
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
-          if (isPlainObject(evaluatedValue))
+          if (isPlainObject(evaluatedValue) || Array.isArray(evaluatedValue))
             set(widget, path, JSON.stringify(evaluatedValue));
-          else set(widget, path, evaluatedValue);
+          else set(widget, path, toString(evaluatedValue));
         }
       });
     }
@@ -401,7 +410,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   paginateItems = (children: ContainerWidgetProps<WidgetProps>[]) => {
     const { page } = this.state;
-    const { shouldPaginate, perPage } = this.shouldPaginate();
+    const { perPage, shouldPaginate } = this.shouldPaginate();
 
     if (shouldPaginate) {
       return children.slice((page - 1) * perPage, page * perPage);
@@ -486,7 +495,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   shouldPaginate = () => {
     let { gridGap } = this.props;
-    const { items, children } = this.props;
+    const { children, items } = this.props;
     const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
     const templateHeight = templateBottomRow * 40;
@@ -519,7 +528,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const children = this.renderChildren();
-    const { shouldPaginate, perPage } = this.shouldPaginate();
+    const { perPage, shouldPaginate } = this.shouldPaginate();
 
     if (!isNumber(perPage) || perPage === 0) {
       return (

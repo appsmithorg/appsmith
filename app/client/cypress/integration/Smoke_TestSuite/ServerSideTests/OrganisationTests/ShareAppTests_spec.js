@@ -7,6 +7,7 @@ describe("Create new org and share with a user", function() {
   let orgid;
   let appid;
   let currentUrl;
+  let newOrganizationName;
 
   it("create org and then share with a user from Application share option within application", function() {
     cy.NavigateToHome();
@@ -14,7 +15,11 @@ describe("Create new org and share with a user", function() {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
-      cy.createOrg(orgid);
+      cy.createOrg();
+      cy.wait("@createOrg").then((interception) => {
+        newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgid);
+      });
       cy.CreateAppForOrg(orgid, appid);
       cy.wait("@getPagesForCreateApp").should(
         "have.nested.property",

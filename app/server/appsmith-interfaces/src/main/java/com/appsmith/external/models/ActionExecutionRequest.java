@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,11 +17,14 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ActionExecutionRequest {
-    String query;
+    @JsonIgnore
+    String query; // Only used for analytics. Not to be returned back to the client.
     Object body;
     Object headers;
     HttpMethod httpMethod;
     String url;
-    Map<String, ?> properties;
+    @JsonIgnore
+    Map<String, ?> properties; // Only used for analytics. Not to be returned back to the client.
     List<String> executionParameters;
+    Object requestParams;
 }

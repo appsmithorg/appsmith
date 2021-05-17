@@ -8,8 +8,10 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -37,6 +39,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -219,6 +222,15 @@ public class MssqlPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -300,7 +312,6 @@ public class MssqlPluginTest {
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
                     assertEquals(parameterEntry.getKey(), "1");
                     assertEquals(parameterEntry.getValue(), "INTEGER");
-
                 })
                 .verifyComplete();
     }
@@ -358,6 +369,23 @@ public class MssqlPluginTest {
                                     .toArray()
                     );
 
+                    /*
+                     * - Check if request params are sent back properly.
+                     * - Not replicating the same to other tests as the overall flow remains the same w.r.t. request
+                     *  params.
+                     */
+
+                    // check if '?' is replaced by $i.
+                    assertEquals("SELECT * FROM users where id = $1;",
+                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+
+                    PsParameterDTO expectedPsParam = new PsParameterDTO("1", "INTEGER");
+                    PsParameterDTO returnedPsParam =
+                            (PsParameterDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$1");
+                    // Check if prepared stmt param value is correctly sent back.
+                    assertEquals(expectedPsParam.getValue(), returnedPsParam.getValue());
+                    // check if prepared stmt param type is correctly sent back.
+                    assertEquals(expectedPsParam.getType(), returnedPsParam.getType());
                 })
                 .verifyComplete();
     }

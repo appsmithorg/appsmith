@@ -42,6 +42,7 @@ import {
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { PluginType } from "entities/Action";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -106,6 +107,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
       } else {
         this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
+      AnalyticsUtil.logEvent("GSHEET_AUTH_COMPLETE", {
+        applicationId: _.get(this.props, "match.params.applicationId"),
+        datasourceId: _.get(this.props, "match.params.datasourceId"),
+        pageId: _.get(this.props, "match.params.pageId"),
+      });
     }
   }
 
@@ -116,8 +122,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   createApiAction = () => {
     const {
-      formData,
       actions,
+      formData,
       match: {
         params: { pageId },
       },
@@ -144,12 +150,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      deleteDatasource,
+      isDeleting,
+      isSaving,
       match: {
         params: { applicationId, datasourceId, pageId, pluginPackageName },
       },
-      isSaving,
-      isDeleting,
-      deleteDatasource,
     } = this.props;
 
     return (
@@ -201,24 +207,28 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             }
             text="Delete"
           />
-
           <StyledButton
             className="t--save-datasource"
             disabled={this.validate()}
             filled
             intent="primary"
             loading={isSaving}
-            onClick={() =>
+            onClick={() => {
+              AnalyticsUtil.logEvent("GSHEET_AUTH_INIT", {
+                applicationId,
+                datasourceId,
+                pageId,
+              });
               this.save(
                 redirectAuthorizationCode(
                   pageId,
                   datasourceId,
                   PluginType.SAAS,
                 ),
-              )
-            }
+              );
+            }}
             size="small"
-            text="Save and Authorize"
+            text="Continue"
           />
         </SaveButtonContainer>
       </form>

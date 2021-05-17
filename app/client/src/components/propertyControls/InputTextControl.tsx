@@ -25,15 +25,15 @@ export function InputText(props: {
   hideEvaluatedValue?: boolean;
 }) {
   const {
+    dataTreePath,
     errorMessage,
+    evaluatedValue,
     expected,
-    value,
+    hideEvaluatedValue,
     isValid,
     onChange,
     placeholder,
-    dataTreePath,
-    evaluatedValue,
-    hideEvaluatedValue,
+    value,
   } = props;
 
   return (
@@ -65,16 +65,16 @@ export function InputText(props: {
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
+      additionalAutoComplete,
+      dataTreePath,
+      defaultValue,
       expected,
-      propertyValue,
+      hideEvaluatedValue,
       isValid,
       label,
       placeholderText,
-      dataTreePath,
+      propertyValue,
       validationMessage,
-      defaultValue,
-      additionalAutoComplete,
-      hideEvaluatedValue,
     } = this.props;
 
     return (

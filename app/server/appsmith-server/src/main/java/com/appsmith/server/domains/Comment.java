@@ -1,12 +1,14 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +33,8 @@ public class Comment extends BaseDomain {
     String authorName;
 
     Body body;
+
+    List<Reaction> reactions;
 
     /**
      * Indicates whether this comment is the leading comment in it's thread. Such a comment cannot be deleted.
@@ -83,6 +87,15 @@ public class Comment extends BaseDomain {
             String username;
             String roleName;
         }
+    }
+
+    @Data
+    public static class Reaction {
+        String emoji;
+        String byUsername;
+        String byName;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
+        Date createdAt;
     }
 
 }

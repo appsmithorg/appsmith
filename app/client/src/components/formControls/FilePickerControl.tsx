@@ -121,7 +121,7 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
   }
 
   render() {
-    const { configProperty, label, isRequired } = this.props;
+    const { configProperty, isRequired, label } = this.props;
 
     return (
       <>

@@ -2113,7 +2113,7 @@ public class DatabaseChangelog {
         plugin.setName("Google Sheets");
         plugin.setType(PluginType.SAAS);
         plugin.setPackageName("google-sheets-plugin");
-        plugin.setUiComponent("DbEditorForm");
+        plugin.setUiComponent("SaaSEditorForm");
         plugin.setDatasourceComponent("OAuth2DatasourceForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
@@ -2241,5 +2241,21 @@ public class DatabaseChangelog {
                 new Update().addToSet("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates", property),
                 NewAction.class
         );
+    }
+
+    @ChangeSet(order = "067", id = "update-mongo-import-from-srv-field", author = "")
+    public void updateMongoImportFromSrvField(MongoTemplate mongoTemplate) {
+        Plugin mongoPlugin = mongoTemplate
+                .findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        List<Datasource> mongoDatasources = mongoTemplate
+                .find(query(where("pluginId").is(mongoPlugin.getId())), Datasource.class);
+
+        mongoDatasources.stream()
+                .forEach(datasource -> {
+                    datasource.getDatasourceConfiguration().setProperties(List.of(new Property("Use Mongo Connection " +
+                            "String URI", "No")));
+                    mongoTemplate.save(datasource);
+                });
     }
 }

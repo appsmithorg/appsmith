@@ -75,22 +75,22 @@ class DataSourceEditor extends React.Component<Props> {
 
   render() {
     const {
+      deleteDatasource,
+      formConfig,
+      formData,
+      isDeleting,
+      isNewDatasource,
+      isSaving,
+      isTesting,
       match: {
         params: { datasourceId },
       },
-      isSaving,
-      formData,
-      isTesting,
-      formConfig,
-      isDeleting,
-      deleteDatasource,
-      isNewDatasource,
-      pluginImages,
-      pluginId,
-      viewMode,
-      setDatasourceEditorMode,
-      pluginType,
       openOmnibarReadMore,
+      pluginId,
+      pluginImages,
+      pluginType,
+      setDatasourceEditorMode,
+      viewMode,
     } = this.props;
 
     return (
@@ -173,17 +173,17 @@ export interface DatasourcePaneFunctions {
 class DatasourceEditorRouter extends React.Component<Props> {
   render() {
     const {
-      match: {
-        params: { datasourceId, applicationId, pageId },
-      },
-      isSaving,
       history,
       isDeleting,
-      location,
       isNewDatasource,
-      pluginImages,
-      pluginId,
+      isSaving,
+      location,
+      match: {
+        params: { applicationId, datasourceId, pageId },
+      },
       pluginDatasourceForm,
+      pluginId,
+      pluginImages,
       pluginPackageName,
     } = this.props;
     if (!pluginId && datasourceId) {
@@ -216,7 +216,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
         />
       );
     }
-    if (pluginDatasourceForm === "SaaSDatasourceForm") {
+    if (pluginDatasourceForm === "DatasourceSaaSForm") {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
           applicationId,

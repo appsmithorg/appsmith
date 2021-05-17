@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.ActionResultDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -16,6 +15,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -43,6 +43,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static com.appsmith.external.constants.DisplayDataType.JSON;
+import static com.appsmith.external.constants.DisplayDataType.RAW;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -221,9 +224,19 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
+
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -251,6 +264,15 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals("unknown top level operator: $is", result.getBody());
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -281,7 +303,7 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })
@@ -316,7 +338,7 @@ public class MongoPluginTest {
                     assertEquals("Alden Cantrell", value.get("name").asText());
                     assertEquals(30, value.get("age").asInt());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })
@@ -350,7 +372,7 @@ public class MongoPluginTest {
                     assertEquals("2018-12-31T00:00:00Z", node.get("dob").asText());
                     assertEquals("123456.789012", node.get("netWorth").toString());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })
@@ -451,16 +473,134 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testErrorMessageOnSrvUrl() {
+    public void testErrorMessageOnSrvUriWithFormInterface() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.getEndpoints().get(0).setHost("mongodb+srv:://url.net");
+        dsConfig.getEndpoints().get(0).setHost("mongodb+srv://user:pass@url.net/dbName");
+        dsConfig.setProperties(List.of(new Property("Import from URI", "No")));
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
         StepVerifier.create(invalidsMono)
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("MongoDb SRV URLs are not yet supported")));
+                            .anyMatch(error -> error.contains("It seems that you are trying to use a mongo connection" +
+                                    " string URI. Please extract relevant fields and fill the form with extracted " +
+                                    "values. For details, please check out the Appsmith's documentation for Mongo " +
+                                    "database. Alternatively, you may use 'Import from Connection String URI' option " +
+                                    "from the dropdown labelled 'Use Mongo Connection String URI' to use the URI " +
+                                    "connection string directly.")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testErrorMessageOnNonSrvUri() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        List<Endpoint> endpoints = new ArrayList<>();
+        endpoints.add(new Endpoint("url", 123L));
+        endpoints.add(null);
+        endpoints.add(new Endpoint(null, 123L));
+        endpoints.add(new Endpoint("mongodb://user:pass@url.net:1234,url.net:1234/dbName", 123L));
+        dsConfig.setEndpoints(endpoints);
+        dsConfig.setProperties(List.of(new Property("Import from URI", "No")));
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> error.contains("It seems that you are trying to use a mongo connection" +
+                                    " string URI. Please extract relevant fields and fill the form with extracted " +
+                                    "values. For details, please check out the Appsmith's documentation for Mongo " +
+                                    "database. Alternatively, you may use 'Import from Connection String URI' option " +
+                                    "from the dropdown labelled 'Use Mongo Connection String URI' to use the URI " +
+                                    "connection string directly.")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidsOnMissingUri() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.setProperties(List.of(new Property("Import from URI", "Yes")));
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> error.contains("'Mongo Connection String URI' field is empty. Please " +
+                                    "edit the 'Mongo Connection URI' field to provide a connection uri to connect with.")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidsOnBadSrvUriFormat() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("Import from URI", "Yes"));
+        properties.add(new Property("Srv Url", "mongodb+srv::username:password//url.net"));
+        dsConfig.setProperties(properties);
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> error.contains("Mongo Connection String URI does not seem to be in the" +
+                                    " correct format. Please check the URI once.")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidsOnBadNonSrvUriFormat() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("Import from URI", "Yes"));
+        properties.add(new Property("Srv Url", "mongodb::username:password//url.net"));
+        dsConfig.setProperties(properties);
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> error.contains("Mongo Connection String URI does not seem to be in the" +
+                                    " correct format. Please check the URI once.")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidsEmptyOnCorrectSrvUriFormat() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("Import from URI", "Yes"));
+        properties.add(new Property("Srv Url", "mongodb+srv://username:password@url.net/dbname"));
+        dsConfig.setProperties(properties);
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids.isEmpty());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidsEmptyOnCorrectNonSrvUriFormat() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("Import from URI", "Yes"));
+        properties.add(new Property("Srv Url", "mongodb://username:password@url-1.net:1234,url-2:1234/dbname"));
+        dsConfig.setProperties(properties);
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids.isEmpty());
                 })
                 .verifyComplete();
     }
@@ -536,7 +676,7 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })
@@ -570,7 +710,7 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
                 })
@@ -659,7 +799,8 @@ public class MongoPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    List<Map.Entry<String, String>> parameters =
+                            (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
                     assertEquals(parameters.size(), 4);
 
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
@@ -679,9 +820,19 @@ public class MongoPluginTest {
                     assertEquals(parameterEntry.getValue(), "INTEGER");
 
                     assertEquals(
-                            List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)).toString(),
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
+
+                    String expectedQuery = "{\n" +
+                            "      find: \"users\",\n" +
+                            "      filter: { age: { \"$gte\": 30 } },\n" +
+                            "      sort: { id: 1 },\n" +
+                            "      limit: 10\n" +
+                            "    }";
+                    // check that bindings are not replaced with actual values and not '$i' or '?'
+                    assertEquals(expectedQuery,
+                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
                 })
                 .verifyComplete();
     }

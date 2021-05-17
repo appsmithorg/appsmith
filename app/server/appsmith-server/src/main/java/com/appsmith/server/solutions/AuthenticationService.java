@@ -224,7 +224,8 @@ public class AuthenticationService {
                 // We have no use of the datasource object during redirection, we merely send the response as a success state
                 .flatMap((datasource -> this.getPageRedirectUrl(state, null)))
                 .onErrorResume(
-                        e -> !(AppsmithError.UNAUTHORIZED_ACCESS.equals(((AppsmithException) e).getError())),
+                        e -> !(e instanceof AppsmithException
+                                && AppsmithError.UNAUTHORIZED_ACCESS.equals(((AppsmithException) e).getError())),
                         e -> {
                             log.debug("Error while retrieving access token: ", e);
                             return this.getPageRedirectUrl(state, "appsmith_error");
@@ -387,7 +388,6 @@ public class AuthenticationService {
                 datasource.getDatasourceConfiguration() != null &&
                 datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2);
         OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
-        assert (!oAuth2.isEncrypted());
         return pluginService.findById(datasource.getPluginId())
                 .filter(plugin -> PluginType.SAAS.equals(plugin.getType()))
                 .zipWith(configService.getInstanceId())
@@ -422,7 +422,11 @@ public class AuthenticationService {
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                return datasourceService.update(datasource.getId(), datasource);
+                                // We return the same object instead of the update value because the updates value
+                                // will be in the encrypted form
+                                return datasourceService
+                                        .update(datasource.getId(), datasource)
+                                        .thenReturn(datasource);
                             });
                 })
                 .switchIfEmpty(Mono.just(datasource))

@@ -27,12 +27,12 @@ const SwitchComponentContainer = styled.div`
 `;
 
 export function SwitchComponent({
-  label,
-  isSwitchedOn,
   alignWidget,
-  onChange,
   isDisabled,
   isLoading,
+  isSwitchedOn,
+  label,
+  onChange,
 }: SwitchComponentProps) {
   const switchAlignClass =
     alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;

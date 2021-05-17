@@ -121,5 +121,6 @@
   "clientSecret": "505dac16a21681f277b5fde97445be18",
   "accessTokenUrl": "https://oauth.mocklab.io/oauth/token",
   "oauthResponse": "169444434892406",
-  "authorizationURL": "https://oauth.mocklab.io/oauth/authorize"
+  "authorizationURL": "https://oauth.mocklab.io/oauth/authorize",
+  "basicURl": "https://envyenksqii9nf3.m.pipedream.net"
 }

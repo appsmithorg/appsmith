@@ -21,7 +21,6 @@ class TabsWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText: "Takes an array of tab names to render tabs",
             propertyName: "tabsObj",
             isJSConvertible: false,
             label: "Tabs",
@@ -51,7 +50,7 @@ class TabsWidget extends BaseWidget<
                     {
                       propertyName: "isVisible",
                       label: "Visible",
-                      helpText: "Controls the visibility of the widget",
+                      helpText: "Controls the visibility of the tab",
                       controlType: "SWITCH",
                       useValidationMessage: true,
                       isJSConvertible: true,
@@ -171,7 +170,7 @@ class TabsWidget extends BaseWidget<
     }
     childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.bottomRow = this.props.shouldScrollContents
