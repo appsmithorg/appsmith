@@ -34,6 +34,6 @@ cp envs/docker.env.example envs/docker.env
 ```
 4. Start up the containers
 ```sh
-docker-compose up
+docker-compose up -d
 ``` 
 5. Have fun!
