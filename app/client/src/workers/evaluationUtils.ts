@@ -269,43 +269,6 @@ export function validateWidgetProperty(
   return validator(value, props, dataTree);
 }
 
-export function getValidatedTree(tree: DataTree) {
-  return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey] as DataTreeWidget;
-    if (!isWidget(entity)) {
-      return tree;
-    }
-    const parsedEntity = { ...entity };
-    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
-      const value = _.get(entity, property);
-      // Pass it through parse
-      const { parsed, isValid, message, transformed } = validateWidgetProperty(
-        property,
-        value,
-        entity,
-        validation,
-        tree,
-      );
-      _.set(parsedEntity, property, parsed);
-      const evaluatedValue = isValid
-        ? parsed
-        : _.isUndefined(transformed)
-        ? value
-        : transformed;
-      const safeEvaluatedValue = removeFunctions(evaluatedValue);
-      _.set(parsedEntity, `evaluatedValues.${property}`, safeEvaluatedValue);
-      if (!isValid) {
-        _.set(parsedEntity, `invalidProps.${property}`, true);
-        _.set(parsedEntity, `validationMessages.${property}`, message);
-      } else {
-        _.set(parsedEntity, `invalidProps.${property}`, false);
-        _.set(parsedEntity, `validationMessages.${property}`, "");
-      }
-    });
-    return { ...tree, [entityKey]: parsedEntity };
-  }, tree);
-}
-
 export const getAllPaths = (
   records: any,
   curKey = "",
