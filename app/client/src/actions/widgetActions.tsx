@@ -80,6 +80,12 @@ export const selectAllWidgets = (
   };
 };
 
+export const selectAllWidgetsInit = () => {
+  return {
+    type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
+  };
+};
+
 export const showModal = (id: string) => {
   return {
     type: ReduxActionTypes.SHOW_MODAL,

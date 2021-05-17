@@ -9,6 +9,7 @@ import {
   cutWidget,
   deleteSelectedWidget,
   pasteWidget,
+  selectAllWidgetsInit,
   selectAllWidgets,
 } from "actions/widgetActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
@@ -23,7 +24,6 @@ import {
 } from "constants/Explorer";
 import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 import { showDebugger } from "actions/debuggerActions";
-import { getWidgetChildren } from "sagas/selectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -34,8 +34,8 @@ type Props = {
   resetCommentMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
-  selectAllWidgets: (widgetIds: string[]) => void;
-  widgetIds: string[];
+  selectAllWidgetsInit: () => void;
+  deselectAllWidgets: () => void;
   selectedWidget?: string;
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
@@ -179,7 +179,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Select all Widget"
           onKeyDown={(e: any) => {
-            this.props.selectAllWidgets(this.props.widgetIds);
+            this.props.selectAllWidgetsInit();
             e.preventDefault();
           }}
         />
@@ -190,7 +190,7 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
             this.props.resetCommentMode();
-            this.props.selectAllWidgets([]);
+            this.props.deselectAllWidgets();
             this.props.closeProppane();
             e.preventDefault();
           }}
@@ -207,7 +207,6 @@ class GlobalHotKeys extends React.Component<Props> {
 const mapStateToProps = (state: AppState) => ({
   selectedWidget: getSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
-  widgetIds: getWidgetChildren(state, MAIN_CONTAINER_WIDGET_ID),
   isDebuggerOpen: state.ui.debugger.isOpen,
 });
 
@@ -221,8 +220,8 @@ const mapDispatchToProps = (dispatch: any) => {
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
-    selectAllWidgets: (widgetIds: string[]) =>
-      dispatch(selectAllWidgets(widgetIds)),
+    selectAllWidgetsInit: () => dispatch(selectAllWidgetsInit()),
+    deselectAllWidgets: () => dispatch(selectAllWidgets([])),
   };
 };
 

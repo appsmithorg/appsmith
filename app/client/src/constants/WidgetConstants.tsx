@@ -107,11 +107,12 @@ export const GridDefaults = {
   CANVAS_EXTENSION_OFFSET: 2,
 };
 
+// calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
 export const CONTAINER_GRID_PADDING =
-  (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
+  GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
-export const WIDGET_PADDING =
-  (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 0.5) * 0.2;
+// calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 0.5) * 0.2;
+export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";

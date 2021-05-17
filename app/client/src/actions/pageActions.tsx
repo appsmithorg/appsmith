@@ -203,7 +203,7 @@ export type WidgetDelete = {
   isShortcut?: boolean;
 };
 
-export type MultipleWidgetDelete = {
+export type MultipleWidgetDeletePayload = {
   widgetIds: string[];
   disallowUndo?: boolean;
   isShortcut?: boolean;

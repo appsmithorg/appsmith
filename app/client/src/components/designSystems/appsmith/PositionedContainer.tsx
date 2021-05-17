@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode, useMemo } from "react";
+import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
@@ -49,6 +49,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
     };
   }, [props.style]);
 
+  const openPropPane = useCallback((e) => openPropertyPane(e, props.widgetId), [
+    props.widgetId,
+  ]);
+
   return (
     <PositionedWidget
       className={containerClassName}
@@ -56,7 +60,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       id={props.widgetId}
       onClick={stopEventPropagation}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
-      onClickCapture={(e) => openPropertyPane(e, props.widgetId)}
+      onClickCapture={openPropPane}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
     >

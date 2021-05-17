@@ -145,6 +145,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       return true;
     }
 
+    // Minimum row and columns to be set to a widget.
     if (
       newRowCols.rightColumn - newRowCols.leftColumn < 2 ||
       newRowCols.bottomRow - newRowCols.topRow < 4

@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
-  MultipleWidgetDelete,
+  MultipleWidgetDeletePayload,
   updateAndSaveLayout,
   WidgetAddChild,
   WidgetAddChildren,
@@ -91,6 +91,7 @@ import {
 import {
   closePropertyPane,
   forceOpenPropertyPane,
+  selectAllWidgets,
   selectWidget,
 } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -117,6 +118,7 @@ import {
   WIDGET_DELETE,
   WIDGET_BULK_DELETE,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
+  SELECT_ALL_WIDGETS_MSG,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -455,7 +457,7 @@ const resizeCanvasToLowestWidget = (
 };
 
 export function* deleteAllSelectedWidgetsSaga(
-  deleteAction: ReduxAction<MultipleWidgetDelete>,
+  deleteAction: ReduxAction<MultipleWidgetDeletePayload>,
 ) {
   try {
     const { disallowUndo = false, isShortcut } = deleteAction.payload;
@@ -1862,6 +1864,21 @@ function* selectedWidgetAncestrySaga(
   }
 }
 
+function* selectAllWidgetsSaga() {
+  const allWidgetsOnMainContainer: string[] = yield call(
+    getWidgetChildren,
+    MAIN_CONTAINER_WIDGET_ID,
+  );
+  if (allWidgetsOnMainContainer && allWidgetsOnMainContainer.length) {
+    yield put(selectAllWidgets(allWidgetsOnMainContainer));
+    Toaster.show({
+      text: createMessage(SELECT_ALL_WIDGETS_MSG),
+      variant: Variant.info,
+      duration: 3000,
+    });
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield all([
     takeEvery(
@@ -1908,5 +1925,9 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
     takeLatest(ReduxActionTypes.SELECT_WIDGET, selectedWidgetAncestrySaga),
+    takeLatest(
+      ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
+      selectAllWidgetsSaga,
+    ),
   ]);
 }
