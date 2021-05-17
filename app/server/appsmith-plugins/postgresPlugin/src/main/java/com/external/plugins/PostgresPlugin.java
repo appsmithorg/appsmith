@@ -77,7 +77,7 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final String TIMESTAMP_TYPE_NAME = "timestamp";
 
-    private static final String TIMESTAMPZ_TYPE_NAME = "timestamptz";
+    private static final String TIMESTAMPTZ_TYPE_NAME = "timestamptz";
 
     private static final String TIME_TYPE_NAME = "time";
 
@@ -316,7 +316,7 @@ public class PostgresPlugin extends BasePlugin {
                                             )
                                     ) + "Z";
 
-                                } else if (TIMESTAMPZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                                             resultSet.getObject(i, OffsetDateTime.class)
                                     );
