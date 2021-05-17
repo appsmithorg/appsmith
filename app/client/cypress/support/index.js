@@ -18,6 +18,7 @@ let appId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
+import "./newcommands";
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   // returning false here prevents Cypress from

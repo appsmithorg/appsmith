@@ -1,0 +1,45 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 966,
+        "snapColumns": 16,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 280,
+        "containerStyle": "none",
+        "snapRows": 33,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 18,
+        "minHeight": 320,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "inputType": "TEXT",
+                "label": "",
+                "widgetName": "Input1",
+                "version": 1,
+                "resetOnSubmit": true,
+                "isRequired": false,
+                "isDisabled": false,
+                "type": "INPUT_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 57.875,
+                "parentRowSpace": 40,
+                "leftColumn": 4,
+                "rightColumn": 9,
+                "topRow": 1,
+                "bottomRow": 2,
+                "parentId": "0",
+                "widgetId": "suncz2jiug"
+            }
+        ],
+        "dynamicTriggerPathList": []
+    }
+}

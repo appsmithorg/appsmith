@@ -470,12 +470,12 @@ Cypress.Commands.add("GlobalSearchEntity", (apiname1) => {
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
 });
-
+/*
 Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
   cy.xpath(apiwidget.responseStatus).should("be.visible");
   cy.xpath(apiwidget.responseStatus).contains(statusCode);
 });
-
+*/
 Cypress.Commands.add("ResponseCheck", (textTocheck) => {
   //Explicit assert
   cy.get(apiwidget.responseText).should("be.visible");
