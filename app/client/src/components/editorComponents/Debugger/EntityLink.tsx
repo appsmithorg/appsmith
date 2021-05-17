@@ -25,7 +25,7 @@ function ActionLink(props: EntityLinkProps) {
 
   const onClick = useCallback(() => {
     if (action) {
-      const { pageId, pluginType, id } = action;
+      const { id, pageId, pluginType } = action;
       const actionConfig = getActionConfig(pluginType);
       const url =
         applicationId && actionConfig?.getURL(applicationId, pageId, id);

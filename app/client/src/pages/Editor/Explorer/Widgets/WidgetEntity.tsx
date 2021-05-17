@@ -123,14 +123,14 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   );
   let shouldExpand = false;
   if (widgetsToExpand.includes(props.widgetId)) shouldExpand = true;
-  const { navigateToWidget, isWidgetSelected } = useWidget(
+  const { isWidgetSelected, navigateToWidget } = useWidget(
     props.widgetId,
     props.widgetType,
     props.pageId,
     props.parentModalId,
   );
 
-  const { widgetType, widgetId, parentModalId } = props;
+  const { parentModalId, widgetId, widgetType } = props;
   /**
    * While navigating to a widget we need to show a modal if the widget is nested within it
    * Since the immediate parent for the widget would be a canvas instead of the modal,

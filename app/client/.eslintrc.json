@@ -1,7 +1,7 @@
 // This JSON file configures the eslint plugin. It supports comments as well as per the JSON5 spec
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["react", "@typescript-eslint", "prettier", "react-hooks"],
+  "plugins": ["react", "@typescript-eslint", "prettier", "react-hooks","sort-destructure-keys"],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
     "plugin:@typescript-eslint/recommended",
@@ -34,7 +34,8 @@
     "react/self-closing-comp": "error",
     "react/jsx-sort-props": "error",
     "react/jsx-fragments": "error",
-    "react/jsx-no-useless-fragment": "error"
+    "react/jsx-no-useless-fragment": "error",
+    "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}]
   },
   "settings": {
     "react": {

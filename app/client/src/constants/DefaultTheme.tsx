@@ -9,10 +9,10 @@ import { JSXElementConstructor } from "react";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
-  default: styled,
-  css,
-  keyframes,
   createGlobalStyle,
+  css,
+  default: styled,
+  keyframes,
   ThemeProvider,
 } = styledComponents as styledComponents.ThemedStyledComponentsModule<Theme>;
 
