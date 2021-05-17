@@ -19,6 +19,11 @@ import java.util.Map;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
 import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
 
+/**
+ * This is the base class which every Mongo Command extends. Common functions across all mongo commands
+ * are implemented here including reading and validating the collection. This also defines functions which should be
+ * implemented by all the commands.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
