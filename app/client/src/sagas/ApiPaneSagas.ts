@@ -1,7 +1,10 @@
 /**
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
-import { get, omit, cloneDeep } from "lodash";
+import get from "lodash/get";
+import isObject from "lodash/isObject";
+import omit from "lodash/omit";
+import cloneDeep from "lodash/cloneDeep";
 import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
@@ -76,6 +79,9 @@ function* syncApiParamsSaga(
   //Payload here contains the path and query params of a typical url like https://{domain}/{path}?{query_params}
   let value = actionPayload.payload;
   // Regular expression to find the query params group
+  if (isObject(value)) {
+    value = get(value, "datasourceConfiguration.url", "");
+  }
   const queryParamsRegEx = /(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
   value = (value.match(queryParamsRegEx) || [])[2] || "";
   const padQueryParams = { key: "", value: "" };
