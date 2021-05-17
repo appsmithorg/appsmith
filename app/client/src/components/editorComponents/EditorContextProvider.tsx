@@ -55,15 +55,15 @@ type EditorContextProviderProps = EditorContextType & {
 
 function EditorContextProvider(props: EditorContextProviderProps) {
   const {
-    executeAction,
-    updateWidget,
-    updateWidgetProperty,
-    updateWidgetMetaProperty,
-    disableDrag,
-    children,
-    resetChildrenMetaProperty,
-    deleteWidgetProperty,
     batchUpdateWidgetProperty,
+    children,
+    deleteWidgetProperty,
+    disableDrag,
+    executeAction,
+    resetChildrenMetaProperty,
+    updateWidget,
+    updateWidgetMetaProperty,
+    updateWidgetProperty,
   } = props;
   return (
     <EditorContext.Provider

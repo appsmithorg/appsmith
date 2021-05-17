@@ -1,52 +1,46 @@
 import React, { useCallback, useState } from "react";
-import { Picker, BaseEmoji } from "emoji-mart";
-import { Popover2 } from "@blueprintjs/popover2";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
-
+import Picker, { IEmojiData } from "emoji-picker-react";
 import { withTheme } from "styled-components";
+import Icon, { IconSize } from "components/ads/Icon";
+import { Popover, Position } from "@blueprintjs/core";
 import { Theme } from "constants/DefaultTheme";
-import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
-import "emoji-mart/css/emoji-mart.css";
 
 // TODO remove: (trigger tests)
 const EmojiPicker = withTheme(
   ({
-    iconName,
-    theme,
     onSelectEmoji,
+    theme,
   }: {
-    iconName?: IconName;
     theme: Theme;
-    onSelectEmoji: (e: React.MouseEvent, emojiObject: BaseEmoji) => void;
+    onSelectEmoji: (e: React.MouseEvent, emojiObject: IEmojiData) => void;
   }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const handleSelectEmoji = useCallback(
-      (emoji, event) => {
-        onSelectEmoji(event, emoji);
+      (e: React.MouseEvent, emojiObject: IEmojiData) => {
+        onSelectEmoji(e, emojiObject);
         setIsOpen(false);
       },
       [onSelectEmoji],
     );
 
     return (
-      <Popover2
-        content={<Picker onClick={handleSelectEmoji} />}
+      <Popover
+        boundary="viewport"
         isOpen={isOpen}
         minimal
         onInteraction={(nextOpenState) => {
           setIsOpen(nextOpenState);
         }}
-        placement="bottom-end"
-        portalClassName="emoji-picker-portal"
+        position={Position.BOTTOM_RIGHT}
       >
         <Icon
           fillColor={theme.colors.comments.emojiPicker}
-          keepColors
-          name={iconName || "emoji"}
+          name="emoji"
           size={IconSize.LARGE}
         />
-      </Popover2>
+        <Picker onEmojiClick={handleSelectEmoji} />
+      </Popover>
     );
   },
 );

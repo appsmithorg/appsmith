@@ -76,7 +76,7 @@ type SignUpFormProps = InjectedFormProps<
   RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
 
 export function SignUp(props: SignUpFormProps) {
-  const { error, submitting, pristine, valid, emailValue: email } = props;
+  const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
 
   const location = useLocation();

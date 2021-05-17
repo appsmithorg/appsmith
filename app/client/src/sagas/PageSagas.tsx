@@ -227,7 +227,7 @@ export function* fetchPublishedPageSaga(
   pageRequestAction: ReduxAction<{ pageId: string; bustCache: boolean }>,
 ) {
   try {
-    const { pageId, bustCache } = pageRequestAction.payload;
+    const { bustCache, pageId } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -326,7 +326,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     );
     const isValidResponse = yield validateResponse(savePageResponse);
     if (isValidResponse) {
-      const { messages, actionUpdates } = savePageResponse.data;
+      const { actionUpdates, messages } = savePageResponse.data;
       // Show toast messages from the server
       if (messages && messages.length) {
         savePageResponse.data.messages.forEach((message) => {

@@ -85,7 +85,7 @@ if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
 export function Login(props: LoginFormProps) {
-  const { error, valid, emailValue: email } = props;
+  const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
 

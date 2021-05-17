@@ -63,7 +63,7 @@ function* handleSelectWidget(action: ReduxAction<{ widgetId: string }>) {
 function* handlePathUpdated(
   action: ReduxAction<{ location: typeof window.location }>,
 ) {
-  const { type, id, params } = getRecentEntity(
+  const { id, params, type } = getRecentEntity(
     action.payload.location.pathname,
   );
   if (type && id && id.indexOf(":") === -1) {
