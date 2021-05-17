@@ -19,6 +19,7 @@ import {
 import {
   getSelectedWidget,
   getWidget,
+  getWidgetImmediateChildren,
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
@@ -1865,8 +1866,8 @@ function* selectedWidgetAncestrySaga(
 }
 
 function* selectAllWidgetsSaga() {
-  const allWidgetsOnMainContainer: string[] = yield call(
-    getWidgetChildren,
+  const allWidgetsOnMainContainer: string[] = yield select(
+    getWidgetImmediateChildren,
     MAIN_CONTAINER_WIDGET_ID,
   );
   if (allWidgetsOnMainContainer && allWidgetsOnMainContainer.length) {
