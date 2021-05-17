@@ -61,4 +61,15 @@ public class CustomCommentRepositoryImpl extends BaseAppsmithRepositoryImpl<Comm
         );
     }
 
+    @Override
+    public Mono<Void> updateAuthorNames(String authorId, String authorName) {
+        return mongoOperations
+                .updateMulti(
+                        Query.query(Criteria.where("authorId").is(authorId)),
+                        Update.update("authorName", authorName),
+                        Comment.class
+                )
+                .then();
+    }
+
 }
