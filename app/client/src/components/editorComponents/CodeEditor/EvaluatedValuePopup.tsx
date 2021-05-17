@@ -116,7 +116,6 @@ interface Props {
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
-  jsError?: string;
 }
 
 interface PopoverContentProps {
@@ -130,7 +129,6 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
-  jsError?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -274,9 +272,7 @@ function PopoverContent(props: PopoverContentProps) {
       {props.hasError && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
-            {props.jsError && props.jsError.length
-              ? props.jsError
-              : props.useValidationMessage && props.error
+            {props.useValidationMessage && props.error
               ? props.error
               : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
           </span>
@@ -339,7 +335,6 @@ function EvaluatedValuePopup(props: Props) {
             expected={props.expected}
             hasError={props.hasError}
             hideEvaluatedValue={props.hideEvaluatedValue}
-            jsError={props.jsError}
             onMouseEnter={() => {
               setContentHovered(true);
             }}
