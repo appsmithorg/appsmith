@@ -2342,3 +2342,11 @@ Cypress.Commands.add("callApi", (apiname) => {
 Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusSuccess);
 });
+
+Cypress.Commands.add("ValidateQueryParams", (param) => {
+  cy.xpath(apiwidget.paramsTab)
+      .should("be.visible")
+      .click({ force: true });
+  cy.xpath(apiwidget.paramKey).first().contains(param.key);
+  cy.xpath(apiwidget.paramValue).first().contains(param.value);
+});
