@@ -77,9 +77,19 @@ public class PostgresPlugin extends BasePlugin {
 
     static final String JDBC_DRIVER = "org.postgresql.Driver";
 
-    private static final String SSL = "useSSL";
-
     private static final String DATE_COLUMN_TYPE_NAME = "date";
+
+    private static final String TIMESTAMP_TYPE_NAME = "timestamp";
+
+    private static final String TIMESTAMPTZ_TYPE_NAME = "timestamptz";
+
+    private static final String TIME_TYPE_NAME = "time";
+
+    private static final String TIMETZ_TYPE_NAME = "timetz";
+
+    private static final String INTERVAL_TYPE_NAME = "interval";
+
+    private static final String JSONB_TYPE_NAME = "jsonb";
 
     private static final int MINIMUM_POOL_SIZE = 1;
 
@@ -310,7 +320,7 @@ public class PostgresPlugin extends BasePlugin {
                                 } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
 
-                                } else if ("timestamp".equalsIgnoreCase(typeName)) {
+                                } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                                             LocalDateTime.of(
                                                     resultSet.getDate(i).toLocalDate(),
@@ -318,23 +328,25 @@ public class PostgresPlugin extends BasePlugin {
                                             )
                                     ) + "Z";
 
-                                } else if ("timestamptz".equalsIgnoreCase(typeName)) {
+                                } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                                             resultSet.getObject(i, OffsetDateTime.class)
                                     );
 
-                                } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
+                                } else if (TIME_TYPE_NAME.equalsIgnoreCase(typeName) || TIMETZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = resultSet.getString(i);
 
-                                } else if ("interval".equalsIgnoreCase(typeName)) {
+                                } else if (INTERVAL_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = resultSet.getObject(i).toString();
 
                                 } else if (typeName.startsWith("_")) {
                                     value = resultSet.getArray(i).getArray();
 
+                                } else if (JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                    value = resultSet.getString(i);
+
                                 } else {
                                     value = resultSet.getObject(i);
-
                                 }
 
                                 row.put(metaData.getColumnName(i), value);
