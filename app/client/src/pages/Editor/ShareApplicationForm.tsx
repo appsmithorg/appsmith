@@ -29,13 +29,13 @@ const ShareToggle = styled.div`
 
 export function ShareApplicationForm(props: any) {
   const {
+    changeAppViewAccess,
+    currentApplicationDetails,
+    isChangingViewAccess,
+    isFetchingApplication,
     match: {
       params: { applicationId },
     },
-    isFetchingApplication,
-    isChangingViewAccess,
-    currentApplicationDetails,
-    changeAppViewAccess,
   } = props;
 
   return (

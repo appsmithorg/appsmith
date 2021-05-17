@@ -58,7 +58,7 @@ type Props = {
   deleteComment: typeof noop;
 };
 
-function CommentContextMenu({ pin, copyCommentLink, deleteComment }: Props) {
+function CommentContextMenu({ copyCommentLink, deleteComment, pin }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   const options = useMemo(

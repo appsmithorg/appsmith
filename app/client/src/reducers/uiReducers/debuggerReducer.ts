@@ -105,6 +105,11 @@ const debuggerReducer = createReducer(initialState, {
       errors: { ...action.payload },
     };
   },
+  [ReduxActionTypes.RESET_DEBUGGER_STATE]: () => {
+    return {
+      ...initialState,
+    };
+  },
 });
 
 export interface DebuggerReduxState {

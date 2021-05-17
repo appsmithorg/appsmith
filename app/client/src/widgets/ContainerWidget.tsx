@@ -82,7 +82,7 @@ class ContainerWidget extends BaseWidget<
       return null;
     }
 
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.bottomRow = this.props.shouldScrollContents

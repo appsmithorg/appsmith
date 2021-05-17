@@ -42,6 +42,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
     private final CommentThreadRepository threadRepository;
 
+    private final UserService userService;
     private final SessionUserService sessionUserService;
     private final ApplicationService applicationService;
 
@@ -56,6 +57,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             CommentRepository repository,
             AnalyticsService analyticsService,
             CommentThreadRepository threadRepository,
+            UserService userService,
             SessionUserService sessionUserService,
             ApplicationService applicationService,
             PolicyGenerator policyGenerator,
@@ -63,6 +65,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     ) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
+        this.userService = userService;
         this.sessionUserService = sessionUserService;
         this.applicationService = applicationService;
         this.policyGenerator = policyGenerator;
@@ -76,15 +79,24 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             return Mono.empty();
         }
 
-        return Mono.zip(
-                sessionUserService.getCurrentUser(),
-                threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD)
-        )
+        final Mono<User> userMono = sessionUserService.getCurrentUser()
+                .flatMap(user -> {
+                    if (user.getId() == null) {
+                        return userService.findByEmail(user.getEmail());
+                    } else {
+                        return Mono.just(user);
+                    }
+                });
+
+        final Mono<CommentThread> threadMono = threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD);
+
+        return Mono.zip(userMono, threadMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     final CommentThread thread = tuple.getT2();
 
+                    comment.setAuthorId(user.getId());
                     comment.setThreadId(threadId);
 
                     final Set<Policy> policies = policyGenerator.getAllChildPolicies(
