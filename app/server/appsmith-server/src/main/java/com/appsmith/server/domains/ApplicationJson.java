@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class ApplicationJSONFile {
+public class ApplicationJson {
 
     Application exportedApplication;
     List<Datasource> datasourceList;

@@ -5,7 +5,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJSONFile;
+import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
@@ -69,8 +69,8 @@ public class ImportExportApplicationService {
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
 
-    public Mono<ApplicationJSONFile> getApplicationFileById(String applicationId) {
-        ApplicationJSONFile file = new ApplicationJSONFile();
+    public Mono<ApplicationJson> getApplicationFileById(String applicationId) {
+        ApplicationJson applicationJson = new ApplicationJson();
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, String> newPageIdMap = new HashMap<>();
@@ -110,7 +110,7 @@ public class ImportExportApplicationService {
                     application.setOrganizationId(null);
                     examplesOrganizationCloner.makePristine(application);
                     String applicationName = application.getName();
-                    file.setExportedApplication(application);
+                    applicationJson.setExportedApplication(application);
                     return newPageRepository.findByApplicationId(applicationId, AclPermission.READ_PAGES)
                             .collectList()
                             .flatMap(newPageList -> {
@@ -134,14 +134,14 @@ public class ImportExportApplicationService {
                                         );
                                     }
                                 });
-                                file.setPageList(newPageList);
-                                file.setMongoEscapedWidgets(mongoEscapedWidgetsNames);
+                                applicationJson.setPageList(newPageList);
+                                applicationJson.setMongoEscapedWidgets(mongoEscapedWidgetsNames);
                                 return datasourceRepository.findAllByOrganizationId(organizationId, AclPermission.READ_DATASOURCES)
                                         .collectList();
                             })
                             .map(datasourceList -> {
                                 Map<String, String> decryptedFields = new HashMap<>();
-                                //TODO Only export those are used in the app instead of org level
+                                //Only export those which are used in the app instead of org level
                                 datasourceList.forEach(datasource -> {
 
                                     final DBAuth authentication = datasource.getDatasourceConfiguration() == null
@@ -158,8 +158,8 @@ public class ImportExportApplicationService {
                                     datasource.setId(null);
                                     datasource.setOrganizationId(null);
                                 });
-                                file.setDecryptedFields(decryptedFields);
-                                file.setDatasourceList(datasourceList);
+                                applicationJson.setDecryptedFields(decryptedFields);
+                                applicationJson.setDatasourceList(datasourceList);
                                 return newActionRepository.findByApplicationId(applicationId);
                             })
                             .flatMap(Flux::collectList)
@@ -179,14 +179,13 @@ public class ImportExportApplicationService {
                                         actionDTO.setPageId(newPageIdMap.get(actionDTO.getPageId()));
                                     }
                                 });
-                                file.setActionList(newActionList);
-                                //log.debug("Exported datasources : {}",file.getDatasourceList());
-                                file.getDatasourceList().removeIf(datasource -> !concernedDBNames.contains(datasource.getName()));
-                                return Mono.just(file);
+                                applicationJson.setActionList(newActionList);
+                                applicationJson.getDatasourceList().removeIf(datasource -> !concernedDBNames.contains(datasource.getName()));
+                                return Mono.just(applicationJson);
                             });
                 })
                 .then()
-                .thenReturn(file);
+                .thenReturn(applicationJson);
     }
 
     public Mono<Application> extractFileAndSaveApplication(String orgId, Part filePart) {
@@ -217,13 +216,14 @@ public class ImportExportApplicationService {
         return stringifiedFile
                 .flatMap(data -> {
                     Gson gson = new Gson();
-                    Type fileType = new TypeToken<ResponseDTO<ApplicationJSONFile>>() {}.getType();
+                    Type fileType = new TypeToken<ResponseDTO<ApplicationJson>>() {}.getType();
                     gson.toJson(data);
-                    ResponseDTO<ApplicationJSONFile> jsonFile = gson.fromJson(data, fileType);
+                    ResponseDTO<ApplicationJson> jsonFile = gson.fromJson(data, fileType);
                     return importApplicationInOrganization(orgId, jsonFile.getData());
                 });
     }
-    public Mono<Application> importApplicationInOrganization(String orgId, ApplicationJSONFile importedDoc) {
+
+    public Mono<Application> importApplicationInOrganization(String orgId, ApplicationJson importedDoc) {
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
@@ -252,7 +252,7 @@ public class ImportExportApplicationService {
                                 })
                 )
                 .flatMap(pluginList -> Flux.fromIterable(importedDatasourceList)
-                            //TODO check for duplicate datasources to avoid duplicates in target organization
+                            //Check for duplicate datasources to avoid duplicates in target organization
                             .flatMap(datasource -> {
                                 datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                                 datasource.setOrganizationId(orgId);
@@ -343,9 +343,9 @@ public class ImportExportApplicationService {
                             .then(Mono.just(importedApplication));
                 })
                 .flatMap(ignore -> {
+                    //Map layoutOnLoadActions ids with relevant actions
                     importedNewPageList.forEach(page -> mapActionIdWithPageLayout(page, actionIdMap));
                     return Flux.fromIterable(importedNewPageList)
-                            //TODO id for layoutOnLoadActions not updating for save() method
                             .flatMap(newPageService::save)
                             .collectList()
                             .flatMap(finalPageList -> applicationService.update(importedApplication.getId(),importedApplication));
