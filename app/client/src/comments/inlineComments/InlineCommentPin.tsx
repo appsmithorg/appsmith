@@ -102,12 +102,13 @@ function Pin({
  * Comment pins that toggle comment thread popover visibility on click
  * They position themselves using position absolute based on top and left values (in percent)
  */
-function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
-  const commentThread = useSelector(commentThreadsSelector(commentThreadId));
-  const { top, left } = get(commentThread, "position", {
-    top: 0,
-    left: 0,
-  });
+const InlineCommentPin = withTheme(
+  ({ commentThreadId, theme }: { commentThreadId: string; theme: Theme }) => {
+    const commentThread = useSelector(commentThreadsSelector(commentThreadId));
+    const { left, top } = get(commentThread, "position", {
+      top: 0,
+      left: 0,
+    });
 
   const dispatch = useDispatch();
 

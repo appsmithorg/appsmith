@@ -222,7 +222,7 @@ public class RedshiftPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null));
+                    , null, null));
 
             if (query == null) {
                 return Mono.error(

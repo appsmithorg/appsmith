@@ -19,13 +19,32 @@ const Header = styled.div`
     ${(props) => props.theme.colors.comments.appCommentsHeaderBorder};
 `;
 
-function AppCommentsHeader() {
-  return (
-    <Header>
-      <AppCommentHeaderTitle>{createMessage(COMMENTS)}</AppCommentHeaderTitle>
-      <AppCommentsFilterPopover />
-    </Header>
-  );
-}
+type Props = {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  onClose: () => void;
+  theme: Theme;
+};
+
+const AppCommentsHeader = withTheme(
+  ({ isOpen, onClose, setIsOpen, theme }: Props) => {
+    const showCommentThreads = useCallback(() => {
+      if (!isOpen) setIsOpen(true);
+    }, [isOpen]);
+
+    return (
+      <Header isOpen={isOpen} onClick={showCommentThreads}>
+        <AppCommentHeaderTitle>{createMessage(COMMENTS)}</AppCommentHeaderTitle>
+        {isOpen && (
+          <Icon
+            fillColor={theme.colors.comments.appCommentsClose}
+            name="close-x"
+            onClick={onClose}
+          />
+        )}
+      </Header>
+    );
+  },
+);
 
 export default AppCommentsHeader;

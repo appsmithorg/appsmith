@@ -37,13 +37,13 @@ type Props = {
 };
 
 function MentionsInput({
-  onSubmit,
-  suggestions,
-  onSearchSuggestions,
-  editorState,
-  setEditorState,
   autoFocus,
+  editorState,
+  onSearchSuggestions,
+  onSubmit,
   placeholder,
+  setEditorState,
+  suggestions,
 }: Props) {
   const ref = useRef<Editor | null>(null);
   const [open, setOpen] = useState(false);

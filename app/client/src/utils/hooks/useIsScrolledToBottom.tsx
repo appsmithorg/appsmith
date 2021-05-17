@@ -10,8 +10,7 @@ const useIsScrolledToBottom = (
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
   useEffect(() => {
     const calculateIsScrolledToBottom = (e: any) => {
-      if (!e.target) return;
-      const { scrollHeight, offsetHeight, scrollTop } = e.target;
+      const { offsetHeight, scrollHeight, scrollTop } = e.target;
       setIsScrolledToBottom(scrollHeight - (offsetHeight + scrollTop) < 10);
     };
 

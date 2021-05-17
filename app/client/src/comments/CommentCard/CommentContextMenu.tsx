@@ -53,15 +53,7 @@ type Props = {
   isPinned?: boolean;
 };
 
-function CommentContextMenu({
-  pin,
-  copyCommentLink,
-  deleteComment,
-  isParentComment,
-  // TODO figure out key for isCreatedByMe
-  isCreatedByMe,
-  isPinned,
-}: Props) {
+function CommentContextMenu({ copyCommentLink, deleteComment, pin }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   const options = useMemo(() => {

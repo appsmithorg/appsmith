@@ -164,15 +164,10 @@ const replyText = (replies?: number) => {
 
 function CommentCard({
   comment,
-  isParentComment,
-  toggleResolved,
-  resolved,
   commentThreadId,
-  numberOfReplies,
-  showReplies,
-  showSubheader,
-  unread = true,
-  inline,
+  isParentComment,
+  resolved,
+  toggleResolved,
 }: {
   comment: Comment;
   isParentComment?: boolean;
