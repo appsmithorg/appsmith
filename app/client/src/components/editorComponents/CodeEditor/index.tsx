@@ -88,7 +88,6 @@ export type EditorStyleProps = {
   fill?: boolean;
   useValidationMessage?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
-  jsErrorMessage?: string;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -338,29 +337,28 @@ class CodeEditor extends Component<Props, State> {
 
   render() {
     const {
+      border,
+      borderLess,
+      className,
+      dataTreePath,
+      disabled,
+      dynamicData,
+      evaluatedValue,
+      evaluationSubstitutionType,
+      expected,
+      fill,
+      height,
+      hideEvaluatedValue,
+      hoverInteraction,
       input,
       meta,
-      theme,
-      disabled,
-      className,
       placeholder,
       showLightningMenu,
-      dataTreePath,
-      dynamicData,
-      expected,
       size,
-      evaluatedValue,
-      height,
-      borderLess,
-      border,
-      hoverInteraction,
-      fill,
+      theme,
       useValidationMessage,
-      hideEvaluatedValue,
-      evaluationSubstitutionType,
-      jsErrorMessage,
     } = this.props;
-    const hasError = !!(meta && meta.error) || !!jsErrorMessage;
+    const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = _.get(dynamicData, dataTreePath);
@@ -404,7 +402,6 @@ class CodeEditor extends Component<Props, State> {
           hasError={hasError}
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
-          jsError={jsErrorMessage}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >

@@ -63,7 +63,7 @@ const DatasourceContainer = styled.div`
 `;
 class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
-    const { datasource, pluginId, orgId } = this.props;
+    const { datasource, orgId, pluginId } = this.props;
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
     if (urlHasUpdated) {
@@ -78,7 +78,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   };
 
   handlePathUpdate = (path: string) => {
-    const { value, onChange } = this.props.input;
+    const { onChange, value } = this.props.input;
     if (onChange && value !== path) {
       onChange(path);
     }
@@ -128,7 +128,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       typeof valueOrEvent === "string"
         ? valueOrEvent
         : valueOrEvent.target.value;
-    const { path, datasourceUrl } = this.parseInputValue(value);
+    const { datasourceUrl, path } = this.parseInputValue(value);
     this.handlePathUpdate(path);
     this.handleDatasourceUrlUpdate(datasourceUrl);
   };

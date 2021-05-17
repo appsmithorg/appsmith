@@ -42,16 +42,16 @@ export function InputText(props: {
   theme: EditorTheme;
 }) {
   const {
+    additionalDynamicData,
+    dataTreePath,
     errorMessage,
+    evaluatedValue,
     expected,
-    value,
     isValid,
     onChange,
     placeholder,
-    dataTreePath,
-    evaluatedValue,
-    additionalDynamicData,
     theme,
+    value,
   } = props;
   return (
     <StyledDynamicInput>
@@ -90,14 +90,14 @@ class ComputeTablePropertyControl extends BaseControl<
 > {
   render() {
     const {
+      dataTreePath,
+      defaultValue,
       expected,
-      propertyValue,
       isValid,
       label,
-      dataTreePath,
-      validationMessage,
-      defaultValue,
+      propertyValue,
       theme,
+      validationMessage,
     } = this.props;
     const tableId = this.props.widgetProperties.widgetName;
     const value =

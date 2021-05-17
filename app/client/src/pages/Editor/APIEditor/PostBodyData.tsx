@@ -48,11 +48,11 @@ type Props = PostDataProps;
 
 function PostBodyData(props: Props) {
   const {
-    displayFormat,
-    dataTreePath,
-    updateBodyContentType,
-    theme,
     apiId,
+    dataTreePath,
+    displayFormat,
+    theme,
+    updateBodyContentType,
   } = props;
 
   return (
