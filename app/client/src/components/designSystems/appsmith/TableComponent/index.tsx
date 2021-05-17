@@ -86,6 +86,11 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleResizeColumn,
     height,
     isLoading,
+    isVisibleCompactMode,
+    isVisibleDownload,
+    isVisibleFilters,
+    isVisiblePagination,
+    isVisibleSearch,
     nextPageClick,
     onRowClick,
     pageNo,
@@ -235,11 +240,11 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleResizeColumn={handleResizeColumn}
       height={height}
       isLoading={isLoading}
-      isVisibleCompactMode={props.isVisibleCompactMode}
-      isVisibleDownload={props.isVisibleDownload}
-      isVisibleFilters={props.isVisibleFilters}
-      isVisiblePagination={props.isVisiblePagination}
-      isVisibleSearch={props.isVisibleSearch}
+      isVisibleCompactMode={isVisibleCompactMode}
+      isVisibleDownload={isVisibleDownload}
+      isVisibleFilters={isVisibleFilters}
+      isVisiblePagination={isVisiblePagination}
+      isVisibleSearch={isVisibleSearch}
       nextPageClick={nextPageClick}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
