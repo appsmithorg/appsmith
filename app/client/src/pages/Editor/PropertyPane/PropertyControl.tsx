@@ -53,10 +53,10 @@ const PropertyControl = memo((props: Props) => {
 
   /** get all child enhancments functions */
   const {
-    propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
+    propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
   } = useChildWidgetEnhancementFns(widgetProperties.widgetId);
 
   const toggleDynamicProperty = useCallback(
@@ -160,7 +160,7 @@ const PropertyControl = memo((props: Props) => {
           const allUpdates: Record<string, unknown> = {};
           const triggerPaths: string[] = [];
           hookPropertiesUpdates.forEach(
-            ({ propertyPath, propertyValue, isDynamicTrigger }) => {
+            ({ isDynamicTrigger, propertyPath, propertyValue }) => {
               allUpdates[propertyPath] = propertyValue;
               if (isDynamicTrigger) triggerPaths.push(propertyPath);
             },
@@ -244,14 +244,9 @@ const PropertyControl = memo((props: Props) => {
 
   const getPropertyValidation = (
     propertyName: string,
-  ): {
-    isValid: boolean;
-    validationMessage?: string;
-    jsErrorMessage?: string;
-  } => {
+  ): { isValid: boolean; validationMessage?: string } => {
     let isValid = true;
     let validationMessage = "";
-    let jsErrorMessage = "";
     if (widgetProperties) {
       isValid = widgetProperties.invalidProps
         ? !_.has(widgetProperties.invalidProps, propertyName)
@@ -259,20 +254,14 @@ const PropertyControl = memo((props: Props) => {
       const validationMsgPresent =
         widgetProperties.validationMessages &&
         _.has(widgetProperties.validationMessages, propertyName);
-      const jsValidationMessagePresent =
-        widgetProperties.jsErrorMessages &&
-        _.has(widgetProperties.jsErrorMessages, propertyName);
       validationMessage = validationMsgPresent
         ? _.get(widgetProperties.validationMessages, propertyName)
         : "";
-      jsErrorMessage = jsValidationMessagePresent
-        ? _.get(widgetProperties.jsErrorMessages, propertyName)
-        : "";
     }
-    return { isValid, validationMessage, jsErrorMessage };
+    return { isValid, validationMessage };
   };
 
-  const { propertyName, label } = props;
+  const { label, propertyName } = props;
   if (widgetProperties) {
     const propertyValue = _.get(widgetProperties, propertyName);
     const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
@@ -281,18 +270,13 @@ const PropertyControl = memo((props: Props) => {
       `evaluatedValues.${propertyName}`,
     );
 
-    const {
-      isValid,
-      validationMessage,
-      jsErrorMessage,
-    } = getPropertyValidation(propertyName);
+    const { isValid, validationMessage } = getPropertyValidation(propertyName);
     const { additionalAutoComplete, ...rest } = props;
     const config = {
       ...rest,
       isValid,
       propertyValue,
       validationMessage,
-      jsErrorMessage,
       dataTreePath,
       evaluatedValue,
       widgetProperties,
@@ -309,7 +293,6 @@ const PropertyControl = memo((props: Props) => {
       delete config.dataTreePath;
       delete config.evaluatedValue;
       delete config.expected;
-      config.jsErrorMessage = "";
     }
 
     const isDynamic: boolean = isPathADynamicProperty(

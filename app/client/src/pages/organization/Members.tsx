@@ -55,9 +55,9 @@ export default function MemberSettings(props: PageProps) {
   }, [orgId]);
 
   const {
-    isFetchingAllUsers,
-    isFetchingAllRoles,
     deletingUserInfo,
+    isFetchingAllRoles,
+    isFetchingAllUsers,
     roleChangingUserInfo,
   } = useSelector(getOrgLoadingStates);
   const allUsers = useSelector(getAllUsers);

@@ -32,7 +32,7 @@ type ForkApplicationModalProps = {
 };
 
 function ForkApplicationModal(props: ForkApplicationModalProps) {
-  const { setModalClose, isModalOpen } = props;
+  const { isModalOpen, setModalClose } = props;
   const [organizationId, selectOrganizationId] = useState("");
   const dispatch = useDispatch();
   const userOrgs = useSelector(getUserApplicationsOrgs);

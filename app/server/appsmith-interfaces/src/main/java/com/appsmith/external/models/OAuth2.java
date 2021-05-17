@@ -3,6 +3,8 @@ package com.appsmith.external.models;
 import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +14,9 @@ import lombok.ToString;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -72,5 +76,16 @@ public class OAuth2 extends AuthenticationDTO {
                     .map(String::trim)
                     .collect(Collectors.toSet());
         }
+    }
+
+    @Override
+    public Mono<Boolean> hasExpired() {
+        if (this.authenticationResponse == null) {
+            return Mono.error(new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Expected datasource to have valid authentication tokens at this point"));
+        }
+
+        return Mono.just(authenticationResponse.expiresAt.isBefore(Instant.now().plusSeconds(60)));
     }
 }

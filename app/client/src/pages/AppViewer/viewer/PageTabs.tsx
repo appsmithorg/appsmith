@@ -111,8 +111,8 @@ function PageTabName({ name }: { name: string }) {
 function PageTabContainer({
   children,
   isTabActive,
-  tabsScrollable,
   setShowScrollArrows,
+  tabsScrollable,
 }: {
   children: React.ReactNode;
   isTabActive: boolean;
@@ -140,7 +140,7 @@ type Props = {
 };
 
 export function PageTabs(props: Props) {
-  const { currentApplicationDetails, appPages } = props;
+  const { appPages, currentApplicationDetails } = props;
   const { pathname } = useLocation();
 
   return (

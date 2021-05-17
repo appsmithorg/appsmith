@@ -59,7 +59,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const showPropertyPane = useShowPropertyPane();
 
   // Dispatch hook handy to set a widget as focused/selected
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget } = useWidgetSelection();
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean

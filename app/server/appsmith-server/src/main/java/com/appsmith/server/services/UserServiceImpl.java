@@ -26,6 +26,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -76,6 +77,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final ConfigService configService;
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
+    private final UserChangedHandler userChangedHandler;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -105,7 +107,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            RoleGraph roleGraph,
                            ConfigService configService,
                            CommonConfig commonConfig,
-                           EmailConfig emailConfig) {
+                           EmailConfig emailConfig,
+                           UserChangedHandler userChangedHandler) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -120,6 +123,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.configService = configService;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
+        this.userChangedHandler = userChangedHandler;
     }
 
     @Override
@@ -527,7 +531,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     BeanCopyUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
                     return existingUser;
                 })
-                .flatMap(repository::save);
+                .flatMap(repository::save)
+                .map(userChangedHandler::publish);
     }
 
     /**
@@ -751,11 +756,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         return sessionUserService.getCurrentUser()
                 .flatMap(user ->
-                        update(user.getEmail(), allUpdates, fieldName(QUser.user.email))
+                        update(user.getEmail(), allowedUpdates, fieldName(QUser.user.email))
                                 .then(exchange == null
                                         ? repository.findByEmail(user.getEmail())
                                         : sessionUserService.refreshCurrentUser(exchange))
-                );
+                )
+                .map(userChangedHandler::publish);
     }
 
     public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {

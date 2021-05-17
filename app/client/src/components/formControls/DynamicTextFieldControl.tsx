@@ -61,12 +61,12 @@ class DynamicTextControl extends BaseControl<
 
   render() {
     const {
-      responseType,
-      label,
-      placeholderText,
       actionName,
       configProperty,
       evaluationSubstitutionType,
+      label,
+      placeholderText,
+      responseType,
     } = this.props;
     const dataTreePath = actionPathFromName(actionName, configProperty);
     const isNewQuery =
