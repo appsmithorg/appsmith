@@ -1,11 +1,16 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJSONFile;
+import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -19,9 +24,12 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -34,6 +42,8 @@ import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -58,6 +68,9 @@ public class ImportExportApplicationFromJSONTests {
 
     @Autowired
     private SessionUserService sessionUserService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private NewActionService newActionService;
@@ -87,6 +100,8 @@ public class ImportExportApplicationFromJSONTests {
     private NewPageService newPageService;
 
     private Plugin installedPlugin;
+    private String orgId;
+    private String testAppId;
 
     private static class OrganizationData {
         Organization organization;
@@ -95,54 +110,45 @@ public class ImportExportApplicationFromJSONTests {
         List<ActionDTO> actions = new ArrayList<>();
     }
 
+    @Before
+    @WithUserDetails(value = "api_user")
+    public void setup() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
+        User apiUser = userService.findByEmail("api_user").block();
+        orgId = apiUser.getOrganizationIds().iterator().next();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
-    public void createExportFileTest() {
-        Organization sourceOrg = new Organization();
-        sourceOrg.setName("Source Org 1");
+    public void createExportAppJsonWithNoActionsTest() {
 
-        final Mono<ApplicationJSONFile> resultMono = Mono
-                .zip(
-                        organizationService.create(sourceOrg),
-                        sessionUserService.getCurrentUser()
-                )
-                .flatMap(tuple -> {
-                    final Organization sourceOrg1 = tuple.getT1();
-                    Application app1 = new Application();
-                    app1.setName("awesome app");
-                    app1.setOrganizationId(sourceOrg1.getId());
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationServiceTest TestApp");
 
-                    return applicationPageService.createApplication(app1);
-//                    return Mono.zip(
-//                            applicationPageService.createApplication(app1),
-//                            organizationService.create(targetOrg)
-//                    );
-                })
-                .flatMap(application -> {
-                    //final String orgId = tuple.getT2().getId();
-                    final String originalId = application.getId();
-                    final String originalName = application.getName();
+        final Mono<ApplicationJson> resultMono = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application -> importExportApplicationService.getApplicationFileById(application.getId()));
 
-                    return importExportApplicationService
-                            .getApplicationFileById(application.getId());
-//                    Mono<Void> cloneMono = Mono.just(tuple.getT1())
-//                            .map(app -> {
-//                                // We reset these values here because the clone method updates them and that just messes with our test.
-//                                app.setId(originalId);
-//                                app.setName(originalName);
-//                                return app;
-//                            })
-//                            .flatMap(app -> examplesOrganizationCloner.cloneApplications(orgId, Flux.fromArray(new Application[]{ app })))
-//                            .then();
-//                    // Clone this application into the same organization thrice.
-//                    return cloneMono
-//                            .then(cloneMono)
-//                            .thenMany(Flux.defer(() -> applicationRepository.findByOrganizationId(orgId)));
-                });
+        StepVerifier.create(resultMono)
+                .assertNext(applicationJson -> {
+                    Application exportedApp = applicationJson.getExportedApplication();
+                    ApplicationPage defaultPageRef = exportedApp.getPages().stream().filter(page -> page.isDefault()).findAny().get();
+                    List<NewPage> pageList = applicationJson.getPageList();
+                    List<NewAction> actionList = applicationJson.getActionList();
 
-        StepVerifier.create(resultMono.log())
-                .assertNext(applicationJSONFile -> {
-//                    assertThat(applicationJSONFile.getDatasourceList()).isnull();
+                    NewPage defaultPage = pageList.get(0);
+
+                    assertThat(exportedApp.getName()).isEqualTo("ApplicationServiceTest TestApp");
+                    assertThat(exportedApp.getOrganizationId()).isNull();
+                    assertThat(exportedApp.getPages().size()).isEqualTo(1);
+                    assertThat(defaultPageRef.getId()).isEqualTo(pageList.get(0).getUnpublishedPage().getName());
+                    assertThat(exportedApp.getPolicies().size()).isEqualTo(0);
+
+                    assertThat(pageList.isEmpty()).isFalse();
+                    assertThat(defaultPage.getApplicationId()).isEqualTo(exportedApp.getName());
+                    assertThat(defaultPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActions()).isNull();
+
+                    assertThat(actionList.isEmpty()).isTrue();
                 })
                 .verifyComplete();
     }

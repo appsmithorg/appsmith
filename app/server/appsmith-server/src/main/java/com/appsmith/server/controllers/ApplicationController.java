@@ -2,7 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJSONFile;
+import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
@@ -126,7 +126,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     }
 
     @GetMapping("/export/{id}")
-    public Mono<ResponseDTO<ApplicationJSONFile>> getApplicationFile(@PathVariable String id) {
+    public Mono<ResponseDTO<ApplicationJson>> getApplicationFile(@PathVariable String id) {
         log.debug("Going to export application with id: {}", id);
         return importExportApplicationService.getApplicationFileById(id)
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
