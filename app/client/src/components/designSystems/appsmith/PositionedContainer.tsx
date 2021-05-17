@@ -51,6 +51,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
 
   const openPropPane = useCallback((e) => openPropertyPane(e, props.widgetId), [
     props.widgetId,
+    openPropertyPane,
   ]);
 
   return (
