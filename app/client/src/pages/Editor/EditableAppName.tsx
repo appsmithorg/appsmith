@@ -2,6 +2,8 @@ import EditableText, { EditableTextProps } from "components/ads/EditableText";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 type EditableTextWrapperProps = EditableTextProps & {
@@ -48,13 +50,14 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
         editInteractionKind={props.editInteractionKind}
         fill={props.fill}
         hideEditIcon
-        isEditingDefault={isEditingDefault}
-        isInvalid={(value: string) => {
-          if (value.trim() === "") {
-            return "Please enter a valid name";
-          }
-          return false;
+        invokeInvalidInputToast={() => {
+          Toaster.show({
+            text: "Application name can't be empty",
+            variant: Variant.danger,
+          });
         }}
+        isEditingDefault={isEditingDefault}
+        isInvalid={() => false}
         onBlur={(value) => {
           if (props.onBlur && value !== props.defaultValue) props.onBlur(value);
           setIsEditingDefault(false);

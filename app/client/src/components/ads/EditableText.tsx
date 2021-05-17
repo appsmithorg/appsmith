@@ -43,6 +43,7 @@ export type EditableTextProps = CommonComponentProps & {
   hideEditIcon?: boolean;
   fill?: boolean;
   underline?: boolean;
+  invokeInvalidInputToast?: () => void;
 };
 
 export const EditableTextWrapper = styled.div<{
@@ -160,6 +161,7 @@ export function EditableText(props: EditableTextProps) {
     defaultValue,
     isEditingDefault,
     valueTransform,
+    invokeInvalidInputToast,
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
   const [value, setValue] = useState(defaultValue);
@@ -207,6 +209,8 @@ export function EditableText(props: EditableTextProps) {
     (_value: string) => {
       const finalVal: string = _value.trim();
       if (savingState === SavingState.ERROR || isInvalid || finalVal === "") {
+        // this is particularly added for Editable app name.
+        invokeInvalidInputToast && invokeInvalidInputToast();
         setValue(defaultValue);
         onBlur && onBlur(defaultValue);
         setSavingState(SavingState.NOT_STARTED);
@@ -220,7 +224,14 @@ export function EditableText(props: EditableTextProps) {
       setIsEditing(false);
       setChangeStarted(false);
     },
-    [changeStarted, savingState, isInvalid, onBlur, onTextChanged],
+    [
+      changeStarted,
+      savingState,
+      isInvalid,
+      onBlur,
+      onTextChanged,
+      invokeInvalidInputToast,
+    ],
   );
 
   const onInputchange = useCallback(
