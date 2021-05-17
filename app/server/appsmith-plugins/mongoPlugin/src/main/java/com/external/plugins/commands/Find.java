@@ -1,24 +1,35 @@
 package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Property;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.external.plugins.constants.ConfigurationIndex.BSON;
+import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
+import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_LIMIT;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_PROJECTION;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_SKIP;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
+import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class Find extends MongoCommand {
     String query;
     String sort;
@@ -94,5 +105,82 @@ public class Find extends MongoCommand {
         }
 
         return document;
+    }
+
+    @Override
+    public List<DatasourceStructure.Template> generateTemplate(Map<String, Object> templateConfiguration) {
+        String collectionName = (String) templateConfiguration.get("collectionName");
+        String filterFieldName = (String) templateConfiguration.get("filterFieldName");
+        String filterFieldValue = (String) templateConfiguration.get("filterFieldValue");
+
+        List<DatasourceStructure.Template> templates = new ArrayList<>();
+
+        templates.add(generateFindTemplate(collectionName, filterFieldName, filterFieldValue));
+
+        templates.add(generateFindByIdTemplate(collectionName));
+
+        return templates;
+    }
+
+    private DatasourceStructure.Template generateFindTemplate(String collectionName, String filterFieldName, String filterFieldValue) {
+        Map<Integer, Object> configMap = new HashMap<>();
+
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "FIND");
+        configMap.put(COLLECTION, collectionName);
+        configMap.put(FIND_SORT, "{\"_id\": 1}");
+        configMap.put(FIND_LIMIT, "10");
+
+        String query = filterFieldName == null ? "{}" :
+                "{ \"" + filterFieldName + "\": \"" + filterFieldValue + "\"}";
+        configMap.put(FIND_QUERY, query);
+
+        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
+
+        String rawQuery = "{\n" +
+                "  \"find\": \"" + collectionName + "\",\n" +
+                (
+                        filterFieldName == null ? "" :
+                                "  \"filter\": {\n" +
+                                        "    \"" + filterFieldName + "\": \"" + filterFieldValue + "\"\n" +
+                                        "  },\n"
+                ) +
+                "  \"sort\": {\n" +
+                "    \"_id\": 1\n" +
+                "  },\n" +
+                "  \"limit\": 10\n" +
+                "}\n";
+
+        return new DatasourceStructure.Template(
+                "Find",
+                rawQuery,
+                pluginSpecifiedTemplates
+        );
+    }
+
+    private DatasourceStructure.Template generateFindByIdTemplate(String collectionName) {
+        Map<Integer, Object> configMap = new HashMap<>();
+
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "FIND");
+        configMap.put(FIND_QUERY, "{\"_id\": ObjectId(\"id_to_query_with\")}");
+        configMap.put(COLLECTION, collectionName);
+
+        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
+
+        String rawQuery = "{\n" +
+                "  \"find\": \"" + collectionName + "\",\n" +
+                "  \"filter\": {\n" +
+                "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
+                "  }\n" +
+                "}\n";
+
+        return new DatasourceStructure.Template(
+                "Find by ID",
+                rawQuery,
+                pluginSpecifiedTemplates
+        );
     }
 }

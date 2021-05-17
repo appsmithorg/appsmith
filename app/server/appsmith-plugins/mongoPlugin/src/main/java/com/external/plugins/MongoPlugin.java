@@ -76,11 +76,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.external.plugins.MongoPluginUtils.generateDeleteTemplate;
-import static com.external.plugins.MongoPluginUtils.generateFindByIdTemplate;
-import static com.external.plugins.MongoPluginUtils.generateFindTemplate;
-import static com.external.plugins.MongoPluginUtils.generateInsertTemplate;
-import static com.external.plugins.MongoPluginUtils.generateUpdateTemplate;
 import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
 import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 import static java.lang.Boolean.TRUE;
@@ -917,24 +912,27 @@ public class MongoPlugin extends BasePlugin {
 
             columns.sort(Comparator.naturalOrder());
 
-            templates.add(
-                    generateFindTemplate(collectionName, filterFieldName, filterFieldValue)
+            Map<String, Object> templateConfiguration = new HashMap<>();
+            templateConfiguration.put("collectionName", collectionName);
+            templateConfiguration.put("filterFieldName", filterFieldName);
+            templateConfiguration.put("filterFieldValue", filterFieldValue);
+            templateConfiguration.put("sampleInsertValues", sampleInsertValues);
+
+            templates.addAll(
+                    new Find().generateTemplate(templateConfiguration)
             );
 
-            templates.add(
-                    generateFindByIdTemplate(collectionName)
+
+            templates.addAll(
+                    new Insert().generateTemplate(templateConfiguration)
             );
 
-            templates.add(
-                    generateInsertTemplate(collectionName, sampleInsertValues)
+            templates.addAll(
+                    new UpdateMany().generateTemplate(templateConfiguration)
             );
 
-            templates.add(
-                    generateUpdateTemplate(collectionName, filterFieldName)
-            );
-
-            templates.add(
-                    generateDeleteTemplate(collectionName)
+            templates.addAll(
+                    new Delete().generateTemplate(templateConfiguration)
             );
         }
 

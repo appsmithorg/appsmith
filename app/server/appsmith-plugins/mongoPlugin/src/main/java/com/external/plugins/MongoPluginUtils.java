@@ -2,30 +2,15 @@ package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Property;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static com.external.plugins.constants.ConfigurationIndex.BSON;
-import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
-import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
-import static com.external.plugins.constants.ConfigurationIndex.DELETE_LIMIT;
-import static com.external.plugins.constants.ConfigurationIndex.DELETE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_LIMIT;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
-import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
-import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
 import static com.external.plugins.constants.ConfigurationIndex.MAX_SIZE;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_MANY_UPDATE;
 
 public class MongoPluginUtils {
 
@@ -61,162 +46,5 @@ public class MongoPluginUtils {
             templates.add(template);
         }
         return templates;
-    }
-
-    public static DatasourceStructure.Template generateFindTemplate(String collectionName, String filterFieldName, String filterFieldValue) {
-        Map<Integer, Object> configMap = new HashMap<>();
-
-        configMap.put(BSON, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "FIND");
-        configMap.put(COLLECTION, collectionName);
-        configMap.put(FIND_SORT, "{\"_id\": 1}");
-        configMap.put(FIND_LIMIT, "10");
-
-        String query = filterFieldName == null ? "{}" :
-                "{ \"" + filterFieldName + "\": \"" + filterFieldValue + "\"}";
-        configMap.put(FIND_QUERY, query);
-
-        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
-
-        String rawQuery = "{\n" +
-                "  \"find\": \"" + collectionName + "\",\n" +
-                (
-                        filterFieldName == null ? "" :
-                                "  \"filter\": {\n" +
-                                        "    \"" + filterFieldName + "\": \"" + filterFieldValue + "\"\n" +
-                                        "  },\n"
-                ) +
-                "  \"sort\": {\n" +
-                "    \"_id\": 1\n" +
-                "  },\n" +
-                "  \"limit\": 10\n" +
-                "}\n";
-
-        return new DatasourceStructure.Template(
-                "Find",
-                rawQuery,
-                pluginSpecifiedTemplates
-        );
-    }
-
-    public static DatasourceStructure.Template generateFindByIdTemplate(String collectionName) {
-        Map<Integer, Object> configMap = new HashMap<>();
-
-        configMap.put(BSON, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "FIND");
-        configMap.put(FIND_QUERY, "{\"_id\": ObjectId(\"id_to_query_with\")}");
-        configMap.put(COLLECTION, collectionName);
-
-        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
-
-        String rawQuery = "{\n" +
-                "  \"find\": \"" + collectionName + "\",\n" +
-                "  \"filter\": {\n" +
-                "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
-                "  }\n" +
-                "}\n";
-
-        return new DatasourceStructure.Template(
-                "Find by ID",
-                rawQuery,
-                pluginSpecifiedTemplates
-        );
-    }
-
-    public static DatasourceStructure.Template generateInsertTemplate(String collectionName, Map<String, String> sampleInsertValues) {
-        String sampleInsertDocuments = sampleInsertValues.entrySet().stream()
-                .map(entry -> "      \"" + entry.getKey() + "\": " + entry.getValue() + ",\n")
-                .sorted()
-                .collect(Collectors.joining(""));
-
-        Map<Integer, Object> configMap = new HashMap<>();
-
-        configMap.put(BSON, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "INSERT");
-        configMap.put(INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
-        configMap.put(COLLECTION, collectionName);
-
-        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
-
-        String rawQuery = "{\n" +
-                "  \"insert\": \"" + collectionName + "\",\n" +
-                "  \"documents\": [\n" +
-                "    {\n" +
-                sampleInsertDocuments +
-                "    }\n" +
-                "  ]\n" +
-                "}\n";
-
-        return new DatasourceStructure.Template(
-                "Insert",
-                rawQuery,
-                pluginSpecifiedTemplates
-        );
-
-    }
-
-    public static DatasourceStructure.Template generateUpdateTemplate(String collectionName, String filterFieldName) {
-        Map<Integer, Object> configMap = new HashMap<>();
-
-        configMap.put(BSON, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "UPDATE_MANY");
-        configMap.put(COLLECTION, collectionName);
-        configMap.put(UPDATE_MANY_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-        configMap.put(UPDATE_MANY_UPDATE, "{ \"$set\": { \"" + filterFieldName + "\": \"new value\" } }");
-
-        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
-
-        String rawQuery = "{\n" +
-                "  \"update\": \"" + collectionName + "\",\n" +
-                "  \"updates\": [\n" +
-                "    {\n" +
-                "      \"q\": {\n" +
-                "        \"_id\": ObjectId(\"id_of_document_to_update\")\n" +
-                "      },\n" +
-                "      \"u\": { \"$set\": { \"" + filterFieldName + "\": \"new value\" } }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}\n";
-
-        return new DatasourceStructure.Template(
-                "Update",
-                rawQuery,
-                pluginSpecifiedTemplates
-        );
-    }
-
-    public static DatasourceStructure.Template generateDeleteTemplate(String collectionName) {
-        Map<Integer, Object> configMap = new HashMap<>();
-
-        configMap.put(BSON, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "DELETE");
-        configMap.put(COLLECTION, collectionName);
-        configMap.put(DELETE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
-        configMap.put(DELETE_LIMIT, "SINGLE");
-
-        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
-
-        String rawQuery = "{\n" +
-                "  \"delete\": \"" + collectionName + "\",\n" +
-                "  \"deletes\": [\n" +
-                "    {\n" +
-                "      \"q\": {\n" +
-                "        \"_id\": \"id_of_document_to_delete\"\n" +
-                "      },\n" +
-                "      \"limit\": 1\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}\n";
-
-        return new DatasourceStructure.Template(
-                "Delete",
-                rawQuery,
-                pluginSpecifiedTemplates
-        );
     }
 }
