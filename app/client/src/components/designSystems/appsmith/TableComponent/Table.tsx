@@ -166,14 +166,6 @@ export function Table(props: TableProps) {
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
-
-  const isHeaderVisible =
-    props.isVisibleSearch ||
-    props.isVisibleFilters ||
-    props.isVisibleDownload ||
-    props.isVisibleCompactMode ||
-    props.isVisiblePagination;
-
   return (
     <TableWrapper
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
@@ -184,7 +176,11 @@ export function Table(props: TableProps) {
       triggerRowSelection={props.triggerRowSelection}
       width={props.width}
     >
-      {isHeaderVisible && (
+      {(props.isVisibleSearch ||
+        props.isVisibleFilters ||
+        props.isVisibleDownload ||
+        props.isVisibleCompactMode ||
+        props.isVisiblePagination) && (
         <TableHeaderWrapper
           backgroundColor={Colors.WHITE}
           ref={tableHeaderWrapperRef}
