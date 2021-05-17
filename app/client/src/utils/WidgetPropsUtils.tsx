@@ -554,7 +554,7 @@ export const migrateInitialValues = (
       child = {
         isRequired: false,
         isDisabled: false,
-        resetOnSubmit: true,
+        resetOnSubmit: false,
         ...child,
       };
     } else if (child.type === WidgetTypes.DROP_DOWN_WIDGET) {
