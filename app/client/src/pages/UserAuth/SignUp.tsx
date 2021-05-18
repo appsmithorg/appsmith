@@ -93,8 +93,11 @@ export function SignUp(props: SignUpFormProps) {
   let signupURL = "/api/v1/" + SIGNUP_SUBMIT_PATH;
   if (queryParams.has("appId")) {
     signupURL += `?appId=${queryParams.get("appId")}`;
-  } else if (queryParams.has("redirectUrl")) {
-    signupURL += `?redirectUrl=${queryParams.get("redirectUrl")}`;
+  } else {
+    const redirectUrl = queryParams.get("redirectUrl");
+    if (redirectUrl != null) {
+      signupURL += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+    }
   }
 
   return (
