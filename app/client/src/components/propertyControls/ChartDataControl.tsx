@@ -97,11 +97,11 @@ type RenderComponentProps = {
 function DataControlComponent(props: RenderComponentProps) {
   const {
     deleteOption,
-    updateOption,
-    item,
-    index,
-    length,
     evaluated,
+    index,
+    item,
+    length,
+    updateOption,
     validationMessage,
   } = props;
 

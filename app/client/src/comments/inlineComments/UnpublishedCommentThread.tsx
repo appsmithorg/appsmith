@@ -27,13 +27,13 @@ const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
 // TODO look into drying this up using comment thread component
 const UnpublishedCommentThread = withTheme(
   ({
-    theme,
     commentThread,
+    theme,
   }: {
     commentThread: CommentThread;
     theme: Theme;
   }) => {
-    const { top, left } = get(commentThread, "position", {
+    const { left, top } = get(commentThread, "position", {
       top: 0,
       left: 0,
     });

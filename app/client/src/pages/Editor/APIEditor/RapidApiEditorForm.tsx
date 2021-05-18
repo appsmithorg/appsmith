@@ -117,18 +117,18 @@ type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
 function RapidApiEditorForm(props: Props) {
   const {
-    onDeleteClick,
-    onRunClick,
+    actionConfiguration,
+    actionConfigurationBodyFormData,
+    actionConfigurationHeaders,
     handleSubmit,
     isDeleting,
     isRunning,
-    templateId,
-    actionConfiguration,
-    actionConfigurationHeaders,
-    actionConfigurationBodyFormData,
+    onDeleteClick,
+    onRunClick,
+    providerCredentialSteps,
     providerImage,
     providerURL,
-    providerCredentialSteps,
+    templateId,
   } = props;
 
   const postbodyResponsePresent =
