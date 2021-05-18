@@ -530,8 +530,8 @@ function ApplicationsSection(props: any) {
     dispatch(updateApplication(id, data));
   };
 
-  const exportApplicationDispatch = (id: string) => {
-    dispatch(exportApplication(id));
+  const exportApplicationDispatch = (applicationId: string) => {
+    dispatch(exportApplication(applicationId));
   };
 
   const duplicateApplicationDispatch = (applicationId: string) => {

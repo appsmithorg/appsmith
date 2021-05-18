@@ -219,7 +219,7 @@ class ApplicationApi extends Api {
   static exportApplication(
     request: ExportApplicationRequest,
   ): AxiosPromise<ApiResponse> {
-    return Api.post("v1/applications/" + request.applicationId + "/fork/");
+    return Api.get("v1/applications/export/" + request.applicationId);
   }
 }
 

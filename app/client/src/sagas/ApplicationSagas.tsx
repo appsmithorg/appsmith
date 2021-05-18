@@ -6,6 +6,7 @@ import {
 } from "constants/ReduxActionConstants";
 import ApplicationApi, {
   ApplicationObject,
+  ExportApplicationRequest,
   ApplicationPagePayload,
   ChangeAppViewAccessRequest,
   CreateApplicationRequest,
@@ -503,13 +504,8 @@ export function* forkApplicationSaga(
 }
 
 export function* exportApplicationSaga(
-  action: ReduxAction<{
-    applicationId: string;
-  }>,
+  action: ReduxAction<ExportApplicationRequest>,
 ) {
-  console.log("from export application sagas: ", action);
-  // try to query API to get the app json file
-  // else show an error and fire action
   try {
     const response: ApiResponse = yield call(
       ApplicationApi.exportApplication,
@@ -517,7 +513,26 @@ export function* exportApplicationSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     console.log("response, isValidResponse: ", response, isValidResponse);
-  } catch (error) {}
+    if (isValidResponse) {
+      yield put(resetCurrentApplication());
+      const exportedApplication: any = {
+        ...response.data,
+      };
+      yield put({
+        type: ReduxActionTypes.EXPORT_APPLICATION_SUCCESS,
+        payload: {
+          exportedApplication,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.EXPORT_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }
 
 export default function* applicationSagas() {
