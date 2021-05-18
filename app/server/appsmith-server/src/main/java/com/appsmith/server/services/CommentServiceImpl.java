@@ -14,13 +14,13 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -28,6 +28,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -41,6 +42,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
     private final CommentThreadRepository threadRepository;
 
+    private final UserService userService;
     private final SessionUserService sessionUserService;
     private final ApplicationService applicationService;
 
@@ -55,6 +57,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             CommentRepository repository,
             AnalyticsService analyticsService,
             CommentThreadRepository threadRepository,
+            UserService userService,
             SessionUserService sessionUserService,
             ApplicationService applicationService,
             PolicyGenerator policyGenerator,
@@ -62,6 +65,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     ) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
+        this.userService = userService;
         this.sessionUserService = sessionUserService;
         this.applicationService = applicationService;
         this.policyGenerator = policyGenerator;
@@ -75,15 +79,24 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             return Mono.empty();
         }
 
-        return Mono.zip(
-                sessionUserService.getCurrentUser(),
-                threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD)
-        )
+        final Mono<User> userMono = sessionUserService.getCurrentUser()
+                .flatMap(user -> {
+                    if (user.getId() == null) {
+                        return userService.findByEmail(user.getEmail());
+                    } else {
+                        return Mono.just(user);
+                    }
+                });
+
+        final Mono<CommentThread> threadMono = threadRepository.findById(threadId, AclPermission.COMMENT_ON_THREAD);
+
+        return Mono.zip(userMono, threadMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     final CommentThread thread = tuple.getT2();
 
+                    comment.setAuthorId(user.getId());
                     comment.setThreadId(threadId);
 
                     final Set<Policy> policies = policyGenerator.getAllChildPolicies(
@@ -269,6 +282,38 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         return threadRepository.findById(threadId, AclPermission.MANAGE_THREAD)
                 .flatMap(threadRepository::archive)
                 .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    @Override
+    public Mono<Boolean> createReaction(String commentId, Comment.Reaction reaction) {
+        return Mono.zip(
+                repository.findById(commentId, AclPermission.READ_COMMENT),
+                sessionUserService.getCurrentUser()
+        )
+                .flatMap(tuple -> {
+                    final User user = tuple.getT2();
+
+                    reaction.setByUsername(user.getUsername());
+                    reaction.setByName(user.getName());
+                    reaction.setCreatedAt(new Date(Instant.now().toEpochMilli()));
+
+                    return repository.pushReaction(commentId, reaction)
+                            .map(result -> result.getModifiedCount() == 1L);
+                });
+    }
+
+    @Override
+    public Mono<Boolean> deleteReaction(String commentId, Comment.Reaction reaction) {
+        return Mono.zip(
+                repository.findById(commentId, AclPermission.READ_COMMENT),
+                sessionUserService.getCurrentUser()
+        )
+                .flatMap(tuple -> {
+                    final User user = tuple.getT2();
+                    reaction.setByUsername(user.getUsername());
+                    return repository.deleteReaction(commentId, reaction)
+                            .map(result -> result.getModifiedCount() > 0);
+                });
     }
 
 }

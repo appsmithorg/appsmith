@@ -76,13 +76,13 @@ export interface TextComponentProps extends ComponentProps {
 class TextComponent extends React.Component<TextComponentProps> {
   render() {
     const {
-      text,
-      ellipsize,
-      textAlign,
-      fontStyle,
-      fontSize,
-      textColor,
       backgroundColor,
+      ellipsize,
+      fontSize,
+      fontStyle,
+      text,
+      textAlign,
+      textColor,
     } = this.props;
     return (
       <TextContainer>

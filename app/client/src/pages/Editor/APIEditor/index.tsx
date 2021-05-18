@@ -151,16 +151,16 @@ class ApiEditor extends React.Component<Props> {
 
   render() {
     const {
+      isCreating,
+      isDeleting,
+      isEditorInitialized,
+      isRunning,
       match: {
         params: { apiId },
       },
-      plugins,
-      pluginId,
-      isRunning,
-      isDeleting,
-      isCreating,
       paginationType,
-      isEditorInitialized,
+      pluginId,
+      plugins,
     } = this.props;
     if (!this.props.pluginId && this.props.match.params.apiId) {
       return <EntityNotFoundPane />;
@@ -257,7 +257,7 @@ class ApiEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
-  const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
+  const { isCreating, isDeleting, isRunning } = state.ui.apiPane;
   const pluginId = _.get(apiAction, "pluginId", "");
   const settingsConfig = getPluginSettingConfigs(state, pluginId);
   return {

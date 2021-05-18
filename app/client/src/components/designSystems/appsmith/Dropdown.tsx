@@ -54,7 +54,7 @@ const selectStyles = {
 };
 
 export function BaseDropdown(props: DropdownProps) {
-  const { input, customSelectStyles } = props;
+  const { customSelectStyles, input } = props;
   return (
     <Select
       menuPortalTarget={document.body}

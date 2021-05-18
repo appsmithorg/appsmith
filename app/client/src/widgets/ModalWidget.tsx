@@ -20,11 +20,13 @@ import { getWidget } from "sagas/selectors";
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {
     width: 456,
-    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 6,
+    // adjust if DEFAULT_GRID_ROW_HEIGHT changes
+    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
   },
   MODAL_LARGE: {
     width: 532,
-    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 15,
+    // adjust if DEFAULT_GRID_ROW_HEIGHT changes
+    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 60,
   },
 };
 

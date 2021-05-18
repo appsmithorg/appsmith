@@ -199,7 +199,7 @@
       intercomAppID: APP_ID,
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
       disableTelemetry: DISABLE_TELEMETRY === "" || DISABLE_TELEMETRY,
-      cloudServicesBaseUrl: parseConfig("__APPSMITH_CLOUD_SERVICES_BASE_URL__")
+      cloudServicesBaseUrl: parseConfig("__APPSMITH_CLOUD_SERVICES_BASE_URL__") || "https://cs.appsmith.com"
     };
 
   </script>

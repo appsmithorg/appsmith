@@ -122,7 +122,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     };
 
     handleUpdateWidgetMetaProperty() {
-      const { updateWidgetMetaProperty, executeAction } = this.context;
+      const { executeAction, updateWidgetMetaProperty } = this.context;
       const { widgetId, widgetName } = this.props;
       /*
        We have kept a map of all updated properties. After debouncing we will
