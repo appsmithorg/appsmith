@@ -432,13 +432,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-            // convert the email to lowercase if it's form signup so that abc@gmail and aBc@gmail are treated as same
-            user.setEmail(user.getEmail().toLowerCase());
         }
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
-        return repository.findByEmail(user.getUsername())
+        return repository.findByCaseInsensitiveEmail(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         // First enable the user
@@ -448,7 +445,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         savedUser.setPassword(user.getPassword());
                         return repository.save(savedUser);
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
+                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
                 .switchIfEmpty(Mono.defer(() -> {
                     return signupIfAllowed(user)

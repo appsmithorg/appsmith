@@ -453,7 +453,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void createUserAndSendEmail_WhenUserExistsWithSameCharacter_ThrowsException() {
+    public void createUserAndSendEmail_WhenUserExistsWithEmailInOtherCase_ThrowsException() {
         User existingUser = new User();
         existingUser.setEmail("abcd@gmail.com");
         userRepository.save(existingUser).block();
