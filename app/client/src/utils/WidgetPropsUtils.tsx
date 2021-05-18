@@ -548,6 +548,73 @@ export const calculateDynamicHeight = (
   return minmumHeight;
 };
 
+export const migrateInitialValues = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.INPUT_WIDGET) {
+      child = {
+        isRequired: false,
+        isDisabled: false,
+        resetOnSubmit: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.DROP_DOWN_WIDGET) {
+      child = {
+        isRequired: false,
+        isDisabled: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.DATE_PICKER_WIDGET2) {
+      child = {
+        minDate: "2001-01-01 00:00",
+        maxDate: "2041-12-31 23:59",
+        isRequired: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.SWITCH_WIDGET) {
+      child = {
+        isDisabled: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.ICON_WIDGET) {
+      child = {
+        isRequired: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.VIDEO_WIDGET) {
+      child = {
+        isRequired: false,
+        isDisabled: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.CHECKBOX_WIDGET) {
+      child = {
+        isDisabled: false,
+        isRequired: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.RADIO_GROUP_WIDGET) {
+      child = {
+        isDisabled: false,
+        isRequired: false,
+        ...child,
+      };
+    } else if (child.type === WidgetTypes.FILE_PICKER_WIDGET) {
+      child = {
+        isDisabled: false,
+        isRequired: false,
+        allowedFileTypes: [],
+        ...child,
+      };
+    } else if (child.children && child.children.length > 0) {
+      child = migrateInitialValues(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
@@ -655,7 +722,13 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateTabsData(currentDSL);
     currentDSL.version = 18;
   }
+
   if (currentDSL.version === 18) {
+    currentDSL = migrateInitialValues(currentDSL);
+    currentDSL.version = 19;
+  }
+
+  if (currentDSL.version === 19) {
     currentDSL.snapColumns = GridDefaults.DEFAULT_GRID_COLUMNS;
     currentDSL.snapRows = getCanvasSnapRows(
       currentDSL.bottomRow,
@@ -664,6 +737,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateToNewLayout(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
+
   return currentDSL;
 };
 

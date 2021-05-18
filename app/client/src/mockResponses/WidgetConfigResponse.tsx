@@ -133,6 +133,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(),
+      minDate: "2001-01-01 00:00",
+      maxDate: "2041-12-31 23:59",
       version: 2,
       isRequired: false,
     },
@@ -307,6 +309,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     FILE_PICKER_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       files: [],
+      allowedFileTypes: [],
       label: "Select Files",
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       maxNumFiles: 1,
