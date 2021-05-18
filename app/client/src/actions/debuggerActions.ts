@@ -29,3 +29,7 @@ export const updateErrorLog = (payload: Message) => ({
   type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG,
   payload,
 });
+
+export const resetDebuggerState = () => ({
+  type: ReduxActionTypes.RESET_DEBUGGER_STATE,
+});

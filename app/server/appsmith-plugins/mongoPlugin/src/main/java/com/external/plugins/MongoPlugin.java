@@ -241,7 +241,7 @@ public class MongoPlugin extends BasePlugin {
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null));
+                    , null, null));
 
             return mongoOutputMono
                     .onErrorMap(

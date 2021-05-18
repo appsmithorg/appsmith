@@ -279,7 +279,7 @@ export function getValidatedTree(tree: DataTree) {
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
       const value = _.get(entity, property);
       // Pass it through parse
-      const { parsed, isValid, message, transformed } = validateWidgetProperty(
+      const { isValid, message, parsed, transformed } = validateWidgetProperty(
         property,
         value,
         entity,

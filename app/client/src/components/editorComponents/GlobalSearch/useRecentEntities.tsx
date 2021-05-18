@@ -20,7 +20,7 @@ const useResentEntities = () => {
 
   const populatedRecentEntities = recentEntities
     .map((entity) => {
-      const { type, id, params } = entity;
+      const { id, params, type } = entity;
       if (type === "page") {
         const result = pages.find((page) => page.pageId === id);
         if (result) {

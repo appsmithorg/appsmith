@@ -45,12 +45,13 @@ type ErrorPageHeaderProps = {
 };
 
 export function ErrorPageHeader(props: ErrorPageHeaderProps) {
-  const { user, flushErrors, flushErrorsAndRedirect, safeCrash } = props;
+  const { flushErrors, flushErrorsAndRedirect, safeCrash, user } = props;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   let loginUrl = AUTH_LOGIN_URL;
-  if (queryParams.has("redirectUrl")) {
-    loginUrl += `?redirectUrl=${queryParams.get("redirectUrl")}`;
+  const redirectUrl = queryParams.get("redirectUrl");
+  if (redirectUrl != null) {
+    loginUrl += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
 
   return (

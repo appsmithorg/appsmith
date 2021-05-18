@@ -154,9 +154,9 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "GET_DOCUMENT", null, null)); // Method
+                            "GET_DOCUMENT", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
-                            null, null)); // Path
+                            null, null, null)); // Path
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -297,11 +297,11 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "SET_DOCUMENT", null, null)); // Method
+                            "SET_DOCUMENT", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
-                            null, null)); // Path
+                            null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null)); // Body
+                            actionConfiguration.getBody(), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -331,11 +331,11 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "CREATE_DOCUMENT", null, null)); // Method
+                            "CREATE_DOCUMENT", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
-                            null, null)); // Path
+                            null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null)); // Body
+                            actionConfiguration.getBody(), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -394,9 +394,9 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "DELETE_DOCUMENT", null, null)); // Method
+                            "DELETE_DOCUMENT", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
-                            null, null)); // Path
+                            null, null, null)); // Path
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -428,11 +428,11 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "ADD_TO_COLLECTION", null, null)); // Method
+                            "ADD_TO_COLLECTION", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
-                            null, null)); // Path
+                            null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null)); // Body
+                            actionConfiguration.getBody(), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -626,23 +626,23 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "GET_COLLECTION", null, null)); // Method
+                            "GET_COLLECTION", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
-                            null, null)); // Path
+                            null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1),
-                            "[\"firm\", \"name\"]", null, null)); // Order by
+                            "[\"firm\", \"name\"]", null, null, null)); // Order by
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(6), "{}", null,
-                            null)); // Start after
+                            null, null)); // Start after
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(7), "{}", null,
-                            null)); // End before
+                            null, null)); // End before
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(2), "15", null,
-                            null)); // Limit
+                            null, null)); // Limit
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(3), "", null,
-                            null)); // Field Path
+                            null, null)); // Field Path
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(4), "", null,
-                            null)); // Operator
+                            null, null)); // Operator
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(5), "", null,
-                            null)); // Value
+                            null, null)); // Value
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
 
                 })
@@ -783,13 +783,13 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "UPDATE_DOCUMENT", null, null)); // Method
+                            "UPDATE_DOCUMENT", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
-                            null, null)); // Path
+                            null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(9),
-                            "[\"value\"]", null, null)); // Method
+                            "[\"value\"]", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null)); // Body
+                            actionConfiguration.getBody(), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();

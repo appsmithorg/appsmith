@@ -53,7 +53,7 @@ const selectStyles = {
 };
 
 export function BaseDropdown(props: DropdownProps) {
-  const { input, customSelectStyles } = props;
+  const { customSelectStyles, input } = props;
   return (
     <Select
       styles={{ ...selectStyles, ...customSelectStyles }}
