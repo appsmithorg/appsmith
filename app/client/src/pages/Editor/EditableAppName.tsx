@@ -50,17 +50,17 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
         editInteractionKind={props.editInteractionKind}
         fill={props.fill}
         hideEditIcon
-        invokeInvalidInputToast={() => {
-          Toaster.show({
-            text: "Application name can't be empty",
-            variant: Variant.danger,
-          });
-        }}
         isEditingDefault={isEditingDefault}
         isInvalid={() => false}
         onBlur={(value) => {
           if (props.onBlur && value !== props.defaultValue) props.onBlur(value);
           setIsEditingDefault(false);
+        }}
+        onValidationError={() => {
+          Toaster.show({
+            text: "Application name can't be empty",
+            variant: Variant.danger,
+          });
         }}
         placeholder={props.placeholder}
         savingState={props.savingState}
