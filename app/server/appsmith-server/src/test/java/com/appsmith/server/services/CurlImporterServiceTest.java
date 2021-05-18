@@ -55,9 +55,6 @@ public class CurlImporterServiceTest {
     @Autowired
     UserService userService;
 
-    @Autowired
-    OrganizationService organizationService;
-
     String orgId;
 
     @Before
@@ -661,6 +658,33 @@ public class CurlImporterServiceTest {
                 action,
                 new Property("payment_intent", "pi_Aabcxyz01aDfoo"),
                 new Property("amount", "1000")
+        );
+    }
+
+    @Test
+    public void parseMultiFormData() throws AppsmithException {
+        ActionDTO action = curlImporterService.curlToAction("curl --request POST 'http://httpbin.org/post' --form 'somekey=\"value\"' --form 'anotherKey=\"anotherValue\"'");
+        assertMethod(action, HttpMethod.POST);
+        assertUrl(action, "http://httpbin.org");
+        assertPath(action, "/post");
+        assertHeaders(action, new Property("Content-Type", "multipart/form-data"));
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("somekey", "value"),
+                new Property("anotherKey", "anotherValue")
+        );
+
+        action = curlImporterService.curlToAction("curl --request POST 'http://httpbin.org/post' -F 'somekey=\"value\"' -F 'anotherKey=\"anotherValue\"'");
+        assertMethod(action, HttpMethod.POST);
+        assertUrl(action, "http://httpbin.org");
+        assertPath(action, "/post");
+        assertHeaders(action, new Property("Content-Type", "multipart/form-data"));
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("somekey", "value"),
+                new Property("anotherKey", "anotherValue")
         );
     }
 
