@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Document
-public class CommentNotification extends Notification {
+public class CommentThreadNotification extends Notification {
 
-    Comment comment;
+    CommentThread commentThread;
 
 }

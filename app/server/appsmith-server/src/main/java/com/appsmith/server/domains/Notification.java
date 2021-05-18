@@ -18,7 +18,8 @@ public class Notification extends BaseDomain {
      */
     Boolean isRead;
 
-    public void cleanForClient() {
+    public String getType() {
+        return getClass().getSimpleName();
     }
 
 }
