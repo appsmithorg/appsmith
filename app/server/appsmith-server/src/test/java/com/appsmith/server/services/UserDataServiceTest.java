@@ -1,12 +1,10 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
-import org.apache.commons.compress.utils.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
