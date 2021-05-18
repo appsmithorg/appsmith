@@ -267,6 +267,11 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               popoverProps={{
                 minimal: true,
                 usePortal: true,
+                modifiers: {
+                  preventOverflow: {
+                    enabled: false,
+                  },
+                },
                 popoverClassName: "select-popover-wrapper",
               }}
             >
@@ -294,6 +299,11 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               popoverProps={{
                 minimal: true,
                 usePortal: true,
+                modifiers: {
+                  preventOverflow: {
+                    enabled: false,
+                  },
+                },
                 popoverClassName: "select-popover-wrapper",
               }}
               resetOnSelect
