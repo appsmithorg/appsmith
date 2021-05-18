@@ -145,8 +145,9 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   }
 
   getSelectedOptionValueArr(): Array<number | string> {
-    return Array.isArray(this.props.selectedOptionValueArr)
-      ? this.props.selectedOptionValueArr
+    const { options } = this.props;
+    return Array.isArray(this.props.selectedIndexArr) && options
+      ? this.props.selectedIndexArr.map((index) => options[index].value)
       : [];
   }
 
