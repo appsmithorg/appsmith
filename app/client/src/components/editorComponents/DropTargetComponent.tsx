@@ -99,7 +99,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const [rows, setRows] = useState(snapRows);
 
   const showPropertyPane = useShowPropertyPane();
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
   useEffect(() => {

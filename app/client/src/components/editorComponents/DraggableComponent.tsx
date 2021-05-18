@@ -59,7 +59,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const showPropertyPane = useShowPropertyPane();
 
   // Dispatch hook handy to set a widget as focused/selected
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget } = useWidgetSelection();
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
@@ -163,7 +163,7 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // Display this draggable based on the current drag state
   const style: CSSProperties = {
-    display: isCurrentWidgetDragging ? "none" : "flex",
+    display: isCurrentWidgetDragging ? "none" : "block",
   };
 
   // WidgetBoundaries
@@ -172,6 +172,10 @@ function DraggableComponent(props: DraggableComponentProps) {
       style={{
         opacity:
           isResizingOrDragging && selectedWidget !== props.widgetId ? 1 : 0,
+        position: "absolute",
+        transform: `translate(-50%, -50%)`,
+        top: "50%",
+        left: "50%",
       }}
     />
   );

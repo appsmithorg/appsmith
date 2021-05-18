@@ -50,7 +50,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
 
-  const { updateDropTargetRows, persistDropTargetRows } = useContext(
+  const { persistDropTargetRows, updateDropTargetRows } = useContext(
     DropTargetContext,
   );
 
