@@ -154,7 +154,7 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
                     setLoadError(true);
                   }}
                   onLoad={() => setLoadError(false)}
-                  src={`/api/${value}`}
+                  src={value}
                 />
               )}
             </div>

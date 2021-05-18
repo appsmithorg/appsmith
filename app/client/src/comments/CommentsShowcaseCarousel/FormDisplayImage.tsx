@@ -9,7 +9,9 @@ import Uppy from "@uppy/core";
 
 function FormDisplayImage() {
   const [file, setFile] = useState<any>();
-  const [imageURL] = useState(UserApi.photoURL);
+  const [imageURL, setImageURL] = useState(
+    `/api/${UserApi.photoURL}?${new Date().getTime()}`,
+  );
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const dispatch = useDispatch();
   const dispatchActionRef = useRef<(uppy: Uppy.Uppy) => void | null>();
@@ -17,6 +19,7 @@ function FormDisplayImage() {
   const onUploadComplete = (uppy: Uppy.Uppy) => {
     forceUpdate();
     uppy.reset();
+    setImageURL(`/api/${UserApi.photoURL}`);
   };
 
   const onSelectFile = (file: any) => {
@@ -43,7 +46,7 @@ function FormDisplayImage() {
     <DisplayImageUpload
       onChange={onSelectFile}
       submit={upload}
-      value={`/${imageURL}?${new Date().getTime()}`}
+      value={imageURL}
     />
   );
 }
