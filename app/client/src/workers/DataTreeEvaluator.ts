@@ -26,6 +26,7 @@ import {
   getAllPaths,
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
+  getValidatedTree,
   makeParentsDependOnChildren,
   removeFunctions,
   translateDiffEventToDataTreeDiffEvent,
@@ -87,7 +88,9 @@ export default class DataTreeEvaluator {
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    this.evalTree = this.getValidatedTree(evaluatedTree);
+    const { validatedTree, errors } = getValidatedTree(evaluatedTree);
+    this.evalTree = validatedTree;
+    this.errors = this.errors.concat(errors);
     const validateEnd = performance.now();
 
     this.oldUnEvalTree = unEvalTree;
@@ -602,60 +605,6 @@ export default class DataTreeEvaluator {
       });
       return { result: undefined, triggers: [] };
     }
-  }
-
-  getValidatedTree(tree: DataTree) {
-    return Object.keys(tree).reduce((tree, entityKey: string) => {
-      const entity = tree[entityKey] as DataTreeWidget;
-      if (!isWidget(entity)) {
-        return tree;
-      }
-      const parsedEntity = { ...entity };
-      Object.entries(entity.validationPaths).forEach(
-        ([property, validation]) => {
-          const value = _.get(entity, property);
-          // Pass it through parse
-          const {
-            parsed,
-            isValid,
-            message,
-            transformed,
-          } = validateWidgetProperty(property, value, entity, validation, tree);
-          _.set(parsedEntity, property, parsed);
-          const evaluatedValue = isValid
-            ? parsed
-            : _.isUndefined(transformed)
-            ? value
-            : transformed;
-          const safeEvaluatedValue = removeFunctions(evaluatedValue);
-          _.set(
-            parsedEntity,
-            `evaluatedValues.${property}`,
-            safeEvaluatedValue,
-          );
-          if (!isValid) {
-            this.errors.push({
-              type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
-              message: message || "",
-              context: {
-                source: {
-                  id: parsedEntity.widgetId,
-                  name: parsedEntity.widgetName,
-                  type: ENTITY_TYPE.WIDGET,
-                  propertyPath: property,
-                },
-              },
-            });
-            _.set(parsedEntity, `invalidProps.${property}`, true);
-            _.set(parsedEntity, `validationMessages.${property}`, message);
-          } else {
-            _.set(parsedEntity, `invalidProps.${property}`, false);
-            _.set(parsedEntity, `validationMessages.${property}`, "");
-          }
-        },
-      );
-      return { ...tree, [entityKey]: parsedEntity };
-    }, tree);
   }
 
   validateAndParseWidgetProperty(

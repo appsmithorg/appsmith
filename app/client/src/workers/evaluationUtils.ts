@@ -1,6 +1,8 @@
 import {
   DependencyMap,
+  EvalErrorTypes,
   isChildPropertyPath,
+  EvalError,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -267,6 +269,61 @@ export function validateWidgetProperty(
     return { isValid: true, parsed: value };
   }
   return validator(value, props, dataTree);
+}
+
+export function getValidatedTree(tree: DataTree) {
+  const errors: EvalError[] = [];
+  const validatedTree = Object.keys(tree).reduce((tree, entityKey: string) => {
+    const entity = tree[entityKey] as DataTreeWidget;
+    if (!isWidget(entity)) {
+      return tree;
+    }
+    const parsedEntity = { ...entity };
+    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
+      const value = _.get(entity, property);
+      // Pass it through parse
+      const { parsed, isValid, message, transformed } = validateWidgetProperty(
+        property,
+        value,
+        entity,
+        validation,
+        tree,
+      );
+      _.set(parsedEntity, property, parsed);
+      const evaluatedValue = isValid
+        ? parsed
+        : _.isUndefined(transformed)
+        ? value
+        : transformed;
+      const safeEvaluatedValue = removeFunctions(evaluatedValue);
+      _.set(parsedEntity, `evaluatedValues.${property}`, safeEvaluatedValue);
+      if (!isValid) {
+        errors.push({
+          type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
+          message: message || "",
+          context: {
+            source: {
+              id: parsedEntity.widgetId,
+              name: parsedEntity.widgetName,
+              type: ENTITY_TYPE.WIDGET,
+              propertyPath: property,
+            },
+          },
+        });
+        _.set(parsedEntity, `invalidProps.${property}`, true);
+        _.set(parsedEntity, `validationMessages.${property}`, message);
+      } else {
+        _.set(parsedEntity, `invalidProps.${property}`, false);
+        _.set(parsedEntity, `validationMessages.${property}`, "");
+      }
+    });
+    return { ...tree, [entityKey]: parsedEntity };
+  }, tree);
+
+  return {
+    validatedTree,
+    errors,
+  };
 }
 
 export const getAllPaths = (
