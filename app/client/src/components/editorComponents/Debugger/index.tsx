@@ -10,8 +10,10 @@ import { showDebugger as showDebuggerAction } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { Layers } from "constants/Layers";
 
 const Container = styled.div<{ errorCount: number }>`
+  z-index: ${Layers.debugger};
   background-color: ${(props) =>
     props.theme.colors.debugger.floatingButton.background};
   position: fixed;
