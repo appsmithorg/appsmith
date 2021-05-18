@@ -12,9 +12,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+<<<<<<< HEAD
 =======
 import java.util.Date;
 >>>>>>> .merge_file_T4RgcS
+=======
+import java.util.Date;
+>>>>>>> polish-comments
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +103,10 @@ public class Comment extends BaseDomain {
     public String getCreationTime() {
         return ISO_FORMATTER.format(createdAt);
     }
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> polish-comments
     @Data
     public static class Reaction {
         String emoji;
@@ -109,5 +116,8 @@ public class Comment extends BaseDomain {
         Date createdAt;
     }
 
+<<<<<<< HEAD
 >>>>>>> .merge_file_T4RgcS
+=======
+>>>>>>> polish-comments
 }

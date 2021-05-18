@@ -688,6 +688,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
+
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
         return result;
     }
