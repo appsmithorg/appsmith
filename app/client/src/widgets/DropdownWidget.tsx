@@ -108,11 +108,26 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       isValid: `{{this.isRequired ? this.selectionType === 'SINGLE_SELECT' ? !!this.selectedOption : !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
-      selectedOption: `{{ this.selectionType === 'SINGLE_SELECT' ? _.find(this.options, { value:  this.selectedOptionValue }) : undefined}}`,
-      selectedOptionArr: `{{this.selectionType === "MULTI_SELECT" ? this.options.filter(opt => _.includes(this.selectedOptionValueArr, opt.value)) : undefined}}`,
+      selectedOption: `{{(() => {
+        if (this.selectionType === 'SINGLE_SELECT'){
+          const selectedOptionValue = this.selectedOptionValue !== undefined ? this.selectedOptionValue : this.defaultOptionValue;
+          return _.find(this.options, { value:  selectedOptionValue })
+        }
+        return undefined;
+      })()}}`,
+      selectedOptionArr: `{{(() => {
+        if (this.selectionType === 'MULTI_SELECT'){
+          const selectedOptionValues = this.selectedOptionValueArr !== undefined ? this.selectedOptionValueArr : this.defaultOptionValue;
+          return this.options.filter(opt => _.includes(selectedOptionValues, opt.value));
+        }
+        return undefined;
+      })()}}`,
       selectedIndex: `{{(() => {
-        const seletedOption = this.selectedOption !== undefined ? this.selectedOption.value : this.defaultOptionValue;
-        return _.findIndex(this.options, { value: selectedOption } )
+        if (this.selectionType === 'SINGLE_SELECT'){
+          const seletedOptionValue = this.selectedOptionValue !== undefined ? this.selectedOptionValue : this.defaultOptionValue;
+          return _.findIndex(this.options, { value: seletedOptionValue })
+        }
+        return -1;
       })()}}`,
       selectedIndexArr: `{{(() => {
         const selectedOptions = this.selectedOptionValueArr !== undefined ? this.selectedOptionValueArr : this.defaultOptionValue;
@@ -123,10 +138,38 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         }
         return [];
       })()}}`,
-      value: `{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}`,
-      selectedOptionValues: `{{ this.selectionType === 'MULTI_SELECT' ? this.selectedOptionValueArr : [] }}`,
-      selectedOptionLabels: `{{ this.selectionType === "MULTI_SELECT" ? this.selectedOptionValueArr.map(o => { const index = _.findIndex(this.options, { value: o }); return this.options[index]?.label; }) : [] }}`,
-      selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.selectedOptionValue }); return this.selectionType === "SINGLE_SELECT" ? this.options[index]?.label : ""; })()}}`,
+      value: `{{(() => {
+        if (this.selectionType === 'MULTI_SELECT'){
+          return this.selectedOptionValueArr !== undefined ? this.selectedOptionValueArr : this.defaultOptionValue;
+        }
+        else {
+          return this.selectedOptionValue !== undefined ? this.selectedOptionValue : this.defaultOptionValue;
+        }
+      })()}}`,
+      selectedOptionValues: `{{(() => {
+        if (this.selectionType === 'MULTI_SELECT'){
+          return this.selectedOptionValueArr !== undefined ? this.selectedOptionValueArr : this.defaultOptionValue;
+        }
+        return [];
+      })()}}`,
+      selectedOptionLabels: `{{(() => {
+        if (this.selectionType === 'MULTI_SELECT'){
+          const selectedOptionValues = this.selectedOptionValueArr !== undefined ? this.selectedOptionValueArr : this.defaultOptionValue;
+          return selectedOptionValues.map(o => { 
+            const index = _.findIndex(this.options, { value: o }); 
+            return this.options[index]?.label; 
+          });
+        }
+        return [];
+      })()}}`,
+      selectedOptionLabel: `{{(() => {
+        if (this.selectionType === 'SINGLE_SELECT'){
+          const seletedOptionValue = this.selectedOptionValue !== undefined ? this.selectedOptionValue : this.defaultOptionValue;
+          const index = _.findIndex(this.options, { value: seletedOptionValue });
+          return index !==-1 ? this.options[index]?.label : "";
+        }
+        return "";
+      })()}}`,
     };
   }
 

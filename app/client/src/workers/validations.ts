@@ -487,7 +487,6 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
               );
             })
           : true;
-      console.log({ hasSameValueDataType, uniqValidOptions, validOptions });
       if (
         !hasOptions ||
         !hasSameValueDataType ||
@@ -496,7 +495,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         return {
           isValid: false,
           parsed: uniqValidOptions,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ label: string, value: string }>"`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ label: string, value: number | string }>"`,
         };
       }
       return { isValid, parsed };
