@@ -141,7 +141,7 @@ const commentsReducer = createReducer(initialState, {
     state: CommentsReduxState,
     action: ReduxAction<{ threadId: string; applicationId: string }>,
   ) => {
-    const { threadId, applicationId } = action.payload;
+    const { applicationId, threadId } = action.payload;
     state.commentThreadsMap[threadId] = {
       ...state.commentThreadsMap[threadId],
       isPinned: true,
@@ -160,7 +160,7 @@ const commentsReducer = createReducer(initialState, {
       threadId: string;
     }>,
   ) => {
-    const { threadId, commentId } = action.payload;
+    const { commentId, threadId } = action.payload;
 
     const commentThread = state.commentThreadsMap[threadId];
     state.commentThreadsMap[threadId] = {

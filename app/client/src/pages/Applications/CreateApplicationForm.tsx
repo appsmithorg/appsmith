@@ -49,7 +49,7 @@ const validate = (values: CreateApplicationFormValues) => {
 // TODO(abhinav): abstract onCancel out.
 
 function CreateApplicationForm(props: Props) {
-  const { error, handleSubmit, pristine, submitting, invalid } = props;
+  const { error, handleSubmit, invalid, pristine, submitting } = props;
   return (
     <Form onSubmit={handleSubmit(createApplicationFormSubmitHandler)}>
       {error && !pristine && <FormMessage intent="danger" message={error} />}

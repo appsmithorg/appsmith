@@ -203,17 +203,17 @@ function ApiEditorForm(props: Props) {
   ] = useLocalStorage("apiBindHelpSectionVisible", "true");
 
   const {
-    pluginId,
-    onRunClick,
-    handleSubmit,
-    isRunning,
     actionConfigurationHeaders,
-    httpMethodFromForm,
     actionName,
+    handleSubmit,
     headersCount,
-    paramsCount,
-    settingsConfig,
     hintMessages,
+    httpMethodFromForm,
+    isRunning,
+    onRunClick,
+    paramsCount,
+    pluginId,
+    settingsConfig,
   } = props;
   const dispatch = useDispatch();
   const allowPostBody =

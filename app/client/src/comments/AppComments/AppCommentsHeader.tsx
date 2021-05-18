@@ -26,7 +26,7 @@ type Props = {
 };
 
 const AppCommentsHeader = withTheme(
-  ({ onClose, isOpen, setIsOpen, theme }: Props) => {
+  ({ isOpen, onClose, setIsOpen, theme }: Props) => {
     const showCommentThreads = useCallback(() => {
       if (!isOpen) setIsOpen(true);
     }, [isOpen]);

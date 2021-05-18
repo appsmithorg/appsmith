@@ -71,7 +71,7 @@ function DragLayerComponent(props: DragLayerProps) {
     x: 0,
     y: 0,
   });
-  const { isDragging, currentOffset, widget, canDrop } = useDragLayer(
+  const { canDrop, currentOffset, isDragging, widget } = useDragLayer(
     (monitor) => ({
       isDragging: monitor.isDragging(),
       currentOffset: monitor.getSourceClientOffset(),
