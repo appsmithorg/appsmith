@@ -226,7 +226,7 @@ function* storeValueLocally(
   }
 }
 
-async function downloadSaga(
+export async function downloadSaga(
   action: { data: any; name: string; type: string },
   event: ExecuteActionPayloadEvent,
 ) {

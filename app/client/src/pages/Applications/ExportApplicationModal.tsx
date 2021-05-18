@@ -6,6 +6,8 @@ import Checkbox from "components/ads/Checkbox";
 import { useSelector } from "store";
 import { AppState } from "reducers";
 import Text, { TextType } from "components/ads/Text";
+import { downloadSaga } from "sagas/ActionExecutionSagas";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 const CheckboxDiv = styled.div`
   overflow: auto;
@@ -29,7 +31,6 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
   const { onClose } = props;
   const exportApplication = () => {
     props.export && props.applicationId && props.export(props.applicationId);
-    // setModalClose && setModalClose(false);
   };
   const importApplication = () => {
     props.organizationId && props.import && props.import("");
@@ -42,6 +43,18 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
     (state: AppState) => state.ui.applications.exportedApplication,
   );
 
+  const downloadExportedApplication = async () => {
+    await downloadSaga(
+      {
+        data: exportedApplication,
+        name: "exportedApplication.json",
+        type: "text/plain",
+      },
+      { type: EventType.ON_SUBMIT },
+    );
+    setModalClose && setModalClose(false);
+  };
+
   const [isChecked, setIsCheckedToTrue] = useState(false);
   return (
     <StyledDialog
@@ -50,18 +63,24 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
       isOpen={isModalOpen}
       maxHeight={"540px"}
       setModalClose={setModalClose}
-      title={"Be sure to read the data policy"}
+      title={
+        !!exportedApplication
+          ? "Your application is ready for download!"
+          : "Be sure to read the data policy"
+      }
     >
-      <CheckboxDiv>
-        <Text type={TextType.P1}>
-          <Checkbox
-            label="By clicking on this you agree that your application credentials can be stored inside a file"
-            onCheckChange={(checked: boolean) => {
-              setIsCheckedToTrue(checked);
-            }}
-          />
-        </Text>
-      </CheckboxDiv>
+      {!exportedApplication && (
+        <CheckboxDiv>
+          <Text type={TextType.P1}>
+            <Checkbox
+              label="By clicking on this you agree that your application credentials can be stored inside a file"
+              onCheckChange={(checked: boolean) => {
+                setIsCheckedToTrue(checked);
+              }}
+            />
+          </Text>
+        </CheckboxDiv>
+      )}
       {props.import && (
         <ButtonWrapper>
           <ForkButton
@@ -79,9 +98,13 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
             cypressSelector={"t--export-app-button"}
             disabled={!isChecked}
             isLoading={exportingApplication}
-            onClick={exportApplication}
+            onClick={
+              !!exportedApplication
+                ? downloadExportedApplication
+                : exportApplication
+            }
             size={Size.large}
-            text={"EXPORT"}
+            text={!!exportedApplication ? "Download" : "EXPORT"}
           />
         </ButtonWrapper>
       )}
