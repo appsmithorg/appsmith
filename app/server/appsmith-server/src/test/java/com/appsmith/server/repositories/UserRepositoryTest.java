@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
+@DirtiesContext
 class UserRepositoryTest {
 
     @Autowired
@@ -25,7 +27,7 @@ class UserRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        userRepository.deleteAll().block();
+
     }
 
     @Test
@@ -39,26 +41,30 @@ class UserRepositoryTest {
         StepVerifier.create(findUserMono).assertNext(u -> {
             assertEquals(savedUser.getEmail(), u.getEmail());
         }).verifyComplete();
+
+        userRepository.deleteById(savedUser.getId()).block();
     }
 
     @Test
     void findByCaseInsensitiveEmail_WhenCaseIsDifferent_ReturnsResult() {
         User user = new User();
         user.setEmail("rafiqNAYAN@gmail.com");
-        User saveUser = userRepository.save(user).block();
+        User savedUser = userRepository.save(user).block();
 
         Mono<User> findUserByEmailMono = userRepository.findByCaseInsensitiveEmail("rafiqnayan@gmail.com");
 
         StepVerifier.create(findUserByEmailMono).assertNext(u -> {
-            assertEquals(saveUser.getEmail(), u.getEmail());
+            assertEquals(savedUser.getEmail(), u.getEmail());
         }).verifyComplete();
+
+        userRepository.deleteById(savedUser.getId()).block();
     }
 
     @Test
     void findByCaseInsensitiveEmail_WhenMultipleMatches_ReturnsResult() {
         User user1 = new User();
         user1.setEmail("rafiqNAYAN@gmail.com");
-        User saveUser1 = userRepository.save(user1).block();
+        User savedUser1 = userRepository.save(user1).block();
 
         User user2 = new User();
         user2.setEmail("RAFIQNAYAN@gmail.com");
@@ -69,13 +75,17 @@ class UserRepositoryTest {
         StepVerifier.create(findUserByEmailMono).assertNext(u -> {
             assertEquals(savedUser2.getEmail(), u.getEmail());
         }).verifyComplete();
+
+        userRepository.deleteById(savedUser1.getId()).block();
+        userRepository.deleteById(savedUser2.getId()).block();
     }
 
     @Test
     void findByCaseInsensitiveEmail_WhenNoMatch_ReturnsNone() {
         User user = new User();
         user.setEmail("rafiqnayan@gmail.com");
-        userRepository.save(user).block();
+        User savedUser = userRepository.save(user).block();
+
         Mono<User> getByEmailMono = userRepository.findByCaseInsensitiveEmail("nayan@gmail.com");
         StepVerifier.create(getByEmailMono).verifyComplete();
 
@@ -84,5 +94,7 @@ class UserRepositoryTest {
 
         Mono<User> getByEmailMono3 = userRepository.findByCaseInsensitiveEmail("rafiq.nayan@gmail.com");
         StepVerifier.create(getByEmailMono3).verifyComplete();
+
+        userRepository.deleteById(savedUser.getId()).block();
     }
 }
