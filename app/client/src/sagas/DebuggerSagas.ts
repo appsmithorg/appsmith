@@ -169,6 +169,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
   }
 }
 
+// Pass through error list once after on page load actions executions are complete
 function* onExecutePageActionsCompleteSaga() {
   yield take(ReduxActionTypes.SET_EVALUATED_TREE);
 
@@ -199,10 +200,10 @@ function* onExecutePageActionsCompleteSaga() {
 }
 
 export default function* debuggerSagasListeners() {
-  yield all([takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga)]);
   yield all([
+    takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
     takeEvery(
-      "EXECUTE_PAGE_LOAD_ACTIONS_COMPLETE",
+      ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS_COMPLETE,
       onExecutePageActionsCompleteSaga,
     ),
   ]);
