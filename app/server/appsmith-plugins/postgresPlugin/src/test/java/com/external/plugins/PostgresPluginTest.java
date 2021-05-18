@@ -9,6 +9,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
@@ -320,7 +321,7 @@ public class PostgresPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null));
+                            actionConfiguration.getBody(), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -538,7 +539,6 @@ public class PostgresPluginTest {
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
                     assertEquals(parameterEntry.getKey(), "1");
                     assertEquals(parameterEntry.getValue(), "INTEGER");
-
                 })
                 .verifyComplete();
     }
@@ -604,6 +604,23 @@ public class PostgresPluginTest {
                                     .toArray()
                     );
 
+                    /*
+                     * - Check if request params are sent back properly.
+                     * - Not replicating the same to other tests as the overall flow remainst the same w.r.t. request
+                     *  params.
+                     */
+
+                    // check if '?' is replaced by $i.
+                    assertEquals("SELECT * FROM public.\"users\" where id = $1;",
+                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+
+                    PsParameterDTO expectedPsParam = new PsParameterDTO("1", "INTEGER");
+                    PsParameterDTO returnedPsParam =
+                            (PsParameterDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$1");
+                    // Check if prepared stmt param value is correctly sent back.
+                    assertEquals(expectedPsParam.getValue(), returnedPsParam.getValue());
+                    // check if prepared stmt param type is correctly sent back.
+                    assertEquals(expectedPsParam.getType(), returnedPsParam.getType());
                 })
                 .verifyComplete();
     }

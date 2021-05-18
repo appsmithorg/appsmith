@@ -1,10 +1,13 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
+import org.apache.commons.compress.utils.Lists;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +29,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.time.Duration;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -167,4 +171,31 @@ public class UserDataServiceTest {
                 .verify();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateLastUsedOrgList_WhenListIsEmpty_orgIdPrepended() {
+        String sampleOrgId = "abcd";
+        final Mono<UserData> saveMono = userDataService.updateLastUsedOrgList(sampleOrgId);
+        StepVerifier.create(saveMono).assertNext(userData -> {
+            Assert.assertEquals(1, userData.getRecentlyUsedOrgIds().size());
+            Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedOrgIds().get(0));
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateLastUsedOrgList_WhenListIsNotEmpty_orgIdPrepended() {
+        // set some org id to current user's list
+        UserData existingUserData = new UserData();
+        existingUserData.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
+        userDataService.updateForCurrentUser(existingUserData).subscribe();
+
+        // now check whether new org id is put at first
+        String sampleOrgId = "abcd";
+        final Mono<UserData> saveMono = userDataService.updateLastUsedOrgList(sampleOrgId);
+        StepVerifier.create(saveMono).assertNext(userData -> {
+            Assert.assertEquals(3, userData.getRecentlyUsedOrgIds().size());
+            Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedOrgIds().get(0));
+        }).verifyComplete();
+    }
 }

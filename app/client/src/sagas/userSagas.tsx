@@ -46,7 +46,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
 ) {
-  const { email, password, resolve, reject } = action.payload;
+  const { email, password, reject, resolve } = action.payload;
   try {
     const request: CreateUserRequest = { email, password };
     const response: CreateUserResponse = yield callAPI(
@@ -59,7 +59,7 @@ export function* createUserSaga(
       const errorMessage = getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     } else {
-      const { email, name, id } = response.data;
+      const { email, id, name } = response.data;
       yield put({
         type: ReduxActionTypes.CREATE_USER_SUCCESS,
         payload: {
@@ -135,7 +135,7 @@ export function* getCurrentUserSaga() {
 export function* forgotPasswordSaga(
   action: ReduxActionWithPromise<ForgotPasswordRequest>,
 ) {
-  const { email, resolve, reject } = action.payload;
+  const { email, reject, resolve } = action.payload;
 
   try {
     const request: ForgotPasswordRequest = { email };
@@ -165,7 +165,7 @@ export function* forgotPasswordSaga(
 export function* resetPasswordSaga(
   action: ReduxActionWithPromise<TokenPasswordUpdateRequest>,
 ) {
-  const { email, token, password, resolve, reject } = action.payload;
+  const { email, password, reject, resolve, token } = action.payload;
   try {
     const request: TokenPasswordUpdateRequest = {
       email,
@@ -198,7 +198,7 @@ export function* resetPasswordSaga(
 export function* invitedUserSignupSaga(
   action: ReduxActionWithPromise<TokenPasswordUpdateRequest>,
 ) {
-  const { email, token, password, resolve, reject } = action.payload;
+  const { email, password, reject, resolve, token } = action.payload;
   try {
     const request: TokenPasswordUpdateRequest = { email, password, token };
     const response: ApiResponse = yield callAPI(
@@ -242,7 +242,7 @@ export function* inviteUsers(
     data: { usernames: string[]; orgId: string; roleName: string };
   }>,
 ) {
-  const { data, resolve, reject } = action.payload;
+  const { data, reject, resolve } = action.payload;
   try {
     const response: ApiResponse = yield callAPI(UserApi.inviteUser, {
       usernames: data.usernames,

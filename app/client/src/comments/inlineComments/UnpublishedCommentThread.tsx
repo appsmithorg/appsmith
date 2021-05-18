@@ -33,7 +33,7 @@ function UnpublishedCommentThread({
 }: {
   commentThread: CommentThread;
 }) {
-  const { top, left } = get(commentThread, "position", {
+  const { left, top } = get(commentThread, "position", {
     top: 0,
     left: 0,
   });

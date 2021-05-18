@@ -1870,11 +1870,11 @@ Cypress.Commands.add("testDatasource", () => {
 
 Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click();
-  cy.wait("@saveDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@saveDatasource")
+    .then((xhr) => {
+      cy.log(JSON.stringify(xhr.response.body));
+    })
+    .should("have.nested.property", "response.body.responseMeta.status", 200);
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
@@ -2341,4 +2341,16 @@ Cypress.Commands.add("callApi", (apiname) => {
 
 Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusSuccess);
+});
+
+Cypress.Commands.add("ValidateQueryParams", (param) => {
+  cy.xpath(apiwidget.paramsTab)
+    .should("be.visible")
+    .click({ force: true });
+  cy.xpath(apiwidget.paramKey)
+    .first()
+    .contains(param.key);
+  cy.xpath(apiwidget.paramValue)
+    .first()
+    .contains(param.value);
 });

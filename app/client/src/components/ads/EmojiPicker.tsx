@@ -11,9 +11,9 @@ import "emoji-mart/css/emoji-mart.css";
 const EmojiPicker = withTheme(
   ({
     iconName,
-    theme,
-    onSelectEmoji,
     iconSize,
+    onSelectEmoji,
+    theme,
   }: {
     iconName?: IconName;
     theme: Theme;

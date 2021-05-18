@@ -144,7 +144,7 @@ const commentsReducer = createReducer(initialState, {
       threadId: string;
     }>,
   ) => {
-    const { threadId, commentId } = action.payload;
+    const { commentId, threadId } = action.payload;
 
     const commentThread = state.commentThreadsMap[threadId];
     state.commentThreadsMap[threadId] = {
@@ -218,7 +218,7 @@ const commentsReducer = createReducer(initialState, {
     state: CommentsReduxState,
     action: ReduxAction<{ commentThreadId: string; appId: string }>,
   ) => {
-    const { commentThreadId, appId } = action.payload;
+    const { appId, commentThreadId } = action.payload;
     if (!state.applicationCommentThreadsByRef[appId]) return false;
 
     const { refId } = state.commentThreadsMap[commentThreadId];
