@@ -76,13 +76,16 @@ class DropdownComponent extends Component<DropdownComponentProps> {
   searchItem = (query: string, option: DropdownOption): boolean => {
     return (
       option.label.toLowerCase().indexOf(query.toLowerCase()) > -1 ||
-      option.value.toLowerCase().indexOf(query.toLowerCase()) > -1 ||
+      option.value
+        .toString()
+        .toLowerCase()
+        .indexOf(query.toLowerCase()) > -1 ||
       (!!option.label &&
         option.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
     );
   };
   onItemSelect = (item: DropdownOption): void => {
-    this.props.selectHandler(item.value);
+    this.props.selectHandler(item.value.toString());
   };
 
   renderItem: ItemRenderer<DropdownOption> = (

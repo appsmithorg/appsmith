@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { find, noop } from "lodash";
-import { DropdownOption } from "widgets/DropdownWidget";
 import {
   PopoverInteractionKind,
   PopoverPosition,
@@ -10,11 +9,19 @@ import {
   Menu,
   Button,
   Classes,
+  IconName,
+  Intent as BlueprintIntent,
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import { IconNames } from "@blueprintjs/icons";
 
-export type TreeDropdownOption = DropdownOption & {
+export type TreeDropdownOption = {
+  label: string;
+  value: string;
+  icon?: IconName;
+  subText?: string;
+  id?: string;
+  intent?: BlueprintIntent;
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
   children?: TreeDropdownOption[];
   className?: string;

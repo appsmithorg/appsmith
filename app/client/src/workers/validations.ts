@@ -20,6 +20,10 @@ import _, {
 import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
 
+export function isNumeric(item: any) {
+  return /^-?\d+$/.test(item);
+}
+
 export function validateDateString(
   dateString: string,
   dateFormat: string,
@@ -474,8 +478,21 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       const hasOptions = every(parsed, isValidOption);
       const validOptions = parsed.filter(isValidOption);
       const uniqValidOptions = _.uniqBy(validOptions, "value");
-
-      if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
+      const hasSameValueDataType =
+        validOptions.length !== 0
+          ? every(validOptions, (option: { label: any; value: any }) => {
+              return (
+                (isNumeric(option.value) && isNumeric(validOptions[0].value)) ||
+                (!isNumeric(option.value) && !isNumeric(validOptions[0].value))
+              );
+            })
+          : true;
+      console.log({ hasSameValueDataType, uniqValidOptions, validOptions });
+      if (
+        !hasOptions ||
+        !hasSameValueDataType ||
+        uniqValidOptions.length !== validOptions.length
+      ) {
         return {
           isValid: false,
           parsed: uniqValidOptions,
@@ -758,11 +775,46 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     dataTree?: DataTree,
   ) => {
     let values = value;
-
+    const optionsData = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      props.options,
+      props,
+      dataTree,
+    );
+    const isNumberValue =
+      optionsData.isValid && isNumeric(optionsData.parsed[0]?.value);
     if (props) {
       if (props.selectionType === "SINGLE_SELECT") {
         const defaultValue = value && _.isString(value) ? value.trim() : value;
-        return VALIDATORS[VALIDATION_TYPES.TEXT](defaultValue, props, dataTree);
+        if (isNumberValue && !isNumeric(defaultValue)) {
+          return {
+            isValid: false,
+            parsed: undefined,
+            message: `${WIDGET_TYPE_VALIDATION_ERROR}`,
+          };
+        }
+        const isValidOptionValue = !!optionsData.parsed.filter(
+          (item: { value: any }) => item.value === defaultValue,
+        ).length;
+        if (!isValidOptionValue) {
+          return {
+            isValid: false,
+            parsed: undefined,
+            message: `${WIDGET_TYPE_VALIDATION_ERROR}`,
+          };
+        }
+        if (!isNumberValue) {
+          return VALIDATORS[VALIDATION_TYPES.TEXT](
+            defaultValue,
+            props,
+            dataTree,
+          );
+        } else {
+          return VALIDATORS[VALIDATION_TYPES.NUMBER](
+            defaultValue,
+            props,
+            dataTree,
+          );
+        }
       } else if (props.selectionType === "MULTI_SELECT") {
         if (typeof value === "string") {
           try {
@@ -779,11 +831,40 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         }
       }
     }
-
     if (Array.isArray(values)) {
       values = _.uniq(values);
+      if (isNumberValue) {
+        const items: number[] = values
+          .filter((item) => isNumeric(item))
+          .map((item) => {
+            return Number(item);
+          });
+        const isValidOptionValue = !!optionsData.parsed.filter(
+          (item: { value: any }) => items.includes(item.value),
+        ).length;
+        if (!isValidOptionValue) {
+          return {
+            isValid: false,
+            parsed: undefined,
+            message: `${WIDGET_TYPE_VALIDATION_ERROR}`,
+          };
+        }
+        return {
+          isValid: true,
+          parsed: items,
+        };
+      }
     }
-
+    const isValidOptionValue = !!optionsData.parsed.filter(
+      (item: { value: any }) => values.includes(item.value),
+    ).length;
+    if (!isValidOptionValue) {
+      return {
+        isValid: false,
+        parsed: undefined,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}`,
+      };
+    }
     return {
       isValid: true,
       parsed: values,

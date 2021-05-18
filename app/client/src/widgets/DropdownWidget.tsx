@@ -144,7 +144,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     };
   }
 
-  getSelectedOptionValueArr(): string[] {
+  getSelectedOptionValueArr(): Array<number | string> {
     return Array.isArray(this.props.selectedOptionValueArr)
       ? this.props.selectedOptionValueArr
       : [];
@@ -227,7 +227,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   onOptionRemoved = (removedIndex: number) => {
     const newSelectedValue = this.getSelectedOptionValueArr().filter(
-      (v: string) =>
+      (v: number | string) =>
         _.findIndex(this.props.options, { value: v }) !== removedIndex,
     );
     this.props.updateWidgetMetaProperty(
@@ -251,7 +251,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 export interface DropdownOption {
   label: string;
-  value: string;
+  value: any;
   icon?: IconName;
   subText?: string;
   id?: string;
