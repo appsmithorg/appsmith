@@ -44,6 +44,7 @@ import {
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
+  executePageLoadActionsComplete,
   showRunActionConfirmModal,
   updateAction,
 } from "actions/actionActions";
@@ -999,6 +1000,8 @@ function* executePageLoadActionsSaga() {
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
+
+    yield put(executePageLoadActionsComplete());
   } catch (e) {
     log.error(e);
 
