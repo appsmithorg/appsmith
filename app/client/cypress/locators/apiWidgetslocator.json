@@ -52,5 +52,8 @@
   "actionlist": ".action div div",
   "settings": "li:contains('Settings')",
   "onPageLoad": "[data-cy=executeOnLoad]",
-  "renameEntity": ".single-select >div:contains('Edit Name')"
+  "renameEntity": ".single-select >div:contains('Edit Name')",
+  "paramsTab": "//li//span[text()='Params']",
+  "paramKey": "(//div[contains(@class,'t--actionConfiguration.queryParameters[0].key.0')]//textarea)[1]",
+  "paramValue": "(//div[contains(@class,'t--actionConfiguration.queryParameters[0].value.0')]//textarea)[1]"
 }
