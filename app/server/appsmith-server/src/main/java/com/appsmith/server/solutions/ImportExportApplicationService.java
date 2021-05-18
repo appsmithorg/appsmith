@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.server.acl.AclPermission;
@@ -144,12 +145,16 @@ public class ImportExportApplicationService {
                                 //Only export those which are used in the app instead of org level
                                 datasourceList.forEach(datasource -> {
 
-                                    final DBAuth authentication = datasource.getDatasourceConfiguration() == null
-                                            ? null : (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
 
-                                    if (authentication != null) {
-                                        authentication.setIsAuthorized(null);
-                                        decryptedFields.put(authentication.getDatabaseName(), authentication.getPassword());
+                                    final AuthenticationDTO authentication = datasource.getDatasourceConfiguration() == null
+                                            ? null : datasource.getDatasourceConfiguration().getAuthentication();
+
+                                    if(authentication instanceof DBAuth) {
+                                        if (authentication != null) {
+                                            DBAuth auth = (DBAuth) authentication;
+                                            authentication.setIsAuthorized(null);
+                                            decryptedFields.put(auth.getDatabaseName(), auth.getPassword());
+                                        }
                                     }
 
                                     datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
@@ -256,10 +261,14 @@ public class ImportExportApplicationService {
                             .flatMap(datasource -> {
                                 datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                                 datasource.setOrganizationId(orgId);
-                                final DBAuth authentication = datasource.getDatasourceConfiguration() == null
-                                        ? null : (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
+                                final AuthenticationDTO authentication = datasource.getDatasourceConfiguration() == null
+                                        ? null : datasource.getDatasourceConfiguration().getAuthentication();
+
                                 if(authentication != null) {
-                                    authentication.setPassword(importedDoc.getDecryptedFields().get(authentication.getDatabaseName()));
+                                    if(authentication instanceof DBAuth) {
+                                        DBAuth auth = (DBAuth) authentication;
+                                        auth.setPassword(importedDoc.getDecryptedFields().get(auth.getDatabaseName()));
+                                    }
                                 }
 
                                 return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, orgId);
@@ -431,14 +440,17 @@ public class ImportExportApplicationService {
 
         return existingDatasourceFlux
                 .map(ds -> {
-                    final DBAuth auth = ds.getDatasourceConfiguration() == null
-                            ? null : (DBAuth) ds.getDatasourceConfiguration().getAuthentication();
+                    final AuthenticationDTO auth = ds.getDatasourceConfiguration() == null
+                            ? null : ds.getDatasourceConfiguration().getAuthentication();
                     if (auth != null) {
-                        DBAuth datasourceAuth = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
-                        auth.setIsAuthorized(null);
-                        auth.setAuthenticationResponse(null);
-                        auth.setAuthType(datasourceAuth.getAuthType());
-                        auth.setAuthenticationType(datasourceAuth.getAuthenticationType());
+                        if(auth instanceof DBAuth) {
+                            DBAuth dbAuth = (DBAuth) auth;
+                            DBAuth datasourceAuth = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
+                            auth.setIsAuthorized(null);
+                            auth.setAuthenticationResponse(null);
+                            dbAuth.setAuthType(datasourceAuth.getAuthType());
+                            auth.setAuthenticationType(datasourceAuth.getAuthenticationType());
+                        }
                     }
                     return ds;
                 })
