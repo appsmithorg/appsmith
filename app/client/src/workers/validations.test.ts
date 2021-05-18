@@ -558,12 +558,26 @@ describe("List data validator", () => {
 
   it("Validates DEFAULT_OPTION_VALUE correctly (string trim and integers)", () => {
     const validator = VALIDATORS[VALIDATION_TYPES.DEFAULT_OPTION_VALUE];
-    const widgetProps = { ...DUMMY_WIDGET, selectionType: "SINGLE_SELECT" };
+    const widgetProps = {
+      ...DUMMY_WIDGET,
+      options: [
+        {
+          label: "abc",
+          value: "abc",
+        },
+        {
+          label: "something",
+          value: "something",
+        },
+      ],
+      selectionType: "SINGLE_SELECT",
+    };
     const inputs = [100, "something ", "something\n"];
     const expected = [
       {
-        isValid: true,
-        parsed: "100",
+        isValid: false,
+        parsed: undefined,
+        message: "This value does not evaluate to type",
       },
       {
         isValid: true,
