@@ -663,19 +663,9 @@ public class CurlImporterServiceTest {
 
     @Test
     public void parseMultiFormData() throws AppsmithException {
-        ActionDTO action = curlImporterService.curlToAction("curl --request POST 'http://httpbin.org/post' --form 'somekey=\"value\"' --form 'anotherKey=\"anotherValue\"'");
-        assertMethod(action, HttpMethod.POST);
-        assertUrl(action, "http://httpbin.org");
-        assertPath(action, "/post");
-        assertHeaders(action, new Property("Content-Type", "multipart/form-data"));
-        assertEmptyBody(action);
-        assertBodyFormData(
-                action,
-                new Property("somekey", "value"),
-                new Property("anotherKey", "anotherValue")
-        );
-
-        action = curlImporterService.curlToAction("curl --request POST 'http://httpbin.org/post' -F 'somekey=\"value\"' -F 'anotherKey=\"anotherValue\"'");
+        // In the curl command, we test for a combination of --form and -F
+        // Also some values are double-quoted while some aren't. This tests a permutation of all such fields
+        ActionDTO action = curlImporterService.curlToAction("curl --request POST 'http://httpbin.org/post' -F 'somekey=value' --form 'anotherKey=\"anotherValue\"'");
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://httpbin.org");
         assertPath(action, "/post");

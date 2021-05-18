@@ -387,7 +387,7 @@ public class CurlImporterService extends BaseApiImporter {
                     final String[] parts = part.split("=", 2);
                     // Multipart form values are double quoted. Eg: "value"
                     // We trim the quotes from the beginning & end of the string
-                    String formValue = (parts.length > 1) ? parts[1].substring(1, parts[1].length() - 1) : "";
+                    String formValue = (parts.length > 1) ? parts[1].replaceAll("^\"|\"$", "") : "";
                     formPairs.add(new Property(parts[0], formValue));
                 }
 
