@@ -276,8 +276,9 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { name } = action.payload;
+    const { email, name } = action.payload;
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
+      email,
       name,
     });
     const isValidResponse = yield validateResponse(response);
