@@ -999,6 +999,9 @@ function* executePageLoadActionsSaga() {
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
+    yield put({
+      type: "EXECUTE_PAGE_LOAD_ACTIONS_COMPLETE",
+    });
   } catch (e) {
     log.error(e);
 
