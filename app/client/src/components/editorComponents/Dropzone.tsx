@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { snapToGrid } from "utils/helpers";
 import { IntentColors } from "constants/DefaultTheme";
 import { useSpring, animated, interpolate, config } from "react-spring";
+import { Layers } from "constants/Layers";
 
 const SPRING_CONFIG = {
   ...config.gentle,
@@ -124,6 +125,7 @@ export const DropZone = forwardRef(
           height={props.height * props.parentRowHeight}
           ref={ref}
           style={{
+            zIndex: Layers.animatedDropZone,
             transform: interpolate(
               [X, Y],
               (x: number, y: number) => `translate3d(${x}px,${y}px,0)`,
@@ -135,6 +137,7 @@ export const DropZone = forwardRef(
           candrop={props.canDrop}
           height={props.height * props.parentRowHeight}
           style={{
+            zIndex: Layers.animatedSnappingDropZone,
             transform: interpolate(
               [snappedX, snappedY],
               (x: number, y: number) => `translate3d(${x}px,${y}px,0)`,
