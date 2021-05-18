@@ -90,7 +90,11 @@ function* syncApiParamsSaga(
     if (value.indexOf("?") > -1) {
       const paramsString = value.substr(value.indexOf("?") + 1);
       const params = paramsString.split("&").map((p) => {
-        const keyValue = p.split("=");
+        const firstEqualPos = p.indexOf("=");
+        const keyValue =
+          firstEqualPos > -1
+            ? [p.substring(0, firstEqualPos), p.substring(firstEqualPos + 1)]
+            : [];
         return { key: keyValue[0], value: keyValue[1] || "" };
       });
       if (params.length < 2) {
