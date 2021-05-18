@@ -11,15 +11,14 @@ import {
   fork,
   call,
 } from "redux-saga/effects";
-import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import { isEmpty, set, get } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { getAction, getActions } from "selectors/entitiesSelector";
+import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "workers/evaluationUtils";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getWidget } from "./selectors";
 import { WidgetProps } from "widgets/BaseWidget";
 
