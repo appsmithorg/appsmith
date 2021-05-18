@@ -191,15 +191,15 @@ enum CommentCardModes {
 
 function CommentCard({
   comment,
-  isParentComment,
-  toggleResolved,
-  resolved,
   commentThreadId,
+  inline,
+  isParentComment,
   numberOfReplies,
+  resolved,
   showReplies,
   showSubheader,
+  toggleResolved,
   unread = true,
-  inline,
   visible,
 }: {
   comment: Comment;

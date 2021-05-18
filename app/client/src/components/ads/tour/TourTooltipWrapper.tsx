@@ -17,7 +17,7 @@ type Props = {
 };
 
 function TourTooltipWrapper(props: Props) {
-  const { tourType, tourIndex, children } = props;
+  const { children, tourIndex, tourType } = props;
   const isCurrentStepActive = useSelector(
     (state: AppState) => getActiveTourIndex(state) === tourIndex,
   );

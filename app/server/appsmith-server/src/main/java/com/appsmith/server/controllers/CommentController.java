@@ -85,4 +85,24 @@ public class CommentController extends BaseController<CommentService, Comment, S
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
+    @PostMapping("/{commentId}/reactions")
+    public Mono<ResponseDTO<Boolean>> createReaction(
+            @PathVariable String commentId,
+            @Valid @RequestBody Comment.Reaction reaction
+    ) {
+        log.debug("Going to create reaction on comment with id: {}", commentId);
+        return service.createReaction(commentId, reaction)
+                .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
+    }
+
+    @DeleteMapping("/{commentId}/reactions")
+    public Mono<ResponseDTO<Boolean>> deleteReaction(
+            @PathVariable String commentId,
+            @Valid @RequestBody Comment.Reaction reaction
+    ) {
+        log.debug("Going to delete reaction on comment with id: {}", commentId);
+        return service.deleteReaction(commentId, reaction)
+                .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
+    }
+
 }

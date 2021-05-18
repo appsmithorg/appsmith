@@ -145,7 +145,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       value: this.props.selectedOptionValue,
     });
     const computedSelectedIndexArr = this.props.selectedIndexArr || [];
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
         disabled={this.props.isDisabled}

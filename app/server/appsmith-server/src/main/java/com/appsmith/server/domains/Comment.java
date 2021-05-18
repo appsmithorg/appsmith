@@ -1,15 +1,20 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+<<<<<<< .merge_file_fFnw63
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+=======
+import java.util.Date;
+>>>>>>> .merge_file_T4RgcS
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +42,8 @@ public class Comment extends BaseDomain {
     String authorUsername;
 
     Body body;
+
+    List<Reaction> reactions;
 
     @Data
     public static class Body {
@@ -85,10 +92,22 @@ public class Comment extends BaseDomain {
         }
     }
 
+<<<<<<< .merge_file_fFnw63
     private static final DateTimeFormatter ISO_FORMATTER =
             DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
 
     public String getCreationTime() {
         return ISO_FORMATTER.format(createdAt);
     }
+=======
+    @Data
+    public static class Reaction {
+        String emoji;
+        String byUsername;
+        String byName;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
+        Date createdAt;
+    }
+
+>>>>>>> .merge_file_T4RgcS
 }

@@ -235,7 +235,7 @@ public class MongoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null));
+                            actionConfiguration.getBody(), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -271,7 +271,7 @@ public class MongoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null));
+                            actionConfiguration.getBody(), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -496,7 +496,12 @@ public class MongoPluginTest {
     @Test
     public void testErrorMessageOnNonSrvUri() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.getEndpoints().get(0).setHost("mongodb://user:pass@url.net:1234,url.net:1234/dbName");
+        List<Endpoint> endpoints = new ArrayList<>();
+        endpoints.add(new Endpoint("url", 123L));
+        endpoints.add(null);
+        endpoints.add(new Endpoint(null, 123L));
+        endpoints.add(new Endpoint("mongodb://user:pass@url.net:1234,url.net:1234/dbName", 123L));
+        dsConfig.setEndpoints(endpoints);
         dsConfig.setProperties(List.of(new Property("Import from URI", "No")));
         Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
 
@@ -794,7 +799,8 @@ public class MongoPluginTest {
 
                     // Assert the debug request parameters are getting set.
                     ActionExecutionRequest request = result.getRequest();
-                    List<Map.Entry<String, String>> parameters = (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    List<Map.Entry<String, String>> parameters =
+                            (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
                     assertEquals(parameters.size(), 4);
 
                     Map.Entry<String, String> parameterEntry = parameters.get(0);
@@ -817,6 +823,16 @@ public class MongoPluginTest {
                             List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
                     );
+
+                    String expectedQuery = "{\n" +
+                            "      find: \"users\",\n" +
+                            "      filter: { age: { \"$gte\": 30 } },\n" +
+                            "      sort: { id: 1 },\n" +
+                            "      limit: 10\n" +
+                            "    }";
+                    // check that bindings are not replaced with actual values and not '$i' or '?'
+                    assertEquals(expectedQuery,
+                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
                 })
                 .verifyComplete();
     }

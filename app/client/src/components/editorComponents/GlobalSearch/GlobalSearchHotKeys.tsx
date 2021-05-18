@@ -53,7 +53,7 @@ class GlobalSearchHotKeys extends React.Component<Props> {
     return (
       <Hotkeys>
         {this.hotKeysConfig.map(
-          ({ combo, onKeyDown, allowInInput, label, group }, index) => (
+          ({ allowInInput, combo, group, label, onKeyDown }, index) => (
             <Hotkey
               allowInInput={allowInInput}
               combo={combo}

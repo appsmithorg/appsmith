@@ -53,9 +53,9 @@ const ChildComments = styled.div`
 
 function CommentThreadContainer({
   commentThread,
+  hideChildren,
   hideInput,
   inline,
-  hideChildren,
   showSubheader,
 }: {
   commentThread: CommentThread;

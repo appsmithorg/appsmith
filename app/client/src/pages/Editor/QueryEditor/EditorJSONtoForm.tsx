@@ -84,6 +84,7 @@ const TabbedViewContainer = styled.div`
   height: 50%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
+  width: 100%;
   .react-tabs__tab-panel {
     overflow: hidden;
   }
@@ -354,22 +355,22 @@ type Props = EditorJSONtoFormProps &
 
 export function EditorJSONtoForm(props: Props) {
   const {
+    actionName,
+    dataSources,
+    DATASOURCES_OPTIONS,
+    documentationLink,
+    editorConfig,
+    executedQueryData,
+    formName,
     handleSubmit,
     isDeleting,
     isRunning,
-    onRunClick,
-    onDeleteClick,
     onCreateDatasourceClick,
-    DATASOURCES_OPTIONS,
-    dataSources,
-    executedQueryData,
-    runErrorMessage,
+    onDeleteClick,
+    onRunClick,
     responseType,
-    documentationLink,
-    editorConfig,
+    runErrorMessage,
     settingConfig,
-    formName,
-    actionName,
   } = props;
 
   let error = runErrorMessage;

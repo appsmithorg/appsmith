@@ -58,13 +58,13 @@ type Props = {
 };
 
 function CommentContextMenu({
-  pin,
   copyCommentLink,
   deleteComment,
   deleteThread,
-  isParentComment,
   isCreatedByMe,
+  isParentComment,
   isPinned,
+  pin,
   switchToEditCommentMode,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);

@@ -111,10 +111,10 @@ const useUserSuggestions = (
 };
 
 function AddCommentInput({
-  removePadding,
   initialEditorState,
-  onSave,
   onCancel,
+  onSave,
+  removePadding,
 }: {
   removePadding?: boolean;
   initialEditorState?: EditorState;

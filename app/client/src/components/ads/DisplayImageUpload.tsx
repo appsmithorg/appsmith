@@ -65,7 +65,7 @@ const Container = styled.div`
 
 const defaultLabel = "Upload Display Picture";
 
-export default function DisplayImageUpload({ onChange, value, submit }: Props) {
+export default function DisplayImageUpload({ onChange, submit, value }: Props) {
   const [loadError, setLoadError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const uppy = useUppy(() => {
