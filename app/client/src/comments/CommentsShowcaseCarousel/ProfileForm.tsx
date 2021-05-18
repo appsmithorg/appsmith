@@ -1,10 +1,11 @@
 import React from "react";
 
-import { reduxForm, Field } from "redux-form";
+import { reduxForm } from "redux-form";
 
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
-import DisplayImageUpload from "components/ads/DisplayImageUpload";
+
+import FormDisplayImage from "./FormDisplayImage";
 
 import {
   createMessage,
@@ -61,11 +62,7 @@ function ProfileForm() {
   return (
     <Container>
       <div style={{ marginBottom: 10 }}>
-        <Field
-          component={DisplayImageUpload}
-          id="profile-display-image"
-          name="displayImage"
-        />
+        <FormDisplayImage />
       </div>
       <FormGroup
         // intent={error ? "danger" : "none"}

@@ -1,16 +1,24 @@
-import React from "react";
-import { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
+import React, { useState } from "react";
 import { ReactComponent as ProfileImagePlaceholder } from "assets/images/profile-placeholder.svg";
+import Uppy from "@uppy/core";
+import Dialog from "components/ads/DialogComponent";
 
-import styled from "styled-components";
-
+import { Dashboard, useUppy } from "@uppy/react";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
+import styled from "styled-components";
+import ImageEditor from "@uppy/image-editor";
+
+import "@uppy/core/dist/style.css";
+import "@uppy/dashboard/dist/style.css";
+import "@uppy/image-editor/dist/style.css";
+import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+
 type Props = {
-  meta: Partial<WrappedFieldMetaProps>;
-  input: Partial<WrappedFieldInputProps>;
+  onChange: (file: File) => void;
+  submit: (uppy: Uppy.Uppy) => void;
+  value: string;
   label?: string;
-  id?: string;
 };
 
 const Container = styled.div`
@@ -57,45 +65,111 @@ const Container = styled.div`
 
 const defaultLabel = "Upload Display Picture";
 
-// WIP
-export default function DisplayImageUpload({
-  input: { onChange, value },
-  label,
-  id,
-}: Props) {
-  const _onChange = (e: any) => {
-    e.preventDefault();
-    const reader = new FileReader();
-    const file = e.target.files[0];
-    reader.onloadend = () => {
-      if (onChange) {
-        onChange({
-          file: file,
-          imagePreview: reader.result,
-        });
-      }
-    };
-    reader.readAsDataURL(file);
-  };
+export default function DisplayImageUpload({ onChange, value, submit }: Props) {
+  const [loadError, setLoadError] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const uppy = useUppy(() => {
+    const uppy = Uppy({
+      id: "uppy",
+      autoProceed: false,
+      allowMultipleUploads: false,
+      restrictions: {
+        maxNumberOfFiles: 1,
+        maxFileSize: 250000,
+        allowedFileTypes: [".jpg", ".jpeg", ".png"],
+      },
+      infoTimeout: 5000,
+      locale: {
+        strings: {},
+      },
+    });
+
+    uppy.setOptions({
+      locale: {
+        strings: {
+          cancel: "Cancel",
+          done: "Cancel",
+        },
+      },
+    });
+
+    uppy.use(ImageEditor, {
+      id: "ImageEditor",
+      quality: 0.8,
+      cropperOptions: {
+        viewMode: 1,
+        background: false,
+        autoCropArea: 1,
+        responsive: true,
+      },
+      actions: {
+        revert: false,
+        rotate: false,
+        flip: false,
+        zoomIn: false,
+        zoomOut: false,
+        cropSquare: false,
+        cropWidescreen: false,
+        cropWidescreenVertical: false,
+      },
+    });
+
+    uppy.on("file-added", (file: File) => {
+      onChange(file);
+      // TO trigger edit modal
+      const dashboard = uppy.getPlugin("uppy-img-upload-dashboard");
+      setTimeout(() => {
+        (dashboard as any).openFileEditor(file);
+      });
+    });
+
+    uppy.on("upload", () => {
+      submit(uppy);
+      setIsModalOpen(false);
+    });
+
+    uppy.on("file-editor:complete", (updatedFile) => {
+      onChange(updatedFile);
+    });
+
+    return uppy;
+  });
 
   return (
-    <Container>
-      <label className="view" htmlFor={id}>
-        <div className="image-view">
-          {!value?.imagePreview ? (
-            <ProfileImagePlaceholder />
-          ) : (
-            <img src={value?.imagePreview} />
-          )}
-        </div>
-        <input
-          className="input-component"
-          id={id}
-          onChange={_onChange}
-          type="file"
+    <Container onClick={() => setIsModalOpen(true)}>
+      <Dialog
+        canEscapeKeyClose
+        canOutsideClickClose
+        isOpen={isModalOpen}
+        maxHeight={"80vh"}
+        trigger={
+          <div className="view">
+            <div className="image-view">
+              {!value || loadError ? (
+                <ProfileImagePlaceholder />
+              ) : (
+                <img
+                  onError={(e) => {
+                    console.log(e, "error");
+                    setLoadError(true);
+                  }}
+                  onLoad={() => setLoadError(false)}
+                  src={`/api/${value}`}
+                />
+              )}
+            </div>
+            {(!value || loadError) && (
+              <span className="label">{defaultLabel}</span>
+            )}
+          </div>
+        }
+      >
+        <Dashboard
+          id="uppy-img-upload-dashboard"
+          plugins={["ImageEditor"]}
+          uppy={uppy}
         />
-        {!value?.imagePreview && <span className="label">{defaultLabel}</span>}
-      </label>
+      </Dialog>
     </Container>
   );
 }

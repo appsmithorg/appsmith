@@ -357,6 +357,26 @@ export function* waitForFetchUserSuccess() {
   }
 }
 
+function* removePhoto(action: ReduxAction<{ callback: () => void }>) {
+  try {
+    yield call(UserApi.deletePhoto);
+    if (action.payload.callback) action.payload.callback();
+  } catch (error) {
+    log.error(error);
+  }
+}
+
+function* updatePhoto(
+  action: ReduxAction<{ file: File; callback: () => void }>,
+) {
+  try {
+    yield call(UserApi.uploadPhoto, { file: action.payload.file });
+    if (action.payload.callback) action.payload.callback();
+  } catch (error) {
+    log.error(error);
+  }
+}
+
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
@@ -378,5 +398,7 @@ export default function* userSagas() {
       ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
       updateUserDetailsSaga,
     ),
+    takeLatest(ReduxActionTypes.REMOVE_PROFILE_PHOTO, removePhoto),
+    takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
   ]);
 }
