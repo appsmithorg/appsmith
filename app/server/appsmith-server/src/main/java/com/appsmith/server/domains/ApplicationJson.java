@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.DecryptedSensitiveFields;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +17,7 @@ public class ApplicationJson {
     List<NewPage> pageList;
     List<NewAction> actionList;
 
-    Map<String, String> decryptedFields;
+    Map<String, DecryptedSensitiveFields> decryptedFields;
 
     /**
      *Mapping mongoEscapedWidgets with layoutId
