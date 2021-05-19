@@ -1,20 +1,53 @@
 import React, { ReactElement } from "react";
 import { render, RenderOptions, queries } from "@testing-library/react";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import { ThemeProvider } from "../src/constants/DefaultTheme";
-import store, { testStore } from "../src/store";
 import { getCurrentThemeDetails } from "../src/selectors/themeSelectors";
 import * as customQueries from "./customQueries";
 import { BrowserRouter } from "react-router-dom";
-import { AppState } from "reducers";
+import appReducer, { AppState } from "reducers";
 import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
+import { noop } from "utils/AppsmithUtils";
+import { getCanvasWidgetsPayload } from "sagas/PageSagas";
+import { updateCurrentPage } from "actions/pageActions";
+import { editorInitializer } from "utils/EditorUtils";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { initEditor } from "actions/initActions";
+import { applyMiddleware, compose, createStore } from "redux";
+import { reduxBatch } from "@manaflair/redux-batch";
+import createSagaMiddleware from "redux-saga";
+import store, { testStore } from "store";
+import { sagasToRunForTests } from "./sagas";
+import { all, call, spawn } from "redux-saga/effects";
+const testSagaMiddleware = createSagaMiddleware();
+
+const testStoreWithTestMiddleWare = (initialState: Partial<AppState>) =>
+  createStore(
+    appReducer,
+    initialState,
+    compose(reduxBatch, applyMiddleware(testSagaMiddleware), reduxBatch),
+  );
+
+const rootSaga = function*(sagasToRun = sagasToRunForTests) {
+  yield all(
+    sagasToRun.map((saga) =>
+      spawn(function*() {
+        while (true) {
+          yield call(saga);
+          break;
+        }
+      }),
+    ),
+  );
+};
 
 const customRender = (
   ui: ReactElement,
   state?: {
     url?: string;
     initialState?: Partial<AppState>;
+    sagasToRun?: typeof sagasToRunForTests;
   },
   options?: Omit<RenderOptions, "queries">,
 ) => {
@@ -23,6 +56,11 @@ const customRender = (
   if (state && state.initialState) {
     reduxStore = testStore(state.initialState || {});
   }
+  if (state && state.sagasToRun) {
+    reduxStore = testStoreWithTestMiddleWare(reduxStore.getState());
+    testSagaMiddleware.run(() => rootSaga(state.sagasToRun));
+  }
+
   const defaultTheme = getCurrentThemeDetails(reduxStore.getState());
   return render(
     <BrowserRouter>

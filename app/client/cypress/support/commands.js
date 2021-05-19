@@ -263,6 +263,13 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
+  cy.get(datasource.authType).click();
+  cy.xpath(datasource.basic).click();
+  cy.get(datasource.basicUsername).type(username);
+  cy.get(datasource.basicPassword).type(password);
+});
+
 Cypress.Commands.add("firestoreDatasourceForm", () => {
   cy.get(datasourceEditor.datasourceConfigUrl).type(
     datasourceFormData["database-url"],
@@ -450,6 +457,11 @@ Cypress.Commands.add("ResponseCheck", (textTocheck) => {
   cy.get(apiwidget.responseText).should("be.visible");
 });
 
+Cypress.Commands.add("ResponseTextCheck", (textTocheck) => {
+  cy.ResponseCheck();
+  cy.get(apiwidget.responseText).contains(textTocheck);
+});
+
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
   cy.get(pages.addEntityAPI)
     .should("be.visible")
@@ -623,19 +635,18 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
 });
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
-  cy.get(apiwidget.resourceUrl)
-    .first()
-    .click({ force: true })
-    .type(datasource);
-  /*
-  cy.xpath(apiwidget.autoSuggest)
-    .first()
-    .click({ force: true });
-    */
+  cy.enterDatasource(datasource);
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
     .type(path, { parseSpecialCharSequences: false });
+});
+
+Cypress.Commands.add("enterDatasource", (datasource) => {
+  cy.get(apiwidget.resourceUrl)
+    .first()
+    .click({ force: true })
+    .type(datasource);
 });
 
 Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
@@ -1808,6 +1819,13 @@ Cypress.Commands.add("saveDatasource", () => {
   cy.wait("@saveDatasource").should((interception) => {
     checkIfApiWasSuccessful(interception, 200);
   });
+  /* To be enabled when needed
+  cy.wait("@saveDatasource")
+    .then((xhr) => {
+      cy.log(JSON.stringify(xhr.response.body));
+    })
+    .should("have.nested.property", "response.body.responseMeta.status", 200);
+    */
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
@@ -1935,8 +1953,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousedown", { button: 0 }, { force: true })
     .trigger("mousemove", x, y, { force: true });
   cy.get(explorer.dropHere)
-    .click()
-    .trigger("mouseup", { force: true });
+    .click(x, y + 20)
+    .trigger("mouseup", x, y + 20, { force: true });
 });
 
 Cypress.Commands.add("executeDbQuery", (queryName) => {
@@ -1959,7 +1977,9 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
     .first()
     .trigger("mouseover", { force: true })
     .wait(500);
-  cy.get(`${selector}:first-of-type .t--widget-propertypane-toggle`)
+  cy.get(
+    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+  )
     .first()
     .click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -2267,4 +2287,12 @@ Cypress.Commands.add("callApi", (apiname) => {
 
 Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusSuccess);
+});
+
+Cypress.Commands.add("ValidateQueryParams", (param) => {
+  cy.xpath(apiwidget.paramsTab)
+      .should("be.visible")
+      .click({ force: true });
+  cy.xpath(apiwidget.paramKey).first().contains(param.key);
+  cy.xpath(apiwidget.paramValue).first().contains(param.value);
 });

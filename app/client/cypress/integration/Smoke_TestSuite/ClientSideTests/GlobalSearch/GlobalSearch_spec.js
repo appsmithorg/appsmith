@@ -42,8 +42,8 @@ describe("GlobalSearch", function() {
       .its("store")
       .invoke("getState")
       .then((state) => {
-        const { selectedWidget } = state.ui.widgetDragResize;
-        expect(selectedWidget).to.be.equal(table.widgetId);
+        const { lastSelectedWidget } = state.ui.widgetDragResize;
+        expect(lastSelectedWidget).to.be.equal(table.widgetId);
       });
   });
 

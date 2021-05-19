@@ -150,7 +150,7 @@ type PreparedStatementValue = {
 export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {
-  const { value, parameters } = props.evaluatedValue;
+  const { parameters, value } = props.evaluatedValue;
   const stringSegments = value.split(/\$\d/);
   const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
   const paramsWithTooltips = $params.map((param) => (
