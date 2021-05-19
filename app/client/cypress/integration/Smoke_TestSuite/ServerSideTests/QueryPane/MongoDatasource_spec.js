@@ -35,7 +35,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       200,
     );
 
-    cy.get(queryLocators.templateMenu).click();
+    //cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
