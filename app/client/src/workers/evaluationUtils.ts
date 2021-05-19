@@ -1,5 +1,7 @@
 import {
   DependencyMap,
+  EvalError,
+  EvalErrorTypes,
   isChildPropertyPath,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
@@ -57,8 +59,7 @@ export const convertPathToString = (arrPath: Array<string | number>) => {
 // Todo: improve the logic here
 // Right now NaN, Infinity, floats, everything works
 function isInt(val: string | number): boolean {
-  if (typeof val === "number") return true;
-  return !isNaN(parseInt(val));
+  return Number.isInteger(val) || (_.isString(val) && /^\d+$/.test(val));
 }
 
 // Removes the entity name from the property path
@@ -271,7 +272,8 @@ export function validateWidgetProperty(
 }
 
 export function getValidatedTree(tree: DataTree) {
-  return Object.keys(tree).reduce((tree, entityKey: string) => {
+  const errors: EvalError[] = [];
+  const validatedTree = Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
       return tree;
@@ -280,7 +282,7 @@ export function getValidatedTree(tree: DataTree) {
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
       const value = _.get(entity, property);
       // Pass it through parse
-      const { parsed, isValid, message, transformed } = validateWidgetProperty(
+      const { isValid, message, parsed, transformed } = validateWidgetProperty(
         property,
         value,
         entity,
@@ -296,6 +298,18 @@ export function getValidatedTree(tree: DataTree) {
       const safeEvaluatedValue = removeFunctions(evaluatedValue);
       _.set(parsedEntity, `evaluatedValues.${property}`, safeEvaluatedValue);
       if (!isValid) {
+        errors.push({
+          type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
+          message: message || "",
+          context: {
+            source: {
+              id: parsedEntity.widgetId,
+              name: parsedEntity.widgetName,
+              type: ENTITY_TYPE.WIDGET,
+              propertyPath: property,
+            },
+          },
+        });
         _.set(parsedEntity, `invalidProps.${property}`, true);
         _.set(parsedEntity, `validationMessages.${property}`, message);
       } else {
@@ -305,6 +319,11 @@ export function getValidatedTree(tree: DataTree) {
     });
     return { ...tree, [entityKey]: parsedEntity };
   }, tree);
+
+  return {
+    validatedTree,
+    errors,
+  };
 }
 
 export const getAllPaths = (

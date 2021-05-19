@@ -42,6 +42,7 @@ import {
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { PluginType } from "entities/Action";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -106,6 +107,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
       } else {
         this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
+      AnalyticsUtil.logEvent("GSHEET_AUTH_COMPLETE", {
+        applicationId: _.get(this.props, "match.params.applicationId"),
+        datasourceId: _.get(this.props, "match.params.datasourceId"),
+        pageId: _.get(this.props, "match.params.pageId"),
+      });
     }
   }
 
@@ -116,8 +122,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   createApiAction = () => {
     const {
-      formData,
       actions,
+      formData,
       match: {
         params: { pageId },
       },
@@ -144,12 +150,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      deleteDatasource,
+      isDeleting,
+      isSaving,
       match: {
         params: { applicationId, datasourceId, pageId, pluginPackageName },
       },
-      isSaving,
-      isDeleting,
-      deleteDatasource,
     } = this.props;
 
     return (
@@ -168,61 +174,63 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         <br />
         <Header>
           <FormTitleContainer>
-            <PluginImage src={this.props.pluginImage} alt="Datasource" />
+            <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
           <CreateApiButton
-            className="t--create-query"
-            icon={"plus"}
-            text="New API"
-            filled
             accent="primary"
+            className="t--create-query"
             disabled={this.validate()}
+            filled
+            icon={"plus"}
             loading={isSaving}
             onClick={() => this.createApiAction()}
+            text="New API"
           />
         </Header>
 
-        <>
-          {!_.isNil(sections)
-            ? _.map(sections, this.renderMainSection)
-            : undefined}
-          <SaveButtonContainer>
-            <ActionButton
-              className="t--delete-datasource"
-              text="Delete"
-              accent="error"
-              loading={isDeleting}
-              onClick={() =>
-                deleteDatasource(
+        {!_.isNil(sections)
+          ? _.map(sections, this.renderMainSection)
+          : undefined}
+        <SaveButtonContainer>
+          <ActionButton
+            accent="error"
+            className="t--delete-datasource"
+            loading={isDeleting}
+            onClick={() =>
+              deleteDatasource(
+                datasourceId,
+                historyPush(
+                  SAAS_EDITOR_URL(applicationId, pageId, pluginPackageName),
+                ),
+              )
+            }
+            text="Delete"
+          />
+          <StyledButton
+            className="t--save-datasource"
+            disabled={this.validate()}
+            filled
+            intent="primary"
+            loading={isSaving}
+            onClick={() => {
+              AnalyticsUtil.logEvent("GSHEET_AUTH_INIT", {
+                applicationId,
+                datasourceId,
+                pageId,
+              });
+              this.save(
+                redirectAuthorizationCode(
+                  pageId,
                   datasourceId,
-                  historyPush(
-                    SAAS_EDITOR_URL(applicationId, pageId, pluginPackageName),
-                  ),
-                )
-              }
-            />
-
-            <StyledButton
-              className="t--save-datasource"
-              onClick={() =>
-                this.save(
-                  redirectAuthorizationCode(
-                    pageId,
-                    datasourceId,
-                    PluginType.SAAS,
-                  ),
-                )
-              }
-              text="Save and Authorize"
-              disabled={this.validate()}
-              loading={isSaving}
-              intent="primary"
-              filled
-              size="small"
-            />
-          </SaveButtonContainer>
-        </>
+                  PluginType.SAAS,
+                ),
+              );
+            }}
+            size="small"
+            text="Continue"
+          />
+        </SaveButtonContainer>
       </form>
     );
   };

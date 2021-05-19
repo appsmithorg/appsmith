@@ -75,25 +75,25 @@ interface TableColumnsVisibilityProps {
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
 }
 
-const VisibilityIcon = (props: { visible?: boolean }) => {
+function VisibilityIcon(props: { visible?: boolean }) {
   return props.visible ? (
     <Icon
       className="visible-icon"
+      color={Colors.OXFORD_BLUE}
       icon="eye-open"
       iconSize={20}
-      color={Colors.OXFORD_BLUE}
     />
   ) : (
     <VisibleIcon className="hidden-icon" />
   );
-};
+}
 
-const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
+function TableColumnsVisibility(props: TableColumnsVisibilityProps) {
   const [selected, selectMenu] = React.useState(false);
   if (props.columns.length === 0) {
     return (
       <TableIconWrapper disabled>
-        <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
+        <IconWrapper color={Colors.CADET_BLUE} height={20} width={20}>
           <VisibilityIcon />
         </IconWrapper>
       </TableIconWrapper>
@@ -106,30 +106,30 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
   );
   return (
     <Popover
-      minimal
-      usePortal
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
-      position={Position.BOTTOM}
+      isOpen={selected}
+      minimal
       onClose={() => {
         selectMenu(false);
       }}
-      isOpen={selected}
+      position={Position.BOTTOM}
+      usePortal
     >
       <TableActionIcon
-        tooltip="Hidden Fields"
         className="t--table-column-visibility-toggle-btn"
-        selected={selected}
         selectMenu={(selected: boolean) => {
           selectMenu(selected);
         }}
+        selected={selected}
+        tooltip="Hidden Fields"
       >
         <VisibilityIcon />
       </TableActionIcon>
       <DropDownWrapper>
         {columns.map((option: ReactTableColumnProps, index: number) => (
           <OptionWrapper
-            selected={!option.isHidden}
+            className="t--table-column-visibility-column-toggle"
             key={index}
             onClick={() => {
               const hiddenColumns = Array.isArray(props.hiddenColumns)
@@ -142,7 +142,7 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
               }
               props.updateHiddenColumns(hiddenColumns);
             }}
-            className="t--table-column-visibility-column-toggle"
+            selected={!option.isHidden}
           >
             <StyledOption className="option-title">
               {option.Header}
@@ -152,19 +152,19 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
         ))}
         <ButtonWrapper className={Classes.POPOVER_DISMISS}>
           <Button
-            intent="primary"
-            text="Show All"
-            filled
-            size="small"
             className="t--table-column-show-all-btn"
+            filled
+            intent="primary"
             onClick={() => {
               props.updateHiddenColumns([]);
             }}
+            size="small"
+            text="Show All"
           />
         </ButtonWrapper>
       </DropDownWrapper>
     </Popover>
   );
-};
+}
 
 export default TableColumnsVisibility;

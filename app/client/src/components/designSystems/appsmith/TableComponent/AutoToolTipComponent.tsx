@@ -28,7 +28,7 @@ interface Props {
   columnType?: string;
 }
 
-const LinkWrapper = (props: Props) => {
+function LinkWrapper(props: Props) {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
   useEffect(() => {
@@ -41,24 +41,24 @@ const LinkWrapper = (props: Props) => {
   }, [ref]);
   return (
     <CellWrapper
-      isHidden={props.isHidden}
       cellProperties={props.cellProperties}
+      isHidden={props.isHidden}
       isHyperLink
-      useLinkToolTip={useToolTip}
       onClick={() => {
         window.open(props.title, "_blank");
       }}
+      useLinkToolTip={useToolTip}
     >
-      <div ref={ref} className="link-text">
+      <div className="link-text" ref={ref}>
         {useToolTip && props.children ? (
           <Tooltip
             autoFocus={false}
-            hoverOpenDelay={1000}
             content={
               <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
                 {props.title}
               </TooltipContentWrapper>
             }
+            hoverOpenDelay={1000}
             position="top"
           >
             {props.children}
@@ -72,9 +72,9 @@ const LinkWrapper = (props: Props) => {
       </OpenNewTabIconWrapper>
     </CellWrapper>
   );
-};
+}
 
-const AutoToolTipComponent = (props: Props) => {
+function AutoToolTipComponent(props: Props) {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
   useEffect(() => {
@@ -90,19 +90,19 @@ const AutoToolTipComponent = (props: Props) => {
   }
   return (
     <CellWrapper
-      ref={ref}
-      isHidden={props.isHidden}
       cellProperties={props.cellProperties}
+      isHidden={props.isHidden}
+      ref={ref}
     >
       {useToolTip && props.children ? (
         <Tooltip
           autoFocus={false}
-          hoverOpenDelay={1000}
           content={
             <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
               {props.title}
             </TooltipContentWrapper>
           }
+          hoverOpenDelay={1000}
           position="top"
         >
           {props.children}
@@ -112,6 +112,6 @@ const AutoToolTipComponent = (props: Props) => {
       )}
     </CellWrapper>
   );
-};
+}
 
 export default AutoToolTipComponent;

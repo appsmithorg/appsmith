@@ -2,6 +2,7 @@ import { VALIDATORS, validateDateString } from "workers/validations";
 import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import moment from "moment";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -59,7 +60,21 @@ describe("Validate Validators", () => {
       expect(response).toStrictEqual(testCase.output);
     }
   });
-
+  it("Correctly validates image string", () => {
+    const input =
+      "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png";
+    const result = VALIDATORS.IMAGE(input, DUMMY_WIDGET, undefined);
+    const expectedResult: {
+      isValid: boolean;
+      parsed: string;
+      message?: string;
+    } = {
+      isValid: true,
+      parsed: input,
+      message: "",
+    };
+    expect(result).toStrictEqual(expectedResult);
+  });
   it("Correctly validates page number", () => {
     const input = [0, -1, undefined, null, 2, "abcd", [], ""];
     const expected = [1, 1, 1, 1, 2, 1, 1, 1];
@@ -539,5 +554,29 @@ describe("List data validator", () => {
       const response = validator(testCase.input, DUMMY_WIDGET, {});
       expect(response).toStrictEqual(testCase.output);
     }
+  });
+
+  it("Validates DEFAULT_OPTION_VALUE correctly (string trim and integers)", () => {
+    const validator = VALIDATORS[VALIDATION_TYPES.DEFAULT_OPTION_VALUE];
+    const widgetProps = { ...DUMMY_WIDGET, selectionType: "SINGLE_SELECT" };
+    const inputs = [100, "something ", "something\n"];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "100",
+      },
+      {
+        isValid: true,
+        parsed: "something",
+      },
+      {
+        isValid: true,
+        parsed: "something",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const response = validator(input, widgetProps);
+      expect(response).toStrictEqual(expected[index]);
+    });
   });
 });

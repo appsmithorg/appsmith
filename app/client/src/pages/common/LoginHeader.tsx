@@ -25,21 +25,21 @@ const LogoContainer = styled.div`
   }
 `;
 
-export const LoginHeader = () => {
+export function LoginHeader() {
   return (
     <StyledPageHeader>
       <LogoContainer>
         <Link to={BASE_URL}>
           <img
+            alt="Appsmith Logo"
             className="logoimg t--Appsmith-logo-image"
             src={AppsmithLogo}
-            alt="Appsmith Logo"
           />
         </Link>
       </LogoContainer>
     </StyledPageHeader>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),

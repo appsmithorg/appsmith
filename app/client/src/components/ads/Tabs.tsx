@@ -14,7 +14,6 @@ export type TabProp = {
 };
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
-  user-select: none;
   border-radius: 0px;
   height: 100%;
   .react-tabs {
@@ -130,17 +129,17 @@ type TabbedViewComponentType = CommonComponentProps & {
   overflow?: boolean;
 };
 
-export const TabComponent = (props: TabbedViewComponentType) => {
+export function TabComponent(props: TabbedViewComponentType) {
   return (
     <TabsWrapper
-      shouldOverflow={props.overflow}
       data-cy={props.cypressSelector}
+      shouldOverflow={props.overflow}
     >
       <Tabs
-        selectedIndex={props.selectedIndex}
         onSelect={(index: number) => {
           props.onSelect && props.onSelect(index);
         }}
+        selectedIndex={props.selectedIndex}
       >
         <TabList>
           {props.tabs.map((tab) => (
@@ -163,4 +162,4 @@ export const TabComponent = (props: TabbedViewComponentType) => {
       </Tabs>
     </TabsWrapper>
   );
-};
+}

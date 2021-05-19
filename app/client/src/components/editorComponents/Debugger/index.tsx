@@ -10,15 +10,17 @@ import { showDebugger as showDebuggerAction } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { Layers } from "constants/Layers";
 
 const Container = styled.div<{ errorCount: number }>`
+  z-index: ${Layers.debugger};
   background-color: ${(props) =>
     props.theme.colors.debugger.floatingButton.background};
   position: fixed;
   right: 20px;
   bottom: 20px;
   cursor: pointer;
-  padding: 19px;
+  padding: ${(props) => props.theme.spaces[6]}px;
   color: ${(props) => props.theme.colors.debugger.floatingButton.color};
   border-radius: 50px;
   box-shadow: ${(props) => props.theme.colors.debugger.floatingButton.shadow};
@@ -33,11 +35,9 @@ const Container = styled.div<{ errorCount: number }>`
 
   .debugger-count {
     color: ${Colors.WHITE};
-    font-size: 14px;
-    font-weight: 500;
     ${(props) => getTypographyByKey(props, "h6")}
-    height: 20px;
-    padding: 6px;
+    height: 16px;
+    padding: ${(props) => props.theme.spaces[1]}px;
     background-color: ${(props) =>
       !!props.errorCount
         ? props.theme.colors.debugger.floatingButton.errorCount
@@ -52,7 +52,7 @@ const Container = styled.div<{ errorCount: number }>`
   }
 `;
 
-const Debugger = () => {
+function Debugger() {
   const dispatch = useDispatch();
   const errorCount = useSelector(
     (state: AppState) => Object.keys(state.ui.debugger.errors).length,
@@ -71,15 +71,15 @@ const Debugger = () => {
   if (!showDebugger)
     return (
       <Container
-        onClick={onClick}
-        errorCount={errorCount}
         className="t--debugger"
+        errorCount={errorCount}
+        onClick={onClick}
       >
-        <Icon name="bug" size={IconSize.XXXL} />
+        <Icon name="bug" size={IconSize.XL} />
         <div className="debugger-count">{errorCount}</div>
       </Container>
     );
   return <DebuggerTabs defaultIndex={errorCount ? 0 : 1} />;
-};
+}
 
 export default Debugger;

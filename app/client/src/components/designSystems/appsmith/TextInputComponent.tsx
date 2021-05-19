@@ -109,11 +109,11 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
   };
   render() {
     const {
+      className,
       input,
       meta,
-      showError,
-      className,
       refHandler,
+      showError,
       ...rest
     } = this.props;
     const hasError = !!(
@@ -126,14 +126,14 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
 
     return (
       <InputContainer className={className}>
-        <ErrorTooltip message={meta ? meta.error : ""} isOpen={errorIsOpen}>
+        <ErrorTooltip isOpen={errorIsOpen} message={meta ? meta.error : ""}>
           <TextInput
             hasError={hasError}
             inputRef={refHandler}
             {...input}
-            onFocus={this.handleFocus}
-            onBlur={this.handleBlur}
             autoComplete={"off"}
+            onBlur={this.handleBlur}
+            onFocus={this.handleFocus}
             {...rest}
           />
         </ErrorTooltip>
@@ -146,8 +146,8 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
  * Text Input Component
  * Has Icon, placholder, errors, etc.
  */
-const TextInputComponent = (props: TextInputProps & ComponentProps) => {
+function TextInputComponent(props: TextInputProps & ComponentProps) {
   return <BaseTextInput {...props} />;
-};
+}
 
 export default TextInputComponent;

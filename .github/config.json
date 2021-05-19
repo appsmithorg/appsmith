@@ -648,6 +648,11 @@
                 "type": "hasLabel",
                 "label": "UI Building",
                 "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "UI Performance",
+                "value": true
               }
             ]
           },

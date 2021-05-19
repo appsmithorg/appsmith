@@ -6,14 +6,11 @@ import styled from "styled-components";
 import { WidgetIcons } from "icons/WidgetIcons";
 import {
   useWidgetDragResize,
-  useShowPropertyPane,
   useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
-import { AppState } from "reducers";
-import { useSelector } from "react-redux";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -79,17 +76,11 @@ export const IconLabel = styled.h5`
   }
 `;
 
-const WidgetCard = (props: CardProps) => {
+function WidgetCard(props: CardProps) {
   const { setIsDragging } = useWidgetDragResize();
-  const { selectWidget } = useWidgetSelection();
-
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
-  );
-
+  const { deselectAll } = useWidgetSelection();
   // Generate a new widgetId which can be used in the future for this widget.
   const [widgetId, setWidgetId] = useState(generateReactKey());
-  const showPropertyPane = useShowPropertyPane();
   const [, drag, preview] = useDrag({
     item: { ...props.details, widgetId },
     begin: () => {
@@ -97,11 +88,8 @@ const WidgetCard = (props: CardProps) => {
         widgetType: props.details.type,
         widgetName: props.details.widgetCardName,
       });
-      showPropertyPane && showPropertyPane(undefined);
       setIsDragging && setIsDragging(true);
-
-      // Make sure that this widget is selected
-      selectWidget && selectedWidget !== widgetId && selectWidget(widgetId);
+      deselectAll();
     },
     end: (widget, monitor) => {
       AnalyticsUtil.logEvent("WIDGET_CARD_DROP", {
@@ -122,17 +110,17 @@ const WidgetCard = (props: CardProps) => {
     .join("")
     .toLowerCase()}`;
   return (
-    <React.Fragment>
+    <>
       <DragPreviewImage connect={preview} src={blankImage} />
-      <Wrapper ref={drag} className={className}>
+      <Wrapper className={className} ref={drag}>
         <div>
           <Icon />
           <IconLabel>{props.details.widgetCardName}</IconLabel>
           {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
         </div>
       </Wrapper>
-    </React.Fragment>
+    </>
   );
-};
+}
 
 export default WidgetCard;

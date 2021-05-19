@@ -38,10 +38,10 @@ export const getApiOptions = (
         {
           content: (
             <Button
-              text={createMessage(LIGHTNING_MENU_API_CREATE_NEW)}
               icon="plus"
               iconAlignment="left"
               skin={skin}
+              text={createMessage(LIGHTNING_MENU_API_CREATE_NEW)}
               type="button"
             />
           ),
@@ -87,10 +87,10 @@ export const getQueryOptions = (
         {
           content: (
             <Button
-              text={createMessage(LIGHTNING_MENU_QUERY_CREATE_NEW)}
               icon="plus"
               iconAlignment="left"
               skin={skin}
+              text={createMessage(LIGHTNING_MENU_QUERY_CREATE_NEW)}
               type="button"
             />
           ),

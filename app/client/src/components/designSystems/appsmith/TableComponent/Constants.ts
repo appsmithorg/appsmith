@@ -29,20 +29,20 @@ export enum VerticalAlignmentTypes {
 
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
-    COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 42,
+    COLUMN_HEADER_HEIGHT: 32,
+    TABLE_HEADER_HEIGHT: 38,
     ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 14,
   },
   [CompactModeTypes.SHORT]: {
-    COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 42,
+    COLUMN_HEADER_HEIGHT: 32,
+    TABLE_HEADER_HEIGHT: 38,
     ROW_HEIGHT: 20,
     ROW_FONT_SIZE: 12,
   },
   [CompactModeTypes.TALL]: {
-    COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 42,
+    COLUMN_HEADER_HEIGHT: 32,
+    TABLE_HEADER_HEIGHT: 38,
     ROW_HEIGHT: 60,
     ROW_FONT_SIZE: 18,
   },

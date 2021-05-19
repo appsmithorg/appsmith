@@ -150,8 +150,8 @@ export function* executeWidgetBlueprintChildOperations(
   };
 
   const {
-    widgets,
     message,
+    widgets,
   } = (operation.fn as BlueprintOperationChildOperationsFn)(
     canvasWidgets,
     widgetId,

@@ -57,6 +57,15 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             validation: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
           },
           {
+            propertyName: "isFilterable",
+            label: "Filterable",
+            helpText: "Makes the dropdown list filterable",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "isRequired",
             label: "Required",
             helpText: "Makes input to the widget mandatory",
@@ -144,29 +153,24 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-    const computedSelectedIndexArr = this.getSelectedOptionValueArr()
-      .map((opt: string) =>
-        _.findIndex(this.props.options, {
-          value: opt,
-        }),
-      )
-      .filter((i: number) => i > -1);
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const computedSelectedIndexArr = this.props.selectedIndexArr || [];
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
-        onOptionSelected={this.onOptionSelected}
-        onOptionRemoved={this.onOptionRemoved}
-        widgetId={this.props.widgetId}
-        placeholder={this.props.placeholderText}
-        options={options}
+        disabled={this.props.isDisabled}
         height={componentHeight}
-        width={componentWidth}
-        selectionType={this.props.selectionType}
+        isFilterable={this.props.isFilterable}
+        isLoading={this.props.isLoading}
+        label={`${this.props.label}`}
+        onOptionRemoved={this.onOptionRemoved}
+        onOptionSelected={this.onOptionSelected}
+        options={options}
+        placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         selectedIndexArr={computedSelectedIndexArr}
-        label={`${this.props.label}`}
-        isLoading={this.props.isLoading}
-        disabled={this.props.isDisabled}
+        selectionType={this.props.selectionType}
+        widgetId={this.props.widgetId}
+        width={componentWidth}
       />
     );
   }
@@ -266,6 +270,7 @@ export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   onOptionChange?: string;
   defaultOptionValue?: string | string[];
   isRequired: boolean;
+  isFilterable: boolean;
   selectedOptionValue: string;
   selectedOptionValueArr: string[];
   selectedOptionLabels: string[];

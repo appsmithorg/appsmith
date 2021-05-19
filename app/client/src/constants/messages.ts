@@ -247,6 +247,8 @@ export const ERROR_EVAL_TRIGGER = (message: string) =>
 
 export const WIDGET_DELETE = (widgetName: string) =>
   `${widgetName} widget deleted`;
+export const WIDGET_BULK_DELETE = (widgetName: string) =>
+  `${widgetName} widgets deleted`;
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
@@ -255,6 +257,8 @@ export const ERROR_WIDGET_COPY_NOT_ALLOWED = () =>
 export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName}`;
 export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
+export const SELECT_ALL_WIDGETS_MSG = () =>
+  `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
 
 export const REST_API_AUTHORIZATION_SUCCESSFUL = () =>
@@ -291,9 +295,20 @@ export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
 export const PAGE_NOT_FOUND = () => "Page not found";
 
+export const RESOLVE = () => "Resolve";
+export const UNRESOLVE = () => "Unresolve";
+
+// comments
+export const ADD_COMMENT_PLACEHOLDER = () => "Add a comment. Use @ to mention";
+export const PIN_COMMENT = () => "Pin Comment";
+export const COPY_LINK = () => "Copy Link";
+export const DELETE_COMMENT = () => "Delete Comment";
+export const COMMENTS = () => "Comments";
+
+// Debugger
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
-export const OPEN_THE_DEBUGGER = () => " to open the issue in debugger";
+export const OPEN_THE_DEBUGGER = () => " to open the debugger";
 export const NO_LOGS = () => "No logs to show";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";

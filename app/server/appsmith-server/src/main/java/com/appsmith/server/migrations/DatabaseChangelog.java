@@ -10,6 +10,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
@@ -2083,13 +2084,36 @@ public class DatabaseChangelog {
                 });
     }
 
+    @ChangeSet(order = "062", id = "add-commenting-permissions", author = "")
+    public void addCommentingPermissions(MongoTemplate mongoTemplate) {
+        final List<Application> applications = mongoTemplate.findAll(Application.class);
+
+        for (final Application application : applications) {
+            application.getPolicies()
+                    .stream()
+                    .filter(policy -> AclPermission.READ_APPLICATIONS.getValue().equals(policy.getPermission()))
+                    .findFirst()
+                    .ifPresent(readAppPolicy -> {
+                        final Policy.PolicyBuilder newPolicy = Policy.builder()
+                                .permission(AclPermission.COMMENT_ON_APPLICATIONS.getValue())
+                                .users(readAppPolicy.getUsers())
+                                .groups(readAppPolicy.getGroups());
+                        mongoTemplate.updateFirst(
+                                query(where(fieldName(QApplication.application.id)).is(application.getId())),
+                                new Update().push(fieldName(QApplication.application.policies), newPolicy),
+                                Application.class
+                        );
+                    });
+        }
+    }
+
     @ChangeSet(order = "062", id = "add-google-sheets-plugin", author = "")
     public void addGoogleSheetsPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Google Sheets");
         plugin.setType(PluginType.SAAS);
         plugin.setPackageName("google-sheets-plugin");
-        plugin.setUiComponent("DbEditorForm");
+        plugin.setUiComponent("SaaSEditorForm");
         plugin.setDatasourceComponent("OAuth2DatasourceForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
@@ -2217,5 +2241,40 @@ public class DatabaseChangelog {
                 new Update().addToSet("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates", property),
                 NewAction.class
         );
+    }
+
+    @ChangeSet(order = "067", id = "update-mongo-import-from-srv-field", author = "")
+    public void updateMongoImportFromSrvField(MongoTemplate mongoTemplate) {
+        Plugin mongoPlugin = mongoTemplate
+                .findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        List<Datasource> mongoDatasources = mongoTemplate
+                .find(query(where("pluginId").is(mongoPlugin.getId())), Datasource.class);
+
+        mongoDatasources.stream()
+                .forEach(datasource -> {
+                    datasource.getDatasourceConfiguration().setProperties(List.of(new Property("Use Mongo Connection " +
+                            "String URI", "No")));
+                    mongoTemplate.save(datasource);
+                });
+    }
+
+    @ChangeSet(order = "068", id = "delete-mongo-datasource-structures", author = "")
+    public void deleteMongoDatasourceStructures(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
+
+        // Mongo Form requires the query templates to change as well. To ensure this, mongo datasources
+        // must re-compute the structure. The following deletes all such structures. Whenever getStructure API call is
+        // made for these datasources, the server would re-compute the structure.
+        Plugin mongoPlugin = mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        Query query = query(new Criteria().andOperator(
+                where(fieldName(QDatasource.datasource.pluginId)).is(mongoPlugin.getId()),
+                where(fieldName(QDatasource.datasource.structure)).exists(true)
+        ));
+
+        Update update = new Update().set(fieldName(QDatasource.datasource.structure), null);
+
+        // Delete all the existing mongo datasource structures by setting the key to null.
+        mongoOperations.updateMulti(query, update, Datasource.class);
     }
 }

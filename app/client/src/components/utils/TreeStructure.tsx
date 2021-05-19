@@ -65,8 +65,8 @@ type TreeStructureProps = {
   children: React.ReactNode;
 };
 
-const TreeStructure = (props: TreeStructureProps) => {
+function TreeStructure(props: TreeStructureProps) {
   return <TreeStructureWrapper>{props.children}</TreeStructureWrapper>;
-};
+}
 
 export default TreeStructure;

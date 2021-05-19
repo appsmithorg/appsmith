@@ -16,7 +16,7 @@ export function InputText(props: {
   name: string;
   actionName: string;
 }) {
-  const { actionName, name, placeholder, label, isRequired } = props;
+  const { actionName, isRequired, label, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
 
   return (
@@ -25,10 +25,10 @@ export function InputText(props: {
         {label} {isRequired && "*"}
       </FormLabel>
       <DynamicTextField
+        dataTreePath={dataTreePath}
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}
-        dataTreePath={dataTreePath}
       />
     </div>
   );
@@ -36,14 +36,14 @@ export function InputText(props: {
 
 class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
   render() {
-    const { label, placeholderText, configProperty, actionName } = this.props;
+    const { actionName, configProperty, label, placeholderText } = this.props;
 
     return (
       <InputText
-        name={configProperty}
-        label={label}
-        placeholder={placeholderText}
         actionName={actionName}
+        label={label}
+        name={configProperty}
+        placeholder={placeholderText}
       />
     );
   }

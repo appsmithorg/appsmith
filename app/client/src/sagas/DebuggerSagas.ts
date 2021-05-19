@@ -12,18 +12,24 @@ import {
   call,
 } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { isEmpty, set } from "lodash";
+import { isEmpty, set, get } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { isWidget } from "workers/evaluationUtils";
+import { getWidget } from "./selectors";
+import { WidgetProps } from "widgets/BaseWidget";
 
 function* onWidgetUpdateSaga(payload: LogActionPayload) {
   if (!payload.source) return;
   // Wait for data tree update
   yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-  const dataTree = yield select(getDataTree);
+  const dataTree: DataTree = yield select(getDataTree);
   const widget = dataTree[payload.source.name];
+
+  if (!isWidget(widget) || !widget.validationMessages) return;
 
   // Ignore canvas widget updates
   if (widget.type === WidgetTypes.CANVAS_WIDGET) {
@@ -35,7 +41,7 @@ function* onWidgetUpdateSaga(payload: LogActionPayload) {
   if (payload.state) {
     const propertyPath = Object.keys(payload.state)[0];
 
-    const validationMessages = dataTree[payload.source.name].validationMessages;
+    const validationMessages = widget.validationMessages;
     const validationMessage = validationMessages[propertyPath];
     const errors = yield select(getDebuggerErrors);
     const errorId = `${source.id}-${propertyPath}`;
@@ -121,6 +127,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {
           yield put(errorLog(payload));
+
           yield put(debuggerLog(payload));
         }
       }
@@ -162,6 +169,42 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
   }
 }
 
+// Pass through error list once after on page load actions executions are complete
+function* onExecutePageActionsCompleteSaga() {
+  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+
+  const dataTree: DataTree = yield select(getDataTree);
+  const errors = yield select(getDebuggerErrors);
+  const updatedErrors = { ...errors };
+  const errorIds = Object.keys(errors);
+
+  for (const id of errorIds) {
+    const splits = id.split("-");
+    const entityId = splits[0];
+    const propertyName = splits[1];
+    const widget: WidgetProps | null = yield select(getWidget, entityId);
+
+    if (widget) {
+      const dataTreeWidget = dataTree[widget.widgetName] as DataTreeWidget;
+
+      if (!get(dataTreeWidget.invalidProps, propertyName, null)) {
+        delete updatedErrors[id];
+      }
+    }
+  }
+
+  yield put({
+    type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
+    payload: updatedErrors,
+  });
+}
+
 export default function* debuggerSagasListeners() {
-  yield all([takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga)]);
+  yield all([
+    takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
+    takeEvery(
+      ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS_COMPLETE,
+      onExecutePageActionsCompleteSaga,
+    ),
+  ]);
 }
