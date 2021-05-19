@@ -9,6 +9,12 @@ import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import EntityDeps from "./EntityDependencies";
+import {
+  createMessage,
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  INSPECT_ENTITY,
+} from "constants/messages";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -42,17 +48,17 @@ type DebuggerTabsProps = {
 const DEBUGGER_TABS = [
   {
     key: "ERROR",
-    title: "Errors",
+    title: createMessage(DEBUGGER_ERRORS),
     panelComponent: <Errors hasShortCut />,
   },
   {
     key: "LOGS",
-    title: "Logs",
+    title: createMessage(DEBUGGER_LOGS),
     panelComponent: <DebuggerLogs hasShortCut />,
   },
   {
     key: "INSPECT_ELEMENTS",
-    title: "Inspect Elements",
+    title: createMessage(INSPECT_ENTITY),
     panelComponent: <EntityDeps />,
   },
 ];

@@ -13,7 +13,13 @@ import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import { CHECK_REQUEST_BODY, createMessage } from "constants/messages";
+import {
+  CHECK_REQUEST_BODY,
+  createMessage,
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  INSPECT_ENTITY,
+} from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
 import Icon from "components/ads/Icon";
@@ -229,17 +235,17 @@ function ApiResponseView(props: Props) {
     },
     {
       key: "ERROR",
-      title: "Errors",
+      title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
       key: "LOGS",
-      title: "Logs",
+      title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
     },
     {
       key: "ENTITY_DEPENDENCIES",
-      title: "Dependencies",
+      title: createMessage(INSPECT_ENTITY),
       panelComponent: <EntityDeps />,
     },
   ];
