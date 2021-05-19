@@ -72,6 +72,8 @@ export interface ForkApplicationRequest {
 
 export interface ExportApplicationRequest {
   applicationId: string;
+  applicationName: string;
+  callback: () => void;
 }
 
 export interface GetAllApplicationResponse extends ApiResponse {

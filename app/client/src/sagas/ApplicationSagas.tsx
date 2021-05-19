@@ -56,6 +56,9 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
+import { downloadSaga } from "sagas/ActionExecutionSagas";
+import { EventType as ActionEventType } from "constants/AppsmithActionConstants/ActionConstants";
+
 import { deleteRecentAppEntities } from "utils/storage";
 import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
 
@@ -512,12 +515,24 @@ export function* exportApplicationSaga(
       action.payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
-    console.log("response, isValidResponse: ", response, isValidResponse);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const exportedApplication: any = {
         ...response.data,
       };
+      yield downloadSaga(
+        {
+          data: exportedApplication,
+          name: `${action.payload.applicationName}_appsmith.json`,
+          type: "application/json",
+        },
+        {
+          type: ActionEventType.ON_SUBMIT,
+          callback: (result: any) => {
+            !!result && action.payload.callback();
+          },
+        },
+      );
       yield put({
         type: ReduxActionTypes.EXPORT_APPLICATION_SUCCESS,
         payload: {

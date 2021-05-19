@@ -6,8 +6,6 @@ import Checkbox from "components/ads/Checkbox";
 import { useSelector } from "store";
 import { AppState } from "reducers";
 import Text, { TextType } from "components/ads/Text";
-import { downloadSaga } from "sagas/ActionExecutionSagas";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 const CheckboxDiv = styled.div`
   overflow: auto;
@@ -18,8 +16,13 @@ const CheckboxDiv = styled.div`
 
 type ExportApplicationModalProps = {
   import?: (file: any) => void;
-  export?: (applicationId: string) => void;
+  export?: (
+    applicationId: string,
+    applicationName: string,
+    callback: () => void,
+  ) => void;
   applicationId?: string;
+  applicationName?: string;
   organizationId?: string;
   isModalOpen?: boolean;
   onClose?: () => void;
@@ -29,8 +32,14 @@ type ExportApplicationModalProps = {
 function ExportApplicationModal(props: ExportApplicationModalProps) {
   const { setModalClose, isModalOpen } = props;
   const { onClose } = props;
+  const onExportSuccess = () => {
+    setModalClose && setModalClose(false);
+  };
   const exportApplication = () => {
-    props.export && props.applicationId && props.export(props.applicationId);
+    props.export &&
+      props.applicationId &&
+      props.applicationName &&
+      props.export(props.applicationId, props.applicationName, onExportSuccess);
   };
   const importApplication = () => {
     props.organizationId && props.import && props.import("");
@@ -39,21 +48,9 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
   const exportingApplication = useSelector(
     (state: AppState) => state.ui.applications.exportingApplication,
   );
-  const exportedApplication = useSelector(
-    (state: AppState) => state.ui.applications.exportedApplication,
-  );
-
-  const downloadExportedApplication = async () => {
-    await downloadSaga(
-      {
-        data: exportedApplication,
-        name: "exportedApplication.json",
-        type: "text/plain",
-      },
-      { type: EventType.ON_SUBMIT },
-    );
-    setModalClose && setModalClose(false);
-  };
+  // const exportedApplication = useSelector(
+  //   (state: AppState) => state.ui.applications.exportedApplication,
+  // );
 
   const [isChecked, setIsCheckedToTrue] = useState(false);
   return (
@@ -63,24 +60,18 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
       isOpen={isModalOpen}
       maxHeight={"540px"}
       setModalClose={setModalClose}
-      title={
-        !!exportedApplication
-          ? "Your application is ready for download!"
-          : "Be sure to read the data policy"
-      }
+      title={"Be sure to read the data policy"}
     >
-      {!exportedApplication && (
-        <CheckboxDiv>
-          <Text type={TextType.P1}>
-            <Checkbox
-              label="By clicking on this you agree that your application credentials can be stored inside a file"
-              onCheckChange={(checked: boolean) => {
-                setIsCheckedToTrue(checked);
-              }}
-            />
-          </Text>
-        </CheckboxDiv>
-      )}
+      <CheckboxDiv>
+        <Text type={TextType.P1}>
+          <Checkbox
+            label="By clicking on this you agree that your application credentials can be stored inside a file"
+            onCheckChange={(checked: boolean) => {
+              setIsCheckedToTrue(checked);
+            }}
+          />
+        </Text>
+      </CheckboxDiv>
       {props.import && (
         <ButtonWrapper>
           <ForkButton
@@ -98,13 +89,9 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
             cypressSelector={"t--export-app-button"}
             disabled={!isChecked}
             isLoading={exportingApplication}
-            onClick={
-              !!exportedApplication
-                ? downloadExportedApplication
-                : exportApplication
-            }
+            onClick={exportApplication}
             size={Size.large}
-            text={!!exportedApplication ? "Download" : "EXPORT"}
+            text={"EXPORT"}
           />
         </ButtonWrapper>
       )}

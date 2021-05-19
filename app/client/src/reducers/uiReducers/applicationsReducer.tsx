@@ -28,6 +28,8 @@ const initialState: ApplicationsReduxState = {
   isSavingOrgInfo: false,
   exportingApplication: false,
   exportedApplication: null,
+  importingApplication: false,
+  importedApplication: null,
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -239,6 +241,30 @@ const applicationsReducer = createReducer(initialState, {
       exportingApplication: false,
     };
   },
+  [ReduxActionTypes.IMPORT_APPLICATION_INIT]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return { ...state, importingApplication: true };
+  },
+  [ReduxActionTypes.IMPORT_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ importedApplication: any }>,
+  ) => {
+    const { importedApplication } = action.payload;
+    return {
+      ...state,
+      importingApplication: false,
+      importedApplication,
+    };
+  },
+  [ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      importingApplication: false,
+    };
+  },
   [ReduxActionTypes.SAVING_ORG_INFO]: (state: ApplicationsReduxState) => {
     return {
       ...state,
@@ -369,6 +395,8 @@ export interface ApplicationsReduxState {
   isSavingOrgInfo: boolean;
   exportingApplication: boolean;
   exportedApplication: any;
+  importingApplication: boolean;
+  importedApplication: any;
 }
 
 export interface Application {

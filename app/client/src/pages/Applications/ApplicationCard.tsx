@@ -221,7 +221,11 @@ type ApplicationCardProps = {
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
-  export?: (applicationId: string) => void;
+  export?: (
+    applicationId: string,
+    applicationName: string,
+    callback: () => void,
+  ) => void;
 };
 
 const EditButton = styled(Button)`
@@ -491,6 +495,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         {props.export && (
           <ExportApplicationModal
             applicationId={props.application.id}
+            applicationName={props.application.name}
             export={props.export}
             isModalOpen={isExportApplicationModalOpen}
             setModalClose={setExportApplicationModalOpen}

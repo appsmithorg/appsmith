@@ -79,7 +79,7 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
-import ExportApplicationModal from "./ExportApplicationModal";
+import ImportApplicationModal from "./ImportApplicationModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -530,8 +530,12 @@ function ApplicationsSection(props: any) {
     dispatch(updateApplication(id, data));
   };
 
-  const exportApplicationDispatch = (applicationId: string) => {
-    dispatch(exportApplication(applicationId));
+  const exportApplicationDispatch = (
+    applicationId: string,
+    applicationName: string,
+    callback: () => void,
+  ) => {
+    dispatch(exportApplication(applicationId, applicationName, callback));
   };
 
   const duplicateApplicationDispatch = (applicationId: string) => {
@@ -700,14 +704,13 @@ function ApplicationsSection(props: any) {
                 </Menu>
               )}
               {selectedOrgIdForImportApplication !== "" && (
-                <ExportApplicationModal
-                  import={importApplication}
+                <ImportApplicationModal
+                  // import={importApplication}
                   isModalOpen={
                     selectedOrgIdForImportApplication === organization.id
                   }
                   onClose={() => setSelectedOrgIdForImportApplication("")}
                   organizationId={selectedOrgIdForImportApplication}
-                  setModalClose={() => setSelectedOrgIdForImportApplication("")}
                 />
               )}
               {hasManageOrgPermissions && (
