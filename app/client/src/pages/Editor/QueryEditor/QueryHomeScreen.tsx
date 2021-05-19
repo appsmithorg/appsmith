@@ -95,12 +95,12 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
   render() {
     const {
-      dataSources,
       applicationId,
-      pageId,
+      dataSources,
       history,
       isCreating,
       location,
+      pageId,
     } = this.props;
 
     const destinationPageId = new URLSearchParams(location.search).get(

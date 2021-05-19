@@ -22,7 +22,7 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
-import { isDropZoneOccupied, getSnapColumns } from "utils/WidgetPropsUtils";
+import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
   LeftHandleStyles,
@@ -51,7 +51,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
 
-  const { updateDropTargetRows, persistDropTargetRows } = useContext(
+  const { persistDropTargetRows, updateDropTargetRows } = useContext(
     DropTargetContext,
   );
 
@@ -59,7 +59,10 @@ export const ResizableComponent = memo(function ResizableComponent(
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
+  );
+  const selectedWidgets = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
   );
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
@@ -71,6 +74,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
+
   const occupiedSpacesBySiblingWidgets =
     occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
       ? occupiedSpaces[props.parentId]
@@ -78,7 +82,9 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
-    focusedWidget === props.widgetId || selectedWidget === props.widgetId;
+    focusedWidget === props.widgetId ||
+    selectedWidget === props.widgetId ||
+    selectedWidgets.includes(props.widgetId);
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
@@ -143,9 +149,10 @@ export const ResizableComponent = memo(function ResizableComponent(
       return true;
     }
 
+    // Minimum row and columns to be set to a widget.
     if (
-      newRowCols.rightColumn - newRowCols.leftColumn < 1 ||
-      newRowCols.bottomRow - newRowCols.topRow < 1
+      newRowCols.rightColumn - newRowCols.leftColumn < 2 ||
+      newRowCols.bottomRow - newRowCols.topRow < 4
     ) {
       return true;
     }

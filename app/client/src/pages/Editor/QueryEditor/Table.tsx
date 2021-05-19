@@ -209,11 +209,11 @@ function Table(props: TableProps) {
   );
 
   const {
-    getTableProps,
     getTableBodyProps,
+    getTableProps,
     headerGroups,
-    rows,
     prepareRow,
+    rows,
     totalColumnsWidth,
   } = useTable(
     {

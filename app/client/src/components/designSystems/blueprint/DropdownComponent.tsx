@@ -231,7 +231,7 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
-    const { selectedIndexArr, options } = this.props;
+    const { options, selectedIndexArr } = this.props;
     const selectedItems = selectedIndexArr
       ? _.map(selectedIndexArr, (index) => options[index])
       : [];
@@ -259,7 +259,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             <StyledSingleDropDown
               className={this.props.isLoading ? Classes.SKELETON : ""}
               disabled={this.props.disabled}
-              filterable
+              filterable={this.props.isFilterable}
               itemListPredicate={this.itemListPredicate}
               itemRenderer={this.renderSingleSelectItem}
               items={this.props.options}
@@ -267,6 +267,11 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               popoverProps={{
                 minimal: true,
                 usePortal: true,
+                modifiers: {
+                  preventOverflow: {
+                    enabled: false,
+                  },
+                },
                 popoverClassName: "select-popover-wrapper",
               }}
             >
@@ -294,6 +299,11 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               popoverProps={{
                 minimal: true,
                 usePortal: true,
+                modifiers: {
+                  preventOverflow: {
+                    enabled: false,
+                  },
+                },
                 popoverClassName: "select-popover-wrapper",
               }}
               resetOnSelect
@@ -412,6 +422,7 @@ export interface DropDownComponentProps extends ComponentProps {
   selectedIndexArr: number[];
   options: DropdownOption[];
   isLoading: boolean;
+  isFilterable: boolean;
   width: number;
   height: number;
 }

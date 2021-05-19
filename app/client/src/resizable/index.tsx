@@ -99,7 +99,7 @@ export const Resizable = forwardRef(
       x: number;
       y: number;
     }) => {
-      const { width, height, x, y } = rect;
+      const { height, width, x, y } = rect;
       const isColliding = props.isColliding({ width, height }, { x, y });
       if (!isColliding) {
         set({ ...rect, reset: false });
