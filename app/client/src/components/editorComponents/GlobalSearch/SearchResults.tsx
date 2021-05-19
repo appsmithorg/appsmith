@@ -122,7 +122,7 @@ function WidgetItem(props: {
   item: SearchItem;
   isActiveItem: boolean;
 }) {
-  const { query, item } = props;
+  const { item, query } = props;
   const { type } = item || {};
   let title = getItemTitle(item);
   const pageName = usePageName(item.pageId);
@@ -206,7 +206,7 @@ function PageItem(props: {
   item: SearchItem;
   isActiveItem: boolean;
 }) {
-  const { query, item } = props;
+  const { item, query } = props;
   const title = getItemTitle(item);
   const icon = item.isDefault ? homePageIcon : pageIcon;
 
@@ -265,7 +265,7 @@ type ItemProps = {
 };
 
 function SearchItemComponent(props: ItemProps) {
-  const { item, index, query } = props;
+  const { index, item, query } = props;
   const itemRef = useRef<HTMLDivElement>(null);
   const searchContext = useContext(SearchContext);
   const activeItemIndex = searchContext?.activeItemIndex;
@@ -312,8 +312,8 @@ const SearchResultsContainer = styled.div`
 `;
 
 function SearchResults({
-  searchResults,
   query,
+  searchResults,
 }: {
   searchResults: SearchItem[];
   query: string;

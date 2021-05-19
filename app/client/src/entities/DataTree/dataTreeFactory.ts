@@ -97,12 +97,12 @@ type DataTreeSeed = {
 export class DataTreeFactory {
   static create({
     actions,
-    widgets,
-    widgetsMeta,
-    pageList,
     appData,
     editorConfigs,
+    pageList,
     pluginDependencyConfig,
+    widgets,
+    widgetsMeta,
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
     actions.forEach((action) => {

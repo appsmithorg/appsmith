@@ -26,7 +26,7 @@ function messageEventListener(
 ) {
   return (e: MessageEvent) => {
     const startTime = performance.now();
-    const { method, requestId, requestData } = e.data;
+    const { method, requestData, requestId } = e.data;
     const responseData = fn(method, requestData);
     const endTime = performance.now();
     ctx.postMessage({
@@ -42,7 +42,7 @@ ctx.addEventListener(
   messageEventListener((method, requestData: any) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-        const { widgetTypeConfigMap, unevalTree } = requestData;
+        const { unevalTree, widgetTypeConfigMap } = requestData;
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
@@ -104,7 +104,7 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { dynamicTrigger, callbackData, dataTree } = requestData;
+        const { callbackData, dataTree, dynamicTrigger } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
@@ -152,7 +152,7 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const { property, value, props, validation } = requestData;
+        const { property, props, validation, value } = requestData;
         return removeFunctions(
           validateWidgetProperty(property, value, props, validation),
         );

@@ -186,9 +186,9 @@ export const markThreadAsReadRequest = (threadId: string) => ({
 });
 
 export const editCommentRequest = ({
-  commentThreadId,
-  commentId,
   body,
+  commentId,
+  commentThreadId,
 }: {
   commentThreadId: string;
   commentId: string;
@@ -223,11 +223,6 @@ export const deleteCommentThreadSuccess = (payload: {
   payload,
 });
 
-export const setAreCommentsEnabled = (flag: boolean) => ({
-  type: ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
-  payload: flag,
-});
-
 export const addCommentReaction = (payload: {
   emoji: string;
   commentId: string;
@@ -247,4 +242,19 @@ export const removeCommentReaction = (payload: {
 export const updateCommentEvent = (payload: Comment) => ({
   type: ReduxActionTypes.UPDATE_COMMENT_EVENT,
   payload,
+});
+
+export const showCommentsIntroCarousel = () => ({
+  type: ReduxActionTypes.SHOW_COMMENTS_INTRO_CAROUSEL,
+  payload: undefined,
+});
+
+export const hideCommentsIntroCarousel = () => ({
+  type: ReduxActionTypes.HIDE_COMMENTS_INTRO_CAROUSEL,
+  payload: undefined,
+});
+
+export const setAreCommentsEnabled = (flag: boolean) => ({
+  type: ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
+  payload: flag,
 });

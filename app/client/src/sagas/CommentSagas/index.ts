@@ -119,7 +119,7 @@ function* addCommentToThread(
   action: ReduxAction<AddCommentToCommentThreadRequestPayload>,
 ) {
   const { payload } = action;
-  const { commentBody, commentThread, callback } = payload;
+  const { callback, commentBody, commentThread } = payload;
 
   const response = yield CommentsApi.createNewThreadComment(
     { body: commentBody },
@@ -164,7 +164,7 @@ function* setCommentResolution(
   action: ReduxAction<{ threadId: string; resolved: boolean }>,
 ) {
   try {
-    const { threadId, resolved } = action.payload;
+    const { resolved, threadId } = action.payload;
     const response = yield CommentsApi.updateCommentThread(
       { resolvedState: { active: resolved } },
       threadId,
@@ -234,7 +234,7 @@ function* editComment(
   }>,
 ) {
   try {
-    const { commentId, commentThreadId, body } = action.payload;
+    const { body, commentId, commentThreadId } = action.payload;
     const response = yield CommentsApi.updateComment({ body }, commentId);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -296,7 +296,7 @@ function* addCommentReaction(
   action: ReduxAction<{ emoji: string; commentId: string }>,
 ) {
   try {
-    const { emoji, commentId } = action.payload;
+    const { commentId, emoji } = action.payload;
     yield CommentsApi.addCommentReaction(commentId, { emoji });
   } catch (e) {
     console.log(e);
@@ -307,7 +307,7 @@ function* deleteCommentReaction(
   action: ReduxAction<{ emoji: string; commentId: string }>,
 ) {
   try {
-    const { emoji, commentId } = action.payload;
+    const { commentId, emoji } = action.payload;
     yield CommentsApi.removeCommentReaction(commentId, {
       emoji,
     });

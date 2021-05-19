@@ -55,7 +55,7 @@ function EntityExplorer(props: IPanelProps) {
     PerformanceTracker.stopTracking();
   });
   const explorerRef = useRef<HTMLDivElement | null>(null);
-  const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
+  const { clearSearch, searchKeyword } = useFilteredEntities(searchInputRef);
   const datasources = useFilteredDatasources(searchKeyword);
 
   const plugins = useSelector(getPlugins);

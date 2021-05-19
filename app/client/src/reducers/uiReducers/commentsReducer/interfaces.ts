@@ -12,5 +12,6 @@ export interface CommentsReduxState {
   shouldShowResolvedAppCommentThreads: boolean;
   showUnreadIndicator: boolean;
   visibleCommentThreadId?: string;
+  isIntroCarouselVisible?: boolean;
   areCommentsEnabled?: boolean;
 }

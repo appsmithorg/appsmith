@@ -6,6 +6,8 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import { createUnpublishedCommentThreadRequest } from "actions/commentActions";
 import commentIcon from "assets/icons/comments/commentCursor.png";
 import { getOffsetPos } from "comments/utils";
+import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
+import { TourType } from "entities/Tour";
 
 type Props = {
   children: React.ReactNode;
@@ -27,8 +29,15 @@ function OverlayCommentsWrapper({ children, refId }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isCommentMode = useSelector(commentModeSelector);
   const dispatch = useDispatch();
+
+  const proceedToNextTourStep = useProceedToNextTourStep(
+    TourType.COMMENTS_TOUR,
+    1,
+  );
+
   // create new unpublished thread
   const clickHandler = (e: any) => {
+    proceedToNextTourStep();
     e.persist();
     if (containerRef.current) {
       const position = getOffsetPos(e, containerRef.current);

@@ -2,6 +2,8 @@ import React from "react";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
+import { TourType } from "entities/Tour";
+import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 
 const Container = styled.div`
   display: flex;
@@ -36,19 +38,25 @@ const ResolveCommentButton = withTheme(
   ({ handleClick, resolved, theme }: Props) => {
     const {
       resolved: resolvedColor,
-      unresolved: unresolvedColor,
       resolvedFill: resolvedFillColor,
-      unresolvedFill: unresolvedFillColor,
       resolvedPath: resolvedPathColor,
+      unresolved: unresolvedColor,
+      unresolvedFill: unresolvedFillColor,
     } = theme.colors.comments;
 
     const strokeColorCircle = resolved ? resolvedColor : unresolvedColor;
     const strokeColorPath = resolved ? resolvedPathColor : unresolvedColor;
     const fillColor = resolved ? resolvedFillColor : unresolvedFillColor;
 
+    const proceedToNextTourStep = useProceedToNextTourStep(
+      TourType.COMMENTS_TOUR,
+      2,
+    );
+
     const _handleClick = (e: React.MouseEvent) => {
       e.stopPropagation();
       handleClick();
+      proceedToNextTourStep();
     };
 
     return (

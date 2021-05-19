@@ -144,3 +144,6 @@ export const showUnreadIndicator = (state: AppState) =>
 
 export const visibleCommentThread = (state: AppState) =>
   state.ui.comments.visibleCommentThreadId;
+
+export const isIntroCarouselVisibleSelector = (state: AppState) =>
+  state.ui.comments.isIntroCarouselVisible;

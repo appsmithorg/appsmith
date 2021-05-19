@@ -1,6 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { focusWidget, selectWidget } from "actions/widgetActions";
+import {
+  focusWidget,
+  selectAllWidgets,
+  selectWidget,
+} from "actions/widgetActions";
 import { useCallback, useEffect, useState } from "react";
 import { commentModeSelector } from "selectors/commentsSelectors";
 
@@ -69,8 +73,8 @@ export const useWidgetSelection = () => {
   const dispatch = useDispatch();
   return {
     selectWidget: useCallback(
-      (widgetId?: string) => {
-        dispatch(selectWidget(widgetId));
+      (widgetId?: string, isMultiSelect?: boolean) => {
+        dispatch(selectWidget(widgetId, isMultiSelect));
       },
       [dispatch],
     ),
@@ -78,9 +82,9 @@ export const useWidgetSelection = () => {
       (widgetId?: string) => dispatch(focusWidget(widgetId)),
       [dispatch],
     ),
+    deselectAll: useCallback(() => dispatch(selectAllWidgets([])), [dispatch]),
   };
 };
-
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
   return {

@@ -603,25 +603,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return selectedRowIndices;
   };
 
+  applyFilters = (filters: ReactTableFilter[]) => {
+    this.resetSelectedRowIndex();
+    this.props.updateWidgetMetaProperty("filters", filters);
+  };
+
+  toggleDrag = (disable: boolean) => {
+    this.disableDrag(disable);
+  };
+
   getPageView() {
     const { pageSize, filteredTableData = [] } = this.props;
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
-          applyFilter={(filters: ReactTableFilter[]) => {
-            this.resetSelectedRowIndex();
-            this.props.updateWidgetMetaProperty("filters", filters);
-          }}
+          applyFilter={this.applyFilters}
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
-          disableDrag={(disable: boolean) => {
-            this.disableDrag(disable);
-          }}
+          disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           filters={this.props.filters}
           handleReorderColumn={this.handleReorderColumn}

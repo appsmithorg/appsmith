@@ -29,6 +29,8 @@ import copy from "copy-to-clipboard";
 import moment from "moment";
 import history from "utils/history";
 
+import UserApi from "api/UserApi";
+
 import {
   deleteCommentRequest,
   markThreadAsReadRequest,
@@ -43,7 +45,8 @@ import { commentThreadsSelector } from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
 import { Variant } from "components/ads/common";
-import { BaseEmoji } from "emoji-mart";
+import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
+import { TourType } from "entities/Tour";
 
 const StyledContainer = styled.div`
   width: 100%;
@@ -194,7 +197,7 @@ const reduceReactions = (
     (Array.isArray(reactions) &&
       reactions.reduce(
         (res: Record<string, ComponentReaction>, reaction: Reaction) => {
-          const { emoji, byUsername } = reaction;
+          const { byUsername, emoji } = reaction;
           if (res[reaction.emoji]) {
             res[reaction.emoji].count++;
           } else {
@@ -216,17 +219,21 @@ const reduceReactions = (
   );
 };
 
+const ResolveButtonContainer = styled.div`
+  margin-left: ${(props) => props.theme.spaces[2]}px;
+`;
+
 function CommentCard({
   comment,
-  isParentComment,
-  toggleResolved,
-  resolved,
   commentThreadId,
+  inline,
+  isParentComment,
   numberOfReplies,
+  resolved,
   showReplies,
   showSubheader,
+  toggleResolved,
   unread = true,
-  inline,
   visible,
 }: {
   comment: Comment;
@@ -245,7 +252,7 @@ function CommentCard({
   const [isHovered, setIsHovered] = useState(false);
   const [cardMode, setCardMode] = useState(CommentCardModes.VIEW);
   const dispatch = useDispatch();
-  const { authorName, body, id: commentId } = comment;
+  const { authorName, authorUsername, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
@@ -368,7 +375,7 @@ function CommentCard({
             {unread && <UnreadIndicator />}
             <CommentThreadId>{commentThread.sequenceId}</CommentThreadId>
           </Section>
-          <Section className="pinned-by">
+          <Section className="pinned-by" onClick={pin}>
             {isPinned && (
               <>
                 <Icon className="pin" name="pin-3" />
@@ -381,7 +388,11 @@ function CommentCard({
       )}
       <CommentHeader>
         <HeaderSection>
-          <ProfileImage side={25} userName={authorName || ""} />
+          <ProfileImage
+            side={25}
+            source={`/api/${UserApi.photoURL}/${authorUsername}`}
+            userName={authorName || ""}
+          />
           <UserName>{authorName}</UserName>
         </HeaderSection>
         <HeaderSection>
@@ -399,10 +410,24 @@ function CommentCard({
           )}
           {showResolveBtn && (
             <StopClickPropagation>
-              <ResolveCommentButton
-                handleClick={toggleResolved as () => void}
-                resolved={!!resolved}
-              />
+              <ResolveButtonContainer>
+                {inline ? (
+                  <TourTooltipWrapper
+                    tourIndex={2}
+                    tourType={TourType.COMMENTS_TOUR}
+                  >
+                    <ResolveCommentButton
+                      handleClick={toggleResolved as () => void}
+                      resolved={!!resolved}
+                    />
+                  </TourTooltipWrapper>
+                ) : (
+                  <ResolveCommentButton
+                    handleClick={toggleResolved as () => void}
+                    resolved={!!resolved}
+                  />
+                )}
+              </ResolveButtonContainer>
             </StopClickPropagation>
           )}
           {showOptions && (

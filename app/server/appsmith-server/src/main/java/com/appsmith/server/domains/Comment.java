@@ -103,5 +103,4 @@ public class Comment extends BaseDomain {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
         Date createdAt;
     }
-
 }

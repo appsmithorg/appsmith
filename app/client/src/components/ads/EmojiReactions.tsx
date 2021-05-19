@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import EmojiPicker from "./EmojiPicker";
-import { BaseEmoji } from "emoji-mart";
 import { IconSize } from "./Icon";
 
 const Container = styled.div`

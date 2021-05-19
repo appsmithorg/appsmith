@@ -13,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -33,22 +35,18 @@ public class CurlImporterService extends BaseApiImporter {
     private static final String RESTAPI_PLUGIN = "restapi-plugin";
 
     private static final String ARG_DATA = "--data";
+    private static final String ARG_FORM = "--form";
     private static final String ARG_HEADER = "--header";
     private static final String ARG_REQUEST = "--request";
     private static final String ARG_COOKIE = "--cookie";
     private static final String ARG_USER = "--user";
     private static final String ARG_USER_AGENT = "--user-agent";
 
-    private static final String CONTENT_TYPE_URLENCODED = "application/x-www-form-urlencoded";
-
-    private final NewActionService newActionService;
     private final PluginService pluginService;
     private final LayoutActionService layoutActionService;
 
-    public CurlImporterService(NewActionService newActionService,
-                               PluginService pluginService,
+    public CurlImporterService(PluginService pluginService,
                                LayoutActionService layoutActionService) {
-        this.newActionService = newActionService;
         this.pluginService = pluginService;
         this.layoutActionService = layoutActionService;
     }
@@ -215,6 +213,9 @@ public class CurlImporterService extends BaseApiImporter {
                     normalizedTokens.add(token.substring(2));
                 }
 
+            } else if ("-F".equals(token)) {
+                normalizedTokens.add(ARG_FORM);
+
             } else if ("-H".equals(token)) {
                 normalizedTokens.add(ARG_HEADER);
 
@@ -276,6 +277,7 @@ public class CurlImporterService extends BaseApiImporter {
         final List<Property> headers = new ArrayList<>();
         String contentType = null;
         final List<String> dataParts = new ArrayList<>();
+        final List<String> formParts = new ArrayList<>();
 
         String state = null;
 
@@ -309,6 +311,10 @@ public class CurlImporterService extends BaseApiImporter {
             } else if ("--data-urlencode".equals(state)) {
                 // The `token` is next to `--data-urlencode`.
                 dataParts.add(token);
+
+            } else if (ARG_FORM.equals(state)) {
+                // The token is next to --form
+                formParts.add(token);
 
             } else if (ARG_COOKIE.equals(state)) {
                 // The `token` is next to `--data-cookie`.
@@ -347,8 +353,12 @@ public class CurlImporterService extends BaseApiImporter {
         }
 
         if (contentType == null && !dataParts.isEmpty()) {
-            contentType = CONTENT_TYPE_URLENCODED;
-            headers.add(new Property("Content-Type", contentType));
+            contentType = MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+            headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
+
+        } else if (contentType == null && !formParts.isEmpty()) {
+            contentType = MediaType.MULTIPART_FORM_DATA_VALUE;
+            headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
         }
 
         if (!headers.isEmpty()) {
@@ -356,7 +366,7 @@ public class CurlImporterService extends BaseApiImporter {
         }
 
         if (!dataParts.isEmpty()) {
-            if (CONTENT_TYPE_URLENCODED.equals(contentType)) {
+            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(contentType)) {
                 final ArrayList<Property> formPairs = new ArrayList<>();
                 actionConfiguration.setBodyFormData(formPairs);
                 for (String part : dataParts) {
@@ -367,6 +377,22 @@ public class CurlImporterService extends BaseApiImporter {
             } else {
                 actionConfiguration.setBody(StringUtils.join(dataParts, '&'));
 
+            }
+        }
+        if (!formParts.isEmpty()) {
+            if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(contentType)) {
+                final ArrayList<Property> formPairs = new ArrayList<>();
+                actionConfiguration.setBodyFormData(formPairs);
+                for (String part : formParts) {
+                    final String[] parts = part.split("=", 2);
+                    // Multipart form values are double quoted. Eg: "value"
+                    // We trim the quotes from the beginning & end of the string
+                    String formValue = (parts.length > 1) ? parts[1].replaceAll("^\"|\"$", "") : "";
+                    formPairs.add(new Property(parts[0], formValue));
+                }
+
+            } else {
+                actionConfiguration.setBody(StringUtils.join(formParts, '&'));
             }
         }
 

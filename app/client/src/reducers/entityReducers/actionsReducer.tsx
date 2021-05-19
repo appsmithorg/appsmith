@@ -303,6 +303,7 @@ const actionsReducer = createReducer(initialState, {
         .filter((a) => a.config.id === action.payload.id)
         .map((a) => ({
           ...a,
+          data: undefined,
           config: {
             ...a.config,
             id: "TEMP_COPY_ID",

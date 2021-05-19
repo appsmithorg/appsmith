@@ -32,6 +32,7 @@ const initialState: CommentsReduxState = {
   shouldShowResolvedAppCommentThreads: false,
   showUnreadIndicator: false,
   visibleCommentThreadId: "",
+  isIntroCarouselVisible: false,
   areCommentsEnabled: false,
 };
 
@@ -81,6 +82,7 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     isCommentMode: action.payload,
     showUnreadIndicator: false,
+    isIntroCarouselVisible: false,
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
     state: CommentsReduxState,
@@ -145,7 +147,7 @@ const commentsReducer = createReducer(initialState, {
       threadId: string;
     }>,
   ) => {
-    const { threadId, commentId } = action.payload;
+    const { commentId, threadId } = action.payload;
 
     const commentThread = state.commentThreadsMap[threadId];
     state.commentThreadsMap[threadId] = {
@@ -219,7 +221,7 @@ const commentsReducer = createReducer(initialState, {
     state: CommentsReduxState,
     action: ReduxAction<{ commentThreadId: string; appId: string }>,
   ) => {
-    const { commentThreadId, appId } = action.payload;
+    const { appId, commentThreadId } = action.payload;
     if (!state.applicationCommentThreadsByRef[appId]) return false;
 
     const { refId } = state.commentThreadsMap[commentThreadId];
@@ -235,6 +237,18 @@ const commentsReducer = createReducer(initialState, {
 
     return { ...state };
   },
+  [ReduxActionTypes.SHOW_COMMENTS_INTRO_CAROUSEL]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    isIntroCarouselVisible: true,
+  }),
+  [ReduxActionTypes.HIDE_COMMENTS_INTRO_CAROUSEL]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    isIntroCarouselVisible: false,
+  }),
   [ReduxActionTypes.SET_ARE_COMMENTS_ENABLED]: (
     state: CommentsReduxState,
     action: ReduxAction<boolean>,
