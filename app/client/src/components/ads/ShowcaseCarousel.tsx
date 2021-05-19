@@ -70,7 +70,7 @@ export default function ShowcaseCarousel(props: Props) {
   const { component: ContentComponent, props: componentProps } = currentStep;
   const length = steps.length;
 
-  const transition = useTransition(activeIndex, null, {
+  const transition = useTransition("key", null, {
     from: { transform: "translateY(+2%)" },
     enter: { transform: "translateY(0%)" },
     leave: { transform: "translateY(0%)" },
@@ -80,8 +80,8 @@ export default function ShowcaseCarousel(props: Props) {
   return (
     <Container>
       {transition.map(
-        ({ props: springProps }: { item: number; props: any }) => (
-          <animated.div key={activeIndex} style={springProps}>
+        ({ item, props: springProps }: { item: string; props: any }) => (
+          <animated.div key={item} style={springProps}>
             <ContentComponent {...componentProps} />
           </animated.div>
         ),
