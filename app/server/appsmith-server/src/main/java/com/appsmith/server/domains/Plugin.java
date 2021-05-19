@@ -68,6 +68,7 @@ public class Plugin extends BaseDomain {
     @Transient
     Map<String, String> templates;
 
+    // Entry: <MethodName, TemplateId>
     private Map<String, String> actionTemplateIds;
 
     private Map<Class<? extends AuthenticationDTO>, String> datasourceTemplateIds;
