@@ -1,5 +1,7 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,11 +21,6 @@ import java.util.Map;
 @Document
 public class Plugin extends BaseDomain {
 
-    public enum ResponseType {
-        TABLE,
-        JSON,
-    }
-
     String name;
 
     PluginType type;
@@ -40,7 +37,7 @@ public class Plugin extends BaseDomain {
 
     String documentationLink;
 
-    ResponseType responseType;
+    DisplayDataType responseType;
 
     List<PluginParameterType> datasourceParams;
 
@@ -71,4 +68,14 @@ public class Plugin extends BaseDomain {
     @Transient
     Map<String, String> templates;
 
+    // Entry: <MethodName, TemplateId>
+    private Map<String, String> actionTemplateIds;
+
+    private Map<Class<? extends AuthenticationDTO>, String> datasourceTemplateIds;
+
+    List<String> categories;
+
+    // credentialSteps - should be covered by authenticationDTO
+    // documentation - one liner separate from appsmith documentation?
+    // statistics - as an enhancement
 }

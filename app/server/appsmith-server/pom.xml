@@ -17,6 +17,7 @@
 
     <properties>
         <java.version>11</java.version>
+        <jolt.version>0.1.1</jolt.version>
     </properties>
 
     <repositories>
@@ -208,6 +209,16 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bazaarvoice.jolt</groupId>
+            <artifactId>jolt-core</artifactId>
+            <version>${jolt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bazaarvoice.jolt</groupId>
+            <artifactId>json-utils</artifactId>
+            <version>${jolt.version}</version>
         </dependency>
 
         <!-- MongoDB Migrations: https://github.com/cloudyrock/mongock -->
