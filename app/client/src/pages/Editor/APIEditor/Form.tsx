@@ -177,6 +177,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   height: calc(100% - 126px);
+  position: relative;
 `;
 interface APIFormProps {
   pluginId: string;
@@ -305,6 +306,8 @@ function ImportedHeaders(props: { headers: any }) {
 const DatasourceContainer = styled.div`
   .react-tabs__tab-list {
     padding: 0 16px !important;
+    border-bottom: none;
+    border-left: 2px solid #e8e8e8;
     .cs-icon {
       margin-right: 0;
     }
@@ -339,7 +342,7 @@ const DatasourceCard = styled.div<{
   cursor: pointer;
   transition: 0.3s all ease;
   &:hover {
-    box-shadow: 0 0 10px #c7c7c7;
+    box-shadow: 0 0 5px #c7c7c7;
   }
 `;
 
@@ -394,6 +397,12 @@ export const getDatasourceInfo = (datasource: any): string => {
   if (authType.length) info.push(authType);
   return info.join(" | ");
 };
+
+const CloseIconContainer = styled.div`
+  position: absolute;
+  top: 12px;
+  right: 10px;
+`;
 
 function DataSourceList(props: any) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -705,7 +714,7 @@ function ApiEditorForm(props: Props) {
                 },
               ]}
             />
-            {!showDatasources && (
+            {!showDatasources && props.datasources && props.datasources.length && (
               <DatasourceListTrigger
                 onClick={() => toggleDatasources(!showDatasources)}
               >
@@ -717,11 +726,20 @@ function ApiEditorForm(props: Props) {
           <ApiResponseView apiName={actionName} theme={theme} />
         </SecondaryWrapper>
         {showDatasources && (
-          <DataSourceList
-            applicationId={props.applicationId}
-            currentPageId={props.currentPageId}
-            datasources={props.datasources}
-          />
+          <>
+            <DataSourceList
+              applicationId={props.applicationId}
+              currentPageId={props.currentPageId}
+              datasources={props.datasources}
+            />
+            <CloseIconContainer>
+              <Icon
+                className="t--global-clear-input"
+                name="close"
+                onClick={(e) => toggleDatasources(!showDatasources)}
+              />
+            </CloseIconContainer>
+          </>
         )}
       </Wrapper>
     </Form>

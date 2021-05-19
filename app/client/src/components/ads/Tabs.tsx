@@ -28,8 +28,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     margin: 0px;
     display: flex;
     align-items: center;
-    border-bottom: ${(props) => props.theme.spaces[1] - 2}px solid
-      ${(props) => props.theme.colors.tabs.border};
+    border-bottom: none;
     color: ${(props) => props.theme.colors.tabs.normal};
     path {
       fill: ${(props) => props.theme.colors.tabs.normal};
