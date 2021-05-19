@@ -95,7 +95,6 @@ public class Comment extends BaseDomain {
     public String getCreationTime() {
         return ISO_FORMATTER.format(createdAt);
     }
-
     @Data
     public static class Reaction {
         String emoji;

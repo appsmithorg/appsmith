@@ -8,6 +8,7 @@ import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 const Container = styled.div`
   display: flex;
   cursor: pointer;
+  margin-left: ${(props) => props.theme.spaces[2]}px;
 `;
 
 type Props = {
