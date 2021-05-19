@@ -68,13 +68,13 @@ function getSelectedOption(
 
 export default function TreeDropdown(props: TreeDropdownProps) {
   const {
-    selectedValue,
     defaultText,
-    optionTree,
-    onSelect,
-    getDefaults,
-    selectedLabelModifier,
     displayValue,
+    getDefaults,
+    onSelect,
+    optionTree,
+    selectedLabelModifier,
+    selectedValue,
     toggle,
   } = props;
   const selectedOption = getSelectedOption(

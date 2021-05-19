@@ -193,7 +193,7 @@ type PaneDrawerProps = {
 };
 function PaneDrawer(props: PaneDrawerProps) {
   const showPropertyPane = useShowPropertyPane();
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   useEffect(() => {
     // This pane drawer is only open when NOT on canvas.

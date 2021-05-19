@@ -1,5 +1,6 @@
 import React, { CSSProperties } from "react";
 import { ControlIcons } from "icons/ControlIcons";
+import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Tooltip, Classes } from "@blueprintjs/core";
@@ -34,18 +35,41 @@ const SettingsWrapper = styled.div`
 `;
 
 const WidgetName = styled.span`
-  margin-right: 5px;
+  margin-right: ${(props) => props.theme.spaces[1] + 1}px;
+  margin-left: ${(props) => props.theme.spaces[3]}px;
+`;
+
+const StyledErrorIcon = styled(Icon)`
+  &:hover {
+    svg {
+      path {
+        fill: ${Colors.WHITE};
+      }
+    }
+  }
+  margin-right: ${(props) => props.theme.spaces[1]}px;
 `;
 
 type SettingsControlProps = {
   toggleSettings: (e: any) => void;
   activity: Activities;
   name: string;
+  errorCount: number;
 };
 
 const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
-const getStyles = (activity: Activities): CSSProperties | undefined => {
+const getStyles = (
+  activity: Activities,
+  errorCount: number,
+): CSSProperties | undefined => {
+  if (errorCount > 0) {
+    return {
+      background: "red",
+      color: Colors.WHITE,
+    };
+  }
+
   switch (activity) {
     case Activities.ACTIVE:
       return {
@@ -69,12 +93,21 @@ export function SettingsControl(props: SettingsControlProps) {
   const settingsIcon = (
     <SettingsIcon
       color={
-        props.activity === Activities.HOVERING
+        !!props.errorCount
+          ? Colors.WHITE
+          : props.activity === Activities.HOVERING
           ? Colors.BLACK_PEARL
           : Colors.WHITE
       }
       height={14}
       width={12}
+    />
+  );
+  const errorIcon = (
+    <StyledErrorIcon
+      fillColor={Colors.WHITE}
+      name="warning"
+      size={IconSize.SMALL}
     />
   );
 
@@ -86,9 +119,16 @@ export function SettingsControl(props: SettingsControlProps) {
     >
       <SettingsWrapper
         className="t--widget-propertypane-toggle"
+        data-testid="t--widget-propertypane-toggle"
         onClick={props.toggleSettings}
-        style={getStyles(props.activity)}
+        style={getStyles(props.activity, props.errorCount)}
       >
+        {!!props.errorCount && (
+          <>
+            {errorIcon}
+            <span className="t--widget-error-count">{props.errorCount}</span>
+          </>
+        )}
         <WidgetName className="t--widget-name">{props.name}</WidgetName>
         {settingsIcon}
       </SettingsWrapper>
