@@ -721,7 +721,6 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.BOOLEAN,
       },
     ],
   },
