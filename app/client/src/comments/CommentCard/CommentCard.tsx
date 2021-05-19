@@ -91,10 +91,10 @@ const useSelectCommentUsingQuery = (commentId: string) => {
 
 function CommentCard({
   comment,
-  isParentComment,
-  toggleResolved,
-  resolved,
   commentThreadId,
+  isParentComment,
+  resolved,
+  toggleResolved,
 }: {
   comment: Comment;
   isParentComment?: boolean;

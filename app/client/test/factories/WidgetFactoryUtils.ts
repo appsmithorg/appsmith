@@ -26,3 +26,10 @@ export const buildChildren = (children: Partial<WidgetProps>[]) => {
     console.error("Check if child widget data provided");
   }
 };
+
+export const buildDslWithChildren = (childData: Partial<WidgetProps>[]) => {
+  const children: any = buildChildren(childData);
+  return widgetCanvasFactory.build({
+    children,
+  });
+};

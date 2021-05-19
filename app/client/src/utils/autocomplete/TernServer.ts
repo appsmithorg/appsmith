@@ -109,7 +109,7 @@ class TernServer {
     const index = lineValue.indexOf(focusedValue);
     let completions: Completion[] = [];
     let after = "";
-    const { start, end } = data;
+    const { end, start } = data;
     const from = {
       ...start,
       ch: start.ch + index,

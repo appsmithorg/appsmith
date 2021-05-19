@@ -123,8 +123,8 @@ public class FirestorePlugin extends BasePlugin {
 
             List<RequestParamDTO> requestParams = new ArrayList<>();
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0), method == null ? "" :
-                    method.toString(), null, null));
-            requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null));
+                    method.toString(), null, null, null));
+            requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
             final PaginationField paginationField = executeActionDTO == null ? null : executeActionDTO.getPaginationField();
 
@@ -278,7 +278,7 @@ public class FirestorePlugin extends BasePlugin {
                     && !StringUtils.isEmpty((String) properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue())) {
                 String deletePaths = (String) properties.get(FIELDVALUE_DELETE_PROPERTY_INDEX).getValue();
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(FIELDVALUE_DELETE_PROPERTY_INDEX),
-                        deletePaths, null, null));
+                        deletePaths, null, null, null));
                 List<String> deletePathsList;
                 try {
                     deletePathsList = objectMapper.readValue(deletePaths, new TypeReference<List<String>>(){});
@@ -327,7 +327,7 @@ public class FirestorePlugin extends BasePlugin {
                     && !StringUtils.isEmpty((String) properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue())) {
                 String timestampValuePaths = (String) properties.get(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX).getValue();
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(FIELDVALUE_TIMESTAMP_PROPERTY_INDEX),
-                        timestampValuePaths, null, null));
+                        timestampValuePaths, null, null, null));
                 List<String> timestampPathsStringList; // ["key1.key2", "key3.key4"]
                 try {
                     timestampPathsStringList = objectMapper.readValue(timestampValuePaths,
@@ -432,7 +432,7 @@ public class FirestorePlugin extends BasePlugin {
                                 case CREATE_DOCUMENT:
                                 case UPDATE_DOCUMENT:
                                     requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null,
-                                            null));
+                                            null, null));
                                     return Mono.justOrEmpty(DocumentReference.class.getMethod(methodName, Map.class));
                                 default:
                                     return Mono.error(new AppsmithPluginException(
@@ -513,7 +513,7 @@ public class FirestorePlugin extends BasePlugin {
                 return methodGetCollection(collection, properties, paginationField, requestParams);
 
             } else if (method == Method.ADD_TO_COLLECTION) {
-                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null, null));
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null, null, null));
                 return methodAddToCollection(collection, mapBody);
 
             }
@@ -553,7 +553,7 @@ public class FirestorePlugin extends BasePlugin {
 
             final String orderByString = getPropertyAt(properties, ORDER_PROPERTY_INDEX, "");
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(ORDER_PROPERTY_INDEX),
-                    orderByString, null, null));
+                    orderByString, null, null, null));
 
             final List<String> orderings;
             try {
@@ -566,7 +566,7 @@ public class FirestorePlugin extends BasePlugin {
             Map<String, Object> startAfterTemp = null;
             final String startAfterJson = getPropertyAt(properties, START_AFTER_PROPERTY_INDEX, "{}");
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(START_AFTER_PROPERTY_INDEX),
-                    startAfterJson, null, null));
+                    startAfterJson, null, null, null));
             if (PaginationField.NEXT.equals(paginationField)) {
                 try {
                     startAfterTemp = StringUtils.isEmpty(startAfterJson) ? Collections.emptyMap() : objectMapper.readValue(startAfterJson, Map.class);
@@ -578,7 +578,7 @@ public class FirestorePlugin extends BasePlugin {
             Map<String, Object> endBeforeTemp = null;
             final String endBeforeJson = getPropertyAt(properties, END_BEFORE_PROPERTY_INDEX, "{}");
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(END_BEFORE_PROPERTY_INDEX),
-                    endBeforeJson, null, null));
+                    endBeforeJson, null, null, null));
             if (PaginationField.PREV.equals(paginationField)) {
                 try {
                     endBeforeTemp = StringUtils.isEmpty(endBeforeJson) ? Collections.emptyMap() : objectMapper.readValue(endBeforeJson, Map.class);
@@ -588,13 +588,13 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(LIMIT_PROPERTY_INDEX),
-                    limitString == null ? "" : limitString, null, null));
+                    limitString == null ? "" : limitString, null, null, null));
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(QUERY_PROPERTY_INDEX),
-                    queryFieldPath == null ? "" : queryFieldPath, null, null));
+                    queryFieldPath == null ? "" : queryFieldPath, null, null, null));
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(OPERATOR_PROPERTY_INDEX),
-                    operatorString == null ? "" : operatorString, null, null));
+                    operatorString == null ? "" : operatorString, null, null, null));
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(QUERY_VALUE_PROPERTY_INDEX),
-                    queryValue == null ? "" : queryValue, null, null));
+                    queryValue == null ? "" : queryValue, null, null, null));
 
             final Map<String, Object> startAfter = startAfterTemp;
             final Map<String, Object> endBefore = endBeforeTemp;

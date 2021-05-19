@@ -122,5 +122,6 @@
   "accessTokenUrl": "https://oauth.mocklab.io/oauth/token",
   "oauthResponse": "169444434892406",
   "authorizationURL": "https://oauth.mocklab.io/oauth/authorize",
-  "basicURl": "https://envyenksqii9nf3.m.pipedream.net"
+  "basicURl": "https://envyenksqii9nf3.m.pipedream.net",
+  "methodWithQueryParam": "users?q=mimeType='application/vnd.google-apps.spreadsheet'"
 }

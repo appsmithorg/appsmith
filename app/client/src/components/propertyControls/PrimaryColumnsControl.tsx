@@ -93,12 +93,12 @@ function ColumnControlComponent(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
 
   const {
-    updateOption,
-    onEdit,
-    item,
     deleteOption,
-    toggleVisibility,
     index,
+    item,
+    onEdit,
+    toggleVisibility,
+    updateOption,
   } = props;
   const [visibility, setVisibility] = useState(item.isVisible);
   const debouncedUpdate = debounce(updateOption, 1000);
