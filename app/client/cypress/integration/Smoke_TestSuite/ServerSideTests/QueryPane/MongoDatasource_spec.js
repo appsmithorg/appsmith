@@ -35,7 +35,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       200,
     );
 
-    //cy.get("[data-cy='actionConfiguration.pluginSpecifiedTemplates[1].value']")
     cy.xpath('//div[contains(text(),"Form Input")]').click({ force: true });
     cy.xpath('//div[contains(text(),"Raw Input")]').click({ force: true });
     cy.get(queryLocators.templateMenu).click();
