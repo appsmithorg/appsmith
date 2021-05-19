@@ -62,7 +62,6 @@ const BlankStateContainer = styled.div`
 function EntityDeps() {
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
   const selectedEntity = useSelectedEntity();
-  console.log(selectedEntity, "selectedEntity");
 
   const entityDependencies: {
     directDependencies: string[];
@@ -123,6 +122,7 @@ function DependencyHierarchy(props: {
           {props.dependencies.map((item) => {
             return (
               <StyledSpan
+                className={`t--${props.type}-item`}
                 key={`${props.selectedEntity.id}-${item}`}
                 onClick={(e) => {
                   e.stopPropagation();
