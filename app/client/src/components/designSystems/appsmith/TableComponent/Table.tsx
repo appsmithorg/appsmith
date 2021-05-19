@@ -333,9 +333,7 @@ export function Table(props: TableProps) {
               })}
               {props.pageSize > subPage.length &&
                 renderEmptyRows(
-                  isHeaderVisible
-                    ? props.pageSize - subPage.length
-                    : props.pageSize - subPage.length + 1,
+                  props.pageSize - subPage.length,
                   props.columns,
                   props.width,
                   subPage,
