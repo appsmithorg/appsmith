@@ -25,22 +25,29 @@ public class Property {
 
     Object value;
 
+    // For internally edited values
     Boolean editable;
 
+    // Don't get displayed
     Boolean internal;
 
+    // Help text while filling values
     String description;
 
     Boolean mandatory;
 
+    // Data type
     String type;
 
     String defaultValue;
 
+    // For numeric values
     String minRange;
 
+    // For numeric values
     String maxRange;
 
+    // For enum types
     String[] valueOptions; // This stores the values that are permitted by the api for the given key
 
 }
