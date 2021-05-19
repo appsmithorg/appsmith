@@ -23,6 +23,7 @@ describe("Create, test, save then delete a mongo datasource", function() {
       "response.body.responseMeta.status",
       200,
     );
+    /*
     cy.NavigateToQueryEditor();
 
     cy.get("@createDatasource").then((httpResponse) => {
@@ -95,4 +96,5 @@ describe("Create, test, save then delete a mongo datasource", function() {
     );
   });
   */
+  });
 });
