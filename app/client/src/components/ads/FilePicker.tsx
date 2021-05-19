@@ -13,18 +13,34 @@ import { createMessage, ERROR_FILE_TOO_LARGE } from "constants/messages";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
 
+const FileEndings = {
+  IMAGE: ".jpeg,.png,.svg",
+  JSON: ".json",
+  TEXT: ".txt",
+  ANY: "*",
+};
+
+export enum FileType {
+  IMAGE = "IMAGE",
+  JSON = "JSON",
+  TEXT = "TEXT",
+  ANY = "ANY",
+}
+
 type FilePickerProps = {
   onFileUploaded?: (fileUrl: string) => void;
   onFileRemoved?: () => void;
   fileUploader?: FileUploader;
   url?: string;
   logoUploadError?: string;
+  fileType?: FileType;
 };
 
 const ContainerDiv = styled.div<{
   isUploaded: boolean;
   isActive: boolean;
   canDrop: boolean;
+  fileType: FileType;
 }>`
   width: 320px;
   height: 190px;
@@ -53,7 +69,9 @@ const ContainerDiv = styled.div<{
 
   .file-description {
     width: 95%;
-    margin-top: auto;
+    margin: 0 auto;
+    margin-top: ${(props) =>
+      props.fileType === FileType.IMAGE ? "auto" : "0px"};
     margin-bottom: ${(props) => props.theme.spaces[6] + 1}px;
     display: none;
   }
@@ -159,7 +177,7 @@ export function CloudinaryUploader(
 }
 
 function FilePickerComponent(props: FilePickerProps) {
-  const { logoUploadError } = props;
+  const { logoUploadError, fileType } = props;
   const [fileInfo, setFileInfo] = useState<{ name: string; size: number }>({
     name: "",
     size: 0,
@@ -207,7 +225,7 @@ function FilePickerComponent(props: FilePickerProps) {
     }
     if (uploadPercentage === 100) {
       setIsUploaded(true);
-      if (fileDescRef.current && bgRef.current) {
+      if (fileDescRef.current && bgRef.current && fileType === FileType.IMAGE) {
         fileDescRef.current.style.display = "none";
         bgRef.current.style.opacity = "1";
       }
@@ -229,7 +247,7 @@ function FilePickerComponent(props: FilePickerProps) {
     setFileInfo({ name: file.name, size: fileSize });
 
     if (fileSize < 250) {
-      if (bgRef.current) {
+      if (bgRef.current && fileType === FileType.IMAGE) {
         bgRef.current.style.backgroundImage = `url(${URL.createObjectURL(
           file,
         )})`;
@@ -253,10 +271,12 @@ function FilePickerComponent(props: FilePickerProps) {
   }
 
   function removeFile() {
-    if (fileContainerRef.current && bgRef.current) {
+    if (fileContainerRef.current && bgRef.current && fileDescRef.current) {
       setFileUrl("");
       fileContainerRef.current.style.display = "flex";
       bgRef.current.style.backgroundImage = "url('')";
+      fileDescRef.current.style.display = "none";
+      // bgRef.current.style.opacity = "1";
       setIsUploaded(false);
       props.onFileRemoved && props.onFileRemoved();
     }
@@ -294,6 +314,7 @@ function FilePickerComponent(props: FilePickerProps) {
   return (
     <ContainerDiv
       canDrop={canDrop}
+      fileType={fileType || FileType.IMAGE}
       isActive={isActive}
       isUploaded={isUploaded}
       ref={drop}
@@ -306,7 +327,9 @@ function FilePickerComponent(props: FilePickerProps) {
           </Text>
           <form>
             <input
-              accept=".jpeg,.png,.svg"
+              accept={
+                fileType ? FileEndings[fileType] : FileEndings[FileType.IMAGE]
+              }
               id="fileInput"
               multiple={false}
               onChange={(el) => handleFileUpload(el.target.files)}
