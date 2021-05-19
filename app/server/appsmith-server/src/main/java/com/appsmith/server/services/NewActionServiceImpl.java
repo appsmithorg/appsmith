@@ -555,25 +555,25 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                     })
                                     .zipWith(actionMono)
                                     .flatMap(tuple1 -> {
-                                        final ActionExecutionResult t1 = tuple1.getT1();
-                                        final NewAction t2 = tuple1.getT2();
+                                        final ActionExecutionResult actionExecutionResult = tuple1.getT1();
+                                        final NewAction newAction = tuple1.getT2();
 
                                         // If this is a SAAS plugin, it should have a template attached to it
-                                        if (PluginType.SAAS.equals(t2.getPluginType()) && t2.getTemplateId() != null) {
+                                        if (PluginType.SAAS.equals(newAction.getPluginType()) && newAction.getTemplateId() != null) {
                                             return actionTemplateRepository
-                                                    .findById(t2.getTemplateId())
+                                                    .findById(newAction.getTemplateId())
                                                     .map(actionTemplate -> {
                                                         final Map responseTransformationSpec = actionTemplate.getResponseTransformationSpec();
                                                         // Transformation of responses are not necessary for all SAAS actions
                                                         if (responseTransformationSpec != null && !responseTransformationSpec.isEmpty()) {
-                                                            final Object transformedResponse = JoltTransformer.transform(objectMapper.convertValue(t1.getBody(), Map.class), responseTransformationSpec);
-                                                            t1.setBody(transformedResponse);
+                                                            final Object transformedResponse = JoltTransformer.transform(objectMapper.convertValue(actionExecutionResult.getBody(), Map.class), responseTransformationSpec);
+                                                            actionExecutionResult.setBody(transformedResponse);
                                                         }
 
-                                                        return t1;
+                                                        return actionExecutionResult;
                                                     });
                                         }
-                                        return Mono.just(t1);
+                                        return Mono.just(actionExecutionResult);
                                     })
                             );
 

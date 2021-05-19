@@ -51,7 +51,7 @@ public class ActionDTO {
 
     ActionConfiguration actionConfiguration;
 
-    ActionConfiguration convertedActionConfiguration;
+    ActionConfiguration transformedActionConfiguration;
 
     Boolean executeOnLoad;
 

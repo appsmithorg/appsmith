@@ -10,7 +10,8 @@ import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
- * A datasource template
+ * Each plugin can support multiple datasource templates depending on the authentication mechanism used
+ * This class tracks the form template and configurations required for each of these templates
  */
 @Getter
 @Setter
@@ -21,7 +22,7 @@ public class DatasourceTemplate extends BaseDomain {
 
     private String pluginId;
 
-    private JsonNode template;
+    private Map template;
 
     private DatasourceConfiguration defaultDatasourceConfiguration;
 
