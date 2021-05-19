@@ -122,8 +122,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   createApiAction = () => {
     const {
-      formData,
       actions,
+      formData,
       match: {
         params: { pageId },
       },
@@ -150,12 +150,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      deleteDatasource,
+      isDeleting,
+      isSaving,
       match: {
         params: { applicationId, datasourceId, pageId, pluginPackageName },
       },
-      isSaving,
-      isDeleting,
-      deleteDatasource,
     } = this.props;
 
     return (

@@ -11,13 +11,13 @@ import {
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
     const {
-      validationMessage,
-      expected,
-      propertyValue,
-      isValid,
       dataTreePath,
       evaluatedValue,
+      expected,
+      isValid,
+      propertyValue,
       useValidationMessage,
+      validationMessage,
     } = this.props;
     const props: Partial<ControlProps> = {};
     if (dataTreePath) props.dataTreePath = dataTreePath;
