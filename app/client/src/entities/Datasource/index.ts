@@ -25,6 +25,7 @@ export interface DatasourceStructure {
 export interface QueryTemplate {
   title: string;
   body: string;
+  pluginSpecifiedTemplates?: Array<{ key?: string; value?: unknown }>;
 }
 export interface DatasourceTable {
   type: string;
