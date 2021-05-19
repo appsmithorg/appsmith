@@ -119,6 +119,7 @@ export function SettingsControl(props: SettingsControlProps) {
     >
       <SettingsWrapper
         className="t--widget-propertypane-toggle"
+        data-testid="t--widget-propertypane-toggle"
         onClick={props.toggleSettings}
         style={getStyles(props.activity, props.errorCount)}
       >

@@ -2011,8 +2011,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousedown", { button: 0 }, { force: true })
     .trigger("mousemove", x, y, { force: true });
   cy.get(explorer.dropHere)
-    .click()
-    .trigger("mouseup", { force: true });
+    .click(x, y + 20)
+    .trigger("mouseup", x, y + 20, { force: true });
 });
 
 Cypress.Commands.add("executeDbQuery", (queryName) => {
@@ -2035,7 +2035,9 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
     .first()
     .trigger("mouseover", { force: true })
     .wait(500);
-  cy.get(`${selector}:first-of-type .t--widget-propertypane-toggle`)
+  cy.get(
+    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+  )
     .first()
     .click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting

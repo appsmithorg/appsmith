@@ -10,6 +10,7 @@ import {
 } from "widgets/BaseWidget";
 import {
   GridDefaults,
+  LATEST_PAGE_VERSION,
   MAIN_CONTAINER_WIDGET_ID,
   RenderMode,
   WidgetType,
@@ -32,6 +33,7 @@ import * as Sentry from "@sentry/react";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -726,7 +728,40 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 19;
   }
 
+  if (currentDSL.version === 19) {
+    currentDSL.snapColumns = GridDefaults.DEFAULT_GRID_COLUMNS;
+    currentDSL.snapRows = getCanvasSnapRows(
+      currentDSL.bottomRow,
+      currentDSL.detachFromLayout || false,
+    );
+    currentDSL = migrateToNewLayout(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
   return currentDSL;
+};
+
+export const migrateToNewLayout = (dsl: ContainerWidgetProps<WidgetProps>) => {
+  const scaleWidget = (widgetProps: WidgetProps) => {
+    widgetProps.bottomRow *= GRID_DENSITY_MIGRATION_V1;
+    widgetProps.topRow *= GRID_DENSITY_MIGRATION_V1;
+    widgetProps.leftColumn *= GRID_DENSITY_MIGRATION_V1;
+    widgetProps.rightColumn *= GRID_DENSITY_MIGRATION_V1;
+    if (widgetProps.children && widgetProps.children.length) {
+      widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
+        scaleWidget(eachWidgetProp);
+      });
+    }
+  };
+  scaleWidget(dsl);
+  return dsl;
+};
+
+export const checkIfMigrationIsNeeded = (
+  fetchPageResponse?: FetchPageResponse,
+) => {
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultDSL;
+  return currentDSL.version !== LATEST_PAGE_VERSION;
 };
 
 export const extractCurrentDSL = (

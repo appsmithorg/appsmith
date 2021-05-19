@@ -2231,7 +2231,7 @@ export const theme: Theme = {
     paneTextUnderline: Colors.LIGHT_GREYISH_BLUE,
     paneSectionLabel: Colors.CADET_BLUE,
     navBG: Colors.SHARK,
-    grid: Colors.TROUT,
+    grid: Colors.ALTO2,
     containerBorder: Colors.FRENCH_PASS,
     menuButtonBGInactive: Colors.JUNGLE_MIST,
     menuIconColorInactive: Colors.OXFORD_BLUE,
@@ -2309,7 +2309,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  canvasPadding: "20px 0 200px 0",
+  canvasPadding: "0 0 200px 0",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
