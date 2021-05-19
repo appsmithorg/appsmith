@@ -233,10 +233,6 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
   private _menu = React.createRef<HTMLDivElement>();
 
   isModalWidgetParent = () => {
-    console.log(
-      "----------",
-      Boolean(this._menu.current?.closest(".bp3-modal-widget")),
-    );
     if (Boolean(this._menu.current?.closest(".bp3-modal-widget"))) {
       return document.querySelector(".bp3-modal-widget") as HTMLElement;
     }
