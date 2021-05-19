@@ -15,9 +15,9 @@ export const generateDataTreeWidget = (
   const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
     widget.type,
   );
-  const defaultProps = WidgetFactory.getWidgetDefaultPropertiesMap(widget.type)(
-    widget,
-  );
+  const defaultPropertiesMap = WidgetFactory.getWidgetDefaultPropertiesMap(
+    widget.type,
+  )(widget);
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
   );
@@ -42,7 +42,7 @@ export const generateDataTreeWidget = (
     });
   });
   const unInitializedDefaultProps: Record<string, undefined> = {};
-  Object.values(defaultProps).forEach((propertyName) => {
+  Object.values(defaultPropertiesMap).forEach((propertyName) => {
     if (!(propertyName in widget)) {
       unInitializedDefaultProps[propertyName] = undefined;
     }
@@ -63,6 +63,7 @@ export const generateDataTreeWidget = (
     ...widgetMetaProps,
     ...derivedProps,
     ...unInitializedDefaultProps,
+    defaultPropertiesMap,
     dynamicBindingPathList,
     bindingPaths,
     triggerPaths,

@@ -164,9 +164,7 @@ class WidgetFactory {
     const typeConfigMap: WidgetTypeConfigMap = {};
     WidgetFactory.getWidgetTypes().forEach((type) => {
       typeConfigMap[type] = {
-        defaultProperties: WidgetFactory.getWidgetDefaultPropertiesMap(type),
         derivedProperties: WidgetFactory.getWidgetDerivedPropertiesMap(type),
-        metaProperties: WidgetFactory.getWidgetMetaPropertiesMap(type),
       };
     });
     return typeConfigMap;
@@ -177,8 +175,6 @@ export type WidgetTypeConfigMap = Record<
   string,
   {
     derivedProperties: WidgetDerivedPropertyType;
-    defaultProperties: (props: WidgetProps) => Record<string, string>;
-    metaProperties: (props: WidgetProps) => Record<string, string>;
   }
 >;
 

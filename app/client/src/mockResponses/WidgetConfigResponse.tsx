@@ -947,32 +947,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
               const disallowedWidgets = [WidgetTypes.FILE_PICKER_WIDGET];
 
-              if (
-                Object.keys(widgetPropertyMaps.defaultPropertyMap).length > 0 ||
-                indexOf(disallowedWidgets, widget.type) > -1
-              ) {
-                const widget = widgets[widgetId];
-                if (widget.children && widget.children.length > 0) {
-                  widget.children.forEach((childId: string) => {
-                    delete widgets[childId];
-                  });
-                }
-                if (widget.parentId) {
-                  const _parent = { ...widgets[widget.parentId] };
-                  _parent.children = _parent.children?.filter(
-                    (id) => id !== widgetId,
-                  );
-                  widgets[widget.parentId] = _parent;
-                }
-                delete widgets[widgetId];
+              // if (
+              //   Object.keys(widgetPropertyMaps.defaultPropertyMap).length > 0 ||
+              //   indexOf(disallowedWidgets, widget.type) > -1
+              // ) {
+              //   const widget = widgets[widgetId];
+              //   if (widget.children && widget.children.length > 0) {
+              //     widget.children.forEach((childId: string) => {
+              //       delete widgets[childId];
+              //     });
+              //   }
+              //   if (widget.parentId) {
+              //     const _parent = { ...widgets[widget.parentId] };
+              //     _parent.children = _parent.children?.filter(
+              //       (id) => id !== widgetId,
+              //     );
+              //     widgets[widget.parentId] = _parent;
+              //   }
+              //   delete widgets[widgetId];
 
-                return {
-                  widgets,
-                  message: `${
-                    WidgetConfigResponse.config[widget.type].widgetName
-                  } widgets cannot be used inside the list widget right now.`,
-                };
-              }
+              //   return {
+              //     widgets,
+              //     message: `${
+              //       WidgetConfigResponse.config[widget.type].widgetName
+              //     } widgets cannot be used inside the list widget right now.`,
+              //   };
+              // }
 
               const template = {
                 ...get(parent, "template", {}),

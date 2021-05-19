@@ -335,8 +335,7 @@ export default class DataTreeEvaluator {
     }
     if (isWidget(entity)) {
       // Set default property dependency
-      const defaultProperties = this.widgetConfigMap[entity.type]
-        .defaultProperties;
+      const defaultProperties = entity.defaultPropertiesMap;
       Object.entries(defaultProperties).forEach(
         ([property, defaultPropertyPath]) => {
           dependencies[`${entityName}.${property}`] = [
@@ -420,8 +419,8 @@ export default class DataTreeEvaluator {
 
           if (isWidget(entity)) {
             const widgetEntity = entity;
-            const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
-              .defaultProperties;
+            const defaultPropertyMap = entity.defaultPropertiesMap;
+
             const isDefaultProperty = !!Object.values(
               defaultPropertyMap,
             ).filter(
