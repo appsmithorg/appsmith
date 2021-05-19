@@ -5,6 +5,9 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
@@ -23,7 +26,13 @@ public class MockPluginExecutor implements PluginExecutor {
         System.out.println("In the execute");
 
         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
-        actionExecutionResult.setBody("");
+        try {
+            final JsonNode jsonNode = new ObjectMapper().readTree("{\"test\":\"value\"}");
+            actionExecutionResult.setBody(jsonNode);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
         actionExecutionResult.setIsExecutionSuccess(true);
         actionExecutionResult.setStatusCode("200");
         return Mono.just(actionExecutionResult);

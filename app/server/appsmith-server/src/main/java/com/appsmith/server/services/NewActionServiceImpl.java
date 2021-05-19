@@ -32,8 +32,10 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.JoltTransformer;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.repositories.ActionTemplateRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -96,6 +98,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final PolicyUtils policyUtils;
     private final ObjectMapper objectMapper;
     private final AuthenticationValidator authenticationValidator;
+    private final ActionTemplateRepository actionTemplateRepository;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -113,7 +116,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 ApplicationService applicationService,
                                 SessionUserService sessionUserService,
                                 PolicyUtils policyUtils,
-                                AuthenticationValidator authenticationValidator) {
+                                AuthenticationValidator authenticationValidator,
+                                ActionTemplateRepository actionTemplateRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -128,6 +132,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
         this.objectMapper = new ObjectMapper();
+        this.actionTemplateRepository = actionTemplateRepository;
     }
 
     private Boolean validateActionName(String name) {
@@ -547,6 +552,28 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                                 datasource1.getDatasourceConfiguration(),
                                                 actionConfiguration
                                         );
+                                    })
+                                    .zipWith(actionMono)
+                                    .flatMap(tuple1 -> {
+                                        final ActionExecutionResult t1 = tuple1.getT1();
+                                        final NewAction t2 = tuple1.getT2();
+
+                                        // If this is a SAAS plugin, it should have a template attached to it
+                                        if (PluginType.SAAS.equals(t2.getPluginType()) && t2.getTemplateId() != null) {
+                                            return actionTemplateRepository
+                                                    .findById(t2.getTemplateId())
+                                                    .map(actionTemplate -> {
+                                                        final Map responseTransformationSpec = actionTemplate.getResponseTransformationSpec();
+                                                        // Transformation of responses are not necessary for all SAAS actions
+                                                        if (responseTransformationSpec != null && !responseTransformationSpec.isEmpty()) {
+                                                            final Object transformedResponse = JoltTransformer.transform(objectMapper.convertValue(t1.getBody(), Map.class), responseTransformationSpec);
+                                                            t1.setBody(transformedResponse);
+                                                        }
+
+                                                        return t1;
+                                                    });
+                                        }
+                                        return Mono.just(t1);
                                     })
                             );
 

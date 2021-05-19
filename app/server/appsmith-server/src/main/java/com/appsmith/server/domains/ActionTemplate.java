@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,5 +32,13 @@ public class ActionTemplate extends BaseDomain {
 
     private JsonNode requestTransformationSpec;
 
-    private Map<Plugin.ResponseType, JsonNode> responseTransformationSpecList;
+    private Map responseTransformationSpec;
+
+    private List<JsonNode> sampleResponses;
+
+    private String documentation; //Documentation for this particular API comes here
+
+    private String documentationUrl; //URL for this particular api's documentation comes here
+
+    private String versionId;
 }

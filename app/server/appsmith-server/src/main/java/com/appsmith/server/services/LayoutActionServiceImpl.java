@@ -827,6 +827,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         action.setExecuteOnLoad(false);
                     }
 
+                    newAction.setTemplateId(action.getTemplateId());
+
                     newAction.setUnpublishedAction(action);
 
                     return Mono.just(newAction);
