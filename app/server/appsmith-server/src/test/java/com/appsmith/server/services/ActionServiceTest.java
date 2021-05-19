@@ -934,7 +934,6 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getStatusCode()).isEqualTo("200");
-                    System.out.println("RESULT: " + result.getBody());
                     assertThat(((Map) result.getBody()).get("heading")).isEqualTo("value");
                 })
                 .verifyComplete();
