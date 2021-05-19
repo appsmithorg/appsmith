@@ -9,8 +9,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Map;
-
 /**
  * A datasource template
  */
@@ -27,6 +25,6 @@ public class DatasourceTemplate extends BaseDomain {
 
     private DatasourceConfiguration defaultDatasourceConfiguration;
 
-    // Entry: <MethodName, TemplateId>
-    private Map<String, String> actionTemplateIds;
+    // TODO Is this appropriate? Entry: <MethodName, TemplateId>
+    // private Map<String, String> actionTemplateIds;
 }
