@@ -230,6 +230,18 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
 `;
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
+  private _menu = React.createRef<HTMLDivElement>();
+
+  isModalWidgetParent = () => {
+    console.log(
+      "----------",
+      Boolean(this._menu.current?.closest(".bp3-modal-widget")),
+    );
+    if (Boolean(this._menu.current?.closest(".bp3-modal-widget"))) {
+      return document.querySelector(".bp3-modal-widget") as HTMLElement;
+    }
+    return document.querySelector(".appsmith_widget_0") as HTMLElement;
+  };
   render() {
     const { options, selectedIndexArr } = this.props;
     const selectedItems = selectedIndexArr
@@ -238,7 +250,10 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     const hideCloseButtonIndex = -1;
 
     return (
-      <DropdownContainer>
+      <DropdownContainer
+        className="abcdef"
+        ref={this._menu as React.RefObject<HTMLDivElement>}
+      >
         <DropdownStyles />
         <StyledControlGroup
           fill
@@ -299,6 +314,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               popoverProps={{
                 minimal: true,
                 usePortal: true,
+                portalContainer: this.isModalWidgetParent(),
                 modifiers: {
                   preventOverflow: {
                     enabled: false,

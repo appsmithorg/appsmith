@@ -126,7 +126,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         onClose={this.closeModal}
         scrollContents={!!this.props.shouldScrollContents}
         width={this.getModalWidth()}
-        zIndex={3}
       >
         {content}
       </ModalComponent>

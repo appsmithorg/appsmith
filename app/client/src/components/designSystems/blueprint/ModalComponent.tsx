@@ -16,7 +16,7 @@ const Container = styled.div<{
       .${Classes.OVERLAY_BACKDROP} {
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
-      position: absolute;
+      position: fixed;
       top: 0;
       right: 0;
       bottom: 0;
@@ -75,37 +75,52 @@ export function ModalComponent(props: ModalComponentProps) {
       modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [props.scrollContents]);
+  console.log(props.height, props.width, props.left, props.top);
   return (
-    <Container
-      height={props.height}
-      left={props.left}
-      top={props.top}
-      width={props.width}
-      zIndex={props.zIndex !== undefined ? props.zIndex : Layers.modalWidget}
+    <Overlay
+      canEscapeKeyClose={false}
+      canOutsideClickClose={false}
+      enforceFocus={false}
+      hasBackdrop
+      isOpen={props.isOpen}
+      onClose={props.onClose}
+      portalClassName="bp3-modal-widget"
+      portalContainer={
+        document.querySelector(".t--canvas-artboard") as HTMLElement
+      }
+      usePortal
     >
-      <Overlay
-        canEscapeKeyClose={props.canEscapeKeyClose}
-        canOutsideClickClose={props.canOutsideClickClose}
-        enforceFocus={false}
-        hasBackdrop={
-          props.hasBackDrop !== undefined ? !!props.hasBackDrop : true
-        }
-        isOpen={props.isOpen}
-        onClose={props.onClose}
-        usePortal={false}
+      <Container
+        height={props.height}
+        left={props.left}
+        top={props.top}
+        width={props.width}
+        zIndex={props.zIndex !== undefined ? props.zIndex : Layers.modalWidget}
       >
-        <div>
-          <Content
-            className={`${getCanvasClassName()} ${props.className}`}
-            height={props.height}
-            ref={modalContentRef}
-            scroll={props.scrollContents}
-          >
-            {props.children}
-          </Content>
-        </div>
-      </Overlay>
-    </Container>
+        <Overlay
+          canEscapeKeyClose={props.canEscapeKeyClose}
+          canOutsideClickClose={props.canOutsideClickClose}
+          enforceFocus={false}
+          hasBackdrop={
+            props.hasBackDrop !== undefined ? !!props.hasBackDrop : true
+          }
+          isOpen={props.isOpen}
+          onClose={props.onClose}
+          usePortal={false}
+        >
+          <div>
+            <Content
+              className={`${getCanvasClassName()} ${props.className}`}
+              height={props.height}
+              ref={modalContentRef}
+              scroll={props.scrollContents}
+            >
+              {props.children}
+            </Content>
+          </div>
+        </Overlay>
+      </Container>
+    </Overlay>
   );
 }
 
