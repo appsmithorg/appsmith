@@ -99,7 +99,7 @@ jobs:
 
       - name: clear the jest cache
         if: github.event_name == 'pull_request'
-        runCommand: npx jest --clearCache
+        run: npx jest --clearCache
 
       - name: Run the jest tests
         if: github.event_name == 'pull_request'
