@@ -250,10 +250,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     const hideCloseButtonIndex = -1;
 
     return (
-      <DropdownContainer
-        className="abcdef"
-        ref={this._menu as React.RefObject<HTMLDivElement>}
-      >
+      <DropdownContainer ref={this._menu as React.RefObject<HTMLDivElement>}>
         <DropdownStyles />
         <StyledControlGroup
           fill
