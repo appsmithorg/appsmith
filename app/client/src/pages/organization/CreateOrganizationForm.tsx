@@ -23,10 +23,10 @@ export function CreateApplicationForm(
   const {
     error,
     handleSubmit,
-    pristine,
-    submitting,
     invalid,
     onCancel,
+    pristine,
+    submitting,
   } = props;
   const submitHandler = useCallback(
     async (data, dispatch) => {

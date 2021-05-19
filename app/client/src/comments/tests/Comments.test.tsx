@@ -49,7 +49,7 @@ describe("Comment threads", () => {
   });
 
   it("can be created", async (done) => {
-    const { getByDataCy, getAllByDataCy, findByDataCy, findByText } = render(
+    const { findByDataCy, findByText, getAllByDataCy, getByDataCy } = render(
       <OverlayCommentsWrapper refId="0">
         <div style={{ height: 100, width: 100 }} />
       </OverlayCommentsWrapper>,
@@ -87,7 +87,7 @@ describe("Comment threads", () => {
     done();
   });
   it("accept replies", async (done) => {
-    const { getByDataCy, findByText, findByDataCy } = render(
+    const { findByDataCy, findByText, getByDataCy } = render(
       <OverlayCommentsWrapper refId="0">
         <div style={{ height: 100, width: 100 }} />
       </OverlayCommentsWrapper>,

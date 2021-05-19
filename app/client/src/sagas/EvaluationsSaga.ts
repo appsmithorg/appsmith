@@ -53,10 +53,13 @@ const evalErrorHandler = (errors: EvalError[]) => {
       case EvalErrorTypes.DEPENDENCY_ERROR: {
         if (error.context) {
           // Add more info about node for the toast
-          const { node, entityType } = error.context;
+          const { entityType, node } = error.context;
           Toaster.show({
             text: `${error.message} Node was: ${node}`,
             variant: Variant.danger,
+          });
+          AppsmithConsole.error({
+            text: `${error.message} Node was: ${node}`,
           });
           // Send the generic error message to sentry for better grouping
           Sentry.captureException(new Error(error.message), {
@@ -94,6 +97,10 @@ const evalErrorHandler = (errors: EvalError[]) => {
         Toaster.show({
           text: createMessage(ERROR_EVAL_TRIGGER, error.message),
           variant: Variant.danger,
+          showDebugButton: true,
+        });
+        AppsmithConsole.error({
+          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
         });
         break;
       }
@@ -142,7 +149,7 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
     },
   );
-  const { errors, dataTree, dependencies, logs } = workerResponse;
+  const { dataTree, dependencies, errors, logs } = workerResponse;
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   evalErrorHandler(errors);

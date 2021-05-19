@@ -5,6 +5,7 @@ public class Authentication {
     // Auth type constants
     public static final String DB_AUTH = "dbAuth";
     public static final String OAUTH2 = "oAuth2";
+    public static final String BASIC = "basic";
 
     // Request parameter names
     public static final String CLIENT_ID = "client_id";

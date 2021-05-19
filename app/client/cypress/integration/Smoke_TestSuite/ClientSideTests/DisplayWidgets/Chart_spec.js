@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
+const dsl = require("../../../../fixtures/chartUpdatedDsl.json");
 const pages = require("../../../../locators/Pages.json");
 
 describe("Chart Widget Functionality", function() {
@@ -43,7 +43,11 @@ describe("Chart Widget Functionality", function() {
     cy.get(viewWidgetsPage.chartType)
       .last()
       .should("have.text", "Column Chart");
-    cy.testJsontext("chartseries", JSON.stringify(this.data.chartInput));
+    cy.testJsontext(
+      "chart-series-data-control",
+      JSON.stringify(this.data.chartInput),
+    );
+    cy.get(".t--propertypane").click("right");
     cy.get(viewWidgetsPage.chartWidget)
       .should("be.visible")
       .and((chart) => {
