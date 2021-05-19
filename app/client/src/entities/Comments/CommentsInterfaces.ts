@@ -23,21 +23,37 @@ export type CreateCommentThreadRequest = {
   tabId?: string;
   position: { top: number; left: number }; // used as a percentage value
   comments: Array<CreateCommentRequest>;
-  resolved?: boolean;
-  isPinned?: boolean;
+  resolvedState?: {
+    active: boolean;
+  };
+  pinnedState?: {
+    active: boolean;
+    authorName?: string;
+    authorUsername?: string;
+    updationTime?: {
+      epochSecond: number;
+      nano: number;
+    };
+  };
+  isViewed?: boolean;
 };
 
 export type Comment = CreateCommentRequest & {
   id: string;
   authorName?: string;
+  authorUsername?: string;
+  updationTime?: string;
+  creationTime?: string;
 };
 
 export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   id: string;
   comments: Array<Comment>;
-  isVisible?: boolean;
   userPermissions?: string[];
   new?: boolean;
+  sequenceId?: string;
+  updationTime?: string;
+  creationTime?: string;
 };
 
 export type CommentEventPayload = {

@@ -33,22 +33,31 @@ class CommentsApi extends Api {
   }
 
   static updateCommentThread(
-    updateCommentRequest: Partial<CreateCommentThreadRequest>,
+    updateCommentThreadRequest: Partial<CreateCommentThreadRequest>,
     threadId: string,
   ): AxiosPromise<ApiResponse> {
     return Api.put(
       `${CommentsApi.getThreadsAPI}/${threadId}`,
+      updateCommentThreadRequest,
+    );
+  }
+
+  static updateComment(
+    updateCommentRequest: Partial<CreateCommentRequest>,
+    commentId: string,
+  ): AxiosPromise<ApiResponse> {
+    return Api.put(
+      `${CommentsApi.getCommentsAPI}/${commentId}`,
       updateCommentRequest,
     );
   }
 
-  static pinCommentThread(threadId: string) {
-    console.log(threadId);
-    return Promise.resolve();
-  }
-
   static deleteComment(commentId: string): AxiosPromise<ApiResponse> {
     return Api.delete(`${CommentsApi.getCommentsAPI}/${commentId}`);
+  }
+
+  static deleteCommentThread(threadId: string): AxiosPromise<ApiResponse> {
+    return Api.delete(`${CommentsApi.getThreadsAPI}/${threadId}`);
   }
 }
 
