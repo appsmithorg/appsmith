@@ -26,6 +26,8 @@ type Completion = Hint & {
   data: {
     doc: string;
   };
+  render?: any;
+  isHeader?: boolean;
 };
 
 type TernDocs = Record<string, TernDoc>;
@@ -57,6 +59,7 @@ class TernServer {
   server: Server;
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
+  active: any;
   expected?: string;
 
   constructor(
@@ -79,7 +82,24 @@ class TernServer {
   }
 
   complete(cm: CodeMirror.Editor) {
-    cm.showHint({ hint: this.getHint.bind(this), completeSingle: false });
+    cm.showHint({
+      hint: this.getHint.bind(this),
+      completeSingle: false,
+      extraKeys: {
+        Up: (cm: CodeMirror.Editor, handle: any) => {
+          handle.moveFocus(-1);
+          if (this.active.isHeader === true) {
+            handle.moveFocus(-1);
+          }
+        },
+        Down: (cm: CodeMirror.Editor, handle: any) => {
+          handle.moveFocus(1);
+          if (this.active.isHeader === true) {
+            handle.moveFocus(1);
+          }
+        },
+      },
+    });
   }
 
   showType(cm: CodeMirror.Editor) {
@@ -110,7 +130,6 @@ class TernServer {
     const lineValue = this.lineValue(doc);
     const focusedValue = this.getFocusedDynamicValue(doc);
     const index = lineValue.indexOf(focusedValue);
-    const expectedDataType = this.getExpectedDataType();
     let completions: Completion[] = [];
     let after = "";
     const { start, end } = data;
@@ -134,7 +153,6 @@ class TernServer {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
       const dataType = this.getDataType(completion.type);
-      if (dataType === expectedDataType) className += " " + cls + "expected";
       if (data.guess) className += " " + cls + "guess";
       completions.push({
         text: completion.name + after,
@@ -146,8 +164,13 @@ class TernServer {
       });
     }
     completions = this.sortCompletions(completions);
-
-    const obj = { from: from, to: to, list: completions };
+    const indexToBeSelected = completions.length > 1 ? 1 : 0;
+    const obj = {
+      from: from,
+      to: to,
+      list: completions,
+      selectedHint: indexToBeSelected,
+    };
     let tooltip: HTMLElement | undefined = undefined;
     CodeMirror.on(obj, "close", () => this.remove(tooltip));
     CodeMirror.on(obj, "update", () => this.remove(tooltip));
@@ -155,6 +178,7 @@ class TernServer {
       obj,
       "select",
       (cur: { data: { doc: string } }, node: any) => {
+        this.active = cur;
         this.remove(tooltip);
         const content = cur.data.doc;
         if (content) {
@@ -205,6 +229,7 @@ class TernServer {
 
   sortCompletions(completions: Completion[]) {
     // Add data tree completions before others
+    const expectedDataType = this.getExpectedDataType();
     const dataTreeCompletions = completions
       .filter((c) => c.origin === "dataTree")
       .sort((a: Completion, b: Completion) => {
@@ -215,11 +240,44 @@ class TernServer {
         }
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
       });
+    const sameDataType = dataTreeCompletions.filter(
+      (c) => c.type === expectedDataType,
+    );
+    const otherDataType = dataTreeCompletions.filter(
+      (c) => c.type !== expectedDataType,
+    );
+    if (otherDataType.length && sameDataType.length) {
+      const otherDataTitle: Completion = {
+        text: "Search results",
+        displayText: "Search results",
+        className: "CodeMirror-hint-header",
+        data: { doc: "" },
+        origin: "",
+        type: "UNKNOWN",
+        isHeader: true,
+      };
+      const sameDataTitle: Completion = {
+        text: "Best Match",
+        displayText: "Best Match",
+        className: "CodeMirror-hint-header",
+        data: { doc: "" },
+        origin: "",
+        type: "UNKNOWN",
+        isHeader: true,
+      };
+      sameDataType.unshift(sameDataTitle);
+      otherDataType.unshift(otherDataTitle);
+    }
     const docCompletetions = completions.filter((c) => c.origin === "[doc]");
     const otherCompletions = completions.filter(
       (c) => c.origin !== "dataTree" && c.origin !== "[doc]",
     );
-    return [...docCompletetions, ...dataTreeCompletions, ...otherCompletions];
+    return [
+      ...docCompletetions,
+      ...sameDataType,
+      ...otherDataType,
+      ...otherCompletions,
+    ];
   }
 
   getDataType(type: string): DataType {
