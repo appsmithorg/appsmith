@@ -49,14 +49,17 @@ export const renderCell = (
           </CellWrapper>
         );
       }
-      const imageSplitRegex = /[^(base64)],/;
+      const imageSplitRegex = /[^(base64)],/g;
       const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       const base64ImageRegex = /^data:image\/.*;base64/;
       return (
         <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
           {value
             .toString()
-            .replace(/,/g, " ,")
+            // imageSplitRegex matched "," and char before it, so add space before ","
+            .replace(imageSplitRegex, (match) =>
+              match.length > 1 ? `${match.charAt(0)} ,` : " ,",
+            )
             .split(imageSplitRegex)
             .map((item: string, index: number) => {
               if (imageUrlRegex.test(item) || base64ImageRegex.test(item)) {
