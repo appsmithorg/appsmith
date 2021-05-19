@@ -25,6 +25,8 @@ import copy from "copy-to-clipboard";
 import moment from "moment";
 import history from "utils/history";
 
+import UserApi from "api/UserApi";
+
 import {
   deleteCommentRequest,
   markThreadAsReadRequest,
@@ -215,10 +217,11 @@ function CommentCard({
   inline?: boolean;
   visible?: boolean;
 }) {
+  console.log(comment, "comment");
   const [isHovered, setIsHovered] = useState(false);
   const [cardMode, setCardMode] = useState(CommentCardModes.VIEW);
   const dispatch = useDispatch();
-  const { authorName, body, id: commentId } = comment;
+  const { authorName, authorUsername, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
@@ -318,6 +321,8 @@ function CommentCard({
 
   const hasReactions = !!reactions;
 
+  console.log(authorUsername, "authorUsername");
+
   return (
     <StyledContainer
       data-cy={`t--comment-card-${comment.id}`}
@@ -344,7 +349,11 @@ function CommentCard({
       )}
       <CommentHeader>
         <HeaderSection>
-          <ProfileImage side={25} userName={authorName || ""} />
+          <ProfileImage
+            side={25}
+            source={`/api/${UserApi.photoURL}/${authorUsername}`}
+            userName={authorName || ""}
+          />
           <UserName>{authorName}</UserName>
         </HeaderSection>
         <HeaderSection>
