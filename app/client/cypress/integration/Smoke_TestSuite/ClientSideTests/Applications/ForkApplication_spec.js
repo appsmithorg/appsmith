@@ -29,8 +29,8 @@ describe("Fork application across orgs", function() {
       .last()
       .click({ force: true });
     cy.get(homePage.forkAppOrgButton).click({ force: true });
-    cy.wait("@postForkAppOrg").then((httpResponse) => {
-      expect(httpResponse.status).to.equal(200);
+    cy.wait("@postForkAppOrg").then((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
     });
     // check that forked application has same dsl
     cy.get("@getPage").then((httpResponse) => {
