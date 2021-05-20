@@ -119,13 +119,13 @@ describe("Entity explorer tests related to copy query", function() {
     });
 
     cy.SearchEntityandOpen("Query1");
+    cy.get(
+      commonlocators.entitySearchResult.concat("Query1").concat("')"),
+    ).should('have.length', 2);
     cy.hoverAndClick();
     cy.get(apiwidget.delete).click({ force: true });
-    cy.get(".bp3-heading").should("be.visible");
-    cy.get(".bp3-heading")
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal("No entities found");
-      });
+    cy.get(
+      commonlocators.entitySearchResult.concat("Query1").concat("')"),
+    ).should('have.length', 1);
   });
 });
