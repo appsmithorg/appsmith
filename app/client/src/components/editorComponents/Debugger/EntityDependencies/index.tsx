@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import { Collapse } from "@blueprintjs/core";
-import React, { memo, useMemo, useState } from "react";
+import React, { memo, ReactNode, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
@@ -11,6 +11,7 @@ import useSelectedEntity from "./useSelectedEntity";
 import { SourceEntity } from "entities/AppsmithConsole";
 import { createMessage, INSPECT_ENTITY_BLANK_STATE } from "constants/messages";
 import { useEntityLink } from "./EntityLink";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 
 const CollapsibleWrapper = styled.div<{ step: number; isOpen: boolean }>`
   margin-left: ${(props) => props.step * 10}px;
@@ -148,7 +149,11 @@ function DependencyHierarchy(props: {
 }
 const MemoizedDependencyHierarchy = memo(DependencyHierarchy);
 
-function Collapsible(props: any) {
+function Collapsible(props: {
+  label: string;
+  step: number;
+  children: ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -169,7 +174,7 @@ function Collapsible(props: any) {
   );
 }
 
-function getDependencies(deps: any, entityName: string | null) {
+function getDependencies(deps: DependencyMap, entityName: string | null) {
   if (!entityName) return null;
 
   let directDependencies = new Set<string>();
