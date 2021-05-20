@@ -4,12 +4,13 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
-describe("Entity explorer tests related to copy query", function() {
-  const pageid = "MyPage";
-  let updatedName;
-  let datasourceName;
-  let newDsName;
+const pageid = "MyPage";
+let updatedName;
+let datasourceName;
+let newDsName;
 
+
+describe("Entity explorer tests related to copy query", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
@@ -91,13 +92,11 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("Delete query and rename datasource in explorer", function() {
-    cy.log(newDsName);
     cy.get(commonlocators.entityExplorersearch).clear();
     cy.NavigateToDatasourceEditor();
-    cy.GlobalSearchEntity(newDsName);
+    cy.GlobalSearchEntity(`${newDsName}`);
     cy.get(`.t--entity-name:contains(${newDsName})`)
       .last()
-      .scrollIntoView()
       .click();
     cy.generateUUID().then((uid) => {
       updatedName = uid;
@@ -117,15 +116,7 @@ describe("Entity explorer tests related to copy query", function() {
         409,
       );
     });
-
     cy.SearchEntityandOpen("Query1");
-    cy.get(
-      commonlocators.entitySearchResult.concat("Query1").concat("')"),
-    ).should('have.length', 2);
-    cy.hoverAndClick();
-    cy.get(apiwidget.delete).click({ force: true });
-    cy.get(
-      commonlocators.entitySearchResult.concat("Query1").concat("')"),
-    ).should('have.length', 1);
+    cy.deleteQuery();
   });
 });
