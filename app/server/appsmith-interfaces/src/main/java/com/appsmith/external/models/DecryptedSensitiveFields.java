@@ -15,6 +15,10 @@ public class DecryptedSensitiveFields {
     String token;
     String refreshToken;
     Object tokenResponse;
+    String authType;
+    DBAuth  dbAuth;
+    BasicAuth basicAuth;
+    OAuth2 openAuth2;
 
     public DecryptedSensitiveFields(AuthenticationResponse authResponse) {
         this.token = authResponse.getToken();

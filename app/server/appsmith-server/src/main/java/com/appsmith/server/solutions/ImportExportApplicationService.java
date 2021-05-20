@@ -5,8 +5,9 @@ import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.DBAuth;
-import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -161,17 +162,22 @@ public class ImportExportApplicationService {
                                         if (authentication instanceof DBAuth) {
                                             DBAuth auth = (DBAuth) authentication;
                                             dsDecryptedFields.setPassword(auth.getPassword());
+                                            dsDecryptedFields.setDbAuth(auth);
                                         } else if (authentication instanceof OAuth2) {
                                             OAuth2 auth = (OAuth2) authentication;
                                             dsDecryptedFields.setPassword(auth.getClientSecret());
+                                            dsDecryptedFields.setOpenAuth2(auth);
                                         } else if (authentication instanceof BasicAuth) {
                                             BasicAuth auth = (BasicAuth) authentication;
                                             dsDecryptedFields.setPassword(auth.getPassword());
+                                            dsDecryptedFields.setBasicAuth(auth);
                                         }
+                                        dsDecryptedFields.setAuthType(authentication.getClass().getName());
                                         decryptedFields.put(datasource.getName(), dsDecryptedFields);
                                     }
 
                                     datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
+                                    datasource.getDatasourceConfiguration().setAuthentication(null);
 
                                     datasourceMap.put(datasource.getId(), datasource.getName());
                                     datasource.setId(null);
@@ -199,7 +205,9 @@ public class ImportExportApplicationService {
                                     }
                                 });
                                 applicationJson.setActionList(newActionList);
-                                applicationJson.getDatasourceList().removeIf(datasource -> !concernedDBNames.contains(datasource.getName()));
+                                applicationJson
+                                        .getDatasourceList()
+                                        .removeIf(datasource -> !concernedDBNames.contains(datasource.getName()));
                                 return Mono.just(applicationJson);
                             });
                 })
@@ -282,29 +290,9 @@ public class ImportExportApplicationService {
 
                                 DecryptedSensitiveFields decryptedFields =
                                         importedDoc.getDecryptedFields().get(datasource.getName());
-                                final AuthenticationDTO authentication = datasource.getDatasourceConfiguration() == null
-                                        ? null : datasource.getDatasourceConfiguration().getAuthentication();
 
-                                if (authentication != null) {
-                                    if (authentication instanceof DBAuth) {
-                                        DBAuth auth = (DBAuth) authentication;
-                                        auth.setPassword(decryptedFields.getPassword());
-                                    } else if (authentication instanceof BasicAuth) {
-                                        BasicAuth auth = (BasicAuth) authentication;
-                                        auth.setPassword(decryptedFields.getPassword());
-                                    } else if (authentication instanceof OAuth2) {
-                                        OAuth2 auth = (OAuth2) authentication;
-                                        AuthenticationResponse authResponse = new AuthenticationResponse();
-                                        auth.setClientSecret(decryptedFields.getPassword());
-                                        authResponse.setToken(decryptedFields.getToken());
-                                        authResponse.setRefreshToken(decryptedFields.getRefreshToken());
-                                        authResponse.setTokenResponse(decryptedFields.getTokenResponse());
-                                        authResponse.setExpiresAt(Instant.now());
-                                    }
-//                                    authentication.setAuthenticationType(authentication.getClass().getName());
-                                }
+                                updateAuthenticationDTO(datasource, decryptedFields);
                             }
-
                             return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, orgId);
                         })
                         .map(datasource -> {
@@ -439,6 +427,7 @@ public class ImportExportApplicationService {
                 && actionDTO.getDatasource().getId() != null) {
 
             Datasource ds = actionDTO.getDatasource();
+            //Mapping ds name in id field
             ds.setId(datasourceMap.get(ds.getId()));
             ds.setOrganizationId(null);
             return ds.getId();
@@ -473,18 +462,6 @@ public class ImportExportApplicationService {
                                                                 String toOrgId) {
 
         return existingDatasourceFlux
-                .map(ds -> {
-                    final AuthenticationDTO auth = ds.getDatasourceConfiguration() == null
-                            ? null : ds.getDatasourceConfiguration().getAuthentication();
-
-                    if (auth != null) {
-                        AuthenticationDTO datasourceAuth = datasource.getDatasourceConfiguration().getAuthentication();
-                        if (datasourceAuth != null) {
-                            auth.setAuthenticationType(datasourceAuth.getAuthenticationType());
-                        }
-                    }
-                    return ds;
-                })
                 .filter(ds -> ds.softEquals(datasource))
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() ->
@@ -497,5 +474,34 @@ public class ImportExportApplicationService {
                                 })
                                 .then(datasourceService.create(datasource))
                 ));
+    }
+
+    private Datasource updateAuthenticationDTO(Datasource datasource, DecryptedSensitiveFields decryptedFields) {
+
+        final DatasourceConfiguration dsConfig = datasource.getDatasourceConfiguration();
+        String authType = decryptedFields.getAuthType();
+        if (dsConfig == null || authType == null) {
+            return datasource;
+        }
+
+        if (StringUtils.equals(authType, DBAuth.class.getName())) {
+            final DBAuth dbAuth = decryptedFields.getDbAuth();
+            dbAuth.setPassword(decryptedFields.getPassword());
+            datasource.getDatasourceConfiguration().setAuthentication(dbAuth);
+        } else if (StringUtils.equals(authType, BasicAuth.class.getName())) {
+            final BasicAuth basicAuth = decryptedFields.getBasicAuth();
+            basicAuth.setPassword(decryptedFields.getPassword());
+            datasource.getDatasourceConfiguration().setAuthentication(basicAuth);
+        } else if (StringUtils.equals(authType, OAuth2.class.getName())) {
+            OAuth2 auth2 = decryptedFields.getOpenAuth2();
+            AuthenticationResponse authResponse = new AuthenticationResponse();
+            auth2.setClientSecret(decryptedFields.getPassword());
+            authResponse.setToken(decryptedFields.getToken());
+            authResponse.setRefreshToken(decryptedFields.getRefreshToken());
+            authResponse.setTokenResponse(decryptedFields.getTokenResponse());
+            authResponse.setExpiresAt(Instant.now());
+            datasource.getDatasourceConfiguration().setAuthentication(auth2);
+        }
+        return datasource;
     }
 }
