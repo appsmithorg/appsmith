@@ -960,6 +960,9 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    inspectElement: {
+      color: string;
+    };
     floatingButton: {
       background: string;
       color: string;
@@ -1515,6 +1518,9 @@ export const dark: ColorType = {
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
     },
+    inspectElement: {
+      color: "#D4D4D4",
+    },
     blankState: {
       color: "#D4D4D4",
       shortcut: "#D4D4D4",
@@ -1964,8 +1970,11 @@ export const light: ColorType = {
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
     },
+    inspectElement: {
+      color: "#090707",
+    },
     blankState: {
-      color: "#716e6e",
+      color: "#090707",
       shortcut: "black",
     },
     info: {

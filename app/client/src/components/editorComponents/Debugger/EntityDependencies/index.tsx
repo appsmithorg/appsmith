@@ -9,18 +9,20 @@ import { Classes } from "components/ads/common";
 import InspectElement from "assets/images/InspectElement.svg";
 import useSelectedEntity from "./useSelectedEntity";
 import { SourceEntity } from "entities/AppsmithConsole";
+import { createMessage, INSPECT_ENTITY_BLANK_STATE } from "constants/messages";
 import { useEntityLink } from "./EntityLink";
 
 const CollapsibleWrapper = styled.div<{ step: number; isOpen: boolean }>`
   margin-left: ${(props) => props.step * 10}px;
-  padding-top: 8px;
+  padding-top: ${(props) => props.theme.spaces[3]}px;
 
   .label-wrapper {
     display: flex;
     flex-direction: row;
+    font-weight: ${(props) => props.theme.fontWeights[2]};
 
     span {
-      margin-left: 7px;
+      margin-left: ${(props) => props.theme.spaces[3] - 1}px;
     }
   }
 
@@ -30,17 +32,19 @@ const CollapsibleWrapper = styled.div<{ step: number; isOpen: boolean }>`
 `;
 
 const DependenciesWrapper = styled.div`
-  padding: 16px 31px;
+  padding: ${(props) => props.theme.spaces[7]}px
+    ${(props) => props.theme.spaces[13] + 1}px;
+  color: ${(props) => props.theme.colors.debugger.inspectElement.color};
 
   .no-dependencies {
-    margin-left: 10px;
+    margin-left: ${(props) => props.theme.spaces[4]}px;
   }
 `;
 
 const StyledSpan = styled.div<{ step: number }>`
-  padding-top: 8px;
-  padding-left: 15px;
-  margin-left: 10px;
+  padding-top: ${(props) => props.theme.spaces[3]}px;
+  padding-left: ${(props) => props.theme.spaces[6] + 1}px;
+  margin-left: ${(props) => props.theme.spaces[4]}px;
   border-left: solid 1px rgba(147, 144, 144, 0.7);
   text-decoration-line: underline;
   cursor: pointer;
@@ -53,9 +57,10 @@ const BlankStateContainer = styled.div`
   justify-content: center;
   flex: 1;
   flex-direction: column;
+  color: ${(props) => props.theme.colors.debugger.blankState.color};
 
   span {
-    margin-top: 21px;
+    margin-top: ${(props) => props.theme.spaces[9] + 1}px;
   }
 `;
 
@@ -99,7 +104,7 @@ function BlankState() {
   return (
     <BlankStateContainer>
       <img src={InspectElement} />
-      <span>Select an element to inspect</span>
+      <span>{createMessage(INSPECT_ENTITY_BLANK_STATE)}</span>
     </BlankStateContainer>
   );
 }
