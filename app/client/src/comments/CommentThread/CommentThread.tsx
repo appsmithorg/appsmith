@@ -39,7 +39,7 @@ const ThreadContainer = styled(animated.div)<{
       : "transparent"};
   max-height: ${(props) =>
     props.inline ? `calc(100vh - ${props.theme.smallHeaderHeight})` : "unset"};
-  // overflow: auto collapses the comment threads in the sidebar
+  /* overflow: auto collapses the comment threads in the sidebar */
   overflow: ${(props) => (props.inline ? "auto" : "unset")};
 `;
 
@@ -149,7 +149,6 @@ function CommentThreadContainer({
               <ThreadContainer
                 inline={inline}
                 pinned={commentThread.pinnedState?.active}
-                // style={transition}
                 tabIndex={0}
                 visible={isVisible}
               >

@@ -78,7 +78,6 @@ const useUpdateCommentMode = async (currentUser?: User) => {
     const isCommentsIntroSeen = await getCommentsIntroSeen();
     const updatedIsCommentMode = isCommentMode === "true" ? true : false;
 
-    // TODO add check for !currentUser?.name here
     if (updatedIsCommentMode && !isCommentsIntroSeen) {
       dispatch(showCommentsIntroCarousel());
     } else {
