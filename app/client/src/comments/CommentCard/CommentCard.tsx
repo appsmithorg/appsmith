@@ -217,7 +217,6 @@ function CommentCard({
   inline?: boolean;
   visible?: boolean;
 }) {
-  console.log(comment, "comment");
   const [isHovered, setIsHovered] = useState(false);
   const [cardMode, setCardMode] = useState(CommentCardModes.VIEW);
   const dispatch = useDispatch();
@@ -320,8 +319,6 @@ function CommentCard({
     (showOptions || !!resolved) && isParentComment && toggleResolved;
 
   const hasReactions = !!reactions;
-
-  console.log(authorUsername, "authorUsername");
 
   return (
     <StyledContainer

@@ -26,6 +26,7 @@ const initialState: ApplicationsReduxState = {
   duplicatingApplication: false,
   userOrgs: [],
   isSavingOrgInfo: false,
+  showAppInviteUsersDialog: false,
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -322,6 +323,13 @@ const applicationsReducer = createReducer(initialState, {
   [ReduxActionTypes.RESET_CURRENT_APPLICATION]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, currentApplication: null }),
+  [ReduxActionTypes.SET_SHOW_APP_INVITE_USERS_MODAL]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    showAppInviteUsersDialog: action.payload,
+  }),
 });
 
 export type creatingApplicationMap = Record<string, boolean>;
@@ -341,6 +349,7 @@ export interface ApplicationsReduxState {
   currentApplication?: ApplicationPayload;
   userOrgs: Organization[];
   isSavingOrgInfo: boolean;
+  showAppInviteUsersDialog: boolean;
 }
 
 export interface Application {
