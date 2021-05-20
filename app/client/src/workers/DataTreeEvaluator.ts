@@ -740,7 +740,6 @@ export default class DataTreeEvaluator {
     dependenciesOfRemovedPaths: Array<string>;
     removedPaths: Array<string>;
   } {
-    // Handle scenario where widget with __scope field has a dependency added for the same to all its user fields
     const diffCalcStart = performance.now();
     let didUpdateDependencyMap = false;
     const dependenciesOfRemovedPaths: Array<string> = [];
