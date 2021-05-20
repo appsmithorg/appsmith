@@ -75,7 +75,6 @@ export function ModalComponent(props: ModalComponentProps) {
       modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [props.scrollContents]);
-  console.log(props.height, props.width, props.left, props.top);
   return (
     <Overlay
       canEscapeKeyClose={false}
@@ -85,9 +84,6 @@ export function ModalComponent(props: ModalComponentProps) {
       isOpen={props.isOpen}
       onClose={props.onClose}
       portalClassName="bp3-modal-widget"
-      portalContainer={
-        document.querySelector(".t--canvas-artboard") as HTMLElement
-      }
       usePortal
     >
       <Container

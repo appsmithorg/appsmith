@@ -232,12 +232,6 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   private _menu = React.createRef<HTMLDivElement>();
 
-  isModalWidgetParent = () => {
-    if (Boolean(this._menu.current?.closest(".bp3-modal-widget"))) {
-      return document.querySelector(".bp3-modal-widget") as HTMLElement;
-    }
-    return document.querySelector(".appsmith_widget_0") as HTMLElement;
-  };
   render() {
     const { options, selectedIndexArr } = this.props;
     const selectedItems = selectedIndexArr
@@ -307,7 +301,9 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               popoverProps={{
                 minimal: true,
                 usePortal: true,
-                portalContainer: this.isModalWidgetParent(),
+                portalContainer: this.props.getDropdownPosition(
+                  this._menu.current,
+                ),
                 modifiers: {
                   preventOverflow: {
                     enabled: false,
@@ -434,6 +430,7 @@ export interface DropDownComponentProps extends ComponentProps {
   isFilterable: boolean;
   width: number;
   height: number;
+  getDropdownPosition: (node: HTMLDivElement | null) => HTMLElement;
 }
 
 export default DropDownComponent;
