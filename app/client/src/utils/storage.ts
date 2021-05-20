@@ -60,6 +60,16 @@ export const getCopiedWidgets = async () => {
   }
 };
 
+export const clearCopiedItems = async () => {
+  try {
+    await store.removeItem(STORAGE_KEYS.COPIED_WIDGET);
+    return true;
+  } catch (error) {
+    log.error("An error occurred when clearing copied widgets: ", error);
+    return false;
+  }
+};
+
 export const saveDeletedWidgets = async (widgets: any, widgetId: string) => {
   try {
     await store.setItem(

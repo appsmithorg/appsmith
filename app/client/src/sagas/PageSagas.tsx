@@ -89,6 +89,7 @@ import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
+import { clearCopiedItems } from "utils/storage";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -208,6 +209,8 @@ export function* fetchPageSaga(
       });
 
       if (willPageBeMigrated) {
+        // doing this so that previous version widgets dont end up in the new version.
+        yield clearCopiedItems();
         yield put(saveLayout());
       }
 
