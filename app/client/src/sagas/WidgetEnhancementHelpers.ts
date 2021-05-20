@@ -31,6 +31,7 @@ export enum WidgetEnhancementType {
   CUSTOM_CONTROL = "child.customJSControl",
   AUTOCOMPLETE = "child.autocomplete",
   HIDE_EVALUATED_VALUE = "child.hideEvaluatedValue",
+  UPDATE_DATA_TREE_PATH = "child.updateDataTreePath",
 }
 
 export function getParentWithEnhancementFn(
@@ -162,6 +163,7 @@ export function useChildWidgetEnhancementFn(
 }
 
 type EnhancmentFns = {
+  updateDataTreePathFn: any;
   propertyPaneEnhancmentFn: any;
   autoCompleteEnhancementFn: any;
   customJSControlEnhancementFn: any;
@@ -170,6 +172,7 @@ type EnhancmentFns = {
 
 export function useChildWidgetEnhancementFns(widgetId: string): EnhancmentFns {
   const enhancmentFns = {
+    updateDataTreePathFn: undefined,
     propertyPaneEnhancmentFn: undefined,
     autoCompleteEnhancementFn: undefined,
     customJSControlEnhancementFn: undefined,
@@ -190,6 +193,10 @@ export function useChildWidgetEnhancementFns(widgetId: string): EnhancmentFns {
     // Get the enhancement function based on the enhancementType
     // from the configs
     const widgetEnhancmentFns = {
+      updateDataTreePathFn: getWidgetEnhancementFn(
+        parentWithEnhancementFn.type,
+        WidgetEnhancementType.UPDATE_DATA_TREE_PATH,
+      ),
       propertyPaneEnhancmentFn: getWidgetEnhancementFn(
         parentWithEnhancementFn.type,
         WidgetEnhancementType.PROPERTY_UPDATE,

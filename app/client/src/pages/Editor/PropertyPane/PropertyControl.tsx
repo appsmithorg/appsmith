@@ -53,6 +53,7 @@ const PropertyControl = memo((props: Props) => {
 
   /** get all child enhancments functions */
   const {
+    updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
     propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
@@ -352,6 +353,19 @@ const PropertyControl = memo((props: Props) => {
       return false;
     };
 
+    /**
+     * update data tree path if any
+     *
+     * @returns
+     */
+    const updateDataTreePath = () => {
+      if (childWidgetDataTreePathEnhancementFn) {
+        return childWidgetDataTreePathEnhancementFn(config.dataTreePath);
+      }
+
+      return props.dataTreePath;
+    };
+
     try {
       return (
         <ControlWrapper
@@ -401,6 +415,7 @@ const PropertyControl = memo((props: Props) => {
                 getCustomJSControl(),
                 additionAutocomplete,
                 hideEvaluatedValue(),
+                updateDataTreePath(),
               )}
             </Indicator>
           </Boxed>

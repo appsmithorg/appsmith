@@ -20,13 +20,16 @@ class CodeEditorControl extends BaseControl<ControlProps> {
       useValidationMessage,
       jsErrorMessage,
     } = this.props;
+
     const props: Partial<ControlProps> = {};
+
     if (dataTreePath) props.dataTreePath = dataTreePath;
     if (evaluatedValue) props.evaluatedValue = evaluatedValue;
     if (expected) props.expected = expected;
 
     return (
       <CodeEditor
+        additionalDynamicData={this.props.additionalAutoComplete}
         input={{ value: propertyValue, onChange: this.onChange }}
         jsErrorMessage={jsErrorMessage}
         meta={{

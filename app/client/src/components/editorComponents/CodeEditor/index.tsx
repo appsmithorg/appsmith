@@ -365,6 +365,7 @@ class CodeEditor extends Component<Props, State> {
     if (dataTreePath) {
       evaluated = _.get(dynamicData, dataTreePath);
     }
+
     const showEvaluatedValue =
       this.state.isFocused &&
       ("evaluatedValue" in this.props ||
