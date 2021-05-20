@@ -132,7 +132,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     return {
-      itemBackgroundColor: "#FFFFFF",
       ...childrenDefaultPropertiesMap,
     };
   }
@@ -218,8 +217,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.noPad = true;
+     // dynamically created path
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+     // step 1 - dynamic create meta property path
+     // step 2 - pass options to createWidget factory method
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode, {
+      metaPropPath: `Input1.text`,
+      widgetId: this.props.widgetId
+    });
   };
 
   /**

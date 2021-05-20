@@ -90,6 +90,7 @@ class WidgetFactory {
   static createWidget(
     widgetData: WidgetDataProps,
     renderMode: RenderMode,
+    options: any,
   ): React.ReactNode {
     const widgetProps: WidgetProps = {
       key: widgetData.widgetId,
@@ -100,7 +101,9 @@ class WidgetFactory {
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       // TODO validate props here
-      const widget = widgetBuilder.buildWidget(widgetProps);
+
+      // step 3 - pass options to build widget
+      const widget = widgetBuilder.buildWidget(widgetProps, options);
       return widget;
     } else {
       const ex: WidgetCreationException = {

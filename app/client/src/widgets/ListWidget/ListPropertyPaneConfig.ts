@@ -33,6 +33,7 @@ const PropertyPaneConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        defaultValue: "#FFFFFF",
       },
 
       {

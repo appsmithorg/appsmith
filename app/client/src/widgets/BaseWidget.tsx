@@ -382,7 +382,8 @@ export interface BaseStyle {
 export type WidgetState = Record<string, unknown>;
 
 export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
-  buildWidget(widgetProps: T): JSX.Element;
+  // step 4 - accept options as 2nd param and use proper types for options
+  buildWidget(widgetProps: T, options?: any): JSX.Element;
 }
 
 export interface WidgetBaseProps {

@@ -655,7 +655,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     [WidgetTypes.LIST_WIDGET]: {
       backgroundColor: "",
-      itemBackgroundColor: "white",
+      itemBackgroundColor: "#FFFFFF",
       rows: 10 * GRID_DENSITY_MIGRATION_V1,
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
       gridType: "vertical",

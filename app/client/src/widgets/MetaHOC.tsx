@@ -137,6 +137,8 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
         if (updateWidgetMetaProperty) {
           const propertyValue = this.state[propertyName];
           clearEvalPropertyCache(`${widgetName}.${propertyName}`);
+          // step 6 - look at this.props.options, check for metaPropPath value
+          // if they exist, then update the propertyName
           updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
           this.updatedProperties.delete(propertyName);
         }
