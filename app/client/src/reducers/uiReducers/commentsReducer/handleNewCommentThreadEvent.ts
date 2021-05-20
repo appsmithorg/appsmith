@@ -13,23 +13,17 @@ const handleNewCommentThreadEvent = (
     {},
   ) as Record<string, Array<string>>;
   const threadsForRefId = get(applicationCommentIdsByRefId, thread.refId, []);
-  // Prevent duplicate events from hiding the thread popover
-  // Can happen if the creator is also receiving the new comment thread updates
-  const isVisible = get(
-    state.commentThreadsMap,
-    `${thread._id}.isVisible`,
-    false,
-  );
   const existingComments = get(
     state.commentThreadsMap,
     `${thread._id}.comments`,
     [],
   ) as [];
 
+  // TODO override fields explicitly?
   state.commentThreadsMap[thread._id] = {
-    id: thread._id,
     ...thread,
-    isVisible,
+    ...(state.commentThreadsMap[thread._id] || {}),
+    id: thread._id,
     comments: [...existingComments, ...(thread.comments || [])],
   };
 
@@ -38,11 +32,14 @@ const handleNewCommentThreadEvent = (
   }
   state.applicationCommentThreadsByRef[thread.applicationId] = {
     ...state.applicationCommentThreadsByRef[thread.applicationId],
-    [thread.refId]: Array.from(new Set([...threadsForRefId, thread._id])),
+    [thread.refId]: Array.from(new Set([thread._id, ...threadsForRefId])),
   };
+
+  const showUnreadIndicator = !state.isCommentMode;
 
   return {
     ...state,
+    showUnreadIndicator,
   };
 };
 

@@ -29,6 +29,7 @@ import releasesReducer from "./releasesReducer";
 import commentsReducer from "./commentsReducer/commentsReducer";
 import websocketReducer from "./websocketReducer";
 import debuggerReducer from "./debuggerReducer";
+import tourReducer from "./tourReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -61,6 +62,7 @@ const uiReducer = combineReducers({
   comments: commentsReducer,
   websocket: websocketReducer,
   debugger: debuggerReducer,
+  tour: tourReducer,
 });
 
 export default uiReducer;
