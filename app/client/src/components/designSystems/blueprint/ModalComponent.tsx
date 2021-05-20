@@ -5,10 +5,12 @@ import { getCanvasClassName } from "utils/generators";
 import { Layers } from "constants/Layers";
 
 const Container = styled.div<{
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   top?: number;
   left?: number;
+  bottom?: number;
+  right?: number;
   zIndex?: number;
 }>`
   &&& {
@@ -28,39 +30,43 @@ const Container = styled.div<{
       align-items: center;
       & .${Classes.OVERLAY_CONTENT} {
         max-width: 95%;
-        width: ${(props) => props.width}px;
-        min-height: ${(props) => props.height}px;
+        width: ${(props) => (props.width ? `${props.width}px` : "auto")};
+        min-height: ${(props) => (props.height ? `${props.height}px` : "auto")};
         background: white;
         border-radius: ${(props) => props.theme.radii[0]}px;
         top: ${(props) => props.top}px;
         left: ${(props) => props.left}px;
+        bottom: ${(props) => props.bottom}px;
+        right: ${(props) => props.right}px;
       }
     }
   }
 `;
 const Content = styled.div<{
-  height: number;
+  height?: number;
   scroll: boolean;
   ref: RefObject<HTMLDivElement>;
 }>`
   overflow-y: ${(props) => (props.scroll ? "visible" : "hidden")};
   overflow-x: hidden;
   width: 100%;
-  height: ${(props) => props.height}px;
+  height: ${(props) => (props.height ? `${props.height}px` : "auto")};
 `;
 
 export type ModalComponentProps = {
   isOpen: boolean;
   onClose: (e: any) => void;
   children: ReactNode;
-  width: number;
+  width?: number;
   className?: string;
   canOutsideClickClose: boolean;
   canEscapeKeyClose: boolean;
   scrollContents: boolean;
-  height: number;
+  height?: number;
   top?: number;
   left?: number;
+  bottom?: number;
+  right?: number;
   hasBackDrop?: boolean;
   zIndex?: number;
 };
@@ -77,8 +83,10 @@ export function ModalComponent(props: ModalComponentProps) {
   }, [props.scrollContents]);
   return (
     <Container
+      bottom={props.bottom}
       height={props.height}
       left={props.left}
+      right={props.bottom}
       top={props.top}
       width={props.width}
       zIndex={props.zIndex !== undefined ? props.zIndex : Layers.modalWidget}
