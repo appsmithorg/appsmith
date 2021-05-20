@@ -72,7 +72,6 @@ function CommentContextMenu({
   const options = useMemo(() => {
     const options = [];
     if (isParentComment) {
-      // TODO add edit option
       options.push(
         {
           icon: isPinned ? "unpin" : "pin-3",

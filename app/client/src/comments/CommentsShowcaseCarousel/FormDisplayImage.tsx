@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { updatePhoto } from "actions/userActions";
 import { useDispatch } from "react-redux";
 
@@ -10,12 +10,10 @@ import Uppy from "@uppy/core";
 function FormDisplayImage() {
   const [file, setFile] = useState<any>();
   const [imageURL, setImageURL] = useState(`/api/${UserApi.photoURL}`);
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const dispatch = useDispatch();
   const dispatchActionRef = useRef<(uppy: Uppy.Uppy) => void | null>();
 
   const onUploadComplete = (uppy: Uppy.Uppy) => {
-    forceUpdate();
     uppy.reset();
     setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
   };

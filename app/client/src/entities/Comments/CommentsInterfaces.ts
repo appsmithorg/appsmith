@@ -38,13 +38,22 @@ export type CreateCommentThreadRequest = {
   isViewed?: boolean;
 };
 
+export type Reaction = {
+  byName: string;
+  byUsername: string;
+  createdAt: string;
+  emoji: string;
+};
+
 export type Comment = CreateCommentRequest & {
   id: string;
   authorName?: string;
   authorUsername?: string;
   updationTime?: string;
   creationTime?: string;
-};
+  reactions?: Array<Reaction>;
+  threadId?: string;
+} & { _id: string };
 
 export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   id: string;

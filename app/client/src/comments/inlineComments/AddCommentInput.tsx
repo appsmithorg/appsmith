@@ -62,6 +62,8 @@ const Row = styled.div`
   justify-content: space-between;
 `;
 
+// Trigger tests
+
 const insertCharacter = (
   characterToInsert: string,
   editorState: EditorState,

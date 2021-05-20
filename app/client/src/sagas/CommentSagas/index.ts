@@ -292,6 +292,30 @@ function* setIfCommentsAreEnabled() {
   }
 }
 
+function* addCommentReaction(
+  action: ReduxAction<{ emoji: string; commentId: string }>,
+) {
+  try {
+    const { commentId, emoji } = action.payload;
+    yield CommentsApi.addCommentReaction(commentId, { emoji });
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+function* deleteCommentReaction(
+  action: ReduxAction<{ emoji: string; commentId: string }>,
+) {
+  try {
+    const { commentId, emoji } = action.payload;
+    yield CommentsApi.removeCommentReaction(commentId, {
+      emoji,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 export default function* commentSagas() {
   yield all([
     // takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
@@ -321,6 +345,8 @@ export default function* commentSagas() {
     takeLatest(ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST, markThreadAsRead),
     takeLatest(ReduxActionTypes.EDIT_COMMENT_REQUEST, editComment),
     takeLatest(ReduxActionTypes.DELETE_THREAD_REQUEST, deleteCommentThread),
+    takeLatest(ReduxActionTypes.ADD_COMMENT_REACTION, addCommentReaction),
+    takeLatest(ReduxActionTypes.REMOVE_COMMENT_REACTION, deleteCommentReaction),
     fork(setIfCommentsAreEnabled),
   ]);
 }

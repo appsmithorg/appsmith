@@ -50,20 +50,14 @@ function ProfileForm(props: any) {
       <div style={{ marginBottom: 10 }}>
         <FormDisplayImage />
       </div>
-      <FormGroup
-        // intent={error ? "danger" : "none"}
-        label={createMessage(DISPLAY_NAME)}
-      >
+      <FormGroup label={createMessage(DISPLAY_NAME)}>
         <FormTextField
           hideErrorMessage
           name={fieldNames.displayName}
           placeholder={createMessage(DISPLAY_NAME)}
         />
       </FormGroup>
-      <FormGroup
-        // intent={error ? "danger" : "none"}
-        label={createMessage(EMAIL_ADDRESS)}
-      >
+      <FormGroup label={createMessage(EMAIL_ADDRESS)}>
         <FormTextField
           disabled={props.emailDisabled}
           hideErrorMessage
@@ -77,7 +71,9 @@ function ProfileForm(props: any) {
 }
 
 export default reduxForm({
-  // A destroy action is dispatched so the initial values don't get set
+  // Currently while using this feature,
+  // a destroy action is dispatched
+  // so the initial values don't get set
   // TODO: triage this issue
   destroyOnUnmount: false,
   form: PROFILE_FORM,
