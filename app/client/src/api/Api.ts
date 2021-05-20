@@ -68,22 +68,6 @@ class Api {
     );
   }
 
-  static patch(
-    url: string,
-    body?: any,
-    queryParams?: any,
-    config: Partial<AxiosRequestConfig> = {},
-  ) {
-    return axiosInstance.patch(
-      url + convertObjectToQueryParams(queryParams),
-      body,
-      {
-        ...apiRequestConfig,
-        ...config,
-      },
-    );
-  }
-
   static delete(
     url: string,
     queryParams?: any,
@@ -96,6 +80,6 @@ class Api {
   }
 }
 
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 export default Api;
