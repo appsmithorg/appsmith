@@ -189,7 +189,7 @@ public class ImportExportApplicationService {
                                     newAction.setOrganizationId(null);
                                     newAction.setPolicies(null);
                                     newAction.setApplicationId(applicationName);
-                                    if (newAction.getPluginType() == PluginType.DB) {
+                                    if (newAction.getPluginType() == PluginType.DB || newAction.getPluginType() == PluginType.API) {
                                         concernedDBNames.add(mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceMap));
                                         concernedDBNames.add(mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceMap));
                                     }
