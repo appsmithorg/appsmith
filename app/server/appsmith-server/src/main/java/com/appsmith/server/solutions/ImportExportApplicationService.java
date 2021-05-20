@@ -147,43 +147,9 @@ public class ImportExportApplicationService {
                                         .collectList();
                             })
                             .map(datasourceList -> {
-                                Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
-                                //Only export those which are used in the app instead of org level
                                 datasourceList.forEach(datasource -> {
-                                    final AuthenticationDTO authentication = datasource.getDatasourceConfiguration() == null
-                                            ? null : datasource.getDatasourceConfiguration().getAuthentication();
-
-                                    if (authentication != null) {
-                                        DecryptedSensitiveFields dsDecryptedFields =
-                                                authentication.getAuthenticationResponse() == null
-                                                        ? new DecryptedSensitiveFields()
-                                                        : new DecryptedSensitiveFields(authentication.getAuthenticationResponse());
-
-                                        if (authentication instanceof DBAuth) {
-                                            DBAuth auth = (DBAuth) authentication;
-                                            dsDecryptedFields.setPassword(auth.getPassword());
-                                            dsDecryptedFields.setDbAuth(auth);
-                                        } else if (authentication instanceof OAuth2) {
-                                            OAuth2 auth = (OAuth2) authentication;
-                                            dsDecryptedFields.setPassword(auth.getClientSecret());
-                                            dsDecryptedFields.setOpenAuth2(auth);
-                                        } else if (authentication instanceof BasicAuth) {
-                                            BasicAuth auth = (BasicAuth) authentication;
-                                            dsDecryptedFields.setPassword(auth.getPassword());
-                                            dsDecryptedFields.setBasicAuth(auth);
-                                        }
-                                        dsDecryptedFields.setAuthType(authentication.getClass().getName());
-                                        decryptedFields.put(datasource.getName(), dsDecryptedFields);
-                                    }
-
-                                    datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
-                                    datasource.getDatasourceConfiguration().setAuthentication(null);
-
                                     datasourceMap.put(datasource.getId(), datasource.getName());
-                                    datasource.setId(null);
-                                    datasource.setOrganizationId(null);
                                 });
-                                applicationJson.setDecryptedFields(decryptedFields);
                                 applicationJson.setDatasourceList(datasourceList);
                                 return newActionRepository.findByApplicationId(applicationId);
                             })
@@ -195,6 +161,7 @@ public class ImportExportApplicationService {
                                     newAction.setOrganizationId(null);
                                     newAction.setPolicies(null);
                                     newAction.setApplicationId(applicationName);
+                                    //Collect Datasource names to filter only required datasources
                                     if (newAction.getPluginType() == PluginType.DB || newAction.getPluginType() == PluginType.API) {
                                         concernedDBNames.add(mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceMap));
                                         concernedDBNames.add(mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceMap));
@@ -204,10 +171,25 @@ public class ImportExportApplicationService {
                                         actionDTO.setPageId(newPageIdMap.get(actionDTO.getPageId()));
                                     }
                                 });
-                                applicationJson.setActionList(newActionList);
                                 applicationJson
-                                        .getDatasourceList()
-                                        .removeIf(datasource -> !concernedDBNames.contains(datasource.getName()));
+                                    .getDatasourceList()
+                                    .removeIf(datasource -> !concernedDBNames.contains(datasource.getName()));
+                                return newActionList;
+                            })
+                            .map(newActionList -> {
+                                applicationJson.setActionList(newActionList);
+                                //Only export those datasources which are used in the app instead of org level
+                                Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
+                                applicationJson.getDatasourceList().forEach(datasource -> {
+                                    decryptedFields.put(datasource.getName(), getDecryptedFields(datasource));
+                                    datasource.setId(null);
+                                    datasource.setOrganizationId(null);
+                                    datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
+                                    if(datasource.getDatasourceConfiguration() != null) {
+                                        datasource.getDatasourceConfiguration().setAuthentication(null);
+                                    }
+                                });
+                                applicationJson.setDecryptedFields(decryptedFields);
                                 return Mono.just(applicationJson);
                             });
                 })
@@ -461,19 +443,38 @@ public class ImportExportApplicationService {
                                                                 Datasource datasource,
                                                                 String toOrgId) {
 
+        final DatasourceConfiguration datasourceConfig = datasource.getDatasourceConfiguration();
+        AuthenticationResponse authResponse = new AuthenticationResponse();
+        if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
+            authResponse = datasourceConfig.getAuthentication().getAuthenticationResponse();
+            datasourceConfig.getAuthentication().setAuthenticationResponse(null);
+            datasourceConfig.getAuthentication().setAuthenticationType(null);
+        }
+        final AuthenticationResponse finalAuthResponse = authResponse;
         return existingDatasourceFlux
+                .map(ds -> {
+                    final DatasourceConfiguration dsAuthConfig = ds.getDatasourceConfiguration();
+                    if (dsAuthConfig != null && dsAuthConfig.getAuthentication() != null) {
+                        dsAuthConfig.getAuthentication().setAuthenticationResponse(null);
+                        dsAuthConfig.getAuthentication().setAuthenticationType(null);
+                    }
+                    return ds;
+                })
                 .filter(ds -> ds.softEquals(datasource))
                 .next()  // Get the first matching datasource, we don't need more than one here.
-                .switchIfEmpty(Mono.defer(() ->
-                        // No matching existing datasource found, so create a new one.
-                        datasourceService.findByNameAndOrganizationId(datasource.getName(), toOrgId, AclPermission.MANAGE_DATASOURCES)
-                                .flatMap(duplicateNameDatasource -> getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, toOrgId))
-                                .map(suffix -> {
-                                    datasource.setName(datasource.getName() + suffix);
-                                    return datasource;
-                                })
-                                .then(datasourceService.create(datasource))
-                ));
+                .switchIfEmpty(Mono.defer(() -> {
+                    if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
+                        datasourceConfig.getAuthentication().setAuthenticationResponse(finalAuthResponse);
+                    }
+                    // No matching existing datasource found, so create a new one.
+                    return datasourceService.findByNameAndOrganizationId(datasource.getName(), toOrgId, AclPermission.MANAGE_DATASOURCES)
+                            .flatMap(duplicateNameDatasource -> getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, toOrgId))
+                            .map(suffix -> {
+                                datasource.setName(datasource.getName() + suffix);
+                                return datasource;
+                            })
+                            .then(datasourceService.create(datasource));
+                }));
     }
 
     private Datasource updateAuthenticationDTO(Datasource datasource, DecryptedSensitiveFields decryptedFields) {
@@ -503,5 +504,34 @@ public class ImportExportApplicationService {
             datasource.getDatasourceConfiguration().setAuthentication(auth2);
         }
         return datasource;
+    }
+
+    private DecryptedSensitiveFields getDecryptedFields(Datasource datasource) {
+        final AuthenticationDTO authentication = datasource.getDatasourceConfiguration() == null
+                ? null : datasource.getDatasourceConfiguration().getAuthentication();
+
+        if (authentication != null) {
+            DecryptedSensitiveFields dsDecryptedFields =
+                    authentication.getAuthenticationResponse() == null
+                            ? new DecryptedSensitiveFields()
+                            : new DecryptedSensitiveFields(authentication.getAuthenticationResponse());
+
+            if (authentication instanceof DBAuth) {
+                DBAuth auth = (DBAuth) authentication;
+                dsDecryptedFields.setPassword(auth.getPassword());
+                dsDecryptedFields.setDbAuth(auth);
+            } else if (authentication instanceof OAuth2) {
+                OAuth2 auth = (OAuth2) authentication;
+                dsDecryptedFields.setPassword(auth.getClientSecret());
+                dsDecryptedFields.setOpenAuth2(auth);
+            } else if (authentication instanceof BasicAuth) {
+                BasicAuth auth = (BasicAuth) authentication;
+                dsDecryptedFields.setPassword(auth.getPassword());
+                dsDecryptedFields.setBasicAuth(auth);
+            }
+            dsDecryptedFields.setAuthType(authentication.getClass().getName());
+            return dsDecryptedFields;
+        }
+        return null;
     }
 }
