@@ -1,4 +1,4 @@
-import { Message, Severity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Message, Severity } from "entities/AppsmithConsole";
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -10,6 +10,25 @@ import {
   OPEN_THE_DEBUGGER,
   PRESS,
 } from "constants/messages";
+import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  API_EDITOR_URL,
+  QUERIES_EDITOR_URL,
+  BUILDER_PAGE_URL,
+} from "constants/routes";
+import { useParams } from "react-router";
+import { getWidget } from "sagas/selectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { getAction } from "selectors/entitiesSelector";
+import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { isWidget, isAction } from "workers/evaluationUtils";
+import history from "utils/history";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -96,4 +115,153 @@ export const usePagination = (data: Message[], itemsPerPage = 50) => {
   }, []);
 
   return { next, paginatedData };
+};
+
+export function getDependencies(
+  deps: DependencyMap,
+  entityName: string | null,
+) {
+  if (!entityName) return null;
+
+  const directDependencies = new Set<string>();
+  const inverseDependencies = new Set<string>();
+
+  Object.entries(deps).forEach(([dependant, dependencies]) => {
+    (dependencies as any).map((dependency: any) => {
+      if (!dependant.includes(entityName) && dependency.includes(entityName)) {
+        const entity = dependant
+          .split(".")
+          .slice(0, 1)
+          .join("");
+
+        directDependencies.add(entity);
+      } else if (
+        dependant.includes(entityName) &&
+        !dependency.includes(entityName)
+      ) {
+        const entity = dependency
+          .split(".")
+          .slice(0, 1)
+          .join("");
+
+        inverseDependencies.add(entity);
+      }
+    });
+  });
+
+  return {
+    inverseDependencies: Array.from(inverseDependencies),
+    directDependencies: Array.from(directDependencies),
+  };
+}
+
+export const useSelectedEntity = () => {
+  const applicationId = useSelector(getCurrentApplicationId);
+  const currentPageId = useSelector(getCurrentPageId);
+
+  const params: any = useParams();
+  const action = useSelector((state: AppState) => {
+    if (
+      onApiEditor(applicationId, currentPageId) ||
+      onQueryEditor(applicationId, currentPageId)
+    ) {
+      const id = params.apiId || params.queryId;
+
+      return getAction(state, id);
+    }
+
+    return null;
+  });
+
+  const selectedWidget = useSelector(getCurrentWidgetId);
+  const widget = useSelector((state: AppState) => {
+    if (onCanvas(applicationId, currentPageId)) {
+      return selectedWidget ? getWidget(state, selectedWidget) : null;
+    }
+
+    return null;
+  });
+
+  if (
+    onApiEditor(applicationId, currentPageId) ||
+    onQueryEditor(applicationId, currentPageId)
+  ) {
+    return {
+      name: action?.name ?? "",
+      type: ENTITY_TYPE.ACTION,
+      id: action?.id ?? "",
+    };
+  } else if (onCanvas(applicationId, currentPageId)) {
+    return {
+      name: widget?.widgetName ?? "",
+      type: ENTITY_TYPE.WIDGET,
+      id: widget?.widgetId ?? "",
+    };
+  }
+
+  return null;
+};
+
+const onApiEditor = (
+  applicationId: string | undefined,
+  currentPageId: string | undefined,
+) => {
+  return (
+    window.location.pathname.indexOf(
+      API_EDITOR_URL(applicationId, currentPageId),
+    ) > -1
+  );
+};
+
+const onQueryEditor = (
+  applicationId: string | undefined,
+  currentPageId: string | undefined,
+) => {
+  return (
+    window.location.pathname.indexOf(
+      QUERIES_EDITOR_URL(applicationId, currentPageId),
+    ) > -1
+  );
+};
+
+const onCanvas = (
+  applicationId: string | undefined,
+  currentPageId: string | undefined,
+) => {
+  return (
+    window.location.pathname.indexOf(
+      BUILDER_PAGE_URL(applicationId, currentPageId),
+    ) > -1
+  );
+};
+
+export const useEntityLink = () => {
+  const dataTree = useSelector(getDataTree);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
+
+  const { navigateToWidget } = useNavigateToWidget();
+
+  const navigateToEntity = useCallback(
+    (name) => {
+      const entity = dataTree[name];
+      if (isWidget(entity)) {
+        navigateToWidget(entity.widgetId, entity.type, pageId || "");
+      } else if (isAction(entity)) {
+        const actionConfig = getActionConfig(entity.pluginType);
+        const url =
+          applicationId &&
+          actionConfig?.getURL(applicationId, pageId || "", entity.actionId);
+
+        if (url) {
+          history.push(url);
+        }
+      }
+    },
+    [dataTree],
+  );
+
+  return {
+    navigateToEntity,
+  };
 };

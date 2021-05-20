@@ -7,11 +7,9 @@ import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import InspectElement from "assets/images/InspectElement.svg";
-import useSelectedEntity from "./useSelectedEntity";
 import { SourceEntity } from "entities/AppsmithConsole";
 import { createMessage, INSPECT_ENTITY_BLANK_STATE } from "constants/messages";
-import { useEntityLink } from "./EntityLink";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import { getDependencies, useEntityLink, useSelectedEntity } from "./helpers";
 
 const CollapsibleWrapper = styled.div<{ step: number; isOpen: boolean }>`
   margin-left: ${(props) => props.step * 10}px;
@@ -172,41 +170,6 @@ function Collapsible(props: {
       <Collapse isOpen={isOpen}>{props.children}</Collapse>
     </CollapsibleWrapper>
   );
-}
-
-function getDependencies(deps: DependencyMap, entityName: string | null) {
-  if (!entityName) return null;
-
-  let directDependencies = new Set<string>();
-  let inverseDependencies = new Set<string>();
-
-  Object.entries(deps).forEach(([dependant, dependencies]) => {
-    (dependencies as any).map((dependency: any) => {
-      if (!dependant.includes(entityName) && dependency.includes(entityName)) {
-        const entity = dependant
-          .split(".")
-          .slice(0, 1)
-          .join("");
-
-        directDependencies.add(entity);
-      } else if (
-        dependant.includes(entityName) &&
-        !dependency.includes(entityName)
-      ) {
-        const entity = dependency
-          .split(".")
-          .slice(0, 1)
-          .join("");
-
-        inverseDependencies.add(entity);
-      }
-    });
-  });
-
-  return {
-    inverseDependencies: Array.from(inverseDependencies),
-    directDependencies: Array.from(directDependencies),
-  };
 }
 
 export default EntityDeps;

@@ -8,7 +8,7 @@ import { showDebugger } from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import EntityDeps from "./EntityDependencies";
+import EntityDeps from "./EntityDependecies";
 import {
   createMessage,
   DEBUGGER_ERRORS,

@@ -31,7 +31,7 @@ import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
-import EntityDeps from "./Debugger/EntityDependencies";
+import EntityDeps from "./Debugger/EntityDependecies";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
