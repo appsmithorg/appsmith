@@ -22,11 +22,11 @@ import {
   unpublishedCommentPayload,
   createCommentThreadSuccessPayload,
   addCommentToThreadSuccessPayload,
-  updateCommentThreadPayload,
   newCommentThreadEventPayload,
   updateCommentThreadEventPayload,
   newCommentEventPayload,
 } from "./testFixtures";
+import { CommentThread } from "entities/Comments/CommentsInterfaces";
 
 describe("Test comments reducer handles", () => {
   let state: any;
@@ -76,10 +76,10 @@ describe("Test comments reducer handles", () => {
         ],
         [createCommentThreadSuccessPayload.refId]: Array.from(
           new Set([
+            createCommentThreadSuccessPayload.id,
             ...((prevState.applicationCommentThreadsByRef[
               createCommentThreadSuccessPayload.applicationId
             ] || {})[createCommentThreadSuccessPayload.refId] || []),
-            createCommentThreadSuccessPayload.id,
           ]),
         ),
       },
@@ -110,15 +110,15 @@ describe("Test comments reducer handles", () => {
   });
 
   it("thread updates", () => {
-    state = commentsReducer(
-      state,
-      updateCommentThreadSuccess(updateCommentThreadPayload),
-    );
-    expect(
-      state.commentThreadsMap[updateCommentThreadPayload.id],
-    ).toStrictEqual({
-      ...state.commentThreadsMap[updateCommentThreadPayload.id],
-      ...updateCommentThreadPayload,
+    const threadUpdate: CommentThread =
+      fetchApplicationThreadsMockResponse.data[0];
+    threadUpdate.resolvedState = { active: true };
+
+    state = commentsReducer(state, updateCommentThreadSuccess(threadUpdate));
+
+    expect(state.commentThreadsMap[threadUpdate.id]).toStrictEqual({
+      ...state.commentThreadsMap[threadUpdate.id],
+      ...threadUpdate,
     });
   });
 
@@ -134,7 +134,6 @@ describe("Test comments reducer handles", () => {
       [newCommentThreadEventPayload.thread._id]: {
         ...newCommentThreadEventPayload.thread,
         id: newCommentThreadEventPayload.thread._id,
-        isVisible: false,
         comments:
           state.commentThreadsMap[newCommentThreadEventPayload.thread._id]
             .comments || [],
@@ -149,10 +148,10 @@ describe("Test comments reducer handles", () => {
         ],
         [newCommentThreadEventPayload.thread.refId]: Array.from(
           new Set([
+            newCommentThreadEventPayload.thread._id,
             ...((prevState.applicationCommentThreadsByRef[
               newCommentThreadEventPayload.thread.applicationId
             ] || {})[newCommentThreadEventPayload.thread.refId] || []),
-            newCommentThreadEventPayload.thread._id,
           ]),
         ),
       },

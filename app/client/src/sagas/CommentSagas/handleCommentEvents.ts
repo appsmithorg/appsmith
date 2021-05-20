@@ -4,6 +4,7 @@ import {
   newCommentEvent,
   newCommentThreadEvent,
   updateCommentThreadEvent,
+  updateCommentEvent,
 } from "actions/commentActions";
 import { COMMENT_EVENTS } from "constants/CommentConstants";
 import { reduceCommentsByRef } from "comments/utils";
@@ -26,6 +27,10 @@ export default function* handleCommentEvents(event: any) {
     }
     case COMMENT_EVENTS.UPDATE_COMMENT_THREAD: {
       yield put(updateCommentThreadEvent(event.payload[0].thread));
+      return;
+    }
+    case COMMENT_EVENTS.UPDATE_COMMENT: {
+      yield put(updateCommentEvent(event.payload[0].comment));
       return;
     }
   }
