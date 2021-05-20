@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -9,7 +10,6 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -23,6 +23,15 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.commands.Aggregate;
+import com.external.plugins.commands.Count;
+import com.external.plugins.commands.Delete;
+import com.external.plugins.commands.Distinct;
+import com.external.plugins.commands.Find;
+import com.external.plugins.commands.Insert;
+import com.external.plugins.commands.MongoCommand;
+import com.external.plugins.commands.UpdateMany;
+import com.external.plugins.commands.UpdateOne;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
@@ -67,6 +76,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
+import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -85,7 +96,9 @@ public class MongoPlugin extends BasePlugin {
 
     public static final String N_MODIFIED = "nModified";
 
-    private static final String VALUE_STR = "value";
+    private static final String VALUE = "value";
+
+    private static final String VALUES = "values";
 
     private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
@@ -168,9 +181,9 @@ public class MongoPlugin extends BasePlugin {
                 smartBsonSubstitution = false;
 
                 // Since properties is not empty, we are guaranteed to find the first property.
-            } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null){
+            } else if (properties.get(SMART_BSON_SUBSTITUTION_INDEX) != null) {
                 Object ssubValue = properties.get(SMART_BSON_SUBSTITUTION_INDEX).getValue();
-                if (ssubValue instanceof  Boolean) {
+                if (ssubValue instanceof Boolean) {
                     smartBsonSubstitution = (Boolean) ssubValue;
                 } else if (ssubValue instanceof String) {
                     smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
@@ -209,6 +222,11 @@ public class MongoPlugin extends BasePlugin {
             }
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+            // In case the input type is form instead of raw, parse the same into BSON command
+            String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
+            if (parsedRawCommand != null) {
+                actionConfiguration.setBody(parsedRawCommand);
+            }
 
             return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters);
         }
@@ -241,7 +259,7 @@ public class MongoPlugin extends BasePlugin {
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null));
+                    , null, null));
 
             return mongoOutputMono
                     .onErrorMap(
@@ -278,9 +296,9 @@ public class MongoPlugin extends BasePlugin {
                                  * we either get the modified new value or the pre-modified old value (depending on the
                                  * `new` field in the command. Let's return that value to the user.
                                  */
-                                if (outputJson.has(VALUE_STR)) {
+                                if (outputJson.has(VALUE)) {
                                     result.setBody(objectMapper.readTree(
-                                            cleanUp(new JSONObject().put(VALUE_STR, outputJson.get(VALUE_STR))).toString()
+                                            cleanUp(new JSONObject().put(VALUE, outputJson.get(VALUE))).toString()
                                     ));
                                 }
 
@@ -301,7 +319,7 @@ public class MongoPlugin extends BasePlugin {
                                  */
                                 if (outputJson.has("n")) {
                                     JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
-                                    result.setBody(body);
+                                    result.setBody(objectMapper.readTree(body.toString()));
                                     headerArray.put(body);
                                 }
 
@@ -311,8 +329,17 @@ public class MongoPlugin extends BasePlugin {
                                  */
                                 if (outputJson.has(N_MODIFIED)) {
                                     JSONObject body = new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
-                                    result.setBody(body);
+                                    result.setBody(objectMapper.readTree(body.toString()));
                                     headerArray.put(body);
+                                }
+
+                                /**
+                                 * The json contains key "values" when distinct command is used.
+                                 */
+                                if (outputJson.has(VALUES)) {
+                                    JSONArray outputResult = (JSONArray) cleanUp(
+                                            outputJson.getJSONArray("values"));
+                                    result.setBody(objectMapper.readTree(outputResult.toString()));
                                 }
 
                                 /** TODO
@@ -353,6 +380,59 @@ public class MongoPlugin extends BasePlugin {
                         return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private String convertMongoFormInputToRawCommand(ActionConfiguration actionConfiguration) {
+            List<Property> templates = actionConfiguration.getPluginSpecifiedTemplates();
+            if (templates != null) {
+                if ((templates.size() >= (1 + INPUT_TYPE)) &&
+                        (templates.get(INPUT_TYPE) != null) &&
+                        ("FORM".equals(templates.get(INPUT_TYPE).getValue())) &&
+                        (templates.size() >= (1 + COMMAND)) &&
+                        (templates.get(COMMAND) != null) &&
+                        (templates.get(COMMAND).getValue() != null)) {
+                    // The user has configured FORM for command input. Parse the commands appropriately
+
+                    MongoCommand command = null;
+                    switch ((String) templates.get(COMMAND).getValue()) {
+                        case "INSERT":
+                            command = new Insert(actionConfiguration);
+                            break;
+                        case "FIND":
+                            command = new Find(actionConfiguration);
+                            break;
+                        case "UPDATE_ONE":
+                            command = new UpdateOne(actionConfiguration);
+                            break;
+                        case "UPDATE_MANY":
+                            command = new UpdateMany(actionConfiguration);
+                            break;
+                        case "DELETE":
+                            command = new Delete(actionConfiguration);
+                            break;
+                        case "COUNT":
+                            command = new Count(actionConfiguration);
+                            break;
+                        case "DISTINCT":
+                            command = new Distinct(actionConfiguration);
+                            break;
+                        case "AGGREGATE":
+                            command = new Aggregate(actionConfiguration);
+                            break;
+                        default:
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid mongo command found. Please select a command from the \"Command\" dropdown and try again");
+                    }
+                    if (!command.isValid()) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Try again after configuring the fields : " + command.getFieldNamesWithNoConfiguration());
+                    }
+
+                    return command.parseCommand().toJson();
+                }
+            }
+
+            // We reached here. This means either this is a RAW command input or some configuration error has happened
+            // in which case, we default to RAW
+            return actionConfiguration.getBody();
         }
 
         private String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {
@@ -456,21 +536,19 @@ public class MongoPlugin extends BasePlugin {
             if (isUsingURI(datasourceConfiguration)) {
                 if (hasNonEmptyURI(datasourceConfiguration)) {
                     String uriWithHiddenPassword =
-                            (String)properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
+                            (String) properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
                     Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
                     if (extractedInfo != null) {
-                            String password = ((DBAuth)datasourceConfiguration.getAuthentication()).getPassword();
-                            return buildURIfromExtractedInfo(extractedInfo, password);
-                    }
-                    else {
+                        String password = ((DBAuth) datasourceConfiguration.getAuthentication()).getPassword();
+                        return buildURIfromExtractedInfo(extractedInfo, password);
+                    } else {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                 "Appsmith server has failed to parse the Mongo connection string URI. Please check " +
                                         "if the URI has the correct format."
                         );
                     }
-                }
-                else {
+                } else {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Could not find any Mongo connection string URI. Please edit the 'Mongo Connection String" +
@@ -590,6 +668,22 @@ public class MongoPlugin extends BasePlugin {
             }
         }
 
+        private boolean hostStringHasConnectionURIHead(String host) {
+            if (!StringUtils.isEmpty(host) && (host.contains("mongodb://") || host.contains("mongodb+srv"))) {
+                return true;
+            }
+
+            return false;
+        }
+
+        private boolean isHostStringConnectionURI(Endpoint endpoint) {
+            if (endpoint != null && hostStringHasConnectionURIHead(endpoint.getHost())) {
+                return true;
+            }
+
+            return false;
+        }
+
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
@@ -599,7 +693,7 @@ public class MongoPlugin extends BasePlugin {
                     invalids.add("'Mongo Connection String URI' field is empty. Please edit the 'Mongo Connection " +
                             "URI' field to provide a connection uri to connect with.");
                 } else {
-                    String mongoUri = (String)properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
+                    String mongoUri = (String) properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
                     if (!mongoUri.matches(MONGO_URI_REGEX)) {
                         invalids.add("Mongo Connection String URI does not seem to be in the correct format. Please " +
                                 "check the URI once.");
@@ -641,7 +735,7 @@ public class MongoPlugin extends BasePlugin {
                 if (!CollectionUtils.isEmpty(endpoints)) {
                     boolean usingUri = endpoints
                             .stream()
-                            .anyMatch(endPoint -> endPoint.getHost().matches(MONGO_URI_REGEX));
+                            .anyMatch(endPoint -> isHostStringConnectionURI(endPoint));
 
                     if (usingUri) {
                         invalids.add("It seems that you are trying to use a mongo connection string URI. Please " +
@@ -832,89 +926,27 @@ public class MongoPlugin extends BasePlugin {
 
             columns.sort(Comparator.naturalOrder());
 
-            templates.add(
-                    new DatasourceStructure.Template(
-                            "Find",
-                            "{\n" +
-                                    "  \"find\": \"" + collectionName + "\",\n" +
-                                    (
-                                            filterFieldName == null ? "" :
-                                                    "  \"filter\": {\n" +
-                                                            "    \"" + filterFieldName + "\": \"" + filterFieldValue + "\"\n" +
-                                                            "  },\n"
-                                    ) +
-                                    "  \"sort\": {\n" +
-                                    "    \"_id\": 1\n" +
-                                    "  },\n" +
-                                    "  \"limit\": 10\n" +
-                                    "}\n"
-                    )
+            Map<String, Object> templateConfiguration = new HashMap<>();
+            templateConfiguration.put("collectionName", collectionName);
+            templateConfiguration.put("filterFieldName", filterFieldName);
+            templateConfiguration.put("filterFieldValue", filterFieldValue);
+            templateConfiguration.put("sampleInsertValues", sampleInsertValues);
+
+            templates.addAll(
+                    new Find().generateTemplate(templateConfiguration)
             );
 
-            templates.add(
-                    new DatasourceStructure.Template(
-                            "Find by ID",
-                            "{\n" +
-                                    "  \"find\": \"" + collectionName + "\",\n" +
-                                    "  \"filter\": {\n" +
-                                    "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
-                                    "  }\n" +
-                                    "}\n"
-                    )
+
+            templates.addAll(
+                    new Insert().generateTemplate(templateConfiguration)
             );
 
-            sampleInsertValues.entrySet().stream()
-                    .map(entry -> "      \"" + entry.getKey() + "\": " + entry.getValue() + ",\n")
-                    .collect(Collectors.joining(""));
-            templates.add(
-                    new DatasourceStructure.Template(
-                            "Insert",
-                            "{\n" +
-                                    "  \"insert\": \"" + collectionName + "\",\n" +
-                                    "  \"documents\": [\n" +
-                                    "    {\n" +
-                                    sampleInsertValues.entrySet().stream()
-                                            .map(entry -> "      \"" + entry.getKey() + "\": " + entry.getValue() + ",\n")
-                                            .sorted()
-                                            .collect(Collectors.joining("")) +
-                                    "    }\n" +
-                                    "  ]\n" +
-                                    "}\n"
-                    )
+            templates.addAll(
+                    new UpdateMany().generateTemplate(templateConfiguration)
             );
 
-            templates.add(
-                    new DatasourceStructure.Template(
-                            "Update",
-                            "{\n" +
-                                    "  \"update\": \"" + collectionName + "\",\n" +
-                                    "  \"updates\": [\n" +
-                                    "    {\n" +
-                                    "      \"q\": {\n" +
-                                    "        \"_id\": ObjectId(\"id_of_document_to_update\")\n" +
-                                    "      },\n" +
-                                    "      \"u\": { \"$set\": { \"" + filterFieldName + "\": \"new value\" } }\n" +
-                                    "    }\n" +
-                                    "  ]\n" +
-                                    "}\n"
-                    )
-            );
-
-            templates.add(
-                    new DatasourceStructure.Template(
-                            "Delete",
-                            "{\n" +
-                                    "  \"delete\": \"" + collectionName + "\",\n" +
-                                    "  \"deletes\": [\n" +
-                                    "    {\n" +
-                                    "      \"q\": {\n" +
-                                    "        \"_id\": \"id_of_document_to_delete\"\n" +
-                                    "      },\n" +
-                                    "      \"limit\": 1\n" +
-                                    "    }\n" +
-                                    "  ]\n" +
-                                    "}\n"
-                    )
+            templates.addAll(
+                    new Delete().generateTemplate(templateConfiguration)
             );
         }
 

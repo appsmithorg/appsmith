@@ -1,7 +1,10 @@
 /**
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
-import { get, omit, cloneDeep } from "lodash";
+import get from "lodash/get";
+import isObject from "lodash/isObject";
+import omit from "lodash/omit";
+import cloneDeep from "lodash/cloneDeep";
 import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
@@ -76,6 +79,9 @@ function* syncApiParamsSaga(
   //Payload here contains the path and query params of a typical url like https://{domain}/{path}?{query_params}
   let value = actionPayload.payload;
   // Regular expression to find the query params group
+  if (isObject(value)) {
+    value = get(value, "datasourceConfiguration.url", "");
+  }
   const queryParamsRegEx = /(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
   value = (value.match(queryParamsRegEx) || [])[2] || "";
   const padQueryParams = { key: "", value: "" };
@@ -84,7 +90,11 @@ function* syncApiParamsSaga(
     if (value.indexOf("?") > -1) {
       const paramsString = value.substr(value.indexOf("?") + 1);
       const params = paramsString.split("&").map((p) => {
-        const keyValue = p.split("=");
+        const firstEqualPos = p.indexOf("=");
+        const keyValue =
+          firstEqualPos > -1
+            ? [p.substring(0, firstEqualPos), p.substring(firstEqualPos + 1)]
+            : [];
         return { key: keyValue[0], value: keyValue[1] || "" };
       });
       if (params.length < 2) {
@@ -147,7 +157,7 @@ function* syncApiParamsSaga(
 function* handleUpdateBodyContentType(
   action: ReduxAction<{ title: ApiContentTypes; apiId: string }>,
 ) {
-  const { title, apiId } = action.payload;
+  const { apiId, title } = action.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   const displayFormatObject = POST_BODY_FORMAT_OPTIONS.find(
     (el) => el.label === title,
@@ -348,7 +358,7 @@ function* updateFormFields(
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { field, form } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
   if (field === "dynamicBindingPathList" || field === "name") return;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);

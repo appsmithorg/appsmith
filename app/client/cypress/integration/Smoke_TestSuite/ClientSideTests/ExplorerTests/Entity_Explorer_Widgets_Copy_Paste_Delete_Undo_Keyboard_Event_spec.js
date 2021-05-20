@@ -28,7 +28,8 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     cy.wait(500);
     cy.get(commonlocators.toastBody)
       .first()
-      .contains("Copied");
+      .contains("Copied")
+      .click();
     cy.get("body").type(`{${modifierKey}}v`, { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -45,11 +46,11 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     cy.get(commonlocators.toastAction)
       .contains("UNDO")
       .click({ force: true });
-    cy.GlobalSearchEntity("Form1");
+    cy.GlobalSearchEntity("FormTestCopy");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);
-      expect($lis.eq(0)).to.contain("{{Form1.isVisible}}");
-      expect($lis.eq(1)).to.contain("{{Form1.data}}");
+      expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");
+      expect($lis.eq(1)).to.contain("{{FormTestCopy.data}}");
     });
   });
 });

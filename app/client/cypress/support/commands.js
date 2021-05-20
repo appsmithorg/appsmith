@@ -1870,11 +1870,11 @@ Cypress.Commands.add("testDatasource", () => {
 
 Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click();
-  cy.wait("@saveDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@saveDatasource")
+    .then((xhr) => {
+      cy.log(JSON.stringify(xhr.response.body));
+    })
+    .should("have.nested.property", "response.body.responseMeta.status", 200);
 });
 
 Cypress.Commands.add("testSaveDatasource", () => {
@@ -2011,8 +2011,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousedown", { button: 0 }, { force: true })
     .trigger("mousemove", x, y, { force: true });
   cy.get(explorer.dropHere)
-    .click()
-    .trigger("mouseup", { force: true });
+    .click(x, y + 20)
+    .trigger("mouseup", x, y + 20, { force: true });
 });
 
 Cypress.Commands.add("executeDbQuery", (queryName) => {
@@ -2035,7 +2035,9 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
     .first()
     .trigger("mouseover", { force: true })
     .wait(500);
-  cy.get(`${selector}:first-of-type .t--widget-propertypane-toggle`)
+  cy.get(
+    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+  )
     .first()
     .click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -2341,4 +2343,12 @@ Cypress.Commands.add("callApi", (apiname) => {
 
 Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusSuccess);
+});
+
+Cypress.Commands.add("ValidateQueryParams", (param) => {
+  cy.xpath(apiwidget.paramsTab)
+      .should("be.visible")
+      .click({ force: true });
+  cy.xpath(apiwidget.paramKey).first().contains(param.key);
+  cy.xpath(apiwidget.paramValue).first().contains(param.value);
 });

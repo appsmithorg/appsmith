@@ -233,6 +233,12 @@ export const updateActionProperty = (
   });
 };
 
+export const executePageLoadActionsComplete = () => {
+  return {
+    type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS_COMPLETE,
+  };
+};
+
 export const setActionsToExecuteOnPageLoad = (
   actions: Array<{
     executeOnLoad: boolean;

@@ -14,9 +14,24 @@ enum Indices {
 
 export const Layers = {
   dropZone: Indices.Layer0,
+
   dragPreview: Indices.Layer1,
-  widgetName: Indices.Layer2,
+  // All Widgets Parent layer
+  positionedWidget: Indices.Layer1,
+  // Modal needs to higher than other widgets.
+  modalWidget: Indices.Layer2,
+  // Layers when dragging
+  animatedSnappingDropZone: Indices.Layer2,
+
+  animatedDropZone: Indices.Layer3,
+  // Must be higher than any widget
+  widgetName: Indices.Layer3,
   apiPane: Indices.Layer3,
+  // Propane needs to match sidebar to show propane on top side bar.
+  // Sidebar needs to be more than modal so that u can use side bar whilst u have the modal showing up on the canvas.
+  sideBar: Indices.Layer3,
+  propertyPane: Indices.Layer3,
+
   help: Indices.Layer4,
   dynamicAutoComplete: Indices.Layer5,
   debugger: Indices.Layer6,

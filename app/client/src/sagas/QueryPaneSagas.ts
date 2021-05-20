@@ -91,7 +91,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { field, form } = actionPayload.meta;
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
@@ -125,10 +125,10 @@ function* formValueChangeSaga(
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const {
-    id,
-    pluginType,
-    pluginId,
     actionConfiguration,
+    id,
+    pluginId,
+    pluginType,
   } = actionPayload.payload;
   if (pluginType === PluginType.DB) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));

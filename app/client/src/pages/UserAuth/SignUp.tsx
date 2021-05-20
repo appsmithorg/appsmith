@@ -76,7 +76,7 @@ type SignUpFormProps = InjectedFormProps<
   RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
 
 export function SignUp(props: SignUpFormProps) {
-  const { error, submitting, pristine, valid, emailValue: email } = props;
+  const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
 
   const location = useLocation();
@@ -93,8 +93,11 @@ export function SignUp(props: SignUpFormProps) {
   let signupURL = "/api/v1/" + SIGNUP_SUBMIT_PATH;
   if (queryParams.has("appId")) {
     signupURL += `?appId=${queryParams.get("appId")}`;
-  } else if (queryParams.has("redirectUrl")) {
-    signupURL += `?redirectUrl=${queryParams.get("redirectUrl")}`;
+  } else {
+    const redirectUrl = queryParams.get("redirectUrl");
+    if (redirectUrl != null) {
+      signupURL += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+    }
   }
 
   return (
