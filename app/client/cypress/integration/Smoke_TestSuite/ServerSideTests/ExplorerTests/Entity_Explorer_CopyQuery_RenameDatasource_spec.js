@@ -117,6 +117,11 @@ describe("Entity explorer tests related to copy query", function() {
       );
     });
     cy.SearchEntityandOpen("Query1");
-    cy.deleteQuery();
+    cy.hoverAndClick();
+    cy.get(apiwidget.delete).click({ force: true });
+    cy.wait(500);
+    cy.get(
+      commonlocators.entitySearchResult.concat("Query1").concat("')"),
+    ).should("have.length",1);
   });
 });
