@@ -368,6 +368,36 @@ export default class DataTreeEvaluator {
     return dependencies;
   }
 
+  /**
+   * In case the entity uses scoped variables, replace the scoped variables with globally recognized property paths
+   * so that the evaluations don't error out.
+   * @param oldUnevalTree
+   * @param entity
+   * @param entityName
+   * @param dynamicBinding
+   */
+  resolveScopeInPath(
+    oldUnevalTree: DataTree,
+    entity: DataTreeAction | DataTreeWidget,
+    entityName: string,
+    dynamicBinding: string,
+  ): string {
+    const resolverField = `${entityName}.__scope`;
+    const resolver = _.get(oldUnevalTree as any, resolverField);
+    let updatedDynamicBinding = dynamicBinding;
+    if (resolver) {
+      for (const property in resolver) {
+        if (dynamicBinding.includes(property)) {
+          updatedDynamicBinding = dynamicBinding.replace(
+            property,
+            resolver[property],
+          );
+        }
+      }
+    }
+    return updatedDynamicBinding;
+  }
+
   evaluateTree(
     oldUnevalTree: DataTree,
     sortedDependencies: Array<string>,
@@ -394,12 +424,18 @@ export default class DataTreeEvaluator {
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
           if (requiresEval) {
+            const resolvedUnEvalPropertyValue = this.resolveScopeInPath(
+              oldUnevalTree,
+              entity,
+              entityName,
+              unEvalPropertyValue,
+            );
             const evaluationSubstitutionType =
               entity.bindingPaths[propertyPath] ||
               EvaluationSubstitutionType.TEMPLATE;
             try {
               evalPropertyValue = this.getDynamicValue(
-                unEvalPropertyValue,
+                resolvedUnEvalPropertyValue,
                 currentTree,
                 evaluationSubstitutionType,
                 false,
