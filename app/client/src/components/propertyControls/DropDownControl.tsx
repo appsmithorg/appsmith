@@ -6,7 +6,7 @@ import { DropdownOption } from "components/ads/Dropdown";
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
     let defaultSelected: DropdownOption = {
-      label: "No results.",
+      label: "No selection.",
       value: undefined,
     };
     if (this.props.defaultValue) {

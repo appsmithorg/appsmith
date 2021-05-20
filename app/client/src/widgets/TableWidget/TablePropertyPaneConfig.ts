@@ -224,10 +224,6 @@ export default [
                   controlType: "DROP_DOWN",
                   options: [
                     {
-                      label: "No Selection",
-                      value: "",
-                    },
-                    {
                       label: "UNIX timestamp (s)",
                       value: "Epoch",
                     },
@@ -331,10 +327,6 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   options: [
-                    {
-                      label: "No Selection",
-                      value: "",
-                    },
                     {
                       label: "UNIX timestamp (s)",
                       value: "Epoch",
