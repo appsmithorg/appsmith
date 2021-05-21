@@ -16,7 +16,7 @@ import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
 import Table from "./Table";
-import { Action } from "entities/Action";
+import { Action, QueryAction, SaaSAction } from "entities/Action";
 import { useDispatch } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
@@ -47,6 +47,7 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { omnibarDocumentationHelper } from "constants/OmnibarDocumentationConstants";
+import { isHidden } from "components/formControls/utils";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -84,6 +85,7 @@ const TabbedViewContainer = styled.div`
   height: 50%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
+  width: 100%;
   .react-tabs__tab-panel {
     overflow: hidden;
   }
@@ -338,6 +340,7 @@ type QueryFormProps = {
   editorConfig?: any;
   formName: string;
   settingConfig: any;
+  formData: SaaSAction | QueryAction;
 };
 
 type ReduxProps = {
@@ -354,24 +357,23 @@ type Props = EditorJSONtoFormProps &
 
 export function EditorJSONtoForm(props: Props) {
   const {
+    actionName,
+    dataSources,
+    DATASOURCES_OPTIONS,
+    documentationLink,
+    editorConfig,
+    executedQueryData,
+    formName,
     handleSubmit,
     isDeleting,
     isRunning,
-    onRunClick,
-    onDeleteClick,
     onCreateDatasourceClick,
-    DATASOURCES_OPTIONS,
-    dataSources,
-    executedQueryData,
-    runErrorMessage,
+    onDeleteClick,
+    onRunClick,
     responseType,
-    documentationLink,
-    editorConfig,
+    runErrorMessage,
     settingConfig,
-    formName,
-    actionName,
   } = props;
-
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
@@ -454,6 +456,109 @@ export function EditorJSONtoForm(props: Props) {
         source: "DATASOURCE_DOCUMENTATION_CLICK",
       });
     }
+  };
+
+  const renderEachConfig = (formName: string) => (section: any): any => {
+    return section.children.map((formControlOrSection: ControlProps) => {
+      if (isHidden(props.formData, section.hidden)) return null;
+      if ("children" in formControlOrSection) {
+        return renderEachConfig(formName)(formControlOrSection);
+      } else {
+        try {
+          const { configProperty } = formControlOrSection;
+          return (
+            <FieldWrapper key={configProperty}>
+              <FormControl config={formControlOrSection} formName={formName} />
+            </FieldWrapper>
+          );
+        } catch (e) {
+          log.error(e);
+        }
+      }
+      return null;
+    });
+  };
+
+  const responseTabs = [
+    {
+      key: "Response",
+      title: "Response",
+      panelComponent: (
+        <ResponseContentWrapper>
+          {error && (
+            <ErrorContainer>
+              <AdsIcon keepColors name="warning-triangle" />
+              <Text style={{ color: "#F22B2B" }} type={TextType.H3}>
+                An error occurred
+              </Text>
+
+              <ErrorDescriptionText
+                className="t--query-error"
+                type={TextType.P1}
+              >
+                {error}
+              </ErrorDescriptionText>
+              <DebuggerMessage
+                onClick={() => {
+                  AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+                    source: "QUERY",
+                  });
+                  setSelectedIndex(1);
+                }}
+              />
+            </ErrorContainer>
+          )}
+          {hintMessages && hintMessages.length > 0 && (
+            <HelpSection>
+              {hintMessages.map((msg, index) => (
+                <Callout
+                  fill
+                  key={index}
+                  text={msg}
+                  variant={Variant.warning}
+                />
+              ))}
+            </HelpSection>
+          )}
+          {output &&
+            (isTableResponse ? (
+              <Table data={output} />
+            ) : (
+              <JSONViewer src={output} />
+            ))}
+          {!output && !error && (
+            <NoResponseContainer>
+              <AdsIcon name="no-response" />
+              <Text type={TextType.P1}>Hit Run to get a Response</Text>
+            </NoResponseContainer>
+          )}
+        </ResponseContentWrapper>
+      ),
+    },
+    {
+      key: "ERROR",
+      title: "Errors",
+      panelComponent: <ErrorLogs />,
+    },
+    {
+      key: "LOGS",
+      title: "Logs",
+      panelComponent: <DebuggerLogs searchQuery={actionName} />,
+    },
+  ];
+
+  const onTabSelect = (index: number) => {
+    const debuggerTabKeys = ["ERROR", "LOGS"];
+    if (
+      debuggerTabKeys.includes(responseTabs[index].key) &&
+      debuggerTabKeys.includes(responseTabs[selectedIndex].key)
+    ) {
+      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
+        tabName: responseTabs[index].key,
+      });
+    }
+
+    setSelectedIndex(index);
   };
 
   return (
@@ -593,100 +698,12 @@ export function EditorJSONtoForm(props: Props) {
           )}
 
           <TabComponent
-            onSelect={setSelectedIndex}
+            onSelect={onTabSelect}
             selectedIndex={selectedIndex}
-            tabs={[
-              {
-                key: "Response",
-                title: "Response",
-                panelComponent: (
-                  <ResponseContentWrapper>
-                    {error && (
-                      <ErrorContainer>
-                        <AdsIcon keepColors name="warning-triangle" />
-                        <Text style={{ color: "#F22B2B" }} type={TextType.H3}>
-                          An error occurred
-                        </Text>
-
-                        <ErrorDescriptionText
-                          className="t--query-error"
-                          type={TextType.P1}
-                        >
-                          {error}
-                        </ErrorDescriptionText>
-                        <DebuggerMessage
-                          onClick={() => {
-                            AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-                              source: "QUERY",
-                            });
-                            setSelectedIndex(1);
-                          }}
-                        />
-                      </ErrorContainer>
-                    )}
-                    {hintMessages && hintMessages.length > 0 && (
-                      <HelpSection>
-                        {hintMessages.map((msg, index) => (
-                          <Callout
-                            fill
-                            key={index}
-                            text={msg}
-                            variant={Variant.warning}
-                          />
-                        ))}
-                      </HelpSection>
-                    )}
-                    {output &&
-                      (isTableResponse ? (
-                        <Table data={output} />
-                      ) : (
-                        <JSONViewer src={output} />
-                      ))}
-                    {!output && !error && (
-                      <NoResponseContainer>
-                        <AdsIcon name="no-response" />
-                        <Text type={TextType.P1}>
-                          Hit Run to get a Response
-                        </Text>
-                      </NoResponseContainer>
-                    )}
-                  </ResponseContentWrapper>
-                ),
-              },
-              {
-                key: "error-logs",
-                title: "Errors",
-                panelComponent: <ErrorLogs />,
-              },
-              {
-                key: "logs",
-                title: "Logs",
-                panelComponent: <DebuggerLogs searchQuery={actionName} />,
-              },
-            ]}
+            tabs={responseTabs}
           />
         </TabbedViewContainer>
       </SecondaryWrapper>
     </QueryFormContainer>
   );
 }
-
-const renderEachConfig = (formName: string) => (section: any): any => {
-  return section.children.map((formControlOrSection: ControlProps) => {
-    if ("children" in formControlOrSection) {
-      return renderEachConfig(formName)(formControlOrSection);
-    } else {
-      try {
-        const { configProperty } = formControlOrSection;
-        return (
-          <FieldWrapper key={configProperty}>
-            <FormControl config={formControlOrSection} formName={formName} />
-          </FieldWrapper>
-        );
-      } catch (e) {
-        log.error(e);
-      }
-    }
-    return null;
-  });
-};

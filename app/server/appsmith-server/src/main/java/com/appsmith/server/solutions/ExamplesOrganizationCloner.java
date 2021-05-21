@@ -80,8 +80,9 @@ public class ExamplesOrganizationCloner {
      * @return Empty Mono.
      */
     private Mono<Organization> cloneExamplesOrganization(User user) {
-        if (user.getExamplesOrganizationId() != null) {
-            // This user already has an examples organization, don't have to do anything.
+        if (!CollectionUtils.isEmpty(user.getOrganizationIds())) {
+            // Don't create an examples organization if the user already has some organizations, perhaps because they
+            // were invited to some.
             return Mono.empty();
         }
 
@@ -404,9 +405,6 @@ public class ExamplesOrganizationCloner {
                                 makePristine(templateDatasource);
 
                                 templateDatasource.setOrganizationId(toOrganizationId);
-                                if (authentication != null) {
-                                    datasourceContextService.decryptSensitiveFields(authentication);
-                                }
 
                                 return createSuffixedDatasource(templateDatasource);
                             }));

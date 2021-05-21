@@ -9,7 +9,7 @@ import {
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 
-import { AsyncControllableInput } from "@blueprintjs/core/lib/esnext/components/forms/asyncControllableInput";
+import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 
 export type Validator = (
   value: string,
@@ -84,7 +84,7 @@ const boxStyles = (
 const StyledInput = styled((props) => {
   // we are removing non input related props before passing them in the components
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { inputStyle, inputRef, dataType, theme, ...inputProps } = props;
+  const { dataType, inputRef, inputStyle, theme, ...inputProps } = props;
   return props.asyncControl ? (
     <AsyncControllableInput
       {...inputProps}

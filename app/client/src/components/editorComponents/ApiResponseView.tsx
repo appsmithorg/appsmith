@@ -30,6 +30,7 @@ const ResponseContainer = styled.div`
   ${ResizerCSS}
   // Initial height of bottom tabs
   height: 60%;
+  width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
@@ -226,16 +227,30 @@ function ApiResponseView(props: Props) {
       ),
     },
     {
-      key: "error-logs",
+      key: "ERROR",
       title: "Errors",
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "logs",
+      key: "LOGS",
       title: "Logs",
       panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
     },
   ];
+
+  const onTabSelect = (index: number) => {
+    const debuggerTabKeys = ["ERROR", "LOGS"];
+    if (
+      debuggerTabKeys.includes(tabs[index].key) &&
+      debuggerTabKeys.includes(tabs[selectedIndex].key)
+    ) {
+      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
+        tabName: tabs[index].key,
+      });
+    }
+
+    setSelectedIndex(index);
+  };
 
   return (
     <ResponseContainer ref={panelRef}>
@@ -291,7 +306,7 @@ function ApiResponseView(props: Props) {
           </ResponseMetaWrapper>
         )}
         <TabComponent
-          onSelect={setSelectedIndex}
+          onSelect={onTabSelect}
           selectedIndex={selectedIndex}
           tabs={tabs}
         />

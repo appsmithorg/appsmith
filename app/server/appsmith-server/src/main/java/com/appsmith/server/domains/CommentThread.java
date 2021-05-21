@@ -8,7 +8,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 
@@ -41,6 +43,9 @@ public class CommentThread extends BaseDomain {
     @Transient
     List<Comment> comments;
 
+    private static final DateTimeFormatter ISO_FORMATTER =
+            DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
+
     @Data
     public static class Position {
         Float top;
@@ -52,15 +57,16 @@ public class CommentThread extends BaseDomain {
         String authorName;
         String authorUsername;
         @LastModifiedDate
-        Instant updatedAt;
+        String updatedAt;
         Boolean active;
     }
 
-    public Instant getCreationTime() {
-        return this.createdAt;
+    public String getCreationTime() {
+        return ISO_FORMATTER.format(createdAt);
     }
 
-    public Instant getUpdationTime() {
-        return this.updatedAt;
+    public String getUpdationTime() {
+        return ISO_FORMATTER.format(updatedAt);
     }
+
 }

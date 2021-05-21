@@ -59,9 +59,9 @@ export const ForgotPassword = withTheme(
     const {
       error,
       handleSubmit,
-      submitting,
       submitFailed,
       submitSucceeded,
+      submitting,
     } = props;
 
     return (

@@ -40,6 +40,7 @@ import {
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -52,10 +53,13 @@ const evalErrorHandler = (errors: EvalError[]) => {
       case EvalErrorTypes.DEPENDENCY_ERROR: {
         if (error.context) {
           // Add more info about node for the toast
-          const { node, entityType } = error.context;
+          const { entityType, node } = error.context;
           Toaster.show({
             text: `${error.message} Node was: ${node}`,
             variant: Variant.danger,
+          });
+          AppsmithConsole.error({
+            text: `${error.message} Node was: ${node}`,
           });
           // Send the generic error message to sentry for better grouping
           Sentry.captureException(new Error(error.message), {
@@ -63,6 +67,13 @@ const evalErrorHandler = (errors: EvalError[]) => {
               node,
               entityType,
             },
+            // Level is warning because it could be a user error
+            level: Sentry.Severity.Warning,
+          });
+          // Log an analytics event for cyclical dep errors
+          AnalyticsUtil.logEvent("CYCLICAL_DEPENDENCY_ERROR", {
+            node,
+            entityType,
             // Level is warning because it could be a user error
             level: Sentry.Severity.Warning,
           });
@@ -86,6 +97,10 @@ const evalErrorHandler = (errors: EvalError[]) => {
         Toaster.show({
           text: createMessage(ERROR_EVAL_TRIGGER, error.message),
           variant: Variant.danger,
+          showDebugButton: true,
+        });
+        AppsmithConsole.error({
+          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
         });
         break;
       }
@@ -134,7 +149,7 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
     },
   );
-  const { errors, dataTree, dependencies, logs } = workerResponse;
+  const { dataTree, dependencies, errors, logs } = workerResponse;
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   evalErrorHandler(errors);

@@ -10,6 +10,7 @@ import { WidgetOperations } from "widgets/BaseWidget";
 import * as Sentry from "@sentry/react";
 import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "../MetaHOC";
+import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -21,7 +22,6 @@ class TabsWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText: "Takes an array of tab names to render tabs",
             propertyName: "tabsObj",
             isJSConvertible: false,
             label: "Tabs",
@@ -51,7 +51,7 @@ class TabsWidget extends BaseWidget<
                     {
                       propertyName: "isVisible",
                       label: "Visible",
-                      helpText: "Controls the visibility of the widget",
+                      helpText: "Controls the visibility of the tab",
                       controlType: "SWITCH",
                       useValidationMessage: true,
                       isJSConvertible: true,
@@ -171,7 +171,7 @@ class TabsWidget extends BaseWidget<
     }
     childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.bottomRow = this.props.shouldScrollContents
@@ -197,8 +197,11 @@ class TabsWidget extends BaseWidget<
         const columns =
           (this.props.rightColumn - this.props.leftColumn) *
           this.props.parentColumnSpace;
+        // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
         const rows =
-          (this.props.bottomRow - this.props.topRow - 1) *
+          (this.props.bottomRow -
+            this.props.topRow -
+            GRID_DENSITY_MIGRATION_V1) *
           this.props.parentRowSpace;
         const config = {
           type: WidgetTypes.CANVAS_WIDGET,

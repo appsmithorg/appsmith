@@ -104,6 +104,8 @@ If you're interested in contributing to Appsmith:
 
 We are committed to fostering an open and welcoming environment in the community. Please read our [Code of Conduct](CODE_OF_CONDUCT.md).
 
+NOTE: If you are focused towards the client side development, We recommend you to start from [Running client codebase](https://github.com/appsmithorg/appsmith/blob/master/contributions/ClientSetup.md). You can also use our release environment as you backend server, to avoid setting up a local backend server/database etc. [Learn more here](https://github.com/appsmithorg/appsmith/blob/master/contributions/ClientSetup.md#if-you-would-like-to-hit-a-different-appsmith-server)
+
 ## 📑 License
 
 The Appsmith platform is available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) (Apache-2.0).

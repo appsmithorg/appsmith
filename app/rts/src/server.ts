@@ -137,11 +137,28 @@ async function watchMongoDB(io) {
 	interface Comment {
 		threadId: string
 		policies: Policy[]
+		createdAt: string
+		updatedAt: string
+		creationTime: string
+		updationTime: string
 	}
 
 	const threadCollection: mongodb.Collection<CommentThread> = db.collection("commentThread")
 
-	const commentChangeStream = db.collection("comment").watch();
+	const commentChangeStream = db.collection("comment").watch(
+		[
+			// Prevent server-internal fields from being sent to the client.
+			{
+				$unset: [
+					"deletedAt",
+					"deleted",
+					"_class",
+				].map(f => "fullDocument." + f)
+			},
+		],
+		{ fullDocument: "updateLookup" }
+	);
+
 	commentChangeStream.on("change", async (event: mongodb.ChangeEventCR<Comment>) => {
 		console.log("comment event", event)
 		const comment: Comment = event.fullDocument
@@ -149,6 +166,11 @@ async function watchMongoDB(io) {
 			{ _id: new ObjectId(comment.threadId) },
 			{ projection: { applicationId: 1 } },
 		)
+
+		comment.creationTime = comment.createdAt
+		comment.updationTime = comment.updatedAt
+		delete comment.createdAt
+		delete comment.updatedAt
 
 		let target = io
 		let shouldEmit = false
@@ -171,8 +193,6 @@ async function watchMongoDB(io) {
 			// Prevent server-internal fields from being sent to the client.
 			{
 				$unset: [
-					"createdAt",
-					"updatedAt",
 					"deletedAt",
 					"deleted",
 					"_class",
@@ -191,6 +211,12 @@ async function watchMongoDB(io) {
 			return
 		}
 
+		thread.creationTime = thread.createdAt
+		thread.updationTime = thread.updatedAt
+		delete thread.createdAt
+		delete thread.updatedAt
+		thread.isViewed = false
+
 		let target = io
 		let shouldEmit = false
 
@@ -205,6 +231,34 @@ async function watchMongoDB(io) {
 			console.log("Emitting", eventName)
 			target.emit(eventName, { thread })
 		}
+	})
+
+	const notificationsStream = db.collection("notification").watch(
+		[
+			// Prevent server-internal fields from being sent to the client.
+			{
+				$unset: [
+					"deletedAt",
+					"deleted",
+					"_class",
+				].map(f => "fullDocument." + f)
+			},
+		],
+		{ fullDocument: "updateLookup" }
+	);
+
+	notificationsStream.on("change", async (event: mongodb.ChangeEventCR) => {
+		console.log("notification event", event)
+		const notification = event.fullDocument
+
+		if (notification == null) {
+			// This happens when `event.operationType === "drop"`, when a notification is deleted.
+			console.error("Null document recieved for notification change event", event)
+			return
+		}
+
+		const eventName = event.operationType + ":" + event.ns.coll
+		io.to("email:" + notification.forUsername).emit(eventName, { notification })
 	})
 
 	process.on("exit", () => {

@@ -16,7 +16,7 @@ export function InputText(props: {
   name: string;
   actionName: string;
 }) {
-  const { actionName, name, placeholder, label, isRequired } = props;
+  const { actionName, isRequired, label, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
 
   return (
@@ -36,7 +36,7 @@ export function InputText(props: {
 
 class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
   render() {
-    const { label, placeholderText, configProperty, actionName } = this.props;
+    const { actionName, configProperty, label, placeholderText } = this.props;
 
     return (
       <InputText

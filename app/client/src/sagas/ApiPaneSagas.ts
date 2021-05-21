@@ -1,7 +1,9 @@
 /**
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
-import { get, omit, cloneDeep } from "lodash";
+import get from "lodash/get";
+import omit from "lodash/omit";
+import cloneDeep from "lodash/cloneDeep";
 import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
@@ -12,7 +14,7 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME, SAAS_EDITOR_FORM } from "constants/forms";
 import {
   DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS,
@@ -73,15 +75,23 @@ function* syncApiParamsSaga(
   actionId: string,
 ) {
   const field = actionPayload.meta.field;
-  const value = actionPayload.payload;
+  //Payload here contains the path and query params of a typical url like https://{domain}/{path}?{query_params}
+  let value = actionPayload.payload;
+  // Regular expression to find the query params group
   const padQueryParams = { key: "", value: "" };
+  const queryParamsRegEx = /(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
   PerformanceTracker.startTracking(PerformanceTransactionName.SYNC_PARAMS_SAGA);
   if (field === "actionConfiguration.path") {
+    value = (value.match(queryParamsRegEx) || [])[2] || "";
     if (value.indexOf("?") > -1) {
       const paramsString = value.substr(value.indexOf("?") + 1);
       const params = paramsString.split("&").map((p) => {
-        const keyValue = p.split("=");
-        return { key: keyValue[0], value: keyValue[1] || "" };
+        const firstEqualPos = p.indexOf("=");
+        const keyValue =
+          firstEqualPos > -1
+            ? [p.substring(0, firstEqualPos), p.substring(firstEqualPos + 1)]
+            : [];
+        return { key: keyValue[0] || "", value: keyValue[1] || "" };
       });
       if (params.length < 2) {
         while (params.length < 2) {
@@ -121,11 +131,8 @@ function* syncApiParamsSaga(
   } else if (field.includes("actionConfiguration.queryParameters")) {
     const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
     const path = values.actionConfiguration.path || "";
-    const pathHasParams = path.indexOf("?") > -1;
-    const currentPath = path.substring(
-      0,
-      pathHasParams ? path.indexOf("?") : undefined,
-    );
+    const matchGroups = path.match(queryParamsRegEx) || [];
+    const currentPath = matchGroups[1] || "";
     const paramsString = values.actionConfiguration.queryParameters
       .filter((p: Property) => p.key)
       .map(
@@ -146,7 +153,7 @@ function* syncApiParamsSaga(
 function* handleUpdateBodyContentType(
   action: ReduxAction<{ title: ApiContentTypes; apiId: string }>,
 ) {
-  const { title, apiId } = action.payload;
+  const { apiId, title } = action.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   const displayFormatObject = POST_BODY_FORMAT_OPTIONS.find(
     (el) => el.label === title,
@@ -214,7 +221,9 @@ function* initializeExtraFormDataSaga() {
   }
 }
 
-function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
+function* changeApiSaga(
+  actionPayload: ReduxAction<{ id: string; isSaas: boolean }>,
+) {
   // // Typescript says Element does not have blur function but it does;
   // document.activeElement &&
   //   "blur" in document.activeElement &&
@@ -222,31 +231,35 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   //   // @ts-ignore: No types available
   //   document.activeElement.blur();
   PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
-  const { id } = actionPayload.payload;
+  const { id, isSaas } = actionPayload.payload;
   const action = yield select(getAction, id);
   if (!action) return;
+  if (isSaas) {
+    yield put(initialize(SAAS_EDITOR_FORM, action));
+  } else {
+    yield put(initialize(API_EDITOR_FORM_NAME, action));
 
-  yield put(initialize(API_EDITOR_FORM_NAME, action));
+    yield call(initializeExtraFormDataSaga);
 
-  yield call(initializeExtraFormDataSaga);
-
-  if (
-    action.actionConfiguration &&
-    action.actionConfiguration.queryParameters?.length
-  ) {
-    // Sync the api params my mocking a change action
-    yield call(
-      syncApiParamsSaga,
-      {
-        type: ReduxFormActionTypes.ARRAY_REMOVE,
-        payload: action.actionConfiguration.queryParameters,
-        meta: {
-          field: "actionConfiguration.queryParameters",
+    if (
+      action.actionConfiguration &&
+      action.actionConfiguration.queryParameters?.length
+    ) {
+      // Sync the api params my mocking a change action
+      yield call(
+        syncApiParamsSaga,
+        {
+          type: ReduxFormActionTypes.ARRAY_REMOVE,
+          payload: action.actionConfiguration.queryParameters,
+          meta: {
+            field: "actionConfiguration.queryParameters",
+          },
         },
-      },
-      id,
-    );
+        id,
+      );
+    }
   }
+
   PerformanceTracker.stopTracking();
 }
 
@@ -341,7 +354,7 @@ function* updateFormFields(
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { field, form } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
   if (field === "dynamicBindingPathList" || field === "name") return;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);

@@ -130,11 +130,11 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
   render() {
     const {
-      plugins,
-      isSaving,
-      pluginImages,
       applicationId,
+      isSaving,
       pageId,
+      pluginImages,
+      plugins,
     } = this.props;
 
     return (
