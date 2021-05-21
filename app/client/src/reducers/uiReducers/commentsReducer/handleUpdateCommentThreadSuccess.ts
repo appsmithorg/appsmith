@@ -13,11 +13,27 @@ const handleUpdateCommentThreadSuccess = (
 
   if (!commentThreadInStore) return state;
 
+  const shouldRefreshList =
+    commentThreadInStore.pinnedState?.active !==
+    action.payload?.pinnedState?.active;
+
   state.commentThreadsMap[id] = {
     ...commentThreadInStore,
     ...action.payload,
     comments: existingComments,
   };
+
+  // Refresh app comments section list
+  // TODO: can perform better if we have separate lists calculated in advance
+  if (shouldRefreshList) {
+    state.applicationCommentThreadsByRef[
+      action.payload.applicationId as string
+    ] = {
+      ...state.applicationCommentThreadsByRef[
+        action.payload.applicationId as string
+      ],
+    };
+  }
 
   return {
     ...state,

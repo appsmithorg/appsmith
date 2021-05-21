@@ -11,12 +11,29 @@ const handleUpdateCommentThreadEvent = (
   const commentThreadInStore = state.commentThreadsMap[id];
   const existingComments = get(commentThreadInStore, "comments", []);
   const newComments = get(action.payload, "comments", []);
+
+  const shouldRefreshList =
+    commentThreadInStore.pinnedState?.active !==
+    action.payload?.pinnedState?.active;
+
   state.commentThreadsMap[id] = {
     ...commentThreadInStore,
     ...action.payload,
     isViewed: commentThreadInStore.isViewed || action.payload.isViewed, // TODO refactor this
     comments: uniqBy([...existingComments, ...newComments], "id"),
   };
+
+  // Refresh app comments section list
+  // TODO: can perform better if we have separate lists calculated in advance
+  if (shouldRefreshList) {
+    state.applicationCommentThreadsByRef[
+      action.payload.applicationId as string
+    ] = {
+      ...state.applicationCommentThreadsByRef[
+        action.payload.applicationId as string
+      ],
+    };
+  }
 
   const showUnreadIndicator = !state.isCommentMode;
 
