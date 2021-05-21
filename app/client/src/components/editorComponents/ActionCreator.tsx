@@ -108,7 +108,7 @@ export const modalGetter = (value: string) => {
 };
 
 export const stringToJS = (string: string): string => {
-  const { stringSegments, jsSnippets } = getDynamicBindings(string);
+  const { jsSnippets, stringSegments } = getDynamicBindings(string);
   const js = stringSegments
     .map((segment, index) => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {

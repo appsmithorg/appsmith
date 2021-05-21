@@ -74,9 +74,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.get(".t--property-control-defaultdate .bp3-input").type("2020-02-01");
     cy.closePropertyPane();
     cy.openPropertyPane("datepickerwidget2");
-    cy.get(formWidgetsPage.toggleJsMinDate).click();
+    cy.get(formWidgetsPage.toggleJsMinDate).click({ force: true });
     cy.get(".t--property-control-mindate .bp3-input").type("2020-01-01");
-    cy.get(formWidgetsPage.toggleJsMaxDate).click();
+    cy.get(formWidgetsPage.toggleJsMaxDate).click({ force: true });
     cy.get(".t--property-control-maxdate .bp3-input").type("2020-02-10");
     cy.closePropertyPane();
   });

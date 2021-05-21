@@ -58,10 +58,9 @@ import javax.validation.Validator;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -114,7 +113,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 NewPageService newPageService,
                                 ApplicationService applicationService,
                                 SessionUserService sessionUserService,
-                                PolicyUtils policyUtils, AuthenticationValidator authenticationValidator) {
+                                PolicyUtils policyUtils,
+                                AuthenticationValidator authenticationValidator) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -512,7 +512,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
-
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = Mono
                 .zip(
@@ -538,11 +537,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource).cache();
 
-
                     Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
                             .flatMap(datasourceContextService::getDatasourceContext)
                             // Now that we have the context (connection details), execute the action.
-                            .flatMap(resourceContext -> validatedDatasourceMono.flatMap(datasource1 -> {
+                            .flatMap(resourceContext -> validatedDatasourceMono
+                                    .flatMap(datasource1 -> {
                                         return (Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
                                                 resourceContext.getConnection(),
                                                 executeActionDTO,
@@ -657,22 +656,24 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .map(result -> addDataTypes(result));
     }
 
-    // Add label and data types to request param entities.
+    /*
+     * - Get label for request params.
+     * - Transform request params list: [""] to a map: {"label": {"value": ...}}
+     * - Rearrange request params in the order as they appear in query editor form.
+     */
     private void transformRequestParams(ActionExecutionResult result, Map<String, String> labelMap) {
-        List<RequestParamDTO> transformedParams = new ArrayList<>();
+        Map<String, Object> transformedParams = new LinkedHashMap<>();
         Map<String, RequestParamDTO> requestParamsConfigMap = new HashMap();
-        result.getRequest().getRequestParams().stream()
-                .forEach(param -> requestParamsConfigMap.put(param.getConfigProperty(), param));
+        ((List)result.getRequest().getRequestParams()).stream()
+                .forEach(param -> requestParamsConfigMap.put(((RequestParamDTO) param).getConfigProperty(),
+                        (RequestParamDTO) param));
 
         labelMap.entrySet().stream()
                 .forEach(e -> {
                     String configProperty = e.getKey();
                     if(requestParamsConfigMap.containsKey(configProperty)) {
                         RequestParamDTO param = requestParamsConfigMap.get(configProperty);
-                        param.setTypes(param.getValue() != null ?
-                                getDisplayDataTypes(param.getValue()) : new ArrayList<>());
-                        param.setLabel(e.getValue());
-                        transformedParams.add(param);
+                        transformedParams.put(e.getValue(), param);
                     }
                 });
 
@@ -755,12 +756,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(application -> Mono.zip(
                         Mono.just(application),
                         sessionUserService.getCurrentUser(),
-                        newPageService.getNameByPageId(actionDTO.getPageId(), viewMode)
+                        newPageService.getNameByPageId(actionDTO.getPageId(), viewMode),
+                        pluginService.getById(action.getPluginId())
                 ))
                 .map(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
                     final String pageName = tuple.getT3();
+                    final Plugin plugin = tuple.getT4();
 
                     final PluginType pluginType = action.getPluginType();
                     final Map<String, Object> data = new HashMap<>();
@@ -768,6 +771,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     data.putAll(Map.of(
                             "username", user.getUsername(),
                             "type", pluginType,
+                            "pluginName", plugin.getName(),
                             "name", actionDTO.getName(),
                             "datasource", Map.of(
                                     "name", datasource.getName()
@@ -776,11 +780,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             "appId", action.getApplicationId(),
                             "appMode", TRUE.equals(viewMode) ? "view" : "edit",
                             "appName", application.getName(),
-                            "isExampleApp", application.isAppIsExample(),
-                            "request", request
+                            "isExampleApp", application.isAppIsExample()
                     ));
 
                     data.putAll(Map.of(
+                            "request", request,
                             "pageId", ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""),
                             "pageName", pageName,
                             "isSuccessfulExecution", ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),

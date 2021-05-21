@@ -218,6 +218,7 @@ abstract class BaseWidget<
             errorCount={this.getErrorCount(this.props.invalidProps)}
             parentId={this.props.parentId}
             showControls={showControls}
+            topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
             type={this.props.type}
             widgetId={this.props.widgetId}
             widgetName={this.props.widgetName}
