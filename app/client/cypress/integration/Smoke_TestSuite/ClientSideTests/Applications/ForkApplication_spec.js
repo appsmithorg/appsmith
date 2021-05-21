@@ -7,6 +7,8 @@ describe("Fork application across orgs", function() {
   before(() => {
     dsl.dsl.version = 20; // latest migrated version
     cy.addDsl(dsl);
+    cy.server();
+    cy.route("GET", "/api/v1/pages/*").as("getPage");
   });
 
   it("Check if the forked application has the same dsl as the original", function() {
@@ -36,7 +38,6 @@ describe("Fork application across orgs", function() {
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       forkedApplicationDsl = data.layouts[0].dsl;
-
       expect(forkedApplicationDsl).to.deep.equal(dsl.dsl);
     });
   });
