@@ -13,9 +13,9 @@ export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`
 
 export const ActionLink = withTheme(
   ({
+    isActiveItem,
     item,
     theme,
-    isActiveItem,
   }: {
     item: SearchItem;
     theme: Theme;

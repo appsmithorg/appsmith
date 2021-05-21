@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.repositories.CommentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +33,9 @@ public class CommentServiceTest {
 
     @Autowired
     CommentService commentService;
+
+    @Autowired
+    CommentRepository commentRepository;
 
     @Autowired
     ApplicationService applicationService;
@@ -98,6 +102,12 @@ public class CommentServiceTest {
         return comment;
     }
 
+    private Comment.Reaction makeReaction(String emoji) {
+        Comment.Reaction reaction = new Comment.Reaction();
+        reaction.setEmoji(emoji);
+        return reaction;
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteValidComment() {
@@ -135,4 +145,86 @@ public class CommentServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAddReaction() {
+        Organization organization = new Organization();
+        organization.setName("ReactionsOrg");
+        Mono<Comment> reactionMono = organizationService
+                .create(organization)
+                .flatMap(org -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("ReactionApp");
+                    return applicationPageService
+                            .createApplication(testApplication, org.getId());
+                })
+                .flatMap(application -> {
+                    final CommentThread thread = new CommentThread();
+                    thread.setApplicationId(application.getId());
+                    thread.setComments(List.of(makePlainTextComment("Test Comment")));
+                    return commentService.createThread(thread);
+                })
+                .flatMap(commentThread -> Mono.just(commentThread.getComments().get(0)))
+                .flatMap(comment -> {
+                    assert comment.getId() != null;
+                    return commentService
+                            .createReaction(comment.getId(), makeReaction("x"))
+                            .then(commentRepository.findById(comment.getId()));
+                })
+                .cache();
+
+        StepVerifier
+                .create(reactionMono)
+                .assertNext(comment -> {
+                    assertThat(comment.getReactions()).hasSize(1);
+                    Comment.Reaction r1 = comment.getReactions().get(0);
+                    assertThat(r1.getEmoji()).isEqualTo("x");
+                    assertThat(r1.getByName()).isEqualTo("api_user");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAddAndRemoveReaction() {
+        Organization organization = new Organization();
+        organization.setName("ReactionsOrg");
+        Mono<Comment> reactionMono = organizationService
+                .create(organization)
+                .flatMap(org -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("ReactionApp");
+                    return applicationPageService
+                            .createApplication(testApplication, org.getId());
+                })
+                .flatMap(application -> {
+                    final CommentThread thread = new CommentThread();
+                    thread.setApplicationId(application.getId());
+                    thread.setComments(List.of(makePlainTextComment("Test Comment")));
+                    return commentService.createThread(thread);
+                })
+                .flatMap(commentThread -> Mono.just(commentThread.getComments().get(0)))
+                .flatMap(comment -> {
+                    assert comment.getId() != null;
+                    return Mono.when(
+                            commentService.createReaction(comment.getId(), makeReaction("x")),
+                            commentService.createReaction(comment.getId(), makeReaction("y"))
+                    )
+                            .then(commentService.deleteReaction(comment.getId(), makeReaction("x")))
+                            .then(commentRepository.findById(comment.getId()));
+                })
+                .cache();
+
+        StepVerifier
+                .create(reactionMono)
+                .assertNext(comment -> {
+                    assertThat(comment.getReactions()).hasSize(1);
+                    Comment.Reaction r1 = comment.getReactions().get(0);
+                    assertThat(r1.getEmoji()).isEqualTo("y");
+                    assertThat(r1.getByName()).isEqualTo("api_user");
+                })
+                .verifyComplete();
+    }
+
 }

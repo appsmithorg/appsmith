@@ -55,7 +55,7 @@ public class RedisPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
-                    , null));
+                    , null, null));
 
             return Mono.fromCallable(() -> {
                 if (StringUtils.isNullOrEmpty(query)) {
