@@ -1,4 +1,4 @@
-import React, { Context, createContext, ReactNode } from "react";
+import React, { Context, createContext, ReactNode, useMemo } from "react";
 import { connect } from "react-redux";
 
 import { WidgetOperation } from "widgets/BaseWidget";
@@ -65,66 +65,58 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     updateWidgetMetaProperty,
     updateWidgetProperty,
   } = props;
+
+  // Memoize the context provider to prevent
+  // unnecessary renders
+  const contextValue = useMemo(
+    () => ({
+      executeAction,
+      updateWidget,
+      updateWidgetProperty,
+      updateWidgetMetaProperty,
+      disableDrag,
+      resetChildrenMetaProperty,
+      deleteWidgetProperty,
+      batchUpdateWidgetProperty,
+    }),
+    [
+      executeAction,
+      updateWidget,
+      updateWidgetProperty,
+      updateWidgetMetaProperty,
+      disableDrag,
+      resetChildrenMetaProperty,
+      deleteWidgetProperty,
+      batchUpdateWidgetProperty,
+    ],
+  );
   return (
-    <EditorContext.Provider
-      value={{
-        executeAction,
-        updateWidget,
-        updateWidgetProperty,
-        updateWidgetMetaProperty,
-        disableDrag,
-        resetChildrenMetaProperty,
-        deleteWidgetProperty,
-        batchUpdateWidgetProperty,
-      }}
-    >
+    <EditorContext.Provider value={contextValue}>
       {children}
     </EditorContext.Provider>
   );
 }
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateWidgetProperty: (
-      widgetId: string,
-      propertyName: string,
-      propertyValue: any,
-    ) =>
-      dispatch(
-        updateWidgetPropertyRequest(
-          widgetId,
-          propertyName,
-          propertyValue,
-          RenderModes.CANVAS,
-        ),
-      ),
-    executeAction: (actionPayload: ExecuteActionPayload) =>
-      dispatch(executeAction(actionPayload)),
-    updateWidget: (
-      operation: WidgetOperation,
-      widgetId: string,
-      payload: any,
-    ) => dispatch(updateWidget(operation, widgetId, payload)),
-    updateWidgetMetaProperty: (
-      widgetId: string,
-      propertyName: string,
-      propertyValue: any,
-    ) =>
-      dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
-    resetChildrenMetaProperty: (widgetId: string) =>
-      dispatch(resetChildrenMetaProperty(widgetId)),
-    disableDrag: (disable: boolean) => {
-      dispatch(disableDragAction(disable));
-    },
-    deleteWidgetProperty: (widgetId: string, propertyPaths: string[]) =>
-      dispatch(deletePropertyAction(widgetId, propertyPaths)),
-    batchUpdateWidgetProperty: (
-      widgetId: string,
-      updates: BatchPropertyUpdatePayload,
-    ) => {
-      dispatch(batchUpdatePropertyAction(widgetId, updates));
-    },
-  };
+const mapDispatchToProps = {
+  updateWidgetProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) =>
+    updateWidgetPropertyRequest(
+      widgetId,
+      propertyName,
+      propertyValue,
+      RenderModes.CANVAS,
+    ),
+
+  executeAction,
+  updateWidget,
+  updateWidgetMetaProperty,
+  resetChildrenMetaProperty,
+  disableDrag: disableDragAction,
+  deleteWidgetProperty: deletePropertyAction,
+  batchUpdateWidgetProperty: batchUpdatePropertyAction,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);
