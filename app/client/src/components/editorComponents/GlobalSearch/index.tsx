@@ -92,6 +92,8 @@ const getSectionTitle = (title: string, icon: any) => ({
   icon,
 });
 
+const INITIAL_ACTIVE_ITEM_INDEX = 2;
+
 function GlobalSearch() {
   const modalOpen = useSelector(isModalOpenSelector);
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
@@ -118,7 +120,9 @@ function GlobalSearch() {
     setDocumentationSearchResultsInState(res);
   }, []);
 
-  const [activeItemIndex, setActiveItemIndexInState] = useState(1);
+  const [activeItemIndex, setActiveItemIndexInState] = useState(
+    INITIAL_ACTIVE_ITEM_INDEX,
+  );
   const setActiveItemIndex = useCallback((index) => {
     scrollPositionRef.current = 0;
     setActiveItemIndexInState(index);
@@ -166,12 +170,12 @@ function GlobalSearch() {
       setQuery(resetSearchQuery);
     } else {
       dispatch(setGlobalSearchQuery(""));
-      if (!query) setActiveItemIndex(1);
+      if (!query) setActiveItemIndex(INITIAL_ACTIVE_ITEM_INDEX);
     }
   }, [modalOpen]);
 
   useEffect(() => {
-    setActiveItemIndex(1);
+    setActiveItemIndex(INITIAL_ACTIVE_ITEM_INDEX);
   }, [query]);
 
   const filteredWidgets = useMemo(() => {
