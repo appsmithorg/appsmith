@@ -21,6 +21,7 @@ import ApplicationApi, {
   PublishApplicationResponse,
   SetDefaultPageRequest,
   UpdateApplicationRequest,
+  ImportApplicationRequest,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
@@ -61,6 +62,8 @@ import { EventType as ActionEventType } from "constants/AppsmithActionConstants/
 
 import { deleteRecentAppEntities } from "utils/storage";
 import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
+import { getCurrentOrg } from "selectors/organizationSelectors";
+import { Org } from "constants/orgConstants";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -518,7 +521,7 @@ export function* exportApplicationSaga(
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const exportedApplication: any = {
-        ...response.data,
+        ...response,
       };
       yield downloadSaga(
         {
@@ -546,6 +549,58 @@ export function* exportApplicationSaga(
       payload: {
         error,
       },
+    });
+  }
+}
+
+export function* importApplicationSaga(
+  action: ReduxAction<ImportApplicationRequest>,
+) {
+  try {
+    const response: ApiResponse = yield call(
+      ApplicationApi.importApplicationToOrg,
+      action.payload,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const allOrgs = yield select(getCurrentOrg);
+      const currentOrg = allOrgs.filter(
+        (el: Org) => el.id === action.payload.orgId,
+      );
+      if (currentOrg.length > 0) {
+        const {
+          id: appId,
+          pages,
+        }: {
+          id: string;
+          pages: { default?: boolean; id: string; isDefault?: boolean }[];
+        } = response.data;
+        yield put({
+          type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
+          payload: {
+            importedApplication: appId,
+          },
+        });
+        const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+        const pageURL = BUILDER_PAGE_URL(appId, defaultPage[0].id);
+        history.push(pageURL);
+        Toaster.show({
+          text: "Application imported successfully",
+          variant: Variant.success,
+        });
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.IMPORT_APPLICATION_ERROR,
+      payload: {
+        // id: currentOrg[0].id,
+        // logoUrl: response.data.logoUrl,
+      },
+    });
+    Toaster.show({
+      text: "Failed to import application",
+      variant: Variant.danger,
     });
   }
 }
@@ -579,5 +634,6 @@ export default function* applicationSagas() {
       duplicateApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.EXPORT_APPLICATION_INIT, exportApplicationSaga),
+    takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
   ]);
 }

@@ -1,6 +1,9 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { APP_MODE } from "../reducers/entityReducers/appReducer";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import {
+  UpdateApplicationPayload,
+  ImportApplicationRequest,
+} from "api/ApplicationApi";
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -89,6 +92,13 @@ export const exportApplication = (
       applicationName,
       callback,
     },
+  };
+};
+
+export const importApplication = (appDetails: ImportApplicationRequest) => {
+  return {
+    type: ReduxActionTypes.IMPORT_APPLICATION_INIT,
+    payload: appDetails,
   };
 };
 

@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { SaveOrgLogo, SaveOrgRequest, ImportApplication } from "api/OrgApi";
+import { SaveOrgLogo, SaveOrgRequest } from "api/OrgApi";
 
 export const fetchOrg = (orgId: string) => {
   return {
@@ -80,12 +80,5 @@ export const deleteOrgLogo = (id: string) => {
     payload: {
       id: id,
     },
-  };
-};
-
-export const importApplication = (appDetails: ImportApplication) => {
-  return {
-    type: ReduxActionTypes.IMPORT_APPLICATION_INIT,
-    payload: appDetails,
   };
 };

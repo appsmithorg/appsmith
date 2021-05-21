@@ -58,12 +58,6 @@ export interface SaveOrgLogo {
   progress: (progressEvent: ProgressEvent) => void;
 }
 
-export interface ImportApplication {
-  orgId: string;
-  applicationFile: File;
-  progress: (progressEvent: ProgressEvent) => void;
-}
-
 export interface CreateOrgRequest {
   name: string;
 }

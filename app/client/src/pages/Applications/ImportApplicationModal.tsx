@@ -6,18 +6,24 @@ import Checkbox from "components/ads/Checkbox";
 import { useSelector } from "store";
 import { AppState } from "reducers";
 import Text, { TextType } from "components/ads/Text";
-import FilePicker, {
-  SetProgress,
-  UploadCallback,
-} from "components/ads/FilePicker";
+import FilePicker, { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
-import { importApplication } from "actions/orgActions";
+import { importApplication } from "actions/applicationActions";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 const CheckboxDiv = styled.div`
   overflow: auto;
   max-height: 250px;
   margin-bottom: 10px;
   margin-top: 20px;
+`;
+
+const FilePickerWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 type ImportApplicationModalProps = {
@@ -29,33 +35,42 @@ type ImportApplicationModalProps = {
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
   const { onClose, isModalOpen, organizationId } = props;
-  const dispatch = useDispatch();
-  const onImportSuccess = () => {
-    onClose && onClose();
-  };
+  const [isChecked, setIsCheckedToTrue] = useState(false);
+  const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
+    file: File;
+    setProgress: SetProgress;
+  } | null>(null);
 
-  // const importApplication = () => {
-  //   props.organizationId && props.import && props.import("");
-  //   onClose && onClose();
-  // };
+  const dispatch = useDispatch();
+
   const importingApplication = useSelector(
     (state: AppState) => state.ui.applications.importingApplication,
   );
 
-  const FileUploader = (
-    file: File,
-    setProgress: SetProgress,
-    // onUpload: UploadCallback,
-  ) => {
+  const FileUploader = async (file: File, setProgress: SetProgress) => {
+    if (!!file) {
+      setAppFileToBeUploaded({
+        file,
+        setProgress,
+      });
+    } else {
+      setAppFileToBeUploaded(null);
+    }
+  };
+
+  const onImportApplication = () => {
+    if (!appFileToBeUploaded) {
+      Toaster.show({
+        text: "Please a valid application file!",
+        variant: Variant.danger,
+      });
+    }
+    const { file, setProgress } = appFileToBeUploaded || {};
     const progress = (progressEvent: ProgressEvent) => {
       const uploadPercentage = Math.round(
         (progressEvent.loaded / progressEvent.total) * 100,
       );
-      if (uploadPercentage === 100) {
-        // onUpload(currentOrg.logoUrl || "");
-        console.log("upload success");
-      }
-      setProgress(uploadPercentage);
+      setProgress && setProgress(uploadPercentage);
     };
 
     dispatch(
@@ -67,11 +82,6 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     );
   };
 
-  // const exportedApplication = useSelector(
-  //   (state: AppState) => state.ui.applications.exportedApplication,
-  // );
-
-  const [isChecked, setIsCheckedToTrue] = useState(false);
   return (
     <StyledDialog
       canOutsideClickClose
@@ -79,8 +89,15 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       isOpen={isModalOpen}
       maxHeight={"540px"}
       setModalClose={onClose}
-      title={"Upload application file"}
+      title={"Import Application"}
     >
+      <FilePickerWrapper>
+        <FilePicker
+          fileType={FileType.JSON}
+          fileUploader={FileUploader}
+          onFileRemoved={() => console.log("remove file")}
+        />
+      </FilePickerWrapper>
       <CheckboxDiv>
         <Text type={TextType.P1}>
           <Checkbox
@@ -91,19 +108,12 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
           />
         </Text>
       </CheckboxDiv>
-      <FilePicker
-        fileUploader={FileUploader}
-        logoUploadError={"file error"}
-        onFileRemoved={() => console.log("remove file")}
-        // url={currentOrg && currentOrg.logoUrl}
-      />
       <ButtonWrapper>
         <ForkButton
           cypressSelector={"t--import-app-button"}
-          disabled={!isChecked}
-          onClick={() => {
-            console.log("upload btn");
-          }}
+          disabled={!isChecked || !appFileToBeUploaded}
+          isLoading={importingApplication}
+          onClick={onImportApplication}
           size={Size.large}
           text={"IMPORT"}
         />

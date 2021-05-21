@@ -600,10 +600,6 @@ function ApplicationsSection(props: any) {
     });
   };
 
-  const importApplication = (file: any) => {
-    console.log("import application: ", file);
-  };
-
   let updatedOrgs;
   if (!isFetchingApplications) {
     updatedOrgs = userOrgs;
