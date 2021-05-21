@@ -117,6 +117,7 @@ export const HintStyles = createGlobalStyle<{
     font-size: 10px;
     line-height: 13px;
     letter-spacing: -0.24px;
+    padding-left: 10px;
     color: ${(props) => props.theme.colors.codeMirror.dataType.fullForm};
   }
   .CodeMirror-Tern-completion-fn:after {

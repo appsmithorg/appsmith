@@ -7,19 +7,16 @@ import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 //TODO : add currentRow to data ?? currentRow: Object of columns ie first row
-export const bindingHint: HintHelper = (
-  editor,
-  data,
-  additionalData,
-  expected,
-) => {
-  const ternServer = new TernServer(data, additionalData, expected);
+export const bindingHint: HintHelper = (editor, data, additionalData) => {
+  const ternServer = new TernServer(data, additionalData);
   editor.setOption("extraKeys", {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available
     ...editor.options.extraKeys,
-    [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (cm: CodeMirror.Editor) =>
-      ternServer.complete(cm),
+    [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (
+      cm: CodeMirror.Editor,
+      expected: string,
+    ) => ternServer.complete(cm, expected),
     [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: CodeMirror.Editor) => {
       ternServer.showType(cm);
     },
@@ -32,7 +29,7 @@ export const bindingHint: HintHelper = (
       const dataTreeDef = dataTreeTypeDefCreator(data);
       ternServer.updateDef("dataTree", dataTreeDef);
     },
-    showHint: (editor: CodeMirror.Editor) => {
+    showHint: (editor: CodeMirror.Editor, expected: string) => {
       let cursorBetweenBinding = false;
       const cursor = editor.getCursor();
       const value = editor.getValue();
@@ -69,7 +66,7 @@ export const bindingHint: HintHelper = (
       const shouldShow = cursorBetweenBinding;
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
-        ternServer.complete(editor);
+        ternServer.complete(editor, expected);
       } else {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: No types available

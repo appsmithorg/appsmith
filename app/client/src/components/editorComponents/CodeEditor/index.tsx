@@ -223,7 +223,6 @@ class CodeEditor extends Component<Props, State> {
         this.editor,
         this.props.dynamicData,
         this.props.additionalDynamicData,
-        this.props.expected,
       );
     });
   }
@@ -296,7 +295,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    this.hinters.forEach((hinter) => hinter.showHint(cm));
+    const expected = this.props.expected ? this.props.expected : "";
+    this.hinters.forEach((hinter) => hinter.showHint(cm, expected));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {

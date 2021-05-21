@@ -65,10 +65,8 @@ class TernServer {
   constructor(
     dataTree: DataTree,
     additionalDataTree?: Record<string, Record<string, unknown>>,
-    expected?: string,
   ) {
     const dataTreeDef = dataTreeTypeDefCreator(dataTree);
-    this.expected = expected;
     let customDataTreeDef = undefined;
     if (additionalDataTree) {
       customDataTreeDef = customTreeTypeDefCreator(additionalDataTree);
@@ -81,7 +79,8 @@ class TernServer {
     });
   }
 
-  complete(cm: CodeMirror.Editor) {
+  complete(cm: CodeMirror.Editor, expected: string) {
+    this.expected = expected;
     cm.showHint({
       hint: this.getHint.bind(this),
       completeSingle: false,
@@ -297,6 +296,7 @@ class TernServer {
     if (type === "boolean") return "BOOLEAN";
     if (type === "string") return "STRING";
     if (type === "number") return "NUMBER";
+    if (type === "object" || type === "JSON") return "OBJECT";
     if (type === undefined) return "UNKNOWN";
     return undefined;
   }
