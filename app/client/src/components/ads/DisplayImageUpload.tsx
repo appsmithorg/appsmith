@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ReactComponent as ProfileImagePlaceholder } from "assets/images/profile-placeholder.svg";
 import Uppy from "@uppy/core";
 import Dialog from "components/ads/DialogComponent";
@@ -134,6 +134,10 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
 
     return uppy;
   });
+
+  useEffect(() => {
+    setLoadError(false);
+  }, [value]);
 
   return (
     <Container onClick={() => setIsModalOpen(true)}>
