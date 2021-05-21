@@ -23,7 +23,7 @@ const datasource = require("../locators/DatasourcesEditor.json");
 
 let pageidcopy = " ";
 
-function checkIfApiWasSuccessful(interception, statuscode) {
+function assertApiResponseStatusCode(interception, statuscode) {
   expect(interception.response.body.responseMeta.status).to.deep.eq(statuscode);
 }
 
@@ -135,7 +135,7 @@ Cypress.Commands.add("shareAndPublic", (email, role) => {
 Cypress.Commands.add("enablePublicAccess", () => {
   cy.get(homePage.enablePublicAccess).click();
   cy.wait("@changeAccess").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
   cy.get(homePage.closeBtn).click();
 });
@@ -157,7 +157,7 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
     .should("be.visible")
     .click();
   cy.wait("@applications").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -189,7 +189,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
     .should("be.visible")
     .click();
   cy.wait("@applications").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -200,7 +200,7 @@ Cypress.Commands.add("launchApp", (appName) => {
     .click();
   cy.get("#loading").should("not.exist");
   cy.wait("@getPagesForViewApp").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -210,14 +210,14 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     .should("be.visible")
     .click({ force: true });
   cy.wait("@createNewApplication").should((interception) => {
-    checkIfApiWasSuccessful(interception, 201);
+    assertApiResponseStatusCode(interception, 201);
   });
 
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -226,7 +226,7 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
     .first()
     .click({ force: true });
   cy.wait("@createNewApplication").should((interception) => {
-    checkIfApiWasSuccessful(interception, 201);
+    assertApiResponseStatusCode(interception, 201);
   });
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -234,7 +234,7 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
 
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -290,10 +290,10 @@ Cypress.Commands.add("amazonDatasourceForm", () => {
 Cypress.Commands.add("DeleteApp", (appName) => {
   cy.get(commonlocators.homeIcon).click({ force: true });
   cy.wait("@applications").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
   cy.wait("@organizations").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
   cy.get('button span[icon="chevron-down"]').should("be.visible");
   cy.get(homePage.searchInput).type(appName, { force: true });
@@ -391,7 +391,7 @@ Cypress.Commands.add("NavigateToHome", () => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
   cy.wait("@applications").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -540,7 +540,7 @@ Cypress.Commands.add(
       .clear()
       .type(updatedName + "{enter}", { force: true });
     cy.wait("@saveDatasource").should((interception) => {
-      checkIfApiWasSuccessful(interception, 200);
+      assertApiResponseStatusCode(interception, 200);
     });
   },
 );
@@ -658,7 +658,7 @@ Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
     .contains(zoomValue)
     .click();
   cy.wait("@updateLayout").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
   cy.get(commonlocators.selectedZoomlevel)
     .last()
@@ -678,7 +678,7 @@ Cypress.Commands.add("changeColumnType", (dataType) => {
     .contains(dataType)
     .click();
   cy.wait("@updateLayout").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
   /*
   cy.get(commonlocators.selectedColType)
@@ -857,7 +857,7 @@ Cypress.Commands.add("MoveAPIToHome", (apiname) => {
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
   cy.wait("@createNewApi").should((interception) => {
-    checkIfApiWasSuccessful(interception, 201);
+    assertApiResponseStatusCode(interception, 201);
   });
 });
 
@@ -870,7 +870,7 @@ Cypress.Commands.add("MoveAPIToPage", (pageName) => {
     .contains(pageName)
     .click();
   cy.wait("@saveAction").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -883,7 +883,7 @@ Cypress.Commands.add("copyEntityToPage", (pageName) => {
     .contains(pageName)
     .click();
   cy.wait("@createNewApi").should((interception) => {
-    checkIfApiWasSuccessful(interception, 201);
+    assertApiResponseStatusCode(interception, 201);
   });
 });
 
@@ -894,7 +894,7 @@ Cypress.Commands.add("CopyAPIToHome", () => {
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
   cy.wait("@createNewApi").should((interception) => {
-    checkIfApiWasSuccessful(interception, 201);
+    assertApiResponseStatusCode(interception, 201);
   });
 });
 
@@ -937,14 +937,14 @@ Cypress.Commands.add("validateMessage", (value) => {
 Cypress.Commands.add("DeleteAPIFromSideBar", () => {
   cy.deleteEntity();
   cy.wait("@deleteAction").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
 Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
   cy.deleteEntity();
   cy.wait("@updateLayout").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -963,7 +963,7 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
     .first()
     .click({ force: true });
   cy.wait("@deleteAction").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -1523,7 +1523,7 @@ Cypress.Commands.add("Createpage", (Pagename) => {
     .first()
     .click();
   cy.wait("@createPage").should((interception) => {
-    checkIfApiWasSuccessful(interception, 201);
+    assertApiResponseStatusCode(interception, 201);
   });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -1760,7 +1760,7 @@ Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
 Cypress.Commands.add("testCreateApiButton", () => {
   cy.get(ApiEditor.createBlankApiCard).click({ force: true });
   cy.wait("@createNewApi").should((interception) => {
-    checkIfApiWasSuccessful(interception, 201);
+    assertApiResponseStatusCode(interception, 201);
   });
 });
 
@@ -1773,21 +1773,21 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
   */
   cy.get(".t--save-datasource").click();
   cy.wait("@saveDatasource").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 
   cy.get(datasourceEditor.editDatasource).click();
 
   cy.get(".t--delete-datasource").click();
   cy.wait("@deleteDatasource").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
 Cypress.Commands.add("importCurl", () => {
   cy.get(ApiEditor.curlImportBtn).click({ force: true });
   cy.wait("@curlImport").should((interception) => {
-    checkIfApiWasSuccessful(interception, 201);
+    assertApiResponseStatusCode(interception, 201);
   });
 });
 
@@ -1817,7 +1817,7 @@ Cypress.Commands.add("testDatasource", () => {
 Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click();
   cy.wait("@saveDatasource").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
   /* To be enabled when needed
   cy.wait("@saveDatasource")
@@ -1903,7 +1903,7 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
 Cypress.Commands.add("runQuery", () => {
   cy.get(queryEditor.runQuery).click({ force: true });
   cy.wait("@postExecute").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -1922,7 +1922,7 @@ Cypress.Commands.add("deleteQuery", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
   cy.wait("@deleteAction").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
@@ -1930,14 +1930,14 @@ Cypress.Commands.add("deleteDataSource", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
   cy.wait("@deleteDatasource").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
 });
 
 Cypress.Commands.add("runAndDeleteQuery", () => {
   cy.get(queryEditor.runQuery).click();
   cy.wait("@postExecute").should((interception) => {
-    checkIfApiWasSuccessful(interception, 200);
+    assertApiResponseStatusCode(interception, 200);
   });
   cy.get(queryEditor.deleteQuery).click();
   cy.wait("@deleteAction").should(
