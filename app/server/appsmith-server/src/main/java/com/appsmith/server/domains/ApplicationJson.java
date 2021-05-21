@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A DTO class to hold complete information about an application, which will then be serialized to a file so as to
+ * export that application into a file.
+ */
 @Getter
 @Setter
 public class ApplicationJson {
