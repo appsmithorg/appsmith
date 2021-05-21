@@ -8,6 +8,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,9 +35,18 @@ public class Comment extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String authorName;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    String authorUsername;
+
     Body body;
 
     List<Reaction> reactions;
+
+    /**
+     * Indicates whether this comment is the leading comment in it's thread. Such a comment cannot be deleted.
+     */
+    @JsonIgnore
+    Boolean leading;
 
     @Data
     public static class Body {
@@ -83,6 +95,12 @@ public class Comment extends BaseDomain {
         }
     }
 
+    private static final DateTimeFormatter ISO_FORMATTER =
+            DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
+
+    public String getCreationTime() {
+        return ISO_FORMATTER.format(createdAt);
+    }
     @Data
     public static class Reaction {
         String emoji;
@@ -91,5 +109,4 @@ public class Comment extends BaseDomain {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
         Date createdAt;
     }
-
 }

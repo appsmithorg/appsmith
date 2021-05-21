@@ -2347,8 +2347,12 @@ Cypress.Commands.add("assertPageSave", () => {
 
 Cypress.Commands.add("ValidateQueryParams", (param) => {
   cy.xpath(apiwidget.paramsTab)
-      .should("be.visible")
-      .click({ force: true });
-  cy.xpath(apiwidget.paramKey).first().contains(param.key);
-  cy.xpath(apiwidget.paramValue).first().contains(param.value);
+    .should("be.visible")
+    .click({ force: true });
+  cy.xpath(apiwidget.paramKey)
+    .first()
+    .contains(param.key);
+  cy.xpath(apiwidget.paramValue)
+    .first()
+    .contains(param.value);
 });

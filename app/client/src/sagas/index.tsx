@@ -29,6 +29,7 @@ import recentEntitiesSagas from "./RecentEntitiesSagas";
 import commentSagas from "./CommentSagas";
 import websocketSagas from "./WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
+import tourSagas from "./TourSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 
@@ -65,6 +66,7 @@ const sagas = [
   debuggerSagas,
   utilSagas,
   saaSPaneSagas,
+  tourSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

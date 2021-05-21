@@ -6,7 +6,10 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.CommentThreadNotification;
+import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -27,6 +30,9 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,8 +51,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private final UserService userService;
     private final SessionUserService sessionUserService;
     private final ApplicationService applicationService;
+    private final NotificationService notificationService;
 
     private final PolicyGenerator policyGenerator;
+    private static final DateTimeFormatter ISO_FORMATTER =
+            DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
     private final PolicyUtils policyUtils;
 
     public CommentServiceImpl(
@@ -60,6 +69,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             UserService userService,
             SessionUserService sessionUserService,
             ApplicationService applicationService,
+            NotificationService notificationService,
             PolicyGenerator policyGenerator,
             PolicyUtils policyUtils
     ) {
@@ -68,12 +78,17 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         this.userService = userService;
         this.sessionUserService = sessionUserService;
         this.applicationService = applicationService;
+        this.notificationService = notificationService;
         this.policyGenerator = policyGenerator;
         this.policyUtils = policyUtils;
     }
 
     @Override
     public Mono<Comment> create(String threadId, Comment comment) {
+        return create(threadId, comment, true);
+    }
+
+    public Mono<Comment> create(String threadId, Comment comment, boolean shouldCreateNotification) {
         if (StringUtils.isWhitespace(comment.getAuthorName())) {
             // Error: User can't explicitly set the author name. It will be the currently logged in user.
             return Mono.empty();
@@ -112,7 +127,31 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
                     String authorName = user.getName() != null ? user.getName(): user.getUsername();
                     comment.setAuthorName(authorName);
-                    return repository.save(comment);
+                    comment.setAuthorUsername(user.getUsername());
+                    comment.setAuthorName(authorName);
+                    return Mono.zip(
+                            Mono.just(user),
+                            repository.save(comment)
+                    );
+                })
+                .flatMap(tuple -> {
+                    final User user = tuple.getT1();
+                    final Comment savedComment = tuple.getT2();
+
+                    final Set<String> usernames = policyUtils.findUsernamesWithPermission(
+                            savedComment.getPolicies(), AclPermission.READ_COMMENT);
+
+                    List<Mono<Notification>> monos = new ArrayList<>();
+                    for (String username : usernames) {
+                        if (!username.equals(user.getUsername())) {
+                            final CommentNotification notification = new CommentNotification();
+                            notification.setComment(savedComment);
+                            notification.setForUsername(username);
+                            monos.add(notificationService.create(notification));
+                        }
+                    }
+
+                    return Flux.concat(monos).then(Mono.just(savedComment));
                 });
     }
 
@@ -170,9 +209,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
 
                     if (!CollectionUtils.isEmpty(thread.getComments())) {
+                        thread.getComments().get(0).setLeading(true);
+                        boolean isFirst = true;
                         for (final Comment comment : thread.getComments()) {
                             comment.setId(null);
-                            commentSaverMonos.add(create(thread.getId(), comment));
+                            commentSaverMonos.add(create(thread.getId(), comment, !isFirst));
+                            isFirst = false;
                         }
                     }
 
@@ -181,10 +223,28 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     return Flux.concat(commentSaverMonos);
                 })
                 .collectList()
-                .map(comments -> {
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(tuple -> {
+                    final List<Comment> comments = tuple.getT1();
+                    final User user = tuple.getT2();
+
                     commentThread.setComments(comments);
                     commentThread.setIsViewed(true);
-                    return commentThread;
+
+                    final Set<String> usernames = policyUtils.findUsernamesWithPermission(
+                            commentThread.getPolicies(), AclPermission.READ_THREAD);
+
+                    List<Mono<Notification>> monos = new ArrayList<>();
+                    for (String username : usernames) {
+                        if (!username.equals(user.getUsername())) {
+                            final CommentThreadNotification notification = new CommentThreadNotification();
+                            notification.setCommentThread(commentThread);
+                            notification.setForUsername(username);
+                            monos.add(notificationService.create(notification));
+                        }
+                    }
+
+                    return Flux.concat(monos).then(Mono.just(commentThread));
                 });
     }
 
@@ -204,7 +264,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     initState.setAuthorName(authorName);
                     initState.setAuthorUsername(user.getUsername());
                     //Nested object in mongo doc doesn't update time automatically
-                    initState.setUpdatedAt(Instant.now());
+                    initState.setUpdatedAt(ISO_FORMATTER.format(Instant.now()));
 
                     if (commentThread.getResolvedState() != null) {
                         initState.setActive(commentThread.getResolvedState().getActive());
@@ -217,7 +277,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     Set<String> viewedUser = new HashSet<>();
                     viewedUser.add(user.getUsername());
                     commentThread.setViewedByUsers(viewedUser);
-                    commentThread.setIsViewed(true);
                     return threadRepository.findById(threadId);
                 })
                 .flatMap(thread -> {
@@ -225,7 +284,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     if(thread.getViewedByUsers() != null) {
                         commentThread.getViewedByUsers().addAll(thread.getViewedByUsers());
                     }
-                    return threadRepository.updateById(threadId, commentThread, AclPermission.MANAGE_THREAD);
+                    return threadRepository
+                            .updateById(threadId, commentThread, AclPermission.MANAGE_THREAD)
+                            .flatMap(updatedThread -> {
+                                updatedThread.setIsViewed(true);
+                                return Mono.just(updatedThread);
+                            });
                 });
     }
 
