@@ -5,7 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-//This class should never be used except exporting the application as we need to export sensitive info in response
+/**
+ * This class hold sensitive information, and fields that have a `@JsonIgnore` on them, so that such information
+ * can be serialized when an application is exported.
+ */
 @ToString
 @Getter
 @Setter
