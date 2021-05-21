@@ -8,14 +8,13 @@ import { AppState } from "reducers";
 import Text, { TextType } from "components/ads/Text";
 
 const CheckboxDiv = styled.div`
-  overflow: auto;
+  // overflow: auto;
   max-height: 250px;
   margin-bottom: 10px;
   margin-top: 20px;
 `;
 
 type ExportApplicationModalProps = {
-  import?: (file: any) => void;
   export?: (
     applicationId: string,
     applicationName: string,
@@ -25,13 +24,11 @@ type ExportApplicationModalProps = {
   applicationName?: string;
   organizationId?: string;
   isModalOpen?: boolean;
-  onClose?: () => void;
   setModalClose?: (isOpen: boolean) => void;
 };
 
 function ExportApplicationModal(props: ExportApplicationModalProps) {
   const { setModalClose, isModalOpen } = props;
-  const { onClose } = props;
   const onExportSuccess = () => {
     setModalClose && setModalClose(false);
   };
@@ -41,16 +38,10 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
       props.applicationName &&
       props.export(props.applicationId, props.applicationName, onExportSuccess);
   };
-  const importApplication = () => {
-    props.organizationId && props.import && props.import("");
-    onClose && onClose();
-  };
+
   const exportingApplication = useSelector(
     (state: AppState) => state.ui.applications.exportingApplication,
   );
-  // const exportedApplication = useSelector(
-  //   (state: AppState) => state.ui.applications.exportedApplication,
-  // );
 
   const [isChecked, setIsCheckedToTrue] = useState(false);
   return (
@@ -72,29 +63,16 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
           />
         </Text>
       </CheckboxDiv>
-      {props.import && (
-        <ButtonWrapper>
-          <ForkButton
-            cypressSelector={"t--import-app-button"}
-            disabled={!isChecked}
-            onClick={importApplication}
-            size={Size.large}
-            text={"IMPORT"}
-          />
-        </ButtonWrapper>
-      )}
-      {props.export && (
-        <ButtonWrapper>
-          <ForkButton
-            cypressSelector={"t--export-app-button"}
-            disabled={!isChecked}
-            isLoading={exportingApplication}
-            onClick={exportApplication}
-            size={Size.large}
-            text={"EXPORT"}
-          />
-        </ButtonWrapper>
-      )}
+      <ButtonWrapper>
+        <ForkButton
+          cypressSelector={"t--export-app-button"}
+          disabled={!isChecked}
+          isLoading={exportingApplication}
+          onClick={exportApplication}
+          size={Size.large}
+          text={"EXPORT"}
+        />
+      </ButtonWrapper>
     </StyledDialog>
   );
 }
