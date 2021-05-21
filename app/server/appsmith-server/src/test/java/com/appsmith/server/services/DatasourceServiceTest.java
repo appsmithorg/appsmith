@@ -984,7 +984,7 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testHintMessageOnLocalhostUrlOnUpdateEventOnNonApiDatasource() {
+    public void testHintMessageOnLocalhostIPAddressOnUpdateEventOnNonApiDatasource() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Datasource datasource = new Datasource();
@@ -1012,7 +1012,7 @@ public class DatasourceServiceTest {
                     DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
                     Connection connection1 = new Connection();
                     datasourceConfiguration1.setConnection(connection1);
-                    Endpoint endpoint = new Endpoint("http://localhost", 0L);
+                    Endpoint endpoint = new Endpoint("http://127.0.0.1/xyz", 0L);
                     datasourceConfiguration1.setEndpoints(new ArrayList<>());
                     datasourceConfiguration1.getEndpoints().add(endpoint);
                     updates.setDatasourceConfiguration(datasourceConfiguration1);
@@ -1031,6 +1031,38 @@ public class DatasourceServiceTest {
                             updatedDatasource.getMessages().stream()
                                     .anyMatch(message -> expectedMessage.equals(message))
                     ).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testHintMessageNPE() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("NPE check");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setEndpoints(new ArrayList<>());
+        Endpoint nullEndpoint = null;
+        datasourceConfiguration.getEndpoints().add(nullEndpoint);
+        Endpoint nullHost = new Endpoint(null, 0L);
+        datasourceConfiguration.getEndpoints().add(nullHost);
+
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getMessages()).isEmpty();
                 })
                 .verifyComplete();
     }
