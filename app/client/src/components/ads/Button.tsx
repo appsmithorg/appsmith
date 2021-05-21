@@ -380,7 +380,7 @@ function TextLoadingState({ text }: { text?: string }) {
   return <VisibilityWrapper>{text}</VisibilityWrapper>;
 }
 
-function IconLoadingState({ size, icon }: { size?: Size; icon?: IconName }) {
+function IconLoadingState({ icon, size }: { size?: Size; icon?: IconName }) {
   return <Icon invisible name={icon} size={IconSizeProp(size)} />;
 }
 

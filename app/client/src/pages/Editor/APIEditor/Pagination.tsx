@@ -173,6 +173,7 @@ export default function Pagination(props: PaginationProps) {
                 size={Size.medium}
                 tag="button"
                 text={"Test"}
+                type="button"
               />
             </PaginationFieldWrapper>
             <Step type={TextType.P1}>Next url</Step>
@@ -192,6 +193,7 @@ export default function Pagination(props: PaginationProps) {
                 size={Size.medium}
                 tag="button"
                 text={"Test"}
+                type="button"
               />
             </PaginationFieldWrapper>
           </div>

@@ -8,6 +8,8 @@ import {
   getPluginDocumentationLinks,
 } from "selectors/entitiesSelector";
 import { EditorJSONtoForm, EditorJSONtoFormProps } from "./EditorJSONtoForm";
+import { getFormValues } from "redux-form";
+import { QueryAction } from "entities/Action";
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
 const mapStateToProps = (state: AppState) => {
@@ -17,6 +19,7 @@ const mapStateToProps = (state: AppState) => {
 
   const responseTypes = getPluginResponseTypes(state);
   const documentationLinks = getPluginDocumentationLinks(state);
+  const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
 
   return {
     actionName,
@@ -25,6 +28,7 @@ const mapStateToProps = (state: AppState) => {
     responseType: responseTypes[pluginId],
     documentationLink: documentationLinks[pluginId],
     formName: QUERY_EDITOR_FORM_NAME,
+    formData: formData,
   };
 };
 

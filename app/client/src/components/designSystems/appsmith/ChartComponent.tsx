@@ -72,7 +72,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   chartInstance = new FusionCharts();
 
   getChartType = () => {
-    const { chartType, allowHorizontalScroll, chartData } = this.props;
+    const { allowHorizontalScroll, chartData, chartType } = this.props;
     const dataLength = Object.keys(chartData).length;
     const isMSChart = dataLength > 1;
     switch (chartType) {

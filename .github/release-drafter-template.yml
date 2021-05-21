@@ -9,6 +9,9 @@ categories:
       - 'Bug'
   - title: '📙 Documentation'
     label: 'Documentation'
+# Any PR with the label 'skip-changelog' will not be inserted into the release notes
+exclude-labels:
+  - 'skip-changelog'
 change-template: '- $TITLE (#$NUMBER)'
 change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
 version-resolver:
