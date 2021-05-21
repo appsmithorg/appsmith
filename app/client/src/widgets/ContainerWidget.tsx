@@ -64,7 +64,7 @@ class ContainerWidget extends BaseWidget<
 
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
-    const padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+    const padding = CONTAINER_GRID_PADDING * 2;
     let width = componentWidth;
     if (!this.props.noPad) width -= padding;
     else width -= WIDGET_PADDING * 2;
