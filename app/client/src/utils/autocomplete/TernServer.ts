@@ -436,8 +436,7 @@ class TernServer {
         if (query.start) {
           query.start = Pos(query.start.line - -offsetLines, query.start.ch);
         }
-        // query.end = Pos(query.end.line - offsetLines, query.end.ch);
-        query.end = 20;
+        query.end = Pos(query.end.line - offsetLines, query.end.ch);
       } else {
         files.push({
           type: "full",
