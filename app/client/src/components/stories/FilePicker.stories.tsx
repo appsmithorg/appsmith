@@ -12,6 +12,7 @@ function ShowUploadedFile(data: any) {
 
 export const withDynamicProps = () => (
   <FilePicker
+    fileType={FileType.IMAGE}
     fileUploader={CloudinaryUploader}
     onFileUploaded={(data) => ShowUploadedFile(data)}
   />

@@ -33,7 +33,7 @@ type FilePickerProps = {
   fileUploader?: FileUploader;
   url?: string;
   logoUploadError?: string;
-  fileType?: FileType;
+  fileType: FileType;
 };
 
 const ContainerDiv = styled.div<{
@@ -243,6 +243,8 @@ function FilePickerComponent(props: FilePickerProps) {
     if (!file) {
       return;
     }
+    // we have to give user a chance to remove selected file before they decide to upload.
+    fileType !== FileType.IMAGE && setIsUploaded(true);
     fileSize = Math.floor(file.size / 1024);
     setFileInfo({ name: file.name, size: fileSize });
 
@@ -314,7 +316,7 @@ function FilePickerComponent(props: FilePickerProps) {
   return (
     <ContainerDiv
       canDrop={canDrop}
-      fileType={fileType || FileType.IMAGE}
+      fileType={fileType}
       isActive={isActive}
       isUploaded={isUploaded}
       ref={drop}
@@ -327,9 +329,7 @@ function FilePickerComponent(props: FilePickerProps) {
           </Text>
           <form>
             <input
-              accept={
-                fileType ? FileEndings[fileType] : FileEndings[FileType.IMAGE]
-              }
+              accept={FileEndings[fileType]}
               id="fileInput"
               multiple={false}
               onChange={(el) => handleFileUpload(el.target.files)}
