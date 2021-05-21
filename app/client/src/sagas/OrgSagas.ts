@@ -202,7 +202,7 @@ export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
 export function* createOrgSaga(
   action: ReduxActionWithPromise<CreateOrgRequest>,
 ) {
-  const { resolve, reject, name } = action.payload;
+  const { name, reject, resolve } = action.payload;
   try {
     const request: CreateOrgRequest = { name };
     const response: ApiResponse = yield callAPI(OrgApi.createOrg, request);

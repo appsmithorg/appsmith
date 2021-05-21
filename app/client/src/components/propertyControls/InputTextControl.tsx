@@ -23,19 +23,17 @@ export function InputText(props: {
   additionalAutocomplete?: Record<string, Record<string, unknown>>;
   theme?: EditorTheme;
   hideEvaluatedValue?: boolean;
-  jsErrorMessage?: string;
 }) {
   const {
+    dataTreePath,
     errorMessage,
+    evaluatedValue,
     expected,
-    value,
+    hideEvaluatedValue,
     isValid,
     onChange,
     placeholder,
-    dataTreePath,
-    evaluatedValue,
-    hideEvaluatedValue,
-    jsErrorMessage,
+    value,
   } = props;
 
   return (
@@ -50,7 +48,6 @@ export function InputText(props: {
           value: value,
           onChange: onChange,
         }}
-        jsErrorMessage={jsErrorMessage}
         meta={{
           error: isValid ? "" : errorMessage,
           touched: true,
@@ -68,17 +65,16 @@ export function InputText(props: {
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
+      additionalAutoComplete,
+      dataTreePath,
+      defaultValue,
       expected,
-      propertyValue,
+      hideEvaluatedValue,
       isValid,
       label,
       placeholderText,
-      dataTreePath,
+      propertyValue,
       validationMessage,
-      defaultValue,
-      additionalAutoComplete,
-      hideEvaluatedValue,
-      jsErrorMessage,
     } = this.props;
 
     return (
@@ -89,7 +85,6 @@ class InputTextControl extends BaseControl<InputControlProps> {
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
         isValid={isValid}
-        jsErrorMessage={jsErrorMessage}
         label={label}
         onChange={this.onTextChange}
         placeholder={placeholderText}

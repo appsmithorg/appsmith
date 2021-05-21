@@ -8,6 +8,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getSelectedWidget, getSelectedWidgets } from "./ui";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -49,14 +50,9 @@ export const getWidgetPropsForPropertyPane = createSelector(
       }
 
       if (evaluatedWidget.invalidProps) {
-        const {
-          invalidProps,
-          validationMessages,
-          jsErrorMessages,
-        } = evaluatedWidget;
+        const { invalidProps, validationMessages } = evaluatedWidget;
         widgetProperties.invalidProps = invalidProps;
         widgetProperties.validationMessages = validationMessages;
-        widgetProperties.jsErrorMessages = jsErrorMessages;
       }
     }
     return widgetProperties;
@@ -69,6 +65,24 @@ const isResizingorDragging = (state: AppState) =>
 export const getIsPropertyPaneVisible = createSelector(
   getPropertyPaneState,
   isResizingorDragging,
-  (pane: PropertyPaneReduxState, isResizingorDragging: boolean) =>
-    !!(!isResizingorDragging && pane.isVisible && pane.widgetId),
+  getSelectedWidget,
+  getSelectedWidgets,
+  (
+    pane: PropertyPaneReduxState,
+    isResizingorDragging: boolean,
+    lastSelectedWidget,
+    widgets,
+  ) => {
+    const isWidgetSelected = pane.widgetId
+      ? lastSelectedWidget === pane.widgetId || widgets.includes(pane.widgetId)
+      : false;
+    const multipleWidgetsSelected = !!(widgets && widgets.length >= 2);
+    return !!(
+      isWidgetSelected &&
+      !multipleWidgetsSelected &&
+      !isResizingorDragging &&
+      pane.isVisible &&
+      pane.widgetId
+    );
+  },
 );

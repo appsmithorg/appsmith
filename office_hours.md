@@ -28,6 +28,24 @@ You can find the archives of the calls below with a brief summary of each sessio
 
 ## Archives
 
+<strong>Office Hours May 13th, 2021: Product roadmap discussion</strong>
+
+<a href = "https://youtu.be/1sw84i_M4_Y">Video Link</a>
+
+#### Summary
+
+Abhishek shows the community our current product road map and explains how members can contribute to it. Abhishek also hosted an interactive section where members of the community voted for the top features they want to see on Appsmith. 
+
+Some of the most requested features are: 
+1. Generate form from DB schema
+2. Custom NPM packages
+3. Custom theming
+4. Keyboard first navigation
+
+You can vote for your favorite features [here](https://miro.com/app/board/o9J_lE-dkdM=/)
+
+------------------
+
 <strong>Appsmith Live Demo #2, 6th May 2021: Building a support helpdesk using Gmail and Postgres</strong>
 
 <a href = "https://youtu.be/X_x_nRZf418">Video Link</a>

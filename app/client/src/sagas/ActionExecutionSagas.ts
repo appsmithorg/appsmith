@@ -44,6 +44,7 @@ import {
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
+  executePageLoadActionsComplete,
   showRunActionConfirmModal,
   updateAction,
 } from "actions/actionActions";
@@ -446,7 +447,7 @@ export function* executeActionSaga(
   apiAction: RunActionPayload,
   event: ExecuteActionPayloadEvent,
 ) {
-  const { actionId, onSuccess, onError, params } = apiAction;
+  const { actionId, onError, onSuccess, params } = apiAction;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.EXECUTE_ACTION,
     {
@@ -932,18 +933,6 @@ function* executePageLoadAction(pageAction: PageAction) {
         message += `\nERROR: "${body}"`;
       }
 
-      AppsmithConsole.error({
-        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-        text: `Execution failed with status ${response.data.statusCode}`,
-        source: {
-          type: ENTITY_TYPE.ACTION,
-          name: pageAction.name,
-          id: pageAction.id,
-        },
-        state: response.data?.request ?? null,
-        message: JSON.stringify(body),
-      });
-
       yield put(
         executeActionError({
           actionId: pageAction.id,
@@ -1011,6 +1000,8 @@ function* executePageLoadActionsSaga() {
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
+
+    yield put(executePageLoadActionsComplete());
   } catch (e) {
     log.error(e);
 

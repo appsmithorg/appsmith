@@ -37,7 +37,7 @@ function DebbuggerLogs(props: Props) {
   const [filter, setFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState(props.searchQuery);
   const filteredLogs = useFilteredLogs(searchQuery, filter);
-  const { paginatedData, next } = usePagination(filteredLogs);
+  const { next, paginatedData } = usePagination(filteredLogs);
   const listRef = useRef<HTMLDivElement>(null);
   const selectedFilter = useMemo(
     () => LOGS_FILTER_OPTIONS.find((option) => option.value === filter),
