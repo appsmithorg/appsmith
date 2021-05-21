@@ -8,7 +8,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -58,7 +57,7 @@ public class CommentThread extends BaseDomain {
         String authorName;
         String authorUsername;
         @LastModifiedDate
-        Instant updatedAt;
+        String updatedAt;
         Boolean active;
     }
 

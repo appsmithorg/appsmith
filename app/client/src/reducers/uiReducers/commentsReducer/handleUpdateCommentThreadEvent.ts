@@ -14,10 +14,13 @@ const handleUpdateCommentThreadEvent = (
   state.commentThreadsMap[id] = {
     ...commentThreadInStore,
     ...action.payload,
+    isViewed: commentThreadInStore.isViewed || action.payload.isViewed, // TODO refactor this
     comments: uniqBy([...existingComments, ...newComments], "id"),
   };
 
-  return { ...state };
+  const showUnreadIndicator = !state.isCommentMode;
+
+  return { ...state, showUnreadIndicator };
 };
 
 export default handleUpdateCommentThreadEvent;

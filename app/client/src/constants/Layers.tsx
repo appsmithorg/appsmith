@@ -1,6 +1,6 @@
 import React from "react";
 
-enum Indices {
+export enum Indices {
   Layer0,
   Layer1,
   Layer2,
@@ -9,6 +9,8 @@ enum Indices {
   Layer5,
   Layer6,
   Layer7,
+  Layer8,
+  Layer9,
   LayerMax = 99999,
 }
 
@@ -36,6 +38,9 @@ export const Layers = {
   dynamicAutoComplete: Indices.Layer5,
   debugger: Indices.Layer6,
   productUpdates: Indices.Layer7,
+  portals: Indices.Layer8,
+  header: Indices.Layer9,
+  appComments: Indices.Layer9,
   max: Indices.LayerMax,
 };
 

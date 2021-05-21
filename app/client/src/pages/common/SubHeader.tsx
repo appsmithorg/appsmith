@@ -7,6 +7,7 @@ import SearchInput, { SearchVariant } from "components/ads/SearchInput";
 import Button, { Size } from "components/ads/Button";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { Indices } from "constants/Layers";
 
 const SubHeaderWrapper = styled.div`
   width: 100%;
@@ -17,7 +18,7 @@ const SubHeaderWrapper = styled.div`
   background: ${(props) => props.theme.colors.homepageBackground};
   top: ${(props) => props.theme.homePage.header}px;
   left: 369px;
-  z-index: 10;
+  z-index: ${Indices.Layer3};
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;
