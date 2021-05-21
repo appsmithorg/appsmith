@@ -167,7 +167,7 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
                 top={top}
               >
                 <Popover2
-                  autoFocus
+                  autoFocus={false}
                   boundary={Container as HTMLDivElement}
                   canEscapeKeyClose
                   content={
@@ -179,6 +179,7 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
                       />
                     </animated.div>
                   }
+                  enforceFocus={false}
                   hasBackdrop
                   isOpen={!!isCommentThreadVisible}
                   minimal
