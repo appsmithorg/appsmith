@@ -40,7 +40,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
-import javax.xml.stream.events.EndElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
