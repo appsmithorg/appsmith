@@ -24,7 +24,7 @@ public class ApplicationJson {
     Map<String, DecryptedSensitiveFields> decryptedFields;
 
     /**
-     *Mapping mongoEscapedWidgets with layoutId
+     * Mapping mongoEscapedWidgets with layoutId
      */
     Map<String, Set<String>> mongoEscapedWidgets;
 }

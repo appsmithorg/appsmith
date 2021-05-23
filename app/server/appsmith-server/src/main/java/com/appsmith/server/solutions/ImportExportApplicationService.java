@@ -76,7 +76,7 @@ public class ImportExportApplicationService {
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
 
-    public Mono<ApplicationJson> getApplicationFileById(String applicationId) {
+    public Mono<ApplicationJson> exportApplicationById(String applicationId) {
         ApplicationJson applicationJson = new ApplicationJson();
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();

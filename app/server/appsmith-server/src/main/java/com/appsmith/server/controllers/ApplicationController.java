@@ -128,7 +128,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     @GetMapping("/export/{id}")
     public Mono<ResponseDTO<ApplicationJson>> getApplicationFile(@PathVariable String id) {
         log.debug("Going to export application with id: {}", id);
-        return importExportApplicationService.getApplicationFileById(id)
+        return importExportApplicationService.exportApplicationById(id)
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
