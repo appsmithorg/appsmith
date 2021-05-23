@@ -58,7 +58,7 @@ describe("Test curl import flow", function() {
     );
   });
 
-  it("publish widget and validate the data displayed in input widgets value for CURL response", function() {
+  it("publish widget and validate the data displayed in input widgets value for API post response", function() {
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
