@@ -31,4 +31,5 @@ public interface UserDataService {
 
     Mono<Void> makeProfilePhotoResponse(ServerWebExchange exchange);
 
+    Mono<UserData> updateLastUsedOrgList(String currentOrgId);
 }

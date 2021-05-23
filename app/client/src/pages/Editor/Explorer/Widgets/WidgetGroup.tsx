@@ -32,7 +32,7 @@ const StyledLink = styled(Link)`
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
 
   const childNode = (

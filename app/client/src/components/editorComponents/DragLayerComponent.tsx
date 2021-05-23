@@ -31,8 +31,9 @@ const WrappedDragLayer = styled.div<{
   );
   background-size: ${(props) => props.columnWidth}px
     ${(props) => props.rowHeight}px;
-  background-position: -${(props) => props.columnWidth / 2}px -${(props) =>
-      props.rowHeight / 2}px;
+  background-position: -${(props) => props.columnWidth / 2 - 3.5}px -${(
+      props,
+    ) => props.rowHeight / 2 - 1.5}px;
 `;
 
 type DragLayerProps = {
@@ -71,7 +72,7 @@ function DragLayerComponent(props: DragLayerProps) {
     x: 0,
     y: 0,
   });
-  const { isDragging, currentOffset, widget, canDrop } = useDragLayer(
+  const { canDrop, currentOffset, isDragging, widget } = useDragLayer(
     (monitor) => ({
       isDragging: monitor.isDragging(),
       currentOffset: monitor.getSourceClientOffset(),
