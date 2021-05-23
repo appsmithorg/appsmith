@@ -50,7 +50,7 @@ import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ToggleCommentModeButton from "comments/ToggleCommentModeButton";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -238,6 +238,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 }
               />
             )}
+            <ToggleModeButton />
           </Boxed>
         </HeaderSection>
         <HeaderSection>
@@ -246,7 +247,6 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection>
           <Boxed step={OnboardingStep.FINISH}>
-            <ToggleCommentModeButton />
             <SaveStatusContainer className={"t--save-status-container"}>
               {saveStatusIcon}
             </SaveStatusContainer>
