@@ -123,5 +123,7 @@
   "oauthResponse": "169444434892406",
   "authorizationURL": "https://oauth.mocklab.io/oauth/authorize",
   "basicURl": "https://envyenksqii9nf3.m.pipedream.net",
-  "methodWithQueryParam": "users?q=mimeType='application/vnd.google-apps.spreadsheet'"
+  "methodWithQueryParam": "users?q=mimeType='application/vnd.google-apps.spreadsheet'",
+  "postUrlCurl": "https://mock-api.appsmith.com/echo/post",
+  "host": "mock-api.appsmith.com"
 }

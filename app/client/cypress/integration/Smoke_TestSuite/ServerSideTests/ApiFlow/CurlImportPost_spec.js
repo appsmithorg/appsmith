@@ -3,26 +3,17 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dsl = require("../../../../fixtures/inputWidgetDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
+const testdata = require("../../../../fixtures/testdata.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
+
+
+
 
 describe("Test curl import flow", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Input widget test with default value from table widget", function() {
-    cy.SearchEntityandOpen("Input1");
-    cy.wait(1000);
-    cy.get(widgetsPage.defaultInput).type("{{Api1.data.headers}}", {
-      force: true,
-      parseSpecialCharSequences: false,
-    });
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-  });
   it("Test curl import flow for POST action", function() {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     cy.NavigateToApiEditor();
@@ -52,5 +43,27 @@ describe("Test curl import flow", function() {
           expect(someText).to.equal(response.response.body.data.name);
         });
     });
+    cy.ResponseTextCheck(testdata.postUrlCurl);
   });
+
+  it("Input widget test with default value from table widget", function() {
+    cy.SearchEntityandOpen("Input1");
+    cy.wait(1000);
+    cy.get(widgetsPage.defaultInput).type("{{Api1.data.headers");
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  });
+
+  it("publish widget and validate the data displayed in input widgets value for CURL response", function() {
+    cy.PublishtheApp();
+    cy.get(publish.inputWidget + " " + "input")
+      .first()
+      .invoke("attr", "value")
+      .should("contain", testdata.host);
+  });
+  
 });
