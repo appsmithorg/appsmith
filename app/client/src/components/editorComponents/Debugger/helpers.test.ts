@@ -1,4 +1,4 @@
-import { getDependencies } from "./helpers";
+import { getDependenciesFromInverseDependencies } from "./helpers";
 
 describe("getDependencies", () => {
   it("Check if getDependencies returns in a correct format", () => {
@@ -19,6 +19,8 @@ describe("getDependencies", () => {
       inverseDependencies: ["Input1", "Chart1"],
     };
 
-    expect(getDependencies(input, "Button1")).toStrictEqual(output);
+    expect(
+      getDependenciesFromInverseDependencies(input, "Button1"),
+    ).toStrictEqual(output);
   });
 });
