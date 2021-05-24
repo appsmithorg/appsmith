@@ -775,10 +775,10 @@ function ApiEditorForm(props: Props) {
             />
             <CloseIconContainer>
               <Icon
-                className="t--global-clear-input"
-                name="close"
+                className="close-modal-icon"
+                name="close-modal"
                 onClick={() => toggleDatasources(!showDatasources)}
-                size={IconSize.LARGE}
+                size={IconSize.SMALL}
               />
             </CloseIconContainer>
           </>
