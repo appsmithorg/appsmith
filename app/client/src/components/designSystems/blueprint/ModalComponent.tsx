@@ -86,7 +86,7 @@ export function ModalComponent(props: ModalComponentProps) {
       canEscapeKeyClose={false}
       canOutsideClickClose={false}
       enforceFocus={false}
-      hasBackdrop
+      hasBackdrop={false}
       isOpen={props.isOpen}
       onClose={props.onClose}
       portalClassName="bp3-modal-widget"
