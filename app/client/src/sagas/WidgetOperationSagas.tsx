@@ -1042,7 +1042,9 @@ function* setWidgetDynamicPropertySaga(
   const { isDynamic, propertyPath, widgetId } = action.payload;
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   let widget = cloneDeep({ ...stateWidget });
-  const propertyValue = _.get(widget, propertyPath);
+  const defaultConfig: any = WidgetConfigResponse.config[widget.type];
+
+  let propertyValue = _.get(widget, propertyPath);
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
   if (isDynamic) {
     const keyExists =
@@ -1055,6 +1057,12 @@ function* setWidgetDynamicPropertySaga(
     }
     widget = set(widget, propertyPath, convertToString(propertyValue));
   } else {
+    const keyExists =
+      dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
+      -1;
+    if (keyExists) {
+      propertyValue = defaultConfig[propertyPath];
+    }
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
     });
