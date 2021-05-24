@@ -51,12 +51,12 @@ const PropertyControl = memo((props: Props) => {
     widgetProperties.widgetId,
   );
 
-  /** get all child enhancments functions */
+  /** get all child enhancements functions */
   const {
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
-    propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
+    propertyPaneEnhancementFn: childWidgetPropertyUpdateEnhancementFn,
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
   } = useChildWidgetEnhancementFns(widgetProperties.widgetId);
 
