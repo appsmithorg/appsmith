@@ -102,12 +102,12 @@ const editorReducer = createReducer(initialState, {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     const {
-      currentPageName,
-      currentLayoutId,
-      pageWidgetId,
       currentApplicationId,
+      currentLayoutId,
       currentPageId,
+      currentPageName,
       pageActions,
+      pageWidgetId,
     } = action.payload;
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;

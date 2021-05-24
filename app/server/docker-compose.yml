@@ -2,35 +2,30 @@ version: "3.7"
 
 services:
   appsmith-internal-server:
-    image: arpitappsmith/appsmith-server:maven
+    image: appsmith/appsmith-server
     env_file: envs/docker.env
     environment:
-      APPSMITH_MONGODB_URI: "mongodb://mongo:27017/mobtools"
       APPSMITH_REDIS_URL: "redis://redis:6379"
+      APPSMITH_MONGODB_URI: "mongodb://mongo:27017/appsmith"
     ports:
       - "8080:8080"
-    links:
-      - mongo
     depends_on:
       - mongo
+      - redis
     networks:
       - appsmith
 
   mongo:
     image: mongo
-    ports:
-      - "27017:27017"
     environment:
-      - MONGO_INITDB_DATABASE=mobtools
+      - MONGO_INITDB_DATABASE=appsmith
     volumes:
-      - ./mongo-seed/:/docker-entrypoint-initdb.d/
+      - ./container-volumes/mongo:/data/db
     networks:
       - appsmith
 
   redis:
     image: redis
-    ports:
-      - "6379:6379"
     networks:
       - appsmith
 

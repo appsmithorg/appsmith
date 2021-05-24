@@ -26,16 +26,16 @@ export function InputText(props: {
   jsErrorMessage?: string;
 }) {
   const {
+    dataTreePath,
     errorMessage,
+    evaluatedValue,
     expected,
-    value,
+    hideEvaluatedValue,
     isValid,
+    jsErrorMessage,
     onChange,
     placeholder,
-    dataTreePath,
-    evaluatedValue,
-    hideEvaluatedValue,
-    jsErrorMessage,
+    value,
   } = props;
 
   return (
@@ -68,17 +68,17 @@ export function InputText(props: {
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
+      additionalAutoComplete,
+      dataTreePath,
+      defaultValue,
       expected,
-      propertyValue,
+      hideEvaluatedValue,
       isValid,
+      jsErrorMessage,
       label,
       placeholderText,
-      dataTreePath,
+      propertyValue,
       validationMessage,
-      defaultValue,
-      additionalAutoComplete,
-      hideEvaluatedValue,
-      jsErrorMessage,
     } = this.props;
 
     return (
