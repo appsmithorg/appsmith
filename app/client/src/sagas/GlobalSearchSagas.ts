@@ -45,18 +45,12 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
 
     recentEntities = recentEntities.slice();
 
-    const existingIndex = recentEntities.findIndex(
+    recentEntities = recentEntities.filter(
       (recentEntity: { type: string; id: string }) =>
-        recentEntity.id === entity.id,
+        recentEntity.id !== entity.id,
     );
-
-    if (existingIndex === -1) {
-      recentEntities.unshift(entity);
-      recentEntities = recentEntities.slice(0, 6);
-    } else {
-      recentEntities.splice(existingIndex, 1);
-      recentEntities.unshift(entity);
-    }
+    recentEntities.unshift(entity);
+    recentEntities = recentEntities.slice(0, 6);
 
     yield put(setRecentEntities(recentEntities));
     if (entity?.params?.applicationId) {

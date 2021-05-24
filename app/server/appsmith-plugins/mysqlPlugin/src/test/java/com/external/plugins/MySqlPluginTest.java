@@ -9,7 +9,10 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.PsParameterDTO;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,15 +31,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -285,6 +289,15 @@ public class MySqlPluginTest {
                     assertEquals("jack@exemplars.com", node.get("email").asText());
                     assertEquals("18:32:45", node.get("time1").asText());
                     assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -381,6 +394,65 @@ public class MySqlPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+                })
+                .verifyComplete();
+
+        return;
+    }
+
+    @Test
+    public void testExecuteWithPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id FROM users WHERE id = {{binding1}};");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("1");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertArrayEquals(
+                            new String[]{
+                                    "id"
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                    /*
+                     * - Check if request params are sent back properly.
+                     * - Not replicating the same to other tests as the overall flow remains the same w.r.t. request
+                     *  params.
+                     */
+
+                    // check if '?' is replaced by $i.
+                    assertEquals("SELECT id FROM users WHERE id = $1;",
+                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+
+                    PsParameterDTO expectedPsParam = new PsParameterDTO("1", "INTEGER");
+                    PsParameterDTO returnedPsParam =
+                            (PsParameterDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$1");
+                    // Check if prepared stmt param value is correctly sent back.
+                    assertEquals(expectedPsParam.getValue(), returnedPsParam.getValue());
+                    // check if prepared stmt param type is correctly sent back.
+                    assertEquals(expectedPsParam.getType(), returnedPsParam.getType());
                 })
                 .verifyComplete();
 
@@ -746,6 +818,7 @@ public class MySqlPluginTest {
                 .verifyComplete();
     }
 
+    @Test
     public void testDuplicateColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);

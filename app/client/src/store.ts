@@ -1,5 +1,5 @@
 import { reduxBatch } from "@manaflair/redux-batch";
-import { createStore, applyMiddleware } from "redux";
+import { createStore, applyMiddleware, compose } from "redux";
 import {
   useSelector as useReduxSelector,
   TypedUseSelectorHook,
@@ -34,6 +34,14 @@ export default createStore(
     sentryReduxEnhancer,
   ),
 );
+
+export const testStore = (initialState: Partial<AppState>) =>
+  createStore(
+    appReducer,
+    initialState,
+    compose(reduxBatch, applyMiddleware(sagaMiddleware), reduxBatch),
+  );
+
 sagaMiddleware.run(rootSaga);
 
 export const useSelector: TypedUseSelectorHook<AppState> = useReduxSelector;

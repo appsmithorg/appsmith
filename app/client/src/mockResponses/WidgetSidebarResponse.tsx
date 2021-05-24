@@ -36,7 +36,7 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
   },
   {
     type: "DROP_DOWN_WIDGET",
-    widgetCardName: "Dropdown",
+    widgetCardName: "Select",
     key: generateReactKey(),
   },
   {
@@ -48,6 +48,12 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     type: "FORM_WIDGET",
     widgetCardName: "Form",
     key: generateReactKey(),
+  },
+  {
+    type: "LIST_WIDGET",
+    widgetCardName: "List",
+    key: generateReactKey(),
+    isBeta: true,
   },
   {
     type: "IMAGE_WIDGET",

@@ -57,6 +57,7 @@ export const StyledText = styled(Text)<{
   font-size: ${(props) => props?.fontSize && TEXT_SIZES[props?.fontSize]};
   span {
     width: 100%;
+    line-height: 1.2;
   }
 `;
 
@@ -75,25 +76,25 @@ export interface TextComponentProps extends ComponentProps {
 class TextComponent extends React.Component<TextComponentProps> {
   render() {
     const {
-      text,
-      ellipsize,
-      textAlign,
-      fontStyle,
-      fontSize,
-      textColor,
       backgroundColor,
+      ellipsize,
+      fontSize,
+      fontStyle,
+      text,
+      textAlign,
+      textColor,
     } = this.props;
     return (
       <TextContainer>
         <StyledText
-          scroll={!!this.props.shouldScroll}
-          textAlign={textAlign}
-          fontSize={fontSize}
-          ellipsize={ellipsize}
-          fontStyle={fontStyle}
-          textColor={textColor}
           backgroundColor={backgroundColor}
           className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
+          ellipsize={ellipsize}
+          fontSize={fontSize}
+          fontStyle={fontStyle}
+          scroll={!!this.props.shouldScroll}
+          textAlign={textAlign}
+          textColor={textColor}
         >
           <Interweave
             content={text}

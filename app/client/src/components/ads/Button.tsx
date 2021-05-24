@@ -376,13 +376,13 @@ const IconSizeProp = (size?: Size) => {
   return size ? sizeMapping[size] : IconSize.SMALL;
 };
 
-const TextLoadingState = ({ text }: { text?: string }) => (
-  <VisibilityWrapper>{text}</VisibilityWrapper>
-);
+function TextLoadingState({ text }: { text?: string }) {
+  return <VisibilityWrapper>{text}</VisibilityWrapper>;
+}
 
-const IconLoadingState = ({ size, icon }: { size?: Size; icon?: IconName }) => (
-  <Icon name={icon} size={IconSizeProp(size)} invisible />
-);
+function IconLoadingState({ icon, size }: { size?: Size; icon?: IconName }) {
+  return <Icon invisible name={icon} size={IconSizeProp(size)} />;
+}
 
 const getIconContent = (props: ButtonProps) =>
   props.icon ? (
@@ -410,39 +410,44 @@ const getButtonContent = (props: ButtonProps) => (
   </>
 );
 
-const ButtonComponent = (props: ButtonProps) => (
-  <StyledButton
-    className={props.className}
-    data-cy={props.cypressSelector}
-    {...props}
-    onClick={(e: React.MouseEvent<HTMLElement>) =>
-      props.onClick && props.onClick(e)
-    }
-  >
-    {getButtonContent(props)}
-  </StyledButton>
-);
+function ButtonComponent(props: ButtonProps) {
+  return (
+    <StyledButton
+      className={props.className}
+      data-cy={props.cypressSelector}
+      {...props}
+      onClick={(e: React.MouseEvent<HTMLElement>) =>
+        props.onClick && props.onClick(e)
+      }
+    >
+      {getButtonContent(props)}
+    </StyledButton>
+  );
+}
 
-const LinkButtonComponent = (props: ButtonProps) => (
-  <StyledLinkButton
-    href={props.href}
-    className={props.className}
-    data-cy={props.cypressSelector}
-    {...props}
-    onClick={(e: React.MouseEvent<HTMLElement>) =>
-      props.onClick && props.onClick(e)
-    }
-  >
-    {getButtonContent(props)}
-  </StyledLinkButton>
-);
+function LinkButtonComponent(props: ButtonProps) {
+  return (
+    <StyledLinkButton
+      className={props.className}
+      data-cy={props.cypressSelector}
+      href={props.href}
+      {...props}
+      onClick={(e: React.MouseEvent<HTMLElement>) =>
+        props.onClick && props.onClick(e)
+      }
+    >
+      {getButtonContent(props)}
+    </StyledLinkButton>
+  );
+}
 
-const Button = (props: ButtonProps) =>
-  props.tag === "button" ? (
+function Button(props: ButtonProps) {
+  return props.tag === "button" ? (
     <ButtonComponent {...props} />
   ) : (
     <LinkButtonComponent {...props} />
   );
+}
 
 export default Button;
 

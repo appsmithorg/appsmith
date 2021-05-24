@@ -55,9 +55,9 @@ export default function MemberSettings(props: PageProps) {
   }, [orgId]);
 
   const {
-    isFetchingAllUsers,
-    isFetchingAllRoles,
     deletingUserInfo,
+    isFetchingAllRoles,
+    isFetchingAllUsers,
     roleChangingUserInfo,
   } = useSelector(getOrgLoadingStates);
   const allUsers = useSelector(getAllUsers);
@@ -105,8 +105,6 @@ export default function MemberSettings(props: PageProps) {
         }
         return (
           <TableDropdown
-            selectedIndex={index}
-            options={roles}
             isLoading={
               roleChangingUserInfo &&
               roleChangingUserInfo.username ===
@@ -121,7 +119,9 @@ export default function MemberSettings(props: PageProps) {
                 ),
               );
             }}
-          ></TableDropdown>
+            options={roles}
+            selectedIndex={index}
+          />
         );
       },
     },
@@ -138,18 +138,18 @@ export default function MemberSettings(props: PageProps) {
         }
         return (
           <Icon
-            name="delete"
-            size={IconSize.LARGE}
             cypressSelector="t--deleteUser"
             isLoading={
               deletingUserInfo &&
               deletingUserInfo.username === cellProps.cell.row.values.username
             }
+            name="delete"
             onClick={() => {
               dispatch(
                 deleteOrgUser(orgId, cellProps.cell.row.values.username),
               );
             }}
+            size={IconSize.LARGE}
           />
         );
       },
@@ -159,29 +159,29 @@ export default function MemberSettings(props: PageProps) {
   const currentOrgName = currentOrg?.name ?? "";
 
   return (
-    <React.Fragment>
+    <>
       <PageSectionHeader>
         <SettingsHeading type={TextType.H2}>Manage Users</SettingsHeading>
         <FormDialogComponent
+          Form={OrgInviteUsersForm}
+          canOutsideClickClose
+          orgId={orgId}
+          title={`Invite Users to ${currentOrgName}`}
           trigger={
             <Button
               cypressSelector="t--invite-users"
-              variant={Variant.info}
-              text="Invite Users"
               size={Size.medium}
-            ></Button>
+              text="Invite Users"
+              variant={Variant.info}
+            />
           }
-          canOutsideClickClose={true}
-          Form={OrgInviteUsersForm}
-          orgId={orgId}
-          title={`Invite Users to ${currentOrgName}`}
         />
       </PageSectionHeader>
       {isFetchingAllUsers && isFetchingAllRoles ? (
         <Loader className={Classes.SKELETON} />
       ) : (
-        <Table data={userTableData} columns={columns}></Table>
+        <Table columns={columns} data={userTableData} />
       )}
-    </React.Fragment>
+    </>
   );
 }

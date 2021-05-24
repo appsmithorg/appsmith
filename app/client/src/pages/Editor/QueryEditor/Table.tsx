@@ -185,7 +185,7 @@ const renderCell = (props: any) => {
   );
 };
 
-const Table = (props: TableProps) => {
+function Table(props: TableProps) {
   const data = React.useMemo(() => props.data, [props.data]);
   const columns = React.useMemo(() => {
     if (data.length) {
@@ -209,11 +209,11 @@ const Table = (props: TableProps) => {
   );
 
   const {
-    getTableProps,
     getTableBodyProps,
+    getTableProps,
     headerGroups,
-    rows,
     prepareRow,
+    rows,
     totalColumnsWidth,
   } = useTable(
     {
@@ -252,7 +252,8 @@ const Table = (props: TableProps) => {
     [prepareRow, rows],
   );
 
-  if (rows.length === 0 || headerGroups.length === 0) return null;
+  if (rows.length === 0 || headerGroups.length === 0)
+    return <span>No data records to show</span>;
 
   return (
     <ErrorBoundary>
@@ -304,6 +305,6 @@ const Table = (props: TableProps) => {
       </TableWrapper>
     </ErrorBoundary>
   );
-};
+}
 
 export default Table;

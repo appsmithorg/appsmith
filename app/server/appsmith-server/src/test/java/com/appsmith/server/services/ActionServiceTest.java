@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -7,7 +8,7 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.constants.ActionResultDataType;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
@@ -27,7 +28,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -48,6 +48,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -120,7 +121,7 @@ public class ActionServiceTest {
     @Autowired
     ActionCollectionService actionCollectionService;
 
-    @Autowired
+    @SpyBean
     PluginService pluginService;
 
     @Autowired
@@ -213,7 +214,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = newActionService.createAction(action)
+        Mono<ActionDTO> actionMono = layoutActionService.createAction(action)
                 .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
@@ -246,7 +247,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> createActionMono = newActionService.createAction(action).cache();
+        Mono<ActionDTO> createActionMono = layoutActionService.createAction(action).cache();
 
         Mono<ActionDTO> movedActionMono = createActionMono
                 .flatMap(savedAction -> {
@@ -285,7 +286,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
         Mono<ActionDTO> actionMono = Mono.just(action)
-                .flatMap(newActionService::createAction);
+                .flatMap(layoutActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .assertNext(createdAction -> {
@@ -306,7 +307,7 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setDatasource(datasource);
         Mono<ActionDTO> actionMono = Mono.just(action)
-                .flatMap(newActionService::createAction);
+                .flatMap(layoutActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .assertNext(createdAction -> {
@@ -328,7 +329,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
         Mono<ActionDTO> actionMono = Mono.just(action)
-                .flatMap(newActionService::createAction);
+                .flatMap(layoutActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -345,7 +346,7 @@ public class ActionServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         Mono<ActionDTO> actionMono = Mono.just(action)
-                .flatMap(newActionService::createAction);
+                .flatMap(layoutActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -363,7 +364,7 @@ public class ActionServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         Mono<ActionDTO> actionMono = Mono.just(action)
-                .flatMap(newActionService::createAction);
+                .flatMap(layoutActionService::createAction);
         StepVerifier
                 .create(actionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -448,13 +449,13 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(ActionResultDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -476,13 +477,13 @@ public class ActionServiceTest {
         action.setName("testActionExecuteNullRequestBody");
         action.setPageId(testPage.getId());
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(ActionResultDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -501,14 +502,14 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -530,7 +531,7 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteErrorResponse");
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -575,7 +576,7 @@ public class ActionServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -618,7 +619,7 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteSecondaryStaleConnection");
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -660,7 +661,7 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteTimeout");
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -711,9 +712,9 @@ public class ActionServiceTest {
         action2.setPageId(testPage.getId());
         action2.setDatasource(datasource);
 
-        Mono<List<ActionViewDTO>> actionsListMono = newActionService.createAction(action)
-                .then(newActionService.createAction(action1))
-                .then(newActionService.createAction(action2))
+        Mono<List<ActionViewDTO>> actionsListMono = layoutActionService.createAction(action)
+                .then(layoutActionService.createAction(action1))
+                .then(layoutActionService.createAction(action2))
                 .then(applicationPageService.publish(testPage.getApplicationId()))
                 .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
@@ -765,7 +766,7 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setName("checkRecoveryFromStaleConnections");
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -818,7 +819,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> createActionMono = newActionService.createAction(action);
+        Mono<ActionDTO> createActionMono = layoutActionService.createAction(action);
         Mono<List<ActionViewDTO>> actionViewModeListMono = createActionMono
                 // Publish the application before fetching the action in view mode
                 .then(applicationPageService.publish(testApp.getId()))
@@ -841,6 +842,7 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void executeActionWithExternalDatasource() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("Default Database");
@@ -861,7 +863,7 @@ public class ActionServiceTest {
         action.setDatasource(savedDs);
 
 
-        Mono<ActionExecutionResult> resultMono = newActionService.createAction(action)
+        Mono<ActionExecutionResult> resultMono = layoutActionService.createAction(action)
                 .flatMap(savedAction -> {
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
@@ -902,7 +904,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(savedDs);
 
-        Mono<ActionDTO> newActionMono = newActionService
+        Mono<ActionDTO> newActionMono = layoutActionService
                 .createAction(action)
                 .cache();
 
@@ -985,7 +987,7 @@ public class ActionServiceTest {
         actionConfiguration1.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration1);
 
-        ActionDTO savedAction = newActionService.createAction(action).block();
+        ActionDTO savedAction = layoutActionService.createAction(action).block();
 
         Mono<Datasource> datasourceMono = publicAppMono
                 .then(datasourceService.findById(savedDatasource.getId()));
@@ -1023,7 +1025,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = newActionService.createAction(action);
+        Mono<ActionDTO> actionMono = layoutActionService.createAction(action);
         StepVerifier
                 .create(actionMono)
                 .assertNext(createdAction -> {
@@ -1048,7 +1050,7 @@ public class ActionServiceTest {
         action.setDatasource(datasource);
 
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
-        Mono<ActionDTO> actionMono = newActionService.createAction(action, eventContext);
+        Mono<ActionDTO> actionMono = layoutActionService.createAction(action, eventContext);
         StepVerifier
                 .create(actionMono)
                 .assertNext(createdAction -> {
@@ -1071,7 +1073,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> newActionMono = newActionService
+        Mono<ActionDTO> newActionMono = layoutActionService
                 .createAction(action);
 
         Mono<ActionDTO> updateActionMono = newActionMono
@@ -1108,7 +1110,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> newActionMono = newActionService
+        Mono<ActionDTO> newActionMono = layoutActionService
                 .createAction(action);
 
         Mono<ActionDTO> updateActionMono = newActionMono
@@ -1146,7 +1148,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = newActionService.createAction(action)
+        Mono<ActionDTO> actionMono = layoutActionService.createAction(action)
                 .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
@@ -1179,7 +1181,7 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = newActionService.createAction(action)
+        Mono<ActionDTO> actionMono = layoutActionService.createAction(action)
                 .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
@@ -1220,15 +1222,15 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.TABLE), new ParsedDataType(ActionResultDataType.JSON)
-                        , new ParsedDataType(ActionResultDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.TABLE), new ParsedDataType(DisplayDataType.JSON)
+                        , new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1259,14 +1261,14 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.JSON), new ParsedDataType(ActionResultDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.JSON), new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1287,7 +1289,7 @@ public class ActionServiceTest {
                 " }");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(ActionResultDataType.RAW)));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1298,14 +1300,14 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(ActionResultDataType.RAW)));
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1328,7 +1330,7 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = newActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());

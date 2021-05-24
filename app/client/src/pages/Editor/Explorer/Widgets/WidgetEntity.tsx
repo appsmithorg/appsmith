@@ -123,14 +123,14 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   );
   let shouldExpand = false;
   if (widgetsToExpand.includes(props.widgetId)) shouldExpand = true;
-  const { navigateToWidget, isWidgetSelected } = useWidget(
+  const { isWidgetSelected, navigateToWidget } = useWidget(
     props.widgetId,
     props.widgetType,
     props.pageId,
     props.parentModalId,
   );
 
-  const { widgetType, widgetId, parentModalId } = props;
+  const { parentModalId, widgetId, widgetType } = props;
   /**
    * While navigating to a widget we need to show a modal if the widget is nested within it
    * Since the immediate parent for the widget would be a canvas instead of the modal,
@@ -140,69 +140,68 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     return widgetType === "MODAL_WIDGET" ? widgetId : parentModalId;
   }, [widgetType, widgetId, parentModalId]);
 
-  if (UNREGISTERED_WIDGETS.indexOf(props.widgetType) > -1)
-    return <React.Fragment />;
+  if (UNREGISTERED_WIDGETS.indexOf(props.widgetType) > -1) return null;
 
   const contextMenu = (
     <WidgetContextMenu
-      widgetId={props.widgetId}
-      pageId={props.pageId}
       className={EntityClassNames.CONTEXT_MENU}
+      pageId={props.pageId}
+      widgetId={props.widgetId}
     />
   );
 
   return (
     <Entity
-      key={props.widgetId}
-      className="widget"
-      active={isWidgetSelected}
       action={navigateToWidget}
-      icon={getWidgetIcon(props.widgetType)}
-      name={props.widgetName}
+      active={isWidgetSelected}
+      className="widget"
+      contextMenu={props.pageId === pageId && contextMenu}
       entityId={props.widgetId}
-      step={props.step}
-      updateEntityName={props.pageId === pageId ? updateWidgetName : undefined}
-      searchKeyword={props.searchKeyword}
+      icon={getWidgetIcon(props.widgetType)}
       isDefaultExpanded={
         shouldExpand ||
         (!!props.searchKeyword && !!props.childWidgets) ||
         !!props.isDefaultExpanded
       }
-      contextMenu={props.pageId === pageId && contextMenu}
+      key={props.widgetId}
+      name={props.widgetName}
+      searchKeyword={props.searchKeyword}
+      step={props.step}
+      updateEntityName={props.pageId === pageId ? updateWidgetName : undefined}
     >
       {props.childWidgets &&
         props.childWidgets.length > 0 &&
         props.childWidgets.map((child) => (
           <WidgetEntity
+            childWidgets={child.children}
+            key={child.widgetId}
+            pageId={props.pageId}
+            parentModalId={parentModalIdForChildren}
+            searchKeyword={props.searchKeyword}
             step={props.step + 1}
             widgetId={child.widgetId}
             widgetName={child.widgetName}
             widgetType={child.type}
-            childWidgets={child.children}
-            key={child.widgetId}
-            searchKeyword={props.searchKeyword}
-            pageId={props.pageId}
-            parentModalId={parentModalIdForChildren}
           />
         ))}
       {!(props.childWidgets && props.childWidgets.length > 0) &&
         pageId === props.pageId && (
           <CurrentPageEntityProperties
-            key={props.widgetId}
-            entityType={ENTITY_TYPE.WIDGET}
             entityName={props.widgetName}
+            entityType={ENTITY_TYPE.WIDGET}
+            key={props.widgetId}
             step={props.step + 1}
           />
         )}
       {!(props.childWidgets && props.childWidgets.length > 0) &&
         pageId !== props.pageId && (
           <EntityProperties
-            key={props.widgetId}
-            entityType={ENTITY_TYPE.WIDGET}
-            entityName={props.widgetName}
-            step={props.step + 1}
-            pageId={props.pageId}
             entityId={props.widgetId}
+            entityName={props.widgetName}
+            entityType={ENTITY_TYPE.WIDGET}
+            key={props.widgetId}
+            pageId={props.pageId}
+            step={props.step + 1}
           />
         )}
     </Entity>

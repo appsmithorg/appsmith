@@ -38,12 +38,28 @@ type DraggableComponentProps = WidgetProps;
 
 /* eslint-disable react/display-name */
 
-const DraggableComponent = (props: DraggableComponentProps) => {
+/**
+ * can drag helper function for react-dnd hook
+ *
+ * @param isResizing
+ * @param isDraggingDisabled
+ * @param props
+ * @returns
+ */
+export const canDrag = (
+  isResizing: boolean,
+  isDraggingDisabled: boolean,
+  props: any,
+) => {
+  return !isResizing && !isDraggingDisabled && !props.dragDisabled;
+};
+
+function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to toggle property pane
   const showPropertyPane = useShowPropertyPane();
 
   // Dispatch hook handy to set a widget as focused/selected
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget } = useWidgetSelection();
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
@@ -119,7 +135,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     },
     canDrag: () => {
       // Dont' allow drag if we're resizing or the drag of `DraggableComponent` is disabled
-      return !isResizing && !isDraggingDisabled;
+      return canDrag(isResizing, isDraggingDisabled, props);
     },
   });
 
@@ -147,7 +163,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
 
   // Display this draggable based on the current drag state
   const style: CSSProperties = {
-    display: isCurrentWidgetDragging ? "none" : "flex",
+    display: isCurrentWidgetDragging ? "none" : "block",
   };
 
   // WidgetBoundaries
@@ -156,6 +172,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       style={{
         opacity:
           isResizingOrDragging && selectedWidget !== props.widgetId ? 1 : 0,
+        position: "absolute",
+        transform: `translate(-50%, -50%)`,
+        top: "50%",
+        left: "50%",
       }}
     />
   );
@@ -174,15 +194,15 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   return (
     <DraggableWrapper
       className={className}
-      ref={drag}
-      onMouseOver={handleMouseOver}
       onClick={handleClick}
+      onMouseOver={handleMouseOver}
+      ref={drag}
       style={style}
     >
       {shouldRenderComponent && props.children}
       {widgetBoundaries}
     </DraggableWrapper>
   );
-};
+}
 
 export default DraggableComponent;

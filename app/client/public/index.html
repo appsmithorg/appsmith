@@ -36,6 +36,46 @@
   <div id="header-root"></div>
   <div id="root"></div>
   <script type="text/javascript">
+    // Ref: https://github.com/Modernizr/Modernizr/blob/94592f279a410436530c7c06acc42a6e90c20150/feature-detects/storage/localstorage.js
+    const getIsLocalStorageSupported = () => {
+      try {
+        window.localStorage.setItem("test", "testA");
+        window.localStorage.removeItem("test");
+        return true;
+      } catch (e) {
+        return false;
+      }
+    };
+    const isLocalStorageSupported = getIsLocalStorageSupported();
+
+    const handleLocalStorageNotSupportedError = () => {
+      console.error("Localstorage storage is not supported on your device.");
+    }
+
+    const localStorageUtil = {
+      getItem: (key) => {
+        if (!isLocalStorageSupported) {
+          handleLocalStorageNotSupportedError();
+          return;
+        }
+        return window.localStorage.getItem(key);
+      },
+      removeItem: (key) => {
+        if (!isLocalStorageSupported) {
+          handleLocalStorageNotSupportedError();
+          return
+        }
+        return window.localStorage.removeItem(key);
+      },
+      setItem: (key, value) => {
+        if (!isLocalStorageSupported) {
+          handleLocalStorageNotSupportedError();
+          return;
+        }
+        return window.localStorage.setItem(key, value);
+      }
+    };
+    
     // Note: The following handler is necessary for when we have a new deployment.
 
     // What happens?
@@ -60,11 +100,11 @@
       if(regex.test(url) && url.indexOf(window.location.host) > -1 && message.includes(chunkLoadErrorMessage)) {
         console.log("chunk load failed!", url);
         // First check if we've set the flag to not reload on chunk load fail
-        const donotReload = window.localStorage.getItem("donotReloadOnChunkLoadFail");
+        const donotReload = localStorageUtil.getItem("donotReloadOnChunkLoadFail");
           if(!donotReload){
             // If donotReload is set to false or undefined, we can set it to true and reload
             // This signifies that this is the first time this happened in this session.
-            window.localStorage.setItem("donotReloadOnChunkLoadFail", true);
+            localStorageUtil.setItem("donotReloadOnChunkLoadFail", true);
             window.location.assign(window.location.href);
           }
       }
@@ -75,7 +115,7 @@
     window.addEventListener("load", (event) => {
       // This signifies that we've had a chunk load failure in this session
       // We clear the entry, as otherwise, we will have a repeated reload scenario.
-      window.localStorage.removeItem("donotReloadOnChunkLoadFail");
+      localStorageUtil.removeItem("donotReloadOnChunkLoadFail");
 
       document.getElementById("loader").style.width = "100vw";
       setTimeout(() => {
@@ -159,6 +199,7 @@
       intercomAppID: APP_ID,
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
       disableTelemetry: DISABLE_TELEMETRY === "" || DISABLE_TELEMETRY,
+      cloudServicesBaseUrl: parseConfig("__APPSMITH_CLOUD_SERVICES_BASE_URL__") || "https://cs.appsmith.com"
     };
 
   </script>

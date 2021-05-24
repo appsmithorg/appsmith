@@ -32,16 +32,16 @@ const ShareToggle = styled.div`
   height: 23px;
 `;
 
-const AppInviteUsersForm = (props: any) => {
+function AppInviteUsersForm(props: any) {
   const {
-    isFetchingApplication,
-    isChangingViewAccess,
-    currentApplicationDetails,
-    changeAppViewAccess,
     applicationId,
-    fetchCurrentOrg,
+    changeAppViewAccess,
+    currentApplicationDetails,
     currentUser,
     defaultPageId,
+    fetchCurrentOrg,
+    isChangingViewAccess,
+    isFetchingApplication,
   } = props;
 
   const currentOrg = useSelector(getCurrentAppOrg);
@@ -73,26 +73,24 @@ const AppInviteUsersForm = (props: any) => {
   return (
     <>
       {canShareWithPublic && (
-        <>
-          <ShareWithPublicOption>
-            <Text type={TextType.H5}>Make the application public</Text>
-            <ShareToggle>
-              {currentApplicationDetails && (
-                <Toggle
-                  isLoading={isChangingViewAccess || isFetchingApplication}
-                  value={currentApplicationDetails.isPublic}
-                  disabled={isChangingViewAccess || isFetchingApplication}
-                  onToggle={() => {
-                    changeAppViewAccess(
-                      applicationId,
-                      !currentApplicationDetails.isPublic,
-                    );
-                  }}
-                />
-              )}
-            </ShareToggle>
-          </ShareWithPublicOption>
-        </>
+        <ShareWithPublicOption>
+          <Text type={TextType.H5}>Make the application public</Text>
+          <ShareToggle>
+            {currentApplicationDetails && (
+              <Toggle
+                disabled={isChangingViewAccess || isFetchingApplication}
+                isLoading={isChangingViewAccess || isFetchingApplication}
+                onToggle={() => {
+                  changeAppViewAccess(
+                    applicationId,
+                    !currentApplicationDetails.isPublic,
+                  );
+                }}
+                value={currentApplicationDetails.isPublic}
+              />
+            )}
+          </ShareToggle>
+        </ShareWithPublicOption>
       )}
       <Title>
         <Text type={TextType.H5}>
@@ -102,11 +100,11 @@ const AppInviteUsersForm = (props: any) => {
       <CopyToClipBoard copyText={getViewApplicationURL()} />
 
       {canInviteToOrg && (
-        <OrgInviteUsersForm orgId={props.orgId} isApplicationInvite={true} />
+        <OrgInviteUsersForm isApplicationInvite orgId={props.orgId} />
       )}
     </>
   );
-};
+}
 
 export default connect(
   (state: AppState) => {

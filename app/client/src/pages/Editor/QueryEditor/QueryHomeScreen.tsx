@@ -17,10 +17,10 @@ import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 const QueryHomePage = styled.div`
   padding: 20px;
-  padding-top: 30px;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -29,6 +29,7 @@ const QueryHomePage = styled.div`
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};
     font-size: ${(props) => props.theme.fontSizes[4]}px;
+    margin-top: 10px;
   }
 `;
 
@@ -94,12 +95,12 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
   render() {
     const {
-      dataSources,
       applicationId,
-      pageId,
+      dataSources,
       history,
       isCreating,
       location,
+      pageId,
     } = this.props;
 
     const destinationPageId = new URLSearchParams(location.search).get(
@@ -122,6 +123,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
     return (
       <QueryHomePage>
+        <CloseEditor />
         <p className="sectionHeader">
           Select a datasource to query or create a new one
         </p>
@@ -135,20 +137,20 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
         ) : (
           <AddDatasource
             className="t--add-datasource"
+            fill
+            icon={"plus"}
+            minimal
             onClick={() => {
               history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
             }}
-            fill
-            minimal
             text="New Datasource"
-            icon={"plus"}
           />
         )}
         {dataSources.map((datasource) => {
           return (
             <DatasourceCard
-              key={datasource.id}
               datasource={datasource}
+              key={datasource.id}
               onCreateQuery={this.handleCreateNewQuery}
             />
           );

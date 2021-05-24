@@ -22,7 +22,7 @@ export type SideNavItemProps = {
   showText?: boolean;
 };
 
-export const SideNavItem = (props: SideNavItemProps) => {
+export function SideNavItem(props: SideNavItemProps) {
   const match = useRouteMatch({
     path: props.path,
     exact: true,
@@ -37,7 +37,6 @@ export const SideNavItem = (props: SideNavItemProps) => {
   return (
     <NavLink
       exact
-      to={props.path}
       onClick={() => {
         AnalyticsUtil.logEvent("PAGE_SWITCH", {
           pageName: props.text,
@@ -45,19 +44,20 @@ export const SideNavItem = (props: SideNavItemProps) => {
           mode: "VIEW",
         });
       }}
+      to={props.path}
     >
       <MenuItem
+        active={!!match}
         className={
           props.loading
             ? Classes.SKELETON
             : `${Classes.FILL} t--page-nav-${props.text}`
         }
-        active={!!match}
-        text={menuItemContent}
         tagName="div"
+        text={menuItemContent}
       />
     </NavLink>
   );
-};
+}
 
 export default SideNavItem;

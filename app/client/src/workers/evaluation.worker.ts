@@ -1,4 +1,7 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,
@@ -7,7 +10,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
-  getValidatedTree,
+  getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
@@ -23,7 +26,7 @@ function messageEventListener(
 ) {
   return (e: MessageEvent) => {
     const startTime = performance.now();
-    const { method, requestId, requestData } = e.data;
+    const { method, requestData, requestId } = e.data;
     const responseData = fn(method, requestData);
     const endTime = performance.now();
     ctx.postMessage({
@@ -39,7 +42,7 @@ ctx.addEventListener(
   messageEventListener((method, requestData: any) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-        const { widgetTypeConfigMap, unevalTree } = requestData;
+        const { unevalTree, widgetTypeConfigMap } = requestData;
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
@@ -73,7 +76,7 @@ ctx.addEventListener(
             });
             console.error(e);
           }
-          dataTree = getValidatedTree(widgetTypeConfigMap, unevalTree);
+          dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
         }
         return {
@@ -101,7 +104,7 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { dynamicTrigger, callbackData, dataTree } = requestData;
+        const { callbackData, dataTree, dynamicTrigger } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
@@ -109,6 +112,7 @@ ctx.addEventListener(
         const triggers = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
+          EvaluationSubstitutionType.TEMPLATE,
           true,
           callbackData,
         );
@@ -148,21 +152,9 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const {
-          widgetType,
-          widgetTypeConfigMap,
-          property,
-          value,
-          props,
-        } = requestData;
+        const { property, props, validation, value } = requestData;
         return removeFunctions(
-          validateWidgetProperty(
-            widgetTypeConfigMap,
-            widgetType,
-            property,
-            value,
-            props,
-          ),
+          validateWidgetProperty(property, value, props, validation),
         );
       }
       default: {

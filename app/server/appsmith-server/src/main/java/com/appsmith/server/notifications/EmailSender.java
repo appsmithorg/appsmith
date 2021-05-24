@@ -104,6 +104,8 @@ public class EmailSender {
             helper.setSubject(subject);
             helper.setText(text, true);
             javaMailSender.send(mimeMessage);
+
+            log.debug("Email sent successfully to {} with subject {}", to, subject);
         } catch (MessagingException e) {
             log.error("Unable to create the mime message while sending an email to {} with subject: {}. Cause: ", to, subject, e);
         } catch (MailException e) {

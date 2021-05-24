@@ -23,6 +23,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -62,6 +63,7 @@ public class ExamplesOrganizationCloner {
     private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
+    private final LayoutActionService layoutActionService;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -78,8 +80,9 @@ public class ExamplesOrganizationCloner {
      * @return Empty Mono.
      */
     private Mono<Organization> cloneExamplesOrganization(User user) {
-        if (user.getExamplesOrganizationId() != null) {
-            // This user already has an examples organization, don't have to do anything.
+        if (!CollectionUtils.isEmpty(user.getOrganizationIds())) {
+            // Don't create an examples organization if the user already has some organizations, perhaps because they
+            // were invited to some.
             return Mono.empty();
         }
 
@@ -258,7 +261,7 @@ public class ExamplesOrganizationCloner {
                         }
                     }
                     return actionMono
-                            .flatMap(newActionService::createAction)
+                            .flatMap(layoutActionService::createAction)
                             .map(ActionDTO::getId)
                             .zipWith(Mono.justOrEmpty(originalActionId));
                 })
@@ -402,9 +405,6 @@ public class ExamplesOrganizationCloner {
                                 makePristine(templateDatasource);
 
                                 templateDatasource.setOrganizationId(toOrganizationId);
-                                if (authentication != null) {
-                                    datasourceContextService.decryptSensitiveFields(authentication);
-                                }
 
                                 return createSuffixedDatasource(templateDatasource);
                             }));
