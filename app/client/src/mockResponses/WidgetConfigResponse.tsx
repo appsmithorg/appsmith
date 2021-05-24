@@ -278,6 +278,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Select",
       defaultOptionValue: "GREEN",
       version: 1,
+      isFilterable: true,
       isRequired: false,
       isDisabled: false,
     },
