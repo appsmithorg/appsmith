@@ -150,7 +150,7 @@ type PreparedStatementValue = {
 export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {
-  const { value, parameters } = props.evaluatedValue;
+  const { parameters, value } = props.evaluatedValue;
   const stringSegments = value.split(/\$\d/);
   const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
   const paramsWithTooltips = $params.map((param) => (
@@ -216,6 +216,10 @@ export const CurrentValueViewer = memo(
             },
             collapsed: 2,
             collapseStringsAfterLength: 20,
+            shouldCollapse: (field: any) => {
+              const index = field.name * 1;
+              return index >= 2 ? true : false;
+            },
           };
           content = (
             <ReactJson src={props.evaluatedValue} {...reactJsonProps} />

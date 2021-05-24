@@ -161,7 +161,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   renderChild = (childWidgetData: WidgetProps) => {
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
@@ -200,16 +200,17 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         bottomRow:
           (index + 1) * children[0].bottomRow +
           index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
-        resizeDisabled: this.props.renderMode === RenderModes.CANVAS,
+        resizeDisabled:
+          index > 0 && this.props.renderMode === RenderModes.CANVAS,
       };
     });
   };
 
   updateTemplateWidgetProperties = (widget: WidgetProps, itemIndex: number) => {
     const {
-      template,
       dynamicBindingPathList,
       dynamicTriggerPathList,
+      template,
     } = this.props;
     const { widgetName = "" } = widget;
     // Update properties if they're dynamic
@@ -401,7 +402,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
       return {
         ...child,
-        onClick: () => this.onItemClick(index, this.props.onListItemClick),
+        onClickCapture: () =>
+          this.onItemClick(index, this.props.onListItemClick),
         selected: this.props.selectedItemIndex === index,
       };
     });
@@ -414,7 +416,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   paginateItems = (children: ContainerWidgetProps<WidgetProps>[]) => {
     const { page } = this.state;
-    const { shouldPaginate, perPage } = this.shouldPaginate();
+    const { perPage, shouldPaginate } = this.shouldPaginate();
 
     if (shouldPaginate) {
       return children.slice((page - 1) * perPage, page * perPage);
@@ -499,10 +501,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   shouldPaginate = () => {
     let { gridGap } = this.props;
-    const { items, children } = this.props;
+    const { children, items } = this.props;
     const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
-    const templateHeight = templateBottomRow * 40;
+    const templateHeight =
+      templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
     try {
       gridGap = parseInt(gridGap);
@@ -532,7 +535,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const children = this.renderChildren();
-    const { shouldPaginate, perPage } = this.shouldPaginate();
+    const { perPage, shouldPaginate } = this.shouldPaginate();
 
     if (this.props.isLoading) {
       return (

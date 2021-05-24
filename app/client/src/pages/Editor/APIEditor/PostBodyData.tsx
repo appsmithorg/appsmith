@@ -5,7 +5,7 @@ import { formValueSelector } from "redux-form";
 import {
   ApiContentTypes,
   POST_BODY_FORMAT_OPTIONS,
-  POST_BODY_FORMAT_TITLES_NO_MULTI_PART,
+  POST_BODY_FORMAT_TITLES,
 } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
@@ -48,11 +48,11 @@ type Props = PostDataProps;
 
 function PostBodyData(props: Props) {
   const {
-    displayFormat,
-    dataTreePath,
-    updateBodyContentType,
-    theme,
     apiId,
+    dataTreePath,
+    displayFormat,
+    theme,
+    updateBodyContentType,
   } = props;
 
   return (
@@ -62,7 +62,7 @@ function PostBodyData(props: Props) {
           updateBodyContentType(title, apiId)
         }
         selected={displayFormat}
-        tabs={POST_BODY_FORMAT_TITLES_NO_MULTI_PART.map((el) => {
+        tabs={POST_BODY_FORMAT_TITLES.map((el) => {
           let component = (
             <JSONEditorFieldWrapper
               className={"t--apiFormPostBody"}
@@ -83,7 +83,10 @@ function PostBodyData(props: Props) {
               />
             </JSONEditorFieldWrapper>
           );
-          if (el.title === ApiContentTypes.FORM_URLENCODED) {
+          if (
+            el.title === ApiContentTypes.FORM_URLENCODED ||
+            el.title === ApiContentTypes.MULTIPART_FORM_DATA
+          ) {
             component = (
               <KeyValueFieldArray
                 dataTreePath={`${dataTreePath}.bodyFormData`}

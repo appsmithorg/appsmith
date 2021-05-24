@@ -6,7 +6,7 @@ const handleAddCommentToThreadSuccess = (
   state: CommentsReduxState,
   action: ReduxAction<any>,
 ) => {
-  const { commentThreadId, comment } = action.payload;
+  const { comment, commentThreadId } = action.payload;
   const commentThreadInStore = state.commentThreadsMap[commentThreadId];
   const existingComments = get(commentThreadInStore, "comments", []);
   state.commentThreadsMap[commentThreadId] = {

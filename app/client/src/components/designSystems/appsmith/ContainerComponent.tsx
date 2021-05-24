@@ -26,7 +26,6 @@ const StyledContainerComponent = styled.div<
   background: ${(props) => props.backgroundColor};
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
-  overflow: hidden;
   box-shadow: ${(props) =>
     props.selected ? "0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
   z-index: ${(props) => (props.selected ? "2" : "1")};
@@ -36,7 +35,7 @@ const StyledContainerComponent = styled.div<
     z-index: ${(props) => (props.onClick ? "2" : "1")};
     cursor: ${(props) => (props.onClick ? "pointer" : "inherit")};
     background: ${(props) =>
-      props.onClick
+      props.onClickCapture
         ? tinycolor(props.backgroundColor)
             .darken(5)
             .toString()

@@ -86,7 +86,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, parsed, message } = VALIDATORS[VALIDATION_TYPES.TEXT](
+    const { isValid, message, parsed } = VALIDATORS[VALIDATION_TYPES.TEXT](
       value,
       props,
       dataTree,
@@ -265,7 +265,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, transformed, parsed } = VALIDATORS.ARRAY(
+    const { isValid, parsed, transformed } = VALIDATORS.ARRAY(
       value,
       props,
       dataTree,
@@ -303,7 +303,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, transformed, parsed } = VALIDATORS.ARRAY(
+    const { isValid, parsed, transformed } = VALIDATORS.ARRAY(
       value,
       props,
       dataTree,
@@ -709,7 +709,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, parsed, message } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+    const { isValid, message, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
       value,
       props,
       dataTree,

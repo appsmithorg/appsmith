@@ -74,7 +74,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -99,7 +99,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const [rows, setRows] = useState(snapRows);
 
   const showPropertyPane = useShowPropertyPane();
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
   useEffect(() => {
@@ -237,12 +237,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const handleFocus = (e: any) => {
     if (!isResizing && !isDragging) {
       if (!props.parentId) {
-        selectWidget && selectWidget(props.widgetId);
+        deselectAll();
         focusWidget && focusWidget(props.widgetId);
         showPropertyPane && showPropertyPane();
-      } else {
-        selectWidget && selectWidget(props.parentId);
-        focusWidget && focusWidget(props.parentId);
       }
     }
     // commenting this out to allow propagation of click events

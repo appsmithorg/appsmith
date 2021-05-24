@@ -561,7 +561,7 @@ function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { field, form } = actionPayload.meta;
   if (form !== DATASOURCE_DB_FORM) return;
   if (field === "name") return;
   yield all([call(updateDraftsSaga)]);

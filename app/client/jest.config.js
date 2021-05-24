@@ -27,6 +27,9 @@ module.exports = {
     "test/(.*)": "<rootDir>/test/$1",
   },
   globals: {
+    "ts-jest": {
+      isolatedModules: true,
+    },
     APPSMITH_FEATURE_CONFIGS: {
       sentry: {
         dsn: parseConfig("__APPSMITH_SENTRY_DSN__"),

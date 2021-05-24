@@ -39,4 +39,19 @@ describe("API Panel Test Functionality", function() {
     cy.xpath(apiwidget.headerKey).should("be.visible");
     cy.xpath(apiwidget.headerKey).should("have.value", "");
   });
+
+  it("Should correctly parse query params", function() {
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("APIWithQueryParams");
+    cy.get("textarea").should(
+      "have.attr",
+      "placeholder",
+      "https://mock-api.appsmith.com/users",
+    );
+    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methodWithQueryParam);
+    cy.ValidateQueryParams({
+      key: "q",
+      value: "mimeType='application/vnd.google-apps.spreadsheet'",
+    });
+  });
 });

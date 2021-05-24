@@ -23,6 +23,7 @@ describe("Create, test, save then delete a mongo datasource", function() {
       "response.body.responseMeta.status",
       200,
     );
+    /*
     cy.NavigateToQueryEditor();
 
     cy.get("@createDatasource").then((httpResponse) => {
@@ -39,7 +40,8 @@ describe("Create, test, save then delete a mongo datasource", function() {
       "response.body.responseMeta.status",
       200,
     );
-
+    cy.xpath('//div[contains(text(),"Form Input")]').click({ force: true });
+    cy.xpath('//div[contains(text(),"Raw Input")]').click({ force: true });
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
@@ -94,4 +96,5 @@ describe("Create, test, save then delete a mongo datasource", function() {
     );
   });
   */
+  });
 });
