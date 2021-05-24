@@ -10,6 +10,7 @@ import {
   round,
   range,
   toString,
+  isBoolean,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -32,6 +33,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination from "./ListPagination";
 import withMeta from "./../MetaHOC";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
@@ -232,14 +234,22 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       // By picking the correct value from the evaluated values in the template
       dynamicPaths.forEach((path: string) => {
         const evaluatedProperty = get(template, `${widgetName}.${path}`);
+
         if (
           Array.isArray(evaluatedProperty) &&
           evaluatedProperty.length > itemIndex
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
-          if (isPlainObject(evaluatedValue) || Array.isArray(evaluatedValue))
-            set(widget, path, JSON.stringify(evaluatedValue));
-          else set(widget, path, toString(evaluatedValue));
+          const validationPath = get(widget, `validationPaths.${path}`);
+
+          if (
+            validationPath === VALIDATION_TYPES.BOOLEAN &&
+            isBoolean(evaluatedValue)
+          ) {
+            set(widget, path, evaluatedValue);
+          } else {
+            set(widget, path, toString(evaluatedValue));
+          }
         }
       });
     }

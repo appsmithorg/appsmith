@@ -24,6 +24,7 @@ const StyledContainerComponent = styled.div<
   height: 100%;
   width: 100%;
   background: ${(props) => props.backgroundColor};
+  opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
   box-shadow: ${(props) =>
@@ -40,10 +41,6 @@ const StyledContainerComponent = styled.div<
             .darken(5)
             .toString()
         : props.backgroundColor};
-  }
-
-  &:active {
-    transform: ${(props) => (props.onClick ? "scale(0.98)" : "scale(1)")};
   }
 }`;
 

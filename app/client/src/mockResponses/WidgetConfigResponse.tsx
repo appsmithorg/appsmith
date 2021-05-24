@@ -668,7 +668,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           propertyUpdateHook: (
             parentProps: any,
             widgetName: string,
-            propertyPath: string, // onClick
+            propertyPath: string,
             propertyValue: string,
             isTriggerProperty: boolean,
           ) => {
@@ -685,7 +685,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               "",
             );
 
-            value = `{{${parentProps.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+            value = `{{${parentProps.widgetName}.items.map((currentItem) => {
+              return (function(){
+                return  ${modifiedAction};
+              })();
+            })}}`;
+
             const path = `template.${widgetName}.${propertyPath}`;
 
             return [
