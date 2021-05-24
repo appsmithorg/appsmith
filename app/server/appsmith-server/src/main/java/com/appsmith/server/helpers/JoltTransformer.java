@@ -2,6 +2,8 @@ package com.appsmith.server.helpers;
 
 import com.bazaarvoice.jolt.Shiftr;
 
+import java.util.Map;
+
 public class JoltTransformer {
 
     /**
@@ -9,10 +11,10 @@ public class JoltTransformer {
      * @param spec  The specification to be used for transformation
      * @return
      */
-    public static Object transform(Object input, Object spec) {
+    public static Map<?, ?> transform(Map<?, ?> input, Map<?, ?> spec) {
         final Shiftr shiftr = new Shiftr(spec);
 
-        return shiftr.transform(input);
+        return (Map<?, ?>) shiftr.transform(input);
     }
 
 }

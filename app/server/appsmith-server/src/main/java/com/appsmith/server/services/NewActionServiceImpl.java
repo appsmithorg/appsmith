@@ -10,7 +10,6 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
@@ -18,7 +17,6 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
@@ -241,7 +239,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         ActionConfiguration actionConfig = action.getActionConfiguration();
         if (actionConfig != null) {
             validator.validate(actionConfig)
-                    .stream()
                     .forEach(x -> invalids.add(x.getMessage()));
         }
 
@@ -290,7 +287,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     newAction.setPluginType(plugin.getType());
                     newAction.setPluginId(plugin.getId());
                     return newAction;
-                }).map(act -> extractAndSetJsonPathKeys(act))
+                }).map(this::extractAndSetJsonPathKeys)
                 .map(updatedAction -> {
                     // In case of external datasource (not embedded) instead of storing the entire datasource
                     // again inside the action, instead replace it with just the datasource ID. This is so that
@@ -354,35 +351,36 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if (action.getDeletedAt() != null) {
             return Mono.empty();
         }
-
-        // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
-        Mono<ActionDTO> providerUpdateMono;
-        if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
-
-            providerUpdateMono = marketplaceService
-                    .getProviderById(action.getProviderId())
-                    .switchIfEmpty(Mono.just(new Provider()))
-                    .map(provider -> {
-                        ActionProvider actionProvider = new ActionProvider();
-                        actionProvider.setName(provider.getName());
-                        actionProvider.setCredentialSteps(provider.getCredentialSteps());
-                        actionProvider.setDescription(provider.getDescription());
-                        actionProvider.setImageUrl(provider.getImageUrl());
-                        actionProvider.setUrl(provider.getUrl());
-
-                        action.setProvider(actionProvider);
-                        return action;
-                    });
-        } else {
-            providerUpdateMono = Mono.just(action);
-        }
-
-        return providerUpdateMono
-                .map(actionDTO -> {
-                    newAction.setUnpublishedAction(actionDTO);
-                    return newAction;
-                })
-                .flatMap(action1 -> generateActionByViewMode(action1, false))
+//
+//        // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
+//        Mono<ActionDTO> providerUpdateMono;
+//        if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
+//
+//            providerUpdateMono = marketplaceService
+//                    .getProviderById(action.getProviderId())
+//                    .switchIfEmpty(Mono.just(new Provider()))
+//                    .map(provider -> {
+//                        ActionProvider actionProvider = new ActionProvider();
+//                        actionProvider.setName(provider.getName());
+//                        actionProvider.setCredentialSteps(provider.getCredentialSteps());
+//                        actionProvider.setDescription(provider.getDescription());
+//                        actionProvider.setImageUrl(provider.getImageUrl());
+//                        actionProvider.setUrl(provider.getUrl());
+//
+//                        action.setProvider(actionProvider);
+//                        return action;
+//                    });
+//        } else {
+//            providerUpdateMono = Mono.just(action);
+//        }
+//
+//        return providerUpdateMono
+//                .map(actionDTO -> {
+//                    newAction.setUnpublishedAction(actionDTO);
+//                    return newAction;
+//                })
+//                .flatMap(action1 -> generateActionByViewMode(action1, false))
+        return generateActionByViewMode(newAction, false)
                 .flatMap(this::populateHintMessages);
     }
 
@@ -399,9 +397,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
-                .map(dbAction -> {
+                .flatMap(dbAction -> {
                     copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
-                    return dbAction;
+                    return Mono.just(dbAction);
                 })
                 .cache();
 
@@ -564,7 +562,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                             return actionTemplateRepository
                                                     .findById(newAction.getTemplateId())
                                                     .map(actionTemplate -> {
-                                                        final Map responseTransformationSpec = actionTemplate.getResponseTransformationSpec();
+                                                        final Map<?, ?> responseTransformationSpec = actionTemplate.getResponseTransformationSpec();
                                                         // Transformation of responses are not necessary for all SAAS actions
                                                         if (responseTransformationSpec != null && !responseTransformationSpec.isEmpty()) {
                                                             final Object transformedResponse = JoltTransformer.transform(objectMapper.convertValue(actionExecutionResult.getBody(), Map.class), responseTransformationSpec);

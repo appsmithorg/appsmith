@@ -1,5 +1,7 @@
 package com.appsmith.external.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,7 +10,6 @@ import org.hibernate.validator.constraints.Range;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
-import java.sql.Statement;
 import java.util.List;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
@@ -16,7 +17,9 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 @Getter
 @Setter
 @ToString
+@Builder(toBuilder = true)
 @NoArgsConstructor
+@AllArgsConstructor
 @Document
 public class ActionConfiguration implements AppsmithDomain {
     private static final int MIN_TIMEOUT_VALUE = 0;     // in Milliseconds
@@ -79,5 +82,38 @@ public class ActionConfiguration implements AppsmithDomain {
     public Integer getTimeoutInMillisecond() {
         return (timeoutInMillisecond == null || timeoutInMillisecond <= 0) ?
                 DEFAULT_ACTION_EXECUTION_TIMEOUT_MS : timeoutInMillisecond;
+    }
+
+    public static ActionConfiguration combineConfigurations(
+            ActionConfiguration defaultActionConfiguration,
+            ActionConfiguration overridingActionConfiguration) {
+        if (overridingActionConfiguration == null) {
+            return defaultActionConfiguration;
+        } else if (defaultActionConfiguration == null) {
+            return overridingActionConfiguration;
+        }
+        final ActionConfiguration combinedConfiguration = defaultActionConfiguration
+                .toBuilder()
+                .timeoutInMillisecond(overridingActionConfiguration.getTimeoutInMillisecond())
+                .paginationType(overridingActionConfiguration.getPaginationType())
+                .encodeParamsToggle(overridingActionConfiguration.getEncodeParamsToggle())
+                .body(overridingActionConfiguration.getBody())
+                .build();
+        if (combinedConfiguration.getHeaders() != null) {
+            combinedConfiguration.getHeaders().addAll(overridingActionConfiguration.getHeaders());
+        } else {
+            combinedConfiguration.setHeaders(overridingActionConfiguration.getHeaders());
+        }
+        if (combinedConfiguration.getQueryParameters() != null) {
+            combinedConfiguration.getQueryParameters().addAll(overridingActionConfiguration.getQueryParameters());
+        } else {
+            combinedConfiguration.setQueryParameters(overridingActionConfiguration.getQueryParameters());
+        }
+        if (combinedConfiguration.getRouteParameters() != null) {
+            combinedConfiguration.getRouteParameters().addAll(overridingActionConfiguration.getRouteParameters());
+        } else {
+            combinedConfiguration.setRouteParameters(overridingActionConfiguration.getRouteParameters());
+        }
+        return combinedConfiguration;
     }
 }
