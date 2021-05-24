@@ -9,7 +9,8 @@ import { Classes } from "components/ads/common";
 import InspectElement from "assets/images/InspectElement.svg";
 import { SourceEntity } from "entities/AppsmithConsole";
 import { createMessage, INSPECT_ENTITY_BLANK_STATE } from "constants/messages";
-import { getDependencies, useEntityLink, useSelectedEntity } from "./helpers";
+import { getDependenciesFromInverseDependencies } from "./helpers";
+import { useEntityLink, useSelectedEntity } from "./hooks";
 
 const CollapsibleWrapper = styled.div<{ step: number; isOpen: boolean }>`
   margin-left: ${(props) => props.step * 10}px;
@@ -72,7 +73,7 @@ function EntityDeps() {
     inverseDependencies: string[];
   } | null = useMemo(
     () =>
-      getDependencies(
+      getDependenciesFromInverseDependencies(
         deps.inverseDependencyMap,
         selectedEntity ? selectedEntity.name : null,
       ),
