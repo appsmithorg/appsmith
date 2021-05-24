@@ -101,6 +101,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       <CheckboxDiv>
         <Text type={TextType.P1}>
           <Checkbox
+            cypressSelector={"t--org-import-app-confirm"}
             label="By clicking on this you agree that your application credentials will be read from the file"
             onCheckChange={(checked: boolean) => {
               setIsCheckedToTrue(checked);
@@ -110,7 +111,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       </CheckboxDiv>
       <ButtonWrapper>
         <ForkButton
-          cypressSelector={"t--import-app-button"}
+          cypressSelector={"t--org-import-app-button"}
           disabled={!isChecked || !appFileToBeUploaded}
           isLoading={importingApplication}
           onClick={onImportApplication}
