@@ -2187,6 +2187,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
+  cy.route("POST", "api/v1/applications/import/*").as("importNewApplication");
   cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
     "getRoles",
   );

@@ -63,7 +63,7 @@
     "applicationBackgroundColor": ".t--application-card-background",
     "orgSettingOption": "[data-cy=t--org-setting]",
     "orgImportAppOption": "[data-cy=t--org-import-app]",
-    "orgImportAppModal": "[data-cy=t--import-application-modal]",
+    "orgImportAppModal": ".t--import-application-modal",
     "orgImportAppConfirmationCheckbox": "[data-cy=t--org-import-app-confirm]",
     "orgImportAppButton": "[data-cy=t--org-import-app-button]",
     "orgNameInput": "[data-cy=t--org-name-input]",

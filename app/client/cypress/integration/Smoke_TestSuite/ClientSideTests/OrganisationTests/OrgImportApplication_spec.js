@@ -3,7 +3,7 @@ const homePage = require("../../../../locators/HomePage.json");
 describe("Organization Import Application", function() {
   let orgid;
   let newOrganizationName;
-
+  const fixtureDummyAppPath = "test_app_appsmith.json";
   it("Can Import Application", function() {
     cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
@@ -16,47 +16,24 @@ describe("Organization Import Application", function() {
         cy.get(homePage.orgImportAppOption).click({ force: true });
       });
     });
+    cy.get(homePage.orgImportAppModal).should("be.visible");
+    cy.xpath(homePage.uploadLogo).attachFile(fixtureDummyAppPath);
+    cy.get(homePage.orgImportAppConfirmationCheckbox).click({ force: true });
+
+    cy.get(homePage.orgImportAppButton).click({ force: true });
+    cy.wait("@importNewApplication").then((interception) => {
+      let appId = interception.response.body.data.id;
+      let defaultPage = interception.response.body.data.pages.find(
+        (eachPage) => !!eachPage.isDefault,
+      );
+      cy.get(homePage.toastMessage).should(
+        "contain",
+        "Application imported successfully",
+      );
+      cy.url().should(
+        "include",
+        `/applications/${appId}/pages/${defaultPage.id}/edit`,
+      );
+    });
   });
-
-  // it("Open the org general settings and update org email. The update should reflect in the org.", function() {
-  //   cy.createOrg();
-  //   cy.wait("@createOrg").then((interception) => {
-  //     newOrganizationName = interception.response.body.data.name;
-  //     cy.renameOrg(newOrganizationName, orgid);
-  //     cy.get(homePage.orgSettingOption).click({ force: true });
-  //   });
-  //   cy.get(homePage.orgEmailInput).clear();
-  //   cy.get(homePage.orgEmailInput).type(Cypress.env("TESTUSERNAME2"));
-  //   cy.wait("@updateOrganization").should(
-  //     "have.nested.property",
-  //     "response.body.responseMeta.status",
-  //     200,
-  //   );
-  //   cy.get(homePage.orgEmailInput).should(
-  //     "have.value",
-  //     Cypress.env("TESTUSERNAME2"),
-  //   );
-  // });
-
-  // it("Upload logo / delete logo and validate", function() {
-  //   const fixturePath = "appsmithlogo.png";
-  //   cy.xpath(homePage.uploadLogo).attachFile(fixturePath);
-  //   cy.wait("@updateLogo").should(
-  //     "have.nested.property",
-  //     "response.body.responseMeta.status",
-  //     200,
-  //   );
-  //   cy.xpath(homePage.membersTab).click({ force: true });
-  //   cy.xpath(homePage.generalTab).click({ force: true });
-  //   cy.get(homePage.removeLogo)
-  //     .last()
-  //     .should("be.hidden")
-  //     .invoke("show")
-  //     .click({ force: true });
-  //   cy.wait("@deleteLogo").should(
-  //     "have.nested.property",
-  //     "response.body.responseMeta.status",
-  //     200,
-  //   );
-  // });
 });
