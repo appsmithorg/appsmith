@@ -1,0 +1,19 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": {
+
+    "exportedApplication": {},
+    "datasourceList": [],
+    "pageList": [],
+    "actionList": [
+      {
+        "id": "randomId"
+      }
+    ],
+    "decryptedFields": {},
+    "mongoEscapedWidgets": {}
+  }
+}

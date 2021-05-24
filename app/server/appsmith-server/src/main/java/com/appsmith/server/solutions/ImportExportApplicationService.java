@@ -266,9 +266,9 @@ public class ImportExportApplicationService {
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository.findAllByOrganizationId(orgId).cache();
 
         if (importedNewPageList == null || importedNewPageList.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE, importedNewPageList));
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGES, FieldName.INVALIDJSONFILE));
         } else if (importedApplication == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION, null));
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.INVALIDJSONFILE));
         }
 
         return organizationService.findById(orgId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)

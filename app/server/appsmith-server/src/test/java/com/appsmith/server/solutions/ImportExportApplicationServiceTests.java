@@ -407,21 +407,72 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromInvalidJsonFileTest() {
-        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-            .read(new ClassPathResource("test_assets/ImportExportServiceTest/invalid-app.json"), new DefaultDataBufferFactory(), 4096)
-            .cache();
-    
-        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
-        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
-    
-        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId, filepart);
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-app.json");
+        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
         
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                 throwable.getMessage().equals(AppsmithError.JSON_PROCESSING_ERROR.getMessage(FieldName.INVALIDJSONFILE)))
             .verify();
+    }
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromInvalidJsonFileWithoutPagesTest() {
+        
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
+        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+        
+        StepVerifier
+            .create(resultMono)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, FieldName.INVALIDJSONFILE)))
+            .verify();
+    }
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromInvalidJsonFileWithoutApplicationTest() {
+        
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-app.json");
+        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+        
+        StepVerifier
+            .create(resultMono)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, FieldName.INVALIDJSONFILE)))
+            .verify();
+    }
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromValidJsonFileTest() {
+        
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-app.json");
+        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+        
+        StepVerifier
+            .create(resultMono)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, FieldName.INVALIDJSONFILE)))
+            .verify();
+    }
+    
+    private FilePart createFilePart(String filePath) {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+            .read(
+                new ClassPathResource(filePath),
+                new DefaultDataBufferFactory(),
+                4096)
+            .cache();
+    
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
+    
+        return filepart;
+    
     }
     
 }
