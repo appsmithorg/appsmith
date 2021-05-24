@@ -20,6 +20,7 @@ import {
   updateCurrentPage,
   updateWidgetNameSuccess,
   updateAndSaveLayout,
+  saveLayout,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -49,7 +50,10 @@ import {
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { isNameValid } from "utils/helpers";
-import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import {
+  checkIfMigrationIsNeeded,
+  extractCurrentDSL,
+} from "utils/WidgetPropsUtils";
 import {
   getAllPageIds,
   getEditorConfigs,
@@ -182,6 +186,7 @@ export function* fetchPageSaga(
       id,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
+    const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
 
     if (isValidResponse) {
       // Clear any existing caches
@@ -196,11 +201,15 @@ export function* fetchPageSaga(
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
       yield put(fetchPageSuccess());
-
+      const extractedDSL = extractCurrentDSL(fetchPageResponse);
       yield put({
         type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-        payload: extractCurrentDSL(fetchPageResponse),
+        payload: extractedDSL,
       });
+
+      if (willPageBeMigrated) {
+        yield put(saveLayout());
+      }
 
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,

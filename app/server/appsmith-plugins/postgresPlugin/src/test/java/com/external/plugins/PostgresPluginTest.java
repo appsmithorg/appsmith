@@ -376,15 +376,15 @@ public class PostgresPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;"),
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;", null),
                                     new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"possessions\" (\"title\", \"user_id\")\n" +
-                                            "  VALUES ('', 1);"),
+                                            "  VALUES ('', 1);", null),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE public.\"possessions\" SET\n" +
                                             "    \"title\" = ''\n" +
                                             "    \"user_id\" = 1\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"possessions\"\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null),
                             },
                             possessionsTable.getTemplates().toArray()
                     );
@@ -420,9 +420,9 @@ public class PostgresPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;", null),
                                     new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\", \"email\", \"spouse_dob\", \"dob\", \"time1\", \"time_tz\", \"created_on\", \"created_on_tz\", \"interval1\", \"numbers\", \"texts\")\n" +
-                                            "  VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', '04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET', 1, '{1, 2, 3}', '{\"first\", \"second\"}');"),
+                                            "  VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', '04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET', 1, '{1, 2, 3}', '{\"first\", \"second\"}');", null),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE public.\"users\" SET\n" +
                                             "    \"username\" = ''\n" +
                                             "    \"password\" = ''\n" +
@@ -436,9 +436,9 @@ public class PostgresPluginTest {
                                             "    \"interval1\" = 1\n" +
                                             "    \"numbers\" = '{1, 2, 3}'\n" +
                                             "    \"texts\" = '{\"first\", \"second\"}'\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"users\"\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null),
                             },
                             usersTable.getTemplates().toArray()
                     );

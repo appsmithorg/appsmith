@@ -8,7 +8,7 @@ describe("Modal Widget Functionality", function() {
 
   it("Add new Modal", () => {
     cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("modalwidget", { x: 300, y: -300 });
+    cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 300 });
     cy.get(".t--modal-widget").should("exist");
   });
 

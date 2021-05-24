@@ -11,6 +11,8 @@ const handleUpdateCommentThreadSuccess = (
   const commentThreadInStore = state.commentThreadsMap[id];
   const existingComments = get(commentThreadInStore, "comments", []);
 
+  if (!commentThreadInStore) return state;
+
   state.commentThreadsMap[id] = {
     ...commentThreadInStore,
     ...action.payload,
