@@ -47,7 +47,7 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
   return (
     <StyledDialog
       canOutsideClickClose
-      className={"fork-modal"}
+      className={"export-app-modal"}
       isOpen={isModalOpen}
       maxHeight={"540px"}
       setModalClose={setModalClose}
@@ -56,6 +56,7 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
       <CheckboxDiv>
         <Text type={TextType.P1}>
           <Checkbox
+            cypressSelector="t--export-app-confirm"
             label="By clicking on this you agree that your application credentials can be stored inside a file"
             onCheckChange={(checked: boolean) => {
               setIsCheckedToTrue(checked);
