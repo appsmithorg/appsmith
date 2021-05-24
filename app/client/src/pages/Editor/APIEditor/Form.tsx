@@ -283,7 +283,7 @@ const FormRowWithLabel = styled(FormRow)`
   }
 `;
 
-function ImportedHeaders(props: { headers: any }) {
+function ImportedHeaderKeyValue(props: { headers: any }) {
   return (
     <>
       {props.headers.map((header: any, index: number) => {
@@ -384,6 +384,34 @@ const PadTop = styled.div`
   border: none;
 `;
 
+function renderImportedHeadersButton(
+  headersCount: number,
+  onClick: any,
+  showInheritedAttributes: boolean,
+) {
+  return (
+    <KeyValueStackContainer>
+      <ShowHideImportedHeaders
+        onClick={(e) => {
+          e.preventDefault();
+          onClick(!showInheritedAttributes);
+        }}
+      >
+        <ButtonIcon
+          icon={showInheritedAttributes ? "eye-open" : "eye-off"}
+          iconSize={14}
+        />
+        &nbsp;&nbsp;
+        <Text case={Case.CAPITALIZE} type={TextType.P2}>
+          {showInheritedAttributes
+            ? "Showing inherited headers"
+            : `${headersCount} headers`}
+        </Text>
+      </ShowHideImportedHeaders>
+    </KeyValueStackContainer>
+  );
+}
+
 export const getDatasourceInfo = (datasource: any): string => {
   const info = [];
   const headers = get(datasource, "datasourceConfiguration.headers", []);
@@ -404,6 +432,16 @@ const CloseIconContainer = styled.div`
   right: 10px;
 `;
 
+const EmptyDatasourceContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 280px;
+  padding: 50px;
+  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  height: 100%;
+`;
+
 function DataSourceList(props: any) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   return (
@@ -418,39 +456,50 @@ function DataSourceList(props: any) {
               title: "Datasources",
               icon: "datasource",
               iconSize: IconSize.LARGE,
-              panelComponent: (
-                <DataSourceListWrapper
-                  className={selectedIndex === 0 ? "show" : ""}
-                >
-                  {(props.datasources || []).map((d: any, idx: number) => (
-                    <DatasourceCard
-                      key={idx}
-                      onClick={() =>
-                        history.push(
-                          DATA_SOURCES_EDITOR_ID_URL(
-                            props.applicationId,
-                            props.currentPageId,
-                            d.id,
-                          ),
-                        )
-                      }
-                    >
-                      <Text type={TextType.H5} weight={FontWeight.BOLD}>
-                        {d.name}
-                      </Text>
-                      <DatasourceURL>
-                        {d.datasourceConfiguration.url}
-                      </DatasourceURL>
-                      <StyledSeparator />
-                      <PadTop>
-                        <Text type={TextType.P3} weight={FontWeight.NORMAL}>
-                          {getDatasourceInfo(d)}
+              panelComponent:
+                props.datasources && props.datasources.length > 0 ? (
+                  <DataSourceListWrapper
+                    className={selectedIndex === 0 ? "show" : ""}
+                  >
+                    {(props.datasources || []).map((d: any, idx: number) => (
+                      <DatasourceCard
+                        key={idx}
+                        onClick={() =>
+                          history.push(
+                            DATA_SOURCES_EDITOR_ID_URL(
+                              props.applicationId,
+                              props.currentPageId,
+                              d.id,
+                            ),
+                          )
+                        }
+                      >
+                        <Text type={TextType.H5} weight={FontWeight.BOLD}>
+                          {d.name}
                         </Text>
-                      </PadTop>
-                    </DatasourceCard>
-                  ))}
-                </DataSourceListWrapper>
-              ),
+                        <DatasourceURL>
+                          {d.datasourceConfiguration.url}
+                        </DatasourceURL>
+                        <StyledSeparator />
+                        <PadTop>
+                          <Text type={TextType.P3} weight={FontWeight.NORMAL}>
+                            {getDatasourceInfo(d)}
+                          </Text>
+                        </PadTop>
+                      </DatasourceCard>
+                    ))}
+                  </DataSourceListWrapper>
+                ) : (
+                  <EmptyDatasourceContainer>
+                    <Text
+                      textAlign="center"
+                      type={TextType.P3}
+                      weight={FontWeight.NORMAL}
+                    >
+                      When you save a datasource, they&apos;ll show up here.
+                    </Text>
+                  </EmptyDatasourceContainer>
+                ),
             },
           ]}
         />
@@ -459,9 +508,68 @@ function DataSourceList(props: any) {
   );
 }
 
+function renderHelpSection(
+  handleClickLearnHow: any,
+  setApiBindHelpSectionVisible: any,
+) {
+  return (
+    <HelpSection>
+      <Callout
+        closeButton
+        fill
+        label={
+          <CalloutContent>
+            <Link
+              className="t--learn-how-apis-link"
+              onClick={handleClickLearnHow}
+            >
+              <Text case={Case.UPPERCASE} type={TextType.H6}>
+                Learn How
+              </Text>
+              <Icon name="right-arrow" />
+            </Link>
+          </CalloutContent>
+        }
+        onClose={() => setApiBindHelpSectionVisible(false)}
+        text={createMessage(WIDGET_BIND_HELP)}
+        variant={Variant.warning}
+      />
+    </HelpSection>
+  );
+}
+
+function ImportedHeaders(props: { headers: any }) {
+  const [showHeaders, toggleHeaders] = useState(false);
+  return (
+    <>
+      {renderImportedHeadersButton(
+        props.headers.length,
+        toggleHeaders,
+        showHeaders,
+      )}
+      <KeyValueStackContainer>
+        <FormRowWithLabel>
+          <FlexContainer>
+            <Flex className="key-value" size={1}>
+              <Text case={Case.CAPITALIZE} type={TextType.H6}>
+                Key
+              </Text>
+            </Flex>
+            <Flex className="key-value" size={3}>
+              <Text case={Case.CAPITALIZE} type={TextType.H6}>
+                Value
+              </Text>
+            </Flex>
+          </FlexContainer>
+        </FormRowWithLabel>
+        {showHeaders && <ImportedHeaderKeyValue headers={props.headers} />}
+      </KeyValueStackContainer>
+    </>
+  );
+}
+
 function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [showInheritedAttributes, toggleInheritedAttributes] = useState(false);
   const [showDatasources, toggleDatasources] = useState(false);
   const [
     apiBindHelpSectionVisible,
@@ -570,80 +678,13 @@ function ApiEditorForm(props: Props) {
                   count: headersCount,
                   panelComponent: (
                     <TabSection>
-                      {apiBindHelpSectionVisible && (
-                        <HelpSection>
-                          <Callout
-                            closeButton
-                            fill
-                            label={
-                              <CalloutContent>
-                                <Link
-                                  className="t--learn-how-apis-link"
-                                  onClick={handleClickLearnHow}
-                                >
-                                  <Text
-                                    case={Case.UPPERCASE}
-                                    type={TextType.H6}
-                                  >
-                                    Learn How
-                                  </Text>
-                                  <Icon name="right-arrow" />
-                                </Link>
-                              </CalloutContent>
-                            }
-                            onClose={() => setApiBindHelpSectionVisible(false)}
-                            text={createMessage(WIDGET_BIND_HELP)}
-                            variant={Variant.warning}
-                          />
-                        </HelpSection>
-                      )}
+                      {apiBindHelpSectionVisible &&
+                        renderHelpSection(
+                          handleClickLearnHow,
+                          setApiBindHelpSectionVisible,
+                        )}
                       {props.datasourceHeaders.length > 0 && (
-                        <KeyValueStackContainer>
-                          <ShowHideImportedHeaders
-                            onClick={(e) => {
-                              e.preventDefault();
-                              toggleInheritedAttributes(
-                                !showInheritedAttributes,
-                              );
-                            }}
-                          >
-                            <ButtonIcon
-                              icon={
-                                showInheritedAttributes ? "eye-open" : "eye-off"
-                              }
-                              iconSize={14}
-                            />
-                            &nbsp;&nbsp;
-                            <Text case={Case.CAPITALIZE} type={TextType.P2}>
-                              {showInheritedAttributes
-                                ? "Showing inherited headers"
-                                : `${props.datasourceHeaders.length} headers`}
-                            </Text>
-                          </ShowHideImportedHeaders>
-                        </KeyValueStackContainer>
-                      )}
-                      {props.datasourceHeaders.length > 0 && (
-                        <KeyValueStackContainer>
-                          <FormRowWithLabel>
-                            <FlexContainer>
-                              <Flex className="key-value" size={1}>
-                                <Text case={Case.CAPITALIZE} type={TextType.H6}>
-                                  Key
-                                </Text>
-                              </Flex>
-                              <Flex className="key-value" size={3}>
-                                <Text case={Case.CAPITALIZE} type={TextType.H6}>
-                                  Value
-                                </Text>
-                              </Flex>
-                            </FlexContainer>
-                          </FormRowWithLabel>
-                          {showInheritedAttributes && (
-                            <ImportedHeaders
-                              headers={props.datasourceHeaders}
-                            />
-                          )}
-                        </KeyValueStackContainer>
+                        <ImportedHeaders headers={props.datasourceHeaders} />
                       )}
                       <KeyValueFieldArray
                         actionConfig={actionConfigurationHeaders}
@@ -714,7 +755,7 @@ function ApiEditorForm(props: Props) {
                 },
               ]}
             />
-            {!showDatasources && props.datasources && props.datasources.length && (
+            {!showDatasources && (
               <DatasourceListTrigger
                 onClick={() => toggleDatasources(!showDatasources)}
               >
