@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
@@ -81,6 +82,10 @@ public class ImportExportApplicationService {
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, String> newPageIdMap = new HashMap<>();
+    
+        if (applicationId == null || applicationId.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+        }
 
         return pluginRepository
             .findAll()
@@ -200,6 +205,11 @@ public class ImportExportApplicationService {
     public Mono<Application> extractFileAndSaveApplication(String orgId, Part filePart) {
 
         final MediaType contentType = filePart.headers().getContentType();
+        
+        if (orgId == null || orgId.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
+        
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
             return Mono.error(new AppsmithException(
                 AppsmithError.VALIDATION_FAILURE,
@@ -451,11 +461,12 @@ public class ImportExportApplicationService {
         final DatasourceConfiguration datasourceConfig = datasource.getDatasourceConfiguration();
         AuthenticationResponse authResponse = new AuthenticationResponse();
         if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
-            authResponse = datasourceConfig.getAuthentication().getAuthenticationResponse();
+            BeanCopyUtils.copyNestedNonNullProperties(
+                datasourceConfig.getAuthentication().getAuthenticationResponse(), authResponse);
             datasourceConfig.getAuthentication().setAuthenticationResponse(null);
             datasourceConfig.getAuthentication().setAuthenticationType(null);
         }
-        final AuthenticationResponse finalAuthResponse = authResponse;
+        
         return existingDatasourceFlux
                 .map(ds -> {
                     final DatasourceConfiguration dsAuthConfig = ds.getDatasourceConfiguration();
@@ -469,7 +480,7 @@ public class ImportExportApplicationService {
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
-                        datasourceConfig.getAuthentication().setAuthenticationResponse(finalAuthResponse);
+                        datasourceConfig.getAuthentication().setAuthenticationResponse(authResponse);
                     }
                     // No matching existing datasource found, so create a new one.
                     return datasourceService

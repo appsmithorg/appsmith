@@ -19,6 +19,7 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -152,6 +153,21 @@ public class ImportExportApplicationFromJSONTests {
 
         datasourceMap.put("DS1", ds1);
         datasourceMap.put("DS2", ds2);
+    }
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplicationWithNullApplicationIdTest() {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        
+        Mono<ApplicationJson> resultMono = importExportApplicationService
+            .exportApplicationById(null);
+        
+        StepVerifier
+            .create(resultMono)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID)))
+            .verify();
     }
 
     @Test
@@ -378,5 +394,20 @@ public class ImportExportApplicationFromJSONTests {
                 .expectErrorMatches(error -> error instanceof AppsmithException)
                 .verify();
     }
-
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationWithNullOrganizationIdTest() {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        
+        Mono<Application> resultMono = importExportApplicationService
+            .extractFileAndSaveApplication(null, filepart);
+        
+        StepVerifier
+            .create(resultMono)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ORGANIZATION_ID)))
+            .verify();
+    }
+    
 }
