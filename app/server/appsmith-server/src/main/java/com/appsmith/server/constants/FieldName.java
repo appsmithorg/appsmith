@@ -9,6 +9,7 @@ public class FieldName {
     public static final String UPDATED_AT = "updatedAt";
     public static final String CURL_CODE = "curlCode";
     public static String ORGANIZATION = "organization";
+    public static final String INVALIDJSONFILE = "invalid json file";
     public static String ID = "id";
     public static final String NAME = "name";
     public static String PAGE_ID = "pageId";

@@ -213,7 +213,7 @@ public class ImportExportApplicationService {
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
             return Mono.error(new AppsmithException(
                 AppsmithError.VALIDATION_FAILURE,
-                "Please upload a valid application file. Only JSON type is allowed."
+                FieldName.INVALIDJSONFILE
             ));
         }
 
@@ -239,6 +239,14 @@ public class ImportExportApplicationService {
                     }.getType();
                     gson.toJson(data);
                     ResponseDTO<ApplicationJson> jsonFile = gson.fromJson(data, fileType);
+                    if (jsonFile == null || jsonFile.getData() == null || jsonFile.getResponseMeta() == null
+                        || !jsonFile.getResponseMeta().isSuccess()) {
+                       
+                        return Mono.error(
+                            new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, FieldName.INVALIDJSONFILE, null)
+                        );
+                    }
+                    
                     return importApplicationInOrganization(orgId, jsonFile.getData());
                 });
     }
@@ -257,8 +265,10 @@ public class ImportExportApplicationService {
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository.findAllByOrganizationId(orgId).cache();
 
-        if (importedNewPageList.isEmpty()) {
-            Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE, importedNewPageList));
+        if (importedNewPageList == null || importedNewPageList.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE, importedNewPageList));
+        } else if (importedApplication == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION, null));
         }
 
         return organizationService.findById(orgId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)

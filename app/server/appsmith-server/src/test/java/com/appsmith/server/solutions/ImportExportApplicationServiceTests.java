@@ -72,7 +72,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
-public class ImportExportApplicationFromJSONTests {
+public class ImportExportApplicationServiceTests {
 
     @Autowired
     private ImportExportApplicationService importExportApplicationService;
@@ -156,12 +156,8 @@ public class ImportExportApplicationFromJSONTests {
     }
     
     @Test
-    @WithUserDetails(value = "api_user")
     public void exportApplicationWithNullApplicationIdTest() {
-        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        
-        Mono<ApplicationJson> resultMono = importExportApplicationService
-            .exportApplicationById(null);
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(null);
         
         StepVerifier
             .create(resultMono)
@@ -377,7 +373,6 @@ public class ImportExportApplicationFromJSONTests {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
     public void importApplicationFromInvalidFileTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
@@ -396,7 +391,6 @@ public class ImportExportApplicationFromJSONTests {
     }
     
     @Test
-    @WithUserDetails(value = "api_user")
     public void importApplicationWithNullOrganizationIdTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         
@@ -407,6 +401,26 @@ public class ImportExportApplicationFromJSONTests {
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                 throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ORGANIZATION_ID)))
+            .verify();
+    }
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromInvalidJsonFileTest() {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+            .read(new ClassPathResource("test_assets/ImportExportServiceTest/invalid-app.json"), new DefaultDataBufferFactory(), 4096)
+            .cache();
+    
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
+    
+        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId, filepart);
+        
+        StepVerifier
+            .create(resultMono)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.JSON_PROCESSING_ERROR.getMessage(FieldName.INVALIDJSONFILE)))
             .verify();
     }
     

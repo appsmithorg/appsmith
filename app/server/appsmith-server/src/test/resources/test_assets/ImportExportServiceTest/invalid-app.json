@@ -1,0 +1,9 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "invalid_data": {
+    "invalidApplication" : {}
+  }
+}
