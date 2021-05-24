@@ -6,6 +6,7 @@ import {
   GridDefaults,
   CONTAINER_GRID_PADDING,
   WIDGET_PADDING,
+  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import ContainerComponent, {
@@ -14,7 +15,7 @@ import ContainerComponent, {
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-
+import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -111,6 +112,9 @@ class ContainerWidget extends BaseWidget<
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     return (
       <ContainerComponent {...props}>
+        {this.props.widgetId === MAIN_CONTAINER_WIDGET_ID && (
+          <CanvasSelectionArena widgetId={"0"} />
+        )}
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>

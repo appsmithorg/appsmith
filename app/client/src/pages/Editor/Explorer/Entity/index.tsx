@@ -94,7 +94,7 @@ export type EntityProps = {
   icon: ReactNode;
   rightIcon?: ReactNode;
   disabled?: boolean;
-  action?: () => void;
+  action?: (e: any) => void;
   active?: boolean;
   isDefaultExpanded?: boolean;
   onCreate?: () => void;
@@ -127,11 +127,11 @@ export const Entity = forwardRef(
     }, [props.searchKeyword]);
     /* eslint-enable react-hooks/exhaustive-deps */
 
-    const toggleChildren = () => {
+    const toggleChildren = (e: any) => {
       // Make sure this entity is enabled before toggling the collpse of children.
       !props.disabled && open(!isOpen);
       if (props.runActionOnExpand && !isOpen) {
-        props.action && props.action();
+        props.action && props.action(e);
       }
 
       if (props.onToggle) {
@@ -145,9 +145,9 @@ export const Entity = forwardRef(
       );
     };
 
-    const handleClick = () => {
-      if (props.action) props.action();
-      else toggleChildren();
+    const handleClick = (e: any) => {
+      if (props.action) props.action(e);
+      else toggleChildren(e);
     };
 
     const itemRef = useRef<HTMLDivElement | null>(null);

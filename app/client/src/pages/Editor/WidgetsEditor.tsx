@@ -123,7 +123,11 @@ function WidgetsEditor() {
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
         <MainContainerLayoutControl />
-        <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
+        <CanvasContainer
+          className={getCanvasClassName()}
+          id="canvas-container"
+          key={currentPageId}
+        >
           {node}
         </CanvasContainer>
         <Debugger />

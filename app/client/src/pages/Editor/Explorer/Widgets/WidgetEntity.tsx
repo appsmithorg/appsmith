@@ -23,6 +23,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityProperties from "../Entity/EntityProperties";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
+import { getSelectedWidgets } from "selectors/ui";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -55,17 +56,28 @@ export const useNavigateToWidget = () => {
       pageId: string,
       isWidgetSelected?: boolean,
       parentModalId?: string,
+      isMultiSelect?: boolean,
     ) => {
-      if (widgetType === WidgetTypes.MODAL_WIDGET) {
+      if (widgetType === WidgetTypes.MODAL_WIDGET && !isMultiSelect) {
         dispatch(showModal(widgetId));
         return;
       }
-      if (parentModalId) dispatch(showModal(parentModalId));
+      if (parentModalId && !isMultiSelect) dispatch(showModal(parentModalId));
       else dispatch(closeAllModals());
       navigateToCanvas(params, window.location.pathname, pageId, widgetId);
-      flashElementById(widgetId);
-      if (!isWidgetSelected) selectWidget(widgetId);
-      dispatch(forceOpenPropertyPane(widgetId));
+      if (!isMultiSelect) {
+        flashElementById(widgetId);
+      }
+      if (
+        !isWidgetSelected || // Case 1: select an unselected widget on click
+        isMultiSelect || // Case 2: to let deselect an unselected widget when multi selecting
+        (isWidgetSelected && !isMultiSelect) // Case 3: to deselect multi selected widgets when clicked on a selected widget(which was selected via multi select).
+      ) {
+        selectWidget(widgetId, isMultiSelect);
+      }
+      if (!isMultiSelect) {
+        dispatch(forceOpenPropertyPane(widgetId));
+      }
     },
     [dispatch, params, selectWidget],
   );
@@ -79,29 +91,36 @@ const useWidget = (
   pageId: string,
   parentModalId?: string,
 ) => {
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
+  const selectedWidgets = useSelector(getSelectedWidgets);
+  const isWidgetSelected = useMemo(
+    () => selectedWidgets && selectedWidgets.includes(widgetId),
+    [selectedWidgets, widgetId],
   );
-  const isWidgetSelected = useMemo(() => selectedWidget === widgetId, [
-    selectedWidget,
-    widgetId,
-  ]);
+
+  const multipleWidgetsSelected = selectedWidgets && selectedWidgets.length > 1;
 
   const { navigateToWidget } = useNavigateToWidget();
 
   const boundNavigateToWidget = useCallback(
-    () =>
+    (e: any) => {
+      const isMultiSelect = e.metaKey || e.ctrlKey;
       navigateToWidget(
         widgetId,
         widgetType,
         pageId,
         isWidgetSelected,
         parentModalId,
-      ),
+        isMultiSelect,
+      );
+    },
     [widgetId, widgetType, pageId, isWidgetSelected, parentModalId],
   );
 
-  return { navigateToWidget: boundNavigateToWidget, isWidgetSelected };
+  return {
+    navigateToWidget: boundNavigateToWidget,
+    isWidgetSelected,
+    multipleWidgetsSelected,
+  };
 };
 
 export type WidgetEntityProps = {
@@ -123,7 +142,11 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   );
   let shouldExpand = false;
   if (widgetsToExpand.includes(props.widgetId)) shouldExpand = true;
-  const { isWidgetSelected, navigateToWidget } = useWidget(
+  const {
+    isWidgetSelected,
+    multipleWidgetsSelected,
+    navigateToWidget,
+  } = useWidget(
     props.widgetId,
     props.widgetType,
     props.pageId,
@@ -150,12 +173,14 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     />
   );
 
+  const showContextMenu = props.pageId === pageId && !multipleWidgetsSelected;
+
   return (
     <Entity
       action={navigateToWidget}
       active={isWidgetSelected}
       className="widget"
-      contextMenu={props.pageId === pageId && contextMenu}
+      contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
       icon={getWidgetIcon(props.widgetType)}
       isDefaultExpanded={
