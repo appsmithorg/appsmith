@@ -5,7 +5,6 @@ import {
   get,
   set,
   xor,
-  isPlainObject,
   isNumber,
   round,
   range,
