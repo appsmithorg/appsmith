@@ -12,7 +12,10 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getAction } from "selectors/entitiesSelector";
-import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
+import {
+  getCurrentWidgetId,
+  getIsPropertyPaneVisible,
+} from "selectors/propertyPaneSelectors";
 import { isWidget, isAction } from "workers/evaluationUtils";
 import { onApiEditor, onQueryEditor, onCanvas } from "./helpers";
 import history from "utils/history";
@@ -79,9 +82,10 @@ export const useSelectedEntity = () => {
     return null;
   });
 
+  const isPropertyPaneVisible = useSelector(getIsPropertyPaneVisible);
   const selectedWidget = useSelector(getCurrentWidgetId);
   const widget = useSelector((state: AppState) => {
-    if (onCanvas(applicationId, currentPageId)) {
+    if (onCanvas(applicationId, currentPageId) && isPropertyPaneVisible) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;
     }
 
