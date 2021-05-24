@@ -541,6 +541,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
+      customFusionChartConfig: {
+        config: {
+          type: "",
+          dataSource: {},
+        },
+      },
     },
     FORM_BUTTON_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
