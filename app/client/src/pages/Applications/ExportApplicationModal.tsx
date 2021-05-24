@@ -47,7 +47,7 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
   return (
     <StyledDialog
       canOutsideClickClose
-      className={"export-app-modal"}
+      className={"t--export-application-modal"}
       isOpen={isModalOpen}
       maxHeight={"540px"}
       setModalClose={setModalClose}

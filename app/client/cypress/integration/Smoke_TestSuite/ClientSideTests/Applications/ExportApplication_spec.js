@@ -21,8 +21,14 @@ describe("Export application as a JSON file", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.exportAppFromMenu).click({ force: true });
+    cy.get(homePage.exportAppModal).should("be.visible");
     cy.get(homePage.exportAppConfirmationCheckbox).click({ force: true });
     cy.get(homePage.exportAppButton).click({ force: true });
-    // TODO: test download step test here.
+
+    cy.wait("@exportApplication").then((interception) => {
+      const { status, success } = interception.response.body.responseMeta;
+      assert.equal(status, 200);
+      assert.isTrue(success);
+    });
   });
 });

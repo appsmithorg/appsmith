@@ -10,6 +10,7 @@
     "duplicateApp": "[data-cy=t--duplicate]",
     "forkAppFromMenu": "[data-cy=t--fork-app]",
     "exportAppFromMenu": "[data-cy=t--export-app]",
+    "exportAppModal": ".t--export-application-modal",
     "exportAppConfirmationCheckbox": "[data-cy=t--export-app-confirm]",
     "exportAppButton": "[data-cy=t--export-app-button]",
     "forkAppOrgList": ".radio-group",
