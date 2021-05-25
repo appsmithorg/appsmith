@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -23,6 +24,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -63,8 +65,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -106,6 +113,9 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     private LayoutActionService layoutActionService;
+    
+    @Autowired
+    private NewPageRepository newPageRepository;
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
@@ -238,17 +248,16 @@ public class ImportExportApplicationServiceTests {
                 })
                 .verifyComplete();
     }
-
-
+    
     @Test
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithActionsAndDatasourceTest() {
-
+        
+        Organization newOrganization = new Organization();
+        newOrganization.setName("template-org-with-ds");
+        
         Application testApplication = new Application();
         testApplication.setName("ApplicationWithActionsAndDatasource");
-
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
 
         final Mono<ApplicationJson> resultMono = organizationService.create(newOrganization)
                 .zipWhen(org -> applicationPageService.createApplication(testApplication, org.getId()))
@@ -370,8 +379,7 @@ public class ImportExportApplicationServiceTests {
                 })
                 .verifyComplete();
     }
-
-
+    
     @Test
     public void importApplicationFromInvalidFileTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
@@ -449,14 +457,77 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromValidJsonFileTest() {
         
-        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-app.json");
-        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+    
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+    
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+            .users(Set.of("api_user"))
+            .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+            .users(Set.of("api_user"))
+            .build();
+    
+        final Mono<Application> resultMono = organizationService
+            .create(newOrganization)
+            .flatMap(organization -> importExportApplicationService
+                .extractFileAndSaveApplication(organization.getId(), filePart)
+            );
         
         StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, FieldName.INVALIDJSONFILE)))
-            .verify();
+            .create(resultMono
+                .flatMap(application -> Mono.zip(
+                    Mono.just(application),
+                    datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                    getActionsInApplication(application).collectList(),
+                    newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
+                )))
+            .assertNext(tuple -> {
+                final Application application = tuple.getT1();
+                final List<Datasource> datasourceList = tuple.getT2();
+                final List<ActionDTO> actionDTOS = tuple.getT3();
+                final List<PageDTO> pageList = tuple.getT4();
+                
+                assertThat(application.getName()).isEqualTo("valid_application");
+                assertThat(application.getOrganizationId()).isNotNull();
+                assertThat(application.getPages()).isNotEmpty();
+                assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                
+                assertThat(datasourceList).isNotEmpty();
+                datasourceList.forEach(datasource -> {
+                    assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
+                    if (datasource.getName().contains("wo-auth")) {
+                        assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
+                    } else if (datasource.getName().contains("db")) {
+                        DBAuth auth = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
+                        assertThat(auth).isNotNull();
+                        assertThat(auth.getPassword()).isNotNull();
+                        assertThat(auth.getUsername()).isNotNull();
+                    }
+                });
+                
+                assertThat(actionDTOS).isNotEmpty();
+                actionDTOS.forEach(actionDTO -> {
+                    assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
+                    
+                });
+                
+                assertThat(pageList).isNotEmpty();
+                ApplicationPage defaultAppPage = application.getPages()
+                    .stream()
+                    .filter(ApplicationPage::getIsDefault)
+                    .findFirst()
+                    .orElse(null);
+                assertThat(defaultAppPage).isNotNull();
+                
+                PageDTO defaultPageDTO = pageList.stream()
+                    .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId())).findFirst().orElse(null);
+                
+                assertThat(defaultPageDTO).isNotNull();
+                assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
+            })
+            .verifyComplete();
     }
     
     private FilePart createFilePart(String filePath) {

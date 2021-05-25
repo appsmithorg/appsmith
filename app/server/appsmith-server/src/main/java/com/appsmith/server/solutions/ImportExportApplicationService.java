@@ -264,11 +264,20 @@ public class ImportExportApplicationService {
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository.findAllByOrganizationId(orgId).cache();
-
+    
+        String errorField = "";
         if (importedNewPageList == null || importedNewPageList.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGES, FieldName.INVALIDJSONFILE));
+            errorField = FieldName.PAGES;
         } else if (importedApplication == null) {
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.INVALIDJSONFILE));
+            errorField = FieldName.APPLICATION;
+        } else if (importedNewActionList == null) {
+            errorField = FieldName.ACTIONS;
+        } else if (importedDatasourceList == null) {
+            errorField = FieldName.DATASOURCE;
+        }
+    
+        if(!errorField.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, FieldName.INVALIDJSONFILE));
         }
 
         return organizationService.findById(orgId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
@@ -437,6 +446,7 @@ public class ImportExportApplicationService {
             //Mapping ds name in id field
             ds.setId(datasourceMap.get(ds.getId()));
             ds.setOrganizationId(null);
+            ds.setPluginId(null);
             return ds.getId();
         }
         return "";
