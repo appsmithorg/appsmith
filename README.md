@@ -11,6 +11,8 @@
 <p align="center">
   <a href="https://docs.appsmith.com/">Documentation</a>
   ·
+  <a href="https://www.youtube.com/appsmith">Youtube</a>
+  ·
   <a href="https://discord.gg/rBTTVJp">Discord</a>
   ·
   <a href="./office_hours.md">Office Hours</a>  
@@ -91,6 +93,7 @@ Connect your own data to build apps for your team. [Read more here.](https://doc
 If you encountered a bug or need help troubleshooting an issue, you can use one of the following channels:
 
 - Self Help: [Documentation](https://docs.appsmith.com)
+- Tutorial Videos: [Youtube](https://www.youtube.com/appsmith)
 - Community Support: [Discord](https://discord.gg/rBTTVJp)
 - Issue & bug tracking: [GitHub Issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
 
