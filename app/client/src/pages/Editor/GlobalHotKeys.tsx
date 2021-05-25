@@ -95,7 +95,17 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Show omnibar"
           onKeyDown={(e: KeyboardEvent) => {
-            console.log("toggleShowGlobalSearchModal");
+            e.preventDefault();
+            this.props.toggleShowGlobalSearchModal();
+            AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
+          }}
+        />
+        <Hotkey
+          allowInInput={false}
+          combo="mod + p"
+          global
+          label="Show omnibar"
+          onKeyDown={(e: KeyboardEvent) => {
             e.preventDefault();
             this.props.toggleShowGlobalSearchModal();
             AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
