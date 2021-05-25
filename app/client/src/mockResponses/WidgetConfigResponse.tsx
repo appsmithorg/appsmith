@@ -691,6 +691,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               })();
             })}}`;
 
+            if (!modifiedAction) {
+              value = propertyValue;
+            }
+
             const path = `template.${widgetName}.${propertyPath}`;
 
             return [
