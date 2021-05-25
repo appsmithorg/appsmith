@@ -30,6 +30,9 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,6 +54,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private final NotificationService notificationService;
 
     private final PolicyGenerator policyGenerator;
+    private static final DateTimeFormatter ISO_FORMATTER =
+            DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
     private final PolicyUtils policyUtils;
 
     public CommentServiceImpl(
@@ -121,6 +126,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     comment.setPolicies(policies);
 
                     String authorName = user.getName() != null ? user.getName(): user.getUsername();
+                    comment.setAuthorName(authorName);
+                    comment.setAuthorUsername(user.getUsername());
                     comment.setAuthorName(authorName);
                     return Mono.zip(
                             Mono.just(user),
@@ -257,7 +264,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     initState.setAuthorName(authorName);
                     initState.setAuthorUsername(user.getUsername());
                     //Nested object in mongo doc doesn't update time automatically
-                    initState.setUpdatedAt(Instant.now());
+                    initState.setUpdatedAt(ISO_FORMATTER.format(Instant.now()));
 
                     if (commentThread.getResolvedState() != null) {
                         initState.setActive(commentThread.getResolvedState().getActive());
@@ -270,7 +277,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     Set<String> viewedUser = new HashSet<>();
                     viewedUser.add(user.getUsername());
                     commentThread.setViewedByUsers(viewedUser);
-                    commentThread.setIsViewed(true);
                     return threadRepository.findById(threadId);
                 })
                 .flatMap(thread -> {
@@ -278,7 +284,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     if(thread.getViewedByUsers() != null) {
                         commentThread.getViewedByUsers().addAll(thread.getViewedByUsers());
                     }
-                    return threadRepository.updateById(threadId, commentThread, AclPermission.MANAGE_THREAD);
+                    return threadRepository
+                            .updateById(threadId, commentThread, AclPermission.MANAGE_THREAD)
+                            .flatMap(updatedThread -> {
+                                updatedThread.setIsViewed(true);
+                                return Mono.just(updatedThread);
+                            });
                 });
     }
 

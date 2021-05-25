@@ -26,7 +26,7 @@ const handleCreateNewCommentThreadSuccess = (
 
   state.applicationCommentThreadsByRef[applicationId] = {
     ...state.applicationCommentThreadsByRef[applicationId],
-    [refId]: Array.from(new Set([...commentThreadsIdsForRefId, id])),
+    [refId]: Array.from(new Set([id, ...commentThreadsIdsForRefId])),
   };
 
   return { ...state };
