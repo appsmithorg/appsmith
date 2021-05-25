@@ -496,7 +496,7 @@ function DataSourceList(props: any) {
                       type={TextType.P3}
                       weight={FontWeight.NORMAL}
                     >
-                      When you save a datasource, they&apos;ll show up here.
+                      When you save a datasource, it will show up here.
                     </Text>
                   </EmptyDatasourceContainer>
                 ),
