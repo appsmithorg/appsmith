@@ -364,7 +364,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       if (!isValid) {
         parsed = [];
         transformed = validatedResponse.transformed;
-        validationMessage = `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
+        validationMessage = `${WIDGET_TYPE_VALIDATION_ERROR}: "Array<x:string, y:number>"`;
       } else {
         parsed = validatedResponse.parsed;
         transformed = validatedResponse.parsed;
