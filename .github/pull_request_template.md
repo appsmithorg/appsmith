@@ -1,7 +1,7 @@
 ---
 name: "Pull Request"
 about: Create a pull request to submit new contributions to appsmith
-title: "[FIX/FEATURE - ID]"
+title: "[FIX/FEATURE]"
 labels:
 assignees:
 ---
