@@ -88,7 +88,9 @@ export default class DataTreeEvaluator {
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    this.evalTree = getValidatedTree(evaluatedTree);
+    const { errors, validatedTree } = getValidatedTree(evaluatedTree);
+    this.evalTree = validatedTree;
+    this.errors = this.errors.concat(errors);
     const validateEnd = performance.now();
 
     this.oldUnEvalTree = unEvalTree;

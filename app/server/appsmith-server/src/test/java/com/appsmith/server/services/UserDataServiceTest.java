@@ -1,12 +1,10 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
-import org.apache.commons.compress.utils.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -185,17 +183,20 @@ public class UserDataServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testUpdateLastUsedOrgList_WhenListIsNotEmpty_orgIdPrepended() {
-        // set some org id to current user's list
-        UserData existingUserData = new UserData();
-        existingUserData.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
-        userDataService.updateForCurrentUser(existingUserData).subscribe();
+        // Set an initial list of org ids to the current user.
+        UserData changes = new UserData();
+        changes.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
 
-        // now check whether new org id is put at first
-        String sampleOrgId = "abcd";
-        final Mono<UserData> saveMono = userDataService.updateLastUsedOrgList(sampleOrgId);
-        StepVerifier.create(saveMono).assertNext(userData -> {
+        final Mono<UserData> resultMono = userDataService.updateForCurrentUser(changes)
+                .flatMap(userData -> {
+                    // Now check whether a new org id is put at first.
+                    String sampleOrgId = "sample-org-id";
+                    return userDataService.updateLastUsedOrgList(sampleOrgId);
+                });
+
+        StepVerifier.create(resultMono).assertNext(userData -> {
             Assert.assertEquals(3, userData.getRecentlyUsedOrgIds().size());
-            Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedOrgIds().get(0));
+            Assert.assertEquals("sample-org-id", userData.getRecentlyUsedOrgIds().get(0));
         }).verifyComplete();
     }
 }

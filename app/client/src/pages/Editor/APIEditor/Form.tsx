@@ -37,6 +37,8 @@ import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
+import get from "lodash/get";
+import { Icon as ButtonIcon } from "@blueprintjs/core";
 
 const Form = styled.form`
   display: flex;
@@ -163,7 +165,6 @@ const Link = styled.a`
     margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   }
 `;
-
 interface APIFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -174,6 +175,7 @@ interface APIFormProps {
   appName: string;
   httpMethodFromForm: string;
   actionConfigurationHeaders?: any;
+  datasourceHeaders?: any;
   actionName: string;
   apiId: string;
   apiName: string;
@@ -195,8 +197,98 @@ export const NameWrapper = styled.div`
   }
 `;
 
+export const ShowHideImportedHeaders = styled.button`
+  background: #ebebeb;
+  color: #4b4848;
+  padding: 3px 5px;
+  border: none;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 12px;
+  height: 20px;
+`;
+
+const Flex = styled.div<{ size: number }>`
+  flex: ${(props) => props.size};
+  ${(props) =>
+    props.size === 3
+      ? `
+    margin-left: ${props.theme.spaces[4]}px;
+  `
+      : null};
+  width: 100%;
+  position: relative;
+  min-height: 32px;
+  height: auto;
+  background-color: #fafafa;
+  border-color: #d3dee3;
+  border-bottom: 1px solid #e8e8e8;
+  color: #4b4848;
+  display: flex;
+  align-items: center;
+`;
+
+const FlexContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: calc(100% - 30px);
+
+  .key-value {
+    padding: ${(props) => props.theme.spaces[2]}px 0px
+      ${(props) => props.theme.spaces[2]}px
+      ${(props) => props.theme.spaces[1]}px;
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.apiPane.text};
+    }
+  }
+  .key-value:nth-child(2) {
+    margin-left: ${(props) => props.theme.spaces[4]}px;
+  }
+  .disabled {
+    background: #e8e8e8;
+  }
+`;
+
+const KeyValueStackContainer = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[14]}px 0
+    ${(props) => props.theme.spaces[11] + 2}px;
+`;
+const FormRowWithLabel = styled(FormRow)`
+  flex-wrap: wrap;
+  ${FormLabel} {
+    width: 100%;
+  }
+  & svg {
+    cursor: pointer;
+  }
+`;
+
+function ImportedHeaders(props: { headers: any }) {
+  return (
+    <>
+      {props.headers.map((header: any, index: number) => {
+        return (
+          <FormRowWithLabel key={index}>
+            <FlexContainer>
+              <Flex className="key-value disabled" size={1}>
+                <Text type={TextType.H6}>{header.key}</Text>
+              </Flex>
+              <Flex className="key-value disabled" size={3}>
+                <Text type={TextType.H6}>{header.value}</Text>
+              </Flex>
+            </FlexContainer>
+          </FormRowWithLabel>
+        );
+      })}
+    </>
+  );
+}
+
 function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [showInheritedAttributes, toggleInheritedAttributes] = useState(false);
   const [
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,
@@ -327,9 +419,54 @@ function ApiEditorForm(props: Props) {
                         />
                       </HelpSection>
                     )}
+                    {props.datasourceHeaders.length > 0 && (
+                      <KeyValueStackContainer>
+                        <ShowHideImportedHeaders
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleInheritedAttributes(!showInheritedAttributes);
+                          }}
+                        >
+                          <ButtonIcon
+                            icon={
+                              showInheritedAttributes ? "eye-open" : "eye-off"
+                            }
+                            iconSize={14}
+                          />
+                          &nbsp;&nbsp;
+                          <Text case={Case.CAPITALIZE} type={TextType.P2}>
+                            {showInheritedAttributes
+                              ? "Showing inherited headers"
+                              : `${props.datasourceHeaders.length} headers`}
+                          </Text>
+                        </ShowHideImportedHeaders>
+                      </KeyValueStackContainer>
+                    )}
+                    {props.datasourceHeaders.length > 0 && (
+                      <KeyValueStackContainer>
+                        <FormRowWithLabel>
+                          <FlexContainer>
+                            <Flex className="key-value" size={1}>
+                              <Text case={Case.CAPITALIZE} type={TextType.H6}>
+                                Key
+                              </Text>
+                            </Flex>
+                            <Flex className="key-value" size={3}>
+                              <Text case={Case.CAPITALIZE} type={TextType.H6}>
+                                Value
+                              </Text>
+                            </Flex>
+                          </FlexContainer>
+                        </FormRowWithLabel>
+                        {showInheritedAttributes && (
+                          <ImportedHeaders headers={props.datasourceHeaders} />
+                        )}
+                      </KeyValueStackContainer>
+                    )}
                     <KeyValueFieldArray
                       actionConfig={actionConfigurationHeaders}
                       dataTreePath={`${actionName}.config.headers`}
+                      hideHeader={!!props.datasourceHeaders.length}
                       label="Headers"
                       name="actionConfiguration.headers"
                       placeholder="Value"
@@ -407,10 +544,16 @@ const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 export default connect((state: AppState) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
-  const actionConfigurationHeaders = selector(
-    state,
-    "actionConfiguration.headers",
-  );
+  const actionConfigurationHeaders =
+    selector(state, "actionConfiguration.headers") || [];
+  let datasourceFromAction = selector(state, "datasource");
+  if (datasourceFromAction && datasourceFromAction.hasOwnProperty("id")) {
+    datasourceFromAction = state.entities.datasources.list.find(
+      (d) => d.id === datasourceFromAction.id,
+    );
+  }
+  const datasourceHeaders =
+    get(datasourceFromAction, "datasourceConfiguration.headers") || [];
   const apiId = selector(state, "id");
   const actionName = getApiName(state, apiId) || "";
   const headers = selector(state, "actionConfiguration.headers");
@@ -420,7 +563,14 @@ export default connect((state: AppState) => {
     const validHeaders = headers.filter(
       (value) => value.key && value.key !== "",
     );
-    headersCount = validHeaders.length;
+    headersCount += validHeaders.length;
+  }
+
+  if (Array.isArray(datasourceHeaders)) {
+    const validHeaders = datasourceHeaders.filter(
+      (value: any) => value.key && value.key !== "",
+    );
+    headersCount += validHeaders.length;
   }
 
   const params = selector(state, "actionConfiguration.queryParameters");
@@ -437,6 +587,7 @@ export default connect((state: AppState) => {
     apiId,
     httpMethodFromForm,
     actionConfigurationHeaders,
+    datasourceHeaders,
     headersCount,
     paramsCount,
     hintMessages,

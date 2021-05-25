@@ -96,19 +96,23 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
+export const LATEST_PAGE_VERSION = 20;
+
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
   DEFAULT_WIDGET_WIDTH: 200,
   DEFAULT_WIDGET_HEIGHT: 100,
-  DEFAULT_GRID_COLUMNS: 16,
-  DEFAULT_GRID_ROW_HEIGHT: 40,
+  DEFAULT_GRID_COLUMNS: 64,
+  DEFAULT_GRID_ROW_HEIGHT: 10,
   CANVAS_EXTENSION_OFFSET: 2,
 };
 
+// calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
 export const CONTAINER_GRID_PADDING =
-  (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
+  GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
-export const WIDGET_PADDING = (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.2;
+// calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 0.5) * 0.2;
+export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
