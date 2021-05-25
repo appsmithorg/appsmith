@@ -69,11 +69,7 @@ describe("WidgetConfigResponse", () => {
       {
         widgetId: "parent-widget-id",
         propertyPath: "template.child-widget-name.text",
-        propertyValue: `{{parent-widget-name.items.map((currentItem) => {
-              return (function(){
-                return  ;
-              })();
-            })}}`,
+        propertyValue: `value`,
         isDynamicTrigger: false,
       },
     ]);
