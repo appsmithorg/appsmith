@@ -29,7 +29,7 @@ import Icon from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent, TabTitle } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import Text, { Case, FontWeight, TextType } from "components/ads/Text";
+import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
@@ -38,12 +38,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 import { Icon as ButtonIcon } from "@blueprintjs/core";
-import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
 import { IconSize } from "components/ads/Icon";
 import get from "lodash/get";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
-import history from "utils/history";
-
+import DataSourceList from "./DatasourceList";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -104,7 +101,7 @@ const SecondaryWrapper = styled.div`
   }
 `;
 
-const TabbedViewContainer = styled.div`
+export const TabbedViewContainer = styled.div`
   flex: 1;
   overflow: auto;
   position: relative;
@@ -303,63 +300,6 @@ function ImportedHeaderKeyValue(props: { headers: any }) {
     </>
   );
 }
-const DatasourceContainer = styled.div`
-  .react-tabs__tab-list {
-    padding: 0 16px !important;
-    border-bottom: none;
-    border-left: 2px solid #e8e8e8;
-    .cs-icon {
-      margin-right: 0;
-    }
-  }
-`;
-
-const DataSourceListWrapper = styled.div`
-  width: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 10px;
-  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  overflow: auto;
-  transition: width 2s;
-  &.show {
-    width: 280px;
-  }
-`;
-
-const DatasourceCard = styled.div<{
-  editorTheme?: EditorTheme;
-}>`
-  margin-bottom: 10px;
-  width: 100%;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  background: ${(props) =>
-    props.editorTheme === EditorTheme.DARK ? "#090707" : "#ffffff"};
-  border: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  cursor: pointer;
-  transition: 0.3s all ease;
-  &:hover {
-    box-shadow: 0 0 5px #c7c7c7;
-  }
-`;
-
-const DatasourceURL = styled.span<{
-  editorTheme?: EditorTheme;
-}>`
-  margin: 8px 0;
-  padding: 5px;
-  font-size: 12px;
-  border: 1px solid #69b5ff;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: max-content;
-  background: ${(props) =>
-    props.editorTheme === EditorTheme.DARK ? "#002B54" : "#E7F3FF"};
-`;
 
 const DatasourceListTrigger = styled.div`
   position: absolute;
@@ -377,11 +317,6 @@ const DatasourceListTrigger = styled.div`
       fill: #090707;
     }
   }
-`;
-
-const PadTop = styled.div`
-  padding-top: 5px;
-  border: none;
 `;
 
 function renderImportedHeadersButton(
@@ -412,101 +347,11 @@ function renderImportedHeadersButton(
   );
 }
 
-export const getDatasourceInfo = (datasource: any): string => {
-  const info = [];
-  const headers = get(datasource, "datasourceConfiguration.headers", []);
-  const authType = get(
-    datasource,
-    "datasourceConfiguration.authentication.authenticationType",
-    "",
-  ).toUpperCase();
-  if (headers.length)
-    info.push(`${headers.length} HEADER${headers.length > 1 ? "S" : ""}`);
-  if (authType.length) info.push(authType);
-  return info.join(" | ");
-};
-
 const CloseIconContainer = styled.div`
   position: absolute;
   top: 12px;
   right: 10px;
 `;
-
-const EmptyDatasourceContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 280px;
-  padding: 50px;
-  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  height: 100%;
-`;
-
-function DataSourceList(props: any) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  return (
-    <DatasourceContainer>
-      <TabbedViewContainer>
-        <TabComponent
-          onSelect={setSelectedIndex}
-          selectedIndex={selectedIndex}
-          tabs={[
-            {
-              key: "datasources",
-              title: "Datasources",
-              icon: "datasource",
-              iconSize: IconSize.LARGE,
-              panelComponent:
-                props.datasources && props.datasources.length > 0 ? (
-                  <DataSourceListWrapper
-                    className={selectedIndex === 0 ? "show" : ""}
-                  >
-                    {(props.datasources || []).map((d: any, idx: number) => (
-                      <DatasourceCard
-                        key={idx}
-                        onClick={() =>
-                          history.push(
-                            DATA_SOURCES_EDITOR_ID_URL(
-                              props.applicationId,
-                              props.currentPageId,
-                              d.id,
-                            ),
-                          )
-                        }
-                      >
-                        <Text type={TextType.H5} weight={FontWeight.BOLD}>
-                          {d.name}
-                        </Text>
-                        <DatasourceURL>
-                          {d.datasourceConfiguration.url}
-                        </DatasourceURL>
-                        <StyledSeparator />
-                        <PadTop>
-                          <Text type={TextType.P3} weight={FontWeight.NORMAL}>
-                            {getDatasourceInfo(d)}
-                          </Text>
-                        </PadTop>
-                      </DatasourceCard>
-                    ))}
-                  </DataSourceListWrapper>
-                ) : (
-                  <EmptyDatasourceContainer>
-                    <Text
-                      textAlign="center"
-                      type={TextType.P3}
-                      weight={FontWeight.NORMAL}
-                    >
-                      When you save a datasource, it will show up here.
-                    </Text>
-                  </EmptyDatasourceContainer>
-                ),
-            },
-          ]}
-        />
-      </TabbedViewContainer>
-    </DatasourceContainer>
-  );
-}
 
 function renderHelpSection(
   handleClickLearnHow: any,
