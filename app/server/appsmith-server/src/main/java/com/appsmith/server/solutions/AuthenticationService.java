@@ -215,8 +215,6 @@ public class AuthenticationService {
                                     oAuth2.setScopeString("");
                                 }
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
-                                // Resetting encryption
-                                oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return datasourceService.update(datasource.getId(), datasource);
                             });
@@ -369,7 +367,6 @@ public class AuthenticationService {
                                         .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
-                                oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return Mono.just(datasource);
                             });
@@ -420,7 +417,6 @@ public class AuthenticationService {
                             })
                             .flatMap(authenticationResponse -> {
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
-                                oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 // We return the same object instead of the update value because the updates value
                                 // will be in the encrypted form
