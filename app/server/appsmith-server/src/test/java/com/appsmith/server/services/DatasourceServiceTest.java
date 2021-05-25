@@ -469,7 +469,6 @@ public class DatasourceServiceTest {
 
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
-            datasource1.getDatasourceConfiguration().getAuthentication().setIsEncrypted(false);
             return datasourceService.testDatasource(datasource1);
         });
 
@@ -618,8 +617,6 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkEncryptionOfAuthenticationDTONullPassword() {
-        // For this test, all fields that are meant to be encrypted are going to be empty
-        // In such a scenario, we want the isEncrypted field to be in an inactive state, that is, null
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
