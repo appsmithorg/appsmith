@@ -51,7 +51,7 @@ Appsmith automagically works using any DB, Rest API or GraphQL as a datasource, 
 
 #### 🤖 Code Logic with JavaScript
 
-All parts of your app can be referenced as JavaScript objects. Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br><br>
+All parts of your app can be referenced as JavaScript objects. Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
 
 #### ☝️ One-click Deploy & Access Control
 
@@ -64,7 +64,7 @@ All parts of your app can be referenced as JavaScript objects. Code interactions
 
 #### 🔑 Solid 256-bit Encryption
 
-Appsmith apps are [secure by default](https://docs.appsmith.com/security). All connections are TLS-encrypted, and credentials are encrypted with AES-256—so we can't see any of your data. For added security, try our [self-hosted options](https://docs.appsmith.com/setup).<br><br>
+Appsmith apps are [secure by default](https://docs.appsmith.com/security). All connections are TLS-encrypted, and credentials are encrypted with AES-256—so we can't see any of your data. For added security, try our [self-hosted options](https://docs.appsmith.com/setup).<br>
 
 #### 🎙 Transparent Support
 
