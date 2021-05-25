@@ -33,8 +33,8 @@ const StyledContainerComponent = styled.div<
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}
 
   &:hover {
-    z-index: ${(props) => (props.onClick ? "2" : "1")};
-    cursor: ${(props) => (props.onClick ? "pointer" : "inherit")};
+    z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
+    cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
     background: ${(props) =>
       props.onClickCapture
         ? tinycolor(props.backgroundColor)
