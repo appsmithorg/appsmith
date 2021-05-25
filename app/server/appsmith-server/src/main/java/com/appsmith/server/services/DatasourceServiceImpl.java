@@ -48,6 +48,9 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIO
 @Service
 public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceService {
 
+    private static final String LOCALHOST_STRING = "localhost";
+    private static final String LOCALHOST_IP = "127.0.0.1";
+
     private final OrganizationService organizationService;
     private final SessionUserService sessionUserService;
     private final PluginService pluginService;
@@ -134,6 +137,19 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 });
     }
 
+    private boolean endpointContainsLocalhost(Endpoint endpoint) {
+        if (endpoint == null || StringUtils.isEmpty(endpoint.getHost())) {
+            return false;
+        }
+
+        String host = endpoint.getHost().toLowerCase();
+        if (host.contains(LOCALHOST_STRING) || host.contains(LOCALHOST_IP)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public Mono<Datasource> populateHintMessages(Datasource datasource) {
 
         if(datasource == null) {
@@ -157,7 +173,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                         .getDatasourceConfiguration()
                         .getEndpoints()
                         .stream()
-                        .anyMatch(endpoint -> endpoint.getHost().contains("localhost"));
+                        .anyMatch(endpoint -> endpointContainsLocalhost(endpoint));
             }
 
             if(usingLocalhostUrl) {
