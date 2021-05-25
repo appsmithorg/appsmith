@@ -216,6 +216,10 @@ export const CurrentValueViewer = memo(
             },
             collapsed: 2,
             collapseStringsAfterLength: 20,
+            shouldCollapse: (field: any) => {
+              const index = field.name * 1;
+              return index >= 2 ? true : false;
+            },
           };
           content = (
             <ReactJson src={props.evaluatedValue} {...reactJsonProps} />
