@@ -90,6 +90,7 @@ import {
 } from "../actions/controlActions";
 import OnSubmitGif from "assets/gifs/onsubmit.gif";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
+import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -674,14 +675,14 @@ function* addWidget(widgetConfig: any) {
 }
 
 const getStandupTableDimensions = () => {
-  const columns = 16;
-  const rows = 15;
-  const topRow = 2;
+  const columns = 16 * GRID_DENSITY_MIGRATION_V1;
+  const rows = 15 * GRID_DENSITY_MIGRATION_V1;
+  const topRow = 2 * GRID_DENSITY_MIGRATION_V1;
   const bottomRow = rows + topRow;
   return {
     parentRowSpace: 40,
     parentColumnSpace: 1,
-    topRow: 2,
+    topRow,
     bottomRow,
     leftColumn: 0,
     rightColumn: columns,
@@ -691,13 +692,13 @@ const getStandupTableDimensions = () => {
 };
 
 const getStandupInputDimensions = () => {
-  const columns = 6;
-  const rows = 1;
-  const leftColumn = 5;
+  const columns = 6 * GRID_DENSITY_MIGRATION_V1;
+  const rows = 1 * GRID_DENSITY_MIGRATION_V1;
+  const leftColumn = 5 * GRID_DENSITY_MIGRATION_V1;
   const rightColumn = leftColumn + columns;
   return {
-    topRow: 1,
-    bottomRow: 2,
+    topRow: 1 * GRID_DENSITY_MIGRATION_V1,
+    bottomRow: 2 * GRID_DENSITY_MIGRATION_V1,
     leftColumn,
     rightColumn,
     rows,

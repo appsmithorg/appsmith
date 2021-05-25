@@ -398,7 +398,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
       return {
         ...child,
-        onClick: () => this.onItemClick(index, this.props.onListItemClick),
+        onClickCapture: () =>
+          this.onItemClick(index, this.props.onListItemClick),
       };
     });
   };
@@ -498,7 +499,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { children, items } = this.props;
     const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
-    const templateHeight = templateBottomRow * 40;
+    const templateHeight =
+      templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
     try {
       gridGap = parseInt(gridGap);

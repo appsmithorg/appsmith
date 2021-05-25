@@ -25,17 +25,20 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {
     box-shadow: none;
+    border: 1px solid ${Colors.DANUBE};
     background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
       ${Colors.POLAR};
-    border: 1px solid ${Colors.GREEN};
+    border-radius: none;
     box-sizing: border-box;
-    border-radius: 4px;
     width: 24px;
     height: 24px;
     line-height: 24px;
     padding: 0 !important;
     text-align: center;
     font-size: 12px;
+  }
+  &&&.bp3-control-group > :only-child {
+    border-radius: 0;
   }
   margin: 0 8px;
 `;
@@ -173,7 +176,7 @@ function TableHeader(props: TableHeaderProps) {
               props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
             }}
           >
-            <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
+            <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
           <RowWrapper>
             Page{" "}
@@ -196,7 +199,7 @@ function TableHeader(props: TableHeaderProps) {
               props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
             }}
           >
-            <Icon color={Colors.HIT_GRAY} icon="chevron-right" iconSize={16} />
+            <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}

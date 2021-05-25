@@ -45,13 +45,23 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
      * @return Publishes empty, that completes after handler tasks are finished.
      */
     @Override
-    public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
-                                              Authentication authentication) {
+    public Mono<Void> onAuthenticationSuccess(
+            WebFilterExchange webFilterExchange,
+            Authentication authentication
+    ) {
+        return onAuthenticationSuccess(webFilterExchange, authentication, false);
+    }
+
+    public Mono<Void> onAuthenticationSuccess(
+            WebFilterExchange webFilterExchange,
+            Authentication authentication,
+            boolean isFromSignup
+    ) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
 
         Mono<Void> redirectionMono = authentication instanceof OAuth2AuthenticationToken
                 ? handleOAuth2Redirect(webFilterExchange)
-                : handleRedirect(webFilterExchange);
+                : handleRedirect(webFilterExchange, isFromSignup);
 
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userDataService.ensureViewedCurrentVersionReleaseNotes(user).thenReturn(user))
@@ -101,13 +111,19 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
     }
 
-    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange) {
+    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
         // On authentication success, we send a redirect to the client's home page. This ensures that the session
         // is set in the cookie on the browser.
         return Mono.just(exchange.getRequest())
                 .flatMap(redirectHelper::getRedirectUrl)
+                .map(url -> {
+                    if (isFromSignup) {
+                        url += (url.contains("?") ? "&" : "?") + "isFromSignup=true";
+                    }
+                    return url;
+                })
                 .map(URI::create)
                 .flatMap(redirectUri -> redirectStrategy.sendRedirect(exchange, redirectUri));
     }
