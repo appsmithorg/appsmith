@@ -1,6 +1,6 @@
 import { WidgetProps } from "widgets/BaseWidget";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EXECUTION_PARAM_KEY } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationConfig } from "./PropertyControlConstants";
 
 // Always add a validator function in ./worker/validation for these types
 export enum ValidationTypes {
@@ -29,10 +29,9 @@ export type ValidationResponse = {
 };
 
 export type Validator = (
+  config: ValidationConfig,
   value: any,
   props: WidgetProps,
-  dataTree?: DataTree,
-  property?: string,
 ) => ValidationResponse;
 
 export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";

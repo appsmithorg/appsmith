@@ -17,6 +17,34 @@ import _, {
 } from "lodash";
 import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
+import { ValidationConfig } from "constants/PropertyControlConstants";
+
+const validate = (config: ValidationConfig, value: any, props: WidgetProps) => {
+  // let validator;
+  // switch (config.type) {
+  //   case ValidationTypes.TEXT:
+  //     validator = VALIDATORS[ValidationTypes.TEXT];
+  //     break;
+  //   case ValidationTypes.BOOLEAN:
+  //     validator = VALIDATORS[ValidationTypes.BOOLEAN];
+  //     break;
+  //   case ValidationTypes.NUMBER:
+  //     validator = VALIDATORS[ValidationTypes.NUMBER];
+  //     break;
+  //   case ValidationTypes.REGEX:
+  //     validator = VALIDATORS[ValidationTypes.REGEX];
+  //     break;
+  //   case ValidationTypes.OBJECT:
+  //     validator = VALIDATORS[ValidationTypes.OBJECT];
+  //     break;
+  //   case ValidationTypes.ARRAY:
+  //     validator = VALIDATORS[ValidationTypes.ARRAY];
+  //     break;
+  //   case ValidationTypes.OBJECT_ARRAY:
+  //     validator = VALIDATORS[ValidationTypes.OBJECT_ARRAY];
+  // }
+  return VALIDATORS[config.type](config, value, props);
+};
 
 export function validateDateString(
   dateString: string,
@@ -46,7 +74,10 @@ export function validateDateString(
 const WIDGET_TYPE_VALIDATION_ERROR = "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
 
 export const VALIDATORS: Record<ValidationTypes, Validator> = {
-  [ValidationTypes.TEXT]: (value: any): ValidationResponse => {
+  [ValidationTypes.TEXT]: (
+    config: ValidationConfig,
+    value: any,
+  ): ValidationResponse => {
     let parsed = value;
     if (isUndefined(value) || value === null) {
       return {

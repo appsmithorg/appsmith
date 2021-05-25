@@ -16,6 +16,7 @@ import {
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -257,17 +258,16 @@ export function validateWidgetProperty(
   property: string,
   value: any,
   props: WidgetProps,
-  validation?: ValidationConfig,
+  config?: ValidationConfig,
   dataTree?: DataTree,
 ) {
-  if (!validation) {
+  if (!config) {
     return { isValid: true, parsed: value };
   }
-  const validator = VALIDATORS[validation];
-  if (!validator) {
-    return { isValid: true, parsed: value };
+  switch (config.type) {
+    case ValidationTypes.OBJECT:
+      return VALIDATORS.OBJECT;
   }
-  return validator(value, props, dataTree);
 }
 
 export function getValidatedTree(tree: DataTree) {
