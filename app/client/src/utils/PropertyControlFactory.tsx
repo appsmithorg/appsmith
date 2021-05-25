@@ -23,7 +23,6 @@ class PropertyControlFactory {
     customEditor?: string,
     additionalAutoComplete?: Record<string, Record<string, unknown>>,
     hideEvaluatedValue?: boolean,
-    updatedDataTreePath?: string,
   ): JSX.Element {
     let controlBuilder = this.controlMap.get(controlData.controlType);
     if (preferEditor) {
@@ -39,7 +38,6 @@ class PropertyControlFactory {
         customJSControl: customEditor,
         additionalAutoComplete,
         hideEvaluatedValue,
-        dataTreePath: updatedDataTreePath,
       };
 
       const control = controlBuilder.buildPropertyControl(controlProps);

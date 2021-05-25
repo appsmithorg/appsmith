@@ -34,14 +34,14 @@ export interface ControlProps extends ControlData, ControlFunctions {
 export interface ControlData
   extends Omit<PropertyPaneControlConfig, "additionalAutoComplete"> {
   propertyValue?: any;
-  isValid: boolean;
   errorMessage?: string;
-  expected: string;
+  expected?: string;
   evaluatedValue: any;
-  validationMessage?: string;
   widgetProperties: any;
   useValidationMessage?: boolean;
-  jsErrorMessage?: string;
+  parentPropertyName: string;
+  parentPropertyValue: unknown;
+  additionalDynamicData: Record<string, Record<string, unknown>>;
 }
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;

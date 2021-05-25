@@ -14,7 +14,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { WrappedFieldInputProps } from "redux-form";
 import _ from "lodash";
 import {
   DataTree,
@@ -72,7 +72,6 @@ export type EditorStyleProps = {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   height?: string | number;
-  meta?: Partial<WrappedFieldMetaProps>;
   showLineNumbers?: boolean;
   className?: string;
   leftImage?: string;
@@ -88,7 +87,6 @@ export type EditorStyleProps = {
   fill?: boolean;
   useValidationMessage?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
-  jsErrorMessage?: string;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -336,6 +334,39 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  getPropertyValidation = (
+    dataTree: DataTree,
+    dataTreePath?: string,
+  ): {
+    isValid: boolean;
+    validationMessage?: string;
+    jsErrorMessage?: string;
+  } => {
+    console.log({ dataTreePath });
+    if (!dataTreePath) {
+      return { isValid: true, validationMessage: "", jsErrorMessage: "" };
+    }
+    const isValidPath = dataTreePath.replace("evaluatedValues", "invalidProps");
+    const validationMessagePath = dataTreePath.replace(
+      "evaluatedValues",
+      "validationMessages",
+    );
+    const jsErrorMessagePath = dataTreePath.replace(
+      "evaluatedValues",
+      "jsErrorMessages",
+    );
+
+    const isValid = !_.get(dataTree, isValidPath, false);
+    const validationMessage = _.get(
+      dataTree,
+      validationMessagePath,
+      "",
+    ) as string;
+    const jsErrorMessage = _.get(dataTree, jsErrorMessagePath, "") as string;
+
+    return { isValid, validationMessage, jsErrorMessage };
+  };
+
   render() {
     const {
       border,
@@ -352,15 +383,18 @@ class CodeEditor extends Component<Props, State> {
       hideEvaluatedValue,
       hoverInteraction,
       input,
-      jsErrorMessage,
-      meta,
       placeholder,
       showLightningMenu,
       size,
       theme,
       useValidationMessage,
     } = this.props;
-    const hasError = !!(meta && meta.error) || !!jsErrorMessage;
+    const {
+      isValid,
+      jsErrorMessage,
+      validationMessage,
+    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const hasError = !isValid || !!jsErrorMessage;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = _.get(dynamicData, dataTreePath);
@@ -398,7 +432,7 @@ class CodeEditor extends Component<Props, State> {
           </Suspense>
         )}
         <EvaluatedValuePopup
-          error={meta?.error}
+          error={validationMessage}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}

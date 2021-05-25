@@ -14,8 +14,6 @@ export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
-  isValid: boolean;
-  errorMessage?: string;
   evaluatedValue?: any;
   expected?: string;
   placeholder?: string;
@@ -23,16 +21,12 @@ export function InputText(props: {
   additionalAutocomplete?: Record<string, Record<string, unknown>>;
   theme?: EditorTheme;
   hideEvaluatedValue?: boolean;
-  jsErrorMessage?: string;
 }) {
   const {
     dataTreePath,
-    errorMessage,
     evaluatedValue,
     expected,
     hideEvaluatedValue,
-    isValid,
-    jsErrorMessage,
     onChange,
     placeholder,
     value,
@@ -49,11 +43,6 @@ export function InputText(props: {
         input={{
           value: value,
           onChange: onChange,
-        }}
-        jsErrorMessage={jsErrorMessage}
-        meta={{
-          error: isValid ? "" : errorMessage,
-          touched: true,
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
@@ -73,23 +62,17 @@ class InputTextControl extends BaseControl<InputControlProps> {
       defaultValue,
       expected,
       hideEvaluatedValue,
-      isValid,
-      jsErrorMessage,
       label,
       placeholderText,
       propertyValue,
-      validationMessage,
     } = this.props;
 
     return (
       <InputText
         additionalAutocomplete={additionalAutoComplete}
         dataTreePath={dataTreePath}
-        errorMessage={validationMessage}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
-        isValid={isValid}
-        jsErrorMessage={jsErrorMessage}
         label={label}
         onChange={this.onTextChange}
         placeholder={placeholderText}

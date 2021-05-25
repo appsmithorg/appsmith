@@ -38,6 +38,7 @@ import {
   useChildWidgetEnhancementFns,
   useParentWithEnhancementFn,
 } from "sagas/WidgetEnhancementHelpers";
+import { ControlData } from "components/propertyControls/BaseControl";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -243,57 +244,28 @@ const PropertyControl = memo((props: Props) => {
     return null;
   }
 
-  const getPropertyValidation = (
-    propertyName: string,
-  ): {
-    isValid: boolean;
-    validationMessage?: string;
-    jsErrorMessage?: string;
-  } => {
-    let isValid = true;
-    let validationMessage = "";
-    let jsErrorMessage = "";
-    if (widgetProperties) {
-      isValid = widgetProperties.invalidProps
-        ? !_.has(widgetProperties.invalidProps, propertyName)
-        : true;
-      const validationMsgPresent =
-        widgetProperties.validationMessages &&
-        _.has(widgetProperties.validationMessages, propertyName);
-      const jsValidationMessagePresent =
-        widgetProperties.jsErrorMessages &&
-        _.has(widgetProperties.jsErrorMessages, propertyName);
-      validationMessage = validationMsgPresent
-        ? _.get(widgetProperties.validationMessages, propertyName)
-        : "";
-      jsErrorMessage = jsValidationMessagePresent
-        ? _.get(widgetProperties.jsErrorMessages, propertyName)
-        : "";
-    }
-    return { isValid, validationMessage, jsErrorMessage };
-  };
-
   const { label, propertyName } = props;
   if (widgetProperties) {
     const propertyValue = _.get(widgetProperties, propertyName);
-    const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    // get the dataTreePath and apply enhancement if exists
+    // TODO (hetu) make the dataTreePath the actual path of the property
+    // and evaluatedValues should not be added by default
+    let dataTreePath: string | undefined =
+      props.dataTreePath ||
+      `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    if (childWidgetDataTreePathEnhancementFn) {
+      dataTreePath = childWidgetDataTreePathEnhancementFn(dataTreePath);
+    }
+
     const evaluatedValue = _.get(
       widgetProperties,
       `evaluatedValues.${propertyName}`,
     );
 
-    const {
-      isValid,
-      jsErrorMessage,
-      validationMessage,
-    } = getPropertyValidation(propertyName);
     const { additionalAutoComplete, ...rest } = props;
-    const config = {
+    const config: ControlData = {
       ...rest,
-      isValid,
       propertyValue,
-      validationMessage,
-      jsErrorMessage,
       dataTreePath,
       evaluatedValue,
       widgetProperties,
@@ -305,12 +277,12 @@ const PropertyControl = memo((props: Props) => {
       additionalDynamicData: {},
     };
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
-      config.isValid = true;
+      // config.isValid = true;
       config.validationMessage = "";
       delete config.dataTreePath;
       delete config.evaluatedValue;
       delete config.expected;
-      config.jsErrorMessage = "";
+      // config.jsErrorMessage = "";
     }
 
     const isDynamic: boolean = isPathADynamicProperty(
@@ -351,19 +323,6 @@ const PropertyControl = memo((props: Props) => {
       }
 
       return false;
-    };
-
-    /**
-     * update data tree path if any
-     *
-     * @returns
-     */
-    const updateDataTreePath = () => {
-      if (childWidgetDataTreePathEnhancementFn) {
-        return childWidgetDataTreePathEnhancementFn(config.dataTreePath);
-      }
-
-      return props.dataTreePath;
     };
 
     try {
@@ -415,7 +374,6 @@ const PropertyControl = memo((props: Props) => {
                 getCustomJSControl(),
                 additionAutocomplete,
                 hideEvaluatedValue(),
-                updateDataTreePath(),
               )}
             </Indicator>
           </Boxed>
