@@ -262,6 +262,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorFocus = () => {
+    if (this.state.isFocused) return;
     this.setState({ isFocused: true });
     this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
@@ -272,9 +273,9 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
-    this.setState({ isFocused: false });
+    if (!cm.state.completionActive) this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
