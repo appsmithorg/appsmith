@@ -414,6 +414,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         onClickCapture: () =>
           this.onItemClick(index, this.props.onListItemClick),
         selected: this.props.selectedItemIndex === index,
+        focused: index === 0 && this.props.renderMode === RenderModes.CANVAS,
       };
     });
   };

@@ -15,6 +15,7 @@ type PositionedContainerProps = {
   widgetId: string;
   widgetType: string;
   selected?: boolean;
+  focused?: boolean;
   resizeDisabled?: boolean;
 };
 
@@ -43,7 +44,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
       height: props.style.componentHeight + (props.style.heightUnit || "px"),
       width: props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
-      zIndex: props.selected ? Layers.selectedWidget : Layers.positionedWidget,
+      zIndex:
+        props.selected || props.focused
+          ? Layers.selectedWidget
+          : Layers.positionedWidget,
       backgroundColor: "inherit",
     };
   }, [props.style]);

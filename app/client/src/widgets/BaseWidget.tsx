@@ -243,6 +243,7 @@ abstract class BaseWidget<
     const style = this.getPositionStyle();
     return (
       <PositionedContainer
+        focused={this.props.focused}
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
         style={style}
