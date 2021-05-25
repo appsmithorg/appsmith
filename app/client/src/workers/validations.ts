@@ -774,7 +774,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     dataTree?: DataTree,
   ) => {
     let values = value;
-    const optionsData = VALIDATORS[VALIDATION_TYPES.ARRAY](
+    const optionsData = VALIDATORS[VALIDATION_TYPES.OPTIONS_DATA](
       props.options,
       props,
       dataTree,
@@ -784,7 +784,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     if (props) {
       if (props.selectionType === "SINGLE_SELECT") {
         const defaultValue = value && _.isString(value) ? value.trim() : value;
-        if (isNumberValue && !isNumeric(defaultValue)) {
+        if (isNumberValue && defaultValue && !isNumeric(defaultValue)) {
           return {
             isValid: false,
             parsed: undefined,
@@ -794,7 +794,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         const isValidOptionValue = !!optionsData.parsed.filter(
           (item: { value: any }) => item.value === defaultValue,
         ).length;
-        if (!isValidOptionValue) {
+        if (!isValidOptionValue && defaultValue) {
           return {
             isValid: false,
             parsed: undefined,
@@ -841,7 +841,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         const isValidOptionValue = !!optionsData.parsed.filter(
           (item: { value: any }) => items.includes(item.value),
         ).length;
-        if (!isValidOptionValue) {
+        if (!isValidOptionValue && items.length) {
           return {
             isValid: false,
             parsed: undefined,
@@ -857,7 +857,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     const isValidOptionValue = !!optionsData.parsed.filter(
       (item: { value: any }) => values.includes(item.value),
     ).length;
-    if (!isValidOptionValue) {
+    if (!isValidOptionValue && values.length) {
       return {
         isValid: false,
         parsed: undefined,
