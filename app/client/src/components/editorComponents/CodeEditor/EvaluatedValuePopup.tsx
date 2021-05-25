@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from "react";
+import React, { memo, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
@@ -310,13 +310,15 @@ function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  let placement: Placement = "left-start";
-  if (wrapperRef.current) {
-    const boundingRect = wrapperRef.current.getBoundingClientRect();
-    if (boundingRect.left < theme.evaluatedValuePopup.width) {
-      placement = "right-start";
+  const placement: Placement = useMemo(() => {
+    if (wrapperRef.current) {
+      const boundingRect = wrapperRef.current.getBoundingClientRect();
+      if (boundingRect.left < theme.evaluatedValuePopup.width) {
+        return "right-start";
+      }
     }
-  }
+    return "left-start";
+  }, [wrapperRef.current]);
 
   return (
     <Wrapper ref={wrapperRef}>
