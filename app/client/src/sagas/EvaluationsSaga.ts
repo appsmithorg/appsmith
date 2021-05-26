@@ -120,6 +120,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
           text: `The value at ${error.context?.source.propertyPath} is invalid`,
           message: error.message,
           source: error.context?.source,
+          state: error.context?.state,
         });
         break;
       }
