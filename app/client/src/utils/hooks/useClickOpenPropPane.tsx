@@ -71,7 +71,7 @@ export const useClickOpenPropPane = () => {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
-  const focusedWidget = getParentToOpenIfAny(focusedWidgetId, widgets);
+  const parentWidgetToOpen = getParentToOpenIfAny(focusedWidgetId, widgets);
   const openPropertyPane = (e: any, targetWidgetId: string) => {
     // ignore click captures if the component was resizing or dragging coz it is handled internally in draggable component
     if (
@@ -87,10 +87,10 @@ export const useClickOpenPropPane = () => {
     ) {
       const isMultiSelect = e.metaKey || e.ctrlKey;
 
-      if (focusedWidget) {
-        selectWidget(focusedWidget.widgetId);
-        focusWidget(focusedWidget.widgetId);
-        showPropertyPane(focusedWidget.widgetId, undefined, true);
+      if (parentWidgetToOpen) {
+        selectWidget(parentWidgetToOpen.widgetId);
+        focusWidget(parentWidgetToOpen.widgetId);
+        showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
       } else {
         selectWidget(focusedWidgetId);
         focusWidget(focusedWidgetId);

@@ -63,7 +63,7 @@ export const ListComponentEmpty = styled.div<{
   font-size: 10px;
   text-anchor: middle;
   color: rgb(102, 102, 102);
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  box-shadow: ${(props) => `0px 0px 0px 1px ${props.theme.borders[2].color}`};
 `;
 
 export const ListComponentLoading = styled.div<{
