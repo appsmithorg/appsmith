@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import React, { useCallback } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
-  StyledHiddenIcon,
   StyledInputGroup,
   StyledPropertyPaneButton,
-  StyledVisibleIcon,
   StyledDragIcon,
   StyledDeleteIcon,
+  StyledEditIcon,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
@@ -63,55 +62,41 @@ type RenderComponentProps = {
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
+  onEdit?: (props: any) => void;
 };
 
 function TabControlComponent(props: RenderComponentProps) {
-  const { deleteOption, updateOption, item, index, toggleVisibility } = props;
+  const { deleteOption, index, item, updateOption } = props;
   const debouncedUpdate = debounce(updateOption, 1000);
-  const [visibility, setVisibility] = useState(item.isVisible);
+  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
+    index,
+  ]);
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        placeholder="Tab Title"
+        defaultValue={item.label}
         onChange={(value: string) => {
           debouncedUpdate(index, value);
         }}
-        defaultValue={item.label}
+        placeholder="Tab Title"
       />
       <StyledDeleteIcon
         className="t--delete-tab-btn"
         height={20}
-        width={20}
         marginRight={12}
         onClick={() => {
           deleteOption(index);
         }}
+        width={20}
       />
-      {visibility || visibility === undefined ? (
-        <StyledVisibleIcon
-          className="t--show-tab-btn"
-          height={20}
-          width={20}
-          marginRight={36}
-          onClick={() => {
-            setVisibility(!visibility);
-            toggleVisibility && toggleVisibility(index);
-          }}
-        />
-      ) : (
-        <StyledHiddenIcon
-          className="t--show-tab-btn"
-          height={20}
-          width={20}
-          marginRight={36}
-          onClick={() => {
-            setVisibility(!visibility);
-            toggleVisibility && toggleVisibility(index);
-          }}
-        />
-      )}
+      <StyledEditIcon
+        className="t--edit-column-btn"
+        height={20}
+        onClick={handleChange}
+        width={20}
+      />
     </ItemWrapper>
   );
 }
@@ -148,35 +133,58 @@ class TabControl extends BaseControl<ControlProps> {
     }
   }
 
-  updateItems = (items: Array<Record<string, unknown>>) => {
-    this.updateProperty(this.props.propertyName, items);
+  updateItems = (items: Array<Record<string, any>>) => {
+    const tabsObj = items.reduce((obj: any, each: any, index: number) => {
+      obj[each.id] = {
+        ...each,
+        index,
+      };
+      return obj;
+    }, {});
+    this.updateProperty(this.props.propertyName, tabsObj);
+  };
+
+  onEdit = (index: number) => {
+    const tabs: Array<{
+      id: string;
+      label: string;
+    }> = Object.values(this.props.propertyValue);
+    const tabToChange = tabs[index];
+    this.props.openNextPanel({
+      index,
+      ...tabToChange,
+      propPaneId: this.props.widgetProperties.widgetId,
+    });
   };
 
   render() {
     const tabs: Array<{
       id: string;
       label: string;
-    }> = _.isString(this.props.propertyValue) ? [] : this.props.propertyValue;
+    }> = _.isString(this.props.propertyValue)
+      ? []
+      : Object.values(this.props.propertyValue);
     return (
       <TabsWrapper>
         <DroppableComponent
-          items={tabs}
-          itemHeight={45}
-          renderComponent={TabControlComponent}
           deleteOption={this.deleteOption}
-          updateOption={this.updateOption}
-          updateItems={this.updateItems}
+          itemHeight={45}
+          items={tabs}
+          onEdit={this.onEdit}
+          renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
+          updateItems={this.updateItems}
+          updateOption={this.updateOption}
         />
         <StyledPropertyPaneButtonWrapper>
           <StyledPropertyPaneButton
+            category={Category.tertiary}
             icon="plus"
-            tag="button"
-            type="button"
-            text="Add a Tab"
             onClick={this.addOption}
             size={Size.medium}
-            category={Category.tertiary}
+            tag="button"
+            text="Add a Tab"
+            type="button"
           />
         </StyledPropertyPaneButtonWrapper>
       </TabsWrapper>
@@ -204,51 +212,52 @@ class TabControl extends BaseControl<ControlProps> {
   };
 
   deleteOption = (index: number) => {
-    let tabs: Array<Record<string, unknown>> = this.props.propertyValue.slice();
-    if (tabs.length === 1) return;
-    delete tabs[index];
-    tabs = tabs.filter(Boolean);
-    this.updateProperty(this.props.propertyName, tabs);
+    const tabsArray: any = Object.values(this.props.propertyValue);
+    const itemId = tabsArray[index].id;
+    if (tabsArray && tabsArray.length === 1) return;
+    const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
+      return i !== index;
+    });
+    const updatedObj = updatedArray.reduce(
+      (obj: any, each: any, index: number) => {
+        obj[each.id] = {
+          ...each,
+          index,
+        };
+        return obj;
+      },
+      {},
+    );
+    this.deleteProperties([`${this.props.propertyName}.${itemId}.isVisible`]);
+    this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const tabs: Array<{
-      id: string;
-      label: string;
-    }> = this.props.propertyValue;
-    const updatedTabs = tabs.map((tab, tabIndex) => {
-      if (index === tabIndex) {
-        return {
-          ...tab,
-          label: updatedLabel,
-        };
-      }
-      return tab;
-    });
-    this.updateProperty(this.props.propertyName, updatedTabs);
+    const tabsArray: any = Object.values(this.props.propertyValue);
+    const itemId = tabsArray[index].id;
+    this.updateProperty(
+      `${this.props.propertyName}.${itemId}.label`,
+      updatedLabel,
+    );
   };
 
   addOption = () => {
-    let tabs: Array<{
-      id: string;
-      label: string;
-      widgetId: string;
-      isVisible: boolean;
-    }> = this.props.propertyValue;
+    let tabs = this.props.propertyValue;
+    const tabsArray = Object.values(tabs);
     const newTabId = generateReactKey({ prefix: "tab" });
     const newTabLabel = getNextEntityName(
       "Tab ",
-      tabs.map((tab) => tab.label),
+      tabsArray.map((tab: any) => tab.label),
     );
-    tabs = [
+    tabs = {
       ...tabs,
-      {
+      [newTabId]: {
         id: newTabId,
         label: newTabLabel,
         widgetId: generateReactKey(),
         isVisible: true,
       },
-    ];
+    };
 
     this.updateProperty(this.props.propertyName, tabs);
   };

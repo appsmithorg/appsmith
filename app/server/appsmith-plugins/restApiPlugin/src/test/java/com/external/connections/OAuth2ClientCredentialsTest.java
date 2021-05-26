@@ -1,8 +1,8 @@
 package com.external.connections;
 
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -36,7 +36,6 @@ public class OAuth2ClientCredentialsTest {
         AuthenticationResponse authenticationResponse = new AuthenticationResponse();
         oAuth2.setIsTokenHeader(true);
         authenticationResponse.setToken("SomeToken");
-        oAuth2.setIsEncrypted(false);
         authenticationResponse.setExpiresAt(Instant.now().plusSeconds(1200));
         oAuth2.setAuthenticationResponse(authenticationResponse);
         OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(oAuth2).block(Duration.ofMillis(100));
@@ -51,7 +50,6 @@ public class OAuth2ClientCredentialsTest {
         AuthenticationResponse authenticationResponse = new AuthenticationResponse();
         oAuth2.setIsTokenHeader(true);
         authenticationResponse.setToken("SomeToken");
-        oAuth2.setIsEncrypted(false);
         authenticationResponse.setExpiresAt(Instant.now().plusSeconds(1200));
         oAuth2.setAuthenticationResponse(authenticationResponse);
         OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(oAuth2).block(Duration.ofMillis(100));

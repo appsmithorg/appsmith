@@ -33,9 +33,15 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   httpMethod: HTTP_METHODS[0],
   headers: EMPTY_KEY_VALUE_PAIRS.slice(),
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
+  body: "",
+  pluginSpecifiedTemplates: [
+    {
+      // JSON smart substitution
+      value: false,
+    },
+  ],
 };
 
-export const PLUGIN_TYPE_API = "API";
 export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const CONTENT_TYPE_HEADER_KEY = "content-type";
 
@@ -59,17 +65,11 @@ export const POST_BODY_FORMAT_OPTIONS: Array<{
   { label: ApiContentTypes.RAW, value: "raw" },
 ];
 
-export const POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART = POST_BODY_FORMAT_OPTIONS.filter(
-  (option) => {
-    return option.value !== "multipart/form-data";
-  },
-);
-
 export const POST_BODY_FORMATS = POST_BODY_FORMAT_OPTIONS.map((option) => {
   return option.value;
 });
 
-export const POST_BODY_FORMAT_TITLES_NO_MULTI_PART = POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART.map(
+export const POST_BODY_FORMAT_TITLES = POST_BODY_FORMAT_OPTIONS.map(
   (option) => {
     return { title: option.label, key: option.value };
   },

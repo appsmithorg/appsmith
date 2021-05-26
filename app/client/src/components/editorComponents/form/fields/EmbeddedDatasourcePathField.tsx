@@ -12,7 +12,8 @@ import CodeEditor, {
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
-import _ from "lodash";
+import get from "lodash/get";
+import merge from "lodash/merge";
 import {
   DEFAULT_DATASOURCE,
   EmbeddedRestDatasource,
@@ -61,24 +62,32 @@ const DatasourceContainer = styled.div`
   position: relative;
   width: calc(100% - 155px);
 `;
+
+const apiFormValueSelector = formValueSelector(API_EDITOR_FORM_NAME);
 class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
-    const { datasource, pluginId, orgId } = this.props;
+    const { datasource, orgId, pluginId } = this.props;
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
     if (urlHasUpdated) {
-      this.props.updateDatasource({
-        ...DEFAULT_DATASOURCE(pluginId, orgId),
+      const isDatasourceRemoved =
+        datasourceUrl.indexOf(datasource.datasourceConfiguration?.url) === -1;
+      let newDatasource = isDatasourceRemoved
+        ? { ...DEFAULT_DATASOURCE(pluginId, orgId) }
+        : { ...datasource };
+      newDatasource = {
+        ...newDatasource,
         datasourceConfiguration: {
-          ...datasource.datasourceConfiguration,
+          ...newDatasource.datasourceConfiguration,
           url: datasourceUrl,
         },
-      });
+      };
+      this.props.updateDatasource(newDatasource);
     }
   };
 
   handlePathUpdate = (path: string) => {
-    const { value, onChange } = this.props.input;
+    const { onChange, value } = this.props.input;
     if (onChange && value !== path) {
       onChange(path);
     }
@@ -95,7 +104,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         path: "",
       };
     }
-    if ("id" in datasource && datasource.id) {
+    if (datasource && datasource.hasOwnProperty("id")) {
       const datasourceUrl = datasource.datasourceConfiguration.url;
       if (value.includes(datasourceUrl)) {
         return {
@@ -128,7 +137,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       typeof valueOrEvent === "string"
         ? valueOrEvent
         : valueOrEvent.target.value;
-    const { path, datasourceUrl } = this.parseInputValue(value);
+    const { datasourceUrl, path } = this.parseInputValue(value);
     this.handlePathUpdate(path);
     this.handleDatasourceUrlUpdate(datasourceUrl);
   };
@@ -173,14 +182,16 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
               hint: () => {
                 const list = datasourceList
                   .filter((datasource) =>
-                    datasource.datasourceConfiguration.url.includes(
+                    (datasource.datasourceConfiguration?.url || "").includes(
                       parsed.datasourceUrl,
                     ),
                   )
                   .map((datasource) => ({
                     text: datasource.datasourceConfiguration.url,
                     data: datasource,
-                    className: "datasource-hint",
+                    className: !datasource.isValid
+                      ? "datasource-hint invalid"
+                      : "datasource-hint",
                   }));
                 const hints = {
                   list,
@@ -211,7 +222,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       datasource,
       input: { value },
     } = this.props;
-    const datasourceUrl = _.get(datasource, "datasourceConfiguration.url", "");
+    const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
     const displayValue = `${datasourceUrl}${value}`;
     const input = {
       ...this.props.input,
@@ -239,6 +250,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (
           <DatasourceIcon
+            enable
             onClick={() =>
               history.push(
                 DATA_SOURCES_EDITOR_ID_URL(
@@ -258,8 +270,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   }
 }
 
-const apiFormValueSelector = formValueSelector(API_EDITOR_FORM_NAME);
-
 const mapStateToProps = (
   state: AppState,
   ownProps: { pluginId: string },
@@ -272,7 +282,7 @@ const mapStateToProps = (
       (d) => d.id === datasourceFromAction.id,
     );
     if (datasourceFromDataSourceList) {
-      datasourceMerged = _.merge(
+      datasourceMerged = merge(
         {},
         datasourceFromAction,
         datasourceFromDataSourceList,
@@ -284,7 +294,7 @@ const mapStateToProps = (
     orgId: state.ui.orgs.currentOrg.id,
     datasource: datasourceMerged,
     datasourceList: state.entities.datasources.list.filter(
-      (d) => d.pluginId === ownProps.pluginId && d.isValid,
+      (d) => d.pluginId === ownProps.pluginId,
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
@@ -301,16 +311,16 @@ const EmbeddedDatasourcePathConnectedComponent = connect(
   mapDispatchToProps,
 )(EmbeddedDatasourcePathComponent);
 
-const EmbeddedDatasourcePathField = (
+function EmbeddedDatasourcePathField(
   props: BaseFieldProps & {
     pluginId: string;
     placeholder?: string;
     theme: EditorTheme;
   },
-) => {
+) {
   return (
     <Field component={EmbeddedDatasourcePathConnectedComponent} {...props} />
   );
-};
+}
 
 export default EmbeddedDatasourcePathField;

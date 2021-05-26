@@ -2,7 +2,6 @@ import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
@@ -60,6 +59,7 @@ class RichTextEditorWidget extends BaseWidget<
             placeholderText: "Enter HTML",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "isVisible",
@@ -69,6 +69,7 @@ class RichTextEditorWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isDisabled",
@@ -78,6 +79,7 @@ class RichTextEditorWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -96,14 +98,6 @@ class RichTextEditorWidget extends BaseWidget<
         ],
       },
     ];
-  }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      placeholder: VALIDATION_TYPES.TEXT,
-      defaultText: VALIDATION_TYPES.TEXT,
-      isDisabled: VALIDATION_TYPES.BOOLEAN,
-      isVisible: VALIDATION_TYPES.BOOLEAN,
-    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
@@ -126,6 +120,7 @@ class RichTextEditorWidget extends BaseWidget<
 
   onValueChange = (text: string) => {
     this.props.updateWidgetMetaProperty("text", text, {
+      triggerPropertyName: "onTextChange",
       dynamicString: this.props.onTextChange,
       event: {
         type: EventType.ON_TEXT_CHANGE,
@@ -142,13 +137,13 @@ class RichTextEditorWidget extends BaseWidget<
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
-          onValueChange={this.onValueChange}
           defaultValue={defaultValue}
-          widgetId={this.props.widgetId}
-          placeholder={this.props.placeholder}
-          key={this.props.widgetId}
           isDisabled={this.props.isDisabled}
           isVisible={this.props.isVisible}
+          key={this.props.widgetId}
+          onValueChange={this.onValueChange}
+          placeholder={this.props.placeholder}
+          widgetId={this.props.widgetId}
         />
       </Suspense>
     );

@@ -45,7 +45,7 @@ export default function CollapsibleHelp(props: CollapsibleHelpProps) {
   return (
     <Container>
       <LeftBar />
-      <HelpIcon color={"#FDEBE8"} icon="help"></HelpIcon>
+      <HelpIcon color={"#FDEBE8"} icon="help" />
       <div>{props.children}</div>
     </Container>
   );

@@ -38,6 +38,7 @@ type DropTargetComponentProps = WidgetProps & {
   snapColumnSpace: number;
   snapRowSpace: number;
   minHeight: number;
+  noPad?: boolean;
 };
 
 const StyledDropTarget = styled.div`
@@ -48,13 +49,13 @@ const StyledDropTarget = styled.div`
   user-select: none;
 `;
 
-const Onboarding = () => {
+function Onboarding() {
   return (
     <div style={{ position: "fixed", left: "50%", top: "50vh" }}>
       <h2 style={{ color: "#ccc" }}>Drag and drop a widget here</h2>
     </div>
   );
-};
+}
 
 /*
   This context will provide the function which will help the draglayer and resizablecomponents trigger
@@ -65,7 +66,7 @@ export const DropTargetContext: Context<{
   persistDropTargetRows?: (widgetId: string, row: number) => void;
 }> = createContext({});
 
-export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
+export function DropTargetComponent(props: DropTargetComponentProps) {
   const canDropTargetExtend = props.canExtend;
 
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -73,7 +74,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -98,7 +99,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   const [rows, setRows] = useState(snapRows);
 
   const showPropertyPane = useShowPropertyPane();
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
   useEffect(() => {
@@ -236,15 +237,13 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
   const handleFocus = (e: any) => {
     if (!isResizing && !isDragging) {
       if (!props.parentId) {
-        selectWidget && selectWidget(props.widgetId);
+        deselectAll();
         focusWidget && focusWidget(props.widgetId);
         showPropertyPane && showPropertyPane();
-      } else {
-        selectWidget && selectWidget(props.parentId);
-        focusWidget && focusWidget(props.parentId);
       }
     }
-    e.stopPropagation();
+    // commenting this out to allow propagation of click events
+    // e.stopPropagation();
     e.preventDefault();
   };
   const height = canDropTargetExtend
@@ -258,40 +257,45 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       ? "1px solid #DDDDDD"
       : "1px solid transparent";
 
+  const dropRef = !props.dropDisabled ? drop : undefined;
+
   return (
     <DropTargetContext.Provider
       value={{ updateDropTargetRows, persistDropTargetRows }}
     >
       <StyledDropTarget
+        className={"t--drop-target"}
         onClick={handleFocus}
-        ref={drop}
+        ref={dropRef}
         style={{
           height,
           border,
         }}
-        className={"t--drop-target"}
       >
         {props.children}
         {!(childWidgets && childWidgets.length) &&
           !isDragging &&
           !props.parentId && <Onboarding />}
         <DragLayerComponent
-          parentWidgetId={props.widgetId}
           canDropTargetExtend={canDropTargetExtend}
-          parentRowHeight={props.snapRowSpace}
-          parentColumnWidth={props.snapColumnSpace}
-          visible={isExactlyOver || isChildResizing}
+          force={isDragging && !isOver && !props.parentId}
           isOver={isExactlyOver}
+          isResizing={isChildResizing}
+          noPad={props.noPad || false}
           occupiedSpaces={spacesOccupiedBySiblingWidgets}
           onBoundsUpdate={handleBoundsUpdate}
-          parentRows={rows}
           parentCols={props.snapColumns}
-          isResizing={isChildResizing}
-          force={isDragging && !isOver && !props.parentId}
+          parentColumnWidth={props.snapColumnSpace}
+          parentRowHeight={props.snapRowSpace}
+          parentRows={rows}
+          parentWidgetId={props.widgetId}
+          visible={isExactlyOver || isChildResizing}
         />
       </StyledDropTarget>
     </DropTargetContext.Provider>
   );
-});
+}
 
-export default DropTargetComponent;
+const MemoizedDropTargetComponent = memo(DropTargetComponent);
+
+export default MemoizedDropTargetComponent;

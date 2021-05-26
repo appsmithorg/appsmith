@@ -8,15 +8,12 @@ import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   constructor(props: InputWidgetProps) {
@@ -65,6 +62,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter default text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText: "Sets a placeholder text for the input",
@@ -74,6 +72,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter placeholder text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText:
@@ -85,6 +84,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.REGEX,
           },
           {
             helpText:
@@ -96,6 +96,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "isRequired",
@@ -105,6 +106,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -114,6 +116,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Disables input to this widget",
@@ -123,6 +126,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             helpText: "Clears the input value after submit",
@@ -132,6 +136,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -160,29 +165,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         ],
       },
     ];
-  }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      inputType: VALIDATION_TYPES.TEXT,
-      defaultText: VALIDATION_TYPES.TEXT,
-      isDisabled: VALIDATION_TYPES.BOOLEAN,
-      text: VALIDATION_TYPES.TEXT,
-      regex: VALIDATION_TYPES.REGEX,
-      errorMessage: VALIDATION_TYPES.TEXT,
-      placeholderText: VALIDATION_TYPES.TEXT,
-      maxChars: VALIDATION_TYPES.NUMBER,
-      minNum: VALIDATION_TYPES.NUMBER,
-      maxNum: VALIDATION_TYPES.NUMBER,
-      label: VALIDATION_TYPES.TEXT,
-      inputValidators: VALIDATION_TYPES.ARRAY,
-      focusIndex: VALIDATION_TYPES.NUMBER,
-      isAutoFocusEnabled: VALIDATION_TYPES.BOOLEAN,
-      // onTextChanged: VALIDATION_TYPES.ACTION_SELECTOR,
-      isRequired: VALIDATION_TYPES.BOOLEAN,
-      isValid: VALIDATION_TYPES.BOOLEAN,
-      resetOnSubmit: VALIDATION_TYPES.BOOLEAN,
-    };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -220,8 +202,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             if (parsedRegex) {
               return parsedRegex.test(this.text);
             }
+            if (this.isRequired) {
+              return !(this.text === '' || isNaN(this.text));
+            }
 
-            return !isNaN(this.text);
+            return (this.text === '' || !isNaN(this.text || ''));
           }
           else if (this.isRequired) {
             if(this.text && this.text.length) {
@@ -260,6 +245,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   onValueChange = (value: string) => {
     this.props.updateWidgetMetaProperty("text", value, {
+      triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
         type: EventType.ON_TEXT_CHANGE,
@@ -277,6 +263,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   onSubmitSuccess = (result: ExecutionResult) => {
     if (result.success && this.props.resetOnSubmit) {
       this.props.updateWidgetMetaProperty("text", "", {
+        triggerPropertyName: "onSubmit",
         dynamicString: this.props.onTextChanged,
         event: {
           type: EventType.ON_TEXT_CHANGE,
@@ -294,6 +281,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
     if (isEnterKey && onSubmit && isValid) {
       super.executeAction({
+        triggerPropertyName: "onSubmit",
         dynamicString: onSubmit,
         event: {
           type: EventType.ON_SUBMIT,
@@ -319,25 +307,27 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
     return (
       <InputComponent
-        value={value}
-        isInvalid={isInvalid}
-        onValueChange={this.onValueChange}
-        widgetId={this.props.widgetId}
-        inputType={this.props.inputType}
-        disabled={this.props.isDisabled}
-        label={this.props.label}
         defaultValue={this.props.defaultText}
-        placeholder={this.props.placeholderText}
-        isLoading={this.props.isLoading}
-        multiline={
-          this.props.bottomRow - this.props.topRow > 1 &&
-          this.props.inputType === "TEXT"
-        }
-        stepSize={1}
-        onFocusChange={this.handleFocusChange}
-        showError={!!this.props.isFocused}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
+        disabled={this.props.isDisabled}
+        inputType={this.props.inputType}
+        isInvalid={isInvalid}
+        isLoading={this.props.isLoading}
+        label={this.props.label}
+        multiline={
+          // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
+          (this.props.bottomRow - this.props.topRow) /
+            GRID_DENSITY_MIGRATION_V1 >
+            1 && this.props.inputType === "TEXT"
+        }
+        onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
+        onValueChange={this.onValueChange}
+        placeholder={this.props.placeholderText}
+        showError={!!this.props.isFocused}
+        stepSize={1}
+        value={value}
+        widgetId={this.props.widgetId}
         {...conditionalProps}
       />
     );

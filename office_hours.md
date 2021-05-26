@@ -28,6 +28,84 @@ You can find the archives of the calls below with a brief summary of each sessio
 
 ## Archives
 
+<strong>Appsmith Live Demo #3, 29th May 2021:  Stitching APIs together to automate workflows</strong>
+
+<a href = "https://youtu.be/_8qLbyWwXeA">Video Link</a>
+
+#### Summary
+
+Confidence shows the community how we internally use APIs from multiple services to build apps that simplifies our workflow within Appsmith. Top questions from members of our community was also discussed.
+
+------------------
+
+<strong>Office Hours May 13th, 2021: Product roadmap discussion</strong>
+
+<a href = "https://youtu.be/1sw84i_M4_Y">Video Link</a>
+
+#### Summary
+
+Abhishek shows the community our current product road map and explains how members can contribute to it. Abhishek also hosted an interactive section where members of the community voted for the top features they want to see on Appsmith. 
+
+Some of the most requested features are: 
+1. Generate form from DB schema
+2. Custom NPM packages
+3. Custom theming
+4. Keyboard first navigation
+
+You can vote for your favorite features [here](https://miro.com/app/board/o9J_lE-dkdM=/)
+
+------------------
+
+<strong>Appsmith Live Demo #2, 6th May 2021: Building a support helpdesk using Gmail and Postgres</strong>
+
+<a href = "https://youtu.be/X_x_nRZf418">Video Link</a>
+
+#### Summary
+
+Nikhil shows the community how to build a ticket support dashboard to assign emails to various org members using the Gmail API and Postgres. Questions from members of our community was also discussed.
+
+------------------
+
+<strong>29th April 2021: List widget, Release roadmap and more</strong>
+
+<a href = "https://youtu.be/Ccbj3Aob5Rc">Video Link</a>
+
+#### Summary
+
+The List widget is finally here, yay! Pawan shows the community how to use the List widget. Also, Nikhil talks about our release roadmap and Sumit talks about issues and fixes that were resolved within the past week.
+
+------------------
+
+<strong>Appsmith Live Demo #1, 22nd April 2021: Build CRUD apps Google Sheets </strong>
+
+<a href = "https://youtu.be/j6B2T-c-zOc">Video Link</a>
+
+#### Summary
+
+Nikhil shows the community how to build a CRM dashboard on top of Google Sheets using the new Google Sheet integration on Appsmith. Questions from members of our community was also discussed.
+
+------------------
+
+<strong>15th April 2021: Bug fixes, Fusion charts demo</strong>
+
+<a href = "https://youtu.be/99qQzen8D9w">Video Link</a>
+
+#### Summary
+
+Nidhi from Appsmith talks about the issues that were discovered on the table widget and how they have been fixed. She also demos the new Fusion chart API that lets developers build custom charts using the chart widget.
+
+------------------
+
+<strong>8th April 2021: Thanks for the 4k Github stars, Sticky property pane, Custom charts</strong>
+
+<a href = "https://youtu.be/m0d9A7Yc2N0">Video Link</a>
+
+#### Summary
+
+Abhinav shows a handful of the cool new Appsmith features, some of which are sticky property pane, custom charts, tables in rich-text-editor, text widget styling, and auto data format detection in Datepicker widget. Also, Sumit from Appsmith talks about bug fixes and community feedback.
+
+------------------
+
 <strong>25th Mar 2021: Intelligent JSON substitution, Generic S3 integration, Url table column type and new datepicker formats</strong>
 
 <a href = "https://youtu.be/4De0f5-DEVs">Video Link</a>

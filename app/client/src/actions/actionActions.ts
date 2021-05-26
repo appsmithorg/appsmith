@@ -3,6 +3,8 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
+  EvaluationReduxAction,
+  ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
@@ -27,10 +29,12 @@ export type FetchActionsPayload = {
 
 export const fetchActions = (
   applicationId: string,
-): ReduxAction<FetchActionsPayload> => {
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
     payload: { applicationId },
+    postEvalActions,
   };
 };
 
@@ -227,6 +231,12 @@ export const updateActionProperty = (
     type: ReduxActionTypes.UPDATE_ACTION_PROPERTY,
     payload,
   });
+};
+
+export const executePageLoadActionsComplete = () => {
+  return {
+    type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS_COMPLETE,
+  };
 };
 
 export const setActionsToExecuteOnPageLoad = (

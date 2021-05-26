@@ -93,14 +93,14 @@ interface TableProps {
 }
 
 function Table(props: TableProps) {
-  const { data, columns } = props;
+  const { columns, data } = props;
 
   const {
-    getTableProps,
     getTableBodyProps,
+    getTableProps,
     headerGroups,
-    rows,
     prepareRow,
+    rows,
   } = useTable({ columns, data }, useSortBy);
 
   return (
@@ -138,8 +138,8 @@ function Table(props: TableProps) {
                   return (
                     <td
                       {...cell.getCellProps()}
-                      key={index}
                       data-colindex={index}
+                      key={index}
                     >
                       {cell.render("Cell")}
                     </td>

@@ -30,10 +30,11 @@ import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getLayoutOnLoadActions,
   getPageList,
 } from "selectors/editorSelectors";
-import _ from "lodash";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import _, { get, isString } from "lodash";
+import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
   BUILDER_PAGE_URL,
@@ -43,10 +44,11 @@ import {
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
+  executePageLoadActionsComplete,
   showRunActionConfirmModal,
   updateAction,
 } from "actions/actionActions";
-import { Action } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 import ActionAPI, {
   ActionExecutionResponse,
   ActionResponse,
@@ -65,7 +67,6 @@ import { AppState } from "reducers";
 import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
 import { TypeOptions } from "react-toastify";
-import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import {
   updateAppPersistentStore,
@@ -105,6 +106,9 @@ import {
   resetChildrenMetaProperty,
   resetWidgetMetaProperty,
 } from "actions/metaActions";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -158,6 +162,13 @@ function* navigateActionSaga(
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
     }
+
+    AppsmithConsole.info({
+      text: `navigateTo('${page.pageName}') was triggered`,
+      state: {
+        params,
+      },
+    });
     if (event.callback) event.callback({ success: true });
   } else {
     AnalyticsUtil.logEvent("NAVIGATE", {
@@ -191,6 +202,9 @@ function* storeValueLocally(
       const storeString = JSON.stringify(parsedStore);
       yield localStorage.setItem(appStoreName, storeString);
       yield put(updateAppPersistentStore(parsedStore));
+      AppsmithConsole.info({
+        text: `store('${action.key}', '${action.value}', true)`,
+      });
     } else {
       const existingStore = yield select(getAppStoreData);
       const newTransientStore = {
@@ -198,6 +212,9 @@ function* storeValueLocally(
         [action.key]: action.value,
       };
       yield put(updateAppTransientStore(newTransientStore));
+      AppsmithConsole.info({
+        text: `store('${action.key}', '${action.value}', false)`,
+      });
     }
     // Wait for an evaluation before completing this trigger effect
     // This makes this trigger work in sync and not trigger
@@ -232,8 +249,14 @@ async function downloadSaga(
     if (dataType === Types.ARRAY || dataType === Types.OBJECT) {
       const jsonString = JSON.stringify(data, null, 2);
       downloadjs(jsonString, name, type);
+      AppsmithConsole.info({
+        text: `download('${jsonString}', '${name}', '${type}') was triggered`,
+      });
     } else {
       downloadjs(data, name, type);
+      AppsmithConsole.info({
+        text: `download('${data}', '${name}', '${type}') was triggered`,
+      });
     }
     if (event.callback) event.callback({ success: true });
   } catch (err) {
@@ -255,6 +278,10 @@ function* copySaga(
   const result = copy(payload.data, payload.options);
   if (event.callback) {
     if (result) {
+      AppsmithConsole.info({
+        text: `copyToClipboard('${payload.data}') was triggered`,
+      });
+
       event.callback({ success: result });
     }
   }
@@ -281,6 +308,11 @@ function* resetWidgetMetaByNameRecursiveSaga(
   if (payload.resetChildren) {
     yield put(resetChildrenMetaProperty(widget.widgetId));
   }
+
+  AppsmithConsole.info({
+    text: `resetWidget('${payload.widgetName}', ${payload.resetChildren}) was triggered`,
+  });
+
   if (event.callback) event.callback({ success: true });
 }
 
@@ -318,6 +350,11 @@ function* showAlertSaga(
   Toaster.show({
     text: payload.message,
     variant: variant,
+  });
+  AppsmithConsole.info({
+    text: payload.style
+      ? `showAlert('${payload.message}', '${payload.style}') was triggered`
+      : `showAlert('${payload.message}') was triggered`,
   });
   if (event.callback) event.callback({ success: true });
 }
@@ -410,7 +447,7 @@ export function* executeActionSaga(
   apiAction: RunActionPayload,
   event: ExecuteActionPayloadEvent,
 ) {
-  const { actionId, onSuccess, onError, params } = apiAction;
+  const { actionId, onError, onSuccess, params } = apiAction;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.EXECUTE_ACTION,
     {
@@ -460,6 +497,15 @@ export function* executeActionSaga(
       paginationField: pagination,
       viewMode: appMode === APP_MODE.PUBLISHED,
     };
+    AppsmithConsole.info({
+      text: "Execution started from widget request",
+      source: {
+        type: ENTITY_TYPE.ACTION,
+        name: api.name,
+        id: actionId,
+      },
+      state: api.actionConfiguration,
+    });
     const timeout = yield select(getActionTimeout, actionId);
     const response: ActionExecutionResponse = yield ActionAPI.executeAction(
       executeActionRequest,
@@ -473,6 +519,17 @@ export function* executeActionSaga(
       }),
     );
     if (isErrorResponse(response)) {
+      AppsmithConsole.error({
+        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+        text: `Execution failed with status ${response.data.statusCode}`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: api.name,
+          id: actionId,
+        },
+        state: response.data?.request ?? null,
+        message: payload.body as string,
+      });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
         { failed: true },
@@ -497,6 +554,7 @@ export function* executeActionSaga(
       Toaster.show({
         text: createMessage(ERROR_API_EXECUTE, api.name),
         variant: Variant.danger,
+        showDebugButton: true,
       });
     } else {
       PerformanceTracker.stopAsyncTracking(
@@ -504,6 +562,20 @@ export function* executeActionSaga(
         undefined,
         actionId,
       );
+      AppsmithConsole.info({
+        logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
+        text: "Executed successfully from widget request",
+        timeTaken: response.clientMeta.duration,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: api.name,
+          id: actionId,
+        },
+        state: {
+          response: payload.body,
+          request: response.data.request,
+        },
+      });
       if (onSuccess) {
         yield put(
           executeAction({
@@ -537,6 +609,7 @@ export function* executeActionSaga(
     Toaster.show({
       text: createMessage(ERROR_API_EXECUTE, api.name),
       variant: Variant.danger,
+      showDebugButton: true,
     });
     if (onError) {
       yield put(
@@ -578,6 +651,9 @@ function* executeActionTriggers(
         break;
       case "CLOSE_MODAL":
         yield put(trigger);
+        AppsmithConsole.info({
+          text: `closeModal(${trigger.payload.modalName}) was triggered`,
+        });
         if (event.callback) event.callback({ success: true });
         break;
       case "STORE_VALUE":
@@ -672,6 +748,26 @@ function* runActionSaga(
     const timeout = yield select(getActionTimeout, actionId);
     const appMode = yield select(getAppMode);
     const viewMode = appMode === APP_MODE.PUBLISHED;
+
+    const datasourceUrl = get(
+      actionObject,
+      "datasource.datasourceConfiguration.url",
+    );
+    AppsmithConsole.info({
+      text: "Execution started from user request",
+      source: {
+        type: ENTITY_TYPE.ACTION,
+        name: actionObject.name,
+        id: actionId,
+      },
+      state: {
+        ...actionObject.actionConfiguration,
+        ...(datasourceUrl && {
+          url: datasourceUrl,
+        }),
+      },
+    });
+
     const response: ActionExecutionResponse = yield ActionAPI.executeAction(
       {
         actionId,
@@ -687,8 +783,13 @@ function* runActionSaga(
       const payload = createActionExecutionResponse(response);
 
       const pageName = yield select(getCurrentPageNameByActionId, actionId);
-      const eventName =
-        actionObject.pluginType === PLUGIN_TYPE_API ? "RUN_API" : "RUN_QUERY";
+      let eventName: EventName = "RUN_API";
+      if (actionObject.pluginType === PluginType.DB) {
+        eventName = "RUN_QUERY";
+      }
+      if (actionObject.pluginType === PluginType.SAAS) {
+        eventName = "RUN_SAAS_API";
+      }
 
       AnalyticsUtil.logEvent(eventName, {
         actionId,
@@ -703,14 +804,42 @@ function* runActionSaga(
         payload: { [actionId]: payload },
       });
       if (payload.isExecutionSuccess) {
+        AppsmithConsole.info({
+          logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
+          text: "Executed successfully from user request",
+          timeTaken: response.clientMeta.duration,
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: actionObject.name,
+            id: actionId,
+          },
+          state: {
+            response: payload.body,
+            request: response.data.request,
+          },
+        });
         Toaster.show({
           text: createMessage(ACTION_RUN_SUCCESS),
           variant: Variant.success,
         });
       } else {
+        AppsmithConsole.error({
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: `Execution failed with status ${response.data.statusCode}`,
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: actionObject.name,
+            id: actionId,
+          },
+          message: !isString(payload.body)
+            ? JSON.stringify(payload.body)
+            : payload.body,
+          state: response.data?.request ?? null,
+        });
+
         Toaster.show({
           text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
-          variant: Variant.warning,
+          variant: Variant.danger,
         });
       }
     } else {
@@ -718,6 +847,18 @@ function* runActionSaga(
       if (response.data.body) {
         error = response.data.body.toString();
       }
+
+      AppsmithConsole.error({
+        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+        text: `Execution failed with status ${response.data.statusCode} `,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: actionObject.name,
+          id: actionId,
+        },
+        state: response.data?.request ?? null,
+      });
+
       yield put({
         type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
         payload: { error, id: reduxAction.payload.id },
@@ -842,9 +983,9 @@ function* executePageLoadAction(pageAction: PageAction) {
   }
 }
 
-function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
+function* executePageLoadActionsSaga() {
   try {
-    const pageActions = action.payload;
+    const pageActions: PageAction[][] = yield select(getLayoutOnLoadActions);
     const actionCount = _.flatten(pageActions).length;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
@@ -859,6 +1000,8 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
+
+    yield put(executePageLoadActionsComplete());
   } catch (e) {
     log.error(e);
 

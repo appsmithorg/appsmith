@@ -166,7 +166,7 @@ type DropdownProps = CommonComponentProps & {
   selectAllQuantifier?: string;
 };
 
-const MultiSelectDropdown = (props: DropdownProps) => {
+function MultiSelectDropdown(props: DropdownProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [containerWidth, setContainerWidth] = useState<string>("0px");
 
@@ -229,23 +229,23 @@ const MultiSelectDropdown = (props: DropdownProps) => {
 
   return (
     <DropdownContainer
-      tabIndex={0}
       data-cy={props.cypressSelector}
       ref={measuredRef}
+      tabIndex={0}
       width={props.width}
     >
       <Popover
-        minimal
-        position={Position.TOP_LEFT}
-        isOpen={isOpen && !props.disabled}
-        onInteraction={(state) => setIsOpen(state)}
         boundary="scrollParent"
+        isOpen={isOpen && !props.disabled}
+        minimal
+        onInteraction={(state) => setIsOpen(state)}
+        position={Position.TOP_LEFT}
       >
         <Selected
-          isOpen={isOpen}
-          disabled={props.disabled}
-          onClick={() => setIsOpen(!isOpen)}
           className={props.className}
+          disabled={props.disabled}
+          isOpen={isOpen}
+          onClick={() => setIsOpen(!isOpen)}
         >
           <Text type={TextType.P1}>
             {props.selected.length
@@ -260,12 +260,12 @@ const MultiSelectDropdown = (props: DropdownProps) => {
           {props.options.map((option: DropdownOption, index: number) => {
             return (
               <MultiOptionWrapper
+                className="t--multi-dropdown-option"
                 key={index}
-                selected={isItemSelected(option.value)}
                 onClick={() => {
                   optionClickHandler(option.value as string);
                 }}
-                className="t--multi-dropdown-option"
+                selected={isItemSelected(option.value)}
               >
                 <SquareBox className={Classes.MULTI_SELECT_BOX} />
                 {option.icon ? (
@@ -288,6 +288,6 @@ const MultiSelectDropdown = (props: DropdownProps) => {
       </Popover>
     </DropdownContainer>
   );
-};
+}
 
 export default MultiSelectDropdown;

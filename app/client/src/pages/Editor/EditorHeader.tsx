@@ -50,6 +50,7 @@ import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -143,16 +144,16 @@ type EditorHeaderProps = {
   darkTheme: any;
 };
 
-export const EditorHeader = (props: EditorHeaderProps) => {
+export function EditorHeader(props: EditorHeaderProps) {
   const {
-    currentApplication,
-    isSaving,
-    pageSaveError,
-    pageId,
-    orgId,
     applicationId,
-    publishApplication,
+    currentApplication,
     isPublishing,
+    isSaving,
+    orgId,
+    pageId,
+    pageSaveError,
+    publishApplication,
   } = props;
 
   const dispatch = useDispatch();
@@ -179,19 +180,19 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     if (!pageSaveError) {
       saveStatusIcon = (
         <HeaderIcons.SAVE_SUCCESS
+          className="t--save-status-success"
           color={"#36AB80"}
           height={20}
           width={20}
-          className="t--save-status-success"
         />
       );
     } else {
       saveStatusIcon = (
         <HeaderIcons.SAVE_FAILURE
+          className={"t--save-status-error"}
           color={"#F69D2C"}
           height={20}
           width={20}
-          className={"t--save-status-error"}
         />
       );
     }
@@ -208,23 +209,20 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
         <HeaderSection>
-          <Link to={APPLICATIONS_URL} style={{ height: 24 }}>
+          <Link style={{ height: 24 }} to={APPLICATIONS_URL}>
             <AppsmithLogoImg
-              src={AppsmithLogo}
               alt="Appsmith logo"
               className="t--appsmith-logo"
+              src={AppsmithLogo}
             />
           </Link>
           <Boxed step={OnboardingStep.FINISH}>
             {currentApplication && (
               <EditableAppName
+                className="t--application-name editable-application-name"
                 defaultValue={currentApplication.name || ""}
                 editInteractionKind={EditInteractionKind.SINGLE}
-                className="t--application-name editable-application-name"
-                fill={true}
-                savingState={
-                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-                }
+                fill
                 isNewApp={
                   applicationList.filter((el) => el.id === applicationId)
                     .length > 0
@@ -235,8 +233,12 @@ export const EditorHeader = (props: EditorHeaderProps) => {
                     currentApp: true,
                   })
                 }
+                savingState={
+                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+                }
               />
             )}
+            <ToggleModeButton />
           </Boxed>
         </HeaderSection>
         <HeaderSection>
@@ -249,59 +251,59 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               {saveStatusIcon}
             </SaveStatusContainer>
             <FormDialogComponent
-              trigger={
-                <Button
-                  text={"Share"}
-                  icon={"share"}
-                  size={Size.small}
-                  className="t--application-share-btn header__application-share-btn"
-                />
-              }
-              canOutsideClickClose={true}
               Form={AppInviteUsersForm}
-              orgId={orgId}
               applicationId={applicationId}
+              canOutsideClickClose
+              orgId={orgId}
               title={
                 currentApplication
                   ? currentApplication.name
                   : "Share Application"
               }
+              trigger={
+                <Button
+                  className="t--application-share-btn header__application-share-btn"
+                  icon={"share"}
+                  size={Size.small}
+                  text={"Share"}
+                />
+              }
             />
           </Boxed>
           <Boxed
-            step={OnboardingStep.DEPLOY}
             alternative={<EndOnboardingTour />}
+            step={OnboardingStep.DEPLOY}
           >
             <DeploySection>
               <OnboardingIndicator
-                step={OnboardingStep.DEPLOY}
                 hasButton={false}
+                step={OnboardingStep.DEPLOY}
                 width={75}
               >
                 <StyledDeployButton
-                  fill
-                  onClick={handlePublish}
-                  text={"Deploy"}
-                  isLoading={isPublishing}
-                  size={Size.small}
                   className="t--application-publish-btn"
+                  fill
+                  isLoading={isPublishing}
+                  onClick={handlePublish}
+                  size={Size.small}
+                  text={"Deploy"}
                 />
               </OnboardingIndicator>
 
               <DeployLinkButtonDialog
+                link={getApplicationViewerPageURL(applicationId, pageId)}
                 trigger={
                   <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
                 }
-                link={getApplicationViewerPageURL(applicationId, pageId)}
               />
             </DeploySection>
           </Boxed>
           {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown
-                userName={user?.username || ""}
                 hideThemeSwitch
                 name={user.name}
+                userName={user?.username || ""}
               />
             </ProfileDropdownContainer>
           )}
@@ -311,7 +313,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
       </HeaderWrapper>
     </ThemeProvider>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,

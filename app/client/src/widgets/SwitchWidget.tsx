@@ -3,10 +3,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { SwitchComponent } from "components/designSystems/blueprint/SwitchComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -26,6 +22,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             propertyName: "alignWidget",
@@ -54,6 +51,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isVisible",
@@ -63,6 +61,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "isDisabled",
@@ -72,6 +71,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
         ],
       },
@@ -94,28 +94,20 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   getPageView() {
     return (
       <SwitchComponent
-        isSwitchedOn={!!this.props.isSwitchedOn}
         alignWidget={this.props.alignWidget ? this.props.alignWidget : "LEFT"}
-        label={this.props.label}
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
         isDisabled={this.props.isDisabled}
-        onChange={this.onChange}
         isLoading={this.props.isLoading}
+        isSwitchedOn={!!this.props.isSwitchedOn}
+        key={this.props.widgetId}
+        label={this.props.label}
+        onChange={this.onChange}
+        widgetId={this.props.widgetId}
       />
     );
   }
 
   getWidgetType(): WidgetType {
     return "SWITCH_WIDGET";
-  }
-
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      label: VALIDATION_TYPES.TEXT,
-      defaultSwitchState: VALIDATION_TYPES.BOOLEAN,
-    };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
@@ -138,6 +130,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
 
   onChange = (isSwitchedOn: boolean) => {
     this.props.updateWidgetMetaProperty("isSwitchedOn", isSwitchedOn, {
+      triggerPropertyName: "onChange",
       dynamicString: this.props.onChange,
       event: {
         type: EventType.ON_SWITCH_CHANGE,

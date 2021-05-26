@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.bson.internal.Base64;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.data.util.StreamUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -40,10 +41,10 @@ import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -134,8 +135,15 @@ public class RestApiPlugin extends BasePlugin {
                 smartJsonSubstitution = false;
 
                 // Since properties is not empty, we are guaranteed to find the first property.
-            } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null){
-                smartJsonSubstitution = Boolean.parseBoolean(properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue());
+            } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null) {
+                Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
+                if (ssubValue instanceof Boolean) {
+                    smartJsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartJsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartJsonSubstitution = false;
+                }
             } else {
                 smartJsonSubstitution = false;
             }
@@ -259,16 +267,18 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            String requestBodyAsString = "";
+            // We initialize this object to an empty string because body can never be empty
+            // Based on the content-type, this Object may be of type MultiValueMap or String
+            Object requestBodyObj = "";
 
             // Add request body only for non GET calls.
             if (!HttpMethod.GET.equals(httpMethod)) {
                 // Adding request body
-                requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+                requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
 
                 if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                         || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                    requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(),
+                    requestBodyObj = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(),
                             reqContentType,
                             encodeParamsToggle);
                 }
@@ -300,12 +310,10 @@ public class RestApiPlugin extends BasePlugin {
                 webClientBuilder.filter(apiConnection);
             }
 
-            WebClient client = webClientBuilder
-                    .exchangeStrategies(EXCHANGE_STRATEGIES)
-                    .filter(logRequest()).build();
+            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
             // Triggering the actual REST API call
-            return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
+            return httpCall(client, httpMethod, uri, requestBodyObj, 0, reqContentType)
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
                         HttpHeaders headers = stringResponseEntity.getHeaders();
@@ -376,19 +384,11 @@ public class RestApiPlugin extends BasePlugin {
 
                         return result;
                     })
-                    .onErrorResume(error  -> {
+                    .onErrorResume(error -> {
                         errorResult.setIsExecutionSuccess(false);
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
-        }
-
-        private static ExchangeFilterFunction logRequest() {
-            return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                log.info("Request: {} {}", clientRequest.method(), clientRequest.url());
-                clientRequest.headers().forEach((name, values) -> values.forEach(value -> System.out.println(name + "=" + value)));
-                return Mono.just(clientRequest);
-            });
         }
 
         private String getSignatureKey(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
@@ -400,7 +400,7 @@ public class RestApiPlugin extends BasePlugin {
                     if (IS_SEND_SESSION_ENABLED_KEY.equals(property.getKey())) {
                         isSendSessionEnabled = "Y".equals(property.getValue());
                     } else if (SESSION_SIGNATURE_KEY_KEY.equals(property.getKey())) {
-                        secretKey = property.getValue();
+                        secretKey = (String) property.getValue();
                     }
                 }
 
@@ -419,32 +419,52 @@ public class RestApiPlugin extends BasePlugin {
             return null;
         }
 
-        public String convertPropertyListToReqBody(List<Property> bodyFormData,
+        /**
+         * This function converts the list of properties in bodyFormData to an appropriate data structure for WebClient
+         * to consume. Based on the data type, WebClient creates appropriate logic for making the HTTP request.
+         * This is especially required for data type multipart/form-data
+         * @param bodyFormData
+         * @param reqContentType
+         * @param encodeParamsToggle
+         * @return Object
+         */
+        public Object convertPropertyListToReqBody(List<Property> bodyFormData,
                                                    String reqContentType,
                                                    Boolean encodeParamsToggle) {
             if (bodyFormData == null || bodyFormData.isEmpty()) {
                 return "";
             }
 
-            String reqBody = bodyFormData.stream()
-                    .map(property -> {
-                        String key = property.getKey();
-                        String value = property.getValue();
+            Object requestBody = null;
 
-                        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                                && encodeParamsToggle == true) {
-                            try {
-                                value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-                            } catch (UnsupportedEncodingException e) {
-                                throw new UnsupportedOperationException(e);
-                            }
-                        }
+            switch (reqContentType) {
+                case MediaType.APPLICATION_FORM_URLENCODED_VALUE:
+                    // The request body should be a urlEncoded string of key-value pairs
+                    requestBody = bodyFormData.stream()
+                            .map(property -> {
+                                String key = property.getKey();
+                                String value = (String) property.getValue();
 
-                        return key + "=" + value;
-                    })
-                    .collect(Collectors.joining("&"));
+                                if (encodeParamsToggle == true) {
+                                    try {
+                                        value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+                                    } catch (UnsupportedEncodingException e) {
+                                        throw new UnsupportedOperationException(e);
+                                    }
+                                }
 
-            return reqBody;
+                                return key + "=" + value;
+                            })
+                            .collect(Collectors.joining("&"));
+                    break;
+                    
+                case MediaType.MULTIPART_FORM_DATA_VALUE:
+                    // The request body should be of type MultiValueMap for WebClient to function properly
+                    requestBody = bodyFormData.stream()
+                            .collect(StreamUtils.toMultiMap(Property::getKey, Property::getValue));
+                    break;
+            }
+            return requestBody;
         }
 
         /**
@@ -462,7 +482,7 @@ public class RestApiPlugin extends BasePlugin {
             for (Property header : headers) {
                 if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
                     try {
-                        MediaType.valueOf(header.getValue());
+                        MediaType.valueOf((String) header.getValue());
                     } catch (InvalidMediaTypeException e) {
                         return e.getMessage();
                     }
@@ -514,7 +534,7 @@ public class RestApiPlugin extends BasePlugin {
             return webClient
                     .method(httpMethod)
                     .uri(uri)
-                    .body(BodyInserters.fromObject(requestBody))
+                    .body(BodyInserters.fromValue(requestBody))
                     .exchange()
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                     .flatMap(response -> {
@@ -609,7 +629,7 @@ public class RestApiPlugin extends BasePlugin {
                     if ("isSendSessionEnabled".equals(property.getKey())) {
                         isSendSessionEnabled = "Y".equals(property.getValue());
                     } else if ("sessionSignatureKey".equals(property.getKey())) {
-                        secretKey = property.getValue();
+                        secretKey = (String) property.getValue();
                     }
                 }
 
@@ -647,7 +667,7 @@ public class RestApiPlugin extends BasePlugin {
             for (Property header : headers) {
                 String key = header.getKey();
                 if (StringUtils.isNotEmpty(key)) {
-                    String value = header.getValue();
+                    String value = (String) header.getValue();
                     webClientBuilder.defaultHeader(key, value);
 
                     if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(key)) {
@@ -678,7 +698,7 @@ public class RestApiPlugin extends BasePlugin {
                         if (encodeParamsToggle == true) {
                             uriBuilder.queryParam(
                                     URLEncoder.encode(key, StandardCharsets.UTF_8),
-                                    URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8)
+                                    URLEncoder.encode((String) queryParam.getValue(), StandardCharsets.UTF_8)
                             );
                         } else {
                             uriBuilder.queryParam(
@@ -708,7 +728,7 @@ public class RestApiPlugin extends BasePlugin {
                 MultiValueMap<String, String> reqMultiMap = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
 
                 actionConfiguration.getHeaders().stream()
-                        .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList(header.getValue())));
+                        .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList((String) header.getValue())));
                 actionExecutionRequest.setHeaders(objectMapper.valueToTree(reqMultiMap));
             }
 

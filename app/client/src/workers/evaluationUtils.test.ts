@@ -55,7 +55,9 @@ describe("Add functions", () => {
         bindingPaths: {},
         isLoading: false,
         run: {},
+        responseMeta: { isExecutionSuccess: false },
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
+        dependencyMap: {},
       },
     };
     const dataTreeWithFunctions = addFunctions(dataTree);

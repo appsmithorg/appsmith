@@ -1,19 +1,19 @@
 import React from "react";
-import _ from "lodash";
+import * as Sentry from "@sentry/react";
+import { map, sortBy, compact } from "lodash";
 
-import ContainerComponent, {
-  ContainerStyle,
-} from "components/designSystems/appsmith/ContainerComponent";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
-import WidgetFactory from "utils/WidgetFactory";
 import {
   GridDefaults,
   CONTAINER_GRID_PADDING,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-
+import WidgetFactory from "utils/WidgetFactory";
+import ContainerComponent, {
+  ContainerStyle,
+} from "components/designSystems/appsmith/ContainerComponent";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import * as Sentry from "@sentry/react";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -34,9 +34,10 @@ class ContainerWidget extends BaseWidget<
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "backgroundColor",
             label: "Background Color",
-            controlType: "INPUT_TEXT",
+            controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.TEXT,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -46,6 +47,7 @@ class ContainerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
           },
           {
             propertyName: "shouldScrollContents",
@@ -61,11 +63,15 @@ class ContainerWidget extends BaseWidget<
 
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
+    const padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+    let width = componentWidth;
+    if (!this.props.noPad) width -= padding;
+    else width -= WIDGET_PADDING * 2;
+
     return {
       snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       snapColumnSpace: componentWidth
-        ? (componentWidth - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2) /
-          GridDefaults.DEFAULT_GRID_COLUMNS
+        ? width / GridDefaults.DEFAULT_GRID_COLUMNS
         : 0,
     };
   };
@@ -76,24 +82,16 @@ class ContainerWidget extends BaseWidget<
       return null;
     }
 
-    const snapSpaces = this.getSnapSpaces();
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
-    if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
-      childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-      childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    } else {
-      // This is for the detached child like the default CANVAS_WIDGET child
-
-      childWidgetData.rightColumn = componentWidth;
-      childWidgetData.bottomRow = this.props.shouldScrollContents
-        ? childWidgetData.bottomRow
-        : componentHeight;
-      childWidgetData.minHeight = componentHeight;
-      childWidgetData.isVisible = this.props.isVisible;
-      childWidgetData.shouldScrollContents = false;
-      childWidgetData.canExtend = this.props.shouldScrollContents;
-    }
+    childWidgetData.rightColumn = componentWidth;
+    childWidgetData.bottomRow = this.props.shouldScrollContents
+      ? childWidgetData.bottomRow
+      : componentHeight;
+    childWidgetData.minHeight = componentHeight;
+    childWidgetData.isVisible = this.props.isVisible;
+    childWidgetData.shouldScrollContents = false;
+    childWidgetData.canExtend = this.props.shouldScrollContents;
 
     childWidgetData.parentId = this.props.widgetId;
 
@@ -101,11 +99,11 @@ class ContainerWidget extends BaseWidget<
   }
 
   renderChildren = () => {
-    return _.map(
+    return map(
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      _.sortBy(_.compact(this.props.children), (child) => child.topRow),
+      sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
     );
   };
@@ -113,7 +111,8 @@ class ContainerWidget extends BaseWidget<
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     return (
       <ContainerComponent {...props}>
-        {this.renderChildren()}
+        {/* without the wrapping div onClick events are triggered twice */}
+        <>{this.renderChildren()}</>
       </ContainerComponent>
     );
   }
@@ -132,6 +131,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   children?: T[];
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
+  noPad?: boolean;
 }
 
 export default ContainerWidget;

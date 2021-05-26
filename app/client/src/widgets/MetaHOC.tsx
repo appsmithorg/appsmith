@@ -3,10 +3,12 @@ import BaseWidget, { WidgetProps } from "./BaseWidget";
 import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
 import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
-import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 type DebouncedExecuteActionPayload = Omit<
-  ExecuteActionPayload,
+  WidgetExecuteActionPayload,
   "dynamicString"
 > & {
   dynamicString?: string;
@@ -82,6 +84,18 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       if (actionExecution) {
         this.propertyTriggers.set(propertyName, actionExecution);
       }
+
+      AppsmithConsole.info({
+        text: "Widget property was updated",
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: this.props.widgetId,
+          name: this.props.widgetName,
+        },
+        state: {
+          [propertyName]: propertyValue,
+        },
+      });
       this.setState(
         {
           [propertyName]: propertyValue,
@@ -108,7 +122,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     };
 
     handleUpdateWidgetMetaProperty() {
-      const { updateWidgetMetaProperty, executeAction } = this.context;
+      const { executeAction, updateWidgetMetaProperty } = this.context;
       const { widgetId, widgetName } = this.props;
       /*
        We have kept a map of all updated properties. After debouncing we will
@@ -132,6 +146,15 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
         ) {
           executeAction(debouncedPayload);
           this.propertyTriggers.delete(propertyName);
+          debouncedPayload.triggerPropertyName &&
+            AppsmithConsole.info({
+              text: `${debouncedPayload.triggerPropertyName} triggered`,
+              source: {
+                type: ENTITY_TYPE.WIDGET,
+                id: this.props.widgetId,
+                name: this.props.widgetName,
+              },
+            });
         }
       });
     }

@@ -58,6 +58,10 @@ export const HintStyles = createGlobalStyle<{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    &.invalid {
+      color: ${(props) => props.theme.colors.errorMessage};
+    }
   }
   .CodeMirror-Tern-completion {
     padding-left: ${(props) => props.theme.spaces[11]}px !important;
@@ -418,20 +422,13 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   height: 100%;
   flex: 1;
   position: relative;
-  border-color: ${(props) =>
-    !props.isError && props.isActive && props.skin === Skin.DARK
-      ? Colors.ALABASTER
-      : "transparent"};
+  border: 1px solid ${(props) => (!props.isError ? "transparent" : "red")};
   > span:first-of-type {
     width: 30px;
     position: absolute;
     right: 0px;
   }
   &:hover {
-    border-color: ${(props) =>
-      !props.isError && props.skin === Skin.DARK
-        ? Colors.ALABASTER
-        : "transparent"};
     .lightning-menu {
       background: ${(props) => (!props.isNotHover ? "#090707" : "")};
       svg {
@@ -447,7 +444,6 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
       }
     }
   }
-  border: 0px;
   border-radius: 0px;
   .lightning-menu {
     z-index: 1 !important;

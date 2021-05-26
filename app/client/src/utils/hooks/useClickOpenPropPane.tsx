@@ -1,5 +1,7 @@
-import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
-import { selectWidget } from "actions/widgetActions";
+import {
+  useShowPropertyPane,
+  useWidgetSelection,
+} from "utils/hooks/dragResizeHooks";
 import {
   getCurrentWidgetId,
   getIsPropertyPaneVisible,
@@ -11,6 +13,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 
 export const useClickOpenPropPane = () => {
   const showPropertyPane = useShowPropertyPane();
+  const { selectWidget } = useWidgetSelection();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const selectedWidgetId = useSelector(getCurrentWidgetId);
   const focusedWidget = useSelector(
@@ -26,15 +29,25 @@ export const useClickOpenPropPane = () => {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const openPropertyPane = () => {
+  const openPropertyPane = (e: any, targetWidgetId: string) => {
     // ignore click captures if the component was resizing or dragging coz it is handled internally in draggable component
-    if (isResizing || isDragging || appMode !== APP_MODE.EDIT) return;
+    if (
+      isResizing ||
+      isDragging ||
+      appMode !== APP_MODE.EDIT ||
+      targetWidgetId !== focusedWidget
+    )
+      return;
     if (
       (!isPropPaneVisible && selectedWidgetId === focusedWidget) ||
       selectedWidgetId !== focusedWidget
     ) {
-      selectWidget(focusedWidget);
+      const isMultiSelect = e.metaKey || e.ctrlKey;
+      selectWidget(focusedWidget, isMultiSelect);
       showPropertyPane(focusedWidget, undefined, true);
+      if (isMultiSelect) {
+        e.stopPropagation();
+      }
     }
   };
   return openPropertyPane;
