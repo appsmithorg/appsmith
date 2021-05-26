@@ -149,14 +149,14 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                         combinedConfig.setHeaders(userConfig.getHeaders());
                     }
                     else if (!CollectionUtils.isEmpty(userConfig.getHeaders())) {
-                            combinedConfig.getHeaders().addAll(userConfig.getHeaders());
+                        combinedConfig.getHeaders().addAll(userConfig.getHeaders());
                     }
 
                     if (combinedConfig.getProperties() == null) {
                         combinedConfig.setProperties(userConfig.getProperties());
                     }
                     else if (!CollectionUtils.isEmpty(userConfig.getProperties())) {
-                            combinedConfig.getProperties().addAll(userConfig.getProperties());
+                        combinedConfig.getProperties().addAll(userConfig.getProperties());
                     }
 
                     datasource.setCombinedDatasourceConfiguration(combinedConfig);
