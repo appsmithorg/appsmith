@@ -342,7 +342,6 @@ class CodeEditor extends Component<Props, State> {
     validationMessage?: string;
     jsErrorMessage?: string;
   } => {
-    console.log({ dataTreePath });
     if (!dataTreePath) {
       return { isValid: true, validationMessage: "", jsErrorMessage: "" };
     }
