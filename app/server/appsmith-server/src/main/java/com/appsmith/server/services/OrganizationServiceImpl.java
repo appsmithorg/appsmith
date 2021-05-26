@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
@@ -35,6 +36,7 @@ import javax.validation.Validator;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -285,9 +287,29 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository
                 .findById(orgId, ORGANIZATION_INVITE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
-                .map(organization -> {
+                .flatMap(organization -> {
                     final List<UserRole> userRoles = organization.getUserRoles();
-                    return CollectionUtils.isEmpty(userRoles) ? Collections.emptyList() : userRoles;
+
+                    // get user list for the user roles
+                    List<String> userIdList = new ArrayList<>(userRoles.size());
+                    for(UserRole userRole: userRoles) {
+                        userIdList.add(userRole.getUserId());
+                    }
+
+                    // get the user information from user collection
+                    Flux<User> users = userRepository.findAllById(userIdList);
+                    Mono<Map<String, User>> userMapMono = users.collectMap(BaseDomain::getId).map(
+                            stringUserMap -> {
+                                // set the user's name to the user role
+                                for(UserRole userRole: userRoles) {
+                                    userRole.setName(stringUserMap.get(userRole.getUserId()).getName());
+                                }
+                                return stringUserMap;
+                            }
+                    );
+                    return userMapMono.thenReturn(
+                            CollectionUtils.isEmpty(userRoles) ? Collections.emptyList() : userRoles
+                    );
                 });
     }
 
