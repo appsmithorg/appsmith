@@ -664,7 +664,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           autocomplete: (parentProps: any) => {
             return parentProps.childAutoComplete;
           },
-          hideEvaluatedValue: () => true,
+          updateDataTreePath: (parentProps: any, dataTreePath: string) => {
+            return `${
+              parentProps.widgetName
+            }.evaluatedValues.template.${dataTreePath.replace(
+              "evaluatedValues.",
+              "",
+            )}`;
+          },
           propertyUpdateHook: (
             parentProps: any,
             widgetName: string,
