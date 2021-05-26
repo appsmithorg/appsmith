@@ -40,6 +40,7 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
+
 import { getCurrentUser } from "selectors/usersSelectors";
 
 export function* createUserSaga(
