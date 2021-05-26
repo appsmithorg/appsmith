@@ -34,7 +34,6 @@ export const StyledImage = styled.div<
 `;
 
 const Wrapper = styled.div`
-  position: relative;
   height: 100%;
   width: 100%;
   .react-transform-element,
@@ -110,18 +109,7 @@ class ImageComponent extends React.Component<
       <Wrapper
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
-        style={{ transform: `rotate(${imageRotation}deg)` }}
       >
-        {showRotateBtn && enableRotation && (
-          <RotateBtnWrapper>
-            <RotateBtn onClick={this.handleImageRotate(false)}>
-              <Icon color="whitesmoke" icon="image-rotate-left" />
-            </RotateBtn>
-            <RotateBtn onClick={this.handleImageRotate(true)}>
-              <Icon color="whitesmoke" icon="image-rotate-right" />
-            </RotateBtn>
-          </RotateBtnWrapper>
-        )}
         <TransformWrapper
           defaultScale={1}
           doubleClick={{
@@ -171,38 +159,59 @@ class ImageComponent extends React.Component<
           }}
         >
           {({ zoomIn, zoomOut }: any) => (
-            <TransformComponent>
-              <StyledImage
-                className={this.props.isLoading ? "bp3-skeleton" : ""}
-                imageError={this.state.imageError}
-                {...this.props}
-                data-testid="styledImage"
-                onClick={(event: React.MouseEvent<HTMLElement>) => {
-                  if (!this.isPanning) {
-                    if (isZoomingIn) {
-                      zoomIn(event);
-                    } else {
-                      zoomOut(event);
+            <>
+              {showRotateBtn && enableRotation && (
+                <RotateBtnWrapper>
+                  <RotateBtn onClick={this.handleImageRotate(false)}>
+                    <Icon
+                      color="whitesmoke"
+                      icon="image-rotate-left"
+                      iconSize={24}
+                    />
+                  </RotateBtn>
+                  <RotateBtn onClick={this.handleImageRotate(true)}>
+                    <Icon
+                      color="whitesmoke"
+                      icon="image-rotate-right"
+                      iconSize={24}
+                    />
+                  </RotateBtn>
+                </RotateBtnWrapper>
+              )}
+              <TransformComponent>
+                <StyledImage
+                  className={this.props.isLoading ? "bp3-skeleton" : ""}
+                  imageError={this.state.imageError}
+                  {...this.props}
+                  data-testid="styledImage"
+                  onClick={(event: React.MouseEvent<HTMLElement>) => {
+                    if (!this.isPanning) {
+                      if (isZoomingIn) {
+                        zoomIn(event);
+                      } else {
+                        zoomOut(event);
+                      }
+                      this.props.onClick && this.props.onClick(event);
                     }
-                    this.props.onClick && this.props.onClick(event);
-                  }
-                  this.isPanning = false;
-                }}
-                style={{
-                  cursor,
-                }}
-              >
-                <img
-                  alt={this.props.widgetName}
-                  onError={this.onImageError}
-                  onLoad={this.onImageLoad}
-                  src={this.props.imageUrl}
-                  style={{
-                    display: "none",
+                    this.isPanning = false;
                   }}
-                />
-              </StyledImage>
-            </TransformComponent>
+                  style={{
+                    cursor,
+                    transform: `rotate(${imageRotation}deg)`,
+                  }}
+                >
+                  <img
+                    alt={this.props.widgetName}
+                    onError={this.onImageError}
+                    onLoad={this.onImageLoad}
+                    src={this.props.imageUrl}
+                    style={{
+                      display: "none",
+                    }}
+                  />
+                </StyledImage>
+              </TransformComponent>
+            </>
           )}
         </TransformWrapper>
       </Wrapper>
