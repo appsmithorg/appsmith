@@ -1,9 +1,4 @@
 {
-  "responseMeta": {
-    "status": 200,
-    "success": true
-  },
-  "data": {
     "exportedApplication": {
       "userPermissions": [
         "canComment:applications",
@@ -503,5 +498,4 @@
       }
     },
     "mongoEscapedWidgets": {}
-  }
 }

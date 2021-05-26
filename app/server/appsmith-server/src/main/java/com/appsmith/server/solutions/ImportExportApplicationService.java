@@ -229,12 +229,6 @@ public class ImportExportApplicationService {
                     Gson gson = new Gson();
                     Type fileType = new TypeToken<ApplicationJson>() {}.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
-                    if (jsonFile == null) {
-                        return Mono.error(
-                            new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, INVALID_JSON_FILE, null)
-                        );
-                    }
-                    
                     return importApplicationInOrganization(orgId, jsonFile);
                 });
     }

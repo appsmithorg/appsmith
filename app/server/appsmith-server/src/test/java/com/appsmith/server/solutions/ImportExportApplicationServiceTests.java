@@ -120,12 +120,12 @@ public class ImportExportApplicationServiceTests {
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
     
-    private final String INVALID_JSON_FILE = importExportApplicationService.INVALID_JSON_FILE;
+    private String invalid_json_file;
     private Plugin installedPlugin;
     private String orgId;
     private String testAppId;
     private Map<String, Datasource> datasourceMap = new HashMap<>();
-
+    
     private Flux<ActionDTO> getActionsInApplication(Application application) {
         return newPageService
                 // fetch the unpublished pages
@@ -141,6 +141,8 @@ public class ImportExportApplicationServiceTests {
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();
+        
+        invalid_json_file = importExportApplicationService.INVALID_JSON_FILE;
 
         Datasource ds1 = new Datasource();
         ds1.setName("DS1");
@@ -204,7 +206,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(exportedApp.getPolicies().size()).isEqualTo(0);
 
                     assertThat(pageList.isEmpty()).isFalse();
-                    assertThat(defaultPage.getApplicationId()).isEqualTo(exportedApp.getName());
+                    assertThat(defaultPage.getApplicationId()).isNull();
                     assertThat(defaultPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActions()).isNull();
 
                     assertThat(actionList.isEmpty()).isTrue();
@@ -344,14 +346,14 @@ public class ImportExportApplicationServiceTests {
                     assertThat(exportedApp.getPolicies()).hasSize(0);
 
                     assertThat(pageList).hasSize(1);
-                    assertThat(defaultPage.getApplicationId()).isEqualTo(testApplication.getName());
+                    assertThat(defaultPage.getApplicationId()).isNull();
                     assertThat(defaultPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isNotNull();
                     assertThat(defaultPage.getId()).isNull();
                     assertThat(defaultPage.getPolicies()).isEmpty();
 
                     assertThat(actionList.isEmpty()).isFalse();
                     NewAction validAction = actionList.get(0);
-                    assertThat(validAction.getApplicationId()).isEqualTo(testApplication.getName());
+                    assertThat(validAction.getApplicationId()).isNull();
                     assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
                     assertThat(validAction.getOrganizationId()).isNull();
@@ -414,19 +416,6 @@ public class ImportExportApplicationServiceTests {
     
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromInvalidJsonFileTest() {
-        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-app.json");
-        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
-        
-        StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.JSON_PROCESSING_ERROR.getMessage(INVALID_JSON_FILE)))
-            .verify();
-    }
-    
-    @Test
-    @WithUserDetails(value = "api_user")
     public void importApplicationFromInvalidJsonFileWithoutPagesTest() {
         
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
@@ -435,7 +424,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, INVALID_JSON_FILE)))
+                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, invalid_json_file)))
             .verify();
     }
     
@@ -449,7 +438,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, INVALID_JSON_FILE)))
+                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, invalid_json_file)))
             .verify();
     }
     

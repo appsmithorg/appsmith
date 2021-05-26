@@ -1,10 +1,4 @@
 {
-  "responseMeta": {
-    "status": 200,
-    "success": true
-  },
-  "data": {
-
     "exportedApplication": {},
     "datasourceList": [],
     "pageList": [],
@@ -15,5 +9,4 @@
     ],
     "decryptedFields": {},
     "mongoEscapedWidgets": {}
-  }
 }

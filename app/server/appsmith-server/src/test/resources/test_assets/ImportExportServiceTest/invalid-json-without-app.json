@@ -1,9 +1,4 @@
 {
-  "responseMeta": {
-    "status": 200,
-    "success": true
-  },
-  "data": {
     "datasourceList": [],
     "pageList": [
       {
@@ -20,5 +15,4 @@
     ],
     "decryptedFields": {},
     "mongoEscapedWidgets": {}
-  }
 }
