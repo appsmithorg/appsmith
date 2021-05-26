@@ -25,10 +25,13 @@ public class Plugin extends BaseDomain {
 
     PluginType type;
 
+    // This reference determines the pf4j module to be used for plugin execution, etc
     String packageName;
 
+    // The plugin name is a unique identifier for each type of integration as seen by the user
     String pluginName;
 
+    // Each plugin may have configurations that
     String pluginSpecificationId;
 
     String jarLocation;
@@ -71,8 +74,12 @@ public class Plugin extends BaseDomain {
     // Entry: <MethodName, TemplateId>
     private Map<String, String> actionTemplateIds;
 
+    // A particular plugin can be capable of supporting multiple authentication mechanisms
+    // For each of the mechanisms, we store the datasource form template separately
     private Map<Class<? extends AuthenticationDTO>, String> datasourceTemplateIds;
 
+    // Plugins can be divided into categories depending on their business use case
+    // A single plugin can belong to multiple categories
     List<String> categories;
 
     // credentialSteps - should be covered by authenticationDTO

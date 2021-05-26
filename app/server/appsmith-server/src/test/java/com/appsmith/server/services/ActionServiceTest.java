@@ -1262,7 +1262,7 @@ public class ActionServiceTest {
                 .assertNext(createdAction -> {
                     assertThat(createdAction).isNotNull();
                     assertThat(createdAction
-                            .getActionConfiguration()
+                            .getCombinedActionConfiguration()
                             .getBody()
                             .contains("heading")
                     ).isTrue();
