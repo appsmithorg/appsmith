@@ -3,7 +3,7 @@ import { Text } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { TextAlign } from "widgets/TextWidget";
-import Interweave, { Node } from "interweave";
+import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import {
   FontStyleTypes,
