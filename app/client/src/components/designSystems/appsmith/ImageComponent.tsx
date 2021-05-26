@@ -7,7 +7,6 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 export interface StyledImageProps {
   defaultImageUrl: string;
   enableRotation?: boolean;
-  imageRotation?: number;
   imageUrl?: string;
   backgroundColor?: string;
   showHoverPointer?: boolean;
@@ -21,11 +20,6 @@ export const StyledImage = styled.div<
 >`
   position: relative;
   display: flex;
-  transform: ${(props) =>
-    props.enableRotation && props.imageRotation
-      ? `rotate(${props.imageRotation}deg)`
-      : "rotate(0deg)"};
-
   flex-direction: "row";
   cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
@@ -52,11 +46,15 @@ const Wrapper = styled.div`
 
 const RotateBtnWrapper = styled.div`
   position: absolute;
-  bottom: 0px;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  right: 0px;
   z-index: 1;
   display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
 `;
 
 const RotateBtn = styled.div`
@@ -64,11 +62,14 @@ const RotateBtn = styled.div`
   height: 30px;
   width: 30px;
   margin: 0px 10px;
-  background: #504f4f47;
-  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  transform: scale(1);
+
+  &: hover {
+    transform: scale(1.2);
+  }
 `;
 
 enum ZoomingState {
@@ -80,6 +81,7 @@ class ImageComponent extends React.Component<
   {
     imageError: boolean;
     showRotateBtn: boolean;
+    imageRotation: number;
     zoomingState: ZoomingState;
   }
 > {
@@ -90,12 +92,13 @@ class ImageComponent extends React.Component<
     this.state = {
       imageError: false,
       showRotateBtn: false,
+      imageRotation: 0,
       zoomingState: ZoomingState.MAX_ZOOMED_OUT,
     };
   }
   render() {
-    const { maxZoomLevel } = this.props;
-    const { showRotateBtn } = this.state;
+    const { enableRotation, maxZoomLevel } = this.props;
+    const { imageRotation, showRotateBtn } = this.state;
     const zoomActive =
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;
     const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
@@ -107,14 +110,15 @@ class ImageComponent extends React.Component<
       <Wrapper
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
+        style={{ transform: `rotate(${imageRotation}deg)` }}
       >
-        {showRotateBtn && (
+        {showRotateBtn && enableRotation && (
           <RotateBtnWrapper>
             <RotateBtn onClick={this.handleImageRotate(false)}>
-              <Icon color="grey" icon="image-rotate-left" />
+              <Icon color="whitesmoke" icon="image-rotate-left" />
             </RotateBtn>
             <RotateBtn onClick={this.handleImageRotate(true)}>
-              <Icon color="grey" icon="image-rotate-right" />
+              <Icon color="whitesmoke" icon="image-rotate-right" />
             </RotateBtn>
           </RotateBtnWrapper>
         )}
@@ -206,7 +210,11 @@ class ImageComponent extends React.Component<
   }
 
   handleImageRotate = (rotateRight: boolean) => (e: any) => {
-    this.props.onImageRotate(rotateRight);
+    const { imageRotation } = this.state;
+
+    const nextRotation = rotateRight ? imageRotation + 90 : imageRotation - 90;
+
+    this.setState({ imageRotation: nextRotation % 360 });
 
     if (!!e) {
       e.preventDefault();
@@ -239,8 +247,6 @@ export interface ImageComponentProps extends ComponentProps {
   showHoverPointer?: boolean;
   maxZoomLevel: number;
   enableRotation?: boolean;
-  imageRotation?: number;
-  onImageRotate: (e: any) => void;
   disableDrag: (disabled: boolean) => void;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
