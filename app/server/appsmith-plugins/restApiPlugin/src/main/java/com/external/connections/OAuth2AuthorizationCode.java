@@ -172,11 +172,11 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                 .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret())
                 .with(Authentication.REFRESH_TOKEN, oAuth2.getAuthenticationResponse().getRefreshToken());
         // Adding optional audience parameter
-        if (oAuth2.getAudience() != null && !oAuth2.getAudience().isBlank()) {
+        if (!StringUtils.isEmpty(oAuth2.getAudience())) {
             body.with(Authentication.AUDIENCE, oAuth2.getAudience());
         }
         // Adding optional resource parameter
-        if (oAuth2.getResource() != null && !oAuth2.getResource().isBlank()) {
+        if (!StringUtils.isEmpty(oAuth2.getResource())) {
             body.with(Authentication.RESOURCE, oAuth2.getResource());
         }
         // Optionally add scope, if applicable

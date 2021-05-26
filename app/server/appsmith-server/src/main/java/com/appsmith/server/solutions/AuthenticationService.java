@@ -182,11 +182,11 @@ public class AuthenticationService {
                         map.add(CLIENT_ID, oAuth2.getClientId());
                         map.add(CLIENT_SECRET, oAuth2.getClientSecret());
                         // Adding optional audience parameter
-                        if (oAuth2.getAudience() != null && !oAuth2.getAudience().isBlank()) {
+                        if (!StringUtils.isEmpty(oAuth2.getAudience())) {
                             map.add(AUDIENCE, oAuth2.getAudience());
                         }
                         // Adding optional resource parameter
-                        if (oAuth2.getResource() != null && !oAuth2.getResource().isBlank()) {
+                        if (!StringUtils.isEmpty(oAuth2.getResource())) {
                             map.add(RESOURCE, oAuth2.getResource());
                         }
                     } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
