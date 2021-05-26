@@ -6,6 +6,9 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
+// rotation step angle in deg
+const IMAGE_ROTATION_STEP_VALUE = 45;
+
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
     super(props);
@@ -78,6 +81,16 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.NUMBER,
           },
+          {
+            helpText: "Controls if image can be rotated or not",
+            propertyName: "enableRotation",
+            label: "Enable Rotation",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+          },
         ],
       },
       {
@@ -106,15 +119,30 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         disableDrag={(disable: boolean) => {
           this.disableDrag(disable);
         }}
+        enableRotation={this.props.enableRotation}
+        imageRotation={this.props.imageRotation}
         imageUrl={this.props.image}
         isLoading={this.props.isLoading}
         maxZoomLevel={maxZoomLevel}
         onClick={this.props.onClick ? this.onImageClick : undefined}
+        onImageRotate={this.onRotateClick}
         showHoverPointer={this.props.renderMode === RenderModes.PAGE}
         widgetId={this.props.widgetId}
       />
     );
   }
+
+  onRotateClick = (rotateRight: boolean) => {
+    const currentRotation = !!this.props.imageRotation
+      ? Number(this.props.imageRotation as number)
+      : 0;
+    const nextRotation = rotateRight
+      ? currentRotation + IMAGE_ROTATION_STEP_VALUE
+      : currentRotation - IMAGE_ROTATION_STEP_VALUE;
+    // reset next rotation value if rotating for more than 360 deg
+    // i.e. 405 deg rotation = 45 deg
+    this.updateWidgetProperty("imageRotation", nextRotation % 360);
+  };
 
   onImageClick() {
     if (this.props.onClick) {
@@ -140,6 +168,8 @@ export interface ImageWidgetProps extends WidgetProps {
   imageShape: ImageShape;
   defaultImage: string;
   maxZoomLevel: number;
+  imageRotation?: number;
+  enableRotation?: boolean;
   onClick?: string;
 }
 
