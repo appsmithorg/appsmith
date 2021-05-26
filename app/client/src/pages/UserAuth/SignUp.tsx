@@ -35,7 +35,6 @@ import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 import { SignupFormValues } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUBMIT_PATH } from "constants/ApiConstants";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -45,6 +44,8 @@ import PerformanceTracker, {
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
+import { getAppsmithConfigs } from "configs";
+import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 const SocialLoginList: string[] = [];
@@ -89,6 +90,11 @@ export function SignUp(props: SignUpFormProps) {
   const location = useLocation();
   const initiateOnboarding = useIntiateOnboarding();
 
+  const recaptchaStatus = useScript(
+    `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey}`,
+    AddScriptTo.HEAD,
+  );
+
   let showError = false;
   let errorMessage = "";
   const queryParams = new URLSearchParams(location.search);
@@ -131,22 +137,26 @@ export function SignUp(props: SignUpFormProps) {
         method="POST"
         onSubmit={(e) => {
           e.preventDefault();
-          const formElement: HTMLFormElement = document.getElementById(
-            "signup-form",
-          ) as HTMLFormElement;
-          window.grecaptcha
-            .execute(googleRecaptchaSiteKey, {
-              action: "submit",
-            })
-            .then(function(token: any) {
-              formElement &&
-                formElement.setAttribute(
-                  "action",
-                  `${signupURL}?recaptchaToken=${token}`,
-                );
-              formElement && formElement.submit();
-            });
-          return false;
+          if (recaptchaStatus === ScriptStatus.READY) {
+            const formElement: HTMLFormElement = document.getElementById(
+              "signup-form",
+            ) as HTMLFormElement;
+            window.grecaptcha
+              .execute(googleRecaptchaSiteKey, {
+                action: "submit",
+              })
+              .then(function(token: any) {
+                formElement &&
+                  formElement.setAttribute(
+                    "action",
+                    `${signupURL}?recaptchaToken=${token}`,
+                  );
+                formElement && formElement.submit();
+              });
+            return false;
+          } else {
+            return true;
+          }
         }}
       >
         <FormGroup

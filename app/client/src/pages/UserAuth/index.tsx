@@ -13,11 +13,9 @@ import { useSelector } from "react-redux";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "reducers";
 import { ThemeProvider } from "styled-components";
-import { getAppsmithConfigs } from "configs";
-import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
-const { googleRecaptchaSiteKey } = getAppsmithConfigs();
+
 export function UserAuth() {
   const { path } = useRouteMatch();
   const location = useLocation();
@@ -25,35 +23,28 @@ export function UserAuth() {
     getThemeDetails(state, ThemeMode.DARK),
   );
 
-  const status = useScript(
-    `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey}`,
-    AddScriptTo.HEAD,
-  );
-
   return (
     <ThemeProvider theme={darkTheme}>
       <AuthContainer>
-        {status === ScriptStatus.READY && (
-          <AuthCardContainer>
-            <AuthCard>
-              <Switch location={location}>
-                <SentryRoute component={Login} exact path={`${path}/login`} />
-                <SentryRoute component={SignUp} exact path={`${path}/signup`} />
-                <SentryRoute
-                  component={ResetPassword}
-                  exact
-                  path={`${path}/resetPassword`}
-                />
-                <SentryRoute
-                  component={ForgotPassword}
-                  exact
-                  path={`${path}/forgotPassword`}
-                />
-                <SentryRoute component={PageNotFound} />
-              </Switch>
-            </AuthCard>
-          </AuthCardContainer>
-        )}
+        <AuthCardContainer>
+          <AuthCard>
+            <Switch location={location}>
+              <SentryRoute component={Login} exact path={`${path}/login`} />
+              <SentryRoute component={SignUp} exact path={`${path}/signup`} />
+              <SentryRoute
+                component={ResetPassword}
+                exact
+                path={`${path}/resetPassword`}
+              />
+              <SentryRoute
+                component={ForgotPassword}
+                exact
+                path={`${path}/forgotPassword`}
+              />
+              <SentryRoute component={PageNotFound} />
+            </Switch>
+          </AuthCard>
+        </AuthCardContainer>
         <FooterLinks />
       </AuthContainer>
     </ThemeProvider>
