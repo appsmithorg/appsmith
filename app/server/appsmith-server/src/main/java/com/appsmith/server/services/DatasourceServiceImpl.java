@@ -19,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.DatasourceTemplateRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
     private final EncryptionService encryptionService;
+    private final DatasourceTemplateRepository datasourceTemplateRepository;
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -71,7 +73,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
                                  NewActionRepository newActionRepository,
-                                 EncryptionService encryptionService) {
+                                 EncryptionService encryptionService,
+                                 DatasourceTemplateRepository datasourceTemplateRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -81,6 +84,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.sequenceService = sequenceService;
         this.newActionRepository = newActionRepository;
         this.encryptionService = encryptionService;
+        this.datasourceTemplateRepository = datasourceTemplateRepository;
     }
 
     @Override
@@ -110,8 +114,58 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 });
 
         return datasourceWithPoliciesMono
+                .flatMap(this::combineWithDefaultConfiguration)
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(this::populateHintMessages); // For REST API datasource create flow.
+    }
+
+    // Combine user supplied config with default configuration.
+    private Mono<Datasource> combineWithDefaultConfiguration(Datasource datasource) {
+        if (datasource.getTemplateId() == null) {
+            return Mono.just(datasource);
+        }
+
+        return this.datasourceTemplateRepository
+                .findById(datasource.getTemplateId())
+                .flatMap(datasourceTemplate -> {
+                    DatasourceConfiguration defaultConfig = datasourceTemplate.getDefaultDatasourceConfiguration();
+                    DatasourceConfiguration userConfig = datasource.getDatasourceConfiguration();
+
+                    if (defaultConfig == null) {
+                        datasource.setCombinedDatasourceConfiguration(userConfig);
+                        return Mono.just(datasource);
+                    }
+
+                    DatasourceConfiguration combinedConfig = defaultConfig.toBuilder()
+                            .connection(userConfig.getConnection())
+                            .endpoints(userConfig.getEndpoints())
+                            .authentication(userConfig.getAuthentication())
+                            .sshProxy(userConfig.getSshProxy())
+                            .sshProxyEnabled(userConfig.getSshProxyEnabled())
+                            .url(userConfig.getUrl())
+                            .build();
+                    
+                    if (combinedConfig.getHeaders() == null) {
+                        combinedConfig.setHeaders(userConfig.getHeaders());
+                    }
+                    else {
+                        if (!CollectionUtils.isEmpty(userConfig.getHeaders())) {
+                            combinedConfig.getHeaders().addAll(userConfig.getHeaders());
+                        }
+                    }
+
+                    if (combinedConfig.getProperties() == null) {
+                        combinedConfig.setProperties(userConfig.getProperties());
+                    }
+                    else {
+                        if (!CollectionUtils.isEmpty(userConfig.getProperties())) {
+                            combinedConfig.getProperties().addAll(userConfig.getProperties());
+                        }
+                    }
+
+                    datasource.setCombinedDatasourceConfiguration(combinedConfig);
+                    return Mono.just(datasource);
+                });
     }
 
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
@@ -195,6 +249,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     }
                     return dbDatasource;
                 })
+                .flatMap(this::combineWithDefaultConfiguration)
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(this::populateHintMessages);
     }

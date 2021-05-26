@@ -6,6 +6,8 @@ public class Authentication {
     public static final String DB_AUTH = "dbAuth";
     public static final String OAUTH2 = "oAuth2";
     public static final String BASIC = "basic";
+    public static final String API_KEY = "apiKey";
+    public static final String BEARER_TOKEN = "bearerToken";
 
     // Request parameter names
     public static final String CLIENT_ID = "client_id";
