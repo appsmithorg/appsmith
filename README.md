@@ -7,6 +7,10 @@
     •
   <a href="https://docs.appsmith.com/?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs">Documentation</a>
   ·
+  <a href="https://github.com/appsmithorg/appsmith/tree/update/readme#tutorials">Tutorials</a>
+  ·
+  <a href="https://blog.appsmith.com/">Blog</a>
+  ·
   <a href="https://www.youtube.com/appsmith">Youtube</a>
   ·
   <a href="https://discord.gg/rBTTVJp">Discord</a>
