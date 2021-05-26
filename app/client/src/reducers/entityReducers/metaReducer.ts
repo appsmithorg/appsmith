@@ -1,6 +1,7 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
+import { set } from "lodash";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
@@ -13,12 +14,19 @@ export const metaReducer = createReducer(initialState, {
   ) => {
     const next = { ...state };
     let widgetMetaProps: Record<string, any> = next[action.payload.widgetId];
+
     if (widgetMetaProps === undefined) {
       widgetMetaProps = {};
+
       next[action.payload.widgetId] = widgetMetaProps;
     }
-    (widgetMetaProps as Record<string, any>)[action.payload.propertyName] =
-      action.payload.propertyValue;
+
+    set(
+      widgetMetaProps,
+      `${action.payload.propertyName}`,
+      action.payload.propertyValue,
+    );
+
     return next;
   },
   [ReduxActionTypes.WIDGET_DELETE]: (

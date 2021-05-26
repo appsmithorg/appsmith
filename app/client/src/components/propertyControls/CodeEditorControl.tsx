@@ -11,7 +11,6 @@ import {
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
     const {
-      dataT,
       dataTreePath,
       evaluatedValue,
       expected,
@@ -25,7 +24,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     // Input1.text
 
     // List1.templateInput1.text
-    if (dataTreePath) props.dataTreePath = `${dataTreePrefix}${dataTrePath}`;
+    if (dataTreePath) props.dataTreePath = `${dataTreePath}`;
     if (evaluatedValue) props.evaluatedValue = evaluatedValue;
     if (expected) props.expected = expected;
 

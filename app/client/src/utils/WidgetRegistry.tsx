@@ -111,7 +111,7 @@ export default class WidgetBuilderRegistry {
         buildWidget(
           widgetData: ContainerWidgetProps<WidgetProps>,
         ): JSX.Element {
-          return <ProfiledContainerWidget {...widgetData} {...options} />;
+          return <ProfiledContainerWidget {...widgetData} />;
         },
       },
       ContainerWidget.getDerivedPropertiesMap(),
@@ -149,9 +149,10 @@ export default class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder(
       "INPUT_WIDGET",
       {
-        buildWidget(widgetData: InputWidgetProps, options: any): JSX.Element {
+        buildWidget(widgetData: InputWidgetProps): JSX.Element {
           // step 5 - pass options to input widget as props
-          return <ProfiledInputWidget {...widgetData} options={options} />;
+          console.log({ widgetData });
+          return <ProfiledInputWidget {...widgetData} />;
         },
       },
       InputWidget.getDerivedPropertiesMap(),

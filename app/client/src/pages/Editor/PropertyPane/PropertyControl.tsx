@@ -379,7 +379,6 @@ const PropertyControl = memo((props: Props) => {
                   openNextPanel: openPanel,
                   deleteProperties: onDeleteProperties,
                   theme: props.theme,
-                  dataTreePrefix,
                 },
                 isDynamic,
                 getCustomJSControl(),

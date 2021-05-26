@@ -221,10 +221,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
      // step 1 - dynamic create meta property path
      // step 2 - pass options to createWidget factory method
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode, {
-      metaPropPath: `Input1.text`,
-      widgetId: this.props.widgetId
-    });
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
   /**
@@ -372,6 +369,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         }
       }
     }
+
+    set(widget, `__metaOptions`, {
+      widgetName: this.props.widgetName,
+      widgetId: this.props.widgetId,
+      metaPropPrefix: `childMetaProperties`,
+      index: itemIndex
+    });
 
     return widget;
   };
