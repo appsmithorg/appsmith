@@ -15,8 +15,11 @@ import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +36,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping(Url.APPLICATION_URL)
@@ -126,10 +130,22 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     }
 
     @GetMapping("/export/{id}")
-    public Mono<ResponseDTO<ApplicationJson>> getApplicationFile(@PathVariable String id) {
+    public Mono<ResponseEntity<ApplicationJson>> getApplicationFile(@PathVariable String id) {
         log.debug("Going to export application with id: {}", id);
+        
         return importExportApplicationService.exportApplicationById(id)
-                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
+                .map(fetchedResource -> {
+                    
+                    HttpHeaders responseHeaders = new HttpHeaders();
+                    ContentDisposition contentDisposition = ContentDisposition
+                        .builder("attachment")
+                        .filename("application-file.json", StandardCharsets.UTF_8)
+                        .build();
+                    responseHeaders.setContentDisposition(contentDisposition);
+                    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+                    
+                    return new ResponseEntity(fetchedResource, responseHeaders, HttpStatus.OK);
+                });
     }
 
     @PostMapping(value = "/import/{orgId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

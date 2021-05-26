@@ -119,7 +119,8 @@ public class ImportExportApplicationServiceTests {
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
-
+    
+    private final String INVALID_JSON_FILE = importExportApplicationService.INVALID_JSON_FILE;
     private Plugin installedPlugin;
     private String orgId;
     private String testAppId;
@@ -421,7 +422,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.JSON_PROCESSING_ERROR.getMessage(FieldName.INVALIDJSONFILE)))
+                throwable.getMessage().equals(AppsmithError.JSON_PROCESSING_ERROR.getMessage(INVALID_JSON_FILE)))
             .verify();
     }
     
@@ -435,7 +436,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, FieldName.INVALIDJSONFILE)))
+                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, INVALID_JSON_FILE)))
             .verify();
     }
     
@@ -449,7 +450,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, FieldName.INVALIDJSONFILE)))
+                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, INVALID_JSON_FILE)))
             .verify();
     }
     
