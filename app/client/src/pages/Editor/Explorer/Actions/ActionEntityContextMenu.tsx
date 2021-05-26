@@ -22,7 +22,7 @@ type EntityContextMenuProps = {
   className?: string;
   pageId: string;
 };
-export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
+export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
 
   const dispatch = useDispatch();
@@ -32,7 +32,7 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
         copyActionRequest({
           id: actionId,
           destinationPageId: pageId,
-          name: nextEntityName(`${actionName}Copy`, pageId),
+          name: nextEntityName(actionName, pageId, true),
         }),
       ),
     [dispatch, nextEntityName],
@@ -74,7 +74,6 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      selectedValue=""
       optionTree={[
         {
           value: "rename",
@@ -116,9 +115,10 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
           intent: "danger",
         },
       ]}
+      selectedValue=""
       toggle={<ContextMenuTrigger />}
     />
   );
-};
+}
 
 export default ActionEntityContextMenu;

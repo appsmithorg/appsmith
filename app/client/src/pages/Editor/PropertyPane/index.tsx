@@ -28,11 +28,18 @@ import PropertyControlsGenerator from "./Generator";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
-import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import {
+  deleteSelectedWidget,
+  copyWidget,
+  selectWidget,
+} from "actions/widgetActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
-// import ScrollIndicator from "components/ads/ScrollIndicator";
+import { getProppanePreference } from "selectors/usersSelectors";
+import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
+import { get } from "lodash";
+import { Layers } from "constants/Layers";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -40,8 +47,10 @@ const PropertyPaneWrapper = styled(PaneWrapper)<{
   width: 100%;
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
-  margin: ${(props) => props.theme.spaces[2]}px;
+  margin-bottom: ${(props) => props.theme.spaces[2]}px;
+  margin-left: ${(props) => props.theme.spaces[10]}px;
   padding: ${(props) => props.theme.spaces[5]}px;
+  padding-top: 0px;
   padding-right: ${(props) => props.theme.spaces[5]}px;
   border-right: 0;
   overflow-y: auto;
@@ -72,38 +81,37 @@ interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
 
-const PropertyPaneView = (
+export const PropertyControlsWrapper = styled.div`
+  margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
+`;
+
+function PropertyPaneView(
   props: {
     hidePropertyPane: () => void;
     theme: EditorTheme;
   } & IPanelProps,
-) => {
+) {
   const { hidePropertyPane, theme, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
   const dispatch = useDispatch();
-  const handleDelete = useCallback(
-    () => dispatch(deleteSelectedWidget(false)),
-    [dispatch],
-  );
+  const handleDelete = useCallback(() => {
+    dispatch(deleteSelectedWidget(false));
+  }, [dispatch]);
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
   return (
     <>
       <PropertyPaneTitle
-        key={widgetProperties.widgetId}
-        title={widgetProperties.widgetName}
-        widgetId={widgetProperties.widgetId}
-        widgetType={widgetProperties?.type}
         actions={[
           {
             tooltipContent: "Copy Widget",
             icon: (
               <CopyIcon
                 className="t--copy-widget"
-                width={14}
                 height={14}
                 onClick={handleCopy}
+                width={14}
               />
             ),
           },
@@ -112,9 +120,9 @@ const PropertyPaneView = (
             icon: (
               <DeleteIcon
                 className="t--delete-widget"
-                width={16}
                 height={16}
                 onClick={handleDelete}
+                width={16}
               />
             ),
           },
@@ -126,6 +134,9 @@ const PropertyPaneView = (
             tooltipContent: "Close",
             icon: (
               <Icon
+                className={"t--property-pane-close-btn"}
+                icon="cross"
+                iconSize={16}
                 onClick={(e: any) => {
                   AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
                     widgetType: widgetProperties.widgetType,
@@ -135,22 +146,26 @@ const PropertyPaneView = (
                   e.preventDefault();
                   e.stopPropagation();
                 }}
-                iconSize={16}
-                icon="cross"
-                className={"t--property-pane-close-btn"}
               />
             ),
           },
         ]}
+        key={widgetProperties.widgetId}
+        title={widgetProperties.widgetName}
+        widgetId={widgetProperties.widgetId}
+        widgetType={widgetProperties?.type}
       />
-      <PropertyControlsGenerator
-        type={widgetProperties.type}
-        panel={panel}
-        theme={theme}
-      />
+      <PropertyControlsWrapper>
+        <PropertyControlsGenerator
+          id={widgetProperties.widgetId}
+          panel={panel}
+          theme={theme}
+          type={widgetProperties.type}
+        />
+      </PropertyControlsWrapper>
     </>
   );
-};
+}
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   private panelWrapperRef = React.createRef<HTMLDivElement>();
@@ -159,19 +174,38 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return EditorTheme.LIGHT;
   }
 
+  getPopperTheme() {
+    return ThemeMode.LIGHT;
+  }
+
   render() {
+    if (get(this.props, "widgetProperties.disablePropertyPane")) {
+      return null;
+    }
+
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane();
       const el = document.getElementsByClassName(
         generateClassName(this.props.widgetProperties?.widgetId),
       )[0];
+
       return (
         <Popper
-          isOpen={true}
-          targetNode={el}
-          zIndex={3}
+          disablePopperEvents={this.props?.propPanePreference?.isMoved}
+          isDraggable
+          isOpen
+          onPositionChange={(position: any) =>
+            this.props.setPropPanePoistion(
+              position,
+              this.props.widgetProperties?.widgetId,
+            )
+          }
           placement="right-start"
+          position={this.props?.propPanePreference?.position}
+          targetNode={el}
+          themeMode={this.getPopperTheme()}
+          zIndex={Layers.propertyPane}
         >
           {content}
         </Popper>
@@ -183,27 +217,36 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
   renderPropertyPane() {
     const { widgetProperties } = this.props;
-    if (!widgetProperties)
-      return <PropertyPaneWrapper themeMode={this.getTheme()} />;
+
+    if (!widgetProperties) {
+      return null;
+    }
+
+    // if settings control is disabled, don't render anything
+    // for e.g - this will be true for list widget tempalte container widget
+    if (widgetProperties?.disablePropertyPane) return null;
+
     return (
       <PropertyPaneWrapper
-        themeMode={this.getTheme()}
-        ref={this.panelWrapperRef}
+        className={"t--propertypane"}
+        data-testid={"t--propertypane"}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
+        ref={this.panelWrapperRef}
+        themeMode={this.getTheme()}
       >
         <StyledPanelStack
-          onOpen={() => {
-            const parent = this.panelWrapperRef.current;
-            parent?.scrollTo(0, 0);
-          }}
           initialPanel={{
             component: PropertyPaneView,
             props: {
               hidePropertyPane: this.props.hidePropertyPane,
               theme: this.getTheme(),
             },
+          }}
+          onOpen={() => {
+            const parent = this.panelWrapperRef.current;
+            parent?.scrollTo(0, 0);
           }}
           showPanelHeader={false}
         />
@@ -262,11 +305,24 @@ const mapStateToProps = (state: AppState) => {
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
     themeMode: getCurrentThemeMode(state),
+    propPanePreference: getProppanePreference(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
   return {
+    setPropPanePoistion: (position: any, widgetId: any) => {
+      dispatch({
+        type: ReduxActionTypes.PROP_PANE_MOVED,
+        payload: {
+          position: {
+            left: position.left,
+            top: position.top,
+          },
+        },
+      });
+      dispatch(selectWidget(widgetId));
+    },
     hidePropertyPane: () =>
       dispatch({
         type: ReduxActionTypes.HIDE_PROPERTY_PANE,
@@ -278,10 +334,12 @@ export interface PropertyPaneProps extends PropertyPaneFunctions {
   widgetProperties?: WidgetProps;
   isVisible: boolean;
   themeMode: ThemeMode;
+  propPanePreference?: PropertyPanePositionConfig;
 }
 
 export interface PropertyPaneFunctions {
   hidePropertyPane: () => void;
+  setPropPanePoistion: (position: any, widgetId: any) => void;
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PropertyPane);

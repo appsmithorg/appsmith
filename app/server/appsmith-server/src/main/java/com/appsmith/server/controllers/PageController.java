@@ -32,8 +32,7 @@ public class PageController {
     private final NewPageService newPageService;
 
     @Autowired
-    public PageController(ApplicationPageService applicationPageService,
-                          NewPageService newPageService) {
+    public PageController(ApplicationPageService applicationPageService, NewPageService newPageService) {
         this.applicationPageService = applicationPageService;
         this.newPageService = newPageService;
     }

@@ -41,7 +41,7 @@ export const HelpMap = {
   },
   DROP_DOWN_WIDGET: {
     path: "/widget-reference/dropdown",
-    searchKey: "Dropdown",
+    searchKey: "Select",
   },
   RADIO_GROUP_WIDGET: {
     path: "/widget-reference/radio",
@@ -83,6 +83,10 @@ export const HelpMap = {
     path: "",
     searchKey: "Tabs",
   },
+  TABS_MIGRATOR_WIDGET: {
+    path: "",
+    searchKey: "",
+  },
   MODAL_WIDGET: {
     path: "",
     searchKey: "",
@@ -100,8 +104,12 @@ export const HelpMap = {
     searchKey: "Taking Inputs from Widgets",
   },
   DATASOURCE_FORM: {
-    path: "/core-concepts/connecting-to-databases",
+    path: "/core-concepts/connecting-to-data-sources/connecting-to-databases",
     searchKey: "Connecting to databases",
+  },
+  LIST_WIDGET: {
+    path: "/widget-reference/list",
+    searchKey: "List",
   },
   SWITCH_WIDGET: {
     path: "/widget-reference/switch",

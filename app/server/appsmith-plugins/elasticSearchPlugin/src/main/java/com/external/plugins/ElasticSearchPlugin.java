@@ -9,6 +9,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+
 public class ElasticSearchPlugin extends BasePlugin {
 
     public ElasticSearchPlugin(PluginWrapper wrapper) {
@@ -65,6 +69,7 @@ public class ElasticSearchPlugin extends BasePlugin {
             final Map<String, Object> requestData = new HashMap<>();
 
             String query = actionConfiguration.getBody();
+            List<RequestParamDTO> requestParams = new ArrayList<>();
 
             return Mono.fromCallable(() -> {
                 final ActionExecutionResult result = new ActionExecutionResult();
@@ -76,6 +81,10 @@ public class ElasticSearchPlugin extends BasePlugin {
 
                 HttpMethod httpMethod = actionConfiguration.getHttpMethod();
                 requestData.put("method", httpMethod.name());
+                requestParams.add(new RequestParamDTO("actionConfiguration.httpMethod", httpMethod.name(), null,
+                        null, null));
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null, null, null));
 
                 final Request request = new Request(httpMethod.toString(), path);
                 ContentType contentType = ContentType.APPLICATION_JSON;
@@ -123,10 +132,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                     .onErrorResume(error  -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        result.setBody(error.getMessage());
+                        result.setErrorInfo(error);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -134,6 +140,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
                         request.setQuery(query);
+                        request.setRequestParams(requestParams);
                         ActionExecutionResult actionExecutionResult = result;
                         actionExecutionResult.setRequest(request);
                         return actionExecutionResult;
@@ -190,7 +197,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                     clientBuilder.setDefaultHeaders(
                             (Header[]) datasourceConfiguration.getHeaders()
                                     .stream()
-                                    .map(h -> new BasicHeader(h.getKey(), h.getValue()))
+                                    .map(h -> new BasicHeader(h.getKey(), (String) h.getValue()))
                                     .toArray()
                     );
                 }

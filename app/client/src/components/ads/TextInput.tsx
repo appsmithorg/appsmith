@@ -9,7 +9,7 @@ import {
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 
-import { AsyncControllableInput } from "@blueprintjs/core/lib/esnext/components/forms/asyncControllableInput";
+import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 
 export type Validator = (
   value: string,
@@ -84,15 +84,15 @@ const boxStyles = (
 const StyledInput = styled((props) => {
   // we are removing non input related props before passing them in the components
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { inputStyle, inputRef, dataType, theme, ...inputProps } = props;
+  const { dataType, inputRef, inputStyle, theme, ...inputProps } = props;
   return props.asyncControl ? (
     <AsyncControllableInput
       {...inputProps}
-      inputRef={inputRef}
       dataType={dataType}
+      inputRef={inputRef}
     />
   ) : (
-    <input {...inputProps} />
+    <input ref={inputRef} {...inputProps} />
   );
 })<TextInputProps & { inputStyle: boxReturnType; isValid: boolean }>`
   width: ${(props) => (props.fill ? "100%" : "320px")};
@@ -200,17 +200,17 @@ const TextInput = forwardRef(
     return (
       <InputWrapper>
         <StyledInput
-          type={props.dataType || "text"}
-          ref={ref}
+          defaultValue={props.defaultValue}
           inputStyle={inputStyle}
           isValid={validation.isValid}
-          defaultValue={props.defaultValue}
+          ref={ref}
+          type={props.dataType || "text"}
           {...props}
-          placeholder={props.placeholder}
-          onChange={memoizedChangeHandler}
-          readOnly={props.readOnly}
           data-cy={props.cypressSelector}
           inputRef={ref}
+          onChange={memoizedChangeHandler}
+          placeholder={props.placeholder}
+          readOnly={props.readOnly}
         />
         {ErrorMessage}
       </InputWrapper>

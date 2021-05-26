@@ -45,7 +45,6 @@ const StyledMenu = styled(Menu)`
   padding: 0px;
   border-radius: 0px;
   background-color: ${(props) => props.theme.colors.treeDropdown.menuBg.normal};
-  box-shadow: ${(props) => props.theme.colors.treeDropdown.menuShadow};
   .${Classes.MENU} {
     min-width: 220px;
     padding: 0px;
@@ -55,7 +54,7 @@ const StyledMenu = styled(Menu)`
   }
   .${Classes.MENU_ITEM} {
     border-radius: 0px;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 14px;
     display: flex;
     align-items: center;
@@ -138,13 +137,13 @@ function getSelectedOption(
 
 export default function TreeDropdown(props: TreeDropdownProps) {
   const {
-    selectedValue,
     defaultText,
-    optionTree,
-    onSelect,
-    getDefaults,
-    selectedLabelModifier,
     displayValue,
+    getDefaults,
+    onSelect,
+    optionTree,
+    selectedLabelModifier,
+    selectedValue,
     toggle,
   } = props;
   const selectedOption = getSelectedOption(
@@ -170,10 +169,11 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       selectedOption.type === option.value;
     return (
       <MenuItem
-        className={option.className || "single-select"}
         active={isSelected}
-        key={option.value}
+        className={option.className || "single-select"}
         icon={option.icon}
+        intent={option.intent}
+        key={option.value}
         onClick={
           option.children
             ? noop
@@ -184,14 +184,13 @@ export default function TreeDropdown(props: TreeDropdownProps) {
                 e.stopPropagation();
               }
         }
-        text={option.label}
-        intent={option.intent}
         popoverProps={{
           minimal: true,
           interactionKind: PopoverInteractionKind.CLICK,
           position: PopoverPosition.LEFT,
           targetProps: { onClick: (e: any) => e.stopPropagation() },
         }}
+        text={option.label}
       >
         {option.children && option.children.map(renderTreeOption)}
       </MenuItem>
@@ -203,30 +202,30 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const defaultToggle = (
     <DropdownTarget>
       <Button
+        className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
+          selectedLabelModifier ? "code-highlight" : ""
+        }`}
         rightIcon={IconNames.CHEVRON_DOWN}
         text={
           selectedLabelModifier
             ? selectedLabelModifier(selectedOption, displayValue)
             : selectedOption.label
         }
-        className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
-          selectedLabelModifier ? "code-highlight" : ""
-        }`}
       />
     </DropdownTarget>
   );
   return (
     <Popover
+      className="wrapper-popover"
+      content={menuItems}
       isOpen={isOpen}
       minimal
-      content={menuItems}
-      position={PopoverPosition.LEFT}
-      className="wrapper-popover"
       modifiers={props.modifiers}
       onClose={() => {
         setIsOpen(false);
         props.onMenuToggle && props.onMenuToggle(false);
       }}
+      position={PopoverPosition.LEFT}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);

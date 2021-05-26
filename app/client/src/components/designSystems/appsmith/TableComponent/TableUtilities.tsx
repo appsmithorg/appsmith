@@ -4,6 +4,7 @@ import {
   CellWrapper,
   ActionWrapper,
   SortIconWrapper,
+  DraggableHeaderWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -11,13 +12,11 @@ import {
   ColumnTypes,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
-  FontStyleTypes,
   ColumnProperties,
   CellLayoutProperties,
-  TextSizes,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import { isString, isEmpty, findIndex, without } from "lodash";
+import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
@@ -28,6 +27,7 @@ import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
+import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 
 export const renderCell = (
   value: any,
@@ -40,10 +40,7 @@ export const renderCell = (
     case ColumnTypes.IMAGE:
       if (!value) {
         return (
-          <CellWrapper
-            cellProperties={cellProperties}
-            isHidden={isHidden}
-          ></CellWrapper>
+          <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />
         );
       } else if (!isString(value)) {
         return (
@@ -64,12 +61,12 @@ export const renderCell = (
               if (imageUrlRegex.test(item) || base64ImageRegex.test(item)) {
                 return (
                   <a
-                    onClick={(e) => e.stopPropagation()}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="image-cell-wrapper"
                     href={item}
                     key={index}
+                    onClick={(e) => e.stopPropagation()}
+                    rel="noopener noreferrer"
+                    target="_blank"
                   >
                     <div
                       className="image-cell"
@@ -87,17 +84,14 @@ export const renderCell = (
       const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
       if (!value) {
         return (
-          <CellWrapper
-            cellProperties={cellProperties}
-            isHidden={isHidden}
-          ></CellWrapper>
+          <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />
         );
       } else if (isString(value) && youtubeRegex.test(value)) {
         return (
           <CellWrapper
             cellProperties={cellProperties}
-            isHidden={isHidden}
             className="video-cell"
+            isHidden={isHidden}
           >
             <PopoverVideo url={value} />
           </CellWrapper>
@@ -112,11 +106,11 @@ export const renderCell = (
     default:
       return (
         <AutoToolTipComponent
-          title={value.toString()}
-          isHidden={isHidden}
           cellProperties={cellProperties}
-          tableWidth={tableWidth}
           columnType={columnType}
+          isHidden={isHidden}
+          tableWidth={tableWidth}
+          title={value.toString()}
         >
           {value.toString()}
         </AutoToolTipComponent>
@@ -138,23 +132,18 @@ export const renderActions = (
   cellProperties: CellLayoutProperties,
 ) => {
   if (!props.columnActions)
-    return (
-      <CellWrapper
-        cellProperties={cellProperties}
-        isHidden={isHidden}
-      ></CellWrapper>
-    );
+    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
 
   return (
     <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
           <TableAction
-            key={index}
             action={action}
-            isSelected={props.isSelected}
             backgroundColor={props.backgroundColor}
             buttonLabelColor={props.buttonLabelColor}
+            isSelected={props.isSelected}
+            key={index}
             onCommandClick={props.onCommandClick}
           />
         );
@@ -163,13 +152,13 @@ export const renderActions = (
   );
 };
 
-const TableAction = (props: {
+function TableAction(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
   buttonLabelColor: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-}) => {
+}) {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
     setLoading(false);
@@ -186,19 +175,19 @@ const TableAction = (props: {
       }}
     >
       <Button
+        filled
         intent="PRIMARY_BUTTON"
         loading={loading}
         onClick={() => {
           setLoading(true);
           props.onCommandClick(props.action.dynamicTrigger, onComplete);
         }}
-        text={props.action.label}
-        filled
         size="small"
+        text={props.action.label}
       />
     </ActionWrapper>
   );
-};
+}
 
 export const renderEmptyRows = (
   rowCount: number,
@@ -227,7 +216,7 @@ export const renderEmptyRows = (
     ? columns
     : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
   return (
-    <React.Fragment>
+    <>
       {rows.map((row: string, index: number) => {
         return (
           <div
@@ -241,8 +230,8 @@ export const renderEmptyRows = (
             {tableColumns.map((column: any, colIndex: number) => {
               return (
                 <div
-                  key={colIndex}
                   className="td"
+                  key={colIndex}
                   style={{
                     width: column.width + "px",
                     boxSizing: "border-box",
@@ -254,17 +243,17 @@ export const renderEmptyRows = (
           </div>
         );
       })}
-    </React.Fragment>
+    </>
   );
 };
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
   position: relative;
-  top: 18px;
+  top: 12px;
   cursor: pointer;
   transform: rotate(180deg);
-  svg {
+  && svg {
     path {
       fill: ${(props) => props.theme.colors.secondary};
     }
@@ -276,14 +265,14 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   position: relative;
   top: 3px;
   cursor: pointer;
-  svg {
+  && svg {
     path {
       fill: ${(props) => props.theme.colors.secondary};
     }
   }
 `;
 
-export const TableHeaderCell = (props: {
+export function TableHeaderCell(props: {
   columnName: string;
   columnIndex: number;
   isHidden: boolean;
@@ -291,7 +280,7 @@ export const TableHeaderCell = (props: {
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
-}) => {
+}) {
   const { column } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
@@ -319,7 +308,7 @@ export const TableHeaderCell = (props: {
           )}
         </SortIconWrapper>
       ) : null}
-      <div
+      <DraggableHeaderWrapper
         className={
           !props.isHidden
             ? `draggable-header ${
@@ -327,9 +316,10 @@ export const TableHeaderCell = (props: {
               }`
             : "hidden-header"
         }
+        horizontalAlignment={column.columnProperties.horizontalAlignment}
       >
-        {column.render("Header")}
-      </div>
+        {props.columnName}
+      </DraggableHeaderWrapper>
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}
@@ -340,29 +330,7 @@ export const TableHeaderCell = (props: {
       />
     </div>
   );
-};
-
-export const reorderColumns = (
-  columns: Record<string, ColumnProperties>,
-  columnOrder: string[],
-) => {
-  const newColumnsInOrder: Record<string, ColumnProperties> = {};
-
-  columnOrder.forEach((id: string, index: number) => {
-    if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
-  });
-  const remaining = without(
-    Object.keys(columns),
-    ...Object.keys(newColumnsInOrder),
-  );
-  const len = Object.keys(newColumnsInOrder).length;
-  if (remaining && remaining.length > 0) {
-    remaining.forEach((id: string, index: number) => {
-      newColumnsInOrder[id] = { ...columns[id], index: len + index };
-    });
-  }
-  return newColumnsInOrder;
-};
+}
 
 export function getDefaultColumnProperties(
   accessor: string,
@@ -466,8 +434,8 @@ export const renderDropdown = (props: {
     const isSelected: boolean = isOptionSelected(option);
     return (
       <MenuItem
-        className="single-select"
         active={isSelected}
+        className="single-select"
         key={option.value}
         onClick={itemProps.handleClick}
         text={option.label}
@@ -476,14 +444,15 @@ export const renderDropdown = (props: {
   };
   return (
     <div
-      style={{ height: "100%" }}
       onClick={(e: React.MouseEvent<HTMLElement>) => {
         e.stopPropagation();
       }}
+      style={{ height: "100%" }}
     >
       <StyledSingleDropDown
-        items={props.options}
+        filterable={false}
         itemRenderer={renderSingleSelectItem}
+        items={props.options}
         onItemSelect={(item: DropdownOption) => {
           props.onItemSelect(props.onOptionChange, item);
         }}
@@ -492,7 +461,6 @@ export const renderDropdown = (props: {
           usePortal: true,
           popoverClassName: "select-popover-wrapper",
         }}
-        filterable={false}
       >
         <BButton
           rightIcon={IconNames.CHEVRON_DOWN}

@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
 import reactor.core.publisher.Mono;
@@ -22,6 +21,4 @@ public interface DatasourceContextService {
     <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext, Mono<T>> task);
 
     Mono<DatasourceContext> deleteDatasourceContext(String datasourceId);
-
-    AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authenticationDTO);
 }

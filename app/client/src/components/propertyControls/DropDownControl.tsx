@@ -21,14 +21,14 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return (
       <StyledDropDownContainer>
         <StyledDropDown
+          onSelect={this.onItemSelect}
+          optionWidth={
+            this.props.optionWidth ? this.props.optionWidth : "231px"
+          }
           options={this.props.options}
           selected={defaultSelected}
-          onSelect={this.onItemSelect}
+          showLabelOnly
           width="100%"
-          showLabelOnly={true}
-          optionWidth={
-            this.props.optionWidth ? this.props.optionWidth : "187px"
-          }
         />
       </StyledDropDownContainer>
     );

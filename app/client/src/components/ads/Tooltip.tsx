@@ -8,7 +8,7 @@ type Variant = "dark" | "light";
 type TooltipProps = CommonComponentProps & {
   content: JSX.Element | string;
   position?: Position;
-  children: JSX.Element;
+  children: JSX.Element | React.ReactNode;
   variant?: Variant;
   maxWidth?: string;
   boundary?: PopperBoundary;
@@ -17,25 +17,33 @@ type TooltipProps = CommonComponentProps & {
   autoFocus?: boolean;
   hoverOpenDelay?: number;
   minimal?: boolean;
+  isOpen?: boolean;
 };
 
-const TooltipComponent = (props: TooltipProps) => {
+const portalContainer = document.getElementById("tooltip-root");
+
+function TooltipComponent(props: TooltipProps) {
   return (
     <Tooltip
+      autoFocus={props.autoFocus}
+      boundary={props.boundary || "scrollParent"}
       content={props.content}
+      hoverOpenDelay={props.hoverOpenDelay}
+      isOpen={props.isOpen}
+      minimal={props.minimal}
+      modifiers={{
+        preventOverflow: { enabled: false },
+      }}
+      openOnTargetFocus={props.openOnTargetFocus}
+      popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
+      portalContainer={portalContainer as HTMLDivElement}
       position={props.position}
       usePortal
-      boundary={props.boundary || "scrollParent"}
-      autoFocus={props.autoFocus}
-      hoverOpenDelay={props.hoverOpenDelay}
-      openOnTargetFocus={props.openOnTargetFocus}
-      minimal={props.minimal}
-      popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
     >
       {props.children}
     </Tooltip>
   );
-};
+}
 
 TooltipComponent.defaultProps = {
   position: Position.TOP,

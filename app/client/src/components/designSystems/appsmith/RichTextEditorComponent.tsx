@@ -21,9 +21,7 @@ export interface RichtextEditorComponentProps {
   isVisible?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
-export const RichtextEditorComponent = (
-  props: RichtextEditorComponentProps,
-) => {
+export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const status = useScript(
     "https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.7.0/tinymce.min.js",
   );
@@ -97,7 +95,7 @@ export const RichtextEditorComponent = (
         "insertdatetime media table paste code help",
       ],
       toolbar:
-        "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
+        "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help",
     });
 
     return () => {
@@ -110,9 +108,9 @@ export const RichtextEditorComponent = (
 
   return (
     <StyledRTEditor>
-      <textarea id={`rte-${props.widgetId}`}></textarea>
+      <textarea id={`rte-${props.widgetId}`} />
     </StyledRTEditor>
   );
-};
+}
 
 export default RichtextEditorComponent;

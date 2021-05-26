@@ -247,12 +247,18 @@ export const ERROR_EVAL_TRIGGER = (message: string) =>
 
 export const WIDGET_DELETE = (widgetName: string) =>
   `${widgetName} widget deleted`;
+export const WIDGET_BULK_DELETE = (widgetName: string) =>
+  `${widgetName} widgets deleted`;
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
+export const ERROR_WIDGET_COPY_NOT_ALLOWED = () =>
+  `This selected widget cannot be copied.`;
 export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName}`;
 export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
+export const SELECT_ALL_WIDGETS_MSG = () =>
+  `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
 
 export const REST_API_AUTHORIZATION_SUCCESSFUL = () =>
@@ -263,15 +269,24 @@ export const REST_API_AUTHORIZATION_FAILED = () =>
 export const REST_API_AUTHORIZATION_APPSMITH_ERROR = () =>
   "Something went wrong.";
 
+export const SAAS_AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
+export const SAAS_AUTHORIZATION_FAILED =
+  "Authorization failed. Please check your details or try again.";
+// Todo: improve this for appsmith_error error message
+export const SAAS_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
+export const SAAS_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
+
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
   "Error saving a key in localStorage. You have run out of disk space";
+export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
+  "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
   "Search Widgets, Queries, Documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
-export const NO_SEARCH_DATA_TEXT = () => "Search you must meaningful but";
+export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
 export const WIDGET_BIND_HELP = () =>
   "Having trouble taking inputs from widgets?";
@@ -279,3 +294,38 @@ export const WIDGET_BIND_HELP = () =>
 export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
 export const PAGE_NOT_FOUND = () => "Page not found";
+
+export const RESOLVE = () => "Resolve";
+export const UNRESOLVE = () => "Unresolve";
+
+// comments
+export const ADD_COMMENT_PLACEHOLDER = () => "Add a comment. Use @ to mention";
+export const PIN_COMMENT = () => "Pin Comment";
+export const UNPIN_COMMENT = () => "Unpin Comment";
+export const COPY_LINK = () => "Copy Link";
+export const DELETE_COMMENT = () => "Delete Comment";
+export const DELETE_THREAD = () => "Delete Thread";
+export const EDIT_COMMENT = () => "Edit Comment";
+export const COMMENTS = () => "Comments";
+export const VIEW_LATEST = () => "View Latest";
+export const POST = () => "Post";
+export const CANCEL = () => "Cancel";
+export const NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD = () =>
+  `No comments. \n Click anywhere on the canvas \nto start a conversation.`;
+export const LINK_COPIED_SUCCESSFULLY = () => "Link copied to clipboard";
+export const FULL_NAME = () => "Full Name";
+export const DISPLAY_NAME = () => "Display Name";
+export const EMAIL_ADDRESS = () => "Email Address";
+export const FIRST_AND_LAST_NAME = () => "First and last name";
+
+// Showcase Carousel
+export const NEXT = () => "NEXT";
+export const BACK = () => "BACK";
+
+// Debugger
+export const CLICK_ON = () => "🙌 Click on ";
+export const PRESS = () => "🎉 Press ";
+export const OPEN_THE_DEBUGGER = () => " to open the debugger";
+export const NO_LOGS = () => "No logs to show";
+
+export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";

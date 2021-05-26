@@ -2,7 +2,6 @@ import {
   ISO_DATE_FORMAT,
   VALIDATION_TYPES,
   ValidationResponse,
-  ValidationType,
   Validator,
 } from "../constants/WidgetValidation";
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
@@ -29,8 +28,13 @@ export function validateDateString(
   let isValid = true;
   if (version === 2) {
     try {
-      const d = new Date(dateString);
-      isValid = d.toISOString() === dateString;
+      const d = moment(dateString);
+      isValid =
+        d.toISOString(true) === dateString || d.toISOString() === dateString;
+      if (!isValid) {
+        const parsedDate = moment(dateString);
+        isValid = parsedDate.isValid();
+      }
     } catch (e) {
       isValid = false;
     }
@@ -41,9 +45,9 @@ export function validateDateString(
   return isValid;
 }
 
-const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type"; // TODO: Lot's of changes in validations.ts file
+const WIDGET_TYPE_VALIDATION_ERROR = "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
 
-export const VALIDATORS: Record<ValidationType, Validator> = {
+export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
   [VALIDATION_TYPES.TEXT]: (value: any): ValidationResponse => {
     let parsed = value;
     if (isUndefined(value) || value === null) {
@@ -57,7 +61,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: false,
         parsed: JSON.stringify(value, null, 2),
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "text"`,
       };
     }
     let isValid = isString(value);
@@ -71,7 +75,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         return {
           isValid: false,
           parsed: "",
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "text"`,
         };
       }
     }
@@ -82,7 +86,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, parsed, message } = VALIDATORS[VALIDATION_TYPES.TEXT](
+    const { isValid, message, parsed } = VALIDATORS[VALIDATION_TYPES.TEXT](
       value,
       props,
       dataTree,
@@ -95,7 +99,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         return {
           isValid: false,
           parsed: parsed,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: regex`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "regex"`,
         };
       }
     }
@@ -108,7 +112,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: false,
         parsed: 0,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: number`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
       };
     }
     let isValid = isNumber(value);
@@ -119,7 +123,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
           return {
             isValid: false,
             parsed: 0,
-            message: `${WIDGET_TYPE_VALIDATION_ERROR}: number`,
+            message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
           };
         }
         isValid = true;
@@ -129,7 +133,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         return {
           isValid: false,
           parsed: 0,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: number`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
         };
       }
     }
@@ -141,7 +145,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: false,
         parsed: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: boolean`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
     const isABoolean = isBoolean(value);
@@ -152,7 +156,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: isValid,
         parsed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: boolean`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
     return { isValid, parsed };
@@ -191,28 +195,29 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
           isValid: false,
           parsed: [],
           transformed: undefined,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
         };
       }
       if (isString(value)) {
         parsed = JSON.parse(parsed as string);
       }
+
       if (!Array.isArray(parsed)) {
         return {
           isValid: false,
           parsed: [],
           transformed: parsed,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
         };
       }
+
       return { isValid: true, parsed, transformed: parsed };
     } catch (e) {
-      console.error(e);
       return {
         isValid: false,
         parsed: [],
         transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
       };
     }
   },
@@ -230,7 +235,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid,
         parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ label: string, id: string(unique), widgetId: string(unique) }>"`,
       };
     } else if (
       !every(
@@ -250,7 +255,45 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: false,
         parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ label: string, id: string(unique), widgetId: string(unique) }>"`,
+      };
+    }
+    return { isValid, parsed };
+  },
+  [VALIDATION_TYPES.LIST_DATA]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const { isValid, parsed, transformed } = VALIDATORS.ARRAY(
+      value,
+      props,
+      dataTree,
+    );
+
+    if (!isValid) {
+      return {
+        isValid,
+        parsed: [],
+        transformed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: "Array<Object>"`,
+      };
+    }
+
+    const isValidListData = every(parsed, (datum) => {
+      return (
+        isObject(datum) &&
+        Object.keys(datum).filter((key) => isString(key) && key.length === 0)
+          .length === 0
+      );
+    });
+
+    if (!isValidListData) {
+      return {
+        isValid: false,
+        parsed: [],
+        transformed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: "Array<Object>"`,
       };
     }
     return { isValid, parsed };
@@ -260,7 +303,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, transformed, parsed } = VALIDATORS.ARRAY(
+    const { isValid, parsed, transformed } = VALIDATORS.ARRAY(
       value,
       props,
       dataTree,
@@ -270,7 +313,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         isValid,
         parsed: [],
         transformed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<Object>"`,
       };
     }
     const isValidTableData = every(parsed, (datum) => {
@@ -285,85 +328,61 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         isValid: false,
         parsed: [],
         transformed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<Object>"`,
       };
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.CHART_DATA]: (
+  [VALIDATION_TYPES.CHART_SERIES_DATA]: (
     value: any,
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
-      value,
-      props,
-      dataTree,
-    );
+    let parsed = [];
+    let transformed = [];
+    let isValid = false;
+    let validationMessage = "";
+
+    try {
+      const validatedResponse: ValidationResponse = VALIDATORS[
+        VALIDATION_TYPES.ARRAY
+      ](value, props, dataTree);
+
+      if (validatedResponse.isValid) {
+        isValid = every(
+          validatedResponse.parsed,
+          (chartPoint: { x: string; y: any }) => {
+            return (
+              isObject(chartPoint) &&
+              isString(chartPoint.x) &&
+              !isUndefined(chartPoint.y)
+            );
+          },
+        );
+      }
+
+      if (!isValid) {
+        parsed = [];
+        transformed = validatedResponse.transformed;
+        validationMessage = `${WIDGET_TYPE_VALIDATION_ERROR}: "Array<x:string, y:number>"`;
+      } else {
+        parsed = validatedResponse.parsed;
+        transformed = validatedResponse.parsed;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
     if (!isValid) {
       return {
-        isValid,
-        parsed,
-        transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
-      };
-    }
-    let validationMessage = "";
-    let index = 0;
-    const parsedChartData = [];
-    let isValidChart = true;
-
-    for (const seriesData of parsed) {
-      let isValidSeries = false;
-      try {
-        const validatedResponse: {
-          isValid: boolean;
-          parsed: Array<unknown>;
-          message?: string;
-        } = VALIDATORS[VALIDATION_TYPES.ARRAY](
-          seriesData.data,
-          props,
-          dataTree,
-        );
-        if (validatedResponse.isValid) {
-          isValidSeries = every(
-            validatedResponse.parsed,
-            (chartPoint: { x: string; y: any }) => {
-              return (
-                isObject(chartPoint) &&
-                isString(chartPoint.x) &&
-                !isUndefined(chartPoint.y)
-              );
-            },
-          );
-        }
-        if (!isValidSeries) {
-          isValidChart = false;
-          parsedChartData.push({
-            ...seriesData,
-            data: [],
-          });
-          validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
-        } else {
-          parsedChartData.push({
-            ...seriesData,
-            data: validatedResponse.parsed,
-          });
-        }
-      } catch (e) {
-        console.error(e);
-      }
-      index++;
-    }
-    if (!isValidChart) {
-      return {
         isValid: false,
-        parsed: parsedChartData,
-        transformed: parsed,
+        parsed: [],
+        transformed: transformed,
         message: validationMessage,
       };
     }
-    return { isValid, parsed: parsedChartData, transformed: parsedChartData };
+
+    return { isValid, parsed, transformed };
   },
   [VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA]: (
     value: any,
@@ -378,11 +397,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     if (props.chartName && parsed.dataSource && parsed.dataSource.chart) {
       parsed.dataSource.chart.caption = props.chartName;
     }
+
     if (!isValid) {
       return {
         isValid,
         parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"`,
       };
     }
     if (parsed.renderAt) {
@@ -393,7 +413,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         isValid: false,
         parsed: parsed,
         transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"`,
       };
     }
     return { isValid, parsed, transformed: parsed };
@@ -412,7 +432,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid,
         parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ lat: number, long: number }>"`,
       };
     } else if (
       !every(
@@ -423,7 +443,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: false,
         parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ lat: number, long: number }>"`,
       };
     }
     return { isValid, parsed };
@@ -442,7 +462,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid,
         parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ label: string, value: string }>"`,
       };
     }
     try {
@@ -459,12 +479,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         return {
           isValid: false,
           parsed: uniqValidOptions,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array<{ label: string, value: string }>"`,
         };
       }
       return { isValid, parsed };
     } catch (e) {
-      console.error(e);
       return {
         isValid: false,
         parsed: [],
@@ -492,12 +511,21 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
-            ? props.dateFormat
-            : "",
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (props.dateFormat ? props.dateFormat : ""),
       };
     }
     const isValid = validateDateString(dateString, dateFormat, props.version);
+    let parsedDate = dateString;
+
+    try {
+      if (isValid && props.version === 2) {
+        parsedDate = moment(dateString).toISOString(true);
+      }
+    } catch (e) {
+      console.error("Could not parse date", parsedDate, e);
+    }
+
     if (!isValid) {
       return {
         isValid: isValid,
@@ -507,8 +535,10 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return {
       isValid,
-      parsed: dateString,
-      message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+      parsed: parsedDate,
+      message: isValid
+        ? ""
+        : `Value does not match ISO 8601 standard date string`,
     };
   },
   [VALIDATION_TYPES.DEFAULT_DATE]: (
@@ -531,12 +561,21 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
-            ? dateFormat
-            : "",
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (dateFormat ? dateFormat : ""),
       };
     }
+
     const isValid = validateDateString(dateString, dateFormat, props.version);
+    let parsedDate = dateString;
+
+    try {
+      if (isValid && props.version === 2) {
+        parsedDate = moment(dateString).toISOString(true);
+      }
+    } catch (e) {
+      console.error("Could not parse date", parsedDate, e);
+    }
     if (!isValid) {
       return {
         isValid: isValid,
@@ -546,7 +585,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return {
       isValid: isValid,
-      parsed: dateString,
+      parsed: parsedDate,
       message: "",
     };
   },
@@ -563,9 +602,8 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
-            ? dateFormat
-            : "",
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (dateFormat ? dateFormat : ""),
       };
     }
     const parsedMinDate = moment(dateString, dateFormat);
@@ -590,7 +628,9 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (dateFormat ? dateFormat : ""),
       };
     }
     return {
@@ -612,9 +652,8 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
-            ? dateFormat
-            : "",
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (dateFormat ? dateFormat : ""),
       };
     }
     const parsedMaxDate = moment(dateString, dateFormat);
@@ -639,7 +678,9 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: isValid,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date String ` +
+          (dateFormat ? dateFormat : ""),
       };
     }
     return {
@@ -668,7 +709,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, parsed, message } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+    const { isValid, message, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
       value,
       props,
       dataTree,
@@ -700,20 +741,15 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     value: any,
     props: WidgetProps,
   ): ValidationResponse => {
-    const tabs =
-      props.tabs && isString(props.tabs)
-        ? JSON.parse(props.tabs)
-        : props.tabs && Array.isArray(props.tabs)
-        ? props.tabs
-        : [];
+    const tabs: any = props.tabsObj
+      ? Object.values(props.tabsObj)
+      : props.tabs || [];
     const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
     const isValidTabName = tabNames.includes(value);
     return {
       isValid: isValidTabName,
-      parsed: value,
-      message: isValidTabName
-        ? ""
-        : `${WIDGET_TYPE_VALIDATION_ERROR}: Invalid tab name.`,
+      parsed: isValidTabName ? value : "",
+      message: isValidTabName ? "" : `Tab name provided does not exist.`,
     };
   },
   [VALIDATION_TYPES.DEFAULT_OPTION_VALUE]: (
@@ -725,7 +761,8 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
 
     if (props) {
       if (props.selectionType === "SINGLE_SELECT") {
-        return VALIDATORS[VALIDATION_TYPES.TEXT](value, props, dataTree);
+        const defaultValue = value && _.isString(value) ? value.trim() : value;
+        return VALIDATORS[VALIDATION_TYPES.TEXT](defaultValue, props, dataTree);
       } else if (props.selectionType === "MULTI_SELECT") {
         if (typeof value === "string") {
           try {
@@ -849,7 +886,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     const invalidResponse = {
       isValid: false,
       parsed: undefined,
-      message: `${WIDGET_TYPE_VALIDATION_ERROR}: { lat: number, long: number }`,
+      message: `${WIDGET_TYPE_VALIDATION_ERROR} "{ lat: number, long: number }"`,
     };
 
     if (isString(unparsedValue)) {
@@ -872,6 +909,51 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       isValid: true,
       parsed: value,
     };
+  },
+  [VALIDATION_TYPES.IMAGE]: (value: any): ValidationResponse => {
+    let parsed = value;
+    const base64ImageRegex = /^data:image\/.*;base64/;
+    const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+    if (isUndefined(value) || value === null) {
+      return {
+        isValid: true,
+        parsed: value,
+        message: "",
+      };
+    }
+    if (isObject(value)) {
+      return {
+        isValid: false,
+        parsed: JSON.stringify(value, null, 2),
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+      };
+    }
+    if (imageUrlRegex.test(value)) {
+      return {
+        isValid: true,
+        parsed: value,
+        message: "",
+      };
+    }
+    let isValid = base64ImageRegex.test(value);
+    if (!isValid) {
+      try {
+        parsed =
+          btoa(atob(value)) === value
+            ? "data:image/png;base64," + value
+            : value;
+        isValid = true;
+      } catch (err) {
+        console.error(`Error when parsing ${value} to string`);
+        console.error(err);
+        return {
+          isValid: false,
+          parsed: "",
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+        };
+      }
+    }
+    return { isValid, parsed };
   },
   // If we keep adding these here there will be a huge unmaintainable list
   // TODO(abhinav: WIDGET DEV API):

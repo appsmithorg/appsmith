@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.NoCredentials;
@@ -40,6 +42,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -146,6 +151,17 @@ public class FirestorePluginTest {
                     assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("_ref"));
                     assertEquals("test", first.remove("category"));
                     assertEquals(Collections.emptyMap(), first);
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "GET_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -281,6 +297,19 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "SET_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -302,6 +331,19 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "CREATE_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -352,6 +394,17 @@ public class FirestorePluginTest {
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "DELETE_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -375,6 +428,19 @@ public class FirestorePluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(firestoreConnection.document("changing/" + ((Map) result.getBody()).get("id")));
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "ADD_TO_COLLECTION", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -561,6 +627,31 @@ public class FirestorePluginTest {
                             names
                     );
 
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "GET_COLLECTION", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1),
+                            "[\"firm\", \"name\"]", null, null, null)); // Order by
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(6), "{}", null,
+                            null, null)); // Start after
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(7), "{}", null,
+                            null, null)); // End before
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(2), "15", null,
+                            null, null)); // Limit
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(3), "", null,
+                            null, null)); // Field Path
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(4), "", null,
+                            null, null)); // Operator
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(5), "", null,
+                            null, null)); // Value
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+
                 })
                 .verifyComplete();
     }
@@ -667,6 +758,263 @@ public class FirestorePluginTest {
                     assertEquals(Map.of("id", "two", "path", "initial/two"), second.remove("_ref"));
                     assertEquals("test", second.remove("category"));
                     assertEquals(Collections.emptyMap(), second);
+                })
+                .verifyComplete();
+    }
+
+    public void testUpdateDocumentWithFieldValueTimestamp() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(new Property("key path", "[\"value\"]")); // index 8 - path for timestampServer fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    try {
+                        final DocumentSnapshot documentSnapshot = firestoreConnection.document("changing/to-update").get().get();
+                        assertTrue(documentSnapshot.exists());
+
+                        try {
+                            /*
+                             * - If the value against the key "value" has been replaced by a valid timestamp, then
+                             *   the getString method here must fail.
+                             */
+                            documentSnapshot.getString("value");
+                        } catch (Exception e) {
+                            assertTrue(e.getMessage().contains("Timestamp cannot be cast to class java.lang.String"));
+                        }
+                    } catch (NullPointerException | InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException(e);
+                    }
+                })
+                .verifyComplete();
+    }
+
+    /*
+     * - First delete key.
+     * - Then verify that the key does not exist in the list of keys returned by reading the document.
+     */
+    @Test
+    public void testUpdateDocumentWithFieldValueDelete() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(null); // index 8
+        properties.add(new Property("key path", "[\"value\"]")); // index 9 - path for delete fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        /*
+         * - Delete key.
+         */
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "UPDATE_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
+                            null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(9),
+                            "[\"value\"]", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null)); // Body
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+                })
+                .verifyComplete();
+
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("");
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
+
+        resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        /*
+         * - Verify that the key does not exist in the list of keys returned by reading the document.
+         */
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    final Map<String, Object> doc = (Map) result.getBody();
+                    assertFalse(doc.keySet().contains("value"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFieldValueDeleteWithUnsupportedAction() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "CREATE_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(null); // index 8
+        properties.add(new Property("key path", "[\"value\"]")); // index 9 - path for delete fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+
+                    String expectedErrorMessage = "Appsmith has found an unexpected query form property - 'Delete Key " +
+                            "Value Pair Path'. Please reach out to Appsmith customer support to resolve this.";
+                    assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testFieldValueTimestampWithUnsupportedAction() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "GET_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(new Property("key path", "[\"value\"]")); // index 8 - path for serverTimestamp fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+
+                    String expectedErrorMessage = "Appsmith has found an unexpected query form property - 'Timestamp " +
+                            "Value Path'. Please reach out to Appsmith customer support to resolve this.";
+                    assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFieldValueDeleteWithBadArgument() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(null); // index 8
+        properties.add(new Property("key path", "value")); // index 9 - path for delete fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+
+                    String expectedErrorMessage = "Appsmith failed to parse the query editor form field 'Delete Key " +
+                            "Value Pair Path'. Please check out Appsmith's documentation to find the correct syntax.";
+                    assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFieldValueTimestampWithBadArgument() {
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
+        properties.add(null); // index 1
+        properties.add(null); // index 2
+        properties.add(null); // index 3
+        properties.add(null); // index 4
+        properties.add(null); // index 5
+        properties.add(null); // index 6
+        properties.add(null); // index 7
+        properties.add(new Property("key path", "value")); // index 8 - path for serverTimestamp fieldValue.
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setPath("changing/to-update");
+        actionConfiguration.setBody("{\n" +
+                "    \"value\": 2\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertFalse(result.getIsExecutionSuccess());
+
+                    String expectedErrorMessage = "Appsmith failed to parse the query editor form field 'Timestamp " +
+                            "Value Path'. Please check out Appsmith's documentation to find the correct syntax.";
+                    assertTrue(expectedErrorMessage.equals(result.getBody()));
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }

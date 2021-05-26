@@ -5,6 +5,7 @@ let datasourceName;
 
 describe("Add widget", function() {
   beforeEach(() => {
+    cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
@@ -23,7 +24,7 @@ describe("Add widget", function() {
       .focus()
       .type("select * from configs");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
+    cy.WaitAutoSave();
     cy.get(queryEditor.runQuery).click();
     cy.wait("@postExecute").should(
       "have.nested.property",

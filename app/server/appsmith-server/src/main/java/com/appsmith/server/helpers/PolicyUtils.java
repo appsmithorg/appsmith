@@ -13,11 +13,13 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -147,7 +149,8 @@ public class PolicyUtils {
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByOrgId(String orgId, Map<String, Policy> newPoliciesMap, boolean addPolicyToObject) {
 
         return datasourceRepository
-                .findAllByOrganizationId(orgId, AclPermission.MANAGE_DATASOURCES)
+                // fetch datasources with execute permissions so that app viewers can invite other app viewers
+                .findAllByOrganizationId(orgId, AclPermission.EXECUTE_DATASOURCES)
                 // In case we have come across a datasource for this organization that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(datasource -> {
@@ -184,7 +187,8 @@ public class PolicyUtils {
     public Flux<Application> updateWithNewPoliciesToApplicationsByOrgId(String orgId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
 
         return applicationRepository
-                .findByOrganizationId(orgId, AclPermission.MANAGE_APPLICATIONS)
+                // fetch applications with read permissions so that app viewers can invite other app viewers
+                .findByOrganizationId(orgId, AclPermission.READ_APPLICATIONS)
                 // In case we have come across an application for this organization that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(application -> {
@@ -205,7 +209,8 @@ public class PolicyUtils {
         // in published app but has been deleted in the edit mode]. This means that we don't have to do any special treatment
         // during deployment of the application to handle edge cases.
         return newPageRepository
-                .findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
+                // fetch pages with read permissions so that app viewers can invite other app viewers
+                .findByApplicationId(applicationId, AclPermission.READ_PAGES)
                 .switchIfEmpty(Mono.empty())
                 .map(page -> {
                     if (addPolicyToObject) {
@@ -248,8 +253,8 @@ public class PolicyUtils {
     }
 
     public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,
-                                                                           Class sourceEntity,
-                                                                           Class destinationEntity) {
+                                                                           Class<? extends BaseDomain> sourceEntity,
+                                                                           Class<? extends BaseDomain> destinationEntity) {
         Set<Policy> extractedInterestingPolicySet = new HashSet<>(sourcePolicyMap.values());
 
         return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity)
@@ -279,4 +284,18 @@ public class PolicyUtils {
 
         return false;
     }
+
+    public Set<String> findUsernamesWithPermission(Set<Policy> policies, AclPermission permission) {
+        if (CollectionUtils.isNotEmpty(policies) && permission != null) {
+            final String permissionString = permission.getValue();
+            for (Policy policy : policies) {
+                if (permissionString.equals(policy.getPermission())) {
+                    return policy.getUsers();
+                }
+            }
+        }
+
+        return Collections.emptySet();
+    }
+
 }

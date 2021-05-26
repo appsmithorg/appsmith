@@ -20,7 +20,7 @@ import { calculateDynamicHeight } from "utils/WidgetPropsUtils";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 
 export const useDynamicAppLayout = () => {
-  const { width: screenWidth, height: screenHeight } = useWindowSizeHooks();
+  const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
   const mainContainer = useSelector((state: AppState) =>
     getWidget(state, MAIN_CONTAINER_WIDGET_ID),
   );
@@ -97,5 +97,5 @@ export const useDynamicAppLayout = () => {
 
   useEffect(() => {
     resizeToLayout(screenWidth, appLayout);
-  }, [appLayout, currentPageId]);
+  }, [appLayout, currentPageId, mainContainer.rightColumn]);
 };

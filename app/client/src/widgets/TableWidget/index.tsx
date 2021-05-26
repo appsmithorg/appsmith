@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetState } from "../BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   getDefaultColumnProperties,
   getTableStyles,
@@ -10,11 +10,6 @@ import {
   renderActions,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
@@ -45,22 +40,6 @@ const ReactTableComponent = lazy(() =>
 );
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      tableData: VALIDATION_TYPES.TABLE_DATA,
-      nextPageKey: VALIDATION_TYPES.TEXT,
-      prevPageKey: VALIDATION_TYPES.TEXT,
-      label: VALIDATION_TYPES.TEXT,
-      searchText: VALIDATION_TYPES.TEXT,
-      defaultSearchText: VALIDATION_TYPES.TEXT,
-      defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
-      pageSize: VALIDATION_TYPES.NUMBER,
-      selectedRowIndices: VALIDATION_TYPES.ROW_INDICES,
-      pageNo: VALIDATION_TYPES.TABLE_PAGE_NO,
-    };
-  }
-
   static getPropertyPaneConfig() {
     return tablePropertyPaneConfig;
   }
@@ -83,7 +62,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
       sanitizedTableData: `{{(()=>{${derivedProperties.getSanitizedTableData}})()}}`,
-      columns: `{{(()=>{${derivedProperties.getTableColumns}})()}}`,
+      tableColumns: `{{(()=>{${derivedProperties.getTableColumns}})()}}`,
       filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
     };
   }
@@ -157,7 +136,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       totalColumnSizes += columnSizeMap[i];
     }
 
-    const allColumnProperties = this.props.columns || [];
+    const allColumnProperties = this.props.tableColumns || [];
     for (let index = 0; index < allColumnProperties.length; index++) {
       const columnProperties = allColumnProperties[index];
       const isHidden = !columnProperties.isVisible;
@@ -182,7 +161,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
         columnProperties: columnProperties,
         Cell: (props: any) => {
-          const rowIndex: number = props.cell.row.index;
+          let rowIndex: number = props.cell.row.index;
+          const data = this.props.filteredTableData[rowIndex];
+          if (data && data.__originalIndex__) rowIndex = data.__originalIndex__;
+
           const cellProperties = this.getCellProperties(
             columnProperties,
             rowIndex,
@@ -511,7 +493,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // When we have tableData, the primaryColumns order is unlikely to change
     // When we don't have tableData primaryColumns will not be available, so let's let it be.
 
-    if (sanitizedTableData.length > 0) {
+    if (Array.isArray(sanitizedTableData) && sanitizedTableData.length > 0) {
       newPrimaryColumns = this.createTablePrimaryColumns();
       if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);
     }
@@ -580,6 +562,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.pageSize !== prevProps.pageSize) {
       if (this.props.onPageSizeChange) {
         super.executeAction({
+          triggerPropertyName: "onPageSizeChange",
           dynamicString: this.props.onPageSizeChange,
           event: {
             type: EventType.ON_PAGE_SIZE_CHANGE,
@@ -620,60 +603,59 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return selectedRowIndices;
   };
 
+  applyFilters = (filters: ReactTableFilter[]) => {
+    this.resetSelectedRowIndex();
+    this.props.updateWidgetMetaProperty("filters", filters);
+  };
+
+  toggleDrag = (disable: boolean) => {
+    this.disableDrag(disable);
+  };
+
   getPageView() {
-    const { hiddenColumns, pageSize, filteredTableData = [] } = this.props;
+    const { pageSize, filteredTableData = [] } = this.props;
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
-          height={componentHeight}
-          width={componentWidth}
-          tableData={transformedData}
-          columns={tableColumns}
-          isLoading={this.props.isLoading}
-          widgetId={this.props.widgetId}
-          widgetName={this.props.widgetName}
-          searchKey={this.props.searchText}
-          editMode={this.props.renderMode === RenderModes.CANVAS}
-          hiddenColumns={hiddenColumns}
-          columnOrder={this.props.columnOrder}
-          triggerRowSelection={this.props.triggerRowSelection}
+          applyFilter={this.applyFilters}
           columnSizeMap={this.props.columnSizeMap}
-          pageSize={Math.max(1, pageSize)}
+          columns={tableColumns}
+          compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
+          disableDrag={this.toggleDrag}
+          editMode={this.props.renderMode === RenderModes.CANVAS}
+          filters={this.props.filters}
+          handleReorderColumn={this.handleReorderColumn}
+          handleResizeColumn={this.handleResizeColumn}
+          height={componentHeight}
+          isLoading={this.props.isLoading}
+          multiRowSelection={this.props.multiRowSelection}
+          nextPageClick={this.handleNextPageClick}
           onCommandClick={this.onCommandClick}
+          onRowClick={this.handleRowClick}
+          pageNo={this.props.pageNo}
+          pageSize={Math.max(1, pageSize)}
+          prevPageClick={this.handlePrevPageClick}
+          searchKey={this.props.searchText}
+          searchTableData={this.handleSearchTable}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined
               ? -1
               : this.props.selectedRowIndex
           }
-          multiRowSelection={this.props.multiRowSelection}
           selectedRowIndices={this.getSelectedRowIndices()}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
-          onRowClick={this.handleRowClick}
-          pageNo={this.props.pageNo}
-          nextPageClick={this.handleNextPageClick}
-          prevPageClick={this.handlePrevPageClick}
-          handleResizeColumn={this.handleResizeColumn}
-          updatePageNo={this.updatePageNumber}
-          updateHiddenColumns={(hiddenColumns?: string[]) => {
-            super.updateWidgetProperty("hiddenColumns", hiddenColumns);
-          }}
-          handleReorderColumn={this.handleReorderColumn}
-          disableDrag={(disable: boolean) => {
-            this.disableDrag(disable);
-          }}
-          searchTableData={this.handleSearchTable}
-          filters={this.props.filters}
-          applyFilter={(filters: ReactTableFilter[]) => {
-            this.resetSelectedRowIndex();
-            this.props.updateWidgetMetaProperty("filters", filters);
-          }}
-          compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
-          updateCompactMode={this.handleCompactModeChange}
           sortTableColumn={this.handleColumnSorting}
+          tableData={transformedData}
+          triggerRowSelection={this.props.triggerRowSelection}
+          updateCompactMode={this.handleCompactModeChange}
+          updatePageNo={this.updatePageNumber}
+          widgetId={this.props.widgetId}
+          widgetName={this.props.widgetName}
+          width={componentWidth}
         />
       </Suspense>
     );
@@ -718,15 +700,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("pageNo", 1);
     this.props.updateWidgetMetaProperty("searchText", searchKey, {
+      triggerPropertyName: "onSearchTextChanged",
       dynamicString: onSearchTextChanged,
       event: {
         type: EventType.ON_SEARCH,
       },
     });
-  };
-
-  updateHiddenColumns = (hiddenColumns?: string[]) => {
-    super.updateWidgetProperty("hiddenColumns", hiddenColumns);
   };
 
   onCommandClick = (
@@ -742,6 +721,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }, "");
 
       super.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: modifiedAction,
         event: {
           type: EventType.ON_CLICK,
@@ -785,6 +765,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
       if (selectedRowIndex !== index) {
         this.props.updateWidgetMetaProperty("selectedRowIndex", index, {
+          triggerPropertyName: "onRowSelected",
           dynamicString: this.props.onRowSelected,
           event: {
             type: EventType.ON_ROW_SELECTED,
@@ -797,6 +778,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   updatePageNumber = (pageNo: number, event?: EventType) => {
     if (event) {
       this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+        triggerPropertyName: "onPageChange",
         dynamicString: this.props.onPageChange,
         event: {
           type: event,
@@ -814,6 +796,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     let pageNo = this.props.pageNo || 1;
     pageNo = pageNo + 1;
     this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+      triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
       event: {
         type: EventType.ON_NEXT_PAGE,
@@ -846,6 +829,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     pageNo = pageNo - 1;
     if (pageNo >= 1) {
       this.props.updateWidgetMetaProperty("pageNo", pageNo, {
+        triggerPropertyName: "onPageChange",
         dynamicString: this.props.onPageChange,
         event: {
           type: EventType.ON_PREV_PAGE,

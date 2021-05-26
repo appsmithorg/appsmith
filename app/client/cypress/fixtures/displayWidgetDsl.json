@@ -14,7 +14,6 @@
        "type": "CANVAS_WIDGET",
        "canExtend": true,
        "dynamicBindingPathList": [],
-       "version": 4,
        "minHeight": 1292,
        "parentColumnSpace": 1,
        "leftColumn": 0,
@@ -209,7 +208,6 @@
                            {
                                "isVisible": true,
                                "text": "Label",
-                               "textStyle": "LABEL",
                                "textAlign": "LEFT",
                                "widgetName": "Text1",
                                "type": "TEXT_WIDGET",

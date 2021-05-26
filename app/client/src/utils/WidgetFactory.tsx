@@ -5,10 +5,6 @@ import {
   WidgetDataProps,
   WidgetState,
 } from "widgets/BaseWidget";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "./WidgetValidation";
 import React from "react";
 import {
   PropertyPaneConfig,
@@ -49,10 +45,6 @@ class WidgetFactory {
     WidgetType,
     WidgetBuilder<WidgetProps, WidgetState>
   > = new Map();
-  static widgetPropValidationMap: Map<
-    WidgetType,
-    WidgetPropertyValidationType
-  > = new Map();
   static widgetDerivedPropertiesGetterMap: Map<
     WidgetType,
     WidgetDerivedPropertyType
@@ -74,14 +66,12 @@ class WidgetFactory {
   static registerWidgetBuilder(
     widgetType: WidgetType,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
-    widgetPropertyValidation: WidgetPropertyValidationType,
     derivedPropertiesMap: DerivedPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
-    this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
     this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
@@ -120,17 +110,6 @@ class WidgetFactory {
 
   static getWidgetTypes(): WidgetType[] {
     return Array.from(this.widgetMap.keys());
-  }
-
-  static getWidgetPropertyValidationMap(
-    widgetType: WidgetType,
-  ): WidgetPropertyValidationType {
-    const map = this.widgetPropValidationMap.get(widgetType);
-    if (!map) {
-      console.error("Widget type validation is not defined");
-      return BASE_WIDGET_VALIDATION;
-    }
-    return map;
   }
 
   static getWidgetDerivedPropertiesMap(
@@ -181,7 +160,6 @@ class WidgetFactory {
     const typeConfigMap: WidgetTypeConfigMap = {};
     WidgetFactory.getWidgetTypes().forEach((type) => {
       typeConfigMap[type] = {
-        validations: WidgetFactory.getWidgetPropertyValidationMap(type),
         defaultProperties: WidgetFactory.getWidgetDefaultPropertiesMap(type),
         derivedProperties: WidgetFactory.getWidgetDerivedPropertiesMap(type),
         metaProperties: WidgetFactory.getWidgetMetaPropertiesMap(type),
@@ -194,7 +172,6 @@ class WidgetFactory {
 export type WidgetTypeConfigMap = Record<
   string,
   {
-    validations: WidgetPropertyValidationType;
     derivedProperties: WidgetDerivedPropertyType;
     defaultProperties: Record<string, string>;
     metaProperties: Record<string, any>;

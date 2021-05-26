@@ -1,4 +1,5 @@
 import {
+  EvaluationReduxAction,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -42,20 +43,19 @@ import { transformRestAction } from "transformers/RestActionTransformer";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getDataSources,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { Action, ActionViewMode } from "entities/Action";
+import { Action, ActionViewMode, PluginType } from "entities/Action";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
   getEditorConfig,
   getPageNameByPageId,
+  getPlugin,
   getSettingConfig,
+  getDatasources,
 } from "selectors/entitiesSelector";
-import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
@@ -78,9 +78,12 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "constants/messages";
-import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -90,30 +93,11 @@ export function* createActionSaga(
   try {
     let payload = actionPayload.payload;
     if (actionPayload.payload.pluginId) {
-      let editorConfig;
-      editorConfig = yield select(
+      const editorConfig = yield select(
         getEditorConfig,
         actionPayload.payload.pluginId,
       );
 
-      if (!editorConfig) {
-        const formConfigResponse: GenericApiResponse<any> = yield PluginsApi.fetchFormConfig(
-          actionPayload.payload.pluginId,
-        );
-        yield validateResponse(formConfigResponse);
-        yield put({
-          type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
-          payload: {
-            id: actionPayload.payload.pluginId,
-            ...formConfigResponse.data,
-          },
-        });
-
-        editorConfig = yield select(
-          getEditorConfig,
-          actionPayload.payload.pluginId,
-        );
-      }
       const settingConfig = yield select(
         getSettingConfig,
         actionPayload.payload.pluginId,
@@ -130,7 +114,7 @@ export function* createActionSaga(
       payload = merge(initialValues, actionPayload.payload);
     }
 
-    const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
+    const response: ActionCreateUpdateResponse = yield ActionAPI.createAction(
       payload,
     );
     const isValidResponse = yield validateResponse(response);
@@ -155,8 +139,16 @@ export function* createActionSaga(
         ...actionPayload.payload.eventData,
       });
 
-      const newAction = response.data;
+      AppsmithConsole.info({
+        text: `Action created`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          id: response.data.id,
+          name: response.data.name,
+        },
+      });
 
+      const newAction = response.data;
       yield put(createActionSuccess(newAction));
     }
   } catch (error) {
@@ -167,7 +159,9 @@ export function* createActionSaga(
   }
 }
 
-export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
+export function* fetchActionsSaga(
+  action: EvaluationReduxAction<FetchActionsPayload>,
+) {
   const { applicationId } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
@@ -182,6 +176,7 @@ export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
       yield put({
         type: ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
         payload: response.data,
+        postEvalActions: action.postEvalActions,
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_ACTIONS_API,
@@ -281,13 +276,13 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     );
     let action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
-    const isApi = action.pluginType === "API";
+    const isApi = action.pluginType === PluginType.API;
 
     if (isApi) {
       action = transformRestAction(action);
     }
 
-    const response: GenericApiResponse<Action> = yield ActionAPI.updateAPI(
+    const response: GenericApiResponse<Action> = yield ActionAPI.updateAction(
       action,
     );
     const isValidResponse = yield validateResponse(response);
@@ -297,13 +292,19 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
         response.data.id,
       );
 
-      if (action.pluginType === QUERY_CONSTANT) {
+      if (action.pluginType === PluginType.DB) {
         AnalyticsUtil.logEvent("SAVE_QUERY", {
           queryName: action.name,
           pageName,
         });
-      } else if (action.pluginType === PLUGIN_TYPE_API) {
+      } else if (action.pluginType === PluginType.API) {
         AnalyticsUtil.logEvent("SAVE_API", {
+          apiId: response.data.id,
+          apiName: response.data.name,
+          pageName: pageName,
+        });
+      } else if (action.pluginType === PluginType.SAAS) {
+        AnalyticsUtil.logEvent("SAVE_SAAS", {
           apiId: response.data.id,
           apiName: response.data.name,
           pageName: pageName,
@@ -336,8 +337,9 @@ export function* deleteActionSaga(
     const name = actionPayload.payload.name;
     const action = yield select(getAction, id);
 
-    const isApi = action.pluginType === PLUGIN_TYPE_API;
-    const isQuery = action.pluginType === QUERY_CONSTANT;
+    const isApi = action.pluginType === PluginType.API;
+    const isQuery = action.pluginType === PluginType.DB;
+    const isSaas = action.pluginType === PluginType.SAAS;
 
     const response: GenericApiResponse<Action> = yield ActionAPI.deleteAction(
       id,
@@ -356,21 +358,39 @@ export function* deleteActionSaga(
           apiID: id,
         });
       }
+      if (isSaas) {
+        const pageName = yield select(getCurrentPageNameByActionId, id);
+        AnalyticsUtil.logEvent("DELETE_SAAS", {
+          apiName: action.name,
+          pageName,
+          apiID: id,
+        });
+      }
       if (isQuery) {
         AnalyticsUtil.logEvent("DELETE_QUERY", {
           queryName: action.name,
         });
       }
-
-      yield put(deleteActionSuccess({ id }));
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
-      if (isApi) {
+      if (isApi || isSaas) {
         history.push(API_EDITOR_URL(applicationId, pageId));
       }
+
       if (isQuery) {
         history.push(QUERIES_EDITOR_URL(applicationId, pageId));
       }
+
+      AppsmithConsole.info({
+        logType: LOG_TYPE.ENTITY_DELETED,
+        text: "Action was deleted",
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: response.data.name,
+          id: response.data.id,
+        },
+      });
+      yield put(deleteActionSuccess({ id }));
     }
   } catch (error) {
     yield put({
@@ -444,8 +464,8 @@ function* copyActionSaga(
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
     delete copyAction.id;
-    const response = yield ActionAPI.createAPI(copyAction);
-    const datasources = yield select(getDataSources);
+    const response = yield ActionAPI.createAction(copyAction);
+    const datasources = yield select(getDatasources);
 
     const isValidResponse = yield validateResponse(response);
     const pageName = yield select(getPageNameByPageId, response.data.pageId);
@@ -506,6 +526,7 @@ export function* refactorActionName(
     // call to refactor action
     const refactorResponse = yield ActionAPI.updateActionName({
       layoutId,
+      actionId: id,
       pageId: pageId,
       oldName: oldName,
       newName: newName,
@@ -598,11 +619,23 @@ function getDynamicBindingsChangesSaga(
 }
 
 function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
-  const { actionId, value, propertyName } = action.payload;
+  const { actionId, propertyName, value } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
 
   const actionObj = yield select(getAction, actionId);
+  AppsmithConsole.info({
+    text: "Configuration updated",
+    source: {
+      type: ENTITY_TYPE.ACTION,
+      name: actionObj.name,
+      id: actionId,
+    },
+    state: {
+      [propertyName]: value,
+    },
+  });
+
   const effects: Record<string, any> = {};
   // Value change effect
   effects[propertyName] = value;
@@ -656,8 +689,9 @@ function* toggleActionExecuteOnLoadSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const action: Action = yield select(getAction, id);
-  const isApi = action.pluginType === PLUGIN_TYPE_API;
-  const isQuery = action.pluginType === QUERY_CONSTANT;
+  const isApi = action.pluginType === PluginType.API;
+  const isQuery = action.pluginType === PluginType.DB;
+  const isSaas = action.pluginType === PluginType.DB;
   const applicationId = yield select(getCurrentApplicationId);
 
   if (isApi) {
@@ -666,6 +700,17 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   if (isQuery) {
     history.push(
       QUERIES_EDITOR_ID_URL(applicationId, action.pageId, action.id),
+    );
+  }
+  if (isSaas) {
+    const plugin = yield select(getPlugin, action.pluginId);
+    history.push(
+      SAAS_EDITOR_API_ID_URL(
+        applicationId,
+        action.pageId,
+        plugin.packageName,
+        action.id,
+      ),
     );
   }
 }

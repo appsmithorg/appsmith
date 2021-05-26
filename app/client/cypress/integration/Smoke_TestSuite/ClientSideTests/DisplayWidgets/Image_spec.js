@@ -32,10 +32,14 @@ describe("Image Widget Functionality", function() {
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
       .should("contain", this.data.validateImage);
+    cy.closePropertyPane();
+  });
 
+  it("Zoom-in functionality check", function() {
+    cy.openPropertyPane("imagewidget");
     //Zoom validation
     cy.changeZoomLevel("2x");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("contain", "zoom-in");
@@ -55,11 +59,13 @@ describe("Image Widget Functionality", function() {
 
     cy.PublishtheApp();
   });
+
   it("Image Widget Functionality To Validate Image", function() {
     cy.get(publish.imageWidget + " " + "img")
       .invoke("attr", "src")
-      .should("contain", this.data.validateImage);
+      .should("contain", this.data.NewImage);
   });
+
   it("Image Widget Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("imagewidget");
@@ -68,6 +74,7 @@ describe("Image Widget Functionality", function() {
     cy.get(publish.imageWidget).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
+
   it("Image Widget Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("imagewidget");
     cy.togglebar(commonlocators.visibleCheckbox);

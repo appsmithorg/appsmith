@@ -14,18 +14,18 @@ export default {
 export const withDynamicProps = () => (
   <StoryWrapper>
     <Button
-      size={select("size", Object.values(Size), Size.large)}
       category={select("category", Object.values(Category), Category.primary)}
-      variant={select("variant", Object.values(Variant), Variant.info)}
+      disabled={boolean("Disabled", false)}
+      fill={boolean("fill", false)}
       icon={select(
         "Icon name",
         ["Select icon" as IconName, ...IconCollection],
         "Select icon" as IconName,
       )}
       isLoading={boolean("Loading", false)}
-      disabled={boolean("Disabled", false)}
+      size={select("size", Object.values(Size), Size.large)}
       text={text("text", "Get")}
-      fill={boolean("fill", false)}
-    ></Button>
+      variant={select("variant", Object.values(Variant), Variant.info)}
+    />
   </StoryWrapper>
 );

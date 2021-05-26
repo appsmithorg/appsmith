@@ -39,6 +39,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, String> implements NewPageService {
 
     private final ApplicationService applicationService;
+    private final UserDataService userDataService;
 
     @Autowired
     public NewPageServiceImpl(Scheduler scheduler,
@@ -47,9 +48,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                               ReactiveMongoTemplate reactiveMongoTemplate,
                               NewPageRepository repository,
                               AnalyticsService analyticsService,
-                              ApplicationService applicationService) {
+                              ApplicationService applicationService, UserDataService userDataService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationService = applicationService;
+        this.userDataService = userDataService;
     }
 
     @Override
@@ -169,6 +171,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                         }
                     }
                     return Mono.just(application);
+                }).flatMap(application -> {
+                    // add this organization id to the recently used organization id of User Data
+                    return userDataService.updateLastUsedOrgList(application.getOrganizationId())
+                            .thenReturn(application);
                 })
                 .cache();
 

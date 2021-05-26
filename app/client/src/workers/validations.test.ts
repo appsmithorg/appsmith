@@ -1,6 +1,8 @@
 import { VALIDATORS, validateDateString } from "workers/validations";
 import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import moment from "moment";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -12,112 +14,66 @@ const DUMMY_WIDGET: WidgetProps = {
   rightColumn: 0,
   topRow: 0,
   type: WidgetTypes.SKELETON_WIDGET,
-  version: 0,
+  version: 2,
   widgetId: "",
   widgetName: "",
 };
 
 describe("Validate Validators", () => {
-  const validator = VALIDATORS.CHART_DATA;
-  it("correctly validates chart data ", () => {
+  it("correctly validates chart series data ", () => {
     const cases = [
       {
-        input: [
-          {
-            seriesName: "Sales",
-            data: [{ x: "Jan", y: 1000 }],
-          },
-        ],
+        input: [{ x: "Jan", y: 1000 }],
         output: {
           isValid: true,
-          parsed: [
-            {
-              seriesName: "Sales",
-              data: [{ x: "Jan", y: 1000 }],
-            },
-          ],
-          transformed: [
-            {
-              seriesName: "Sales",
-              data: [{ x: "Jan", y: 1000 }],
-            },
-          ],
+          parsed: [{ x: "Jan", y: 1000 }],
+          transformed: [{ x: "Jan", y: 1000 }],
         },
       },
       {
-        input: [
-          {
-            seriesName: "Sales",
-            data: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
-          },
-        ],
+        input: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         output: {
           isValid: false,
-          message: '0##Value does not match type: [{ "x": "val", "y": "val" }]',
-          parsed: [
-            {
-              seriesName: "Sales",
-              data: [],
-            },
-          ],
-          transformed: [
-            {
-              seriesName: "Sales",
-              data: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
-            },
-          ],
+          message:
+            'This value does not evaluate to type: "Array<x:string, y:number>"',
+          parsed: [],
+          transformed: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         },
       },
       {
-        input: [
-          {
-            seriesName: "Sales",
-            data: undefined,
-          },
-          {
-            seriesName: "Expenses",
-            data: [
-              { x: "Jan", y: 1000 },
-              { x: "Feb", y: 2000 },
-            ],
-          },
-        ],
+        input: undefined,
         output: {
           isValid: false,
-          message: '0##Value does not match type: [{ "x": "val", "y": "val" }]',
-          parsed: [
-            {
-              seriesName: "Sales",
-              data: [],
-            },
-            {
-              seriesName: "Expenses",
-              data: [
-                { x: "Jan", y: 1000 },
-                { x: "Feb", y: 2000 },
-              ],
-            },
-          ],
-          transformed: [
-            {
-              seriesName: "Sales",
-              data: undefined,
-            },
-            {
-              seriesName: "Expenses",
-              data: [
-                { x: "Jan", y: 1000 },
-                { x: "Feb", y: 2000 },
-              ],
-            },
-          ],
+          message:
+            'This value does not evaluate to type: "Array<x:string, y:number>"',
+          parsed: [],
+          transformed: undefined,
         },
       },
     ];
     for (const testCase of cases) {
-      const response = validator(testCase.input, DUMMY_WIDGET, {});
+      const response = VALIDATORS.CHART_SERIES_DATA(
+        testCase.input,
+        DUMMY_WIDGET,
+        {},
+      );
       expect(response).toStrictEqual(testCase.output);
     }
+  });
+  it("Correctly validates image string", () => {
+    const input =
+      "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png";
+    const result = VALIDATORS.IMAGE(input, DUMMY_WIDGET, undefined);
+    const expectedResult: {
+      isValid: boolean;
+      parsed: string;
+      message?: string;
+    } = {
+      isValid: true,
+      parsed: input,
+      message: "",
+    };
+    expect(result).toStrictEqual(expectedResult);
   });
   it("Correctly validates page number", () => {
     const input = [0, -1, undefined, null, 2, "abcd", [], ""];
@@ -157,7 +113,7 @@ describe("Validate Validators", () => {
         parsed: expected[index],
       };
       if (invalidIndices.includes(index)) {
-        expectedResult.message = `Value does not match type: number[]`;
+        expectedResult.message = `This value does not evaluate to type: number[]`;
       }
       expect(result).toStrictEqual(expectedResult);
     });
@@ -443,7 +399,7 @@ describe("Chart Custom Config validator", () => {
         output: {
           isValid: false,
           message:
-            "Value does not match type: {type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}",
+            'This value does not evaluate to type "{type: string, dataSource: { chart: object, data: Array<{label: string, value: number}>}}"',
           parsed: {
             type: undefined,
             dataSource: undefined,
@@ -473,6 +429,11 @@ describe("validateDateString test", () => {
         date: "2021-03-12",
         format: "YYYY-MM-DD",
         version: 1,
+      },
+      {
+        date: "2021-03-12",
+        format: "YYYY-MM-DD",
+        version: 2,
       },
     ];
 
@@ -506,6 +467,113 @@ describe("validateDateString test", () => {
       expect(
         validateDateString(item.date, item.format, item.version),
       ).toBeFalsy();
+    });
+  });
+
+  it("Checks whether a valid value is returned even if a valid date is not an ISO string", () => {
+    const validator = VALIDATORS.DEFAULT_DATE;
+    const inputs = [
+      "2014/12/01",
+      "2014-12-01",
+      "01/13/2014",
+      "01-13-2014",
+      moment().toISOString(),
+      moment().toISOString(true),
+    ];
+    inputs.forEach((item) => {
+      const dateString = moment(item).toISOString(true);
+      const result = validator(item, DUMMY_WIDGET);
+
+      const expected = {
+        parsed: dateString,
+        isValid: true,
+        message: "",
+      };
+      expect(result).toStrictEqual(expected);
+    });
+  });
+});
+
+describe("List data validator", () => {
+  const validator = VALIDATORS.LIST_DATA;
+  it("correctly validates ", () => {
+    const cases = [
+      {
+        input: [],
+        output: {
+          isValid: true,
+          parsed: [],
+        },
+      },
+      {
+        input: [{ a: 1 }],
+        output: {
+          isValid: true,
+          parsed: [{ a: 1 }],
+        },
+      },
+      {
+        input: "sting text",
+        output: {
+          isValid: false,
+          message: 'This value does not evaluate to type: "Array<Object>"',
+          parsed: [],
+          transformed: "sting text",
+        },
+      },
+      {
+        input: undefined,
+        output: {
+          isValid: false,
+          message: 'This value does not evaluate to type: "Array<Object>"',
+          parsed: [],
+          transformed: undefined,
+        },
+      },
+      {
+        input: {},
+        output: {
+          isValid: false,
+          message: 'This value does not evaluate to type: "Array<Object>"',
+          parsed: [],
+          transformed: {},
+        },
+      },
+      {
+        input: `[{ "b": 1 }]`,
+        output: {
+          isValid: true,
+          parsed: JSON.parse(`[{ "b": 1 }]`),
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const response = validator(testCase.input, DUMMY_WIDGET, {});
+      expect(response).toStrictEqual(testCase.output);
+    }
+  });
+
+  it("Validates DEFAULT_OPTION_VALUE correctly (string trim and integers)", () => {
+    const validator = VALIDATORS[VALIDATION_TYPES.DEFAULT_OPTION_VALUE];
+    const widgetProps = { ...DUMMY_WIDGET, selectionType: "SINGLE_SELECT" };
+    const inputs = [100, "something ", "something\n"];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "100",
+      },
+      {
+        isValid: true,
+        parsed: "something",
+      },
+      {
+        isValid: true,
+        parsed: "something",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const response = validator(input, widgetProps);
+      expect(response).toStrictEqual(expected[index]);
     });
   });
 });

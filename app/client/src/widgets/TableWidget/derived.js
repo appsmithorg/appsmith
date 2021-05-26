@@ -33,27 +33,27 @@ export default {
   getPageSize: (props, moment, _) => {
     const TABLE_SIZES = {
       DEFAULT: {
-        COLUMN_HEADER_HEIGHT: 38,
-        TABLE_HEADER_HEIGHT: 42,
+        COLUMN_HEADER_HEIGHT: 32,
+        TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 40,
         ROW_FONT_SIZE: 14,
       },
       SHORT: {
-        COLUMN_HEADER_HEIGHT: 38,
-        TABLE_HEADER_HEIGHT: 42,
+        COLUMN_HEADER_HEIGHT: 32,
+        TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 20,
         ROW_FONT_SIZE: 12,
       },
       TALL: {
-        COLUMN_HEADER_HEIGHT: 38,
-        TABLE_HEADER_HEIGHT: 42,
+        COLUMN_HEADER_HEIGHT: 32,
+        TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 60,
         ROW_FONT_SIZE: 18,
       },
     };
     const compactMode = props.compactMode || "DEFAULT";
     const componentHeight =
-      (props.bottomRow - props.topRow) * props.parentRowSpace;
+      (props.bottomRow - props.topRow) * props.parentRowSpace - 10;
     const tableSizes = TABLE_SIZES[compactMode];
     let pageSize = Math.floor(
       (componentHeight -
@@ -151,7 +151,7 @@ export default {
     ) {
       const newColumnsInOrder = {};
 
-      props.columnOrder.forEach((id, index) => {
+      _.uniq(props.columnOrder).forEach((id, index) => {
         if (allColumns[id])
           newColumnsInOrder[id] = { ...allColumns[id], index };
       });
@@ -182,7 +182,7 @@ export default {
     if (!props.sanitizedTableData || !props.sanitizedTableData.length) {
       return [];
     }
-    const derivedTableData = [...props.sanitizedTableData];
+    let derivedTableData = [...props.sanitizedTableData];
     if (props.primaryColumns && _.isPlainObject(props.primaryColumns)) {
       const primaryColumns = props.primaryColumns;
       const columnIds = Object.keys(props.primaryColumns);
@@ -220,7 +220,12 @@ export default {
       });
     }
 
-    const columns = props.columns;
+    derivedTableData = derivedTableData.map((item, index) => ({
+      ...item,
+      __originalIndex__: index,
+    }));
+
+    const columns = props.tableColumns;
 
     let sortedTableData;
     if (props.sortedColumn) {
@@ -280,9 +285,7 @@ export default {
       isExactly: (a, b) => {
         return a.toString() === b.toString();
       },
-      empty: (a) => {
-        return a === "" || a === undefined || a === null;
-      },
+      empty: _.isEmpty,
       notEmpty: (a) => {
         return a !== "" && a !== undefined && a !== null;
       },
@@ -313,28 +316,43 @@ export default {
         return numericA >= numericB;
       },
       contains: (a, b) => {
-        if (_.isString(a) && _.isString(b)) {
-          return a.includes(b);
+        try {
+          return a
+            .toString()
+            .toLowerCase()
+            .includes(b.toString().toLowerCase());
+        } catch (e) {
+          return false;
         }
-        return false;
       },
       doesNotContain: (a, b) => {
-        if (_.isString(a) && _.isString(b)) {
-          return !a.includes(b);
+        try {
+          return !this.contains(a, b);
+        } catch (e) {
+          return false;
         }
-        return false;
       },
       startsWith: (a, b) => {
-        if (_.isString(a) && _.isString(b)) {
-          return a.indexOf(b) === 0;
+        try {
+          return (
+            a
+              .toString()
+              .toLowerCase()
+              .indexOf(b.toString().toLowerCase()) === 0
+          );
+        } catch (e) {
+          return false;
         }
-        return false;
       },
       endsWith: (a, b) => {
-        if (_.isString(a) && _.isString(b)) {
-          return a.length === a.indexOf(b) + b.length;
+        try {
+          const _a = a.toString().toLowerCase();
+          const _b = b.toString().toLowerCase();
+
+          return _a.length === _a.indexOf(_b) + _b.length;
+        } catch (e) {
+          return false;
         }
-        return false;
       },
       is: (a, b) => {
         return moment(a).isSame(moment(b), "d");
@@ -350,7 +368,10 @@ export default {
       },
     };
 
-    const searchKey = props.searchText ? props.searchText.toLowerCase() : "";
+    const searchKey =
+      props.searchText && !props.onSearchTextChanged
+        ? props.searchText.toLowerCase()
+        : "";
 
     const finalTableData = sortedTableData.filter((item) => {
       const searchFound = searchKey

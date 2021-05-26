@@ -15,7 +15,8 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.get(commonlocators.entityExplorersearch)
       .clear()
       .type("form");
-    cy.dragAndDropToCanvas("formwidget", { x: 300, y: -300 });
+    cy.dragAndDropToCanvas("formwidget", { x: 300, y: 80 });
+    cy.get(formWidgetsPage.formD).click();
     /**
      * @param{Text} Random Text
      * @param{FormWidget}Mouseover
@@ -40,7 +41,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom")
       .should("be.visible");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(explorer.closeWidgets).click();
     cy.PublishtheApp();
     cy.get(publish.backToEditor)

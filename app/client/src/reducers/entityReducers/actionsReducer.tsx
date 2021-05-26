@@ -5,7 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { ActionResponse } from "api/ActionAPI";
-import { ExecuteErrorPayload } from "constants/ActionConstants";
+import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import _ from "lodash";
 import { Action } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/actionActions";
@@ -16,6 +16,15 @@ export interface ActionData {
   config: Action;
   data?: ActionResponse;
 }
+
+export interface ActionDataWithMeta extends ActionData {
+  responseMeta: {
+    headers?: unknown;
+    isExecutionSuccess: boolean;
+    statusCode?: string;
+  };
+}
+
 export type ActionDataState = ActionData[];
 export interface PartialActionData {
   isLoading: boolean;
@@ -294,6 +303,7 @@ const actionsReducer = createReducer(initialState, {
         .filter((a) => a.config.id === action.payload.id)
         .map((a) => ({
           ...a,
+          data: undefined,
           config: {
             ...a.config,
             id: "TEMP_COPY_ID",

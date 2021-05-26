@@ -24,6 +24,8 @@ import PerformanceTracker, {
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
+import Debugger from "components/editorComponents/Debugger";
+import { closePropertyPane } from "actions/widgetActions";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -51,9 +53,8 @@ const CanvasContainer = styled.section`
 `;
 
 /* eslint-disable react/display-name */
-const WidgetsEditor = () => {
-  PerformanceTracker.startTracking(PerformanceTransactionName.EDITOR_MOUNT);
-  const { focusWidget, selectWidget } = useWidgetSelection();
+function WidgetsEditor() {
+  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
 
@@ -64,7 +65,6 @@ const WidgetsEditor = () => {
   const currentApp = useSelector(getCurrentApplication);
   useDynamicAppLayout();
   useEffect(() => {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
   });
 
@@ -99,8 +99,9 @@ const WidgetsEditor = () => {
 
   const handleWrapperClick = useCallback(() => {
     focusWidget && focusWidget();
-    selectWidget && selectWidget();
-  }, [focusWidget, selectWidget]);
+    deselectAll && deselectAll();
+    dispatch(closePropertyPane());
+  }, [focusWidget, deselectAll]);
 
   const pageLoading = (
     <Centered>
@@ -122,12 +123,13 @@ const WidgetsEditor = () => {
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
         <MainContainerLayoutControl />
-        <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
+        <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
           {node}
         </CanvasContainer>
+        <Debugger />
       </EditorWrapper>
     </EditorContextProvider>
   );
-};
+}
 
 export default WidgetsEditor;

@@ -24,7 +24,9 @@ export enum WidgetTypes {
   FILE_PICKER_WIDGET = "FILE_PICKER_WIDGET",
   VIDEO_WIDGET = "VIDEO_WIDGET",
   SKELETON_WIDGET = "SKELETON_WIDGET",
+  LIST_WIDGET = "LIST_WIDGET",
   SWITCH_WIDGET = "SWITCH_WIDGET",
+  TABS_MIGRATOR_WIDGET = "TABS_MIGRATOR_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -94,19 +96,23 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
+export const LATEST_PAGE_VERSION = 20;
+
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
   DEFAULT_WIDGET_WIDTH: 200,
   DEFAULT_WIDGET_HEIGHT: 100,
-  DEFAULT_GRID_COLUMNS: 16,
-  DEFAULT_GRID_ROW_HEIGHT: 40,
+  DEFAULT_GRID_COLUMNS: 64,
+  DEFAULT_GRID_ROW_HEIGHT: 10,
   CANVAS_EXTENSION_OFFSET: 2,
 };
 
+// calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
 export const CONTAINER_GRID_PADDING =
-  (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
+  GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
-export const WIDGET_PADDING = (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.2;
+// calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 0.5) * 0.2;
+export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
@@ -115,3 +121,28 @@ export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
+
+export enum FontStyleTypes {
+  BOLD = "BOLD",
+  ITALIC = "ITALIC",
+  REGULAR = "REGULAR",
+  UNDERLINE = "UNDERLINE",
+}
+
+export enum TextSizes {
+  HEADING1 = "HEADING1",
+  HEADING2 = "HEADING2",
+  HEADING3 = "HEADING3",
+  PARAGRAPH = "PARAGRAPH",
+  PARAGRAPH2 = "PARAGRAPH2",
+}
+
+export const TEXT_SIZES = {
+  HEADING1: "24px",
+  HEADING2: "18px",
+  HEADING3: "16px",
+  PARAGRAPH: "14px",
+  PARAGRAPH2: "12px",
+};
+
+export type TextSize = keyof typeof TextSizes;

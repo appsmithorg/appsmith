@@ -45,35 +45,37 @@ type ContextDropdownProps = {
   };
 };
 
-const DropdownItem = (option: ContextDropdownOption) => (
-  <StyledMenuItem
-    key={option.value}
-    onClick={option.onSelect}
-    shouldDismissPopover={true}
-    text={option.label || option.value}
-    intent={option.intent as BlueprintIntent}
-    popoverProps={{
-      minimal: true,
-      hoverCloseDelay: 0,
-      hoverOpenDelay: 300,
-      interactionKind: PopoverInteractionKind.CLICK,
-      position: PopoverPosition.RIGHT,
-      modifiers: {
-        arrow: {
-          enabled: false,
+function DropdownItem(option: ContextDropdownOption) {
+  return (
+    <StyledMenuItem
+      intent={option.intent as BlueprintIntent}
+      key={option.value}
+      onClick={option.onSelect}
+      popoverProps={{
+        minimal: true,
+        hoverCloseDelay: 0,
+        hoverOpenDelay: 300,
+        interactionKind: PopoverInteractionKind.CLICK,
+        position: PopoverPosition.RIGHT,
+        modifiers: {
+          arrow: {
+            enabled: false,
+          },
+          offset: {
+            enabled: true,
+            offset: "-16px, 0",
+          },
         },
-        offset: {
-          enabled: true,
-          offset: "-16px, 0",
-        },
-      },
-    }}
-  >
-    {option.children && option.children.map(DropdownItem)}
-  </StyledMenuItem>
-);
+      }}
+      shouldDismissPopover
+      text={option.label || option.value}
+    >
+      {option.children && option.children.map(DropdownItem)}
+    </StyledMenuItem>
+  );
+}
 
-export const ContextDropdown = (props: ContextDropdownProps) => {
+export function ContextDropdown(props: ContextDropdownProps) {
   let trigger: ReactNode;
   if (props.toggle.type === "icon" && props.toggle.icon) {
     const TriggerElement = ControlIcons[props.toggle.icon];
@@ -93,15 +95,15 @@ export const ContextDropdown = (props: ContextDropdownProps) => {
 
   return (
     <Dropdown
-      items={props.options}
-      itemRenderer={renderer}
-      onItemSelect={noop}
-      filterable={false}
       className={props.className}
+      filterable={false}
+      itemRenderer={renderer}
+      items={props.options}
+      onItemSelect={noop}
     >
       {trigger}
     </Dropdown>
   );
-};
+}
 
 export default ContextDropdown;

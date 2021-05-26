@@ -30,6 +30,9 @@ import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { handlePathUpdated } from "actions/recentEntityActions";
+import AppComments from "comments/AppComments/AppComments";
+import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
+import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 
 import history from "utils/history";
 
@@ -47,7 +50,7 @@ type EditorProps = {
   selectedWidget?: string;
   lightTheme: Theme;
   resetEditorRequest: () => void;
-  handlePathUpdated: (pathName: string) => void;
+  handlePathUpdated: (location: typeof window.location) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -67,7 +70,7 @@ class Editor extends Component<Props> {
     if (applicationId && pageId) {
       this.props.initEditor(applicationId, pageId);
     }
-    this.props.handlePathUpdated(window.location.pathname);
+    this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
   }
 
@@ -93,7 +96,7 @@ class Editor extends Component<Props> {
   }
 
   handleHistoryChange = (location: any) => {
-    this.props.handlePathUpdated(location.pathname);
+    this.props.handlePathUpdated(location);
   };
 
   public render() {
@@ -123,6 +126,9 @@ class Editor extends Component<Props> {
             </Helmet>
             <GlobalHotKeys>
               <MainContainer />
+              <AppComments />
+              <AddCommentTourComponent />
+              <CommentShowCaseCarousel />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />
@@ -150,8 +156,8 @@ const mapDispatchToProps = (dispatch: any) => {
     initEditor: (applicationId: string, pageId: string) =>
       dispatch(initEditor(applicationId, pageId)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
-    handlePathUpdated: (pathName: string) =>
-      dispatch(handlePathUpdated(pathName)),
+    handlePathUpdated: (location: typeof window.location) =>
+      dispatch(handlePathUpdated(location)),
   };
 };
 

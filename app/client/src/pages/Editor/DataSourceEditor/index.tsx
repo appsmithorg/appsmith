@@ -4,7 +4,6 @@ import { getFormValues, submit } from "redux-form";
 import { AppState } from "reducers";
 import _ from "lodash";
 import {
-  getPluginPackageFromId,
   getPluginImages,
   getDatasource,
   getPlugin,
@@ -23,14 +22,16 @@ import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { ReduxAction } from "constants/ReduxActionConstants";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
+import { setGlobalSearchQuery } from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 
 interface ReduxStateProps {
   formData: Datasource;
-  selectedPluginPackage: string;
   isSaving: boolean;
   isTesting: boolean;
   formConfig: any[];
-  loadingFormConfigs: boolean;
   isDeleting: boolean;
   isNewDatasource: boolean;
   pluginImages: Record<string, string>;
@@ -38,6 +39,7 @@ interface ReduxStateProps {
   viewMode: boolean;
   pluginType: string;
   pluginDatasourceForm: string;
+  pluginPackageName: string;
 }
 
 type Props = ReduxStateProps &
@@ -73,46 +75,45 @@ class DataSourceEditor extends React.Component<Props> {
 
   render() {
     const {
+      deleteDatasource,
+      formConfig,
+      formData,
+      isDeleting,
+      isNewDatasource,
+      isSaving,
+      isTesting,
       match: {
         params: { datasourceId },
       },
-      selectedPluginPackage,
-      isSaving,
-      formData,
-      isTesting,
-      loadingFormConfigs,
-      formConfig,
-      isDeleting,
-      deleteDatasource,
-      isNewDatasource,
-      pluginImages,
+      openOmnibarReadMore,
       pluginId,
-      viewMode,
-      setDatasourceEditorMode,
+      pluginImages,
       pluginType,
+      setDatasourceEditorMode,
+      viewMode,
     } = this.props;
 
     return (
       <DataSourceEditorForm
-        pluginImage={pluginImages[pluginId]}
         applicationId={this.props.match.params.applicationId}
-        pageId={this.props.match.params.pageId}
-        isSaving={isSaving}
-        isTesting={isTesting}
+        datasourceId={datasourceId}
+        formConfig={formConfig}
+        formData={formData}
+        formName={DATASOURCE_DB_FORM}
+        handleDelete={deleteDatasource}
         isDeleting={isDeleting}
         isNewDatasource={isNewDatasource}
-        onSubmit={this.handleSubmit}
+        isSaving={isSaving}
+        isTesting={isTesting}
         onSave={this.handleSave}
+        onSubmit={this.handleSubmit}
         onTest={this.props.testDatasource}
-        selectedPluginPackage={selectedPluginPackage}
-        datasourceId={datasourceId}
-        loadingFormConfigs={loadingFormConfigs}
-        formData={formData}
-        formConfig={formConfig}
-        handleDelete={deleteDatasource}
-        viewMode={viewMode}
-        setDatasourceEditorMode={setDatasourceEditorMode}
+        openOmnibarReadMore={openOmnibarReadMore}
+        pageId={this.props.match.params.pageId}
+        pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
+        setDatasourceEditorMode={setDatasourceEditorMode}
+        viewMode={viewMode}
       />
     );
   }
@@ -122,7 +123,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
   const datasource = getDatasource(state, props.match.params.datasourceId);
-  const { formConfigs, loadingFormConfigs } = plugins;
+  const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
@@ -130,58 +131,60 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginImages: getPluginImages(state),
     formData,
     pluginId,
-    selectedPluginPackage: getPluginPackageFromId(
-      state,
-      datasourcePane.selectedPlugin,
-    ),
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
-    loadingFormConfigs,
     isNewDatasource:
       datasourcePane.newDatasource === props.match.params.datasourceId,
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
     pluginType: plugin?.type ?? "",
     pluginDatasourceForm: plugin?.datasourceComponent ?? "AutoForm",
+    pluginPackageName: plugin?.packageName ?? "",
   };
 };
 
 const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
   submitForm: (name: string) => dispatch(submit(name)),
-  updateDatasource: (formData: any) => {
-    dispatch(updateDatasource(formData));
+  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => {
+    dispatch(updateDatasource(formData, onSuccess));
   },
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
   deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
   switchDatasource: (id: string) => dispatch(switchDatasource(id)),
   setDatasourceEditorMode: (id: string, viewMode: boolean) =>
     dispatch(setDatsourceEditorMode({ id, viewMode })),
+  openOmnibarReadMore: (text: string) => {
+    dispatch(setGlobalSearchQuery(text));
+    dispatch(toggleShowGlobalSearchModal());
+  },
 });
 
 export interface DatasourcePaneFunctions {
   submitForm: (name: string) => void;
-  updateDatasource: (data: Datasource) => void;
+  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => void;
   testDatasource: (data: Datasource) => void;
   deleteDatasource: (id: string) => void;
   switchDatasource: (id: string) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  openOmnibarReadMore: (text: string) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props> {
   render() {
     const {
-      match: {
-        params: { datasourceId, applicationId, pageId },
-      },
-      isSaving,
       history,
       isDeleting,
-      location,
       isNewDatasource,
-      pluginImages,
-      pluginId,
+      isSaving,
+      location,
+      match: {
+        params: { applicationId, datasourceId, pageId },
+      },
       pluginDatasourceForm,
+      pluginId,
+      pluginImages,
+      pluginPackageName,
     } = this.props;
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
@@ -189,11 +192,11 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (!datasourceId) {
       return (
         <DatasourceHome
-          isSaving={isSaving}
           applicationId={applicationId}
-          pageId={pageId}
           history={history}
+          isSaving={isSaving}
           location={location}
+          pageId={pageId}
         />
       );
     }
@@ -202,16 +205,27 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (pluginDatasourceForm === "RestAPIDatasourceForm") {
       return (
         <RestAPIDatasourceForm
-          pluginImage={pluginImages[pluginId]}
           applicationId={this.props.match.params.applicationId}
           datasourceId={datasourceId}
-          pageId={this.props.match.params.pageId}
-          isSaving={isSaving}
           isDeleting={isDeleting}
           isNewDatasource={isNewDatasource}
+          isSaving={isSaving}
           location={location}
+          pageId={this.props.match.params.pageId}
+          pluginImage={pluginImages[pluginId]}
         />
       );
+    }
+    if (pluginDatasourceForm === "DatasourceSaaSForm") {
+      history.push(
+        SAAS_EDITOR_DATASOURCE_ID_URL(
+          applicationId,
+          pageId,
+          pluginPackageName,
+          datasourceId,
+        ),
+      );
+      return;
     }
 
     // Default to old flow

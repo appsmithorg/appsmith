@@ -5,8 +5,8 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -14,11 +14,13 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Param;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -41,21 +43,26 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -78,7 +85,7 @@ public class MssqlPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class MssqlPluginExecutor implements PluginExecutor<Connection> {
+    public static class MssqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
@@ -121,8 +128,17 @@ public class MssqlPlugin extends BasePlugin {
                  * is no longer in beta.
                  */
                 isPreparedStatement = false;
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
+                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
+                if (psValue instanceof  Boolean) {
+                    isPreparedStatement = (Boolean) psValue;
+                } else if (psValue instanceof String) {
+                    isPreparedStatement = Boolean.parseBoolean((String) psValue);
+                } else {
+                    isPreparedStatement = false;
+                }
             } else {
-                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+                isPreparedStatement = false;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
@@ -150,6 +166,10 @@ public class MssqlPlugin extends BasePlugin {
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
+            Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
+            String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                    transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
                 try {
@@ -183,21 +203,21 @@ public class MssqlPlugin extends BasePlugin {
                         resultSet = statement.getResultSet();
                     } else {
                         preparedQuery = connection.prepareStatement(query);
-                        if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
-                            List<Param> params = executeActionDTO.getParams();
-                            List<String> parameters = new ArrayList<>();
-                            for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
-                                String key = mustacheValuesInOrder.get(i);
-                                Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
-                                if (matchingParam.isPresent()) {
-                                    String value = matchingParam.get().getValue();
-                                    parameters.add(value);
-                                    preparedQuery = setValueInPreparedStatement(i + 1, key,
-                                            value, preparedQuery);
-                                }
-                            }
-                            requestData.put("parameters", parameters);
-                        }
+
+                        List<Map.Entry<String, String>> parameters = new ArrayList<>();
+                        preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
+                                mustacheValuesInOrder,
+                                executeActionDTO.getParams(),
+                                parameters);
+
+                        requestData.put("ps-parameters", parameters);
+
+                        IntStream.range(0, parameters.size())
+                                .forEachOrdered(i ->
+                                        psParams.put(
+                                                getPSParamLabel(i+1),
+                                                new PsParameterDTO(parameters.get(i).getKey(), parameters.get(i).getValue())));
+
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
                     }
@@ -298,22 +318,21 @@ public class MssqlPlugin extends BasePlugin {
             })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
-                    .onErrorResume(error  -> {
+                    .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        result.setBody(error.getMessage());
+                        result.setErrorInfo(error);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
+                        request.setProperties(requestData);
+                        request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -476,11 +495,19 @@ public class MssqlPlugin extends BasePlugin {
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
 
-        private static PreparedStatement setValueInPreparedStatement(int index,
-                                                                     String binding,
-                                                                     String value,
-                                                                     PreparedStatement preparedStatement) throws AppsmithPluginException {
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) throws AppsmithPluginException {
+
+            PreparedStatement preparedStatement = (PreparedStatement) input;
             DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
 
             try {
                 switch (valueType) {
@@ -522,6 +549,10 @@ public class MssqlPlugin extends BasePlugin {
                     }
                     case TIME: {
                         preparedStatement.setTime(index, Time.valueOf(value));
+                        break;
+                    }
+                    case TIMESTAMP: {
+                        preparedStatement.setTimestamp(index, Timestamp.valueOf(value));
                         break;
                     }
                     case ARRAY: {

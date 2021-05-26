@@ -10,6 +10,7 @@ On your development machine, please ensure that:
 1. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details. For `mkcert` to work with Firefox you may require the `nss` utility to be installed. Details are in the link above.
 1. You have `envsubst` installed. use `brew install gettext` on MacOS. Linux machines usually have this installed.
 1. You have cloned the repo in your local machine.
+1. You have yarn installed as a global npm package i.e. `npm install -g yarn`
 
 ### Create local HTTPS certificates:
 
@@ -50,7 +51,7 @@ On your development machine, please ensure that:
 
 ### Steps to build & run the code:
 
-1. Run `yarn`
+1. Run `yarn install`
 
     Note:
 

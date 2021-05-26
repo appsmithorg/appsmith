@@ -9,19 +9,20 @@ import {
   useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetType } from "constants/WidgetConstants";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
-const PositionStyle = styled.div`
+const PositionStyle = styled.div<{ topRow: number }>`
   position: absolute;
-  top: -${(props) => props.theme.spaces[10]}px;
+  top: ${(props) =>
+    props.topRow > 2 ? `${-1 * props.theme.spaces[10]}px` : "calc(100%)"};
   height: ${(props) => props.theme.spaces[10]}px;
-  width: 100%;
-  left: 0;
+  right: 0;
   display: flex;
   padding: 0 4px;
+  cursor: pointer;
 `;
 
 const ControlGroup = styled.div`
@@ -41,9 +42,11 @@ type WidgetNameComponentProps = {
   parentId?: string;
   type: WidgetType;
   showControls?: boolean;
+  topRow: number;
+  errorCount: number;
 };
 
-export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
+export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const showPropertyPane = useShowPropertyPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
@@ -51,7 +54,10 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
     (state: AppState) => state.ui.propertyPane,
   );
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
+  );
+  const selectedWidgets = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
   );
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
@@ -90,33 +96,45 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
     e.preventDefault();
     e.stopPropagation();
   };
+  const showAsSelected =
+    selectedWidget === props.widgetId ||
+    selectedWidgets.includes(props.widgetId);
 
   const showWidgetName =
     props.showControls ||
-    ((focusedWidget === props.widgetId || selectedWidget === props.widgetId) &&
+    ((focusedWidget === props.widgetId || showAsSelected) &&
       !isDragging &&
-      !isResizing);
+      !isResizing) ||
+    !!props.errorCount;
 
-  let currentActivity = Activities.NONE;
+  let currentActivity =
+    props.type === WidgetTypes.MODAL_WIDGET
+      ? Activities.HOVERING
+      : Activities.NONE;
   if (focusedWidget === props.widgetId) currentActivity = Activities.HOVERING;
-  if (selectedWidget === props.widgetId) currentActivity = Activities.SELECTED;
+  if (showAsSelected) currentActivity = Activities.SELECTED;
   if (
+    showAsSelected &&
     propertyPaneState.isVisible &&
     propertyPaneState.widgetId === props.widgetId
   )
     currentActivity = Activities.ACTIVE;
 
   return showWidgetName ? (
-    <PositionStyle>
+    <PositionStyle
+      data-testid="t--settings-controls-positioned-wrapper"
+      topRow={props.topRow}
+    >
       <ControlGroup>
         <SettingsControl
-          toggleSettings={togglePropertyEditor}
           activity={currentActivity}
+          errorCount={props.errorCount}
           name={props.widgetName}
+          toggleSettings={togglePropertyEditor}
         />
       </ControlGroup>
     </PositionStyle>
   ) : null;
-};
+}
 
 export default WidgetNameComponent;

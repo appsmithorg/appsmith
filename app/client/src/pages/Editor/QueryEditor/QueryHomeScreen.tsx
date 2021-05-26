@@ -17,11 +17,10 @@ import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
-import { fetchDBPluginForms } from "actions/pluginActions";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 const QueryHomePage = styled.div`
   padding: 20px;
-  padding-top: 30px;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -30,6 +29,7 @@ const QueryHomePage = styled.div`
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};
     font-size: ${(props) => props.theme.fontSizes[4]}px;
+    margin-top: 10px;
   }
 `;
 
@@ -55,10 +55,8 @@ type QueryHomeScreenProps = {
   applicationId: string;
   pageId: string;
   createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
-  fetchDBPluginForms: () => void;
   actions: ActionDataState;
   isCreating: boolean;
-  loadingDBFormConfigs: boolean;
   location: {
     search: string;
   };
@@ -71,10 +69,6 @@ type QueryHomeScreenProps = {
 };
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
-  componentDidMount() {
-    this.props.fetchDBPluginForms();
-  }
-
   handleCreateNewQuery = (dataSource: Datasource) => {
     const { actions, location } = this.props;
     const params: string = location.search;
@@ -101,13 +95,12 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
   render() {
     const {
-      dataSources,
       applicationId,
-      pageId,
+      dataSources,
       history,
       isCreating,
       location,
-      loadingDBFormConfigs,
+      pageId,
     } = this.props;
 
     const destinationPageId = new URLSearchParams(location.search).get(
@@ -120,7 +113,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       );
     }
 
-    if (isCreating || loadingDBFormConfigs) {
+    if (isCreating) {
       return (
         <LoadingContainer>
           <Spinner size={30} />
@@ -130,6 +123,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
     return (
       <QueryHomePage>
+        <CloseEditor />
         <p className="sectionHeader">
           Select a datasource to query or create a new one
         </p>
@@ -143,20 +137,20 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
         ) : (
           <AddDatasource
             className="t--add-datasource"
+            fill
+            icon={"plus"}
+            minimal
             onClick={() => {
               history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
             }}
-            fill
-            minimal
             text="New Datasource"
-            icon={"plus"}
           />
         )}
         {dataSources.map((datasource) => {
           return (
             <DatasourceCard
-              key={datasource.id}
               datasource={datasource}
+              key={datasource.id}
               onCreateQuery={this.handleCreateNewQuery}
             />
           );
@@ -170,15 +164,11 @@ const mapStateToProps = (state: AppState) => ({
   pluginImages: getPluginImages(state),
   actions: state.entities.actions,
   pages: state.entities.pageList.pages,
-  loadingDBFormConfigs: state.entities.plugins.loadingDBFormConfigs,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   createAction: (data: Partial<QueryAction> & { eventData: any }) => {
     dispatch(createActionRequest(data));
-  },
-  fetchDBPluginForms: () => {
-    dispatch(fetchDBPluginForms());
   },
 });
 

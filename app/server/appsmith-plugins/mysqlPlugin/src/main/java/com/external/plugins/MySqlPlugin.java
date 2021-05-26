@@ -5,8 +5,8 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -15,11 +15,13 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Param;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
@@ -45,6 +47,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -53,11 +56,14 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -126,7 +132,7 @@ public class MySqlPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
+    public static class MySqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
@@ -164,9 +170,19 @@ public class MySqlPlugin extends BasePlugin {
                  * is no longer in beta.
                  */
                 isPreparedStatement = false;
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
+                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
+                if (psValue instanceof  Boolean) {
+                    isPreparedStatement = (Boolean) psValue;
+                } else if (psValue instanceof String) {
+                    isPreparedStatement = Boolean.parseBoolean((String) psValue);
+                } else {
+                    isPreparedStatement = false;
+                }
             } else {
-                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+                isPreparedStatement = false;
             }
+
             requestData.put("preparedStatement", TRUE.equals(isPreparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
@@ -177,6 +193,7 @@ public class MySqlPlugin extends BasePlugin {
                 errorResult.setIsExecutionSuccess(false);
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Missing required " +
                         "parameter: Query."));
+                errorResult.setTitle(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle());
                 ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                 actionExecutionRequest.setProperties(requestData);
                 errorResult.setRequest(actionExecutionRequest);
@@ -214,6 +231,10 @@ public class MySqlPlugin extends BasePlugin {
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final List<String> columnsList = new ArrayList<>();
+            Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
+            String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                    transformedQuery, null, null, psParams));
 
             Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
                     .flatMapMany(isValid -> {
@@ -223,7 +244,8 @@ public class MySqlPlugin extends BasePlugin {
                                     preparedStatement,
                                     mustacheValuesInOrder,
                                     executeActionDTO,
-                                    requestData);
+                                    requestData,
+                                    psParams);
                         }
                         return Flux.error(new StaleConnectionException());
                     });
@@ -236,7 +258,7 @@ public class MySqlPlugin extends BasePlugin {
                                 result.map((row, meta) -> {
                                             rowsList.add(getRow(row, meta));
 
-                                            if(columnsList.isEmpty()) {
+                                            if (columnsList.isEmpty()) {
                                                 columnsList.addAll(meta.getColumnNames());
                                             }
 
@@ -272,16 +294,13 @@ public class MySqlPlugin extends BasePlugin {
                                 "execution result");
                         return result;
                     })
-                    .onErrorResume(error  -> {
+                    .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (error instanceof AppsmithPluginException) {
-                            result.setStatusCode(((AppsmithPluginException) error).getAppErrorCode().toString());
-                        }
-                        result.setBody(error.getMessage());
+                        result.setErrorInfo(error);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -289,6 +308,7 @@ public class MySqlPlugin extends BasePlugin {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
                         request.setProperties(requestData);
+                        request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -302,7 +322,8 @@ public class MySqlPlugin extends BasePlugin {
                                                                  Boolean preparedStatement,
                                                                  List<String> mustacheValuesInOrder,
                                                                  ExecuteActionDTO executeActionDTO,
-                                                                 Map<String, Object> requestData) {
+                                                                 Map<String, Object> requestData,
+                                                                 Map psParams) {
 
             Statement connectionStatement = connection.createStatement(query);
             if (FALSE.equals(preparedStatement) || mustacheValuesInOrder == null || mustacheValuesInOrder.isEmpty()) {
@@ -311,42 +332,63 @@ public class MySqlPlugin extends BasePlugin {
 
             System.out.println("Query : " + query);
 
-            List<Param> params = executeActionDTO.getParams();
-            List<String> parameters = new ArrayList<>();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+            try {
+                connectionStatement = (Statement) this.smartSubstitutionOfBindings(connectionStatement,
+                        mustacheValuesInOrder,
+                        executeActionDTO.getParams(),
+                        parameters);
 
-            for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
-                String key = mustacheValuesInOrder.get(i);
-                Optional<Param> matchingParam = params
-                        .stream()
-                        .filter(param -> param.getKey().trim().equals(key))
-                        .findFirst();
-                if (matchingParam.isPresent()) {
-                    String value = matchingParam.get().getValue();
-                    parameters.add(value);
-                    DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
-                    if (DataType.NULL.equals(valueType)) {
-                        try {
-                            connectionStatement.bindNull(i, Object.class);
-                        } catch (UnsupportedOperationException e) {
-                            // Do nothing. Move on
-                        }
-                    } else {
-                        connectionStatement.bind(i, value);
-                    }
-                }
+                requestData.put("ps-parameters", parameters);
+
+                IntStream.range(0, parameters.size())
+                        .forEachOrdered(i ->
+                                psParams.put(
+                                        getPSParamLabel(i+1),
+                                        new PsParameterDTO(parameters.get(i).getKey(), parameters.get(i).getValue())));
+
+            } catch (AppsmithPluginException e) {
+                return Flux.error(e);
             }
-            requestData.put("parameters", parameters);
+
 
             return Flux.from(connectionStatement.execute());
 
         }
 
-        private  Set<String> populateHintMessages(List<String> columnNames) {
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) {
+
+            Statement connectionStatement = (Statement) input;
+            DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
+
+            if (DataType.NULL.equals(valueType)) {
+                try {
+                    connectionStatement.bindNull((index - 1), Object.class);
+                } catch (UnsupportedOperationException e) {
+                    // Do nothing. Move on
+                }
+            } else {
+                connectionStatement.bind((index - 1), value);
+            }
+
+            return connectionStatement;
+        }
+
+        private Set<String> populateHintMessages(List<String> columnNames) {
 
             Set<String> messages = new HashSet<>();
 
             List<String> identicalColumns = getIdenticalColumns(columnNames);
-            if(!CollectionUtils.isEmpty(identicalColumns)) {
+            if (!CollectionUtils.isEmpty(identicalColumns)) {
                 messages.add("Your MySQL query result may not have all the columns because duplicate column names " +
                         "were found for the column(s): " + String.join(", ", identicalColumns) + ". You may use the " +
                         "SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
@@ -406,8 +448,8 @@ public class MySqlPlugin extends BasePlugin {
 
             String lastQuery = queries[queries.length - 1].trim();
 
-            return (lastQuery.trim().split(" ")[0].equalsIgnoreCase("select")
-                    || lastQuery.trim().split(" ")[0].equalsIgnoreCase("show"));
+            return (lastQuery.trim().split("\\s+")[0].equalsIgnoreCase("select")
+                    || lastQuery.trim().split("\\s+")[0].equalsIgnoreCase("show"));
         }
 
         @Override
@@ -460,14 +502,14 @@ public class MySqlPlugin extends BasePlugin {
             /*
              * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
              */
-            if(datasourceConfiguration.getConnection() == null
+            if (datasourceConfiguration.getConnection() == null
                     || datasourceConfiguration.getConnection().getSsl() == null
                     || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
                 return Mono.error(
                         new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                                    "Please reach out to Appsmith customer support to resolve this."
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+                                        "Please reach out to Appsmith customer support to resolve this."
                         )
                 );
             }
@@ -496,8 +538,8 @@ public class MySqlPlugin extends BasePlugin {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
-                                    "Appsmith server has found an unexpected SSL option. Please reach out to Appsmith " +
-                                            "customer support to resolve this."
+                                    "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                            " Appsmith customer support to resolve this."
                             )
                     );
             }
@@ -567,7 +609,7 @@ public class MySqlPlugin extends BasePlugin {
             /*
              * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
              */
-            if(datasourceConfiguration.getConnection() == null
+            if (datasourceConfiguration.getConnection() == null
                     || datasourceConfiguration.getConnection().getSsl() == null
                     || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
                 invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
@@ -719,15 +761,15 @@ public class MySqlPlugin extends BasePlugin {
 
                 final String tableName = table.getName();
                 table.getTemplates().addAll(List.of(
-                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;"),
+                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;", null),
                         new DatasourceStructure.Template("INSERT", "INSERT INTO " + tableName
                                 + " (" + String.join(", ", columnNames) + ")\n"
-                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                                + "  VALUES (" + String.join(", ", columnValues) + ");", null),
                         new DatasourceStructure.Template("UPDATE", "UPDATE " + tableName + " SET"
                                 + setFragments.toString() + "\n"
-                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                         new DatasourceStructure.Template("DELETE", "DELETE FROM " + tableName
-                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
+                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
                 ));
             }
 
