@@ -577,14 +577,15 @@ public class FirestorePlugin extends BasePlugin {
                 }
             }
 
-            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(LIMIT_PROPERTY_INDEX),
+            // TODO: fix it.
+            /*requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(LIMIT_PROPERTY_INDEX),
                     limitString == null ? "" : limitString, null, null, null));
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(QUERY_PROPERTY_INDEX),
                     queryFieldPath == null ? "" : queryFieldPath, null, null, null));
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(OPERATOR_PROPERTY_INDEX),
                     operatorString == null ? "" : operatorString, null, null, null));
             requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(QUERY_VALUE_PROPERTY_INDEX),
-                    queryValue == null ? "" : queryValue, null, null, null));
+                    queryValue == null ? "" : queryValue, null, null, null));*/
 
             final Map<String, Object> startAfter = startAfterTemp;
             final Map<String, Object> endBefore = endBeforeTemp;
