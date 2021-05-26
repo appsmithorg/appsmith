@@ -159,7 +159,6 @@ public class ImportExportApplicationServiceTests {
         ds2.setDatasourceConfiguration(new DatasourceConfiguration());
         DBAuth auth = new DBAuth();
         auth.setPassword("awesome-password");
-        auth.setIsEncrypted(true);
         ds2.getDatasourceConfiguration().setAuthentication(auth);
 
         datasourceMap.put("DS1", ds1);
