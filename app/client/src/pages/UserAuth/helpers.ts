@@ -29,7 +29,7 @@ export const signupFormSubmitHandler = (
   values: SignupFormValues,
   dispatch: any,
 ): Promise<any> => {
-  const { email, name, password } = values;
+  const { email, password } = values;
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.CREATE_USER_INIT,
@@ -38,7 +38,6 @@ export const signupFormSubmitHandler = (
         reject,
         email,
         password,
-        name,
       },
     });
   }).catch((error) => {

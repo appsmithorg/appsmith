@@ -32,7 +32,7 @@ import Button, { Size } from "components/ads/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
-import { SignupFormValues, signupFormSubmitHandler } from "./helpers";
+import { SignupFormValues } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { getAppsmithConfigs } from "configs";
@@ -53,6 +53,13 @@ if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
+
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
+}
+const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -76,14 +83,7 @@ type SignUpFormProps = InjectedFormProps<
   RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
 
 export function SignUp(props: SignUpFormProps) {
-  const {
-    emailValue: email,
-    error,
-    handleSubmit,
-    pristine,
-    submitting,
-    valid,
-  } = props;
+  const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
 
   const location = useLocation();
@@ -125,7 +125,30 @@ export function SignUp(props: SignUpFormProps) {
       {SocialLoginList.length > 0 && (
         <ThirdPartyAuth logins={SocialLoginList} type={"SIGNUP"} />
       )}
-      <SpacedSubmitForm onSubmit={handleSubmit(signupFormSubmitHandler)}>
+      <SpacedSubmitForm
+        action={signupURL}
+        id="signup-form"
+        method="POST"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formElement: HTMLFormElement = document.getElementById(
+            "signup-form",
+          ) as HTMLFormElement;
+          window.grecaptcha
+            .execute(googleRecaptchaSiteKey, {
+              action: "submit",
+            })
+            .then(function(token: any) {
+              formElement &&
+                formElement.setAttribute(
+                  "action",
+                  `${signupURL}?recaptchaToken=${token}`,
+                );
+              formElement && formElement.submit();
+            });
+          return false;
+        }}
+      >
         <FormGroup
           intent={error ? "danger" : "none"}
           label={createMessage(SIGNUP_PAGE_EMAIL_INPUT_LABEL)}
