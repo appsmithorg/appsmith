@@ -32,4 +32,7 @@ public class Authentication {
 
     // Response codes
     public static final String SUCCESS = "success";
+
+    // Header names
+    public static final String AUTHORIZATION_HEADER = "Authorization";
 }
