@@ -32,7 +32,7 @@ import Button, { Size } from "components/ads/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
-import { SignupFormValues } from "./helpers";
+import { SignupFormValues, signupFormSubmitHandler } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { getAppsmithConfigs } from "configs";
@@ -76,7 +76,14 @@ type SignUpFormProps = InjectedFormProps<
   RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
 
 export function SignUp(props: SignUpFormProps) {
-  const { emailValue: email, error, pristine, submitting, valid } = props;
+  const {
+    emailValue: email,
+    error,
+    handleSubmit,
+    pristine,
+    submitting,
+    valid,
+  } = props;
   const isFormValid = valid && email && !isEmptyString(email);
 
   const location = useLocation();
@@ -118,7 +125,7 @@ export function SignUp(props: SignUpFormProps) {
       {SocialLoginList.length > 0 && (
         <ThirdPartyAuth logins={SocialLoginList} type={"SIGNUP"} />
       )}
-      <SpacedSubmitForm action={signupURL} method="POST">
+      <SpacedSubmitForm onSubmit={handleSubmit(signupFormSubmitHandler)}>
         <FormGroup
           intent={error ? "danger" : "none"}
           label={createMessage(SIGNUP_PAGE_EMAIL_INPUT_LABEL)}

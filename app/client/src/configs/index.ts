@@ -42,6 +42,7 @@ export type INJECTED_CONFIGS = {
   mailEnabled: boolean;
   disableTelemetry: boolean;
   cloudServicesBaseUrl: string;
+  googleRecaptchaSiteKey: string;
 };
 declare global {
   interface Window {
@@ -115,6 +116,8 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       : false,
     disableTelemetry: true,
     cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
+    googleRecaptchaSiteKey:
+      process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
   };
 };
 
@@ -269,5 +272,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     cloudServicesBaseUrl:
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
+    googleRecaptchaSiteKey:
+      ENV_CONFIG.googleRecaptchaSiteKey.length > 0
+        ? ENV_CONFIG.googleRecaptchaSiteKey
+        : APPSMITH_FEATURE_CONFIGS.googleRecaptchaSiteKey || "",
   };
 };

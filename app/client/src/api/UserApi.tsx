@@ -10,6 +10,7 @@ export interface LoginUserRequest {
 export interface CreateUserRequest {
   email: string;
   password: string;
+  name: string;
 }
 
 export interface CreateUserResponse extends ApiResponse {

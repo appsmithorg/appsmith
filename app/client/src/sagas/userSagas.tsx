@@ -40,17 +40,31 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
-
+import { getAppsmithConfigs } from "configs";
 import { getCurrentUser } from "selectors/usersSelectors";
+
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
+}
+
+const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
 ) {
-  const { email, password, reject, resolve } = action.payload;
+  const { email, name, password, reject, resolve } = action.payload;
   try {
-    const request: CreateUserRequest = { email, password };
+    const request: CreateUserRequest = { email, password, name };
+    const recaptchaToken: any = yield window.grecaptcha.execute(
+      googleRecaptchaSiteKey,
+      {
+        action: "signup",
+      },
+    );
     const response: CreateUserResponse = yield callAPI(
-      UserApi.createUser,
+      `${UserApi.createUser}?recaptchaToken=${recaptchaToken}`,
       request,
     );
     //TODO(abhinav): DRY this
