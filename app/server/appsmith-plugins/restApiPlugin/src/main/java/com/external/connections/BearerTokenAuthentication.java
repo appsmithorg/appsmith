@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
 import reactor.core.publisher.Mono;
 
 import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
-import static com.appsmith.external.constants.Authentication.BEARER;
+import static com.appsmith.external.constants.Authentication.BEARER_HEADER_PREFIX;
 
 @Setter
 @Getter
@@ -43,6 +43,6 @@ public class BearerTokenAuthentication extends APIConnection {
     }
 
     private String getHeaderValue() {
-        return BEARER + " " + this.bearerToken;
+        return BEARER_HEADER_PREFIX + " " + this.bearerToken;
     }
 }

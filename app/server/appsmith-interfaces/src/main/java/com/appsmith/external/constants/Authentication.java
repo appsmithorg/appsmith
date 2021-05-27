@@ -38,5 +38,6 @@ public class Authentication {
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
     // Other constants
-    public static final String BEARER = "Bearer";
+    public static final String BEARER_HEADER_PREFIX = "Bearer";
+    public static final String BASIC_HEADER_PREFIX = "Basic ";
 }

@@ -14,13 +14,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
+import static com.appsmith.external.constants.Authentication.BASIC_HEADER_PREFIX;
 
 @Setter
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BasicAuthentication extends APIConnection {
     private String encodedAuthorizationHeader;
-    final private static String HEADER_PREFIX = "Basic ";
 
     public static Mono<BasicAuthentication> create(BasicAuth basicAuth) {
         final BasicAuthentication basicAuthentication = new BasicAuthentication();
@@ -45,6 +45,6 @@ public class BasicAuthentication extends APIConnection {
     }
 
     private String getHeaderValue() {
-        return HEADER_PREFIX + this.encodedAuthorizationHeader;
+        return BASIC_HEADER_PREFIX + this.encodedAuthorizationHeader;
     }
 }
