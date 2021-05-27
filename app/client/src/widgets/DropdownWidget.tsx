@@ -124,8 +124,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       })()}}`,
       selectedIndex: `{{(() => {
         if (this.selectionType === 'SINGLE_SELECT'){
-          const seletedOptionValue = this.selectedOptionValue !== undefined ? this.selectedOptionValue : this.defaultOptionValue;
-          return _.findIndex(this.options, { value: seletedOptionValue })
+          const selectedOptionValue = this.selectedOptionValue !== undefined ? this.selectedOptionValue : this.defaultOptionValue;
+          return _.findIndex(this.options, { value: selectedOptionValue })
         }
         return -1;
       })()}}`,
@@ -164,8 +164,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       })()}}`,
       selectedOptionLabel: `{{(() => {
         if (this.selectionType === 'SINGLE_SELECT'){
-          const seletedOptionValue = this.selectedOptionValue !== undefined ? this.selectedOptionValue : this.defaultOptionValue;
-          const index = _.findIndex(this.options, { value: seletedOptionValue });
+          const selectedOptionValue = this.selectedOptionValue !== undefined ? this.selectedOptionValue : this.defaultOptionValue;
+          const index = _.findIndex(this.options, { value: selectedOptionValue });
           return index !==-1 ? this.options[index]?.label : "";
         }
         return "";
