@@ -776,7 +776,7 @@ const migrateNewlyAddedTabsWidgetsMissingData = (
     } catch (error) {
       Sentry.captureException({
         message: "Tabs Migration to add missing fields Failed",
-        oldData: currentDSL.tabs,
+        oldData: currentDSL.children,
       });
     }
   }
