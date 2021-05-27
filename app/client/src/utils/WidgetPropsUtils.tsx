@@ -740,7 +740,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 20) {
     currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
-    currentDSL.version = 21;
+    currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
