@@ -12,6 +12,7 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { commentModeSelector } from "selectors/commentsSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -49,9 +50,12 @@ type DraggableComponentProps = WidgetProps;
 export const canDrag = (
   isResizing: boolean,
   isDraggingDisabled: boolean,
+  isCommentMode: boolean,
   props: any,
 ) => {
-  return !isResizing && !isDraggingDisabled && !props.dragDisabled;
+  return (
+    !isResizing && !isDraggingDisabled && !props.dragDisabled && !isCommentMode
+  );
 };
 
 function DraggableComponent(props: DraggableComponentProps) {
@@ -60,6 +64,8 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
+
+  const isCommentMode = useSelector(commentModeSelector);
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
@@ -138,7 +144,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     },
     canDrag: () => {
       // Dont' allow drag if we're resizing or the drag of `DraggableComponent` is disabled
-      return canDrag(isResizing, isDraggingDisabled, props);
+      return canDrag(isResizing, isDraggingDisabled, isCommentMode, props);
     },
   });
 
