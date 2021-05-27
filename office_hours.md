@@ -28,6 +28,16 @@ You can find the archives of the calls below with a brief summary of each sessio
 
 ## Archives
 
+<strong>Appsmith Live Demo #3, 29th May 2021:  Stitching APIs together to automate workflows</strong>
+
+<a href = "https://youtu.be/_8qLbyWwXeA">Video Link</a>
+
+#### Summary
+
+Confidence shows the community how we internally use APIs from multiple services to build apps that simplifies our workflow within Appsmith. Top questions from members of our community was also discussed.
+
+------------------
+
 <strong>Office Hours May 13th, 2021: Product roadmap discussion</strong>
 
 <a href = "https://youtu.be/1sw84i_M4_Y">Video Link</a>
