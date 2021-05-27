@@ -80,21 +80,6 @@ export const duplicateApplication = (applicationId: string) => {
   };
 };
 
-export const exportApplication = (
-  applicationId: string,
-  applicationName: string,
-  callback: () => void,
-) => {
-  return {
-    type: ReduxActionTypes.EXPORT_APPLICATION_INIT,
-    payload: {
-      applicationId,
-      applicationName,
-      callback,
-    },
-  };
-};
-
 export const importApplication = (appDetails: ImportApplicationRequest) => {
   return {
     type: ReduxActionTypes.IMPORT_APPLICATION_INIT,

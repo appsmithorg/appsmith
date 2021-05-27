@@ -217,30 +217,6 @@ const applicationsReducer = createReducer(initialState, {
       forkingApplication: false,
     };
   },
-  [ReduxActionTypes.EXPORT_APPLICATION_INIT]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return { ...state, exportingApplication: true };
-  },
-  [ReduxActionTypes.EXPORT_APPLICATION_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<{ exportedApplication: any }>,
-  ) => {
-    const { exportedApplication } = action.payload;
-    return {
-      ...state,
-      exportingApplication: false,
-      exportedApplication,
-    };
-  },
-  [ReduxActionErrorTypes.EXPORT_APPLICATION_ERROR]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      exportingApplication: false,
-    };
-  },
   [ReduxActionTypes.IMPORT_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => {

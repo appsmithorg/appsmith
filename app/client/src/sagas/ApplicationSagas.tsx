@@ -6,7 +6,6 @@ import {
 } from "constants/ReduxActionConstants";
 import ApplicationApi, {
   ApplicationObject,
-  ExportApplicationRequest,
   ApplicationPagePayload,
   ChangeAppViewAccessRequest,
   CreateApplicationRequest,
@@ -57,8 +56,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
-import { downloadSaga } from "sagas/ActionExecutionSagas";
-import { EventType as ActionEventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import { deleteRecentAppEntities } from "utils/storage";
 import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
@@ -509,50 +506,6 @@ export function* forkApplicationSaga(
   }
 }
 
-export function* exportApplicationSaga(
-  action: ReduxAction<ExportApplicationRequest>,
-) {
-  try {
-    const response: ApiResponse = yield call(
-      ApplicationApi.exportApplication,
-      action.payload,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put(resetCurrentApplication());
-      const exportedApplication: any = {
-        ...response,
-      };
-      yield downloadSaga(
-        {
-          data: exportedApplication,
-          name: `${action.payload.applicationName}_appsmith.json`,
-          type: "application/json",
-        },
-        {
-          type: ActionEventType.ON_SUBMIT,
-          callback: (result: any) => {
-            !!result && action.payload.callback();
-          },
-        },
-      );
-      yield put({
-        type: ReduxActionTypes.EXPORT_APPLICATION_SUCCESS,
-        payload: {
-          exportedApplication,
-        },
-      });
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.EXPORT_APPLICATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
 export function* importApplicationSaga(
   action: ReduxAction<ImportApplicationRequest>,
 ) {
@@ -633,7 +586,6 @@ export default function* applicationSagas() {
       ReduxActionTypes.DUPLICATE_APPLICATION_INIT,
       duplicateApplicationSaga,
     ),
-    takeLatest(ReduxActionTypes.EXPORT_APPLICATION_INIT, exportApplicationSaga),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
   ]);
 }

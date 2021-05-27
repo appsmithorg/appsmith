@@ -50,7 +50,6 @@ import MenuItem from "components/ads/MenuItem";
 import {
   duplicateApplication,
   updateApplication,
-  exportApplication,
 } from "actions/applicationActions";
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
@@ -530,14 +529,6 @@ function ApplicationsSection(props: any) {
     dispatch(updateApplication(id, data));
   };
 
-  const exportApplicationDispatch = (
-    applicationId: string,
-    applicationName: string,
-    callback: () => void,
-  ) => {
-    dispatch(exportApplication(applicationId, applicationName, callback));
-  };
-
   const duplicateApplicationDispatch = (applicationId: string) => {
     dispatch(duplicateApplication(applicationId));
   };
@@ -813,7 +804,6 @@ function ApplicationsSection(props: any) {
                       application={application}
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
-                      export={exportApplicationDispatch}
                       key={application.id}
                       update={updateApplicationDispatch}
                     />

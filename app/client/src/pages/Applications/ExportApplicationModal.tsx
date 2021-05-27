@@ -3,8 +3,6 @@ import styled from "styled-components";
 import { Size } from "components/ads/Button";
 import { StyledDialog, ForkButton, ButtonWrapper } from "./ForkModalStyles";
 import Checkbox from "components/ads/Checkbox";
-import { useSelector } from "store";
-import { AppState } from "reducers";
 import Text, { TextType } from "components/ads/Text";
 
 const CheckboxDiv = styled.div`
@@ -15,11 +13,6 @@ const CheckboxDiv = styled.div`
 `;
 
 type ExportApplicationModalProps = {
-  export?: (
-    applicationId: string,
-    applicationName: string,
-    callback: () => void,
-  ) => void;
   applicationId?: string;
   applicationName?: string;
   organizationId?: string;
@@ -32,16 +25,6 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
   const onExportSuccess = () => {
     setModalClose && setModalClose(false);
   };
-  const exportApplication = () => {
-    props.export &&
-      props.applicationId &&
-      props.applicationName &&
-      props.export(props.applicationId, props.applicationName, onExportSuccess);
-  };
-
-  const exportingApplication = useSelector(
-    (state: AppState) => state.ui.applications.exportingApplication,
-  );
 
   const [isChecked, setIsCheckedToTrue] = useState(false);
   return (
@@ -69,7 +52,6 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
           cypressSelector={"t--export-app-button"}
           disabled={!isChecked}
           href={`/api/v1/applications/export/${props.applicationId}`}
-          isLoading={exportingApplication}
           onClick={onExportSuccess}
           size={Size.large}
           tag="a"
