@@ -110,7 +110,7 @@ export const flashElementById = (id: string) => {
 };
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
-  const separatorRegex = /[^\w\s]/;
+  const separatorRegex = /[^\wа-я\w\s]/;
   const duplicateSpaceRegex = /\s+/;
   return value
     .split(separatorRegex)
