@@ -10,6 +10,10 @@ import { ControlProps } from "./BaseControl";
 
 const CenteredIcon = styled(Icon)`
   margin-top: 25px;
+  &.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
 `;
 
 const PrimaryBox = styled.div`
@@ -33,13 +37,9 @@ const AddMoreAction = styled.div`
   cursor: pointer;
   display: flex;
   margin-top: 16px;
-  margin-left: 12px;
   .${Classes.TEXT} {
     margin-left: 8px;
-    color: #858282;
-  }
-  svg path {
-    stroke: ${(props) => props.theme.colors.apiPane.bg};
+    color: #03b365;
   }
 `;
 
@@ -69,27 +69,19 @@ function NestedComponents(props: any) {
                   />
                 );
               })}
-              {index > 0 && (
-                <CenteredIcon
-                  name="delete"
-                  onClick={() => props.fields.remove(index)}
-                  size={IconSize.XXL}
-                />
-              )}
+              <CenteredIcon
+                className={index === 0 ? "hide" : ""}
+                name="delete"
+                onClick={() => index > 0 && props.fields.remove(index)}
+                size={IconSize.XXL}
+              />
             </SecondaryBox>
           );
         })}
         <AddMoreAction
           onClick={() => props.fields.push({ key: "", value: "", operand: "" })}
         >
-          <Icon
-            className="t--addApiHeader"
-            name="add-more"
-            size={IconSize.LARGE}
-          />
-          <Text case={Case.UPPERCASE} type={TextType.H5}>
-            Add more
-          </Text>
+          <Text type={TextType.H5}>+ Add Condition (And)</Text>
         </AddMoreAction>
       </PrimaryBox>
     )
