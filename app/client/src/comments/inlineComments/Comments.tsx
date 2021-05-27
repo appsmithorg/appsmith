@@ -3,10 +3,29 @@ import { useSelector } from "react-redux";
 import UnpublishedCommentThread from "./UnpublishedCommentThread";
 import InlineCommentPin from "./InlineCommentPin";
 import {
+  commentThreadsSelector,
   refCommentThreadsSelector,
   unpublishedCommentThreadSelector,
 } from "../../selectors/commentsSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+
+// TODO refactor application comment threads by page id to optimise
+// if lists turn out to be expensive
+function InlinePageCommentPin({
+  commentThreadId,
+}: {
+  commentThreadId: string;
+}) {
+  const commentThread = useSelector(commentThreadsSelector(commentThreadId));
+  const currentPageId = useSelector(getCurrentPageId);
+
+  if (commentThread && commentThread.pageId !== currentPageId) return null;
+
+  return <InlineCommentPin commentThreadId={commentThreadId} />;
+}
 
 /**
  * Renders comment threads associated with a refId (for example widgetId)
@@ -26,7 +45,7 @@ function Comments({ refId }: { refId: string }) {
     <>
       {Array.isArray(commentsThreadIds) &&
         commentsThreadIds.map((commentsThreadId: any) => (
-          <InlineCommentPin
+          <InlinePageCommentPin
             commentThreadId={commentsThreadId}
             key={commentsThreadId}
           />
