@@ -137,10 +137,13 @@ export function SignUp(props: SignUpFormProps) {
         method="POST"
         onSubmit={(e) => {
           e.preventDefault();
-          if (recaptchaStatus === ScriptStatus.READY) {
-            const formElement: HTMLFormElement = document.getElementById(
-              "signup-form",
-            ) as HTMLFormElement;
+          const formElement: HTMLFormElement = document.getElementById(
+            "signup-form",
+          ) as HTMLFormElement;
+          if (
+            googleRecaptchaSiteKey.length !== 0 &&
+            recaptchaStatus === ScriptStatus.READY
+          ) {
             window.grecaptcha
               .execute(googleRecaptchaSiteKey, {
                 action: "submit",
@@ -153,10 +156,10 @@ export function SignUp(props: SignUpFormProps) {
                   );
                 formElement && formElement.submit();
               });
-            return false;
           } else {
-            return true;
+            formElement && formElement.submit();
           }
+          return false;
         }}
       >
         <FormGroup
