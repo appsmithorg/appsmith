@@ -368,7 +368,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
-      version: 2,
+      version: 3,
     },
     MODAL_WIDGET: {
       rows: 6 * GRID_DENSITY_MIGRATION_V1,
