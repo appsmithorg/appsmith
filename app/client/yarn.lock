@@ -1883,14 +1883,19 @@
     immutable "~3.7.4"
     prop-types "^15.5.8"
 
-"@draft-js-plugins/mention@^4.3.2":
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/@draft-js-plugins/mention/-/mention-4.3.2.tgz#f72a5a9c62fd5dec4b33138d98595feeb692801f"
+"@draft-js-plugins/mention@^4.5.1":
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/@draft-js-plugins/mention/-/mention-4.5.1.tgz#54b92e70117be51c276da2421159ec2089d18f15"
+  integrity sha512-lSYEvsy+o9LpWPMJuJ1EbbrLY1b7J0seyJksvr64nTMhOjNHGPhNnUCEXHl7+7MQ+aOwo5pP158BzgpP8nuWAA==
   dependencies:
+    "@popperjs/core" "^2.9.2"
+    "@types/lodash" "^4.14.168"
     clsx "^1.0.4"
     immutable "~3.7.4"
+    lodash "^4.17.21"
     lodash-es "^4.17.21"
     prop-types "^15.5.8"
+    react-popper "^2.2.5"
 
 "@egoist/vue-to-react@^1.1.0":
   version "1.1.0"
@@ -2530,7 +2535,7 @@
     schema-utils "^2.6.5"
     source-map "^0.7.3"
 
-"@popperjs/core@^2.5.4":
+"@popperjs/core@^2.5.4", "@popperjs/core@^2.9.2":
   version "2.9.2"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.9.2.tgz#adea7b6953cbb34651766b0548468e743c6a2353"
 
@@ -3707,6 +3712,11 @@
 "@types/lodash@^4.14.120":
   version "4.14.162"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.162.tgz#65d78c397e0d883f44afbf1f7ba9867022411470"
+
+"@types/lodash@^4.14.168":
+  version "4.14.169"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.169.tgz#83c217688f07a4d9ef8f28a3ebd1d318f6ff4cbb"
+  integrity sha512-DvmZHoHTFJ8zhVYwCLWbQ7uAbYQEk52Ev2/ZiQ7Y7gQGeV9pjBqjnQpECMHfKS1rCYAhMI7LHVxwyZLZinJgdw==
 
 "@types/marked@^1.2.2":
   version "1.2.2"
@@ -11384,7 +11394,7 @@ lodash.uniq@4.5.0, lodash.uniq@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
 
-lodash@4.x, lodash@^4.6.1:
+lodash@4.x, lodash@^4.17.21, lodash@^4.6.1:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
 
@@ -14467,7 +14477,7 @@ react-popper@^1.3.7:
     typed-styles "^0.0.7"
     warning "^4.0.2"
 
-react-popper@^2.2.4:
+react-popper@^2.2.4, react-popper@^2.2.5:
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-2.2.5.tgz#1214ef3cec86330a171671a4fbcbeeb65ee58e96"
   dependencies:

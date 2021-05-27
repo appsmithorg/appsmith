@@ -179,7 +179,10 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   }
 
   render() {
-    if (get(this.props, "widgetProperties.disablePropertyPane")) {
+    if (
+      !get(this.props, "widgetProperties") ||
+      get(this.props, "widgetProperties.disablePropertyPane")
+    ) {
       return null;
     }
 
