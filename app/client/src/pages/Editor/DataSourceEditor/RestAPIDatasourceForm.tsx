@@ -687,7 +687,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             ]}
           />
         </FormInputContainer>
-        {!_.get(formData.authentication, "isAuthorizationHeader") &&
+        {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
           this.renderOauth2CommonAdvanced()}
         <FormInputContainer>
           <AuthorizeButton
