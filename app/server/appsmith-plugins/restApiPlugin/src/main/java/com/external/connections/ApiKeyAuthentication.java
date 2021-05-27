@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
@@ -46,7 +45,6 @@ public class ApiKeyAuthentication extends APIConnection{
     }
 
     private URI appendApiKeyParamToUrl(URI oldUrl) {
-        String query = appendApiKeyParamToQuery(oldUrl.getQuery());
 
         return UriComponentsBuilder
                 .newInstance()
@@ -54,15 +52,10 @@ public class ApiKeyAuthentication extends APIConnection{
                 .host(oldUrl.getHost())
                 .port(oldUrl.getPort())
                 .path(oldUrl.getPath())
-                .query(query)
+                .query(oldUrl.getQuery())
+                .queryParam(API_KEY_PARAM, this.key)
                 .fragment(oldUrl.getFragment())
                 .build()
                 .toUri();
-    }
-
-    private String appendApiKeyParamToQuery(String oldQuery) {
-        return StringUtils.isEmpty(oldQuery) ?
-                API_KEY_PARAM + "=" + this.key :
-                oldQuery + "&" + API_KEY_PARAM + "=" + this.key;
     }
 }
