@@ -32,7 +32,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         copyActionRequest({
           id: actionId,
           destinationPageId: pageId,
-          name: nextEntityName(`${actionName}Copy`, pageId),
+          name: nextEntityName(actionName, pageId, true),
         }),
       ),
     [dispatch, nextEntityName],

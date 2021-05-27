@@ -116,6 +116,7 @@ interface Props {
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  jsError?: string;
 }
 
 interface PopoverContentProps {
@@ -129,6 +130,7 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
+  jsError?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -150,7 +152,7 @@ type PreparedStatementValue = {
 export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {
-  const { value, parameters } = props.evaluatedValue;
+  const { parameters, value } = props.evaluatedValue;
   const stringSegments = value.split(/\$\d/);
   const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
   const paramsWithTooltips = $params.map((param) => (
@@ -216,6 +218,10 @@ export const CurrentValueViewer = memo(
             },
             collapsed: 2,
             collapseStringsAfterLength: 20,
+            shouldCollapse: (field: any) => {
+              const index = field.name * 1;
+              return index >= 2 ? true : false;
+            },
           };
           content = (
             <ReactJson src={props.evaluatedValue} {...reactJsonProps} />
@@ -272,7 +278,9 @@ function PopoverContent(props: PopoverContentProps) {
       {props.hasError && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
-            {props.useValidationMessage && props.error
+            {props.jsError && props.jsError.length
+              ? props.jsError
+              : props.useValidationMessage && props.error
               ? props.error
               : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
           </span>
@@ -335,6 +343,7 @@ function EvaluatedValuePopup(props: Props) {
             expected={props.expected}
             hasError={props.hasError}
             hideEvaluatedValue={props.hideEvaluatedValue}
+            jsError={props.jsError}
             onMouseEnter={() => {
               setContentHovered(true);
             }}

@@ -124,9 +124,9 @@ export const getWidgetCards = createSelector(
     return cards
       .map((widget: WidgetCardProps) => {
         const {
-          rows,
           columns,
           detachFromLayout = false,
+          rows,
         }: any = widgetConfigs.config[widget.type];
         return { ...widget, rows, columns, detachFromLayout };
       })

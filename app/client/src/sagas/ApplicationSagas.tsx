@@ -169,7 +169,7 @@ export function* fetchApplicationSaga(
   action: ReduxAction<FetchApplicationPayload>,
 ) {
   try {
-    const { mode, applicationId } = action.payload;
+    const { applicationId, mode } = action.payload;
     // Get endpoint based on app mode
     const apiEndpoint =
       mode === APP_MODE.EDIT
@@ -386,7 +386,7 @@ export function* createApplicationSaga(
     reject: any;
   }>,
 ) {
-  const { applicationName, icon, color, orgId, reject } = action.payload;
+  const { applicationName, color, icon, orgId, reject } = action.payload;
   try {
     const userOrgs = yield select(getUserApplicationsOrgsList);
     const existingOrgs = userOrgs.filter(

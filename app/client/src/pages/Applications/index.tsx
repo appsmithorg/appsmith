@@ -352,7 +352,7 @@ const ApplicationAddCardWrapper = styled(Card)`
   }}
 `;
 
-function OrgMenuItem({ org, isFetchingApplications, selected }: any) {
+function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
   const menuRef = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (selected) {
@@ -554,7 +554,7 @@ function ApplicationsSection(props: any) {
     disabled?: boolean;
     orgSlug: string;
   }) {
-    const { orgName, disabled, orgSlug } = props;
+    const { disabled, orgName, orgSlug } = props;
 
     return (
       <OrgNameWrapper className="t--org-name" disabled={disabled}>
@@ -616,7 +616,7 @@ function ApplicationsSection(props: any) {
   } else {
     organizationsListComponent = updatedOrgs.map(
       (organizationObject: any, index: number) => {
-        const { organization, applications, userRoles } = organizationObject;
+        const { applications, organization, userRoles } = organizationObject;
         const hasManageOrgPermissions = isPermitted(
           organization.userPermissions,
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
