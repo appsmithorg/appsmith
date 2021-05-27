@@ -22,7 +22,6 @@ import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.JoltTransformer;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.repositories.ActionTemplateRepository;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
@@ -39,7 +38,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -808,7 +806,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     // Throw an error since the new action's name matches an existing action or widget name.
                     return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, action.getName(), FieldName.NAME));
                 })
-                .zipWith(transformAction(action))
+                .zipWith(newActionService.transformAction(action))
                 .flatMap(tuple -> {
                     final NewPage page = tuple.getT1();
                     final ActionDTO actionDTO = tuple.getT2();
@@ -843,59 +841,5 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     return Mono.just(newAction);
                 })
                 .flatMap(newActionService::validateAndSaveActionToRepository);
-    }
-
-    /**
-     * Checks for a possible template that this action conforms to. If it exists, uses the transformation for this
-     * template against the given action
-     *
-     * @param actionDTO
-     * @return Transformed action with all default configurations combined, if applicable
-     */
-    private Mono<ActionDTO> transformAction(ActionDTO actionDTO) {
-        // Check if this action is referring to a template
-        if (actionDTO.getTemplateId() == null) {
-            return Mono.just(actionDTO);
-        }
-
-        return this.actionTemplateRepository
-                .findById(actionDTO.getTemplateId())
-                .map(actionTemplate -> {
-                    final Map<?, ?> requestTransformationSpec = actionTemplate.getRequestTransformationSpec();
-                    final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
-                    // Check if this template requires request transformation
-                    if (requestTransformationSpec != null && actionConfiguration.getBody() != null) {
-                        // TODO validate incoming request. What happens if the transformation is unable to identify the request?
-                        final Map<?, ?> transformedBody;
-                        try {
-
-                            transformedBody = JoltTransformer.transform(
-                                    objectMapper.readValue(actionConfiguration.getBody(), Map.class),
-                                    requestTransformationSpec
-                            );
-
-                            final ActionConfiguration transformedActionConfiguration =
-                                    actionConfiguration
-                                            .toBuilder()
-                                            .body(objectMapper.valueToTree(transformedBody).toPrettyString())
-                                            .build();
-                            actionDTO.setTransformedActionConfiguration(transformedActionConfiguration);
-                            // Use the transformed configuration to combine with defaults for this action
-                            if (actionTemplate.getDefaultActionConfiguration() != null) {
-                                actionDTO.setCombinedActionConfiguration(
-                                        ActionConfiguration
-                                                .combineConfigurations(
-                                                        actionTemplate.getDefaultActionConfiguration(),
-                                                        transformedActionConfiguration));
-                            } else {
-                                actionDTO.setCombinedActionConfiguration(transformedActionConfiguration);
-                            }
-                        } catch (JsonProcessingException e) {
-                            // Malformed JSON in body
-                        }
-                    }
-                    return actionDTO;
-                })
-                .subscribeOn(Schedulers.elastic());
     }
 }

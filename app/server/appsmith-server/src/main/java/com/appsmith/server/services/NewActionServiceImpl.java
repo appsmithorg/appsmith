@@ -52,6 +52,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
@@ -399,7 +400,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .flatMap(dbAction -> {
                     copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
-                    return Mono.just(dbAction);
+                    return transformAction(dbAction.getUnpublishedAction()).thenReturn(dbAction);
                 })
                 .cache();
 
@@ -416,6 +417,64 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .then(analyticsUpdateMono)
                 // Now return the updated action back.
                 .then(savedUpdatedActionMono);
+    }
+
+    /**
+     * Checks for a possible template that this action conforms to. If it exists, uses the transformation for this
+     * template against the given action
+     *
+     * @param actionDTO
+     * @return Transformed action with all default configurations combined, if applicable
+     */
+    @Override
+    public Mono<ActionDTO> transformAction(ActionDTO actionDTO) {
+        // Check if this action is referring to a template
+        if (actionDTO.getTemplateId() == null) {
+            return Mono.just(actionDTO);
+        }
+
+        return this.actionTemplateRepository
+                .findById(actionDTO.getTemplateId())
+                .map(actionTemplate -> {
+                    final Map<?, ?> requestTransformationSpec = actionTemplate.getRequestTransformationSpec();
+                    final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
+                    // Check if this template requires request transformation
+                    if (requestTransformationSpec != null && actionConfiguration.getBody() != null) {
+                        // TODO validate incoming request. What happens if the transformation is unable to identify the request?
+                        final Map<?, ?> transformedBody;
+                        try {
+
+                            transformedBody = JoltTransformer.transform(
+                                    objectMapper.readValue(actionConfiguration.getBody(), Map.class),
+                                    requestTransformationSpec
+                            );
+
+                            final ActionConfiguration transformedActionConfiguration =
+                                    actionConfiguration
+                                            .toBuilder()
+                                            .body(objectMapper.valueToTree(transformedBody).toPrettyString())
+                                            .build();
+                            actionDTO.setTransformedActionConfiguration(transformedActionConfiguration);
+                        } catch (JsonProcessingException e) {
+                            // Malformed JSON in body
+                        }
+                    } else {
+                        // The transformed action will not require a jolt transformation
+                        actionDTO.setTransformedActionConfiguration(actionConfiguration.toBuilder().build());
+                    }
+                    // Use the transformed configuration to combine with defaults for this action
+                    if (actionTemplate.getDefaultActionConfiguration() != null) {
+                        actionDTO.setCombinedActionConfiguration(
+                                ActionConfiguration
+                                        .combineConfigurations(
+                                                actionTemplate.getDefaultActionConfiguration(),
+                                                actionDTO.getTransformedActionConfiguration()));
+                    } else {
+                        actionDTO.setCombinedActionConfiguration(actionDTO.getTransformedActionConfiguration());
+                    }
+                    return actionDTO;
+                })
+                .subscribeOn(Schedulers.elastic());
     }
 
     @Override
@@ -530,7 +589,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // Set the action name
                     actionName.set(action.getName());
 
-                    ActionConfiguration actionConfiguration = action.getActionConfiguration();
+                    ActionConfiguration actionConfiguration;
+                    if (action.getCombinedActionConfiguration() != null) {
+                        actionConfiguration = action.getCombinedActionConfiguration();
+                    } else {
+                        actionConfiguration = action.getActionConfiguration();
+                    }
+
 
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
 

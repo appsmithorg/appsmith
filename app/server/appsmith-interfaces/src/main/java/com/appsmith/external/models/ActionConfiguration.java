@@ -98,6 +98,7 @@ public class ActionConfiguration implements AppsmithDomain {
                 .paginationType(overridingActionConfiguration.getPaginationType())
                 .encodeParamsToggle(overridingActionConfiguration.getEncodeParamsToggle())
                 .body(overridingActionConfiguration.getBody())
+                .httpMethod(overridingActionConfiguration.getHttpMethod())
                 .build();
         if (combinedConfiguration.getHeaders() != null) {
             combinedConfiguration.getHeaders().addAll(overridingActionConfiguration.getHeaders());
