@@ -4,9 +4,11 @@ import {
   migrateChartDataFromArrayToObject,
   migrateToNewLayout,
   migrateInitialValues,
+  extractCurrentDSL,
 } from "./WidgetPropsUtils";
 import {
   buildChildren,
+  widgetCanvasFactory,
   buildDslWithChildren,
 } from "test/factories/WidgetFactoryUtils";
 import { cloneDeep } from "lodash";
@@ -693,5 +695,49 @@ describe("Initial value migration test", () => {
     };
 
     expect(migrateInitialValues(input)).toEqual(output);
+  });
+  it("", () => {
+    const tabsWidgetDSL: any = (version = 1) => {
+      const children: any = buildChildren([
+        {
+          version,
+          type: "TABS_WIDGET",
+          children: [
+            {
+              type: "CANVAS_WIDGET",
+              tabId: "tab1212332",
+              tabName: "Newly Added Tab",
+              widgetId: "o9ody00ep7",
+              parentId: "jd83uvbkmp",
+              detachFromLayout: true,
+              children: [],
+              parentRowSpace: 1,
+              parentColumnSpace: 1,
+              // leftColumn: 0,
+              // rightColumn: 592, // Commenting these coz they are not provided for a newly added tab in the Tabs widget version 2
+              // bottomRow: 280,
+              topRow: 0,
+              isLoading: false,
+              widgetName: "Canvas1",
+              renderMode: "CANVAS",
+            },
+          ],
+        },
+      ]);
+      const dsl: any = widgetCanvasFactory.build({
+        children,
+      });
+      return {
+        data: {
+          layouts: [{ dsl }],
+        },
+      };
+    };
+    const migratedDslV2: any = extractCurrentDSL(tabsWidgetDSL());
+    expect(migratedDslV2.children[0].children[0].leftColumn).toBeNaN();
+    const migratedDslV3: any = extractCurrentDSL(tabsWidgetDSL(2));
+    expect(migratedDslV3.children[0].version).toBe(3);
+    expect(migratedDslV3.children[0].children[0].leftColumn).not.toBeNaN();
+    expect(migratedDslV3.children[0].children[0].leftColumn).toBe(0);
   });
 });
