@@ -66,11 +66,10 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     const { widgetIds } = action.payload;
     if (widgetIds) {
+      state.selectedWidgets = widgetIds || [];
       if (widgetIds.length > 1) {
-        state.selectedWidgets = widgetIds || [];
         state.lastSelectedWidget = "";
       } else {
-        state.selectedWidgets = [];
         state.lastSelectedWidget = widgetIds[0];
       }
     }
