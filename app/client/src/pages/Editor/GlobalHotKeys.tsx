@@ -75,9 +75,11 @@ class GlobalHotKeys extends React.Component<Props> {
             const widgetSearchInput = document.getElementById(
               WIDGETS_SEARCH_ID,
             );
-            if (widgetSearchInput) widgetSearchInput.focus();
-            e.preventDefault();
-            e.stopPropagation();
+            if (widgetSearchInput) {
+              widgetSearchInput.focus();
+              e.preventDefault();
+              e.stopPropagation();
+            }
           }}
         />
         <Hotkey
