@@ -81,7 +81,7 @@ function NestedComponents(props: any) {
         <AddMoreAction
           onClick={() => props.fields.push({ key: "", value: "", operand: "" })}
         >
-          {/*Harcoded label to be removed */}
+          {/*Hardcoded label to be removed */}
           <Text type={TextType.H5}>+ Add Condition (And)</Text>
         </AddMoreAction>
       </PrimaryBox>
