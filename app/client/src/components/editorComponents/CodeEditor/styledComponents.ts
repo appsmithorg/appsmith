@@ -58,6 +58,20 @@ export const HintStyles = createGlobalStyle<{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    background: #FAFAFA;
+    color: black;
+    &.custom {
+      height: unset;
+      background: #ebebeb;
+      width: 600px;
+      &:hover{
+        background: #ffffff;
+        color: black;
+      }
+      &.CodeMirror-hint-active {
+        background: #ffffff;
+      }
+    }
 
     &.invalid {
       color: ${(props) => props.theme.colors.errorMessage};
