@@ -138,7 +138,9 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
     from: { opacity: 0 },
     enter: { opacity: 1 },
     leave: { opacity: 0 },
-    config: { duration: 300 },
+    // keeping it same as the transition duration (300) for popover results
+    // in animation sequence not completing and we see a faded popup
+    config: { duration: 250 },
   });
 
   const handlePinClick = () => {
