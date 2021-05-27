@@ -24,8 +24,8 @@ import java.util.Set;
         @JsonSubTypes.Type(value = DBAuth.class, name = Authentication.DB_AUTH),
         @JsonSubTypes.Type(value = OAuth2.class, name = Authentication.OAUTH2),
         @JsonSubTypes.Type(value = BasicAuth.class, name = Authentication.BASIC),
-        @JsonSubTypes.Type(value = BasicAuth.class, name = Authentication.API_KEY),
-        @JsonSubTypes.Type(value = BasicAuth.class, name = Authentication.BEARER_TOKEN)
+        @JsonSubTypes.Type(value = ApiKeyAuth.class, name = Authentication.API_KEY),
+        @JsonSubTypes.Type(value = BearerTokenAuth.class, name = Authentication.BEARER_TOKEN)
 })
 public class AuthenticationDTO implements AppsmithDomain {
     // In principle, this class should've been abstract. However, when this class is abstract, Spring's deserialization

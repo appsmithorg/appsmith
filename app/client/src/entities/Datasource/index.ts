@@ -5,6 +5,8 @@ export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
   password?: string;
+  key?: string;
+  bearerToken?: string;
 }
 
 export interface DatasourceColumns {
