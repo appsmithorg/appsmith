@@ -29,6 +29,7 @@ export interface ControlBuilder<T extends ControlProps> {
 
 export interface ControlProps extends ControlData, ControlFunctions {
   key?: string;
+  widgetId?: string;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 }
 export interface ControlData

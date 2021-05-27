@@ -34,6 +34,7 @@ class PropertyControlFactory {
         ...controlData,
         ...controlFunctions,
         key: controlData.id,
+        widgetId: controlData.widgetProperties.widgetId,
         customJSControl: customEditor,
         additionalAutoComplete,
         hideEvaluatedValue,

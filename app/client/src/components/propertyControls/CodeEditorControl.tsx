@@ -18,6 +18,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
       propertyValue,
       useValidationMessage,
       validationMessage,
+      widgetId,
     } = this.props;
     const props: Partial<ControlProps> = {};
     if (dataTreePath) props.dataTreePath = dataTreePath;
@@ -36,6 +37,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         tabBehaviour={TabBehaviour.INDENT}
         theme={this.props.theme}
         useValidationMessage={useValidationMessage}
+        widgetId={widgetId}
         {...props}
       />
     );

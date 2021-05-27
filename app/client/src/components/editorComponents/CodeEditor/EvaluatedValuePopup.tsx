@@ -116,6 +116,7 @@ interface Props {
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  widgetId?: string;
 }
 
 interface PopoverContentProps {
@@ -307,6 +308,7 @@ function PopoverContent(props: PopoverContentProps) {
 }
 
 function EvaluatedValuePopup(props: Props) {
+  const { widgetId } = props;
   const [contentHovered, setContentHovered] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -317,7 +319,11 @@ function EvaluatedValuePopup(props: Props) {
       placement = "right-start";
     }
   }
-
+  // With boundariesElement set as property pane, EvalautedValue will appear on
+  // top of property pane. We move it away with offset.
+  const offset = placement === "left-start" ? "-240,0" : "300,0";
+  const boundariesElement =
+    document.getElementById(`property_pane_${widgetId}`) || "viewport";
   return (
     <Wrapper ref={wrapperRef}>
       {(props.isOpen || contentHovered) && (
@@ -326,7 +332,13 @@ function EvaluatedValuePopup(props: Props) {
           modifiers={{
             offset: {
               enabled: true,
-              offset: "0, 15",
+              offset: offset,
+              order: 120,
+            },
+            preventOverflow: {
+              enabled: true,
+              boundariesElement: boundariesElement,
+              order: 101,
             },
           }}
           placement={placement}

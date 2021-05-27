@@ -97,6 +97,7 @@ export type EditorProps = EditorStyleProps &
     additionalDynamicData?: Record<string, Record<string, unknown>>;
     promptMessage?: React.ReactNode | string;
     hideEvaluatedValue?: boolean;
+    widgetId?: string;
   };
 
 type Props = ReduxStateProps & EditorProps;
@@ -357,7 +358,9 @@ class CodeEditor extends Component<Props, State> {
       size,
       theme,
       useValidationMessage,
+      widgetId,
     } = this.props;
+
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
     if (dataTreePath) {
@@ -404,6 +407,7 @@ class CodeEditor extends Component<Props, State> {
           isOpen={showEvaluatedValue}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
+          widgetId={widgetId}
         >
           <EditorWrapper
             border={border}

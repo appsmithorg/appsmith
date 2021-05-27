@@ -23,6 +23,7 @@ export function InputText(props: {
   additionalAutocomplete?: Record<string, Record<string, unknown>>;
   theme?: EditorTheme;
   hideEvaluatedValue?: boolean;
+  widgetId?: string;
 }) {
   const {
     dataTreePath,
@@ -34,6 +35,7 @@ export function InputText(props: {
     onChange,
     placeholder,
     value,
+    widgetId,
   } = props;
 
   return (
@@ -57,6 +59,7 @@ export function InputText(props: {
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={props.theme || EditorTheme.LIGHT}
+        widgetId={widgetId}
       />
     </StyledDynamicInput>
   );
@@ -75,8 +78,8 @@ class InputTextControl extends BaseControl<InputControlProps> {
       placeholderText,
       propertyValue,
       validationMessage,
+      widgetId,
     } = this.props;
-
     return (
       <InputText
         additionalAutocomplete={additionalAutoComplete}
@@ -90,6 +93,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         placeholder={placeholderText}
         theme={this.props.theme}
         value={propertyValue ? propertyValue : defaultValue}
+        widgetId={widgetId}
       />
     );
   }

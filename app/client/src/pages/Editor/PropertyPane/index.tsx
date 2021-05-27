@@ -222,14 +222,15 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
       return null;
     }
 
+    const { widgetId } = widgetProperties;
     // if settings control is disabled, don't render anything
     // for e.g - this will be true for list widget tempalte container widget
     if (widgetProperties?.disablePropertyPane) return null;
-
     return (
       <PropertyPaneWrapper
         className={"t--propertypane"}
         data-testid={"t--propertypane"}
+        id={`property_pane_${widgetId}`}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
@@ -335,6 +336,7 @@ export interface PropertyPaneProps extends PropertyPaneFunctions {
   isVisible: boolean;
   themeMode: ThemeMode;
   propPanePreference?: PropertyPanePositionConfig;
+  id?: string;
 }
 
 export interface PropertyPaneFunctions {
