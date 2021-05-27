@@ -284,6 +284,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           evaluatedProperty.length > itemIndex
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
+
           if (isPlainObject(evaluatedValue) || Array.isArray(evaluatedValue))
             set(widget, path, JSON.stringify(evaluatedValue));
           else set(widget, path, toString(evaluatedValue));
