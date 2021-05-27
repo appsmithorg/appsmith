@@ -757,7 +757,6 @@ const migrateNewlyAddedTabsWidgetsMissingData = (
           migrateNewlyAddedTabsWidgetsMissingData,
         );
         currentDSL.children = currentDSL.children.map((each) => {
-          each.version = 3;
           if (has(currentDSL, ["leftColumn", "rightColumn", "bottomRow"])) {
             return each;
           }
@@ -773,6 +772,7 @@ const migrateNewlyAddedTabsWidgetsMissingData = (
           };
         });
       }
+      currentDSL.version = 3;
     } catch (error) {
       Sentry.captureException({
         message: "Tabs Migration to add missing fields Failed",
