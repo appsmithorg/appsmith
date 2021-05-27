@@ -23,12 +23,19 @@ describe("Export application as a JSON file", function() {
     cy.get(homePage.exportAppFromMenu).click({ force: true });
     cy.get(homePage.exportAppModal).should("be.visible");
     cy.get(homePage.exportAppConfirmationCheckbox).click({ force: true });
-    cy.get(homePage.exportAppButton).click({ force: true });
+    cy.get(homePage.exportAppButton)
+      .invoke("attr", "href")
+      .should("contain", "api/v1/applications/export");
+    cy.get(homePage.exportAppButton)
+      .invoke("attr", "href")
+      .then((href) => {
+        cy.request(href)
+          .its("status")
+          .should("eq", 200);
+      });
 
-    cy.wait("@exportApplication").then((interception) => {
-      const { status, success } = interception.response.body.responseMeta;
-      assert.equal(status, 200);
-      assert.isTrue(success);
-    });
+    cy.get(homePage.exportAppButton).click({ force: true });
+    cy.wait(1000);
+    cy.get(homePage.exportAppModal).should("not.be.visible");
   });
 });
