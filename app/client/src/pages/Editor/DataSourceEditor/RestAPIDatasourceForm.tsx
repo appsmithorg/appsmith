@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "constants/forms";
-import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
@@ -56,6 +55,7 @@ import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import Callout from "components/ads/Callout";
+
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
     formValues: Datasource,
@@ -307,20 +307,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderHeader = () => {
-    const {
-      applicationId,
-      isNewDatasource,
-      isSaving,
-      pageId,
-      pluginImage,
-    } = this.props;
+    const { isNewDatasource, isSaving, pluginImage } = this.props;
     return (
       <>
-        <BackButton
-          onClick={() =>
-            history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
-          }
-        />
+        <BackButton onClick={history.goBack} />
         <br />
         <Header>
           <FormTitleContainer>
