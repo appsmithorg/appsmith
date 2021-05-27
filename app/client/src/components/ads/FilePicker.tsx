@@ -177,7 +177,7 @@ export function CloudinaryUploader(
 }
 
 function FilePickerComponent(props: FilePickerProps) {
-  const { logoUploadError, fileType } = props;
+  const { fileType, logoUploadError } = props;
   const [fileInfo, setFileInfo] = useState<{ name: string; size: number }>({
     name: "",
     size: 0,

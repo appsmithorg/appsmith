@@ -21,7 +21,7 @@ type ExportApplicationModalProps = {
 };
 
 function ExportApplicationModal(props: ExportApplicationModalProps) {
-  const { setModalClose, isModalOpen } = props;
+  const { isModalOpen, setModalClose } = props;
   const onExportSuccess = () => {
     setModalClose && setModalClose(false);
   };

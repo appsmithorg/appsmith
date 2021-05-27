@@ -34,7 +34,7 @@ type ImportApplicationModalProps = {
 };
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
-  const { onClose, isModalOpen, organizationId } = props;
+  const { isModalOpen, onClose, organizationId } = props;
   const [isChecked, setIsCheckedToTrue] = useState(false);
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
