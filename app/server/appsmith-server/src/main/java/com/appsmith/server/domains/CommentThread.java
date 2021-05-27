@@ -25,6 +25,8 @@ public class CommentThread extends BaseDomain {
 
     String refId;
 
+    String pageId;
+
     CommentThreadState pinnedState;
 
     CommentThreadState resolvedState;

@@ -9,8 +9,12 @@ import {
   getAppCommentThreads,
   shouldShowResolved as shouldShowResolvedSelector,
   appCommentsFilter as appCommentsFilterSelector,
+  commentThreadsSelector,
 } from "selectors/commentsSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 
 import CommentThread from "comments/CommentThread/connectedCommentThread";
 import AppCommentsPlaceholder from "./AppCommentsPlaceholder";
@@ -25,6 +29,22 @@ const Container = styled.div`
   flex: 1;
   overflow: auto;
 `;
+
+function PageCommentThread(props: {
+  hideInput?: boolean;
+  hideChildren?: boolean;
+  showSubheader?: boolean;
+  commentThreadId: string;
+}) {
+  const commentThread = useSelector(
+    commentThreadsSelector(props.commentThreadId),
+  );
+  const currentPageId = useSelector(getCurrentPageId);
+
+  if (commentThread && commentThread.pageId !== currentPageId) return null;
+
+  return <CommentThread {...props} />;
+}
 
 function AppCommentThreads() {
   const applicationId = useSelector(getCurrentApplicationId) as string;
@@ -70,7 +90,7 @@ function AppCommentThreads() {
     <Container>
       <div ref={containerRef}>
         {commentThreadIds.map((commentThreadId: string) => (
-          <CommentThread
+          <PageCommentThread
             commentThreadId={commentThreadId}
             hideChildren
             hideInput
