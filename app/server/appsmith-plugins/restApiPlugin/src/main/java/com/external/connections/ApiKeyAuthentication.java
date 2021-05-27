@@ -16,13 +16,14 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
+import static com.appsmith.external.constants.Authentication.API_KEY_PARAM;
+
 @Setter
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiKeyAuthentication extends APIConnection{
-    private final String PARAM_NAME = "api_key";
     private String key;
 
     public static Mono<ApiKeyAuthentication> create(ApiKeyAuth apiKeyAuth) {
@@ -61,7 +62,7 @@ public class ApiKeyAuthentication extends APIConnection{
 
     private String appendApiKeyParamToQuery(String oldQuery) {
         return StringUtils.isEmpty(oldQuery) ?
-                PARAM_NAME + "=" + this.key :
-                oldQuery + "&" + PARAM_NAME + "=" + this.key;
+                API_KEY_PARAM + "=" + this.key :
+                oldQuery + "&" + API_KEY_PARAM + "=" + this.key;
     }
 }

@@ -25,6 +25,7 @@ public class Authentication {
     public static final String AUTHORIZATION_URL = "authorization_url";
     public static final String ACCESS_TOKEN_URL = "access_token_url";
     public static final String RESPONSE_TYPE = "response_type";
+    public static final String API_KEY_PARAM = "api_key";
 
     // Request parameter values
     public static final String AUTHORIZATION_CODE = "authorization_code";
@@ -35,4 +36,7 @@ public class Authentication {
 
     // Header names
     public static final String AUTHORIZATION_HEADER = "Authorization";
+
+    // Other constants
+    public static final String BEARER = "Bearer";
 }

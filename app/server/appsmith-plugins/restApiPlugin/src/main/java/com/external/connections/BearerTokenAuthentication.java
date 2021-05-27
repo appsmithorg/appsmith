@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
 import reactor.core.publisher.Mono;
 
 import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
+import static com.appsmith.external.constants.Authentication.BEARER;
 
 @Setter
 @Getter
@@ -20,7 +21,6 @@ import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADE
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class BearerTokenAuthentication extends APIConnection {
-    private final String HEADER_PREFIX = "Bearer";
     private String bearerToken;
 
     public static Mono<BearerTokenAuthentication> create(BearerTokenAuth bearerTokenAuth) {
@@ -43,7 +43,6 @@ public class BearerTokenAuthentication extends APIConnection {
     }
 
     private String getHeaderValue() {
-        return HEADER_PREFIX + " " + this.bearerToken;
+        return BEARER + " " + this.bearerToken;
     }
-
 }
