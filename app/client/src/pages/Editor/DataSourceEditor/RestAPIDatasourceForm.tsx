@@ -594,12 +594,35 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
 
+  renderOauth2CommonAdvanced = () => {
+    return (
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.audience"
+            label="Audience"
+            placeholderText="https://example.com/oauth/audience"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.resource"
+            label="Resource"
+            placeholderText="https://example.com/oauth/resource"
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+
   renderOauth2ClientCredentials = () => {
     return this.renderOauth2Common();
   };
 
   renderOauth2AuthorizationCode = () => {
-    const { datasource, datasourceId, isSaving, pageId } = this.props;
+    const { datasource, datasourceId, formData, isSaving, pageId } = this.props;
     const isAuthorized = _.get(
       datasource,
       "datasourceConfiguration.authentication.isAuthorized",
@@ -654,6 +677,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             ]}
           />
         </FormInputContainer>
+        {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
+          this.renderOauth2CommonAdvanced()}
         <FormInputContainer>
           <AuthorizeButton
             disabled={this.disableSave()}
