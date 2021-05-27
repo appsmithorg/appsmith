@@ -64,7 +64,7 @@ class UserApi extends Api {
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
   static addOrgURL = `${UserApi.usersURL}/addOrganization`;
-  static leaveOrgURL = `${UserApi.usersURL}/organization`;
+  static leaveOrgURL = `${UserApi.usersURL}/leaveOrganization`;
   static logoutURL = "v1/logout";
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
@@ -143,7 +143,7 @@ class UserApi extends Api {
   }
 
   static leaveOrg(request: LeaveOrgRequest): AxiosPromise<LeaveOrgRequest> {
-    return Api.delete(UserApi.leaveOrgURL + "/" + request.orgId);
+    return Api.put(UserApi.leaveOrgURL + "/" + request.orgId);
   }
 }
 

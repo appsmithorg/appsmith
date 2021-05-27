@@ -90,7 +90,7 @@ public class UserController extends BaseController<UserService, User, String> {
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
-    @DeleteMapping("/organization/{orgId}")
+    @PutMapping("/leaveOrganization/{orgId}")
     public Mono<ResponseDTO<User>> leaveOrganization(@PathVariable String orgId) {
         return userOrganizationService.leaveOrganization(orgId)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
