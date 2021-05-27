@@ -154,7 +154,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
 <a href="http://dwayne.io"><img src="https://avatars.githubusercontent.com/u/347097?v=4?s=100" width="60px;" alt="wayne Forde"/></a>
 <a href="https://github.com/monarch0111"><img src="https://avatars.githubusercontent.com/u/2965013?v=4?s=100" width="60px;" alt="Abhishek"/></a>
 <a href="http://www.navdeepsingh.in/"><img src="https://avatars.githubusercontent.com/u/2968787?v=4?s=100" width="60px;" alt=""/></a>
-
+<a href="https://github.com/marks0351"><img src=https://avatars.githubusercontent.com/u/35134347?v=4?s=100" width="60px;" alt=""/>Ashok</a>
 <br>
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
