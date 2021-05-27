@@ -68,9 +68,12 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
         <ForkButton
           cypressSelector={"t--export-app-button"}
           disabled={!isChecked}
+          href={`/api/v1/applications/export/${props.applicationId}`}
           isLoading={exportingApplication}
-          onClick={exportApplication}
+          onClick={onExportSuccess}
           size={Size.large}
+          tag="a"
+          target="_blank"
           text={"EXPORT"}
         />
       </ButtonWrapper>
