@@ -752,6 +752,10 @@ const migrateNewlyAddedTabsWidgetsMissingData = (
   if (currentDSL.type === WidgetTypes.TABS_WIDGET && currentDSL.version === 2) {
     try {
       if (currentDSL.children && currentDSL.children.length) {
+        // because Tabs widget can contain Tabs widgets
+        currentDSL.children = currentDSL.children.map(
+          migrateNewlyAddedTabsWidgetsMissingData,
+        );
         currentDSL.children = currentDSL.children.map((each) => {
           each.version = 3;
           if (has(currentDSL, ["leftColumn", "rightColumn", "bottomRow"])) {
