@@ -55,11 +55,11 @@ Appsmith automagically works using any DB, Rest API or GraphQL as a datasource, 
 
 #### 🤖 Code Logic with JavaScript
 
-All parts of your app can be referenced as JavaScript objects. Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br><br>
+We'll run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br><br>
 
 #### ☝️ One-click Deploy & Access Control
 
-[Push a button](https://docs.appsmith.com/core-concepts/access-control) to make your app public and get a shareable link, or privately invite your team using OAuth 2.0. Each member can be assigned a role with access to certain parts of the app.<br><br>
+[Push a button](https://docs.appsmith.com/core-concepts/access-control) to deploy & share apps with your team, or privately invite your team using OAuth 2.0. Each member can be assigned a role with access to certain parts of the app.<br><br>
 
 #### 🔑 Solid 256-bit Encryption
 
@@ -79,7 +79,10 @@ Issues are inevitable. When you have one, our entire team is around to help—
 Check out some real applications that can be built with Appsmith:
 
 - 👩‍💻 [Customer Support Dashboard](https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
-- 💼 [Job Application Tracker](https://app.appsmith.com/applications/5f43bce13697fd5df1c52ce4/pages/5f43c39c3697fd5df1c52d50/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
+- 🗓️ [Calendly in Appsmith](https://app.appsmith.com/applications/600186605b452f525458d6d2/pages/600186605b452f525458d6d4/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
+- 💸 [Fundraising CRM](https://app.appsmith.com/applications/6098bdc65864501cc39c3d2f/pages/6098bdc65864501cc39c3d31/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
+- 📄 [Application Tracking System App](https://app.appsmith.com/applications/5f43bce13697fd5df1c52ce4/pages/5f43c39c3697fd5df1c52d50/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
+
 - 🌟 Made something cool? [Share it with the community](https://discord.gg/Tx395War)
   <br><br>
 
@@ -87,13 +90,18 @@ Check out some real applications that can be built with Appsmith:
 
 Here are the latest tutorials and videos for you to learn more about Appsmith:
 
-1. [Building an Admin Panel on MongoDB using Appsmith](https://blog.appsmith.com/building-an-admin-panel-with-mongodb-using-appsmith) ([Video](https://www.youtube.com/watch?v=tisUaIgI86k))
-2. [Building a Customer Support Dashboard in Appsmith](https://www.youtube.com/watch?v=-O_6OLREEzo)
-3. [Building a Store Catalogue Management System using Appsmith and GraphQL](https://blog.appsmith.com/building-a-store-catalogue-management-system-using-appsmith-and-graphql)
-4. [Running CI/CD Jobs Manually using Appsmith](https://blog.appsmith.com/how-to-run-manual-jobs-in-gitlab-cicd) ([Video](https://www.youtube.com/watch?v=CYdeJcD4I8A))
-5. [Building a Calendly Clone in Appsmith](https://blog.appsmith.com/how-to-build-a-calendly-clone-in-30-minutes)
-6. [Building Internal Tools with Appsmith](https://youtu.be/eYYYfuW-kEE) `Community`
-7. [Building an Issue Tracker with Appsmith](https://dev.to/pjmantoss/how-to-build-an-issue-tracker-with-appsmith-204e) `Community`
+1. [Build an Investor CRM using Appsmith on Google Sheets](https://blog.appsmith.com/build-an-investor-crm-using-appsmith-on-google-sheets-1)
+2. [Building an Admin Panel on MongoDB using Appsmith](https://blog.appsmith.com/building-an-admin-panel-with-mongodb-using-appsmith) ([Video](https://www.youtube.com/watch?v=tisUaIgI86k))
+3. [Building a Discount Management Dashboard With Postgres](https://blog.appsmith.com/building-a-discount-management-dashboard-with-postgres)
+4. [Building a Customer Support Dashboard in Appsmith](https://www.youtube.com/watch?v=-O_6OLREEzo)
+5. [Building a Store Catalogue Management System using Appsmith and GraphQL](https://blog.appsmith.com/building-a-store-catalogue-management-system-using-appsmith-and-graphql)
+6. [Using the Notion API to Build a Content Management System](https://blog.appsmith.com/using-the-notion-api-to-build-a-content-management-system)
+7. [Running CI/CD Jobs Manually using Appsmith](https://blog.appsmith.com/how-to-run-manual-jobs-in-gitlab-cicd) ([Video](https://www.youtube.com/watch?v=CYdeJcD4I8A))
+8. [Building a Calendly Clone in Appsmith](https://blog.appsmith.com/how-to-build-a-calendly-clone-in-30-minutes)
+9. [Building Internal Tools with Appsmith](https://youtu.be/eYYYfuW-kEE) `Community`
+10. [Building an Issue Tracker with Appsmith](https://dev.to/pjmantoss/how-to-build-an-issue-tracker-with-appsmith-204e) `Community`
+
+Visit our [blog](https://blog.appsmith.com/) to explore more.
 
 ## Contribute
 
