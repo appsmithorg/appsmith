@@ -11,6 +11,10 @@ import { useDispatch } from "react-redux";
 import { importApplication } from "actions/applicationActions";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import {
+  IMPORT_APPLICATION_MODAL_TITLE,
+  IMPORT_APPLICATION_MODAL_SUB_TITLE,
+} from "constants/messages";
 
 const CheckboxDiv = styled.div`
   overflow: auto;
@@ -61,9 +65,10 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
   const onImportApplication = () => {
     if (!appFileToBeUploaded) {
       Toaster.show({
-        text: "Please a valid application file!",
+        text: "Please choose a valid application file!",
         variant: Variant.danger,
       });
+      return;
     }
     const { file, setProgress } = appFileToBeUploaded || {};
     const progress = (progressEvent: ProgressEvent) => {
@@ -89,20 +94,16 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       isOpen={isModalOpen}
       maxHeight={"540px"}
       setModalClose={onClose}
-      title={"Import Application"}
+      title={IMPORT_APPLICATION_MODAL_TITLE()}
     >
       <FilePickerWrapper>
-        <FilePicker
-          fileType={FileType.JSON}
-          fileUploader={FileUploader}
-          onFileRemoved={() => console.log("remove file")}
-        />
+        <FilePicker fileType={FileType.JSON} fileUploader={FileUploader} />
       </FilePickerWrapper>
       <CheckboxDiv>
         <Text type={TextType.P1}>
           <Checkbox
             cypressSelector={"t--org-import-app-confirm"}
-            label="By clicking on this you agree that your application credentials will be read from the file"
+            label={IMPORT_APPLICATION_MODAL_SUB_TITLE()}
             onCheckChange={(checked: boolean) => {
               setIsCheckedToTrue(checked);
             }}

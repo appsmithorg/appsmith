@@ -4,6 +4,10 @@ import { Size } from "components/ads/Button";
 import { StyledDialog, ForkButton, ButtonWrapper } from "./ForkModalStyles";
 import Checkbox from "components/ads/Checkbox";
 import Text, { TextType } from "components/ads/Text";
+import {
+  EXPORT_APPLICATION_MODAL_TITLE,
+  EXPORT_APPLICATION_MODAL_SUB_TITLE,
+} from "constants/messages";
 
 const CheckboxDiv = styled.div`
   // overflow: auto;
@@ -34,13 +38,13 @@ function ExportApplicationModal(props: ExportApplicationModalProps) {
       isOpen={isModalOpen}
       maxHeight={"540px"}
       setModalClose={setModalClose}
-      title={"Be sure to read the data policy"}
+      title={EXPORT_APPLICATION_MODAL_TITLE()}
     >
       <CheckboxDiv>
         <Text type={TextType.P1}>
           <Checkbox
             cypressSelector="t--export-app-confirm"
-            label="By clicking on this you agree that your application credentials can be stored inside a file"
+            label={EXPORT_APPLICATION_MODAL_SUB_TITLE()}
             onCheckChange={(checked: boolean) => {
               setIsCheckedToTrue(checked);
             }}

@@ -218,9 +218,7 @@ const applicationsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.IMPORT_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
-  ) => {
-    return { ...state, importingApplication: true };
-  },
+  ) => ({ ...state, importingApplication: true }),
   [ReduxActionTypes.IMPORT_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ importedApplication: any }>,

@@ -691,9 +691,8 @@ function ApplicationsSection(props: any) {
                   />
                 </Menu>
               )}
-              {selectedOrgIdForImportApplication !== "" && (
+              {selectedOrgIdForImportApplication && (
                 <ImportApplicationModal
-                  // import={importApplication}
                   isModalOpen={
                     selectedOrgIdForImportApplication === organization.id
                   }
