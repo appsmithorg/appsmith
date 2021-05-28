@@ -376,8 +376,8 @@ public class ImportExportApplicationServiceTests {
                     assertThat(decryptedFields.getAuthType()).isEqualTo(auth.getClass().getName());
                     assertThat(decryptedFields.getPassword()).isEqualTo("awesome-password");
 
-                    assertThat(applicationJson.getMongoEscapedWidgets()).isNotEmpty();
-
+                    assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                    assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
                 })
                 .verifyComplete();
     }

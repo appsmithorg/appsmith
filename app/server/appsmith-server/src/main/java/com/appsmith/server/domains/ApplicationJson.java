@@ -26,5 +26,6 @@ public class ApplicationJson {
     /**
      * Mapping mongoEscapedWidgets with layoutId
      */
-    Map<String, Set<String>> mongoEscapedWidgets;
+    Map<String, Set<String>> publishedLayoutmongoEscapedWidgets;
+    Map<String, Set<String>> unpublishedLayoutmongoEscapedWidgets;
 }

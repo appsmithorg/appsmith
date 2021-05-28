@@ -126,7 +126,8 @@ public class ImportExportApplicationService {
                 return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
                     .collectList()
                     .flatMap(newPageList -> {
-                        Map<String, Set<String>> mongoEscapedWidgetsNames = new HashMap<>();
+                        Map<String, Set<String>> publishedMongoEscapedWidgetsNames = new HashMap<>();
+                        Map<String, Set<String>> unpublishedMongoEscapedWidgetsNames = new HashMap<>();
                         newPageList.forEach(newPage -> {
                             pageIdToNameMap.put(newPage.getId(), newPage.getUnpublishedPage().getName());
                             newPage.setApplicationId(null);
@@ -134,7 +135,8 @@ public class ImportExportApplicationService {
 
                             if (newPage.getUnpublishedPage().getLayouts() != null) {
                                 newPage.getUnpublishedPage().getLayouts().forEach(layout ->
-                                    mongoEscapedWidgetsNames.put(layout.getId(), layout.getMongoEscapedWidgetNames())
+                                    unpublishedMongoEscapedWidgetsNames
+                                        .put(layout.getId(), layout.getMongoEscapedWidgetNames())
                                 );
                             }
 
@@ -142,12 +144,14 @@ public class ImportExportApplicationService {
                                     && newPage.getPublishedPage().getLayouts() != null) {
 
                                 newPage.getPublishedPage().getLayouts().forEach(layout ->
-                                    mongoEscapedWidgetsNames.put(layout.getId(), layout.getMongoEscapedWidgetNames())
+                                    publishedMongoEscapedWidgetsNames
+                                        .put(layout.getId(), layout.getMongoEscapedWidgetNames())
                                 );
                             }
                         });
                         applicationJson.setPageList(newPageList);
-                        applicationJson.setMongoEscapedWidgets(mongoEscapedWidgetsNames);
+                        applicationJson.setPublishedLayoutmongoEscapedWidgets(publishedMongoEscapedWidgetsNames);
+                        applicationJson.setUnpublishedLayoutmongoEscapedWidgets(unpublishedMongoEscapedWidgetsNames);
                         return datasourceRepository
                             .findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES)
                             .collectList();
@@ -170,8 +174,12 @@ public class ImportExportApplicationService {
                             newAction.setApplicationId(null);
                             //Collect Datasource names to filter only required datasources
                             if (newAction.getPluginType() == PluginType.DB || newAction.getPluginType() == PluginType.API) {
-                                concernedDBNames.add(mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceIdToNameMap));
-                                concernedDBNames.add(mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceIdToNameMap));
+                                concernedDBNames.add(
+                                    mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceIdToNameMap)
+                                );
+                                concernedDBNames.add(
+                                    mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceIdToNameMap)
+                                );
                             }
                             if (newAction.getUnpublishedAction() != null) {
                                 ActionDTO actionDTO = newAction.getUnpublishedAction();
@@ -387,15 +395,17 @@ public class ImportExportApplicationService {
 
     private Flux<NewPage> importAndSavePages(List<NewPage> pages,
                                              Application application,
-                                             Map<String, Set<String>> mongoEscapedWidget) {
+                                             Map<String, Set<String>> publishedMongoEscapedWidget,
+                                             Map<String, Set<String>> unpublishedMongoEscapedWidget
+    ) {
 
         pages.forEach(newPage -> {
             newPage.getUnpublishedPage().setApplicationId(application.getId());
             applicationPageService.generateAndSetPagePolicies(application, newPage.getUnpublishedPage());
             newPage.setPolicies(newPage.getUnpublishedPage().getPolicies());
-            if (mongoEscapedWidget != null) {
+            if (unpublishedMongoEscapedWidget != null) {
                 newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
-                    layout.setMongoEscapedWidgetNames(mongoEscapedWidget.get(layout.getId()));
+                    layout.setMongoEscapedWidgetNames(unpublishedMongoEscapedWidget.get(layout.getId()));
                     layout.setId(new ObjectId().toString());
                 });
             }
@@ -403,9 +413,9 @@ public class ImportExportApplicationService {
             if (newPage.getPublishedPage() != null) {
                 newPage.getPublishedPage().setApplicationId(application.getId());
                 applicationPageService.generateAndSetPagePolicies(application, newPage.getPublishedPage());
-                if (mongoEscapedWidget != null) {
+                if (publishedMongoEscapedWidget != null) {
                     newPage.getPublishedPage().getLayouts().forEach(layout -> {
-                        layout.setMongoEscapedWidgetNames(mongoEscapedWidget.get(layout.getId()));
+                        layout.setMongoEscapedWidgetNames(publishedMongoEscapedWidget.get(layout.getId()));
                         layout.setId(new ObjectId().toString());
                     });
                 }
