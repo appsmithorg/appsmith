@@ -2,7 +2,7 @@ import React, { CSSProperties } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 import { useDrag, DragSourceMonitor } from "react-dnd";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { WidgetTypes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
@@ -31,7 +31,6 @@ const WidgetBoundaries = styled.div`
   position: absolute;
   border: 1px dashed
     ${(props) => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
-  pointer-events: auto;
 `;
 
 type DraggableComponentProps = WidgetProps;
@@ -171,6 +170,8 @@ function DraggableComponent(props: DraggableComponentProps) {
         transform: `translate(-50%, -50%)`,
         top: "50%",
         left: "50%",
+        pointerEvents:
+          props.type === WidgetTypes.BUTTON_WIDGET ? "auto" : "none",
       }}
     />
   );
