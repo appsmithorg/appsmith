@@ -2,6 +2,7 @@ import { VALIDATORS, validateDateString } from "workers/validations";
 import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import moment from "moment";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -34,7 +35,7 @@ describe("Validate Validators", () => {
         output: {
           isValid: false,
           message:
-            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+            'This value does not evaluate to type: "Array<x:string, y:number>"',
           parsed: [],
           transformed: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         },
@@ -44,7 +45,7 @@ describe("Validate Validators", () => {
         output: {
           isValid: false,
           message:
-            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+            'This value does not evaluate to type: "Array<x:string, y:number>"',
           parsed: [],
           transformed: undefined,
         },
@@ -515,8 +516,7 @@ describe("List data validator", () => {
         input: "sting text",
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: "sting text",
         },
@@ -525,8 +525,7 @@ describe("List data validator", () => {
         input: undefined,
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: undefined,
         },
@@ -535,8 +534,7 @@ describe("List data validator", () => {
         input: {},
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: {},
         },
@@ -553,5 +551,29 @@ describe("List data validator", () => {
       const response = validator(testCase.input, DUMMY_WIDGET, {});
       expect(response).toStrictEqual(testCase.output);
     }
+  });
+
+  it("Validates DEFAULT_OPTION_VALUE correctly (string trim and integers)", () => {
+    const validator = VALIDATORS[VALIDATION_TYPES.DEFAULT_OPTION_VALUE];
+    const widgetProps = { ...DUMMY_WIDGET, selectionType: "SINGLE_SELECT" };
+    const inputs = [100, "something ", "something\n"];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "100",
+      },
+      {
+        isValid: true,
+        parsed: "something",
+      },
+      {
+        isValid: true,
+        parsed: "something",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const response = validator(input, widgetProps);
+      expect(response).toStrictEqual(expected[index]);
+    });
   });
 });

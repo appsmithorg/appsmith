@@ -493,7 +493,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // When we have tableData, the primaryColumns order is unlikely to change
     // When we don't have tableData primaryColumns will not be available, so let's let it be.
 
-    if (sanitizedTableData.length > 0) {
+    if (Array.isArray(sanitizedTableData) && sanitizedTableData.length > 0) {
       newPrimaryColumns = this.createTablePrimaryColumns();
       if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);
     }
@@ -603,25 +603,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return selectedRowIndices;
   };
 
+  applyFilters = (filters: ReactTableFilter[]) => {
+    this.resetSelectedRowIndex();
+    this.props.updateWidgetMetaProperty("filters", filters);
+  };
+
+  toggleDrag = (disable: boolean) => {
+    this.disableDrag(disable);
+  };
+
   getPageView() {
     const { pageSize, filteredTableData = [] } = this.props;
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
-          applyFilter={(filters: ReactTableFilter[]) => {
-            this.resetSelectedRowIndex();
-            this.props.updateWidgetMetaProperty("filters", filters);
-          }}
+          applyFilter={this.applyFilters}
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
-          disableDrag={(disable: boolean) => {
-            this.disableDrag(disable);
-          }}
+          disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           filters={this.props.filters}
           handleReorderColumn={this.handleReorderColumn}

@@ -67,7 +67,11 @@
                 "bottomRow": 10,
                 "parentId": "tyiwk4xuq0",
                 "widgetId": "5up3r2iuvs",
-                "dynamicBindingPathList": []
+                "dynamicTriggerPathList": [{
+                  "key": "onSearchTextChanged"
+                }],
+                "onSearchTextChanged": "{{Api1.run()}}",
+                "selectedRow": "{{Table1.tableData[Table1.selectedRowIndex]}}"
               }
             ],
             "widgetId": "tyiwk4xuq0",

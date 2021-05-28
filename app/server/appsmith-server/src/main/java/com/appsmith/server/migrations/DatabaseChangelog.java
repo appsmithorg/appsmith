@@ -1509,26 +1509,6 @@ public class DatabaseChangelog {
         });
     }
 
-    @ChangeSet(order = "046", id = "ensure-encrypted-field-for-datasources", author = "")
-    public void ensureIsEncryptedFieldForDatasources(MongoTemplate mongoTemplate) {
-        final String isEncryptedField = "datasourceConfiguration.authentication.isEncrypted";
-        final String passwordField = "datasourceConfiguration.authentication.password";
-
-        final org.springframework.data.mongodb.core.query.Query query = query(new Criteria().andOperator(
-                where(passwordField).exists(true),
-                where(isEncryptedField).exists(false)
-        ));
-        query.fields().include("_id");
-
-        for (final Datasource datasource : mongoTemplate.find(query, Datasource.class)) {
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
-                    update(isEncryptedField, true),
-                    Datasource.class
-            );
-        }
-    }
-
     @ChangeSet(order = "047", id = "add-isSendSessionEnabled-key-for-datasources", author = "")
     public void addIsSendSessionEnabledPropertyInDatasources(MongoTemplate mongoTemplate) {
 
@@ -2113,7 +2093,7 @@ public class DatabaseChangelog {
         plugin.setName("Google Sheets");
         plugin.setType(PluginType.SAAS);
         plugin.setPackageName("google-sheets-plugin");
-        plugin.setUiComponent("DbEditorForm");
+        plugin.setUiComponent("SaaSEditorForm");
         plugin.setDatasourceComponent("OAuth2DatasourceForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
@@ -2241,5 +2221,40 @@ public class DatabaseChangelog {
                 new Update().addToSet("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates", property),
                 NewAction.class
         );
+    }
+
+    @ChangeSet(order = "067", id = "update-mongo-import-from-srv-field", author = "")
+    public void updateMongoImportFromSrvField(MongoTemplate mongoTemplate) {
+        Plugin mongoPlugin = mongoTemplate
+                .findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        List<Datasource> mongoDatasources = mongoTemplate
+                .find(query(where("pluginId").is(mongoPlugin.getId())), Datasource.class);
+
+        mongoDatasources.stream()
+                .forEach(datasource -> {
+                    datasource.getDatasourceConfiguration().setProperties(List.of(new Property("Use Mongo Connection " +
+                            "String URI", "No")));
+                    mongoTemplate.save(datasource);
+                });
+    }
+
+    @ChangeSet(order = "068", id = "delete-mongo-datasource-structures", author = "")
+    public void deleteMongoDatasourceStructures(MongoTemplate mongoTemplate, MongoOperations mongoOperations) {
+
+        // Mongo Form requires the query templates to change as well. To ensure this, mongo datasources
+        // must re-compute the structure. The following deletes all such structures. Whenever getStructure API call is
+        // made for these datasources, the server would re-compute the structure.
+        Plugin mongoPlugin = mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        Query query = query(new Criteria().andOperator(
+                where(fieldName(QDatasource.datasource.pluginId)).is(mongoPlugin.getId()),
+                where(fieldName(QDatasource.datasource.structure)).exists(true)
+        ));
+
+        Update update = new Update().set(fieldName(QDatasource.datasource.structure), null);
+
+        // Delete all the existing mongo datasource structures by setting the key to null.
+        mongoOperations.updateMulti(query, update, Datasource.class);
     }
 }

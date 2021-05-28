@@ -6,6 +6,7 @@ let duplicateApplicationDsl;
 
 describe("Duplicate application", function() {
   before(() => {
+    dsl.dsl.version = 21; // latest migrated version
     cy.addDsl(dsl);
   });
 

@@ -73,7 +73,7 @@ class FormWidget extends ContainerWidget {
 
   updateFormData() {
     if (this.props.children) {
-      const formData = this.getFormData(this.props.children[0]);
+      const formData = this.getFormData(this.props.children[0] as WidgetProps);
       if (!_.isEqual(formData, this.props.data)) {
         this.props.updateWidgetMetaProperty("data", formData);
       }

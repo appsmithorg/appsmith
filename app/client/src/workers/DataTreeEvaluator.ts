@@ -88,7 +88,9 @@ export default class DataTreeEvaluator {
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    this.evalTree = getValidatedTree(evaluatedTree);
+    const { errors, validatedTree } = getValidatedTree(evaluatedTree);
+    this.evalTree = validatedTree;
+    this.errors = this.errors.concat(errors);
     const validateEnd = performance.now();
 
     this.oldUnEvalTree = unEvalTree;
@@ -345,10 +347,21 @@ export default class DataTreeEvaluator {
     }
     if (isAction(entity)) {
       Object.entries(entity.dependencyMap).forEach(
-        ([dependent, entityDependencies]) => {
-          dependencies[`${entityName}.${dependent}`] = entityDependencies.map(
-            (propertyPath) => `${entityName}.${propertyPath}`,
-          );
+        ([path, entityDependencies]) => {
+          const actionDependentPaths: Array<string> = [];
+          const mainPath = `${entityName}.${path}`;
+          // Only add dependencies for paths which exist at the moment in appsmith world
+          if (this.allKeys.hasOwnProperty(mainPath)) {
+            // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
+            // a cyclical dependency.
+            entityDependencies.forEach((dependentPath) => {
+              const completePath = `${entityName}.${dependentPath}`;
+              if (this.allKeys.hasOwnProperty(completePath)) {
+                actionDependentPaths.push(completePath);
+              }
+            });
+            dependencies[mainPath] = actionDependentPaths;
+          }
         },
       );
     }
@@ -380,6 +393,11 @@ export default class DataTreeEvaluator {
           let evalPropertyValue;
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
+          _.set(
+            currentTree,
+            `${entityName}.jsErrorMessages.${propertyPath}`,
+            "",
+          );
           if (requiresEval) {
             const evaluationSubstitutionType =
               entity.bindingPaths[propertyPath] ||
@@ -390,6 +408,8 @@ export default class DataTreeEvaluator {
                 currentTree,
                 evaluationSubstitutionType,
                 false,
+                undefined,
+                fullPropertyPath,
               );
             } catch (e) {
               this.errors.push({
@@ -405,7 +425,6 @@ export default class DataTreeEvaluator {
             evalPropertyValue = unEvalPropertyValue;
           }
 
-          // debugger;
           if (isWidget(entity)) {
             const widgetEntity = entity;
             const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
@@ -535,14 +554,16 @@ export default class DataTreeEvaluator {
     evaluationSubstitutionType: EvaluationSubstitutionType,
     returnTriggers: boolean,
     callBackData?: Array<any>,
+    fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
-    const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
+    const { jsSnippets, stringSegments } = getDynamicBindings(dynamicBinding);
     if (returnTriggers) {
       const result = this.evaluateDynamicBoundValue(
         data,
         jsSnippets[0],
         callBackData,
+        fullPropertyPath,
       );
       return result.triggers;
     }
@@ -554,6 +575,7 @@ export default class DataTreeEvaluator {
             data,
             jsSnippet,
             callBackData,
+            fullPropertyPath,
           );
           return result.result;
         } else {
@@ -580,17 +602,32 @@ export default class DataTreeEvaluator {
     data: DataTree,
     js: string,
     callbackData?: Array<any>,
+    fullPropertyPath?: string,
   ): EvalResult {
     try {
       return evaluate(js, data, callbackData);
     } catch (e) {
-      this.errors.push({
-        type: EvalErrorTypes.EVAL_ERROR,
-        message: e.message,
-        context: {
-          binding: js,
-        },
-      });
+      if (fullPropertyPath) {
+        const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+          fullPropertyPath,
+        );
+        _.set(data, `${entityName}.jsErrorMessages.${propertyPath}`, e.message);
+        const entity = data[entityName];
+        if (isWidget(entity)) {
+          this.errors.push({
+            type: EvalErrorTypes.EVAL_ERROR,
+            message: e.message,
+            context: {
+              source: {
+                id: entity.widgetId,
+                name: entity.widgetName,
+                type: ENTITY_TYPE.WIDGET,
+                propertyPath: propertyPath,
+              },
+            },
+          });
+        }
+      }
       return { result: undefined, triggers: [] };
     }
   }
@@ -612,11 +649,12 @@ export default class DataTreeEvaluator {
         EvaluationSubstitutionType.TEMPLATE,
         true,
         undefined,
+        fullPropertyPath,
       );
       valueToValidate = triggers;
     }
     const validation = widget.validationPaths[propertyPath];
-    const { parsed, isValid, message, transformed } = validateWidgetProperty(
+    const { isValid, message, parsed, transformed } = validateWidgetProperty(
       propertyPath,
       valueToValidate,
       widget,
@@ -630,7 +668,8 @@ export default class DataTreeEvaluator {
       : transformed;
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
     _.set(widget, `evaluatedValues.${propertyPath}`, safeEvaluatedValue);
-    if (!isValid) {
+    const jsError = _.get(widget, `jsErrorMessages.${propertyPath}`);
+    if (!isValid && !jsError) {
       this.errors.push({
         type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
         message: message || "",
@@ -640,6 +679,9 @@ export default class DataTreeEvaluator {
             name: widget.widgetName,
             type: ENTITY_TYPE.WIDGET,
             propertyPath: propertyPath,
+          },
+          state: {
+            value: safeEvaluatedValue,
           },
         },
       });
@@ -860,16 +902,23 @@ export default class DataTreeEvaluator {
                       const entityDependenciesName = entity.dependencyMap[
                         entityPropertyPath
                       ].map((dep) => `${entityName}.${dep}`);
+
+                      // Filter only the paths which exist in the appsmith world to avoid cyclical dependencies
+                      const filteredEntityDependencies = entityDependenciesName.filter(
+                        (path) => this.allKeys.hasOwnProperty(path),
+                      );
+
+                      // Now assign these existing dependent paths to the property path in dependencyMap
                       if (fullPropertyPath in this.dependencyMap) {
                         this.dependencyMap[
                           fullPropertyPath
                         ] = this.dependencyMap[fullPropertyPath].concat(
-                          entityDependenciesName,
+                          filteredEntityDependencies,
                         );
                       } else {
                         this.dependencyMap[
                           fullPropertyPath
-                        ] = entityDependenciesName;
+                        ] = filteredEntityDependencies;
                       }
                     }
                   }
@@ -1090,11 +1139,13 @@ export default class DataTreeEvaluator {
 }
 
 const extractReferencesFromBinding = (
-  path: string,
+  dependentPath: string,
   all: Record<string, true>,
 ): Array<string> => {
   const subDeps: Array<string> = [];
-  const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [path];
+  const identifiers = dependentPath.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [
+    dependentPath,
+  ];
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
     if (all.hasOwnProperty(identifier)) {

@@ -66,7 +66,7 @@ type RenderComponentProps = {
 };
 
 function TabControlComponent(props: RenderComponentProps) {
-  const { deleteOption, updateOption, item, index } = props;
+  const { deleteOption, index, item, updateOption } = props;
   const debouncedUpdate = debounce(updateOption, 1000);
   const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
     index,

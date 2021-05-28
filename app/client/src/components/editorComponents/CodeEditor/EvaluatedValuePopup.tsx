@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { memo, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
@@ -116,6 +116,7 @@ interface Props {
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  jsError?: string;
 }
 
 interface PopoverContentProps {
@@ -129,6 +130,7 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
+  jsError?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -150,7 +152,7 @@ type PreparedStatementValue = {
 export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {
-  const { value, parameters } = props.evaluatedValue;
+  const { parameters, value } = props.evaluatedValue;
   const stringSegments = value.split(/\$\d/);
   const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
   const paramsWithTooltips = $params.map((param) => (
@@ -173,78 +175,95 @@ export function PreparedStatementViewer(props: {
   );
 }
 
-export function CurrentValueViewer(props: {
-  theme: EditorTheme;
-  evaluatedValue: any;
-  hideLabel?: boolean;
-  preparedStatementViewer?: boolean;
-}) {
-  const currentValueWrapperRef = React.createRef<HTMLDivElement>();
-  const codeWrapperRef = React.createRef<HTMLPreElement>();
+export const CurrentValueViewer = memo(
+  function CurrentValueViewer(props: {
+    theme: EditorTheme;
+    evaluatedValue: any;
+    hideLabel?: boolean;
+    preparedStatementViewer?: boolean;
+  }) {
+    const currentValueWrapperRef = React.createRef<HTMLDivElement>();
+    const codeWrapperRef = React.createRef<HTMLPreElement>();
 
-  let content = (
-    <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
-      {"undefined"}
-      <ScrollIndicator containerRef={codeWrapperRef} />
-    </CodeWrapper>
-  );
-  if (props.evaluatedValue !== undefined) {
-    if (
-      _.isObject(props.evaluatedValue) ||
-      Array.isArray(props.evaluatedValue)
-    ) {
-      if (props.preparedStatementViewer) {
+    let content = (
+      <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
+        {"undefined"}
+        <ScrollIndicator containerRef={codeWrapperRef} />
+      </CodeWrapper>
+    );
+    if (props.evaluatedValue !== undefined) {
+      if (
+        _.isObject(props.evaluatedValue) ||
+        Array.isArray(props.evaluatedValue)
+      ) {
+        if (props.preparedStatementViewer) {
+          content = (
+            <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
+              <PreparedStatementViewer
+                evaluatedValue={props.evaluatedValue as PreparedStatementValue}
+              />
+              <ScrollIndicator containerRef={codeWrapperRef} />
+            </CodeWrapper>
+          );
+        } else {
+          const reactJsonProps = {
+            theme:
+              props.theme === EditorTheme.DARK ? "summerfruit" : "rjv-default",
+            name: null,
+            enableClipboard: false,
+            displayObjectSize: false,
+            displayDataTypes: false,
+            style: {
+              fontSize: "12px",
+            },
+            collapsed: 2,
+            collapseStringsAfterLength: 20,
+            shouldCollapse: (field: any) => {
+              const index = field.name * 1;
+              return index >= 2 ? true : false;
+            },
+          };
+          content = (
+            <ReactJson src={props.evaluatedValue} {...reactJsonProps} />
+          );
+        }
+      } else {
         content = (
           <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
-            <PreparedStatementViewer
-              evaluatedValue={props.evaluatedValue as PreparedStatementValue}
-            />
+            {props.evaluatedValue === null
+              ? "null"
+              : props.evaluatedValue.toString()}
             <ScrollIndicator containerRef={codeWrapperRef} />
           </CodeWrapper>
         );
-      } else {
-        const reactJsonProps = {
-          theme:
-            props.theme === EditorTheme.DARK ? "summerfruit" : "rjv-default",
-          name: null,
-          enableClipboard: false,
-          displayObjectSize: false,
-          displayDataTypes: false,
-          style: {
-            fontSize: "12px",
-          },
-          collapsed: 2,
-          collapseStringsAfterLength: 20,
-        };
-        content = <ReactJson src={props.evaluatedValue} {...reactJsonProps} />;
       }
-    } else {
-      content = (
-        <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
-          {props.evaluatedValue === null
-            ? "null"
-            : props.evaluatedValue.toString()}
-          <ScrollIndicator containerRef={codeWrapperRef} />
-        </CodeWrapper>
-      );
     }
-  }
-  return (
-    <>
-      {!props.hideLabel && (
-        <StyledTitle data-testid="evaluated-value-popup-title">
-          Evaluated Value
-        </StyledTitle>
-      )}
-      <CurrentValueWrapper colorTheme={props.theme}>
-        <>
-          {content}
-          <ScrollIndicator containerRef={currentValueWrapperRef} />
-        </>
-      </CurrentValueWrapper>
-    </>
-  );
-}
+    return (
+      <>
+        {!props.hideLabel && (
+          <StyledTitle data-testid="evaluated-value-popup-title">
+            Evaluated Value
+          </StyledTitle>
+        )}
+        <CurrentValueWrapper colorTheme={props.theme}>
+          <>
+            {content}
+            <ScrollIndicator containerRef={currentValueWrapperRef} />
+          </>
+        </CurrentValueWrapper>
+      </>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.theme === nextProps.theme &&
+      prevProps.hideLabel === nextProps.hideLabel &&
+      // Deep-compare evaluated values to ensure we only rerender
+      // when the array actually changes
+      _.isEqual(prevProps.evaluatedValue, nextProps.evaluatedValue)
+    );
+  },
+);
 
 function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
@@ -259,7 +278,9 @@ function PopoverContent(props: PopoverContentProps) {
       {props.hasError && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
-            {props.useValidationMessage && props.error
+            {props.jsError && props.jsError.length
+              ? props.jsError
+              : props.useValidationMessage && props.error
               ? props.error
               : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
           </span>
@@ -293,13 +314,15 @@ function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  let placement: Placement = "left-start";
-  if (wrapperRef.current) {
-    const boundingRect = wrapperRef.current.getBoundingClientRect();
-    if (boundingRect.left < theme.evaluatedValuePopup.width) {
-      placement = "right-start";
+  const placement: Placement = useMemo(() => {
+    if (wrapperRef.current) {
+      const boundingRect = wrapperRef.current.getBoundingClientRect();
+      if (boundingRect.left < theme.evaluatedValuePopup.width) {
+        return "right-start";
+      }
     }
-  }
+    return "left-start";
+  }, [wrapperRef.current]);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -322,6 +345,7 @@ function EvaluatedValuePopup(props: Props) {
             expected={props.expected}
             hasError={props.hasError}
             hideEvaluatedValue={props.hideEvaluatedValue}
+            jsError={props.jsError}
             onMouseEnter={() => {
               setContentHovered(true);
             }}

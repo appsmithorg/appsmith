@@ -317,7 +317,10 @@ export default {
       },
       contains: (a, b) => {
         try {
-          return a.toString().includes(b.toString());
+          return a
+            .toString()
+            .toLowerCase()
+            .includes(b.toString().toLowerCase());
         } catch (e) {
           return false;
         }
@@ -331,15 +334,20 @@ export default {
       },
       startsWith: (a, b) => {
         try {
-          return a.toString().indexOf(b.toString()) === 0;
+          return (
+            a
+              .toString()
+              .toLowerCase()
+              .indexOf(b.toString().toLowerCase()) === 0
+          );
         } catch (e) {
           return false;
         }
       },
       endsWith: (a, b) => {
         try {
-          const _a = a.toString();
-          const _b = b.toString();
+          const _a = a.toString().toLowerCase();
+          const _b = b.toString().toLowerCase();
 
           return _a.length === _a.indexOf(_b) + _b.length;
         } catch (e) {
@@ -360,7 +368,10 @@ export default {
       },
     };
 
-    const searchKey = props.searchText ? props.searchText.toLowerCase() : "";
+    const searchKey =
+      props.searchText && !props.onSearchTextChanged
+        ? props.searchText.toLowerCase()
+        : "";
 
     const finalTableData = sortedTableData.filter((item) => {
       const searchFound = searchKey

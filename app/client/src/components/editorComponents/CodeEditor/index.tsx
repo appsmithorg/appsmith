@@ -14,7 +14,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { WrappedFieldInputProps } from "redux-form";
 import _ from "lodash";
 import {
   DataTree,
@@ -55,13 +55,7 @@ const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
 );
 
-const AUTOCOMPLETE_CLOSE_KEY_CODES = [
-  "Enter",
-  "Tab",
-  "Escape",
-  "Backspace",
-  "Comma",
-];
+const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape", "Comma"];
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -72,7 +66,6 @@ export type EditorStyleProps = {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   height?: string | number;
-  meta?: Partial<WrappedFieldMetaProps>;
   showLineNumbers?: boolean;
   className?: string;
   leftImage?: string;
@@ -301,7 +294,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    this.hinters.forEach((hinter) => hinter.showHint(cm));
+    const expected = this.props.expected ? this.props.expected : "";
+    this.hinters.forEach((hinter) => hinter.showHint(cm, expected));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -335,34 +329,71 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  getPropertyValidation = (
+    dataTree: DataTree,
+    dataTreePath?: string,
+  ): {
+    isValid: boolean;
+    validationMessage?: string;
+    jsErrorMessage?: string;
+  } => {
+    if (!dataTreePath) {
+      return { isValid: true, validationMessage: "", jsErrorMessage: "" };
+    }
+    const isValidPath = dataTreePath.replace("evaluatedValues", "invalidProps");
+    const validationMessagePath = dataTreePath.replace(
+      "evaluatedValues",
+      "validationMessages",
+    );
+    const jsErrorMessagePath = dataTreePath.replace(
+      "evaluatedValues",
+      "jsErrorMessages",
+    );
+
+    const isValid = !_.get(dataTree, isValidPath, false);
+    const validationMessage = _.get(
+      dataTree,
+      validationMessagePath,
+      "",
+    ) as string;
+    const jsErrorMessage = _.get(dataTree, jsErrorMessagePath, "") as string;
+
+    return { isValid, validationMessage, jsErrorMessage };
+  };
+
   render() {
     const {
-      input,
-      meta,
-      theme,
-      disabled,
+      border,
+      borderLess,
       className,
+      dataTreePath,
+      disabled,
+      dynamicData,
+      evaluatedValue,
+      evaluationSubstitutionType,
+      expected,
+      fill,
+      height,
+      hideEvaluatedValue,
+      hoverInteraction,
+      input,
       placeholder,
       showLightningMenu,
-      dataTreePath,
-      dynamicData,
-      expected,
       size,
-      evaluatedValue,
-      height,
-      borderLess,
-      border,
-      hoverInteraction,
-      fill,
+      theme,
       useValidationMessage,
-      hideEvaluatedValue,
-      evaluationSubstitutionType,
     } = this.props;
-    const hasError = !!(meta && meta.error);
+    const {
+      isValid,
+      jsErrorMessage,
+      validationMessage,
+    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const hasError = !isValid || !!jsErrorMessage;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = _.get(dynamicData, dataTreePath);
     }
+
     const showEvaluatedValue =
       this.state.isFocused &&
       ("evaluatedValue" in this.props ||
@@ -395,13 +426,14 @@ class CodeEditor extends Component<Props, State> {
           </Suspense>
         )}
         <EvaluatedValuePopup
-          error={meta?.error}
+          error={validationMessage}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
           hasError={hasError}
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
+          jsError={jsErrorMessage}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >
