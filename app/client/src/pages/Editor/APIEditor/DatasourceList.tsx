@@ -68,6 +68,8 @@ const DatasourceURL = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
   background: #e7f3ff;
+  width: fit-content;
+  max-width: 100%;
 `;
 
 const PadTop = styled.div`
