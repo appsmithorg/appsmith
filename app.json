@@ -98,6 +98,21 @@
         "value": "",
         "required": false
       },
+      "APPSMITH_RECAPTCHA_SITE_KEY": {
+        "description" : "Site key provided by Google for token generation on client. Read more at: https://developers.google.com/recaptcha/docs/v3",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_RECAPTCHA_SECRET_KEY": {
+        "description" : "Verification Secrete key provided by google to veify tokens.",
+        "value": "",
+        "required": false
+      },
+      "APPSMITH_RECAPTCHA_ENABLED": {
+        "description" : "Boolean config to enable or disable this feature. If set to true, both site key and secrete key should be provided.",
+        "value": "",
+        "required": false
+      },
       "APPSMITH_DISABLE_TELEMETRY": {
         "description" : "We want to be transparent and request that you share anonymous usage data with us. This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance. You can read more about what information is collected in our documentation https://docs.appsmith.com/v/v1.2.1/setup/telemetry",
         "value": "false"
