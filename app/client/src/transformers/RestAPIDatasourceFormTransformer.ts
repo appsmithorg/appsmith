@@ -117,12 +117,12 @@ const formToDatasourceAuthentication = (
     }
   }
   if (authType === AuthType.apiKey) {
-    if ("key" in authentication) {
+    if ("label" in authentication) {
       const apiKey: ApiKey = {
         authenticationType: AuthType.apiKey,
-        key: authentication.key || "",
-        value: authentication.value || "",
-        addTo: authentication.addTo || "",
+        label: authentication.label,
+        value: authentication.value,
+        addTo: authentication.addTo,
       };
       return apiKey;
     }
@@ -198,7 +198,7 @@ const datasourceToFormAuthentication = (
   if (authType === AuthType.apiKey) {
     const apiKey: ApiKey = {
       authenticationType: AuthType.apiKey,
-      key: authentication.key || "",
+      label: authentication.label || "",
       value: authentication.value || "",
       addTo: authentication.addTo || "",
     };

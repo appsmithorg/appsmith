@@ -2,8 +2,8 @@ package com.external.connections;
 
 import com.appsmith.external.models.ApiKeyAuth;
 import org.junit.Test;
-
-import java.time.Duration;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -11,11 +11,17 @@ import static org.junit.Assert.assertEquals;
 public class ApiKeyAuthenticationTest {
 
     @Test
-    public void testCreateMethod() {
-        String dummyKey = "key";
-        ApiKeyAuth apiKeyAuthDTO = new ApiKeyAuth(dummyKey);
-        ApiKeyAuthentication connection = ApiKeyAuthentication.create(apiKeyAuthDTO).block(Duration.ofMillis(100));
-        assertThat(connection).isNotNull();
-        assertEquals(dummyKey, connection.getKey());
+    public void testCreateMethodWithQueryParamsLabel() {
+        String label = "label";
+        String value = "value";
+        ApiKeyAuth.Type type = ApiKeyAuth.Type.QUERY_PARAMS;
+        ApiKeyAuth apiKeyAuthDTO = new ApiKeyAuth(type, label, value);
+        Mono<ApiKeyAuthentication> connectionMono = ApiKeyAuthentication.create(apiKeyAuthDTO);
+        StepVerifier.create(connectionMono)
+                .assertNext(connection -> {
+                    assertThat(connection).isNotNull();
+                    assertEquals(value, connection.getValue());
+                })
+                .verifyComplete();
     }
 }

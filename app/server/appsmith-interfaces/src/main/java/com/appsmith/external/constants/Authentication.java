@@ -7,6 +7,8 @@ public class Authentication {
     public static final String OAUTH2 = "oAuth2";
     public static final String BASIC = "basic";
     public static final String API_KEY = "apiKey";
+    public static final String API_KEY_AUTH_TYPE_QUERY_PARAMS = "queryParams";
+    public static final String API_KEY_AUTH_TYPE_HEADER = "header";
     public static final String BEARER_TOKEN = "bearerToken";
 
     // Request parameter names
@@ -25,7 +27,6 @@ public class Authentication {
     public static final String AUTHORIZATION_URL = "authorization_url";
     public static final String ACCESS_TOKEN_URL = "access_token_url";
     public static final String RESPONSE_TYPE = "response_type";
-    public static final String API_KEY_PARAM = "api_key";
 
     // Request parameter values
     public static final String AUTHORIZATION_CODE = "authorization_code";
