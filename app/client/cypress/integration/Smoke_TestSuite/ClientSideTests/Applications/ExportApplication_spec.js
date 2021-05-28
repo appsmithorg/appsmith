@@ -7,7 +7,7 @@ describe("Export application as a JSON file", function() {
     cy.addDsl(dsl);
   });
 
-  it("Check if the forked application has the same dsl as the original", function() {
+  it("Check if exporting app flow works as expected", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     const appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
