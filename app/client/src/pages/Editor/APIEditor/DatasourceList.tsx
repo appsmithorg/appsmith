@@ -67,7 +67,6 @@ const DatasourceURL = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: max-content;
   background: #e7f3ff;
 `;
 
