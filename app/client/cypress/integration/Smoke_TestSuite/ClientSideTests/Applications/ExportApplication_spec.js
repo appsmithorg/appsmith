@@ -35,7 +35,5 @@ describe("Export application as a JSON file", function() {
       });
 
     cy.get(homePage.exportAppButton).click({ force: true });
-    cy.wait(1000);
-    cy.get(homePage.exportAppModal).should("not.be.visible");
   });
 });
