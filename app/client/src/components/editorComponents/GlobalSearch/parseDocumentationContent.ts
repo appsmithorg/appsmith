@@ -78,10 +78,14 @@ const replaceHintTagsWithCode = (text: string) => {
 
 const parseDocumentationContent = (item: any): string | undefined => {
   try {
-    const { rawDocument } = item;
+    const { query, rawDocument } = item;
     let value = rawDocument;
     if (!value) return;
 
+    const aisTag = new RegExp(
+      `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
+      "g",
+    );
     value = stripMarkdown(value);
     value = replaceHintTagsWithCode(value);
 
@@ -91,10 +95,7 @@ const parseDocumentationContent = (item: any): string | undefined => {
     const documentObj = domparser.parseFromString(parsedDocument, "text/html");
 
     // remove algolia highlight within code sections
-    const aisTag = new RegExp(
-      `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
-      "g",
-    );
+
     Array.from(documentObj.querySelectorAll("code")).forEach((match) => {
       match.innerHTML = match.innerHTML.replace(aisTag, "");
     });
@@ -115,6 +116,58 @@ const parseDocumentationContent = (item: any): string | undefined => {
           : `${HelpBaseURL}/${match.getAttribute("href")}`;
         match.href = match.href.replace(aisTagEncoded, "");
       } catch (e) {}
+    });
+
+    // Combine adjacent highlighted nodes into a single one
+    let adjacentMatches: string[] = [];
+    Array.from(documentObj.querySelectorAll(algoliaHighlightTag)).forEach(
+      (match) => {
+        if (
+          match.nextSibling?.textContent === " " &&
+          match.nextElementSibling?.nodeName.toLowerCase() ===
+            algoliaHighlightTag &&
+          !adjacentMatches.length &&
+          match.textContent
+        ) {
+          adjacentMatches = adjacentMatches.concat([match.textContent, " "]);
+          match.remove();
+        } else if (adjacentMatches.length && match.textContent) {
+          adjacentMatches.push(match.textContent);
+
+          if (
+            match.nextSibling?.textContent === " " &&
+            match.nextElementSibling?.nodeName.toLowerCase() ===
+              algoliaHighlightTag
+          ) {
+            adjacentMatches.push(" ");
+            match.remove();
+          } else {
+            const highlightTag = document.createElement(algoliaHighlightTag);
+            highlightTag.innerText = adjacentMatches.join("");
+
+            match.replaceWith(highlightTag);
+            adjacentMatches = [];
+          }
+        } else {
+          adjacentMatches = [];
+        }
+        try {
+        } catch (e) {}
+      },
+    );
+
+    // Remove highlight for nodes that don't match well
+    Array.from(
+      documentObj.querySelectorAll(algoliaHighlightTag) as NodeListOf<
+        HTMLElement
+      >,
+    ).forEach((match: any) => {
+      if (
+        match.textContent &&
+        match.textContent.length < Math.floor(query.length / 2)
+      ) {
+        match.style["background-color"] = "unset";
+      }
     });
 
     // update description title

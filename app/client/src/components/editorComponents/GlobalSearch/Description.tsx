@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
-import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
+import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
@@ -74,7 +74,13 @@ const Container = styled.div`
   }
 `;
 
-const DocumentationDescription = ({ item }: { item: SearchItem }) => {
+const DocumentationDescription = ({
+  item,
+  query,
+}: {
+  item: SearchItem;
+  query: string;
+}) => {
   try {
     const {
       _highlightResult: {
@@ -86,6 +92,7 @@ const DocumentationDescription = ({ item }: { item: SearchItem }) => {
       rawDocument: rawDocument,
       rawTitle: rawTitle,
       path: item.path,
+      query,
     });
 
     return content ? (
@@ -144,26 +151,27 @@ function Description(props: Props) {
   const { activeItem, activeItemType } = props;
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  const onScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (
-      props.scrollPositionRef?.current ||
-      props.scrollPositionRef?.current === 0
-    ) {
-      props.scrollPositionRef.current = (e.target as HTMLDivElement).scrollTop;
+  useEffect(() => {
+    scrollToMatchedValue();
+  }, [props.query]);
+
+  const scrollToMatchedValue = useCallback(() => {
+    const root = containerRef.current;
+    if (!root) return;
+    const list = root.getElementsByTagName(algoliaHighlightTag);
+
+    if (list) {
+      if (list[0]) {
+        list[0].scrollIntoView();
+      }
     }
   }, []);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = props.scrollPositionRef?.current;
-    }
-  }, [containerRef.current, activeItem]);
 
   if (!activeItemType || !activeItem) return null;
   const Component = descriptionByType[activeItemType];
 
   return (
-    <Container onScroll={onScroll} ref={containerRef}>
+    <Container ref={containerRef}>
       <Component item={activeItem} query={props.query} />
     </Container>
   );
