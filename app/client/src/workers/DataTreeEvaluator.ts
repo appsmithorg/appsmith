@@ -626,6 +626,19 @@ export default class DataTreeEvaluator {
               },
             },
           });
+        } else if (isAction(entity)) {
+          this.errors.push({
+            type: EvalErrorTypes.EVAL_ERROR,
+            message: e.message,
+            context: {
+              source: {
+                id: entity.actionId,
+                name: entity.name,
+                type: ENTITY_TYPE.ACTION,
+                propertyPath: propertyPath,
+              },
+            },
+          });
         }
       }
       return { result: undefined, triggers: [] };

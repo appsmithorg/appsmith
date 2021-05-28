@@ -56,6 +56,7 @@ export interface DataTreeAction
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
+  jsErrorMessages?: Record<string, string>;
 }
 
 export interface DataTreeWidget extends WidgetProps {
