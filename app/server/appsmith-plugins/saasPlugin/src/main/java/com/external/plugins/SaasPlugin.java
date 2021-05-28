@@ -135,14 +135,18 @@ public class SaasPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            // Adding request body
-            String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            String requestBodyAsString = "";
+            // Add request body only for non GET calls.
+            if (!HttpMethod.GET.equals(httpMethod)) {
+                // Adding request body
+                requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
 
-            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                    || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(),
-                        reqContentType,
-                        true);
+                if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
+                        || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+                    requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(),
+                            reqContentType,
+                            true);
+                }
             }
 
             // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands

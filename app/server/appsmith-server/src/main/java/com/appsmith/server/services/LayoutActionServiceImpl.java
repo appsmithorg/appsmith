@@ -23,6 +23,7 @@ import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
+import com.appsmith.server.repositories.ActionTemplateRepository;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,6 +65,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final NewActionService newActionService;
     private final PageLoadActionsUtil pageLoadActionsUtil;
     private final SessionUserService sessionUserService;
+    private final ActionTemplateRepository actionTemplateRepository;
     private JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
 
@@ -80,13 +82,15 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                                    NewPageService newPageService,
                                    NewActionService newActionService,
                                    PageLoadActionsUtil pageLoadActionsUtil,
-                                   SessionUserService sessionUserService) {
+                                   SessionUserService sessionUserService,
+                                   ActionTemplateRepository actionTemplateRepository) {
         this.objectMapper = objectMapper;
         this.analyticsService = analyticsService;
         this.newPageService = newPageService;
         this.newActionService = newActionService;
         this.pageLoadActionsUtil = pageLoadActionsUtil;
         this.sessionUserService = sessionUserService;
+        this.actionTemplateRepository = actionTemplateRepository;
     }
 
     @Override
@@ -802,19 +806,22 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     // Throw an error since the new action's name matches an existing action or widget name.
                     return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, action.getName(), FieldName.NAME));
                 })
-                .flatMap(page -> {
+                .zipWith(newActionService.transformAction(action))
+                .flatMap(tuple -> {
+                    final NewPage page = tuple.getT1();
+                    final ActionDTO actionDTO = tuple.getT2();
                     // Inherit the action policies from the page.
                     newActionService.generateAndSetActionPolicies(page, newAction);
 
-                    newActionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
+                    newActionService.setCommonFieldsFromActionDTOIntoNewAction(actionDTO, newAction);
 
                     // Set the application id in the main domain
                     newAction.setApplicationId(page.getApplicationId());
 
                     // If the datasource is embedded, check for organizationId and set it in action
-                    if (action.getDatasource() != null &&
-                            action.getDatasource().getId() == null) {
-                        Datasource datasource = action.getDatasource();
+                    if (actionDTO.getDatasource() != null &&
+                            actionDTO.getDatasource().getId() == null) {
+                        Datasource datasource = actionDTO.getDatasource();
                         if (datasource.getOrganizationId() == null) {
                             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
                         }
@@ -824,16 +831,15 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     // New actions will never be set to auto-magical execution, unless it is triggered via a
                     // page or application clone event.
                     if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
-                        action.setExecuteOnLoad(false);
+                        actionDTO.setExecuteOnLoad(false);
                     }
 
-                    newAction.setTemplateId(action.getTemplateId());
+                    newAction.setTemplateId(actionDTO.getTemplateId());
 
-                    newAction.setUnpublishedAction(action);
+                    newAction.setUnpublishedAction(actionDTO);
 
                     return Mono.just(newAction);
                 })
                 .flatMap(newActionService::validateAndSaveActionToRepository);
     }
-
 }

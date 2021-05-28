@@ -10,7 +10,6 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
@@ -18,7 +17,6 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
@@ -54,6 +52,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
@@ -241,7 +240,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         ActionConfiguration actionConfig = action.getActionConfiguration();
         if (actionConfig != null) {
             validator.validate(actionConfig)
-                    .stream()
                     .forEach(x -> invalids.add(x.getMessage()));
         }
 
@@ -290,7 +288,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     newAction.setPluginType(plugin.getType());
                     newAction.setPluginId(plugin.getId());
                     return newAction;
-                }).map(act -> extractAndSetJsonPathKeys(act))
+                }).map(this::extractAndSetJsonPathKeys)
                 .map(updatedAction -> {
                     // In case of external datasource (not embedded) instead of storing the entire datasource
                     // again inside the action, instead replace it with just the datasource ID. This is so that
@@ -354,35 +352,36 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if (action.getDeletedAt() != null) {
             return Mono.empty();
         }
-
-        // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
-        Mono<ActionDTO> providerUpdateMono;
-        if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
-
-            providerUpdateMono = marketplaceService
-                    .getProviderById(action.getProviderId())
-                    .switchIfEmpty(Mono.just(new Provider()))
-                    .map(provider -> {
-                        ActionProvider actionProvider = new ActionProvider();
-                        actionProvider.setName(provider.getName());
-                        actionProvider.setCredentialSteps(provider.getCredentialSteps());
-                        actionProvider.setDescription(provider.getDescription());
-                        actionProvider.setImageUrl(provider.getImageUrl());
-                        actionProvider.setUrl(provider.getUrl());
-
-                        action.setProvider(actionProvider);
-                        return action;
-                    });
-        } else {
-            providerUpdateMono = Mono.just(action);
-        }
-
-        return providerUpdateMono
-                .map(actionDTO -> {
-                    newAction.setUnpublishedAction(actionDTO);
-                    return newAction;
-                })
-                .flatMap(action1 -> generateActionByViewMode(action1, false))
+//
+//        // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
+//        Mono<ActionDTO> providerUpdateMono;
+//        if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
+//
+//            providerUpdateMono = marketplaceService
+//                    .getProviderById(action.getProviderId())
+//                    .switchIfEmpty(Mono.just(new Provider()))
+//                    .map(provider -> {
+//                        ActionProvider actionProvider = new ActionProvider();
+//                        actionProvider.setName(provider.getName());
+//                        actionProvider.setCredentialSteps(provider.getCredentialSteps());
+//                        actionProvider.setDescription(provider.getDescription());
+//                        actionProvider.setImageUrl(provider.getImageUrl());
+//                        actionProvider.setUrl(provider.getUrl());
+//
+//                        action.setProvider(actionProvider);
+//                        return action;
+//                    });
+//        } else {
+//            providerUpdateMono = Mono.just(action);
+//        }
+//
+//        return providerUpdateMono
+//                .map(actionDTO -> {
+//                    newAction.setUnpublishedAction(actionDTO);
+//                    return newAction;
+//                })
+//                .flatMap(action1 -> generateActionByViewMode(action1, false))
+        return generateActionByViewMode(newAction, false)
                 .flatMap(this::populateHintMessages);
     }
 
@@ -399,9 +398,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
-                .map(dbAction -> {
+                .flatMap(dbAction -> {
                     copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
-                    return dbAction;
+                    return transformAction(dbAction.getUnpublishedAction()).thenReturn(dbAction);
                 })
                 .cache();
 
@@ -418,6 +417,64 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .then(analyticsUpdateMono)
                 // Now return the updated action back.
                 .then(savedUpdatedActionMono);
+    }
+
+    /**
+     * Checks for a possible template that this action conforms to. If it exists, uses the transformation for this
+     * template against the given action
+     *
+     * @param actionDTO
+     * @return Transformed action with all default configurations combined, if applicable
+     */
+    @Override
+    public Mono<ActionDTO> transformAction(ActionDTO actionDTO) {
+        // Check if this action is referring to a template
+        if (actionDTO.getTemplateId() == null) {
+            return Mono.just(actionDTO);
+        }
+
+        return this.actionTemplateRepository
+                .findById(actionDTO.getTemplateId())
+                .map(actionTemplate -> {
+                    final Map<?, ?> requestTransformationSpec = actionTemplate.getRequestTransformationSpec();
+                    final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
+                    // Check if this template requires request transformation
+                    if (requestTransformationSpec != null && actionConfiguration.getBody() != null) {
+                        // TODO validate incoming request. What happens if the transformation is unable to identify the request?
+                        final Map<?, ?> transformedBody;
+                        try {
+
+                            transformedBody = JoltTransformer.transform(
+                                    objectMapper.readValue(actionConfiguration.getBody(), Map.class),
+                                    requestTransformationSpec
+                            );
+
+                            final ActionConfiguration transformedActionConfiguration =
+                                    actionConfiguration
+                                            .toBuilder()
+                                            .body(objectMapper.valueToTree(transformedBody).toPrettyString())
+                                            .build();
+                            actionDTO.setTransformedActionConfiguration(transformedActionConfiguration);
+                        } catch (JsonProcessingException e) {
+                            // Malformed JSON in body
+                        }
+                    } else {
+                        // The transformed action will not require a jolt transformation
+                        actionDTO.setTransformedActionConfiguration(actionConfiguration.toBuilder().build());
+                    }
+                    // Use the transformed configuration to combine with defaults for this action
+                    if (actionTemplate.getDefaultActionConfiguration() != null) {
+                        actionDTO.setCombinedActionConfiguration(
+                                ActionConfiguration
+                                        .combineConfigurations(
+                                                actionTemplate.getDefaultActionConfiguration(),
+                                                actionDTO.getTransformedActionConfiguration()));
+                    } else {
+                        actionDTO.setCombinedActionConfiguration(actionDTO.getTransformedActionConfiguration());
+                    }
+                    return actionDTO;
+                })
+                .subscribeOn(Schedulers.elastic());
     }
 
     @Override
@@ -532,7 +589,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // Set the action name
                     actionName.set(action.getName());
 
-                    ActionConfiguration actionConfiguration = action.getActionConfiguration();
+                    ActionConfiguration actionConfiguration;
+                    if (action.getCombinedActionConfiguration() != null) {
+                        actionConfiguration = action.getCombinedActionConfiguration();
+                    } else {
+                        actionConfiguration = action.getActionConfiguration();
+                    }
+
 
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
 
@@ -564,7 +627,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                             return actionTemplateRepository
                                                     .findById(newAction.getTemplateId())
                                                     .map(actionTemplate -> {
-                                                        final Map responseTransformationSpec = actionTemplate.getResponseTransformationSpec();
+                                                        final Map<?, ?> responseTransformationSpec = actionTemplate.getResponseTransformationSpec();
                                                         // Transformation of responses are not necessary for all SAAS actions
                                                         if (responseTransformationSpec != null && !responseTransformationSpec.isEmpty()) {
                                                             final Object transformedResponse = JoltTransformer.transform(objectMapper.convertValue(actionExecutionResult.getBody(), Map.class), responseTransformationSpec);
