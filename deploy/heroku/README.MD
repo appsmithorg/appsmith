@@ -33,6 +33,10 @@ Quickly set up Appsmith to explore product functionality using Heroku.
         - `APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET`: Client secret provided by Github for OAuth2 login
     - `APPSMITH_GOOGLE_MAPS_API_KEY`: Google Maps API key which is required if you wish to leverage Google Maps widget. Read more at: https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps
     - `APPSMITH_DISABLE_TELEMETRY`: We want to be transparent and request that you share anonymous usage data with us. This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance. You can read more about what information is collected in our documentation https://docs.appsmith.com/v/v1.2.1/setup/telemetry
+    - Google reCAPTCHA v3 Configuration:
+      - `APPSMITH_RECAPTCHA_SITE_KEY`: Site key provided by Google for token generation on client
+      - `APPSMITH_RECAPTCHA_SECRET_KEY`: Verification Secrete key provided by google to veify tokens
+      - `APPSMITH_RECAPTCHA_ENABLED`: Boolean config to enable or disable this feature
 
     After Heroku finishes setting up the app, click “View” and your Appsmith should be up and running. You will be taken to the account creation page, where you can enter credentials to create an account and get started.
 
