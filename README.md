@@ -1,4 +1,4 @@
-<img src="static/images/git-banner-left.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"><img src="static/images/git-banner-right.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs">
+<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"> <img src="static/images/git-banner-left.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"><img src="static/images/git-banner-right.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"></a>
 
 <p>
   <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Start Building</a></b>
@@ -163,4 +163,4 @@ We love our contributors! We're committed to fostering an open and welcoming env
 
 ## License
 
-Appsmith is available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). Use it wisely.
+Appsmith is available under the [Apache License 2.0](https://github.com/appsmithorg/appsmith/blob/release/LICENSE). Use it wisely.
