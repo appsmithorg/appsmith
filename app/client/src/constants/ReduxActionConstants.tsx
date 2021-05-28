@@ -9,6 +9,7 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  SET_SHOW_APP_INVITE_USERS_MODAL: "SET_SHOW_APP_INVITE_USERS_MODAL",
   UPDATE_COMMENT_EVENT: "UPDATE_COMMENT_EVENT",
   ADD_COMMENT_REACTION: "ADD_COMMENT_REACTION",
   REMOVE_COMMENT_REACTION: "REMOVE_COMMENT_REACTION",
