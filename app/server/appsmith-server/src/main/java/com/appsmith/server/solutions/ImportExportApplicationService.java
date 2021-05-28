@@ -336,15 +336,20 @@ public class ImportExportApplicationService {
                 importedApplication.setId(savedApp.getId());
                 importedNewPageList.forEach(newPage -> newPage.setApplicationId(savedApp.getId()));
                 
-                return importAndSavePages(importedNewPageList, importedApplication, importedDoc.getMongoEscapedWidgets())
-                    .map(newPage -> {
-                        ApplicationPage tempPage = new ApplicationPage();
-                        pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
-                        tempPage.setIsDefault(StringUtils.equals(newPage.getUnpublishedPage().getName(), defaultPageName));
-                        tempPage.setId(newPage.getId());
-                        return tempPage;
-                    })
-                    .collectList();
+                return importAndSavePages(
+                    importedNewPageList,
+                    importedApplication,
+                    importedDoc.getPublishedLayoutmongoEscapedWidgets(),
+                    importedDoc.getUnpublishedLayoutmongoEscapedWidgets()
+                )
+                .map(newPage -> {
+                    ApplicationPage tempPage = new ApplicationPage();
+                    pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
+                    tempPage.setIsDefault(StringUtils.equals(newPage.getUnpublishedPage().getName(), defaultPageName));
+                    tempPage.setId(newPage.getId());
+                    return tempPage;
+                })
+                .collectList();
             })
             .flatMap(importedApplicationPages -> {
                 importedApplication.setPages(importedApplicationPages);
