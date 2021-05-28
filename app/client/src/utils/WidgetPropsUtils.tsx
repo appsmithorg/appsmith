@@ -22,7 +22,7 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { has, isString, omit, set } from "lodash";
+import { has, isString, set } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
@@ -751,105 +751,9 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 20) {
     currentDSL = migrateNewlyAddedTabsWidgetsMissingData(currentDSL);
-    currentDSL.version = 21;
-  }
-
-  if (currentDSL.version === 21) {
-    const {
-      entities: { canvasWidgets },
-    } = CanvasWidgetsNormalizer.normalize(currentDSL);
-    currentDSL = migrateWidgetsWithoutLeftRightColumns(
-      currentDSL,
-      canvasWidgets,
-    );
-    currentDSL = migrateOverFlowingTabsWidgets(currentDSL, canvasWidgets);
-    currentDSL.version = 22;
-  }
-
-  if (currentDSL.version === 22) {
-    currentDSL = migrateTableWidgetParentRowSpaceProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
-  return currentDSL;
-};
-
-const migrateOverFlowingTabsWidgets = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-  canvasWidgets: any,
-) => {
-  if (
-    currentDSL.type === "TABS_WIDGET" &&
-    currentDSL.version === 3 &&
-    currentDSL.children &&
-    currentDSL.children.length
-  ) {
-    const tabsWidgetHeight =
-      (currentDSL.bottomRow - currentDSL.topRow) * currentDSL.parentRowSpace;
-    const widgetHasOverflowingChildren = currentDSL.children.some((eachTab) => {
-      if (eachTab.children && eachTab.children.length) {
-        return eachTab.children.some((child: WidgetProps) => {
-          if (canvasWidgets[child.widgetId].repositioned) {
-            const tabHeight = child.bottomRow * child.parentRowSpace;
-            return tabsWidgetHeight < tabHeight;
-          }
-          return false;
-        });
-      }
-      return false;
-    });
-    if (widgetHasOverflowingChildren) {
-      currentDSL.shouldScrollContents = true;
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((eachChild) =>
-      migrateOverFlowingTabsWidgets(eachChild, canvasWidgets),
-    );
-  }
-  return currentDSL;
-};
-
-const migrateWidgetsWithoutLeftRightColumns = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-  canvasWidgets: any,
-) => {
-  if (
-    currentDSL.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
-    !(
-      currentDSL.hasOwnProperty("leftColumn") &&
-      currentDSL.hasOwnProperty("rightColumn")
-    )
-  ) {
-    try {
-      const nextRow = nextAvailableRowInContainer(
-        currentDSL.parentId || MAIN_CONTAINER_WIDGET_ID,
-        omit(canvasWidgets, [currentDSL.widgetId]),
-      );
-      canvasWidgets[currentDSL.widgetId].repositioned = true;
-      const leftColumn = 0;
-      const rightColumn = WidgetConfigResponse.config[currentDSL.type].rows;
-      const bottomRow = nextRow + (currentDSL.bottomRow - currentDSL.topRow);
-      const topRow = nextRow;
-      currentDSL = {
-        ...currentDSL,
-        topRow,
-        bottomRow,
-        rightColumn,
-        leftColumn,
-      };
-    } catch (error) {
-      Sentry.captureException({
-        message: "Migrating position of widget on data loss failed",
-        oldData: currentDSL,
-      });
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((dsl) =>
-      migrateWidgetsWithoutLeftRightColumns(dsl, canvasWidgets),
-    );
-  }
   return currentDSL;
 };
 
