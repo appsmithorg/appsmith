@@ -209,6 +209,24 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Comment Mode"
           onKeyDown={() => setCommentModeInUrl(true)}
         />
+        <Hotkey
+          allowInInput
+          combo="mod + enter"
+          global
+          label="Execute Action"
+          onKeyDown={(e) => {
+            const ApiFormRunBtn: HTMLElement | null = document.querySelector(
+              ".t--apiFormRunBtn",
+            );
+            const QueryFormRunBtn: HTMLElement | null = document.querySelector(
+              ".t--run-query",
+            );
+            if (ApiFormRunBtn) ApiFormRunBtn.click();
+            if (QueryFormRunBtn) QueryFormRunBtn.click();
+          }}
+          preventDefault
+          stopPropagation
+        />
       </Hotkeys>
     );
   }
