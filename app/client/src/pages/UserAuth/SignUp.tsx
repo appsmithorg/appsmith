@@ -91,7 +91,7 @@ export function SignUp(props: SignUpFormProps) {
   const initiateOnboarding = useIntiateOnboarding();
 
   const recaptchaStatus = useScript(
-    `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey}`,
+    `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
     AddScriptTo.HEAD,
   );
 
@@ -141,11 +141,11 @@ export function SignUp(props: SignUpFormProps) {
             "signup-form",
           ) as HTMLFormElement;
           if (
-            googleRecaptchaSiteKey.length !== 0 &&
+            googleRecaptchaSiteKey.enabled &&
             recaptchaStatus === ScriptStatus.READY
           ) {
             window.grecaptcha
-              .execute(googleRecaptchaSiteKey, {
+              .execute(googleRecaptchaSiteKey.apiKey, {
                 action: "submit",
               })
               .then(function(token: any) {

@@ -168,6 +168,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   );
   const google = getConfig(ENV_CONFIG.google, APPSMITH_FEATURE_CONFIGS.google);
 
+  const googleRecaptchaSiteKey = getConfig(
+    ENV_CONFIG.googleRecaptchaSiteKey,
+    APPSMITH_FEATURE_CONFIGS.googleRecaptchaSiteKey,
+  );
+
   // As the following shows, the config variables can be set using a combination
   // of env variables and injected configs
   const smartLook = getConfig(
@@ -246,6 +251,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       enabled: google.enabled,
       apiKey: google.value,
     },
+    googleRecaptchaSiteKey: {
+      enabled: googleRecaptchaSiteKey.enabled,
+      apiKey: googleRecaptchaSiteKey.value,
+    },
     enableRapidAPI:
       ENV_CONFIG.enableRapidAPI || APPSMITH_FEATURE_CONFIGS.enableRapidAPI,
     enableGithubOAuth:
@@ -272,9 +281,5 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     cloudServicesBaseUrl:
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
-    googleRecaptchaSiteKey:
-      ENV_CONFIG.googleRecaptchaSiteKey.length > 0
-        ? ENV_CONFIG.googleRecaptchaSiteKey
-        : APPSMITH_FEATURE_CONFIGS.googleRecaptchaSiteKey || "",
   };
 };
