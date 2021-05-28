@@ -22,7 +22,7 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { isString, set } from "lodash";
+import { has, isString, set } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
@@ -735,9 +735,52 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
       currentDSL.detachFromLayout || false,
     );
     currentDSL = migrateToNewLayout(currentDSL);
+    currentDSL.version = 20;
+  }
+
+  if (currentDSL.version === 20) {
+    currentDSL = migrateNewlyAddedTabsWidgetsMissingData(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  return currentDSL;
+};
+
+const migrateNewlyAddedTabsWidgetsMissingData = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.TABS_WIDGET && currentDSL.version === 2) {
+    try {
+      if (currentDSL.children && currentDSL.children.length) {
+        currentDSL.children = currentDSL.children.map((each) => {
+          if (has(currentDSL, ["leftColumn", "rightColumn", "bottomRow"])) {
+            return each;
+          }
+          return {
+            ...each,
+            leftColumn: 0,
+            rightColumn:
+              (currentDSL.rightColumn - currentDSL.leftColumn) *
+              currentDSL.parentColumnSpace,
+            bottomRow:
+              (currentDSL.bottomRow - currentDSL.topRow) *
+              currentDSL.parentRowSpace,
+          };
+        });
+      }
+      currentDSL.version = 3;
+    } catch (error) {
+      Sentry.captureException({
+        message: "Tabs Migration to add missing fields Failed",
+        oldData: currentDSL.children,
+      });
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(
+      migrateNewlyAddedTabsWidgetsMissingData,
+    );
+  }
   return currentDSL;
 };
 
