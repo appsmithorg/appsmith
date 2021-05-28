@@ -120,7 +120,9 @@ const formToDatasourceAuthentication = (
     if ("key" in authentication) {
       const apiKey: ApiKey = {
         authenticationType: AuthType.apiKey,
-        key: authentication.key,
+        key: authentication.key || "",
+        value: authentication.value || "",
+        addTo: authentication.addTo || "",
       };
       return apiKey;
     }
@@ -197,6 +199,8 @@ const datasourceToFormAuthentication = (
     const apiKey: ApiKey = {
       authenticationType: AuthType.apiKey,
       key: authentication.key || "",
+      value: authentication.value || "",
+      addTo: authentication.addTo || "",
     };
     return apiKey;
   }

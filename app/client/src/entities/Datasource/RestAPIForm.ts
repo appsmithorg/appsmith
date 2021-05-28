@@ -8,6 +8,11 @@ export enum AuthType {
   bearerToken = "bearerToken",
 }
 
+export enum ApiKeyAuthType {
+  QueryParams = "queryParams",
+  Header = "header",
+}
+
 export enum GrantType {
   ClientCredentials = "client_credentials",
   AuthorizationCode = "authorization_code",
@@ -63,6 +68,8 @@ export interface Basic {
 export interface ApiKey {
   authenticationType: AuthType.apiKey;
   key: string;
+  value: string;
+  addTo: string;
 }
 
 export interface BearerToken {

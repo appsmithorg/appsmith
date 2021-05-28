@@ -42,6 +42,7 @@ import {
 } from "transformers/RestAPIDatasourceFormTransformer";
 import {
   ApiDatasourceForm,
+  ApiKeyAuthType,
   AuthType,
   GrantType,
 } from "entities/Datasource/RestAPIForm";
@@ -483,6 +484,48 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
   };
 
+  renderApiKey = () => {
+    return (
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.key"
+            label="Key Label"
+            placeholderText="api_key"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.value"
+            label="Key Value"
+            placeholderText="my_key"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.addTo"
+            label="Add To"
+            options={[
+              {
+                label: "Query Params",
+                value: ApiKeyAuthType.QueryParams,
+              },
+              {
+                label: "Header",
+                value: ApiKeyAuthType.Header,
+              },
+            ]}
+            placeholderText=""
+            propertyValue=""
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+
   renderBearerToken = () => {
     return (
       <FormInputContainer>
@@ -491,19 +534,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           configProperty="authentication.bearerToken"
           label="Bearer Token"
           placeholderText="Bearer Token"
-        />
-      </FormInputContainer>
-    );
-  };
-
-  renderApiKey = () => {
-    return (
-      <FormInputContainer>
-        <InputTextControl
-          {...COMMON_INPUT_PROPS}
-          configProperty="authentication.key"
-          label="API Key"
-          placeholderText="Key"
         />
       </FormInputContainer>
     );
