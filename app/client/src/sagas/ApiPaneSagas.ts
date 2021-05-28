@@ -79,7 +79,7 @@ function* syncApiParamsSaga(
   let value = actionPayload.payload;
   // Regular expression to find the query params group
   const padQueryParams = { key: "", value: "" };
-  const queryParamsRegEx = /(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
+  const queryParamsRegEx = /([\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
   PerformanceTracker.startTracking(PerformanceTransactionName.SYNC_PARAMS_SAGA);
   if (field === "actionConfiguration.path") {
     value = (value.match(queryParamsRegEx) || [])[2] || "";
