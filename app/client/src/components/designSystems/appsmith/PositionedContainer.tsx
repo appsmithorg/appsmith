@@ -7,16 +7,16 @@ import { useClickOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { Layers } from "constants/Layers";
 
-const PositionedWidget = styled.div`
-  &:hover {
-    z-index: 1;
-  }
-`;
+const PositionedWidget = styled.div``;
+
 type PositionedContainerProps = {
   style: BaseStyle;
   children: ReactNode;
   widgetId: string;
   widgetType: string;
+  selected?: boolean;
+  focused?: boolean;
+  resizeDisabled?: boolean;
 };
 
 export function PositionedContainer(props: PositionedContainerProps) {
@@ -30,10 +30,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
     return (
       generateClassName(props.widgetId) +
       " positioned-widget " +
-      `t--widget-${props.widgetType
-        .split("_")
-        .join("")
-        .toLowerCase()}`
+      `t--widget-${props.widgetType.split("_").join("").toLowerCase()}`
     );
   }, [props.widgetType, props.widgetId]);
   const containerStyle: CSSProperties = useMemo(() => {
@@ -44,15 +41,18 @@ export function PositionedContainer(props: PositionedContainerProps) {
       height: props.style.componentHeight + (props.style.heightUnit || "px"),
       width: props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
-      zIndex: Layers.positionedWidget,
+      zIndex:
+        props.selected || props.focused
+          ? Layers.selectedWidget
+          : Layers.positionedWidget,
       backgroundColor: "inherit",
     };
   }, [props.style]);
 
-  const openPropPane = useCallback((e) => openPropertyPane(e, props.widgetId), [
-    props.widgetId,
-    openPropertyPane,
-  ]);
+  const openPropPane = useCallback(
+    (e) => openPropertyPane(e, props.widgetId),
+    [props.widgetId, openPropertyPane],
+  );
 
   return (
     <PositionedWidget

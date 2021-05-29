@@ -16,7 +16,7 @@
     "@blueprintjs/timezone": "^3.6.0",
     "@craco/craco": "^5.7.0",
     "@draft-js-plugins/editor": "^4.1.0",
-    "@draft-js-plugins/mention": "^4.3.2",
+    "@draft-js-plugins/mention": "^4.5.1",
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
     "@manaflair/redux-batch": "^1.0.0",

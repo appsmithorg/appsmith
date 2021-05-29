@@ -9,6 +9,7 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  SET_SHOW_APP_INVITE_USERS_MODAL: "SET_SHOW_APP_INVITE_USERS_MODAL",
   UPDATE_COMMENT_EVENT: "UPDATE_COMMENT_EVENT",
   ADD_COMMENT_REACTION: "ADD_COMMENT_REACTION",
   REMOVE_COMMENT_REACTION: "REMOVE_COMMENT_REACTION",
@@ -97,7 +98,6 @@ export const ReduxActionTypes: { [key: string]: string } = {
   DEBUGGER_UPDATE_ERROR_LOG: "DEBUGGER_UPDATE_ERROR_LOG",
   DEBUGGER_UPDATE_ERROR_LOGS: "DEBUGGER_UPDATE_ERROR_LOGS",
   CLEAR_DEBUGGER_LOGS: "CLEAR_DEBUGGER_LOGS",
-  RESET_DEBUGGER_STATE: "RESET_DEBUGGER_STATE",
   SHOW_DEBUGGER: "SHOW_DEBUGGER",
   SET_THEME: "SET_THEME",
   FETCH_WIDGET_CARDS: "FETCH_WIDGET_CARDS",
@@ -434,7 +434,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_API_ACTION_BODY_CONTENT_TYPE: "UPDATE_API_ACTION_BODY_CONTENT_TYPE",
 };
 
-export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
+export type ReduxActionType =
+  typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
   INITIALIZE_APPSMITH_ERROR: "INITIALIZE_APPSMITH_ERROR",
@@ -545,7 +546,8 @@ export const ReduxFormActionTypes: { [key: string]: string } = {
   ARRAY_PUSH: "@@redux-form/ARRAY_PUSH",
 };
 
-export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
+export type ReduxActionErrorType =
+  typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
 
 export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;

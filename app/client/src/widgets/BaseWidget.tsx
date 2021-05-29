@@ -53,7 +53,7 @@ import { flattenObject } from "utils/helpers";
 
 abstract class BaseWidget<
   T extends WidgetProps,
-  K extends WidgetState
+  K extends WidgetState,
 > extends Component<T, K> {
   static contextType = EditorContext;
 
@@ -243,6 +243,9 @@ abstract class BaseWidget<
     const style = this.getPositionStyle();
     return (
       <PositionedContainer
+        focused={this.props.focused}
+        resizeDisabled={this.props.resizeDisabled}
+        selected={this.props.selected}
         style={style}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
@@ -470,6 +473,7 @@ export const WidgetOperations = {
   ADD_CHILDREN: "ADD_CHILDREN",
 };
 
-export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
+export type WidgetOperation =
+  typeof WidgetOperations[keyof typeof WidgetOperations];
 
 export default BaseWidget;

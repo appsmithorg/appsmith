@@ -55,13 +55,7 @@ const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
 );
 
-const AUTOCOMPLETE_CLOSE_KEY_CODES = [
-  "Enter",
-  "Tab",
-  "Escape",
-  "Backspace",
-  "Comma",
-];
+const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape", "Comma"];
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -300,7 +294,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    this.hinters.forEach((hinter) => hinter.showHint(cm));
+    const expected = this.props.expected ? this.props.expected : "";
+    this.hinters.forEach((hinter) => hinter.showHint(cm, expected));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -388,11 +383,8 @@ class CodeEditor extends Component<Props, State> {
       theme,
       useValidationMessage,
     } = this.props;
-    const {
-      isValid,
-      jsErrorMessage,
-      validationMessage,
-    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const { isValid, jsErrorMessage, validationMessage } =
+      this.getPropertyValidation(dynamicData, dataTreePath);
     const hasError = !isValid || !!jsErrorMessage;
     let evaluated = evaluatedValue;
     if (dataTreePath) {

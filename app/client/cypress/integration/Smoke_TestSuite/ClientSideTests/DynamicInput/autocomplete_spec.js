@@ -17,27 +17,23 @@ describe("Dynamic input autocomplete", () => {
       .type("{ctrl}{shift}{downarrow}")
       .then(($cm) => {
         if ($cm.val() !== "") {
-          cy.get(dynamicInputLocators.input)
-            .first()
-            .clear({
-              force: true,
-            });
+          cy.get(dynamicInputLocators.input).first().clear({
+            force: true,
+          });
         }
 
-        cy.get(dynamicInputLocators.input)
-          .first()
-          .type("{{", {
-            force: true,
-            parseSpecialCharSequences: false,
-          });
+        cy.get(dynamicInputLocators.input).first().type("{{", {
+          force: true,
+          parseSpecialCharSequences: false,
+        });
 
         // Tests if autocomplete will open
         cy.get(dynamicInputLocators.hints).should("exist");
 
         // Tests if data tree entities are sorted
         cy.get(`${dynamicInputLocators.hints} li`)
-          .first()
-          .should("have.text", "Aditya");
+          .eq(1)
+          .should("have.text", "Aditya.backgroundColor");
 
         // Tests if "No suggestions" message will pop if you type any garbage
         cy.get(dynamicInputLocators.input)
@@ -57,17 +53,13 @@ describe("Dynamic input autocomplete", () => {
   it("opens current value popup", () => {
     // Test on widgets pane
     cy.openPropertyPane("buttonwidget");
-    cy.get(dynamicInputLocators.input)
-      .first()
-      .focus();
+    cy.get(dynamicInputLocators.input).first().focus();
     cy.assertEvaluatedValuePopup("string");
     // Test on api pane
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createapi).click({ force: true });
     cy.wait("@createNewApi");
-    cy.xpath(apiwidget.headerValue)
-      .first()
-      .focus();
+    cy.xpath(apiwidget.headerValue).first().focus();
     cy.assertEvaluatedValuePopup("string");
   });
 });

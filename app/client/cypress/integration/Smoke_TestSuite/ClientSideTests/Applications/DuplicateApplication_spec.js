@@ -4,25 +4,21 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const explorerlocators = require("../../../../locators/explorerlocators.json");
 let duplicateApplicationDsl;
 
-describe("Duplicate application", function() {
+describe("Duplicate application", function () {
   before(() => {
-    dsl.dsl.version = 20; // latest migrated version
+    dsl.dsl.version = 21; // latest migrated version
     cy.addDsl(dsl);
   });
 
-  it("Check whether the duplicate application has the same dsl as the original", function() {
+  it("Check whether the duplicate application has the same dsl as the original", function () {
     cy.get(commonlocators.homeIcon).click({ force: true });
     const appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.duplicateApp).click({ force: true });
 
     cy.wait("@getPage").should(
