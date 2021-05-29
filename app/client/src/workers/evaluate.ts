@@ -6,6 +6,7 @@ import {
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
+import { JSHINT as jshint } from "jshint";
 
 export type EvalResult = {
   result: any;
@@ -18,22 +19,31 @@ export default function evaluate(
   callbackData?: Array<any>,
 ): EvalResult {
   const unescapedJS = unescapeJS(js).replace(/(\r\n|\n|\r)/gm, "");
-  const scriptToEvaluate = `
-        const result = ${unescapedJS};
-        return { result, triggers: self.triggers }
-      `;
-  const scriptWithCallback = `
-         function callback (script) {
-            const userFunction = script;
-            const result = userFunction.apply(self, CALLBACK_DATA);
-            return { result, triggers: self.triggers };
-         }
-         return callback(${unescapedJS});
-      `;
-  const script = callbackData
-    ? Function(scriptWithCallback)
-    : Function(scriptToEvaluate);
-  const { result, triggers } = (function() {
+  const expressionScript = `const result = ${unescapedJS};
+  return { result, triggers: self.triggers };`;
+  const callbackScript = `function callback (script) {
+    const userFunction = script;
+    const result = userFunction.apply(self, CALLBACK_DATA);
+    return { result, triggers: self.triggers };
+  }
+  return callback(${unescapedJS});`;
+
+  const script = callbackData ? callbackScript : expressionScript;
+
+  jshint(script, {
+    esversion: 7,
+    eqeqeq: true,
+    curly: true,
+    freeze: true,
+    undef: true,
+    unused: true,
+    asi: true,
+    worker: true,
+  });
+
+  const lintErrors = jshint.errors;
+
+  const { result, triggers } = (function () {
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {};
     ///// Adding callback data
@@ -47,7 +57,7 @@ export default function evaluate(
     ///// Fixing action paths and capturing their execution response
     if (dataTreeWithFunctions.actionPaths) {
       GLOBAL_DATA.triggers = [];
-      const pusher = function(this: DataTree, action: any, ...payload: any[]) {
+      const pusher = function (this: DataTree, action: any, ...payload: any[]) {
         const actionPayload = action(...payload);
         GLOBAL_DATA.triggers.push(actionPayload);
       };
@@ -83,7 +93,7 @@ export default function evaluate(
       self[func] = undefined;
     });
 
-    const evalResult = script();
+    const evalResult = Function(script)();
 
     // Remove it from self
     // This is needed so that next eval can have a clean sheet
