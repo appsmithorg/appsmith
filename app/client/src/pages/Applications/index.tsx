@@ -78,6 +78,7 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
+import UserApi from "api/UserApi";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -704,6 +705,7 @@ function ApplicationsSection(props: any) {
                         <ProfileImage
                           className="org-share-user-icons"
                           key={el.username}
+                          source={`/api/${UserApi.photoURL}/${el.username}`}
                           userName={el.name ? el.name : el.username}
                         />
                       ))}

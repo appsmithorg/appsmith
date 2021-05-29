@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ReactComponent as ProfileImagePlaceholder } from "assets/images/profile-placeholder.svg";
 import Uppy from "@uppy/core";
 import Dialog from "components/ads/DialogComponent";
+import { Classes } from "@blueprintjs/core";
 
 import { Dashboard, useUppy } from "@uppy/react";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -144,6 +145,7 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
       <Dialog
         canEscapeKeyClose
         canOutsideClickClose
+        className="file-picker-dialog"
         isOpen={isModalOpen}
         maxHeight={"80vh"}
         trigger={
