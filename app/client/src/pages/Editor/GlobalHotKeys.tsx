@@ -214,7 +214,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="mod + enter"
           global
           label="Execute Action"
-          onKeyDown={(e) => {
+          onKeyDown={() => {
             const ApiFormRunBtn: HTMLElement | null = document.querySelector(
               ".t--apiFormRunBtn",
             );
