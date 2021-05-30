@@ -319,7 +319,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                                         user.getOrganizationIds().remove(organization.getId());
                                         return userRepository.save(user).thenReturn(organization1);
                                     }
-                                    return Mono.just(user).thenReturn(organization1);
+                                    return Mono.just(organization1);
                             });
                 }
 
