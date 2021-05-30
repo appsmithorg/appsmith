@@ -28,6 +28,8 @@ import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { getViewModePageList } from "selectors/editorSelectors";
+import AppComments from "comments/AppComments/AppComments";
+import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -109,6 +111,8 @@ class AppViewer extends Component<
             </Switch>
           )}
         </AppViewerBody>
+        <AppComments />
+        <AddCommentTourComponent />
       </EditorContext.Provider>
     );
   }

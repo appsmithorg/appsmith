@@ -317,6 +317,7 @@ export const FULL_NAME = () => "Full Name";
 export const DISPLAY_NAME = () => "Display Name";
 export const EMAIL_ADDRESS = () => "Email Address";
 export const FIRST_AND_LAST_NAME = () => "First and last name";
+export const INVITE_A_NEW_USER = () => "Invite a new user";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
