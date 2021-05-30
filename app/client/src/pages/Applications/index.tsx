@@ -687,7 +687,7 @@ function ApplicationsSection(props: any) {
                   <MenuItem
                     icon="logout"
                     onSelect={() => leaveOrg(organization.id)}
-                    text={"Leave Organization"}
+                    text="Leave Organization"
                   />
                 </Menu>
               )}
