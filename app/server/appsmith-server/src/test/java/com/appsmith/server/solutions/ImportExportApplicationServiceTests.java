@@ -9,7 +9,6 @@ import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -191,8 +190,6 @@ public class ImportExportApplicationServiceTests {
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
                     Application exportedApp = applicationJson.getExportedApplication();
-                    ApplicationPage defaultPageRef = exportedApp.getPages().stream()
-                            .filter(page -> page.isDefault()).findAny().get();
                     List<NewPage> pageList = applicationJson.getPageList();
                     List<NewAction> actionList = applicationJson.getActionList();
                     List<Datasource> datasourceList = applicationJson.getDatasourceList();
@@ -201,8 +198,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(exportedApp.getName()).isEqualTo(testApplication.getName());
                     assertThat(exportedApp.getOrganizationId()).isNull();
-                    assertThat(exportedApp.getPages().size()).isEqualTo(1);
-                    assertThat(defaultPageRef.getId()).isEqualTo(pageList.get(0).getUnpublishedPage().getName());
+                    assertThat(exportedApp.getPages()).isNull();
                     assertThat(exportedApp.getPolicies().size()).isEqualTo(0);
 
                     assertThat(pageList.isEmpty()).isFalse();
@@ -331,8 +327,6 @@ public class ImportExportApplicationServiceTests {
                 .assertNext(applicationJson -> {
 
                     Application exportedApp = applicationJson.getExportedApplication();
-                    ApplicationPage defaultPageRef = exportedApp.getPages().stream()
-                            .filter(page -> page.isDefault()).findAny().get();
                     List<NewPage> pageList = applicationJson.getPageList();
                     List<NewAction> actionList = applicationJson.getActionList();
                     List<Datasource> datasourceList = applicationJson.getDatasourceList();
@@ -341,8 +335,8 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(exportedApp.getName()).isEqualTo(testApplication.getName());
                     assertThat(exportedApp.getOrganizationId()).isNull();
-                    assertThat(exportedApp.getPages()).hasSize(1);
-                    assertThat(defaultPageRef.getId()).isEqualTo(pageList.get(0).getUnpublishedPage().getName());
+                    assertThat(exportedApp.getPages()).isNull();
+                    
                     assertThat(exportedApp.getPolicies()).hasSize(0);
 
                     assertThat(pageList).hasSize(1);
@@ -503,18 +497,6 @@ public class ImportExportApplicationServiceTests {
                 });
                 
                 assertThat(pageList).isNotEmpty();
-                ApplicationPage defaultAppPage = application.getPages()
-                    .stream()
-                    .filter(ApplicationPage::getIsDefault)
-                    .findFirst()
-                    .orElse(null);
-                assertThat(defaultAppPage).isNotNull();
-                
-                PageDTO defaultPageDTO = pageList.stream()
-                    .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId())).findFirst().orElse(null);
-                
-                assertThat(defaultPageDTO).isNotNull();
-                assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
             })
             .verifyComplete();
     }

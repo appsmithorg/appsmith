@@ -20,6 +20,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -50,6 +51,7 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -76,6 +78,9 @@ public class ImportExportApplicationService {
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     public final String INVALID_JSON_FILE = "invalid json file";
+    private enum PublishType {
+        UNPUBLISH, PUBLISH
+    }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId) {
         ApplicationJson applicationJson = new ApplicationJson();
@@ -98,29 +103,33 @@ public class ImportExportApplicationService {
                 AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
             )
             .flatMap(application -> {
-                ApplicationPage defaultPage = application.getPages()
+                ApplicationPage unpublishedDefaultPage = application.getPages()
                     .stream()
                     .filter(ApplicationPage::getIsDefault)
                     .findFirst()
                     .orElse(null);
-
-                if (defaultPage == null) {
+    
+                if (unpublishedDefaultPage == null) {
                     return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DEFAULT_PAGE_NAME));
+                } else {
+                    applicationJson.setUnpublishedDefaultPageName(unpublishedDefaultPage.getId());
                 }
-                return Mono.zip(
-                    newPageRepository.findById(defaultPage.getId(), AclPermission.MANAGE_PAGES),
-                    Mono.just(defaultPage),
-                    Mono.just(application)
-                );
-            })
-            .flatMap(tuple -> {
-                NewPage defaultPage = tuple.getT1();
-                ApplicationPage defaultPageRef = tuple.getT2();
-                Application application = tuple.getT3();
-
-                defaultPageRef.setId(defaultPage.getUnpublishedPage().getName());
+                
+                if (application.getPublishedPages() != null) {
+                    ApplicationPage publishedDefaultPage = application.getPublishedPages()
+                        .stream()
+                        .filter(ApplicationPage::getIsDefault)
+                        .findFirst()
+                        .orElse(null);
+                    
+                    if(publishedDefaultPage != null) {
+                        applicationJson.setPublishedDefaultPageName(publishedDefaultPage.getId());
+                    }
+                }
+                
                 final String organizationId = application.getOrganizationId();
                 application.setOrganizationId(null);
+                application.setPages(null);
                 examplesOrganizationCloner.makePristine(application);
                 applicationJson.setExportedApplication(application);
                 return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
@@ -129,25 +138,48 @@ public class ImportExportApplicationService {
                         Map<String, Set<String>> publishedMongoEscapedWidgetsNames = new HashMap<>();
                         Map<String, Set<String>> unpublishedMongoEscapedWidgetsNames = new HashMap<>();
                         newPageList.forEach(newPage -> {
-                            pageIdToNameMap.put(newPage.getId(), newPage.getUnpublishedPage().getName());
+    
+                            if (newPage.getUnpublishedPage() != null) {
+                                pageIdToNameMap.put(
+                                    newPage.getId() + PublishType.UNPUBLISH, newPage.getUnpublishedPage().getName()
+                                );
+                                PageDTO unpublishedPageDTO = newPage.getUnpublishedPage();
+                                if (StringUtils.equals(
+                                    applicationJson.getUnpublishedDefaultPageName(), newPage.getId())
+                                ) {
+                                    applicationJson.setUnpublishedDefaultPageName(unpublishedPageDTO.getName());
+                                }
+                                if (unpublishedPageDTO.getLayouts() != null) {
+                                    
+                                    unpublishedPageDTO.getLayouts().forEach(layout ->
+                                        unpublishedMongoEscapedWidgetsNames
+                                            .put(layout.getId(), layout.getMongoEscapedWidgetNames())
+                                    );
+                                }
+                            }
+
+                            if (newPage.getPublishedPage() != null) {
+                                pageIdToNameMap.put(
+                                    newPage.getId() + PublishType.PUBLISH, newPage.getPublishedPage().getName()
+                                );
+                                PageDTO publishedPageDTO = newPage.getPublishedPage();
+                                if (applicationJson.getPublishedDefaultPageName() != null &&
+                                    StringUtils.equals(
+                                        applicationJson.getPublishedDefaultPageName(), newPage.getId()
+                                    )
+                                ) {
+                                    applicationJson.setPublishedDefaultPageName(publishedPageDTO.getName());
+                                }
+                                
+                                if (publishedPageDTO.getLayouts() != null) {
+                                    newPage.getPublishedPage().getLayouts().forEach(layout ->
+                                        publishedMongoEscapedWidgetsNames
+                                            .put(layout.getId(), layout.getMongoEscapedWidgetNames())
+                                    );
+                                }
+                            }
                             newPage.setApplicationId(null);
                             examplesOrganizationCloner.makePristine(newPage);
-
-                            if (newPage.getUnpublishedPage().getLayouts() != null) {
-                                newPage.getUnpublishedPage().getLayouts().forEach(layout ->
-                                    unpublishedMongoEscapedWidgetsNames
-                                        .put(layout.getId(), layout.getMongoEscapedWidgetNames())
-                                );
-                            }
-
-                            if (newPage.getPublishedPage() != null
-                                    && newPage.getPublishedPage().getLayouts() != null) {
-
-                                newPage.getPublishedPage().getLayouts().forEach(layout ->
-                                    publishedMongoEscapedWidgetsNames
-                                        .put(layout.getId(), layout.getMongoEscapedWidgetNames())
-                                );
-                            }
                         });
                         applicationJson.setPageList(newPageList);
                         applicationJson.setPublishedLayoutmongoEscapedWidgets(publishedMongoEscapedWidgetsNames);
@@ -183,7 +215,11 @@ public class ImportExportApplicationService {
                             }
                             if (newAction.getUnpublishedAction() != null) {
                                 ActionDTO actionDTO = newAction.getUnpublishedAction();
-                                actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId()));
+                                actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.UNPUBLISH));
+                            }
+                            if (newAction.getPublishedAction() != null) {
+                                ActionDTO actionDTO = newAction.getPublishedAction();
+                                actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.PUBLISH));
                             }
                         });
                         applicationJson
@@ -301,15 +337,9 @@ public class ImportExportApplicationService {
                 })
                 .collectList()
             )
-            .flatMap(ignored -> {
-                ApplicationPage defaultPage = importedApplication.getPages()
-                    .stream()
-                    .filter(ApplicationPage::getIsDefault)
-                    .findFirst()
-                    .get();
-                importedApplication.setPages(null);
+            .then(
                 
-                return applicationPageService.setApplicationPolicies(currUserMono, orgId, importedApplication)
+                applicationPageService.setApplicationPolicies(currUserMono, orgId, importedApplication)
                     .flatMap(application -> applicationService
                         .findByOrganizationId(orgId, AclPermission.MANAGE_APPLICATIONS)
                         .collectList()
@@ -327,14 +357,16 @@ public class ImportExportApplicationService {
                                     return importedApplication;
                                 });
                         })
-                        .then(Mono.zip(Mono.just(defaultPage), applicationService.save(importedApplication)))
-                    );
-            })
-            .flatMap(tuple -> {
-                String defaultPageName = tuple.getT1().getId();
-                Application savedApp = tuple.getT2();
+                        .then(applicationService.save(importedApplication))
+                    )
+            )
+            .flatMap(savedApp -> {
                 importedApplication.setId(savedApp.getId());
                 importedNewPageList.forEach(newPage -> newPage.setApplicationId(savedApp.getId()));
+                Map<PublishType, List<ApplicationPage>> applicationPages = Map.of(
+                    PublishType.UNPUBLISH, new ArrayList<>(),
+                    PublishType.PUBLISH, new ArrayList<>()
+                );
                 
                 return importAndSavePages(
                     importedNewPageList,
@@ -343,39 +375,76 @@ public class ImportExportApplicationService {
                     importedDoc.getUnpublishedLayoutmongoEscapedWidgets()
                 )
                 .map(newPage -> {
-                    ApplicationPage tempPage = new ApplicationPage();
-                    pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
-                    tempPage.setIsDefault(StringUtils.equals(newPage.getUnpublishedPage().getName(), defaultPageName));
-                    tempPage.setId(newPage.getId());
-                    return tempPage;
+                    ApplicationPage unpublishedAppPage = new ApplicationPage();
+                    ApplicationPage publishedAppPage = new ApplicationPage();
+                    
+                    if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
+                        unpublishedAppPage.setIsDefault(
+                            StringUtils.equals(
+                                newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
+                            )
+                        );
+                        unpublishedAppPage.setId(newPage.getId());
+                        pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
+                    }
+    
+                    if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
+                        publishedAppPage.setIsDefault(
+                            StringUtils.equals(
+                                newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
+                            )
+                        );
+                        publishedAppPage.setId(newPage.getId());
+                        pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
+                    }
+                    applicationPages.get(PublishType.UNPUBLISH).add(unpublishedAppPage);
+                    applicationPages.get(PublishType.PUBLISH).add(publishedAppPage);
+                    return applicationPages;
                 })
-                .collectList();
+                .then()
+                .thenReturn(applicationPages);
             })
-            .flatMap(importedApplicationPages -> {
-                importedApplication.setPages(importedApplicationPages);
+            .flatMap(applicationPageMap -> {
+                importedApplication.setPages(applicationPageMap.get(PublishType.UNPUBLISH));
+                importedApplication.setPublishedPages(applicationPageMap.get(PublishType.PUBLISH));
                 
                 importedNewActionList.forEach(newAction -> {
-                    NewPage parentPage = pageNameMap.get(newAction.getUnpublishedAction().getPageId());
-                    actionIdMap.put(newAction.getUnpublishedAction().getName(), newAction.getId());
+                    NewPage parentPage = new NewPage();
+                    if (newAction.getUnpublishedAction() != null && newAction.getUnpublishedAction().getName() != null) {
+                        parentPage = pageNameMap.get(newAction.getUnpublishedAction().getPageId());
+                        actionIdMap.put(newAction.getUnpublishedAction().getName(), newAction.getId());
+                        newAction.getUnpublishedAction().setPageId(parentPage.getId());
+                        mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceMap);
+                    }
+                    
+                    if (newAction.getPublishedAction() != null && newAction.getPublishedAction().getName() != null) {
+                        parentPage = pageNameMap.get(newAction.getPublishedAction().getPageId());
+                        actionIdMap.put(newAction.getPublishedAction().getName(), newAction.getId());
+                        newAction.getPublishedAction().setPageId(parentPage.getId());
+                        mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceMap);
+                    }
                     
                     examplesOrganizationCloner.makePristine(newAction);
                     newAction.setOrganizationId(orgId);
                     newAction.setApplicationId(importedApplication.getId());
                     newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
-                    newAction.getUnpublishedAction().setPageId(parentPage.getId());
-                    mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceMap);
-                    
-                    if (newAction.getPublishedAction() != null) {
-                        newAction.getPublishedAction().setPageId(parentPage.getId());
-                        mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceMap);
-                    }
                     newActionService.generateAndSetActionPolicies(parentPage, newAction);
-                    
                 });
                 return newActionService.saveAll(importedNewActionList)
                     .map(newAction -> {
-                        actionIdMap
-                            .put(actionIdMap.get(newAction.getUnpublishedAction().getName()), newAction.getId());
+                        
+                        if (newAction.getUnpublishedAction() != null) {
+                            actionIdMap.put(
+                                actionIdMap.get(newAction.getUnpublishedAction().getName()), newAction.getId()
+                            );
+                        }
+    
+                        if (newAction.getPublishedAction() != null) {
+                            actionIdMap.put(
+                                actionIdMap.get(newAction.getPublishedAction().getName()), newAction.getId()
+                            );
+                        }
+                        
                         return newAction;
                     })
                     .then(Mono.just(importedApplication));
@@ -405,23 +474,25 @@ public class ImportExportApplicationService {
     ) {
 
         pages.forEach(newPage -> {
-            newPage.getUnpublishedPage().setApplicationId(application.getId());
-            applicationPageService.generateAndSetPagePolicies(application, newPage.getUnpublishedPage());
-            newPage.setPolicies(newPage.getUnpublishedPage().getPolicies());
-            if (unpublishedMongoEscapedWidget != null) {
-                newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
-                    layout.setMongoEscapedWidgetNames(unpublishedMongoEscapedWidget.get(layout.getId()));
-                    layout.setId(new ObjectId().toString());
-                });
+            String layoutId = new ObjectId().toString();
+            newPage.setApplicationId(application.getId());
+            if (newPage.getUnpublishedPage() != null) {
+                applicationPageService.generateAndSetPagePolicies(application, newPage.getUnpublishedPage());
+                newPage.setPolicies(newPage.getUnpublishedPage().getPolicies());
+                if (unpublishedMongoEscapedWidget != null) {
+                    newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                        layout.setMongoEscapedWidgetNames(unpublishedMongoEscapedWidget.get(layout.getId()));
+                        layout.setId(layoutId);
+                    });
+                }
             }
 
             if (newPage.getPublishedPage() != null) {
-                newPage.getPublishedPage().setApplicationId(application.getId());
                 applicationPageService.generateAndSetPagePolicies(application, newPage.getPublishedPage());
                 if (publishedMongoEscapedWidget != null) {
                     newPage.getPublishedPage().getLayouts().forEach(layout -> {
                         layout.setMongoEscapedWidgetNames(publishedMongoEscapedWidget.get(layout.getId()));
-                        layout.setId(new ObjectId().toString());
+                        layout.setId(layoutId);
                     });
                 }
             }
@@ -451,7 +522,7 @@ public class ImportExportApplicationService {
             page.getUnpublishedPage().getLayouts().forEach(layout -> {
                 if (layout.getLayoutOnLoadActions() != null) {
                     layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
-                            .forEach(dslActionDTO -> dslActionDTO.setId(actionIdMap.get(dslActionDTO.getId()))));
+                            .forEach(actionDTO -> actionDTO.setId(actionIdMap.get(actionDTO.getId()))));
                 }
             });
         }
@@ -461,7 +532,7 @@ public class ImportExportApplicationService {
             page.getPublishedPage().getLayouts().forEach(layout -> {
                 if (layout.getLayoutOnLoadActions() != null) {
                     layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction
-                        .forEach(dslActionDTO -> dslActionDTO.setId(actionIdMap.get(dslActionDTO.getId()))));
+                        .forEach(actionDTO -> actionDTO.setId(actionIdMap.get(actionDTO.getId()))));
                 }
             });
         }
