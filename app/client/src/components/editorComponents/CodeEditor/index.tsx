@@ -338,12 +338,12 @@ class CodeEditor extends Component<Props, State> {
     validationMessage?: string;
     jsErrorMessage?: string;
   } => {
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      dataTreePath || "",
-    );
     if (!dataTreePath) {
       return { isValid: true, validationMessage: "", jsErrorMessage: "" };
     }
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      dataTreePath,
+    );
     let isValidPath, validationMessagePath, jsErrorMessagePath;
     if (dataTreePath && dataTreePath.match(/evaluatedValues/g)) {
       isValidPath = dataTreePath.replace("evaluatedValues", "invalidProps");
