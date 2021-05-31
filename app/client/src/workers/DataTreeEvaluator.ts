@@ -595,6 +595,14 @@ export default class DataTreeEvaluator {
     }
     return undefined;
   }
+  //check if the property is part if logBlackList object to show
+  //error in debugger
+  isLoggingBlocked(entity: DataTreeWidget, propertyPath: string) {
+    if (entity.logBlackList) {
+      return !!entity.logBlackList[propertyPath];
+    }
+    return false;
+  }
 
   // Paths are expected to have "{name}.{path}" signature
   // Also returns any action triggers found after evaluating value
@@ -614,18 +622,21 @@ export default class DataTreeEvaluator {
         _.set(data, `${entityName}.jsErrorMessages.${propertyPath}`, e.message);
         const entity = data[entityName];
         if (isWidget(entity)) {
-          this.errors.push({
-            type: EvalErrorTypes.EVAL_ERROR,
-            message: e.message,
-            context: {
-              source: {
-                id: entity.widgetId,
-                name: entity.widgetName,
-                type: ENTITY_TYPE.WIDGET,
-                propertyPath: propertyPath,
+          const isLoggingBlocked = this.isLoggingBlocked(entity, propertyPath);
+          if (!isLoggingBlocked) {
+            this.errors.push({
+              type: EvalErrorTypes.EVAL_ERROR,
+              message: e.message,
+              context: {
+                source: {
+                  id: entity.widgetId,
+                  name: entity.widgetName,
+                  type: ENTITY_TYPE.WIDGET,
+                  propertyPath: propertyPath,
+                },
               },
-            },
-          });
+            });
+          }
         } else if (isAction(entity)) {
           this.errors.push({
             type: EvalErrorTypes.EVAL_ERROR,

@@ -62,6 +62,10 @@ export const generateDataTreeWidget = (
     ...derivedProps,
     ...unInitializedDefaultProps,
     dynamicBindingPathList,
+    logBlackList: {
+      ...widget.logBlackList,
+      ...derivedProps,
+    },
     bindingPaths,
     triggerPaths,
     validationPaths,

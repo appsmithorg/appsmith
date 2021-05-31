@@ -64,6 +64,7 @@ export interface DataTreeWidget extends WidgetProps {
   triggerPaths: Record<string, boolean>;
   validationPaths: Record<string, VALIDATION_TYPES>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
+  logBlackList?: Record<string, string>;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
