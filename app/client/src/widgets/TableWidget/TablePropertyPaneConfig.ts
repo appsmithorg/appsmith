@@ -304,6 +304,7 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
+                  defaultValue: "YYYY-MM-DD HH:mm",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnsHook,
@@ -407,6 +408,7 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
+                  defaultValue: "YYYY-MM-DD HH:mm",
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     const baseProperty = getBasePropertyPath(propertyPath);
