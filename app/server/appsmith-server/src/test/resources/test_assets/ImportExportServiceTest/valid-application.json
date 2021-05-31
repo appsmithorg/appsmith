@@ -9,13 +9,6 @@
       ],
       "name": "valid_application",
       "isPublic": false,
-      "pages": [
-        {
-          "id": "Page1",
-          "isDefault": true,
-          "default": true
-        }
-      ],
       "appIsExample": false,
       "color": "#EA6179",
       "icon": "medical",
@@ -497,5 +490,16 @@
         }
       }
     },
-    "mongoEscapedWidgets": {}
+    "publishedDefaultPageName": "Page1",
+    "unpublishedDefaultPageName": "Page1",
+    "publishedLayoutmongoEscapedWidgets": {
+      "60aca056136c4b7178f67906": [
+        "Table1"
+      ]
+    },
+    "unpublishedLayoutmongoEscapedWidgets": {
+      "60aca056136c4b7178f67906": [
+        "Table1"
+      ]
+    }
 }
