@@ -37,7 +37,9 @@ const StyledContainerComponent = styled.div<
     cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
     background: ${(props) =>
       props.onClickCapture
-        ? tinycolor(props.backgroundColor).darken(5).toString()
+        ? tinycolor(props.backgroundColor)
+            .darken(5)
+            .toString()
         : props.backgroundColor};
   }
 }`;

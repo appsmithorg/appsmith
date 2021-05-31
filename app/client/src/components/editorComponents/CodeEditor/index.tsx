@@ -383,8 +383,11 @@ class CodeEditor extends Component<Props, State> {
       theme,
       useValidationMessage,
     } = this.props;
-    const { isValid, jsErrorMessage, validationMessage } =
-      this.getPropertyValidation(dynamicData, dataTreePath);
+    const {
+      isValid,
+      jsErrorMessage,
+      validationMessage,
+    } = this.getPropertyValidation(dynamicData, dataTreePath);
     const hasError = !isValid || !!jsErrorMessage;
     let evaluated = evaluatedValue;
     if (dataTreePath) {

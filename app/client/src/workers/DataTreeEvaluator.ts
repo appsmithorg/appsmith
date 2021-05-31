@@ -563,7 +563,6 @@ export default class DataTreeEvaluator {
         data,
         jsSnippets[0],
         callBackData,
-        fullPropertyPath,
       );
       return result.triggers;
     }
@@ -575,8 +574,32 @@ export default class DataTreeEvaluator {
             data,
             jsSnippet,
             callBackData,
-            fullPropertyPath,
           );
+          if (fullPropertyPath) {
+            const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+              fullPropertyPath,
+            );
+            _.set(
+              data,
+              `${entityName}.jsErrorMessages.${propertyPath}`,
+              result.errors.evaluating,
+            );
+            const entity = data[entityName];
+            if (isWidget(entity) && result.errors.evaluating) {
+              this.errors.push({
+                type: EvalErrorTypes.EVAL_ERROR,
+                message: result.errors.evaluating,
+                context: {
+                  source: {
+                    id: entity.widgetId,
+                    name: entity.widgetName,
+                    type: ENTITY_TYPE.WIDGET,
+                    propertyPath: propertyPath,
+                  },
+                },
+              });
+            }
+          }
           return result.result;
         } else {
           return stringSegments[index];
@@ -602,33 +625,15 @@ export default class DataTreeEvaluator {
     data: DataTree,
     js: string,
     callbackData?: Array<any>,
-    fullPropertyPath?: string,
   ): EvalResult {
     try {
       return evaluate(js, data, callbackData);
     } catch (e) {
-      if (fullPropertyPath) {
-        const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-          fullPropertyPath,
-        );
-        _.set(data, `${entityName}.jsErrorMessages.${propertyPath}`, e.message);
-        const entity = data[entityName];
-        if (isWidget(entity)) {
-          this.errors.push({
-            type: EvalErrorTypes.EVAL_ERROR,
-            message: e.message,
-            context: {
-              source: {
-                id: entity.widgetId,
-                name: entity.widgetName,
-                type: ENTITY_TYPE.WIDGET,
-                propertyPath: propertyPath,
-              },
-            },
-          });
-        }
-      }
-      return { result: undefined, triggers: [] };
+      return {
+        result: undefined,
+        triggers: [],
+        errors: { evaluating: e.message },
+      };
     }
   }
 

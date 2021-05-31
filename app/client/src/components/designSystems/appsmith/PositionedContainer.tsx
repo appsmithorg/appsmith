@@ -30,7 +30,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
     return (
       generateClassName(props.widgetId) +
       " positioned-widget " +
-      `t--widget-${props.widgetType.split("_").join("").toLowerCase()}`
+      `t--widget-${props.widgetType
+        .split("_")
+        .join("")
+        .toLowerCase()}`
     );
   }, [props.widgetType, props.widgetId]);
   const containerStyle: CSSProperties = useMemo(() => {
@@ -49,10 +52,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
     };
   }, [props.style]);
 
-  const openPropPane = useCallback(
-    (e) => openPropertyPane(e, props.widgetId),
-    [props.widgetId, openPropertyPane],
-  );
+  const openPropPane = useCallback((e) => openPropertyPane(e, props.widgetId), [
+    props.widgetId,
+    openPropertyPane,
+  ]);
 
   return (
     <PositionedWidget

@@ -434,8 +434,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_API_ACTION_BODY_CONTENT_TYPE: "UPDATE_API_ACTION_BODY_CONTENT_TYPE",
 };
 
-export type ReduxActionType =
-  typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
+export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
   INITIALIZE_APPSMITH_ERROR: "INITIALIZE_APPSMITH_ERROR",
@@ -546,8 +545,7 @@ export const ReduxFormActionTypes: { [key: string]: string } = {
   ARRAY_PUSH: "@@redux-form/ARRAY_PUSH",
 };
 
-export type ReduxActionErrorType =
-  typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
+export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
 
 export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
