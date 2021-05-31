@@ -619,7 +619,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       filteredTableData = [],
     } = this.props;
     const pageSize = defaultPageSize ? defaultPageSize : this.props.pageSize;
-
+    console.log({ totalRecordsCount, defaultPageSize, pageSize });
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const { componentHeight, componentWidth } = this.getComponentDimensions();
@@ -629,6 +629,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (this.props.pageNo * defaultPageSize > totalRecordsCount) {
         const count =
           totalRecordsCount - (this.props.pageNo - 1) * defaultPageSize;
+        console.log({ count });
         transformedData.splice(count, transformedData.length);
       }
     }
