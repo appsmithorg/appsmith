@@ -42,6 +42,8 @@ interface ReactTableComponentProps {
   width: number;
   height: number;
   pageSize: number;
+  defaultPageSize?: number;
+  totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
@@ -74,6 +76,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     columns,
     columnSizeMap,
     compactMode,
+    defaultPageSize,
     disableDrag,
     editMode,
     filters,
@@ -93,6 +96,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     serverSidePaginationEnabled,
     sortTableColumn: _sortTableColumn,
     tableData,
+    totalRecordsCount,
     triggerRowSelection,
     updateCompactMode,
     updatePageNo,
@@ -219,6 +223,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       columns={columns}
       compactMode={compactMode}
       data={tableData}
+      defaultPageSize={defaultPageSize}
       disableDrag={() => {
         disableDrag(true);
       }}
@@ -241,6 +246,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       selectedRowIndices={selectedRowIndices}
       serverSidePaginationEnabled={serverSidePaginationEnabled}
       sortTableColumn={sortTableColumn}
+      totalRecordsCount={totalRecordsCount}
       triggerRowSelection={triggerRowSelection}
       updateCompactMode={updateCompactMode}
       updatePageNo={updatePageNo}

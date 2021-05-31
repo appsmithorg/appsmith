@@ -38,6 +38,8 @@ interface TableProps {
   columnSizeMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
   data: Array<Record<string, unknown>>;
+  defaultPageSize?: number;
+  totalRecordsCount?: number;
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
@@ -193,6 +195,7 @@ export function Table(props: TableProps) {
               columns={tableHeadercolumns}
               compactMode={props.compactMode}
               currentPageIndex={currentPageIndex}
+              defaultPageSize={props.defaultPageSize}
               editMode={props.editMode}
               filters={props.filters}
               nextPageClick={props.nextPageClick}
@@ -206,6 +209,7 @@ export function Table(props: TableProps) {
               tableColumns={columns}
               tableData={props.data}
               tableSizes={tableSizes}
+              totalRecordsCount={props.totalRecordsCount}
               updateCompactMode={props.updateCompactMode}
               updatePageNo={props.updatePageNo}
               widgetName={props.widgetName}

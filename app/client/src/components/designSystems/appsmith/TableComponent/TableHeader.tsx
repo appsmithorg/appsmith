@@ -93,6 +93,8 @@ interface TableHeaderProps {
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
+  defaultPageSize?: number;
+  totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   tableColumns: ReactTableColumnProps[];
   pageCount: number;
@@ -153,7 +155,11 @@ function TableHeader(props: TableHeaderProps) {
           </PaginationItemWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"
-            disabled={false}
+            disabled={
+              props.defaultPageSize !== undefined &&
+              props.totalRecordsCount !== undefined &&
+              props.defaultPageSize * props.pageNo < props.totalRecordsCount
+            }
             onClick={() => {
               props.nextPageClick();
             }}

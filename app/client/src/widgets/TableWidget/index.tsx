@@ -613,10 +613,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const { pageSize, filteredTableData = [] } = this.props;
+    const {
+      totalRecordsCount,
+      defaultPageSize,
+      filteredTableData = [],
+    } = this.props;
+    const pageSize = defaultPageSize ? defaultPageSize : this.props.pageSize;
+
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const { componentHeight, componentWidth } = this.getComponentDimensions();
+
+    if (defaultPageSize !== undefined && totalRecordsCount !== undefined) {
+      //if total records count configured is more than tableData
+      if (this.props.pageNo * defaultPageSize > totalRecordsCount) {
+        const count =
+          totalRecordsCount - (this.props.pageNo - 1) * defaultPageSize;
+        transformedData.splice(count, transformedData.length);
+      }
+    }
 
     return (
       <Suspense fallback={<Skeleton />}>
@@ -625,6 +640,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
+          defaultPageSize={defaultPageSize}
           disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           filters={this.props.filters}
@@ -650,6 +666,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
+          totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           updateCompactMode={this.handleCompactModeChange}
           updatePageNo={this.updatePageNumber}
