@@ -917,6 +917,6 @@ describe("Table Widget Property Pane Upgrade", () => {
       ],
     };
     const newDsl = migrateTableWidgetParentRowSpaceProperty(inputDsl);
-    expect(JSON.stringify(newDsl) === JSON.stringify(outputDsl));
+    expect(JSON.stringify(newDsl) === JSON.stringify(output1));
   });
 });
