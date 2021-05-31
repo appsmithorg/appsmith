@@ -27,7 +27,7 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Icon from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
-import { TabComponent } from "components/ads/Tabs";
+import { TabComponent, TabTitle } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
@@ -37,9 +37,10 @@ import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
-import get from "lodash/get";
 import { Icon as ButtonIcon } from "@blueprintjs/core";
-
+import { IconSize } from "components/ads/Icon";
+import get from "lodash/get";
+import DataSourceList from "./DatasourceList";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -93,15 +94,18 @@ const DatasourceWrapper = styled.div`
 const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% - 126px);
+  flex-grow: 1;
+  height: 100%;
   ${HelpSection} {
     margin-bottom: 10px;
   }
 `;
 
-const TabbedViewContainer = styled.div`
+export const TabbedViewContainer = styled.div`
   flex: 1;
   overflow: auto;
+  position: relative;
+  height: 100%;
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${FormRow} {
     min-height: auto;
@@ -165,6 +169,13 @@ const Link = styled.a`
     margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   }
 `;
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 126px);
+  position: relative;
+`;
 interface APIFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -183,6 +194,9 @@ interface APIFormProps {
   paramsCount: number;
   settingsConfig: any;
   hintMessages?: Array<string>;
+  datasources?: any;
+  currentPageId?: string;
+  applicationId?: string;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -247,6 +261,7 @@ const FlexContainer = styled.div`
   }
   .disabled {
     background: #e8e8e8;
+    margin-bottom: 2px;
   }
 `;
 
@@ -265,7 +280,7 @@ const FormRowWithLabel = styled(FormRow)`
   }
 `;
 
-function ImportedHeaders(props: { headers: any }) {
+function ImportedHeaderKeyValue(props: { headers: any }) {
   return (
     <>
       {props.headers.map((header: any, index: number) => {
@@ -286,9 +301,121 @@ function ImportedHeaders(props: { headers: any }) {
   );
 }
 
+const DatasourceListTrigger = styled.div`
+  position: absolute;
+  right: 10px;
+  top: 7px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #939090;
+  &:hover {
+    span {
+      color: #090707;
+    }
+    svg path {
+      fill: #090707;
+    }
+  }
+`;
+
+function renderImportedHeadersButton(
+  headersCount: number,
+  onClick: any,
+  showInheritedAttributes: boolean,
+) {
+  return (
+    <KeyValueStackContainer>
+      <ShowHideImportedHeaders
+        onClick={(e) => {
+          e.preventDefault();
+          onClick(!showInheritedAttributes);
+        }}
+      >
+        <ButtonIcon
+          icon={showInheritedAttributes ? "eye-open" : "eye-off"}
+          iconSize={14}
+        />
+        &nbsp;&nbsp;
+        <Text case={Case.CAPITALIZE} type={TextType.P2}>
+          {showInheritedAttributes
+            ? "Showing inherited headers"
+            : `${headersCount} headers`}
+        </Text>
+      </ShowHideImportedHeaders>
+    </KeyValueStackContainer>
+  );
+}
+
+const CloseIconContainer = styled.div`
+  position: absolute;
+  top: 12px;
+  right: 10px;
+`;
+
+function renderHelpSection(
+  handleClickLearnHow: any,
+  setApiBindHelpSectionVisible: any,
+) {
+  return (
+    <HelpSection>
+      <Callout
+        closeButton
+        fill
+        label={
+          <CalloutContent>
+            <Link
+              className="t--learn-how-apis-link"
+              onClick={handleClickLearnHow}
+            >
+              <Text case={Case.UPPERCASE} type={TextType.H6}>
+                Learn How
+              </Text>
+              <Icon name="right-arrow" />
+            </Link>
+          </CalloutContent>
+        }
+        onClose={() => setApiBindHelpSectionVisible(false)}
+        text={createMessage(WIDGET_BIND_HELP)}
+        variant={Variant.warning}
+      />
+    </HelpSection>
+  );
+}
+
+function ImportedHeaders(props: { headers: any }) {
+  const [showHeaders, toggleHeaders] = useState(false);
+  return (
+    <>
+      {renderImportedHeadersButton(
+        props.headers.length,
+        toggleHeaders,
+        showHeaders,
+      )}
+      <KeyValueStackContainer>
+        <FormRowWithLabel>
+          <FlexContainer>
+            <Flex className="key-value" size={1}>
+              <Text case={Case.CAPITALIZE} type={TextType.H6}>
+                Key
+              </Text>
+            </Flex>
+            <Flex className="key-value" size={3}>
+              <Text case={Case.CAPITALIZE} type={TextType.H6}>
+                Value
+              </Text>
+            </Flex>
+          </FlexContainer>
+        </FormRowWithLabel>
+        {showHeaders && <ImportedHeaderKeyValue headers={props.headers} />}
+      </KeyValueStackContainer>
+    </>
+  );
+}
+
 function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [showInheritedAttributes, toggleInheritedAttributes] = useState(false);
+  const [showDatasources, toggleDatasources] = useState(false);
   const [
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,
@@ -376,173 +503,139 @@ function ApiEditorForm(props: Props) {
           </DatasourceWrapper>
         </FormRow>
       </MainConfiguration>
-      <SecondaryWrapper>
-        {hintMessages && (
-          <HelpSection>
-            {hintMessages.map((msg, i) => (
-              <Callout fill key={i} text={msg} variant={Variant.warning} />
-            ))}
-          </HelpSection>
-        )}
-        <TabbedViewContainer>
-          <TabComponent
-            onSelect={setSelectedIndex}
-            selectedIndex={selectedIndex}
-            tabs={[
-              {
-                key: "headers",
-                title: "Headers",
-                count: headersCount,
-                panelComponent: (
-                  <TabSection>
-                    {apiBindHelpSectionVisible && (
-                      <HelpSection>
-                        <Callout
-                          closeButton
-                          fill
-                          label={
-                            <CalloutContent>
-                              <Link
-                                className="t--learn-how-apis-link"
-                                onClick={handleClickLearnHow}
-                              >
-                                <Text case={Case.UPPERCASE} type={TextType.H6}>
-                                  Learn How
-                                </Text>
-                                <Icon name="right-arrow" />
-                              </Link>
-                            </CalloutContent>
-                          }
-                          onClose={() => setApiBindHelpSectionVisible(false)}
-                          text={createMessage(WIDGET_BIND_HELP)}
-                          variant={Variant.warning}
-                        />
-                      </HelpSection>
-                    )}
-                    {props.datasourceHeaders.length > 0 && (
-                      <KeyValueStackContainer>
-                        <ShowHideImportedHeaders
-                          onClick={(e) => {
-                            e.preventDefault();
-                            toggleInheritedAttributes(!showInheritedAttributes);
-                          }}
-                        >
-                          <ButtonIcon
-                            icon={
-                              showInheritedAttributes ? "eye-open" : "eye-off"
-                            }
-                            iconSize={14}
-                          />
-                          &nbsp;&nbsp;
-                          <Text case={Case.CAPITALIZE} type={TextType.P2}>
-                            {showInheritedAttributes
-                              ? "Showing inherited headers"
-                              : `${props.datasourceHeaders.length} headers`}
-                          </Text>
-                        </ShowHideImportedHeaders>
-                      </KeyValueStackContainer>
-                    )}
-                    {props.datasourceHeaders.length > 0 && (
-                      <KeyValueStackContainer>
-                        <FormRowWithLabel>
-                          <FlexContainer>
-                            <Flex className="key-value" size={1}>
-                              <Text case={Case.CAPITALIZE} type={TextType.H6}>
-                                Key
-                              </Text>
-                            </Flex>
-                            <Flex className="key-value" size={3}>
-                              <Text case={Case.CAPITALIZE} type={TextType.H6}>
-                                Value
-                              </Text>
-                            </Flex>
-                          </FlexContainer>
-                        </FormRowWithLabel>
-                        {showInheritedAttributes && (
-                          <ImportedHeaders headers={props.datasourceHeaders} />
+      {hintMessages && (
+        <HelpSection>
+          {hintMessages.map((msg, i) => (
+            <Callout fill key={i} text={msg} variant={Variant.warning} />
+          ))}
+        </HelpSection>
+      )}
+      <Wrapper>
+        <SecondaryWrapper>
+          <TabbedViewContainer>
+            <TabComponent
+              onSelect={setSelectedIndex}
+              selectedIndex={selectedIndex}
+              tabs={[
+                {
+                  key: "headers",
+                  title: "Headers",
+                  count: headersCount,
+                  panelComponent: (
+                    <TabSection>
+                      {apiBindHelpSectionVisible &&
+                        renderHelpSection(
+                          handleClickLearnHow,
+                          setApiBindHelpSectionVisible,
                         )}
-                      </KeyValueStackContainer>
-                    )}
-                    <KeyValueFieldArray
-                      actionConfig={actionConfigurationHeaders}
-                      dataTreePath={`${actionName}.config.headers`}
-                      hideHeader={!!props.datasourceHeaders.length}
-                      label="Headers"
-                      name="actionConfiguration.headers"
-                      placeholder="Value"
+                      {props.datasourceHeaders.length > 0 && (
+                        <ImportedHeaders headers={props.datasourceHeaders} />
+                      )}
+                      <KeyValueFieldArray
+                        actionConfig={actionConfigurationHeaders}
+                        dataTreePath={`${actionName}.config.headers`}
+                        hideHeader={!!props.datasourceHeaders.length}
+                        label="Headers"
+                        name="actionConfiguration.headers"
+                        placeholder="Value"
+                        theme={theme}
+                      />
+                    </TabSection>
+                  ),
+                },
+                {
+                  key: "params",
+                  title: "Params",
+                  count: paramsCount,
+                  panelComponent: (
+                    <TabSection>
+                      <KeyValueFieldArray
+                        dataTreePath={`${actionName}.config.queryParameters`}
+                        label="Params"
+                        name="actionConfiguration.queryParameters"
+                        theme={theme}
+                      />
+                    </TabSection>
+                  ),
+                },
+                {
+                  key: "body",
+                  title: "Body",
+                  panelComponent: allowPostBody ? (
+                    <PostBodyData
+                      dataTreePath={`${actionName}.config`}
                       theme={theme}
                     />
-                  </TabSection>
-                ),
-              },
-              {
-                key: "params",
-                title: "Params",
-                count: paramsCount,
-                panelComponent: (
-                  <TabSection>
-                    <KeyValueFieldArray
-                      dataTreePath={`${actionName}.config.queryParameters`}
-                      label="Params"
-                      name="actionConfiguration.queryParameters"
+                  ) : (
+                    <NoBodyMessage>
+                      <Text type={TextType.P2}>
+                        This request does not have a body
+                      </Text>
+                    </NoBodyMessage>
+                  ),
+                },
+                {
+                  key: "pagination",
+                  title: "Pagination",
+                  panelComponent: (
+                    <Pagination
+                      onTestClick={props.onRunClick}
+                      paginationType={props.paginationType}
                       theme={theme}
                     />
-                  </TabSection>
-                ),
-              },
-              {
-                key: "body",
-                title: "Body",
-                panelComponent: allowPostBody ? (
-                  <PostBodyData
-                    dataTreePath={`${actionName}.config`}
-                    theme={theme}
-                  />
-                ) : (
-                  <NoBodyMessage>
-                    <Text type={TextType.P2}>
-                      This request does not have a body
-                    </Text>
-                  </NoBodyMessage>
-                ),
-              },
-              {
-                key: "pagination",
-                title: "Pagination",
-                panelComponent: (
-                  <Pagination
-                    onTestClick={props.onRunClick}
-                    paginationType={props.paginationType}
-                    theme={theme}
-                  />
-                ),
-              },
-              {
-                key: "settings",
-                title: "Settings",
-                panelComponent: (
-                  <SettingsWrapper>
-                    <ActionSettings
-                      actionSettingsConfig={settingsConfig}
-                      formName={API_EDITOR_FORM_NAME}
-                      theme={theme}
-                    />
-                  </SettingsWrapper>
-                ),
-              },
-            ]}
-          />
-        </TabbedViewContainer>
-
-        <ApiResponseView apiName={actionName} theme={theme} />
-      </SecondaryWrapper>
+                  ),
+                },
+                {
+                  key: "settings",
+                  title: "Settings",
+                  panelComponent: (
+                    <SettingsWrapper>
+                      <ActionSettings
+                        actionSettingsConfig={settingsConfig}
+                        formName={API_EDITOR_FORM_NAME}
+                        theme={theme}
+                      />
+                    </SettingsWrapper>
+                  ),
+                },
+              ]}
+            />
+            {!showDatasources && (
+              <DatasourceListTrigger
+                onClick={() => toggleDatasources(!showDatasources)}
+              >
+                <Icon name="datasource" size={IconSize.LARGE} />
+                <TabTitle>Datasources</TabTitle>
+              </DatasourceListTrigger>
+            )}
+          </TabbedViewContainer>
+          <ApiResponseView apiName={actionName} theme={theme} />
+        </SecondaryWrapper>
+        {showDatasources && (
+          <>
+            <DataSourceList
+              applicationId={props.applicationId}
+              currentPageId={props.currentPageId}
+              datasources={props.datasources}
+            />
+            <CloseIconContainer>
+              <Icon
+                className="close-modal-icon"
+                name="close-modal"
+                onClick={() => toggleDatasources(!showDatasources)}
+                size={IconSize.SMALL}
+              />
+            </CloseIconContainer>
+          </>
+        )}
+      </Wrapper>
     </Form>
   );
 }
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-export default connect((state: AppState) => {
+export default connect((state: AppState, props: { pluginId: string }) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
   const actionConfigurationHeaders =
     selector(state, "actionConfiguration.headers") || [];
@@ -591,6 +684,11 @@ export default connect((state: AppState) => {
     headersCount,
     paramsCount,
     hintMessages,
+    datasources: state.entities.datasources.list.filter(
+      (d) => d.pluginId === props.pluginId,
+    ),
+    currentPageId: state.entities.pageList.currentPageId,
+    applicationId: state.entities.pageList.applicationId,
   };
 })(
   reduxForm<Action, APIFormProps>({

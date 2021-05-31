@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -449,6 +450,24 @@ public class UserServiceTest {
                     assertThat(user.getName()).isEqualTo("New name of api_user");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void createUserAndSendEmail_WhenUserExistsWithEmailInOtherCase_ThrowsException() {
+        User existingUser = new User();
+        existingUser.setEmail("abcd@gmail.com");
+        userRepository.save(existingUser).block();
+
+        User newUser = new User();
+        newUser.setEmail("abCd@gmail.com"); // same as above except c in uppercase
+        newUser.setSource(LoginSource.FORM);
+        newUser.setPassword("abcdefgh");
+        Mono<User> userAndSendEmail = userService.createUserAndSendEmail(newUser, null);
+
+        StepVerifier.create(userAndSendEmail)
+                .expectErrorMessage(
+                        AppsmithError.USER_ALREADY_EXISTS_SIGNUP.getMessage(existingUser.getEmail())
+                );
     }
 
 }
