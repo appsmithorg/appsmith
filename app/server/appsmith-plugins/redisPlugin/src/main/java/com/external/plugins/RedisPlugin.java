@@ -40,7 +40,6 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 
 public class RedisPlugin extends BasePlugin {
     private static final Long DEFAULT_PORT = 6379L;
-    private static final int CONNECTION_TIMEOUT = 60;
 
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -113,14 +112,15 @@ public class RedisPlugin extends BasePlugin {
                         return result;
                     })
                     .doFinally(signalType -> {
-                        /**
-                         * - Return resource back to the pool.
-                         * - https://stackoverflow.com/questions/54902337/is-it-necessary-to-use-jedis-close
-                         * - https://www.baeldung.com/jedis-java-redis-client-library:
+                        /*
+                         * - For some reason, Jedis throws a socket error when kept idle for like 10 min when
+                         * appsmith is setup via docker image.
+                         * - APMU, jedis.close() should disconnect the connection, causing jedis to refresh connection
+                         * during next execution.
+                         * - This is a placeholder solution till better fix is available (would connection pool fix
+                         * it ?)
                          */
-                        if (jedis != null) {
-                            jedis.close();
-                        }
+                        jedis.close();
                     })
                     .subscribeOn(scheduler);
         }
