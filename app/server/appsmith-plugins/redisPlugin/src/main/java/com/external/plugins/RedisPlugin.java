@@ -110,8 +110,8 @@ public class RedisPlugin extends BasePlugin {
                         /*
                          * - For some reason, Jedis throws a socket error when kept idle for like 10 min when
                          * appsmith is setup via docker image.
-                         * - APMU, jedis.close() should disconnect the connection, causing jedis to re-connect during
-                         *  next execution.
+                         * - APMU, jedis.close() should disconnect the connection, causing jedis to refresh connection
+                         * during next execution.
                          * - This is a placeholder solution till better fix is available (would connection pool fix
                          * it ?)
                          */
