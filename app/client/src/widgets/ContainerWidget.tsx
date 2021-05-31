@@ -64,11 +64,21 @@ class ContainerWidget extends BaseWidget<
 
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
-    const padding = CONTAINER_GRID_PADDING * 2;
+    // For all widgets inside a container, we remove both contianer padding as well as widget padding from component width
+    let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+    if (
+      this.props.widgetId === MAIN_CONTAINER_WIDGET_ID ||
+      this.props.type === "CONTAINER_WIDGET"
+    ) {
+      //For MainContainer and any Container Widget padding doesnt exist coz there is already container padding.
+      padding = CONTAINER_GRID_PADDING * 2;
+    }
+    if (this.props.noPad) {
+      // Widgets like Listwidget choose to have no container padding so will only have widet padding
+      padding = WIDGET_PADDING * 2;
+    }
     let width = componentWidth;
-    if (!this.props.noPad) width -= padding;
-    else width -= WIDGET_PADDING * 2;
-
+    width -= padding;
     return {
       snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       snapColumnSpace: componentWidth

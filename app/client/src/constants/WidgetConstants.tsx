@@ -107,9 +107,12 @@ export const GridDefaults = {
   CANVAS_EXTENSION_OFFSET: 2,
 };
 
+// Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
+// which wud allow the user to place elements centered inside a container(columns are rendered proportionaly so it take cares of itselves).
+
 // calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
 export const CONTAINER_GRID_PADDING =
-  GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
+  GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.6;
 
 // calculated as (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 0.5) * 0.2;
 export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
