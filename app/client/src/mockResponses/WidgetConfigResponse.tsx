@@ -954,7 +954,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   propertyName: "template",
                   propertyValue: template,
                 },
-              ].concat(
+              ];
+
+              // add logBlackList to updateProperyMap for all children
+              updatePropertyMap = updatePropertyMap.concat(
                 Object.keys(logBlackListMap).map((logBlackListMapKey) => {
                   return {
                     widgetId: logBlackListMapKey,
@@ -1018,7 +1021,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
               parent.template = template;
 
-              // add logBlackList for all children
+              // add logBlackList for the children being added
               Object.keys(widget).map((key) => {
                 logBlackList[key] = true;
               });
