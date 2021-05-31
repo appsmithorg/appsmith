@@ -50,8 +50,8 @@ type DraggableComponentProps = WidgetProps;
 export const canDrag = (
   isResizing: boolean,
   isDraggingDisabled: boolean,
-  isCommentMode: boolean,
   props: any,
+  isCommentMode: boolean,
 ) => {
   return (
     !isResizing && !isDraggingDisabled && !props?.dragDisabled && !isCommentMode
@@ -144,7 +144,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     },
     canDrag: () => {
       // Dont' allow drag if we're resizing or the drag of `DraggableComponent` is disabled
-      return canDrag(isResizing, isDraggingDisabled, isCommentMode, props);
+      return canDrag(isResizing, isDraggingDisabled, props, isCommentMode);
     },
   });
 
