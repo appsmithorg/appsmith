@@ -12,7 +12,15 @@ import {
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isNil, isEqual, xor, without } from "lodash";
+import {
+  isNumber,
+  isString,
+  isNil,
+  isEqual,
+  xor,
+  without,
+  isBoolean,
+} from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
@@ -80,6 +88,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       return preserveCase
         ? value[index].toString()
         : value[index].toString().toUpperCase();
+    } else if (value && isBoolean(value)) {
+      return value;
     } else if (value) {
       return preserveCase ? value.toString() : value.toString().toUpperCase();
     } else {
@@ -120,6 +130,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
       textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
+      isVisible: this.getPropertyValue(columnProperties.isVisible, rowIndex),
+      isDisabled: this.getPropertyValue(
+        columnProperties.isDisabled || false,
+        rowIndex,
+      ),
     };
     return cellProperties;
   };
@@ -176,6 +191,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
+              isDisabled: cellProperties.isDisabled || false,
               columnActions: [
                 {
                   id: columnProperties.id,

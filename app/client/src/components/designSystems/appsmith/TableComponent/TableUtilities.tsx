@@ -123,6 +123,7 @@ interface RenderActionProps {
   columnActions?: ColumnAction[];
   backgroundColor: string;
   buttonLabelColor: string;
+  isDisabled: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
@@ -142,6 +143,7 @@ export const renderActions = (
             action={action}
             backgroundColor={props.backgroundColor}
             buttonLabelColor={props.buttonLabelColor}
+            isDisabled={props.isDisabled}
             isSelected={props.isSelected}
             key={index}
             onCommandClick={props.onCommandClick}
@@ -157,6 +159,7 @@ function TableAction(props: {
   action: ColumnAction;
   backgroundColor: string;
   buttonLabelColor: string;
+  isDisabled: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -175,6 +178,7 @@ function TableAction(props: {
       }}
     >
       <Button
+        disabled={props.isDisabled}
         filled
         intent="PRIMARY_BUTTON"
         loading={loading}
@@ -351,6 +355,7 @@ export function getDefaultColumnProperties(
     enableFilter: true,
     enableSort: true,
     isVisible: true,
+    isDisabled: false,
     isDerived: !!isDerived,
     label: accessor,
     computedValue: isDerived

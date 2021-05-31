@@ -219,6 +219,36 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
+                  propertyName: "isDisabled",
+                  label: "Disabled",
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "button";
+                  },
+                  defaultValue: false,
+                  controlType: "SWITCH",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  validation: VALIDATION_TYPES.BOOLEAN,
+                },
+                {
+                  propertyName: "isVisible",
+                  label: "Visible",
+                  updateHook: updateDerivedColumnsHook,
+                  controlType: "SWITCH",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  validation: VALIDATION_TYPES.BOOLEAN,
+                },
+                {
                   propertyName: "inputFormat",
                   label: "Original Date Format",
                   controlType: "DROP_DOWN",

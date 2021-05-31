@@ -22,7 +22,7 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { has, isString, set } from "lodash";
+import { has, isString, set, isEmpty } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
@@ -34,6 +34,7 @@ import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTe
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -743,7 +744,45 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  if (currentDSL.version === 23) {
+    currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
   return currentDSL;
+};
+
+const addIsDisabledToButtonColumn = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === "TABLE_WIDGET") {
+    if (!isEmpty(currentDSL.primaryColumns)) {
+      for (const key of Object.keys(
+        currentDSL.primaryColumns as Record<string, ColumnProperties>,
+      )) {
+        if (currentDSL.primaryColumns[key].columnType === "button") {
+          console.log(key);
+          if (!currentDSL.primaryColumns[key].hasOwnProperty("isDisabled")) {
+            currentDSL.primaryColumns[key]["isDisabled"] = false;
+            console.log(currentDSL.primaryColumns[key]);
+          }
+        }
+      }
+    }
+  }
+  return currentDSL;
+};
+
+const migrateIsDisabledToButtonColumn = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addIsDisabledToButtonColumn(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return addIsDisabledToButtonColumn(children);
+  });
+
+  return newDSL;
 };
 
 const migrateNewlyAddedTabsWidgetsMissingData = (
