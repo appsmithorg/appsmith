@@ -54,7 +54,7 @@ export const canDrag = (
   props: any,
 ) => {
   return (
-    !isResizing && !isDraggingDisabled && !props.dragDisabled && !isCommentMode
+    !isResizing && !isDraggingDisabled && !props?.dragDisabled && !isCommentMode
   );
 };
 

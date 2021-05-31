@@ -30,7 +30,6 @@ import log from "loglevel";
 import { getViewModePageList } from "selectors/editorSelectors";
 import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
-import { commentModeSelector } from "selectors/commentsSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
