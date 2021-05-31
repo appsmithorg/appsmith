@@ -28,7 +28,6 @@ import {
   migrateTablePrimaryColumnsBindings,
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
-  migrateTableWidgetHeaderVisibilityProperties,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -764,6 +763,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
       canvasWidgets,
     );
     currentDSL = migrateOverFlowingTabsWidgets(currentDSL, canvasWidgets);
+    currentDSL.version = 22;
+  }
+
+  if (currentDSL.version === 22) {
+    currentDSL = migrateTableWidgetParentRowSpaceProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
