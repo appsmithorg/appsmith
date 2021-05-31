@@ -1,11 +1,11 @@
-import React, { memo, useRef, useState } from "react";
+import React, { memo, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
-import { Placement } from "popper.js";
+import { Placement, PopperOptions } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -328,23 +328,28 @@ function EvaluatedValuePopup(props: Props) {
   const offset = placement === "left-start" ? "-240,0" : "300,0";
   const boundariesElement =
     document.getElementById(`property_pane_${widgetId}`) || "viewport";
+
+  const modifiers = useMemo<Partial<PopperOptions["modifiers"]>>(() => {
+    return {
+      offset: {
+        enabled: true,
+        offset: offset,
+        order: 120,
+      },
+      preventOverflow: {
+        enabled: true,
+        boundariesElement: boundariesElement,
+        order: 101,
+      },
+    };
+  }, [offset, boundariesElement]);
+
   return (
     <Wrapper ref={wrapperRef}>
       {(props.isOpen || contentHovered) && (
         <Popper
           isOpen
-          modifiers={{
-            offset: {
-              enabled: true,
-              offset: offset,
-              order: 120,
-            },
-            preventOverflow: {
-              enabled: true,
-              boundariesElement: boundariesElement,
-              order: 101,
-            },
-          }}
+          modifiers={modifiers}
           placement={placement}
           targetNode={wrapperRef.current || undefined}
           zIndex={5}
