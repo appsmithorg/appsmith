@@ -32,16 +32,17 @@ describe("Fork application across orgs", function() {
     cy.wait("@postForkAppOrg").then((httpResponse) => {
       expect(httpResponse.status).to.equal(200);
     });
-
     cy.get("@getPage").then((httpResponse) => {
       expect(httpResponse.status).to.deep.equal(200);
     });
     cy.wait(2000);
+    cy.get("@getDataSources").then((httpResponse) => {
+      expect(httpResponse.status).to.deep.equal(200);
+    });
     // check that forked application has same dsl
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       forkedApplicationDsl = data.layouts[0].dsl;
-
       expect(forkedApplicationDsl).to.deep.equal(dsl.dsl);
     });
   });
