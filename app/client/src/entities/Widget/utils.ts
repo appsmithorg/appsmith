@@ -121,7 +121,7 @@ export const getAllPathsFromPropertyConfig = (
                   !childPropertyConfig.isTriggerProperty
                 ) {
                   bindingPaths[childArrayPropertyPath] =
-                    controlConfig.evaluationSubstitutionType ||
+                    childPropertyConfig.evaluationSubstitutionType ||
                     EvaluationSubstitutionType.TEMPLATE;
                   if (childPropertyConfig.validation) {
                     validationPaths[childArrayPropertyPath] =
