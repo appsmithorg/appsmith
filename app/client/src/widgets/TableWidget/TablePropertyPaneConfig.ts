@@ -3,6 +3,7 @@ import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 // A hook to update all column styles when global table styles are updated
 const updateColumnStyles = (
@@ -144,6 +145,7 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: VALIDATION_TYPES.TABLE_DATA,
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
         helpText: "Columns",
@@ -217,6 +219,8 @@ export default [
                   },
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
                 {
                   propertyName: "inputFormat",
@@ -318,6 +322,8 @@ export default [
                   },
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
                 {
                   propertyName: "outputFormat",
@@ -419,6 +425,8 @@ export default [
                   },
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
               ],
             },
@@ -460,6 +468,8 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
                 {
                   propertyName: "textSize",
@@ -502,6 +512,8 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
                 {
                   propertyName: "fontStyle",
@@ -522,6 +534,8 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
                 {
                   propertyName: "verticalAlignment",
@@ -547,6 +561,8 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
                 {
                   propertyName: "textColor",
@@ -557,6 +573,8 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
                 {
                   propertyName: "cellBackground",
@@ -567,6 +585,8 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
               ],
             },
@@ -585,6 +605,8 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
                 {
                   propertyName: "buttonStyle",
@@ -597,6 +619,8 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
                 {
                   propertyName: "buttonLabelColor",
@@ -608,6 +632,8 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
                 {
                   helpText: "Triggers an action when the button is clicked",
@@ -626,6 +652,8 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: true,
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.TEMPLATE,
                 },
               ],
             },
@@ -640,6 +668,7 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: VALIDATION_TYPES.TEXT,
+        evaluationSubstitutionType: EvaluationSubstitutionType.TEMPLATE,
       },
       {
         helpText: "Selects the default selected row",
@@ -650,6 +679,7 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
+        evaluationSubstitutionType: EvaluationSubstitutionType.TEMPLATE,
       },
       {
         helpText:
@@ -669,6 +699,7 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: VALIDATION_TYPES.BOOLEAN,
+        evaluationSubstitutionType: EvaluationSubstitutionType.TEMPLATE,
       },
       {
         propertyName: "multiRowSelection",
@@ -690,6 +721,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        evaluationSubstitutionType: EvaluationSubstitutionType.TEMPLATE,
       },
       {
         helpText: "Triggers an action when a table page is changed",
@@ -699,6 +731,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        evaluationSubstitutionType: EvaluationSubstitutionType.TEMPLATE,
       },
       {
         helpText: "Triggers an action when a table page size is changed",
@@ -708,6 +741,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        evaluationSubstitutionType: EvaluationSubstitutionType.TEMPLATE,
       },
       {
         propertyName: "onSearchTextChanged",
@@ -716,6 +750,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        evaluationSubstitutionType: EvaluationSubstitutionType.TEMPLATE,
       },
     ],
   },
