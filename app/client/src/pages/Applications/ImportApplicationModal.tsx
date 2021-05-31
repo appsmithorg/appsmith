@@ -44,7 +44,6 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     file: File;
     setProgress: SetProgress;
   } | null>(null);
-
   const dispatch = useDispatch();
 
   const importingApplication = useSelector(
@@ -70,19 +69,12 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       });
       return;
     }
-    const { file, setProgress } = appFileToBeUploaded || {};
-    const progress = (progressEvent: ProgressEvent) => {
-      const uploadPercentage = Math.round(
-        (progressEvent.loaded / progressEvent.total) * 100,
-      );
-      setProgress && setProgress(uploadPercentage);
-    };
+    const { file } = appFileToBeUploaded || {};
 
     dispatch(
       importApplication({
         orgId: organizationId as string,
         applicationFile: file,
-        progress: progress,
       }),
     );
   };
@@ -97,7 +89,11 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       title={IMPORT_APPLICATION_MODAL_TITLE()}
     >
       <FilePickerWrapper>
-        <FilePicker fileType={FileType.JSON} fileUploader={FileUploader} />
+        <FilePicker
+          delayedUpload
+          fileType={FileType.JSON}
+          fileUploader={FileUploader}
+        />
       </FilePickerWrapper>
       <CheckboxDiv>
         <Text type={TextType.P1}>

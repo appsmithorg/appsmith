@@ -128,7 +128,7 @@ export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
 export interface ImportApplicationRequest {
   orgId: string;
   applicationFile?: File;
-  progress: (progressEvent: ProgressEvent) => void;
+  progress?: (progressEvent: ProgressEvent) => void;
   onSuccessCallback?: () => void;
 }
 

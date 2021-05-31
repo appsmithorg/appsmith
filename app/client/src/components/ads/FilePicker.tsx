@@ -34,6 +34,7 @@ type FilePickerProps = {
   url?: string;
   logoUploadError?: string;
   fileType: FileType;
+  delayedUpload?: boolean;
 };
 
 const ContainerDiv = styled.div<{
@@ -243,8 +244,7 @@ function FilePickerComponent(props: FilePickerProps) {
     if (!file) {
       return;
     }
-    // we have to give user a chance to remove selected file before they decide to upload.
-    fileType !== FileType.IMAGE && setIsUploaded(true);
+
     fileSize = Math.floor(file.size / 1024);
     setFileInfo({ name: file.name, size: fileSize });
 
@@ -260,6 +260,12 @@ function FilePickerComponent(props: FilePickerProps) {
       }
       if (fileContainerRef.current) {
         fileContainerRef.current.style.display = "none";
+      }
+
+      // for files other than image.
+      if (props.delayedUpload) {
+        setIsUploaded(true);
+        setProgress(100);
       }
 
       /* set form data and send api request */
