@@ -136,7 +136,7 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
   });
 
   useEffect(() => {
-    setLoadError(false);
+    if (value) setLoadError(false);
   }, [value]);
 
   return (
@@ -154,7 +154,6 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
               ) : (
                 <img
                   onError={(e) => {
-                    console.log(e, "error");
                     setLoadError(true);
                   }}
                   onLoad={() => setLoadError(false)}
