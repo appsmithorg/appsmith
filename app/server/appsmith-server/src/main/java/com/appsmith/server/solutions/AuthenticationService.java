@@ -97,7 +97,7 @@ public class AuthenticationService {
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-                            .fromUriString(oAuth2.getAuthorizationUrl())
+                            .fromUriString(oAuth2.getAuthorizationUrl().trim())
                             .queryParam(CLIENT_ID, oAuth2.getClientId())
                             .queryParam(RESPONSE_TYPE, CODE)
                             .queryParam(REDIRECT_URI, redirectUri + Url.DATASOURCE_URL + "/authorize")
