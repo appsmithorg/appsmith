@@ -126,7 +126,7 @@ const StyledCollapse = styled(Collapse)`
   .debugger-sub-message {
     text-decoration-line: none;
     cursor: auto;
-    margin-top: 4px;
+    margin-top: ${(props) => props.theme.spaces[1]}px;
   }
 
   .${Classes.ICON} {
