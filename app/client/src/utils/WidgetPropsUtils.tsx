@@ -22,7 +22,7 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { isString, set } from "lodash";
+import { has, isString, omit, set } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
@@ -33,7 +33,10 @@ import * as Sentry from "@sentry/react";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
-import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import WidgetConfigResponse, {
+  GRID_DENSITY_MIGRATION_V1,
+} from "mockResponses/WidgetConfigResponse";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -735,9 +738,143 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
       currentDSL.detachFromLayout || false,
     );
     currentDSL = migrateToNewLayout(currentDSL);
+    currentDSL.version = 20;
+  }
+
+  if (currentDSL.version === 20) {
+    currentDSL = migrateNewlyAddedTabsWidgetsMissingData(currentDSL);
+    currentDSL.version = 21;
+  }
+
+  if (currentDSL.version === 21) {
+    const {
+      entities: { canvasWidgets },
+    } = CanvasWidgetsNormalizer.normalize(currentDSL);
+    currentDSL = migrateWidgetsWithoutLeftRightColumns(
+      currentDSL,
+      canvasWidgets,
+    );
+    currentDSL = migrateOverFlowingTabsWidgets(currentDSL, canvasWidgets);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  return currentDSL;
+};
+
+const migrateOverFlowingTabsWidgets = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+  canvasWidgets: any,
+) => {
+  if (
+    currentDSL.type === "TABS_WIDGET" &&
+    currentDSL.version === 3 &&
+    currentDSL.children &&
+    currentDSL.children.length
+  ) {
+    const tabsWidgetHeight =
+      (currentDSL.bottomRow - currentDSL.topRow) * currentDSL.parentRowSpace;
+    const widgetHasOverflowingChildren = currentDSL.children.some((eachTab) => {
+      if (eachTab.children && eachTab.children.length) {
+        return eachTab.children.some((child: WidgetProps) => {
+          if (canvasWidgets[child.widgetId].repositioned) {
+            const tabHeight = child.bottomRow * child.parentRowSpace;
+            return tabsWidgetHeight < tabHeight;
+          }
+          return false;
+        });
+      }
+      return false;
+    });
+    if (widgetHasOverflowingChildren) {
+      currentDSL.shouldScrollContents = true;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((eachChild) =>
+      migrateOverFlowingTabsWidgets(eachChild, canvasWidgets),
+    );
+  }
+  return currentDSL;
+};
+
+const migrateWidgetsWithoutLeftRightColumns = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+  canvasWidgets: any,
+) => {
+  if (
+    currentDSL.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
+    !(
+      currentDSL.hasOwnProperty("leftColumn") &&
+      currentDSL.hasOwnProperty("rightColumn")
+    )
+  ) {
+    try {
+      const nextRow = nextAvailableRowInContainer(
+        currentDSL.parentId || MAIN_CONTAINER_WIDGET_ID,
+        omit(canvasWidgets, [currentDSL.widgetId]),
+      );
+      canvasWidgets[currentDSL.widgetId].repositioned = true;
+      const leftColumn = 0;
+      const rightColumn = WidgetConfigResponse.config[currentDSL.type].rows;
+      const bottomRow = nextRow + (currentDSL.bottomRow - currentDSL.topRow);
+      const topRow = nextRow;
+      currentDSL = {
+        ...currentDSL,
+        topRow,
+        bottomRow,
+        rightColumn,
+        leftColumn,
+      };
+    } catch (error) {
+      Sentry.captureException({
+        message: "Migrating position of widget on data loss failed",
+        oldData: currentDSL,
+      });
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((dsl) =>
+      migrateWidgetsWithoutLeftRightColumns(dsl, canvasWidgets),
+    );
+  }
+  return currentDSL;
+};
+
+const migrateNewlyAddedTabsWidgetsMissingData = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.TABS_WIDGET && currentDSL.version === 2) {
+    try {
+      if (currentDSL.children && currentDSL.children.length) {
+        currentDSL.children = currentDSL.children.map((each) => {
+          if (has(currentDSL, ["leftColumn", "rightColumn", "bottomRow"])) {
+            return each;
+          }
+          return {
+            ...each,
+            leftColumn: 0,
+            rightColumn:
+              (currentDSL.rightColumn - currentDSL.leftColumn) *
+              currentDSL.parentColumnSpace,
+            bottomRow:
+              (currentDSL.bottomRow - currentDSL.topRow) *
+              currentDSL.parentRowSpace,
+          };
+        });
+      }
+      currentDSL.version = 3;
+    } catch (error) {
+      Sentry.captureException({
+        message: "Tabs Migration to add missing fields Failed",
+        oldData: currentDSL.children,
+      });
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(
+      migrateNewlyAddedTabsWidgetsMissingData,
+    );
+  }
   return currentDSL;
 };
 

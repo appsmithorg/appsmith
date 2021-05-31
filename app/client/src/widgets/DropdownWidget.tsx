@@ -41,7 +41,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
-            placeholderText: 'Enter [{label: "label1", value: "value2"}]',
+            placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.OPTIONS_DATA,
