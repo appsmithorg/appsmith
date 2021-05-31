@@ -65,7 +65,6 @@ import {
   getAction,
   getAppStoreData,
   getCurrentPageNameByActionId,
-  getPageNameByPageId,
   isActionDirty,
   isActionSaving,
 } from "selectors/entitiesSelector";
