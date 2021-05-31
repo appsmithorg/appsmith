@@ -69,9 +69,6 @@ import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getIndextoUpdate } from "utils/ApiPaneUtils";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -375,20 +372,6 @@ function* formValueChangeSaga(
       }),
     );
   } else {
-    const allUpdates: Record<string, unknown> = {};
-    const fieldToBeUpdated = field.replace("actionConfiguration", "config");
-    allUpdates[fieldToBeUpdated] = values[field];
-    AppsmithConsole.info({
-      logType: LOG_TYPE.ACTION_UPDATE,
-      text: "Action properties were updated",
-      source: {
-        type: ENTITY_TYPE.ACTION,
-        name: values.name,
-        id: values.id,
-        propertyPath: fieldToBeUpdated,
-      },
-      state: allUpdates,
-    });
     yield put(
       setActionProperty({
         actionId: values.id,

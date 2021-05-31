@@ -624,15 +624,21 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
   if (propertyName === "name") return;
 
   const actionObj = yield select(getAction, actionId);
+  const fieldToBeUpdated = propertyName.replace(
+    "actionConfiguration",
+    "config",
+  );
   AppsmithConsole.info({
+    logType: LOG_TYPE.ACTION_UPDATE,
     text: "Configuration updated",
     source: {
       type: ENTITY_TYPE.ACTION,
       name: actionObj.name,
       id: actionId,
+      propertyPath: fieldToBeUpdated,
     },
     state: {
-      [propertyName]: value,
+      [fieldToBeUpdated]: value,
     },
   });
 
