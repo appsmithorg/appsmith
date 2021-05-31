@@ -18,6 +18,8 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
+import { getType, Types } from "utils/TypeHelpers";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 const Log = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
@@ -113,12 +115,18 @@ const JsonWrapper = styled.div`
 
 const StyledCollapse = styled(Collapse)`
   margin-top: 4px;
-
-  .debugger-message {
+  
+  .debugger-sub-message, .debugger-message {
     ${(props) => getTypographyByKey(props, "p2")}
     color: ${(props) => props.theme.colors.debugger.message};
     text-decoration-line: underline;
     cursor: pointer;
+  }
+
+  .debugger-sub-message {
+    text-decoration-line: none;
+    cursor: auto;
+    margin-top: 4px;
   }
 
   .${Classes.ICON} {
@@ -140,6 +148,12 @@ const StyledSearchIcon = styled(Icon)`
 `;
 
 export const getLogItemProps = (e: Message) => {
+  let subMessage = null;
+
+  if (e.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR) {
+    subMessage = `${e.source?.propertyPath} evaluated value`;
+  }
+
   return {
     icon: SeverityIcon[e.severity] as IconName,
     iconColor: SeverityIconColor[e.severity],
@@ -152,6 +166,7 @@ export const getLogItemProps = (e: Message) => {
     message: e.message && isString(e.message) ? e.message : "",
     state: e.state,
     id: e.source ? e.source.id : undefined,
+    subMessage,
   };
 };
 
@@ -164,14 +179,14 @@ type LogItemProps = {
   severity: Severity;
   text: string;
   message: string;
-  state?: Record<string, any>;
+  state?: any;
   id?: string;
   source?: SourceEntity;
   expand?: boolean;
+  subMessage: string | null;
 };
 
-function LogItem(props: LogItemProps) {
-  const [isOpen, setIsOpen] = useState(!!props.expand);
+function ValueRenderer(props: { value: any }) {
   const reactJsonProps = {
     name: null,
     enableClipboard: false,
@@ -182,6 +197,49 @@ function LogItem(props: LogItemProps) {
     },
     collapsed: 1,
   };
+  let displayValue = null;
+
+  switch (getType(props.value)) {
+    case Types.NUMBER:
+    case Types.BOOLEAN:
+      displayValue = props.value.toString();
+      break;
+    case Types.STRING:
+      displayValue = `"${props.value}"`;
+      break;
+    case Types.ARRAY:
+    case Types.OBJECT:
+      displayValue = <ReactJson src={props.value} {...reactJsonProps} />;
+      break;
+    case Types.NULL:
+      displayValue = "null";
+      break;
+    case Types.UNDEFINED:
+      displayValue = "undefined";
+      break;
+    case Types.UNKNOWN:
+    case Types.FUNCTION:
+    default:
+      break;
+  }
+
+  if (displayValue) {
+    return (
+      <JsonWrapper
+        className="t--debugger-log-state"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {displayValue}
+      </JsonWrapper>
+    );
+  }
+
+  return null;
+}
+
+function LogItem(props: LogItemProps) {
+  const [isOpen, setIsOpen] = useState(!!props.expand);
+
   const showToggleIcon = props.state || props.message;
   const dispatch = useDispatch();
 
@@ -253,16 +311,12 @@ function LogItem(props: LogItemProps) {
                 <span className="debugger-message" onClick={openHelpModal}>
                   {props.message}
                 </span>
+                {props.subMessage && (
+                  <div className="debugger-sub-message">{props.subMessage}</div>
+                )}
               </div>
             )}
-            {props.state && (
-              <JsonWrapper
-                className="t--debugger-log-state"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ReactJson src={props.state} {...reactJsonProps} />
-              </JsonWrapper>
-            )}
+            <ValueRenderer value={props.state} />
           </StyledCollapse>
         )}
       </div>

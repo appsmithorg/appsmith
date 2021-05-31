@@ -680,9 +680,7 @@ export default class DataTreeEvaluator {
             type: ENTITY_TYPE.WIDGET,
             propertyPath: propertyPath,
           },
-          state: {
-            value: safeEvaluatedValue,
-          },
+          state: safeEvaluatedValue,
         },
       });
       _.set(widget, `invalidProps.${propertyPath}`, true);
