@@ -491,7 +491,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.label"
-            label="Key Label"
+            label="Key"
             placeholderText="api_key"
           />
         </FormInputContainer>
@@ -499,8 +499,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.value"
-            label="Key Value"
-            placeholderText="my_key"
+            label="Value"
+            placeholderText="value"
           />
         </FormInputContainer>
         <FormInputContainer>
