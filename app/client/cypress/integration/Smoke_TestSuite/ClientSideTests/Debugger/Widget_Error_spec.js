@@ -1,4 +1,5 @@
 const dsl = require("../../../../fixtures/buttondsl.json");
+const debuggerLocators = require("../../../../locators/Debugger.json");
 
 describe("Widget error state", function() {
   before(() => {
@@ -13,5 +14,12 @@ describe("Widget error state", function() {
     cy.testJsontext("visible", "Test");
 
     cy.contains(".t--widget-error-count", 1);
+  });
+
+  it("Check if the current value is shown in the debugger", function() {
+    cy.get(debuggerLocators.debuggerIcon).click();
+    cy.contains(".react-tabs__tab", "Errors").click();
+
+    cy.get(debuggerLocators.debuggerLogState).contains("Test");
   });
 });

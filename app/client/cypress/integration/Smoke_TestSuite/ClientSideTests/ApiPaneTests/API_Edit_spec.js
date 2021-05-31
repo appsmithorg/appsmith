@@ -49,6 +49,9 @@ describe("API Panel Test Functionality", function() {
       "https://mock-api.appsmith.com/users",
     );
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methodWithQueryParam);
-    cy.ValidateQueryParams({ key: "q", value:"mimeType='application/vnd.google-apps.spreadsheet'" });
+    cy.ValidateQueryParams({
+      key: "q",
+      value: "mimeType='application/vnd.google-apps.spreadsheet'",
+    });
   });
 });

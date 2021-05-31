@@ -84,6 +84,8 @@ const formToDatasourceAuthentication = (
       scopeString: authentication.scopeString,
       clientSecret: authentication.clientSecret,
       isTokenHeader: authentication.isTokenHeader,
+      audience: authentication.audience,
+      resource: authentication.resource,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
@@ -140,6 +142,8 @@ const datasourceToFormAuthentication = (
       scopeString: authentication.scopeString || "",
       clientSecret: authentication.clientSecret,
       isTokenHeader: !!authentication.isTokenHeader,
+      audience: authentication.audience || "",
+      resource: authentication.resource || "",
     };
     if (isClientCredentials(authType, authentication)) {
       return {

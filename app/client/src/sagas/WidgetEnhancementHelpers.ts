@@ -31,6 +31,7 @@ export enum WidgetEnhancementType {
   CUSTOM_CONTROL = "child.customJSControl",
   AUTOCOMPLETE = "child.autocomplete",
   HIDE_EVALUATED_VALUE = "child.hideEvaluatedValue",
+  UPDATE_DATA_TREE_PATH = "child.updateDataTreePath",
 }
 
 export function getParentWithEnhancementFn(
@@ -161,16 +162,18 @@ export function useChildWidgetEnhancementFn(
   }
 }
 
-type EnhancmentFns = {
-  propertyPaneEnhancmentFn: any;
+type EnhancementFns = {
+  updateDataTreePathFn: any;
+  propertyPaneEnhancementFn: any;
   autoCompleteEnhancementFn: any;
   customJSControlEnhancementFn: any;
   hideEvaluatedValueEnhancementFn: any;
 };
 
-export function useChildWidgetEnhancementFns(widgetId: string): EnhancmentFns {
-  const enhancmentFns = {
-    propertyPaneEnhancmentFn: undefined,
+export function useChildWidgetEnhancementFns(widgetId: string): EnhancementFns {
+  const enhancementFns = {
+    updateDataTreePathFn: undefined,
+    propertyPaneEnhancementFn: undefined,
     autoCompleteEnhancementFn: undefined,
     customJSControlEnhancementFn: undefined,
     hideEvaluatedValueEnhancementFn: undefined,
@@ -189,8 +192,12 @@ export function useChildWidgetEnhancementFns(widgetId: string): EnhancmentFns {
   if (parentWithEnhancementFn) {
     // Get the enhancement function based on the enhancementType
     // from the configs
-    const widgetEnhancmentFns = {
-      propertyPaneEnhancmentFn: getWidgetEnhancementFn(
+    const widgetEnhancementFns = {
+      updateDataTreePathFn: getWidgetEnhancementFn(
+        parentWithEnhancementFn.type,
+        WidgetEnhancementType.UPDATE_DATA_TREE_PATH,
+      ),
+      propertyPaneEnhancementFn: getWidgetEnhancementFn(
         parentWithEnhancementFn.type,
         WidgetEnhancementType.PROPERTY_UPDATE,
       ),
@@ -208,16 +215,16 @@ export function useChildWidgetEnhancementFns(widgetId: string): EnhancmentFns {
       ),
     };
 
-    Object.keys(widgetEnhancmentFns).map((key: string) => {
-      const enhancementFn = get(widgetEnhancmentFns, `${key}`);
+    Object.keys(widgetEnhancementFns).map((key: string) => {
+      const enhancementFn = get(widgetEnhancementFns, `${key}`);
 
       if (parentDataFromDataTree && enhancementFn) {
-        set(enhancmentFns, `${key}`, (...args: unknown[]) =>
+        set(enhancementFns, `${key}`, (...args: unknown[]) =>
           enhancementFn(parentDataFromDataTree, ...args),
         );
       }
     });
   }
 
-  return enhancmentFns;
+  return enhancementFns;
 }

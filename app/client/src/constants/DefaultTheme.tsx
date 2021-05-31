@@ -898,11 +898,15 @@ type ColorType = {
     sendButton: string;
     addCommentInputBackground: string;
     pin: string;
-    commentModeButtonIcon: string;
-    commentModeButtonBackground: string;
+    activeModeBackground: string;
+    activeModeIcon: string;
+    modeIcon: string;
     emojiPicker: string;
     resolved: string;
     unresolved: string;
+    resolvedFill: string;
+    unresolvedFill: string;
+    resolvedPath: string;
     childCommentsIndent: string;
     commentBackground: string;
     contextMenuTrigger: string;
@@ -915,6 +919,32 @@ type ColorType = {
     contextMenuTitleHover: ShadeColor;
     appCommentsHeaderTitle: ShadeColor;
     appCommentsClose: ShadeColor;
+    viewLatest: string;
+    commentTime: string;
+    pinId: string;
+    commentsFilter: string;
+    appCommentsHeaderBorder: string;
+    unreadIndicator: string;
+    unreadIndicatorCommentCard: string;
+    pinnedByText: string;
+    pinnedThreadBackground: string;
+    visibleThreadBackground: string;
+    cardOptionsIcon: string;
+    appCommentsPlaceholderText: string;
+    cardHoverBackground: string;
+    introTitle: string;
+    introContent: string;
+  };
+  mentionSuggestion: {
+    nameText: string;
+    usernameText: string;
+    hover: string;
+  };
+  reactionsComponent: {
+    reactionBackground: string;
+    reactionBackgroundActive: string;
+    text: string;
+    textActive: string;
   };
   treeDropdown: {
     targetBg: string;
@@ -990,9 +1020,38 @@ type ColorType = {
     background: string;
   };
   mentionsInput: Record<string, string>;
+  showcaseCarousel: Record<string, string>;
+  displayImageUpload: Record<string, string>;
+};
+
+const displayImageUpload = {
+  background: "#AEBAD9",
+  label: "#457AE6",
+};
+
+const showcaseCarousel = {
+  activeStepDot: "#F86A2B",
+  inactiveStepDot: "#FEEDE5",
+};
+
+const reactionsComponent = {
+  reactionBackground: lightShades[2],
+  reactionBackgroundActive: "#FEEDE5",
+  text: lightShades[7],
+  textActive: "#BF4109",
+  borderActive: "#BF4109",
+};
+
+const mentionSuggestion = {
+  nameText: "#090707",
+  usernameText: "#716E6E",
+  hover: "#EBEBEB",
 };
 
 const comments = {
+  introTitle: "#090707",
+  introContent: "#716E6E",
+  commentsFilter: "#6A86CE",
   profileUserName: darkShades[11],
   threadTitle: darkShades[8],
   commentBody: darkShades[8],
@@ -1003,11 +1062,13 @@ const comments = {
   sendButton: "#6A86CE",
   addCommentInputBackground: "#FAFAFA",
   pin: "#EF4141",
-  commentModeButtonIcon: "#6A86CE",
-  commentModeButtonBackground: "#262626",
+  activeModeBackground: "#090707",
   emojiPicker: lightShades[5],
-  resolved: Colors.GREEN,
+  resolved: Colors.BLACK,
   unresolved: lightShades[5],
+  resolvedFill: Colors.BLACK,
+  unresolvedFill: "transparent",
+  resolvedPath: Colors.WHITE,
   childCommentsIndent: lightShades[13],
   commentBackground: lightShades[2],
   contextMenuTrigger: darkShades[6],
@@ -1020,6 +1081,20 @@ const comments = {
   contextMenuTitleHover: darkShades[11],
   appCommentsHeaderTitle: darkShades[11],
   appCommentsClose: lightShades[15],
+  viewLatest: "#F86A2B",
+  commentTime: lightShades[7],
+  pinId: lightShades[8],
+  appCommentsHeaderBorder: lightShades[3],
+  unreadIndicator: "#E00D0D",
+  unreadIndicatorCommentCard: "#F86A2B",
+  pinnedByText: lightShades[7],
+  pinnedThreadBackground: "#FFFAE9",
+  visibleThreadBackground: "#FBEED0",
+  cardOptionsIcon: "#777272",
+  appCommentsPlaceholderText: lightShades[8],
+  activeModeIcon: "#F0F0F0",
+  modeIcon: "#6D6D6D",
+  cardHoverBackground: "#FAFAFA",
 };
 
 const auth: any = {
@@ -1089,6 +1164,10 @@ const mentionsInput = {
 };
 
 export const dark: ColorType = {
+  displayImageUpload,
+  showcaseCarousel,
+  mentionSuggestion,
+  reactionsComponent,
   mentionsInput,
   helpModal,
   globalSearch,
@@ -1534,13 +1613,14 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  displayImageUpload,
+  showcaseCarousel,
+  mentionSuggestion,
+  reactionsComponent,
   mentionsInput,
   helpModal,
   globalSearch,
-  comments: {
-    ...comments,
-    commentModeButtonBackground: "#FAFAFA",
-  },
+  comments,
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
@@ -2056,7 +2136,7 @@ export const theme: Theme = {
     },
     btnSmall: {
       fontSize: 11,
-      lineHeight: 13,
+      lineHeight: 12,
       letterSpacing: 0.4,
       fontWeight: 600,
     },
