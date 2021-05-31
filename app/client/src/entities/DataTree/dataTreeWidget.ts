@@ -18,6 +18,8 @@ export const generateDataTreeWidget = (
   const defaultPropertiesMap = WidgetFactory.getWidgetDefaultPropertiesMap(
     widget.type,
   )(widget);
+
+  console.log({ widget, type: widget.type });
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
   );

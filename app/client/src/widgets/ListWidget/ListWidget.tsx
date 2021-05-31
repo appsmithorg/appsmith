@@ -92,24 +92,15 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         currentItem: structure,
       });
     }
+
+    // generate childMetaPropertyMap
+    this.generateChildrenDefaultPropertiesMap(this.props);
+    this.generateChildrenMetaPropertiesMap(this.props);
   }
 
-  componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
-    const oldRowStructure = this.getCurrentItemStructure(prevProps.items);
-    const newRowStructure = this.getCurrentItemStructure(this.props.items);
-
-    if (
-      xor(Object.keys(oldRowStructure), Object.keys(newRowStructure)).length > 0
-    ) {
-      super.updateWidgetProperty("childAutoComplete", {
-        currentItem: newRowStructure,
-      });
-    }
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    /* eslint-disable */
-    const props = arguments[0];
+  generateChildrenDefaultPropertiesMap = (
+    props: ListWidgetProps<WidgetProps>,
+  ) => {
     const template = props.template;
     let childrenDefaultPropertiesMap = {};
 
@@ -123,7 +114,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
           childrenDefaultPropertiesMap = {
             ...childrenDefaultPropertiesMap,
-            [`${key}.${defaultPropertyKey}`]: currentTemplate[
+            [`${key}.${defaultPropertyKey}`]: defaultProperties[
               defaultPropertyKey
             ],
           };
@@ -131,15 +122,19 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    return {
-      ...childrenDefaultPropertiesMap,
-    };
-  }
+    this.props.updateWidgetMetaProperty(
+      "childrenDefaultPropertiesMap",
+      childrenDefaultPropertiesMap,
+    );
+  };
 
-  static getMetaPropertiesMap(props: WidgetProps): Record<string, string> {
+  generateChildrenMetaPropertiesMap = (props: ListWidgetProps<WidgetProps>) => {
     const template = props.template;
-    let childrenMetaPropertiesMap = {};
+    let childrenMetaPropertiesMap = {
+      pawan: 1,
+    };
 
+    console.log("debug - 1", childrenMetaPropertiesMap);
     if (template) {
       Object.keys(template).map((key: string) => {
         const currentTemplate = template[key];
@@ -156,9 +151,44 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    return {
-      ...childrenMetaPropertiesMap,
-    };
+    console.log("debug - 2", childrenMetaPropertiesMap);
+
+    this.props.updateWidgetMetaProperty(
+      "childrenMetaPropertiesMap",
+      childrenMetaPropertiesMap,
+    );
+    console.log("debug - 3", childrenMetaPropertiesMap);
+
+    console.log({ childrenMetaPropertiesMap });
+  };
+
+  componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
+    const oldRowStructure = this.getCurrentItemStructure(prevProps.items);
+    const newRowStructure = this.getCurrentItemStructure(this.props.items);
+
+    if (
+      xor(Object.keys(oldRowStructure), Object.keys(newRowStructure)).length > 0
+    ) {
+      super.updateWidgetProperty("childAutoComplete", {
+        currentItem: newRowStructure,
+      });
+    }
+
+    if (
+      xor(Object.keys(prevProps.template), Object.keys(this.props.template))
+        .length > 0
+    ) {
+      this.generateChildrenDefaultPropertiesMap(this.props);
+      this.generateChildrenMetaPropertiesMap(this.props);
+    }
+  }
+
+  static getDefaultPropertiesMap(props: WidgetProps): Record<string, string> {
+    return {};
+  }
+
+  static getMetaPropertiesMap(props: WidgetProps): Record<string, string> {
+    return {};
   }
 
   /**
@@ -217,10 +247,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.noPad = true;
-     // dynamically created path
+    // dynamically created path
 
-     // step 1 - dynamic create meta property path
-     // step 2 - pass options to createWidget factory method
+    // step 1 - dynamic create meta property path
+    // step 2 - pass options to createWidget factory method
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
@@ -375,7 +405,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       widgetName: this.props.widgetName,
       widgetId: this.props.widgetId,
       metaPropPrefix: `childMetaProperties`,
-      index: itemIndex
+      index: itemIndex,
     });
 
     return widget;
