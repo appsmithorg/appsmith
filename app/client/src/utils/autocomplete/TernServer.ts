@@ -61,6 +61,7 @@ class TernServer {
   cachedArgHints: ArgHints | null = null;
   active: any;
   expected?: string;
+  entity?: string;
 
   constructor(
     dataTree: DataTree,
@@ -79,8 +80,9 @@ class TernServer {
     });
   }
 
-  complete(cm: CodeMirror.Editor, expected: string) {
+  complete(cm: CodeMirror.Editor, expected: string, entity: string) {
     this.expected = expected;
+    this.entity = entity;
     cm.showHint({
       hint: this.getHint.bind(this),
       completeSingle: false,
@@ -152,15 +154,18 @@ class TernServer {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
       const dataType = this.getDataType(completion.type);
+      const entity = this.entity;
       if (data.guess) className += " " + cls + "guess";
-      completions.push({
-        text: completion.name + after,
-        displayText: completion.displayName || completion.name,
-        className: className,
-        data: completion,
-        origin: completion.origin,
-        type: dataType,
-      });
+      if (!entity || !completion.name.includes(entity)) {
+        completions.push({
+          text: completion.name + after,
+          displayText: completion.displayName || completion.name,
+          className: className,
+          data: completion,
+          origin: completion.origin,
+          type: dataType,
+        });
+      }
     }
     completions = this.sortCompletions(completions);
     const indexToBeSelected = completions.length > 1 ? 1 : 0;
@@ -292,7 +297,12 @@ class TernServer {
 
   getExpectedDataType() {
     const type = this.expected;
-    if (type === "Array<Object>" || type === "Array") return "ARRAY";
+    if (
+      type === "Array<Object>" ||
+      type === "Array" ||
+      type === "Array<{ label: string, value: string }>"
+    )
+      return "ARRAY";
     if (type === "boolean") return "BOOLEAN";
     if (type === "string") return "STRING";
     if (type === "number") return "NUMBER";

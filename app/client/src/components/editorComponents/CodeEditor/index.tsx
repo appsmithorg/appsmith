@@ -50,6 +50,7 @@ import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
 import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -295,7 +296,10 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     const expected = this.props.expected ? this.props.expected : "";
-    this.hinters.forEach((hinter) => hinter.showHint(cm, expected));
+    const { entityName } = getEntityNameAndPropertyPath(
+      this.props.dataTreePath || "",
+    );
+    this.hinters.forEach((hinter) => hinter.showHint(cm, expected, entityName));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
