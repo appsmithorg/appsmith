@@ -153,7 +153,7 @@ export default function DisplayImageUpload({ onChange, submit, value }: Props) {
                 <ProfileImagePlaceholder />
               ) : (
                 <img
-                  onError={(e) => {
+                  onError={() => {
                     setLoadError(true);
                   }}
                   onLoad={() => setLoadError(false)}
