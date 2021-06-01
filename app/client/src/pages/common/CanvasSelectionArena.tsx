@@ -1,7 +1,8 @@
+import { setCanvasSelectionStateAction } from "actions/canvasSelectionActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { debounce } from "lodash";
-import React, { memo, useEffect, useRef } from "react";
+import { throttle } from "lodash";
+import React, { memo, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
@@ -39,138 +40,165 @@ const selectAllWidgetsInAction = (
 export const CanvasSelectionArena = memo(
   ({ widgetId }: { widgetId: string }) => {
     const dispatch = useDispatch();
-    const canvasRef = useRef<HTMLDivElement>(null);
     const mainContainer = useSelector((state: AppState) =>
       getWidget(state, MAIN_CONTAINER_WIDGET_ID),
     );
     const currentPageId = useSelector(getCurrentPageId);
     const appLayout = useSelector(getCurrentApplicationLayout);
+    const throttledWidgetSelection = useCallback(
+      throttle(
+        (selectionDimensions: SelectedArenaDimensions) => {
+          dispatch(selectAllWidgetsInAction(selectionDimensions));
+        },
+        150,
+        {
+          leading: true,
+          trailing: true,
+        },
+      ),
+      [widgetId],
+    );
     useEffect(() => {
-      const canvas: any = document.getElementById(`canvas-${widgetId}`);
-      // const canvascontaner: any = document.getElementById(`canvas-container`);
-      const { height, width } = canvas.getBoundingClientRect();
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      const rect: SelectedArenaDimensions = {
+      const selectionCanvas: any = document.getElementById(
+        `canvas-${widgetId}`,
+      );
+      const { height, width } = selectionCanvas.getBoundingClientRect();
+      selectionCanvas.width = width;
+      selectionCanvas.height = height;
+      const canvasCtx = selectionCanvas.getContext("2d");
+      const selectionRectangle: SelectedArenaDimensions = {
         top: 0,
         left: 0,
         width: 0,
         height: 0,
       };
 
-      let drag = false;
+      let isDragging = false;
 
-      function init() {
-        canvas.addEventListener(
+      const init = () => {
+        selectionCanvas.addEventListener(
           "click",
           (e: any) => {
-            if (Math.abs(rect.height) + Math.abs(rect.width) > 0) {
+            if (
+              Math.abs(selectionRectangle.height) +
+                Math.abs(selectionRectangle.width) >
+              0
+            ) {
               e.stopPropagation();
             }
           },
           false,
         );
-        canvas.addEventListener("mousedown", mouseDown, false);
-        canvas.addEventListener("mouseup", mouseUp, false);
-        canvas.addEventListener("mousemove", mouseMove, false);
-        canvas.addEventListener("mouseleave", onMouseLeave, false);
-        canvas.addEventListener("mouseenter", onMouseEnter, false);
-      }
+        selectionCanvas.addEventListener("mousedown", onMouseDown, false);
+        selectionCanvas.addEventListener("mouseup", onMouseUp, false);
+        selectionCanvas.addEventListener("mousemove", onMouseMove, false);
+        selectionCanvas.addEventListener("mouseleave", onMouseLeave, false);
+        selectionCanvas.addEventListener("mouseenter", onMouseEnter, false);
+      };
 
-      function onMouseLeave() {
-        document.body.addEventListener("mouseup", mouseUp, false);
-      }
-
-      function onMouseEnter() {
-        document.body.removeEventListener("mouseup", mouseUp);
-      }
-
-      function mouseDown(e: any) {
-        rect.left = e.offsetX - canvas.offsetLeft;
-        rect.top = e.offsetY - canvas.offsetTop;
-        rect.width = 0;
-        rect.height = 0;
-        drag = true;
-        canvas.style.zIndex = 2;
-      }
-
-      const selectWidgets = debounce(() => {
-        const selectionDimensions = {
-          top: rect.height < 0 ? rect.top - Math.abs(rect.height) : rect.top,
-          left: rect.width < 0 ? rect.left - Math.abs(rect.width) : rect.left,
-          width: Math.abs(rect.width),
-          height: Math.abs(rect.height),
+      const getSelectionDimensions = () => {
+        return {
+          top:
+            selectionRectangle.height < 0
+              ? selectionRectangle.top - Math.abs(selectionRectangle.height)
+              : selectionRectangle.top,
+          left:
+            selectionRectangle.width < 0
+              ? selectionRectangle.left - Math.abs(selectionRectangle.width)
+              : selectionRectangle.left,
+          width: Math.abs(selectionRectangle.width),
+          height: Math.abs(selectionRectangle.height),
         };
-        dispatch(selectAllWidgetsInAction(selectionDimensions));
-      });
-      function mouseUp(e: any) {
-        if (drag) {
-          drag = false;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          canvas.style.zIndex = null;
-          if (rect.left && rect.top && rect.width && rect.height) {
-            selectWidgets();
-          }
-        }
-      }
-      function mouseMove(e: any) {
-        if (drag) {
-          rect.width = e.offsetX - canvas.offsetLeft - rect.left;
-          rect.height = e.offsetY - canvas.offsetTop - rect.top;
-          // const canvasSelectedHeight =
-          //   e.offsetY - canvas.offsetTop + rect.height;
-          // const scrolledHeight =
-          //   canvascontaner.scrollTop + canvascontaner.clientHeight;
-          // if (canvasSelectedHeight > scrolledHeight) {
-          //   canvascontaner.scrollTo({
-          //     top: canvascontaner.scrollTop + 15,
-          //     behavior: "smooth",
-          //   });
-          // }
-          // if (
-          //   canvascontaner.scrollTop &&
-          //   e.offsetY - canvas.offsetTop - (rect.height + 20) <
-          //     canvascontaner.scrollTop - canvascontaner.clientHeight
-          // ) {
-          //   canvascontaner.scrollTo({
-          //     top: canvascontaner.scrollTop - 40,
-          //     behavior: "smooth",
-          //   });
-          // }
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          draw();
-        }
-      }
+      };
 
-      function draw() {
-        const selectionDimensions = {
-          top: rect.height < 0 ? rect.top - Math.abs(rect.height) : rect.top,
-          left: rect.width < 0 ? rect.left - Math.abs(rect.width) : rect.left,
-          width: Math.abs(rect.width),
-          height: Math.abs(rect.height),
-        };
-        ctx.setLineDash([5]);
-        ctx.strokeStyle = "rgb(84, 132, 236)";
-        ctx.strokeRect(
+      const selectWidgetsInit = (
+        selectionDimensions: SelectedArenaDimensions,
+      ) => {
+        if (
+          selectionDimensions.left &&
+          selectionDimensions.top &&
+          selectionDimensions.width &&
+          selectionDimensions.height
+        ) {
+          throttledWidgetSelection(selectionDimensions);
+        }
+      };
+
+      const drawRectangle = (selectionDimensions: SelectedArenaDimensions) => {
+        canvasCtx.setLineDash([5]);
+        canvasCtx.strokeStyle = "rgb(84, 132, 236)";
+        canvasCtx.strokeRect(
           selectionDimensions.left - 1,
           selectionDimensions.top - 1,
           selectionDimensions.width + 2,
           selectionDimensions.height + 2,
         );
-        ctx.fillStyle = "rgb(84, 132, 236, 0.06)";
-        ctx.fillRect(
+        canvasCtx.fillStyle = "rgb(84, 132, 236, 0.06)";
+        canvasCtx.fillRect(
           selectionDimensions.left,
           selectionDimensions.top,
           selectionDimensions.width,
           selectionDimensions.height,
         );
-        if (rect.left && rect.top && rect.width && rect.height) {
-          selectWidgets();
+      };
+
+      const onMouseLeave = () => {
+        document.body.addEventListener("mouseup", onMouseUp, false);
+      };
+
+      const onMouseEnter = () => {
+        document.body.removeEventListener("mouseup", onMouseUp);
+      };
+
+      const onMouseDown = (e: any) => {
+        selectionRectangle.left = e.offsetX - selectionCanvas.offsetLeft;
+        selectionRectangle.top = e.offsetY - selectionCanvas.offsetTop;
+        selectionRectangle.width = 0;
+        selectionRectangle.height = 0;
+        isDragging = true;
+        dispatch(setCanvasSelectionStateAction(true));
+        // bring the canvas to the top layer
+        selectionCanvas.style.zIndex = 2;
+      };
+      const onMouseUp = () => {
+        if (isDragging) {
+          isDragging = false;
+          canvasCtx.clearRect(
+            0,
+            0,
+            selectionCanvas.width,
+            selectionCanvas.height,
+          );
+          selectionCanvas.style.zIndex = null;
+          dispatch(setCanvasSelectionStateAction(false));
         }
-      }
+      };
+      const onMouseMove = (e: any) => {
+        if (isDragging) {
+          selectionRectangle.width =
+            e.offsetX - selectionCanvas.offsetLeft - selectionRectangle.left;
+          selectionRectangle.height =
+            e.offsetY - selectionCanvas.offsetTop - selectionRectangle.top;
+          canvasCtx.clearRect(
+            0,
+            0,
+            selectionCanvas.width,
+            selectionCanvas.height,
+          );
+          const selectionDimensions = getSelectionDimensions();
+          drawRectangle(selectionDimensions);
+          selectWidgetsInit(selectionDimensions);
+        }
+      };
 
       init();
+      return () => {
+        selectionCanvas.removeEventListener("mousedown", onMouseDown);
+        selectionCanvas.removeEventListener("mouseup", onMouseUp);
+        selectionCanvas.removeEventListener("mousemove", onMouseMove);
+        selectionCanvas.removeEventListener("mouseleave", onMouseLeave);
+        selectionCanvas.removeEventListener("mouseenter", onMouseEnter);
+      };
     }, [
       appLayout,
       currentPageId,
@@ -178,11 +206,7 @@ export const CanvasSelectionArena = memo(
       mainContainer.bottomRow,
     ]);
 
-    return (
-      <div ref={canvasRef} style={{ overflow: "scroll" }}>
-        <StyledSelectionCanvas id={`canvas-${widgetId}`} />
-      </div>
-    );
+    return <StyledSelectionCanvas id={`canvas-${widgetId}`} />;
   },
 );
 CanvasSelectionArena.displayName = "CanvasSelectionArena";

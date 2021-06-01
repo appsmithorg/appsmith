@@ -9,7 +9,7 @@ import {
 } from "constants/WidgetConstants";
 import { isEqual } from "lodash";
 import { SelectedArenaDimensions } from "pages/common/CanvasSelectionArena";
-import { all, put, select, takeLatest } from "redux-saga/effects";
+import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
@@ -69,8 +69,20 @@ function* selectAllWidgetsInArea(action: ReduxAction<any>) {
   }
 }
 
+function* selectAllWidgetsInAreaTest() {
+  const selectionTask = yield takeLatest(
+    ReduxActionTypes.SELECT_WIDGETS_IN_AREA,
+    selectAllWidgetsInArea,
+  );
+  yield take(ReduxActionTypes.STOP_CANVAS_SELECTION);
+  yield cancel(selectionTask);
+}
+
 export default function* canvasSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.SELECT_WIDGETS_IN_AREA, selectAllWidgetsInArea),
+    takeLatest(
+      ReduxActionTypes.START_CANVAS_SELECTION,
+      selectAllWidgetsInAreaTest,
+    ),
   ]);
 }
