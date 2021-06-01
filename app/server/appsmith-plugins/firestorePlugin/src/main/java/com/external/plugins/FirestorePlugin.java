@@ -21,6 +21,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.FieldPath;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
@@ -631,6 +632,9 @@ public class FirestorePlugin extends BasePlugin {
                         }
 
                         List<Object> conditionList = properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValueList();
+
+                        //TODO: remove it.
+                        System.out.println("devtest: conditionList: " + conditionList);
                         
                         for(Object condition : conditionList) {
                             String path = ((Map<String, String>)condition).get("path");
@@ -696,25 +700,26 @@ public class FirestorePlugin extends BasePlugin {
                 );
             }
 
+            FieldPath fieldPath = FieldPath.of(path.split("\\."));
             switch (operator) {
                 case LT:
-                    return query.whereLessThan(path, value);
+                    return query.whereLessThan(fieldPath, value);
                 case LTE:
-                    return query.whereLessThanOrEqualTo(path, value);
+                    return query.whereLessThanOrEqualTo(fieldPath, value);
                 case EQ:
-                    return query.whereEqualTo(path, value);
+                    return query.whereEqualTo(fieldPath, value);
                 // TODO: NOT_EQ operator support is awaited in the next version of Firestore driver.
                 // case NOT_EQ:
                 //     return Mono.just(query.whereNotEqualTo(path, value));
                 case GT:
-                    return query.whereGreaterThan(path, value);
+                    return query.whereGreaterThan(fieldPath, value);
                 case GTE:
-                    return query.whereGreaterThanOrEqualTo(path, value);
+                    return query.whereGreaterThanOrEqualTo(fieldPath, value);
                 case ARRAY_CONTAINS:
-                    return query.whereArrayContains(path, value);
+                    return query.whereArrayContains(fieldPath, value);
                 case ARRAY_CONTAINS_ANY:
                     try {
-                        return query.whereArrayContainsAny(path, parseList(value));
+                        return query.whereArrayContainsAny(fieldPath, parseList(value));
                     } catch (IOException e) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -723,7 +728,7 @@ public class FirestorePlugin extends BasePlugin {
                     }
                 case IN:
                     try {
-                        return query.whereIn(path, parseList(value));
+                        return query.whereIn(fieldPath, parseList(value));
                     } catch (IOException e) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -732,7 +737,7 @@ public class FirestorePlugin extends BasePlugin {
                     }
                     // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
                     // case NOT_IN:
-                    //     return Mono.just(query.whereNotIn(path, value));
+                    //     return Mono.just(query.whereNotIn(fieldPath, value));
                 default:
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
