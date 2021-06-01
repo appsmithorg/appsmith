@@ -16,6 +16,7 @@ import _ from "lodash";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import FileDataTypes from "./FileDataTypes";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -111,6 +112,8 @@ class FilePickerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.ARRAY,
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Set the format of the data read from the files",
