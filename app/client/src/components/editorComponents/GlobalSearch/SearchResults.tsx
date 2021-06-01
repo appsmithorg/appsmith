@@ -297,9 +297,7 @@ function SearchItemComponent(props: ItemProps) {
           itemType !== SEARCH_ITEM_TYPES.placeholder
         ) {
           setActiveItemIndex(index);
-          if (itemType !== SEARCH_ITEM_TYPES.document) {
-            searchContext?.handleItemLinkClick(item, "SEARCH_ITEM");
-          }
+          searchContext?.handleItemLinkClick(item, "SEARCH_ITEM");
         }
       }}
       ref={itemRef}
