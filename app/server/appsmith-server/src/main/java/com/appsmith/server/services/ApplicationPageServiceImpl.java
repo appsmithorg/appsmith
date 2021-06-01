@@ -277,7 +277,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    private void generateAndSetPagePolicies(Application application, PageDTO page) {
+    public void generateAndSetPagePolicies(Application application, PageDTO page) {
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
         page.setPolicies(documentPolicies);
     }

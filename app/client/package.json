@@ -81,7 +81,7 @@
     "json-fn": "^1.1.1",
     "lint-staged": "^9.2.5",
     "localforage": "^1.7.3",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "lodash-es": "4.17.14",
     "lodash-move": "^1.1.1",
     "loglevel": "^1.6.7",
