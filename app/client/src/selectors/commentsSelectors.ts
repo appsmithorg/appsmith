@@ -86,7 +86,8 @@ export const getSortedAndFilteredAppCommentThreadIds = (
   return applicationThreadIds
     .sort((a, b) => {
       // TODO verify cases where commentThread can be undefined
-      if (!commentThreadsMap[a] || commentThreadsMap[b]) return 0;
+      if (!commentThreadsMap[a]) return -1;
+      if (!commentThreadsMap[b]) return 1;
 
       const {
         pinnedState: isAPinned,
