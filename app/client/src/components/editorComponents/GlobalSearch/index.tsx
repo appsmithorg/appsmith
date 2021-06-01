@@ -209,7 +209,7 @@ function GlobalSearch() {
     );
   }, [pages, query]);
 
-  const recentsSectionTitle = getSectionTitle("Recents", RecentIcon);
+  const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
   const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
   const entitiesSectionTitle = getSectionTitle("Entities", EntitiesIcon);
 
