@@ -12,7 +12,6 @@ import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
-import { useLocalStorage } from "utils/hooks/localstorage";
 import { CHECK_REQUEST_BODY, createMessage } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
