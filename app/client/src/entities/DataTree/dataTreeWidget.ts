@@ -12,6 +12,10 @@ export const generateDataTreeWidget = (
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
   )(widget);
+
+  console.log({ defaultMetaProps });
+
+  console.log();
   const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
     widget.type,
   );
@@ -19,7 +23,6 @@ export const generateDataTreeWidget = (
     widget.type,
   )(widget);
 
-  console.log({ widget, type: widget.type });
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
   );
@@ -66,6 +69,7 @@ export const generateDataTreeWidget = (
     ...derivedProps,
     ...unInitializedDefaultProps,
     defaultPropertiesMap,
+    defaultMetaProps,
     dynamicBindingPathList,
     bindingPaths,
     triggerPaths,

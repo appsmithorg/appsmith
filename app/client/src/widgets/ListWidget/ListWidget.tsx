@@ -130,11 +130,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   generateChildrenMetaPropertiesMap = (props: ListWidgetProps<WidgetProps>) => {
     const template = props.template;
-    let childrenMetaPropertiesMap = {
-      pawan: 1,
-    };
+    let childrenMetaPropertiesMap = {};
 
-    console.log("debug - 1", childrenMetaPropertiesMap);
     if (template) {
       Object.keys(template).map((key: string) => {
         const currentTemplate = template[key];
@@ -151,15 +148,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    console.log("debug - 2", childrenMetaPropertiesMap);
-
     this.props.updateWidgetMetaProperty(
       "childrenMetaPropertiesMap",
-      childrenMetaPropertiesMap,
+      Object.keys(childrenMetaPropertiesMap),
     );
-    console.log("debug - 3", childrenMetaPropertiesMap);
-
-    console.log({ childrenMetaPropertiesMap });
   };
 
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
@@ -322,6 +314,39 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
+    // add default value
+    Object.keys(widget.defaultPropertiesMap).map((key: string) => {
+      // text -> defaultText
+      const defaultPropertyValue = get(
+        widget,
+        `${widget.defaultPropertiesMap[key]}`,
+      );
+
+      if (defaultPropertyValue) {
+        set(widget, `${key}`, defaultPropertyValue);
+      }
+    });
+
+    Object.keys(widget.defaultMetaProps).map((key: string) => {
+      // text -> defaultText
+      const metaPropertyValue = get(
+        this.props.childMetaProperties,
+        `${widget.widgetName}.${key}.${itemIndex}`,
+      );
+
+      if (metaPropertyValue !== undefined) {
+        set(widget, `${key}`, metaPropertyValue);
+      }
+
+      console.log({
+        itemIndex,
+        key,
+        widget,
+        metaPropertyValue,
+        childMetaProperties: this.props.childMetaProperties,
+      });
+    });
+
     if (
       Array.isArray(dynamicTriggerPathList) &&
       dynamicTriggerPathList.length > 0
@@ -373,31 +398,28 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   ) => {
     const { page } = this.state;
     const { perPage } = this.shouldPaginate();
+    const originalIndex = ((page - 1) * perPage - itemIndex) * -1;
 
-    if (itemIndex > 0) {
-      const originalIndex = ((page - 1) * perPage - itemIndex) * -1;
+    if (this.props.renderMode === RenderModes.PAGE) {
+      set(
+        widget,
+        `widgetId`,
+        `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
+      );
+    }
 
-      if (this.props.renderMode === RenderModes.PAGE) {
-        set(
-          widget,
-          `widgetId`,
-          `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
-        );
-      }
+    if (originalIndex !== 0) {
+      set(
+        widget,
+        `widgetId`,
+        `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
+      );
 
-      if (originalIndex !== 0) {
-        set(
-          widget,
-          `widgetId`,
-          `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
-        );
-
-        if (this.props.renderMode === RenderModes.CANVAS) {
-          set(widget, `resizeDisabled`, true);
-          set(widget, `disablePropertyPane`, true);
-          set(widget, `dragDisabled`, true);
-          set(widget, `dropDisabled`, true);
-        }
+      if (this.props.renderMode === RenderModes.CANVAS) {
+        set(widget, `resizeDisabled`, true);
+        set(widget, `disablePropertyPane`, true);
+        set(widget, `dragDisabled`, true);
+        set(widget, `dropDisabled`, true);
       }
     }
 
