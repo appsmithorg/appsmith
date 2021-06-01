@@ -1,20 +1,7 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  put,
-  takeLatest,
-  take,
-  all,
-  call,
-  actionChannel,
-  fork,
-  select,
-} from "redux-saga/effects";
+import { put, takeLatest, all, call, fork, select } from "redux-saga/effects";
 // import { updateLayout, getTestComments } from "comments/init";
-import {
-  COMMENT_EVENTS_CHANNEL,
-  // COMMENT_EVENTS,
-} from "constants/CommentConstants";
-import handleCommentEvents from "./handleCommentEvents";
+// import handleCommentEvents from "./handleCommentEvents";
 import {
   // commentEvent,
   createUnpublishedCommentThreadSuccess,
@@ -53,7 +40,6 @@ import {
 import { RawDraftContentState } from "draft-js";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { get } from "lodash";
-import { getCurrentApplication } from "selectors/applicationSelectors";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
 
@@ -77,13 +63,13 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 //   }
 // }
 
-function* watchCommentEvents() {
-  const requestChan = yield actionChannel(COMMENT_EVENTS_CHANNEL);
-  while (true) {
-    const { payload } = yield take(requestChan);
-    yield fork(handleCommentEvents, payload);
-  }
-}
+// function* watchCommentEvents() {
+//   const requestChan = yield actionChannel(COMMENT_EVENTS_CHANNEL);
+//   while (true) {
+//     const { payload } = yield take(requestChan);
+//     yield fork(handleCommentEvents, payload);
+//   }
+// }
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -266,30 +252,17 @@ function* deleteCommentThread(action: ReduxAction<string>) {
 }
 
 function* setIfCommentsAreEnabled() {
-  while (true) {
-    // Reset if comments are enabled when appview access is updated
-    yield take([
-      ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-      ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
-    ]);
+  yield call(waitForFetchUserSuccess);
 
-    yield call(waitForInit);
-    yield call(waitForFetchUserSuccess);
+  const user = yield select(getCurrentUser);
+  const email = get(user, "email", "");
+  const isAppsmithEmail = email.toLowerCase().indexOf("@appsmith.com") !== -1;
 
-    const user = yield select(getCurrentUser);
-    const email = get(user, "email", "");
-    const isAppsmithEmail = email.toLowerCase().indexOf("@appsmith.com") !== -1;
+  const isCommentModeEnabled = isAppsmithEmail;
+  yield put(setAreCommentsEnabled(isAppsmithEmail));
 
-    const currentApplication = yield select(getCurrentApplication);
-
-    const isModeEnaabledForAppAndUser =
-      isAppsmithEmail && !currentApplication?.isPublic;
-    yield put(setAreCommentsEnabled(isModeEnaabledForAppAndUser));
-
-    const isCommentMode = yield select(commentModeSelector);
-    if (isCommentMode && !isModeEnaabledForAppAndUser)
-      yield put(setCommentMode(false));
-  }
+  const isCommentMode = yield select(commentModeSelector);
+  if (isCommentMode && !isCommentModeEnabled) yield put(setCommentMode(false));
 }
 
 function* addCommentReaction(
@@ -339,7 +312,6 @@ export default function* commentSagas() {
       ReduxActionTypes.SET_COMMENT_THREAD_RESOLUTION_REQUEST,
       setCommentResolution,
     ),
-    call(watchCommentEvents),
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
     takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),
     takeLatest(ReduxActionTypes.MARK_THREAD_AS_READ_REQUEST, markThreadAsRead),
