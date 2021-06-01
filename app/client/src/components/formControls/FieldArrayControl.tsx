@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import FormControl from "pages/Editor/FormControl";
-import Text, { TextType, Case } from "components/ads/Text";
+import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
@@ -46,14 +46,14 @@ const AddMoreAction = styled.div`
 function NestedComponents(props: any) {
   useEffect(() => {
     if (props.fields.length < 1) {
-      props.fields.push({ key: "", operand: "", value: "" });
+      props.fields.push({});
     }
   }, [props.fields.length]);
   return (
-    props.fields &&
-    props.fields.length > 0 && (
-      <PrimaryBox>
-        {props.fields.map((field: string, index: number) => {
+    <PrimaryBox>
+      {props.fields &&
+        props.fields.length > 0 &&
+        props.fields.map((field: string, index: number) => {
           return (
             <SecondaryBox key={index}>
               {props.schema.map((sch: any, idx: number) => {
@@ -70,22 +70,21 @@ function NestedComponents(props: any) {
                 );
               })}
               <CenteredIcon
-                className={index === 0 ? "hide" : ""}
                 name="delete"
-                onClick={() => index > 0 && props.fields.remove(index)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  props.fields.remove(index);
+                }}
                 size={IconSize.XXL}
               />
             </SecondaryBox>
           );
         })}
-        <AddMoreAction
-          onClick={() => props.fields.push({ key: "", value: "", operand: "" })}
-        >
-          {/*Hardcoded label to be removed */}
-          <Text type={TextType.H5}>+ Add Condition (And)</Text>
-        </AddMoreAction>
-      </PrimaryBox>
-    )
+      <AddMoreAction onClick={() => props.fields.push({})}>
+        {/*Hardcoded label to be removed */}
+        <Text type={TextType.H5}>+ Add Condition (And)</Text>
+      </AddMoreAction>
+    </PrimaryBox>
   );
 }
 
