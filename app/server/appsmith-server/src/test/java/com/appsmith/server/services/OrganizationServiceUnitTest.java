@@ -1,9 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.RoleGraph;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -58,7 +60,7 @@ public class OrganizationServiceUnitTest {
     }
 
     @Test
-    public void getOrganizationMembers_WhenNameNotInRoleButInUser_NameFetchedFromUser() {
+    public void getOrganizationMembers_WhenRoleIsNull_ReturnsEmptyList() {
         // create a organization object
         Organization testOrg = new Organization();
         testOrg.setName("Get All Members For Organization Test");
@@ -66,33 +68,30 @@ public class OrganizationServiceUnitTest {
         testOrg.setWebsite("https://test.com");
         testOrg.setId("test-org-id");
 
-        // add a role to the test org object
-        List<UserRole> userRoleList = new ArrayList<>();
-        UserRole userRole = new UserRole();
-        userRole.setUserId("test-user-id");
-        userRole.setName("Initial Name");
-        userRoleList.add(userRole);
-        testOrg.setUserRoles(userRoleList);
-
-        // create the user which acts as updated user object
-        User user = new User();
-        user.setId("test-user-id");
-        user.setName("Updated name");
-
         // mock repository methods so that they return the objects we've created
         Mockito.when(organizationRepository.findById("test-org-id", ORGANIZATION_INVITE_USERS))
                 .thenReturn(Mono.just(testOrg));
-        Mockito.when(userRepository.findAllById(List.of("test-user-id")))
-                .thenReturn(Flux.just(user));
 
         Mono<List<UserRole>> organizationMembers = organizationService.getOrganizationMembers(testOrg.getId());
         StepVerifier
                 .create(organizationMembers)
                 .assertNext(userRoles -> {
-                    Assert.assertNotNull(userRoles);
-                    UserRole userRole1 = userRoles.get(0);
-                    Assert.assertEquals("Updated name", userRole1.getName());
+                    Assert.assertEquals(0, userRoles.size());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void getOrganizationMembers_WhenNoOrgFound_ThrowsException() {
+        String sampleOrgId = "test-org-id";
+        // mock repository methods so that they return the objects we've created
+        Mockito.when(organizationRepository.findById(sampleOrgId, ORGANIZATION_INVITE_USERS))
+                .thenReturn(Mono.empty());
+
+        Mono<List<UserRole>> organizationMembers = organizationService.getOrganizationMembers(sampleOrgId);
+        StepVerifier
+                .create(organizationMembers)
+                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, sampleOrgId))
+                .verify();
     }
 }
