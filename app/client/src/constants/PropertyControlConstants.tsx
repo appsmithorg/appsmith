@@ -55,12 +55,14 @@ type ValidationConfigParams = {
   max?: number;
   default?: unknown;
   isUnique?: boolean;
+  required?: boolean;
+  regex?: RegExp;
   allowedKeys?: Array<{
     name: string;
     type: ValidationTypes;
     params?: ValidationConfigParams;
   }>;
-  allowedValues?: string[] | number[] | RegExp;
+  allowedValues?: unknown[];
   children?: ValidationConfig;
   fnString?: string;
 };

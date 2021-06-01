@@ -10,6 +10,7 @@ import _, {
   isNil,
   isNumber,
   isObject,
+  isPlainObject,
   isString,
   isUndefined,
   toNumber,
@@ -19,7 +20,66 @@ import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 
-const validate = (config: ValidationConfig, value: any, props: WidgetProps) => {
+function validatePlainObject(
+  config: ValidationConfig,
+  value: Record<string, unknown>,
+  props: Record<string, unknown>,
+) {
+  if (config.params?.allowedKeys) {
+    let _valid = true;
+    const _messages: string[] = [];
+    config.params.allowedKeys.forEach((entry) => {
+      if (value.hasOwnProperty(entry.name)) {
+        const { isValid, message } = validate(entry, value[entry.name], props);
+        _valid = isValid;
+        message && _messages.push(message);
+      } else if (entry.params?.required) {
+        return {
+          isValid: false,
+          parsed: value,
+          message: `Missing required key: ${entry.name}`,
+        };
+      }
+    });
+    if (_valid) {
+      return {
+        isValid: true,
+        parsed: value,
+      };
+    }
+    return {
+      isValid: false,
+      parsed: config.params?.default || value,
+      message: _messages.join(" "),
+    };
+  }
+  return {
+    isValid: true,
+    parsed: value,
+  };
+}
+
+function validateArray(config: ValidationConfig, value: unknown[], props) {
+  const whiteList = config.params?.allowedValues;
+  if (whiteList) {
+    value.forEach((entry) => {
+      if (!whiteList.includes(entry)) {
+        return {
+          isValid: false,
+          parsed: value,
+          message: `Disallowed value: ${entry}`,
+        };
+      }
+    });
+  }
+  return { isValid: true, parsed: value };
+}
+
+const validate = (
+  config: ValidationConfig,
+  value: unknown,
+  props: Record<string, unknown>,
+) => {
   // let validator;
   // switch (config.type) {
   //   case ValidationTypes.TEXT:
@@ -74,181 +134,199 @@ export function validateDateString(
 const WIDGET_TYPE_VALIDATION_ERROR = "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
 
 export const VALIDATORS: Record<ValidationTypes, Validator> = {
+  // TODO(abhinav): write rigorous tests for these
   [ValidationTypes.TEXT]: (
     config: ValidationConfig,
-    value: any,
+    value: unknown,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
-    let parsed = value;
-    if (isUndefined(value) || value === null) {
+    if (value === undefined || value === null) {
       return {
         isValid: true,
-        parsed: value,
-        message: "",
+        parsed: config.params?.default || "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
       };
     }
     if (isObject(value)) {
       return {
         isValid: false,
         parsed: JSON.stringify(value, null, 2),
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "text"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
       };
     }
-    let isValid = isString(value);
+    const isValid = isString(value);
     if (!isValid) {
       try {
-        parsed = toString(value);
-        isValid = true;
+        const result = {
+          parsed: toString(value),
+          isValid: true,
+        };
+        return result;
       } catch (e) {
         console.error(`Error when parsing ${value} to string`);
         console.error(e);
         return {
           isValid: false,
-          parsed: "",
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} "text"`,
+          parsed: config.params?.default || "",
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
         };
       }
+    } else {
+      return {
+        isValid,
+        parsed: value,
+      };
     }
-    return { isValid, parsed };
   },
+  // TODO(abhinav): The original validation does not make sense fix this.
   [ValidationTypes.REGEX]: (
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
   ): ValidationResponse => {
     const { isValid, parsed, message } = VALIDATORS[ValidationTypes.TEXT](
+      config,
       value,
       props,
-      dataTree,
     );
 
     if (isValid) {
-      try {
-        new RegExp(parsed);
-      } catch (e) {
-        return {
-          isValid: false,
-          parsed: parsed,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} "regex"`,
-        };
-      }
+      return {
+        isValid: false,
+        parsed: new RegExp(parsed),
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "regex"`,
+      };
     }
 
     return { isValid, parsed, message };
   },
-  [ValidationTypes.NUMBER]: (value: any): ValidationResponse => {
-    let parsed = value;
-    if (isUndefined(value)) {
+  // TODO(ABHINAV): WRITE RIGOROUS TESTS FOR THIS
+  [ValidationTypes.NUMBER]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    if (!Number.isFinite(value) && !isString(value)) {
       return {
         isValid: false,
-        parsed: 0,
+        parsed: config.params?.default || 0,
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
       };
     }
-    let isValid = isNumber(value);
-    if (!isValid) {
-      try {
-        parsed = toNumber(value);
-        if (isNaN(parsed)) {
-          return {
-            isValid: false,
-            parsed: 0,
-            message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
-          };
-        }
-        isValid = true;
-      } catch (e) {
-        console.error(`Error when parsing ${value} to number`);
-        console.error(e);
+
+    if (isString(value)) {
+      if (/^\d+\.?\d*$/.test(value)) {
+        return {
+          isValid: true,
+          parsed: parseInt(value, 10),
+        };
+      } else {
         return {
           isValid: false,
-          parsed: 0,
+          parsed: config.params?.default || 0,
           message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
         };
       }
     }
-    return { isValid, parsed };
+
+    return { isValid: true, parsed: value };
   },
-  [ValidationTypes.BOOLEAN]: (value: any): ValidationResponse => {
-    let parsed = value;
-    if (isUndefined(value)) {
+  // TODO(abhinav): Add rigorous tests for the following
+  [ValidationTypes.BOOLEAN]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    if (value === undefined || value === null) {
       return {
         isValid: false,
-        parsed: false,
+        parsed: config.params?.default || false,
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
-    const isABoolean = isBoolean(value);
+    const isABoolean = value === true || value === false;
     const isStringTrueFalse = value === "true" || value === "false";
     const isValid = isABoolean || isStringTrueFalse;
+
+    let parsed = value;
     if (isStringTrueFalse) parsed = value !== "false";
+
     if (!isValid) {
       return {
-        isValid: isValid,
-        parsed: parsed,
+        isValid: false,
+        parsed: config.params?.default || parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
+
     return { isValid, parsed };
   },
-  [ValidationTypes.OBJECT]: (value: any): ValidationResponse => {
-    let parsed = value;
-    if (isUndefined(value)) {
+  // TODO(abhinav): Add rigorous tests for the following
+  [ValidationTypes.OBJECT]: (
+    config: ValidationConfig,
+    value: any,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    if (value === undefined || value === null) {
       return {
         isValid: false,
-        parsed: {},
+        parsed: config.params?.default || {},
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
       };
     }
-    let isValid = isObject(value);
-    if (!isValid) {
-      try {
-        parsed = JSON.parse(value);
-        isValid = true;
-      } catch (e) {
-        console.error(`Error when parsing ${value} to object`);
-        console.error(e);
-        return {
-          isValid: false,
-          parsed: {},
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
-        };
-      }
+
+    if (isPlainObject(value)) {
+      return validatePlainObject(config, value, props);
     }
-    return { isValid, parsed };
-  },
-  [ValidationTypes.ARRAY]: (value: any): ValidationResponse => {
-    let parsed = value;
+
     try {
-      if (isUndefined(value)) {
-        return {
-          isValid: false,
-          parsed: [],
-          transformed: undefined,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
-        };
+      const result = { parsed: JSON.parse(value), isValid: true };
+      if (isPlainObject(result.parsed)) {
+        return validatePlainObject(config, result.parsed, props);
       }
-      if (isString(value)) {
-        parsed = JSON.parse(parsed as string);
-      }
-
-      if (!Array.isArray(parsed)) {
-        return {
-          isValid: false,
-          parsed: [],
-          transformed: parsed,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
-        };
-      }
-
-      return { isValid: true, parsed, transformed: parsed };
-    } catch (e) {
       return {
         isValid: false,
-        parsed: [],
-        transformed: parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
+        parsed: config.params?.default || {},
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
+      };
+    } catch (e) {
+      console.error(`Error when parsing ${value} to object`);
+      console.error(e);
+      return {
+        isValid: false,
+        parsed: config.params?.default || {},
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
       };
     }
+  },
+  [ValidationTypes.ARRAY]: (
+    config: ValidationConfig,
+    value: any,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    const invalidResponse = {
+      isValid: false,
+      parsed: config.params?.default || [],
+      message: `${WIDGET_TYPE_VALIDATION_ERROR} Array`,
+    };
+    if (value === undefined || value === null || isPlainObject(value)) {
+      return invalidResponse;
+    }
+
+    if (isString(value)) {
+      try {
+        const _value = JSON.parse(value);
+        if (Array.isArray(_value)) return validateArray(config, _value, props);
+      } catch (e) {
+        return invalidResponse;
+      }
+    }
+
+    if (Array.isArray(value)) {
+      return validateArray(config, value, props);
+    }
+
+    return invalidResponse;
   },
   [ValidationTypes.DATE_ISO_STRING]: (
     dateString: string,
