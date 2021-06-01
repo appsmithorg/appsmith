@@ -261,6 +261,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
   return (
     prev.applyFilter === next.applyFilter &&
     prev.compactMode === next.compactMode &&
+    prev.defaultPageSize === next.defaultPageSize &&
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&
     prev.filters === next.filters &&
@@ -279,6 +280,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.selectedRowIndices === next.selectedRowIndices &&
     prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&
     prev.sortTableColumn === next.sortTableColumn &&
+    prev.totalRecordsCount === next.totalRecordsCount &&
     prev.triggerRowSelection === next.triggerRowSelection &&
     prev.updateCompactMode === next.updateCompactMode &&
     prev.updatePageNo === next.updatePageNo &&
