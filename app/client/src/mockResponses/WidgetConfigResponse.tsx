@@ -229,6 +229,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isDisabled: false,
           isDerived: false,
           label: "action",
           onClick:
