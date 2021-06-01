@@ -174,11 +174,6 @@ function ApiResponseView(props: Props) {
   }
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
-  const [requestDebugVisible, setRequestDebugVisible] = useLocalStorage(
-    "requestDebugVisible",
-    "true",
-  );
-
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "API",
@@ -193,16 +188,14 @@ function ApiResponseView(props: Props) {
       title: "Response Body",
       panelComponent: (
         <ResponseTabWrapper>
-          {hasFailed && !isRunning && requestDebugVisible && (
+          {hasFailed && !isRunning && (
             <Callout
-              closeButton
               fill
               label={
                 <FailedMessage>
                   <DebugButton onClick={onDebugClick} />
                 </FailedMessage>
               }
-              onClose={() => setRequestDebugVisible(false)}
               text={createMessage(CHECK_REQUEST_BODY)}
               variant={Variant.danger}
             />
