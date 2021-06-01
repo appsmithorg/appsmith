@@ -3,6 +3,7 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { get, uniqBy } from "lodash";
 import { CommentsReduxState } from "./interfaces";
 
+// TODO verify cases where commentThread can be undefined for update event
 const handleUpdateCommentThreadEvent = (
   state: CommentsReduxState,
   action: ReduxAction<Partial<CommentThread & { _id: string }>>,
@@ -13,13 +14,13 @@ const handleUpdateCommentThreadEvent = (
   const newComments = get(action.payload, "comments", []);
 
   const shouldRefreshList =
-    commentThreadInStore.pinnedState?.active !==
+    commentThreadInStore?.pinnedState?.active !==
     action.payload?.pinnedState?.active;
 
   state.commentThreadsMap[id] = {
-    ...commentThreadInStore,
+    ...(commentThreadInStore || {}),
     ...action.payload,
-    isViewed: commentThreadInStore.isViewed || action.payload.isViewed, // TODO refactor this
+    isViewed: commentThreadInStore?.isViewed || action.payload.isViewed, // TODO refactor this
     comments: uniqBy([...existingComments, ...newComments], "id"),
   };
 
