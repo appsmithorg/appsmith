@@ -83,7 +83,7 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        Assert.assertEquals(Set.of("Missing port for endpoint", "Missing host for endpoint"),
+        Assert.assertEquals(Set.of("Missing host for endpoint"),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -95,7 +95,8 @@ public class RedisPluginTest {
         endpoint.setHost("test-host");
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        Assert.assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of("Missing port for endpoint"));
+        // Since default port is picked, set of invalids should be empty.
+        Assert.assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of());
     }
 
     @Test
@@ -112,7 +113,7 @@ public class RedisPluginTest {
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         Assert.assertEquals(
-                Set.of("Missing port for endpoint", "Missing username for authentication.", "Missing password for authentication."),
+                Set.of("Missing username for authentication.", "Missing password for authentication."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration)
         );
     }

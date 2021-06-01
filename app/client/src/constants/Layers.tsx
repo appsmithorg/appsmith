@@ -27,6 +27,7 @@ export const Layers = {
   dropdownWidget: Indices.Layer2,
   // dropdown portaled to Modal Container with higher index than Overlay
   dropdownModalWidget: Indices.Layer21,
+  selectedWidget: Indices.Layer2,
   // Layers when dragging
   animatedSnappingDropZone: Indices.Layer2,
 
