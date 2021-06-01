@@ -149,11 +149,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const options = this.props.options
-      ? typeof this.props.options === "string"
-        ? []
-        : this.props.options
-      : [];
+    const options = _.isArray(this.props.options) ? this.props.options : [];
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
