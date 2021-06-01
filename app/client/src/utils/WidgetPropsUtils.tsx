@@ -27,6 +27,7 @@ import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
   tableWidgetPropertyPaneMigrations,
+  migrateTableWidgetParentRowSpaceProperty,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -760,6 +761,10 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 22) {
+    currentDSL = migrateTableWidgetParentRowSpaceProperty(currentDSL);
+    currentDSL.version = 23;
+  }
+  if (currentDSL.version === 23) {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
