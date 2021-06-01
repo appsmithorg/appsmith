@@ -113,15 +113,7 @@ export default function DataSourceList(props: any) {
                     {(props.datasources || []).map((d: any, idx: number) => (
                       <DatasourceCard
                         key={idx}
-                        onClick={() =>
-                          history.push(
-                            DATA_SOURCES_EDITOR_ID_URL(
-                              props.applicationId,
-                              props.currentPageId,
-                              d.id,
-                            ),
-                          )
-                        }
+                        onClick={() => props.onClick(d)}
                       >
                         <Text type={TextType.H5} weight={FontWeight.BOLD}>
                           {d.name}

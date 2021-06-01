@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { connect, useSelector, useDispatch } from "react-redux";
-import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
+import {
+  formValueSelector,
+  InjectedFormProps,
+  reduxForm,
+  change,
+} from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,
@@ -41,6 +46,7 @@ import { Icon as ButtonIcon } from "@blueprintjs/core";
 import { IconSize } from "components/ads/Icon";
 import get from "lodash/get";
 import DataSourceList from "./DatasourceList";
+import { Datasource } from "entities/Datasource";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -197,6 +203,7 @@ interface APIFormProps {
   datasources?: any;
   currentPageId?: string;
   applicationId?: string;
+  updateDatasource: (datasource: Datasource) => void;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -433,6 +440,7 @@ function ApiEditorForm(props: Props) {
     paramsCount,
     pluginId,
     settingsConfig,
+    updateDatasource,
   } = props;
   const dispatch = useDispatch();
   const allowPostBody =
@@ -617,6 +625,7 @@ function ApiEditorForm(props: Props) {
               applicationId={props.applicationId}
               currentPageId={props.currentPageId}
               datasources={props.datasources}
+              onClick={updateDatasource}
             />
             <CloseIconContainer>
               <Icon
@@ -634,6 +643,16 @@ function ApiEditorForm(props: Props) {
 }
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
+
+type ReduxDispatchProps = {
+  updateDatasource: (datasource: Datasource) => void;
+};
+
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  updateDatasource: (datasource) => {
+    dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource));
+  },
+});
 
 export default connect((state: AppState, props: { pluginId: string }) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
@@ -690,7 +709,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
   };
-})(
+}, mapDispatchToProps)(
   reduxForm<Action, APIFormProps>({
     form: API_EDITOR_FORM_NAME,
   })(ApiEditorForm),
