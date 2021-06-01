@@ -459,7 +459,7 @@ public class ExamplesOrganizationCloner {
                 });
     }
 
-    private void makePristine(BaseDomain domain) {
+    public void makePristine(BaseDomain domain) {
         // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
         // updating an existing document). If it contains any policies, they are also reset.
         domain.setId(null);
