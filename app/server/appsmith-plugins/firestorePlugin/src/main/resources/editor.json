@@ -194,8 +194,8 @@
                   "placeholderText": "key1/nestedKey2"
                 },
                 {
-                  "label": "Operand",
-                  "key": "operand",
+                  "label": "Operator",
+                  "key": "operator",
                   "controlType": "DROP_DOWN",
                   "initialValue": "EQ",
                   "options": [
