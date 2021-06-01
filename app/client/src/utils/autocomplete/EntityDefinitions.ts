@@ -231,7 +231,6 @@ export const entityDefinitions = {
     isVisible: isVisible,
     files: "[file]",
     isDisabled: "bool",
-    uploadedFileUrls: "string",
   },
   LIST_WIDGET: (widget: any) => ({
     "!doc":
@@ -244,6 +243,7 @@ export const entityDefinitions = {
     isVisible: isVisible,
     gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
+    updatedItems: generateTypeDef(widget.updatedItems),
   }),
 };
 

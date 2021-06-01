@@ -5,10 +5,12 @@ import {
   get,
   set,
   xor,
-  isPlainObject,
   isNumber,
   round,
+  range,
   toString,
+  isBoolean,
+  isEmpty,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -20,7 +22,10 @@ import {
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import ListComponent, { ListComponentEmpty } from "./ListComponent";
+import ListComponent, {
+  ListComponentEmpty,
+  ListComponentLoading,
+} from "./ListComponent";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 import { ContainerWidgetProps } from "../ContainerWidget";
 import propertyPaneConfig from "./ListPropertyPaneConfig";
@@ -28,6 +33,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination from "./ListPagination";
 import withMeta from "./../MetaHOC";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
@@ -44,6 +50,84 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
+      updatedItems: `{{(() => {
+        let item = {};
+        Object.keys(this.template).map(widgetName => {
+          item[widgetName] = {...this.template[widgetName] };
+        });
+
+        let updatedItems = Array.from({ length: this.items.length }, i => item);
+
+        for (let itemIndex = 0; itemIndex < updatedItems.length; itemIndex++) {
+          const currentItem = updatedItems[itemIndex];
+
+          const widgetKeys = Object.keys(currentItem);
+
+          widgetKeys.map(currentWidgetName => {
+            const currentWidget = currentItem[currentWidgetName];
+
+            const dynamicPaths = _.compact(
+              currentWidget.dynamicBindingPathList?.map((path) =>
+                path.key,
+              ),
+            );
+
+
+            dynamicPaths.forEach((path) => {
+              const evaluatedProperty = _.get(this.template, currentWidget.widgetName + "." + path);
+
+              if (
+                Array.isArray(evaluatedProperty)
+              ) {
+                const evaluatedValue = evaluatedProperty[itemIndex];
+
+
+                _.set(currentWidget, path, evaluatedValue);
+              }
+            });
+
+
+             if (this.childrenDefaultPropertiesMap) {
+              Object.keys(this.childrenDefaultPropertiesMap).map((key) => {
+                const defaultKey = this.childrenDefaultPropertiesMap[key];
+                const defaultPropertyValue = _.get(
+                  this.template,
+                  currentWidget.widgetName + "." + defaultKey + "." + itemIndex
+                );
+
+
+
+                if (Array.isArray(defaultPropertyValue)) {
+                  const evaluatedValue = defaultPropertyValue[itemIndex];
+
+                  _.set(currentWidget, key.split(".").pop(), evaluatedValue);
+                  _.set(currentWidget, defaultKey, evaluatedValue);
+                } else if(defaultPropertyValue) {
+                  _.set(currentWidget, key.split(".").pop(), defaultPropertyValue);
+                  _.set(currentWidget, defaultKey, defaultPropertyValue);
+                }
+              });
+             }
+
+             if (this.childrenMetaPropertiesMap) {
+              this.childrenMetaPropertiesMap.map((metaKey) => {
+
+                const metaPropertyValue = _.get(
+                  this.childMetaProperties,
+                  metaKey + "." + itemIndex,
+                );
+
+                if (metaPropertyValue !== undefined) {
+                  _.set(currentWidget, metaKey.split(".").pop(), metaPropertyValue);
+                }
+
+              });
+             }
+          });
+        }
+
+        return updatedItems;
+      })()}}`,
       selectedItem: `{{(()=>{
         const selectedItemIndex =
           this.selectedItemIndex === undefined ||
@@ -301,15 +385,22 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       // By picking the correct value from the evaluated values in the template
       dynamicPaths.forEach((path: string) => {
         const evaluatedProperty = get(template, `${widgetName}.${path}`);
+
         if (
           Array.isArray(evaluatedProperty) &&
           evaluatedProperty.length > itemIndex
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
+          const validationPath = get(widget, `validationPaths.${path}`);
 
-          if (isPlainObject(evaluatedValue) || Array.isArray(evaluatedValue))
-            set(widget, path, JSON.stringify(evaluatedValue));
-          else set(widget, path, toString(evaluatedValue));
+          if (
+            validationPath === VALIDATION_TYPES.BOOLEAN &&
+            isBoolean(evaluatedValue)
+          ) {
+            set(widget, path, evaluatedValue);
+          } else {
+            set(widget, path, toString(evaluatedValue));
+          }
         }
       });
     }
@@ -328,23 +419,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     });
 
     Object.keys(widget.defaultMetaProps).map((key: string) => {
-      // text -> defaultText
       const metaPropertyValue = get(
         this.props.childMetaProperties,
         `${widget.widgetName}.${key}.${itemIndex}`,
       );
 
-      if (metaPropertyValue !== undefined) {
+      if (!isEmpty(metaPropertyValue)) {
         set(widget, `${key}`, metaPropertyValue);
       }
-
-      console.log({
-        itemIndex,
-        key,
-        widget,
-        metaPropertyValue,
-        childMetaProperties: this.props.childMetaProperties,
-      });
     });
 
     if (
@@ -511,6 +593,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         ...child,
         onClickCapture: () =>
           this.onItemClick(index, this.props.onListItemClick),
+        selected: this.props.selectedItemIndex === index,
+        focused: index === 0 && this.props.renderMode === RenderModes.CANVAS,
       };
     });
   };
@@ -643,13 +727,46 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const children = this.renderChildren();
     const { perPage, shouldPaginate } = this.shouldPaginate();
 
-    if (!isNumber(perPage) || perPage === 0) {
+    if (this.props.isLoading) {
       return (
-        <>Please make sure the list widget size is greater than the template</>
+        <ListComponentLoading className="">
+          {range(10).map((i) => (
+            <div className="bp3-card bp3-skeleton" key={`skeleton-${i}`}>
+              <h5 className="bp3-heading">
+                <a className=".modifier" href="#">
+                  Card heading
+                </a>
+              </h5>
+              <p className=".modifier">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
+                eget tortor felis. Fusce dapibus metus in dapibus mollis.
+                Quisque eget ex diam.
+              </p>
+              <button
+                className="bp3-button bp3-icon-add .modifier"
+                type="button"
+              >
+                Submit
+              </button>
+            </div>
+          ))}
+        </ListComponentLoading>
       );
     }
 
-    if (Array.isArray(this.props.items) && this.props.items.length === 0) {
+    if (!isNumber(perPage) || perPage === 0) {
+      return (
+        <ListComponentEmpty>
+          Please make sure the list widget size is greater than the template
+        </ListComponentEmpty>
+      );
+    }
+
+    if (
+      Array.isArray(this.props.items) &&
+      this.props.items.length === 0 &&
+      this.props.renderMode === RenderModes.PAGE
+    ) {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;
     }
 

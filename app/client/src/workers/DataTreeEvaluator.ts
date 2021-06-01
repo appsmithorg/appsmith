@@ -392,6 +392,11 @@ export default class DataTreeEvaluator {
           let evalPropertyValue;
           const requiresEval =
             isABindingPath && isDynamicValue(unEvalPropertyValue);
+          _.set(
+            currentTree,
+            `${entityName}.jsErrorMessages.${propertyPath}`,
+            "",
+          );
           if (requiresEval) {
             const evaluationSubstitutionType =
               entity.bindingPaths[propertyPath] ||
@@ -402,6 +407,8 @@ export default class DataTreeEvaluator {
                 currentTree,
                 evaluationSubstitutionType,
                 false,
+                undefined,
+                fullPropertyPath,
               );
             } catch (e) {
               this.errors.push({
@@ -546,6 +553,7 @@ export default class DataTreeEvaluator {
     evaluationSubstitutionType: EvaluationSubstitutionType,
     returnTriggers: boolean,
     callBackData?: Array<any>,
+    fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
     const { jsSnippets, stringSegments } = getDynamicBindings(dynamicBinding);
@@ -554,6 +562,7 @@ export default class DataTreeEvaluator {
         data,
         jsSnippets[0],
         callBackData,
+        fullPropertyPath,
       );
       return result.triggers;
     }
@@ -565,6 +574,7 @@ export default class DataTreeEvaluator {
             data,
             jsSnippet,
             callBackData,
+            fullPropertyPath,
           );
           return result.result;
         } else {
@@ -591,17 +601,32 @@ export default class DataTreeEvaluator {
     data: DataTree,
     js: string,
     callbackData?: Array<any>,
+    fullPropertyPath?: string,
   ): EvalResult {
     try {
       return evaluate(js, data, callbackData);
     } catch (e) {
-      this.errors.push({
-        type: EvalErrorTypes.EVAL_ERROR,
-        message: e.message,
-        context: {
-          binding: js,
-        },
-      });
+      if (fullPropertyPath) {
+        const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+          fullPropertyPath,
+        );
+        _.set(data, `${entityName}.jsErrorMessages.${propertyPath}`, e.message);
+        const entity = data[entityName];
+        if (isWidget(entity)) {
+          this.errors.push({
+            type: EvalErrorTypes.EVAL_ERROR,
+            message: e.message,
+            context: {
+              source: {
+                id: entity.widgetId,
+                name: entity.widgetName,
+                type: ENTITY_TYPE.WIDGET,
+                propertyPath: propertyPath,
+              },
+            },
+          });
+        }
+      }
       return { result: undefined, triggers: [] };
     }
   }
@@ -623,6 +648,7 @@ export default class DataTreeEvaluator {
         EvaluationSubstitutionType.TEMPLATE,
         true,
         undefined,
+        fullPropertyPath,
       );
       valueToValidate = triggers;
     }
@@ -641,7 +667,8 @@ export default class DataTreeEvaluator {
       : transformed;
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
     _.set(widget, `evaluatedValues.${propertyPath}`, safeEvaluatedValue);
-    if (!isValid) {
+    const jsError = _.get(widget, `jsErrorMessages.${propertyPath}`);
+    if (!isValid && !jsError) {
       this.errors.push({
         type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
         message: message || "",
@@ -651,6 +678,9 @@ export default class DataTreeEvaluator {
             name: widget.widgetName,
             type: ENTITY_TYPE.WIDGET,
             propertyPath: propertyPath,
+          },
+          state: {
+            value: safeEvaluatedValue,
           },
         },
       });

@@ -47,7 +47,8 @@ export interface InviteUserRequest {
 }
 
 export interface UpdateUserRequest {
-  name: string;
+  name?: string;
+  email?: string;
 }
 
 class UserApi extends Api {
@@ -61,6 +62,7 @@ class UserApi extends Api {
   static addOrgURL = `${UserApi.usersURL}/addOrganization`;
   static logoutURL = "v1/logout";
   static currentUserURL = "v1/users/me";
+  static photoURL = "v1/users/photo";
 
   static createUser(
     request: CreateUserRequest,
@@ -116,6 +118,23 @@ class UserApi extends Api {
 
   static logoutUser(): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.logoutURL);
+  }
+
+  static uploadPhoto(request: { file: File }): AxiosPromise<ApiResponse> {
+    const formData = new FormData();
+    if (request.file) {
+      formData.append("file", request.file);
+    }
+
+    return Api.post(UserApi.photoURL, formData, null, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  }
+
+  static deletePhoto(): AxiosPromise<ApiResponse> {
+    return Api.delete(UserApi.photoURL);
   }
 }
 

@@ -135,8 +135,6 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
        that value changing
       */
 
-      console.log({ metaOptions });
-
       [...this.updatedProperties.keys()].forEach((propertyName) => {
         if (updateWidgetMetaProperty) {
           const propertyValue = this.state[propertyName];
