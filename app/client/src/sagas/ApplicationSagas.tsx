@@ -545,15 +545,10 @@ export function* importApplicationSaga(
     }
   } catch (error) {
     yield put({
-      type: ReduxActionTypes.IMPORT_APPLICATION_ERROR,
+      type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR,
       payload: {
-        // id: currentOrg[0].id,
-        // logoUrl: response.data.logoUrl,
+        error,
       },
-    });
-    Toaster.show({
-      text: "Failed to import application",
-      variant: Variant.danger,
     });
   }
 }

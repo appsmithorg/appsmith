@@ -1,1 +1,174 @@
-{"exportedApplication":{"userPermissions":["manage:applications","canComment:applications","read:applications","publish:applications","makePublic:applications"],"name":"b6489583","isPublic":false,"pages":[{"id":"Page1","isDefault":true,"default":true}],"appIsExample":false,"color":"#6C9DD0","icon":"diamond","new":true},"datasourceList":[],"pageList":[{"userPermissions":["read:pages","manage:pages"],"unpublishedPage":{"name":"Page1","layouts":[{"id":"60b0b93184addd4805f6fadb","userPermissions":[],"dsl":{"widgetName":"MainContainer","backgroundColor":"none","rightColumn":4896,"snapColumns":64,"detachFromLayout":true,"widgetId":"0","topRow":0,"bottomRow":5168,"containerStyle":"none","snapRows":129,"parentRowSpace":1,"type":"CANVAS_WIDGET","canExtend":true,"version":20,"minHeight":890,"parentColumnSpace":1,"dynamicBindingPathList":[],"leftColumn":0,"children":[{"backgroundColor":"#FFFFFF","widgetName":"Container1","rightColumn":32,"orientation":"VERTICAL","snapColumns":16,"widgetId":"mxbaasg65u","containerStyle":"card","topRow":0,"bottomRow":36,"parentRowSpace":38,"isVisible":true,"type":"CONTAINER_WIDGET","version":1,"isLoading":false,"parentColumnSpace":75.25,"dynamicBindingPathList":[],"leftColumn":0,"children":[{"backgroundColor":"transparent","widgetName":"59gdivzv7s","rightColumn":2408,"orientation":"VERTICAL","snapColumns":16,"detachFromLayout":true,"widgetId":"bxekwxgc1i","containerStyle":"none","topRow":0,"bottomRow":1368,"parentRowSpace":1,"isVisible":true,"type":"CANVAS_WIDGET","canExtend":false,"version":1,"isLoading":false,"parentColumnSpace":1,"leftColumn":0,"dynamicBindingPathList":[],"children":[{"image":"","widgetName":"Image1","rightColumn":40,"widgetId":"glksllew0g","topRow":8,"bottomRow":20,"parentRowSpace":38,"isVisible":true,"type":"IMAGE_WIDGET","version":1,"parentId":"bxekwxgc1i","isLoading":false,"parentColumnSpace":34.6875,"imageShape":"RECTANGLE","leftColumn":24,"dynamicBindingPathList":[],"defaultImage":"https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png"}]}]},{"backgroundColor":"#FFFFFF","widgetName":"Container3","rightColumn":64,"orientation":"VERTICAL","snapColumns":16,"widgetId":"i331vll2mg","containerStyle":"card","topRow":36,"bottomRow":92,"parentRowSpace":38,"isVisible":true,"type":"CONTAINER_WIDGET","version":1,"isLoading":false,"parentColumnSpace":75.25,"dynamicBindingPathList":[],"leftColumn":0,"children":[{"backgroundColor":"transparent","widgetName":"rhfg2vf1n5","rightColumn":4816,"orientation":"VERTICAL","snapColumns":16,"detachFromLayout":true,"widgetId":"rglduihhzk","containerStyle":"none","topRow":0,"bottomRow":2128,"parentRowSpace":1,"isVisible":true,"type":"CANVAS_WIDGET","canExtend":false,"version":1,"isLoading":false,"parentColumnSpace":1,"leftColumn":0,"dynamicBindingPathList":[],"children":[{"widgetName":"Chart1","rightColumn":32,"allowHorizontalScroll":false,"widgetId":"hwi9cwhg43","topRow":4,"bottomRow":36,"parentRowSpace":38,"isVisible":true,"type":"CHART_WIDGET","version":1,"parentId":"rglduihhzk","isLoading":false,"chartData":{"2444g1ouv1":{"data":[{"seriesName":"Sales","data":[{"x":"Mon","y":10000},{"x":"Tue","y":12000},{"x":"Wed","y":32000},{"x":"Thu","y":28000},{"x":"Fri","y":14000},{"x":"Sat","y":19000},{"x":"Sun","y":36000}]}]}},"yAxisName":"Total Order Revenue $","parentColumnSpace":71.75,"chartName":"Sales on working days","leftColumn":8,"dynamicBindingPathList":[],"xAxisName":"Last Week","chartType":"LINE_CHART"}]}]},{"backgroundColor":"#FFFFFF","widgetName":"Container4","rightColumn":64,"orientation":"VERTICAL","snapColumns":16,"widgetId":"qznzsquf70","containerStyle":"card","topRow":0,"bottomRow":36,"parentRowSpace":38,"isVisible":true,"type":"CONTAINER_WIDGET","version":1,"isLoading":false,"parentColumnSpace":75.25,"dynamicBindingPathList":[],"leftColumn":32,"children":[{"backgroundColor":"transparent","widgetName":"3bn6uv0vy4","rightColumn":2408,"orientation":"VERTICAL","snapColumns":16,"detachFromLayout":true,"widgetId":"7vm5mdu8ey","containerStyle":"none","topRow":0,"bottomRow":1368,"parentRowSpace":1,"isVisible":true,"type":"CANVAS_WIDGET","canExtend":false,"version":1,"isLoading":false,"parentColumnSpace":1,"leftColumn":0,"dynamicBindingPathList":[],"children":[{"widgetName":"Text1","rightColumn":28,"textAlign":"LEFT","widgetId":"9xcfqahpw2","topRow":12,"bottomRow":16,"parentRowSpace":38,"isVisible":true,"type":"TEXT_WIDGET","version":1,"textColor":"#231F20","parentId":"bxekwxgc1i","isLoading":false,"parentColumnSpace":34.6875,"leftColumn":12,"dynamicBindingPathList":[],"text":"Label"}]}]}]},"layoutOnLoadActions":[],"new":false}],"userPermissions":[]},"publishedPage":{"name":"Page1","layouts":[{"id":"60b0b93184addd4805f6fadb","userPermissions":[],"dsl":{"widgetName":"MainContainer","backgroundColor":"none","rightColumn":1224,"snapColumns":16,"detachFromLayout":true,"widgetId":"0","topRow":0,"bottomRow":1254,"containerStyle":"none","snapRows":33,"parentRowSpace":1,"type":"CANVAS_WIDGET","canExtend":true,"version":4,"minHeight":1292,"parentColumnSpace":1,"dynamicBindingPathList":[],"leftColumn":0,"children":[]},"new":false}],"userPermissions":[]},"new":true}],"actionList":[],"decryptedFields":{},"mongoEscapedWidgets":{}}
+{
+    "exportedApplication": {
+        "userPermissions": [
+            "canComment:applications",
+            "manage:applications",
+            "read:applications",
+            "publish:applications",
+            "makePublic:applications"
+        ],
+        "name": "testing app - pk",
+        "isPublic": false,
+        "appIsExample": false,
+        "color": "#FE9F44",
+        "icon": "heart",
+        "new": true
+    },
+    "datasourceList": [],
+    "pageList": [
+        {
+            "userPermissions": [
+                "read:pages",
+                "manage:pages"
+            ],
+            "unpublishedPage": {
+                "name": "Page1",
+                "layouts": [
+                    {
+                        "id": "60a77186cdbfc9440388285c",
+                        "userPermissions": [],
+                        "dsl": {
+                            "widgetName": "MainContainer",
+                            "backgroundColor": "none",
+                            "rightColumn": 1118,
+                            "snapColumns": 16,
+                            "detachFromLayout": true,
+                            "widgetId": "0",
+                            "topRow": 0,
+                            "bottomRow": 1280,
+                            "containerStyle": "none",
+                            "snapRows": 33,
+                            "parentRowSpace": 1,
+                            "type": "CANVAS_WIDGET",
+                            "canExtend": true,
+                            "version": 18,
+                            "minHeight": 1292,
+                            "parentColumnSpace": 1,
+                            "dynamicTriggerPathList": [],
+                            "dynamicBindingPathList": [],
+                            "leftColumn": 0,
+                            "children": [
+                                {
+                                    "widgetName": "Button1",
+                                    "rightColumn": 4,
+                                    "isDefaultClickDisabled": true,
+                                    "widgetId": "g7jf8v3wkq",
+                                    "buttonStyle": "PRIMARY_BUTTON",
+                                    "topRow": 0,
+                                    "bottomRow": 1,
+                                    "parentRowSpace": 40,
+                                    "isVisible": true,
+                                    "type": "BUTTON_WIDGET",
+                                    "version": 1,
+                                    "parentId": "0",
+                                    "isLoading": false,
+                                    "parentColumnSpace": 67.375,
+                                    "leftColumn": 2,
+                                    "text": "Submit",
+                                    "isDisabled": false
+                                },
+                                {
+                                    "widgetName": "Chart1",
+                                    "rightColumn": 8,
+                                    "allowHorizontalScroll": false,
+                                    "widgetId": "ow55pc4z0z",
+                                    "topRow": 5,
+                                    "bottomRow": 13,
+                                    "parentRowSpace": 40,
+                                    "isVisible": true,
+                                    "type": "CHART_WIDGET",
+                                    "version": 1,
+                                    "parentId": "0",
+                                    "isLoading": false,
+                                    "chartData": {
+                                        "pftw37090s": {
+                                            "seriesName": "Sales",
+                                            "data": [
+                                                {
+                                                    "x": "Mon",
+                                                    "y": 10000
+                                                },
+                                                {
+                                                    "x": "Tue",
+                                                    "y": 12000
+                                                },
+                                                {
+                                                    "x": "Wed",
+                                                    "y": 32000
+                                                },
+                                                {
+                                                    "x": "Thu",
+                                                    "y": 28000
+                                                },
+                                                {
+                                                    "x": "Fri",
+                                                    "y": 14000
+                                                },
+                                                {
+                                                    "x": "Sat",
+                                                    "y": 19000
+                                                },
+                                                {
+                                                    "x": "Sun",
+                                                    "y": 36000
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "yAxisName": "Total Order Revenue $",
+                                    "parentColumnSpace": 67.375,
+                                    "chartName": "Last week's revenue",
+                                    "leftColumn": 2,
+                                    "xAxisName": "Last Week",
+                                    "chartType": "LINE_CHART"
+                                }
+                            ]
+                        },
+                        "layoutOnLoadActions": [],
+                        "new": false
+                    }
+                ],
+                "userPermissions": []
+            },
+            "publishedPage": {
+                "name": "Page1",
+                "layouts": [
+                    {
+                        "id": "60a77186cdbfc9440388285c",
+                        "userPermissions": [],
+                        "dsl": {
+                            "widgetName": "MainContainer",
+                            "backgroundColor": "none",
+                            "rightColumn": 1224,
+                            "snapColumns": 16,
+                            "detachFromLayout": true,
+                            "widgetId": "0",
+                            "topRow": 0,
+                            "bottomRow": 1254,
+                            "containerStyle": "none",
+                            "snapRows": 33,
+                            "parentRowSpace": 1,
+                            "type": "CANVAS_WIDGET",
+                            "canExtend": true,
+                            "version": 4,
+                            "minHeight": 1292,
+                            "parentColumnSpace": 1,
+                            "dynamicBindingPathList": [],
+                            "leftColumn": 0,
+                            "children": []
+                        },
+                        "new": false
+                    }
+                ],
+                "userPermissions": []
+            },
+            "new": true
+        }
+    ],
+    "publishedDefaultPageName": "Page1",
+    "unpublishedDefaultPageName": "Page1",
+    "actionList": [],
+    "decryptedFields": {},
+    "publishedLayoutmongoEscapedWidgets": {},
+    "unpublishedLayoutmongoEscapedWidgets": {}
+}
