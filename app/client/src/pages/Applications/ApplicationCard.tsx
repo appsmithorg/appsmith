@@ -302,7 +302,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     moreActionItems.push({
       onSelect: exportApplicationAsJSONFile,
       text: "Export",
-      icon: "rocket",
+      icon: "download",
       cypressSelector: "t--export-app",
     });
     setMoreActionItems(moreActionItems);

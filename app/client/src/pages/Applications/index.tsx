@@ -675,7 +675,7 @@ function ApplicationsSection(props: any) {
                       />
                       <MenuItem
                         cypressSelector="t--org-import-app"
-                        icon="rocket"
+                        icon="upload"
                         onSelect={() =>
                           setSelectedOrgIdForImportApplication(organization.id)
                         }
