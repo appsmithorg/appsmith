@@ -1,6 +1,5 @@
 import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { WidgetTypes } from "constants/WidgetConstants";
 import { LogActionPayload, Message } from "entities/AppsmithConsole";
 import {
   all,
@@ -18,95 +17,8 @@ import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { isAction, isWidget } from "workers/evaluationUtils";
 import { getWidget } from "./selectors";
 import { WidgetProps } from "widgets/BaseWidget";
-import _ from "lodash";
-
-function* onWidgetUpdateSaga(payload: LogActionPayload) {
-  if (!payload.source) return;
-  // Wait for data tree update
-  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-  const dataTree: DataTree = yield select(getDataTree);
-  const widget = dataTree[payload.source.name];
-
-  if (
-    !isWidget(widget) ||
-    !widget.validationMessages ||
-    !widget.jsErrorMessages
-  )
-    return;
-
-  // Ignore canvas widget updates
-  if (widget.type === WidgetTypes.CANVAS_WIDGET) {
-    return;
-  }
-  const source = payload.source;
-
-  // If widget properties no longer have validation errors update the same
-  if (payload.state) {
-    const propertyPath = Object.keys(payload.state)[0];
-
-    const validationMessages = widget.validationMessages;
-    const validationMessage = validationMessages[propertyPath];
-    const jsErrorMessages = widget.jsErrorMessages;
-    const jsErrorMessage = jsErrorMessages[propertyPath];
-    const errors = yield select(getDebuggerErrors);
-    const errorId = `${source.id}-${propertyPath}`;
-    const widgetErrorLog = errors[errorId];
-    if (!widgetErrorLog) return;
-
-    const noError = isEmpty(validationMessage);
-    const noJsError = isEmpty(jsErrorMessage);
-
-    if (noError && noJsError) {
-      delete errors[errorId];
-
-      yield put({
-        type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
-        payload: errors,
-      });
-    }
-  }
-}
-/*
-  clearing js errors from actions in debugger
-*/
-function* onActionUpdateSaga(payload: LogActionPayload) {
-  if (!payload.source) return;
-  // Wait for data tree update
-  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-  const dataTree: DataTree = yield select(getDataTree);
-  const action = dataTree[payload.source.name];
-
-  if (!isAction(action) || !action.jsErrorMessages) return;
-
-  const source = payload.source;
-
-  // If widget properties no longer have validation errors update the same
-  if (payload.state) {
-    const propertyPath = Object.keys(payload.state)[0];
-
-    const jsErrorMessages = action.jsErrorMessages;
-    const jsErrorMessage = _.get(jsErrorMessages, propertyPath, "");
-    // const jsErrorMessage = jsErrorMessages[propertyPath];
-    const errors = yield select(getDebuggerErrors);
-    const errorId = `${source.id}-${propertyPath}`;
-    const widgetErrorLog = errors[errorId];
-    if (!widgetErrorLog) return;
-
-    const noJsError = isEmpty(jsErrorMessage);
-
-    if (noJsError) {
-      delete errors[errorId];
-
-      yield put({
-        type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
-        payload: errors,
-      });
-    }
-  }
-}
 
 function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   if (!payload.source || !payload.state || !request || !request.headers) {
@@ -167,11 +79,9 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:
-      yield call(onWidgetUpdateSaga, payload);
       yield put(debuggerLog(payload));
       return;
     case LOG_TYPE.ACTION_UPDATE:
-      yield call(onActionUpdateSaga, payload);
       yield put(debuggerLog(payload));
       return;
     case LOG_TYPE.EVAL_ERROR:

@@ -41,14 +41,136 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { AppState } from "reducers";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+  isWidget,
+} from "workers/evaluationUtils";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
 
-const evalErrorHandler = (errors: EvalError[]) => {
-  if (!errors) return;
-  errors.forEach((error) => {
+const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
+
+function* getNewErrors(
+  dataTree: DataTree,
+  evaluationOrder: Array<string>,
+  debuggerErrors: any,
+) {
+  const result = [];
+  if (evaluationOrder && evaluationOrder.length) {
+    let errorFound = false;
+    let existingError = false;
+    for (let i = 0; i < evaluationOrder.length; i++) {
+      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+        evaluationOrder[i],
+      );
+      const entity = dataTree[entityName];
+      let isLoggingBlocked = false;
+      let entityErrorPath = "";
+      if (isWidget(entity)) {
+        entityErrorPath = entity && entity.widgetId + "-" + propertyPath;
+        existingError = !!debuggerErrors[entityErrorPath];
+        if (entity.logBlackList) {
+          isLoggingBlocked = !!entity.logBlackList[propertyPath];
+        }
+        if (!isLoggingBlocked) {
+          const hasJsError = _.get(
+            entity,
+            `jsErrorMessages.${propertyPath}`,
+            "",
+          );
+          if (hasJsError) {
+            errorFound = true;
+            result.push({
+              type: EvalErrorTypes.EVAL_ERROR,
+              message: hasJsError,
+              context: {
+                source: {
+                  id: entity.widgetId,
+                  name: entity.widgetName,
+                  type: ENTITY_TYPE.WIDGET,
+                  propertyPath: propertyPath,
+                },
+              },
+            });
+          } else {
+            const hasValidationError = _.get(
+              entity,
+              `validationMessages.${propertyPath}`,
+              "",
+            );
+            if (hasValidationError) {
+              errorFound = true;
+              result.push({
+                type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
+                message: hasValidationError,
+                context: {
+                  source: {
+                    id: entity.widgetId,
+                    name: entity.widgetName,
+                    type: ENTITY_TYPE.WIDGET,
+                    propertyPath: propertyPath,
+                  },
+                },
+              });
+            }
+          }
+        }
+      } else if (isAction(entity)) {
+        entityErrorPath = entity && entity.actionId + "-" + propertyPath;
+        existingError = !!debuggerErrors[entityErrorPath];
+        const hasJsError = _.get(entity, `jsErrorMessages.${propertyPath}`, "");
+        if (hasJsError) {
+          errorFound = true;
+          result.push({
+            type: EvalErrorTypes.EVAL_ERROR,
+            message: hasJsError,
+            context: {
+              source: {
+                id: entity.actionId,
+                name: entity.name,
+                type: ENTITY_TYPE.ACTION,
+                propertyPath: propertyPath,
+              },
+            },
+          });
+        }
+      }
+      if (existingError && !errorFound) {
+        delete debuggerErrors[entityErrorPath];
+      }
+    }
+  }
+  yield put({
+    type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
+    payload: debuggerErrors,
+  });
+  return result;
+}
+
+function* evalErrorHandler(
+  errors: EvalError[],
+  dataTree?: DataTree,
+  evaluationOrder?: Array<string>,
+): any {
+  let finalErrors = errors;
+  if (dataTree && evaluationOrder) {
+    const debuggerErrors = yield select(getDebuggerErrors);
+    const results = yield call(
+      getNewErrors,
+      dataTree,
+      evaluationOrder,
+      debuggerErrors,
+    );
+    finalErrors = [...finalErrors, ...results];
+  }
+
+  if (!finalErrors) return;
+  finalErrors.forEach((error) => {
     switch (error.type) {
       case EvalErrorTypes.DEPENDENCY_ERROR: {
         if (error.context) {
@@ -104,6 +226,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
         });
         break;
       }
+      // step 3 : remove these
       case EvalErrorTypes.EVAL_ERROR: {
         log.debug(error);
         AppsmithConsole.error({
@@ -130,7 +253,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
       }
     }
   });
-};
+}
 
 function* postEvalActionDispatcher(
   actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -156,10 +279,19 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
     },
   );
-  const { dataTree, dependencies, errors, logs } = workerResponse;
+  // step 7: get evaluationOrder
+  const {
+    dataTree,
+    dependencies,
+    errors,
+    evaluationOrder,
+    logs,
+  } = workerResponse;
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
-  evalErrorHandler(errors);
+  // step 8: send evaluationOrder and dataTree
+  // evalErrorHandler(errors, dataTree, evaluationOrder);
+  yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -197,7 +329,7 @@ export function* evaluateActionBindings(
 
   const { errors, values } = workerResponse;
 
-  evalErrorHandler(errors);
+  yield call(evalErrorHandler, errors);
   return values;
 }
 
@@ -214,7 +346,7 @@ export function* evaluateDynamicTrigger(
   );
 
   const { errors, triggers } = workerResponse;
-  evalErrorHandler(errors);
+  yield call(evalErrorHandler, errors);
   return triggers;
 }
 

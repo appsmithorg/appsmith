@@ -112,6 +112,10 @@ export default class DataTreeEvaluator {
       },
     };
     this.logs.push({ timeTakenForFirstTree });
+    return {
+      dataTree: this.evalTree,
+      evaluationOrder: this.sortedDependencies,
+    };
   }
 
   isDynamicLeaf(unEvalTree: DataTree, propertyPath: string) {
@@ -206,7 +210,11 @@ export default class DataTreeEvaluator {
       evaluate: (evalStop - evalStart).toFixed(2),
     };
     this.logs.push({ timeTakenForSubTreeEval });
-    return this.evalTree;
+    // step 4: return evalationOrder as well
+    return {
+      dataTree: this.evalTree,
+      evaluationOrder: evaluationOrder,
+    };
   }
 
   getCompleteSortOrder(
@@ -620,37 +628,6 @@ export default class DataTreeEvaluator {
           fullPropertyPath,
         );
         _.set(data, `${entityName}.jsErrorMessages.${propertyPath}`, e.message);
-        const entity = data[entityName];
-        if (isWidget(entity)) {
-          const isLoggingBlocked = this.isLoggingBlocked(entity, propertyPath);
-          if (!isLoggingBlocked) {
-            this.errors.push({
-              type: EvalErrorTypes.EVAL_ERROR,
-              message: e.message,
-              context: {
-                source: {
-                  id: entity.widgetId,
-                  name: entity.widgetName,
-                  type: ENTITY_TYPE.WIDGET,
-                  propertyPath: propertyPath,
-                },
-              },
-            });
-          }
-        } else if (isAction(entity)) {
-          this.errors.push({
-            type: EvalErrorTypes.EVAL_ERROR,
-            message: e.message,
-            context: {
-              source: {
-                id: entity.actionId,
-                name: entity.name,
-                type: ENTITY_TYPE.ACTION,
-                propertyPath: propertyPath,
-              },
-            },
-          });
-        }
       }
       return { result: undefined, triggers: [] };
     }
@@ -692,23 +669,7 @@ export default class DataTreeEvaluator {
       : transformed;
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
     _.set(widget, `evaluatedValues.${propertyPath}`, safeEvaluatedValue);
-    const jsError = _.get(widget, `jsErrorMessages.${propertyPath}`);
-    if (!isValid && !jsError) {
-      this.errors.push({
-        type: EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR,
-        message: message || "",
-        context: {
-          source: {
-            id: widget.widgetId,
-            name: widget.widgetName,
-            type: ENTITY_TYPE.WIDGET,
-            propertyPath: propertyPath,
-          },
-          state: {
-            value: safeEvaluatedValue,
-          },
-        },
-      });
+    if (!isValid) {
       _.set(widget, `invalidProps.${propertyPath}`, true);
       _.set(widget, `validationMessages.${propertyPath}`, message);
     } else {
