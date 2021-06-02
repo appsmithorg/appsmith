@@ -115,11 +115,6 @@ interface TableHeaderProps {
 }
 
 function TableHeader(props: TableHeaderProps) {
-  const isNextPageDisabled =
-    props.defaultPageSize !== undefined &&
-    props.totalRecordsCount !== undefined &&
-    props.defaultPageSize * props.currentPageIndex > props.totalRecordsCount;
-  console.log({ isNextPageDisabled, props });
   return (
     <>
       <SearchComponent
@@ -148,7 +143,7 @@ function TableHeader(props: TableHeaderProps) {
         <PaginationWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
-            disabled={false}
+            disabled={props.pageNo === 0}
             onClick={() => {
               props.prevPageClick();
             }}
@@ -160,7 +155,7 @@ function TableHeader(props: TableHeaderProps) {
           </PaginationItemWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"
-            disabled={isNextPageDisabled}
+            disabled={props.pageNo === props.pageCount - 1}
             onClick={() => {
               props.nextPageClick();
             }}
@@ -200,10 +195,7 @@ function TableHeader(props: TableHeaderProps) {
           </RowWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"
-            disabled={
-              props.currentPageIndex === props.pageCount - 1 ||
-              isNextPageDisabled
-            }
+            disabled={props.currentPageIndex === props.pageCount - 1}
             onClick={() => {
               const pageNo =
                 props.currentPageIndex < props.pageCount - 1

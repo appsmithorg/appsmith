@@ -535,6 +535,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
 
+    // update pageNo when defaultPageSize or totalRecordsCount is changed
+    if (
+      this.props.defaultPageSize &&
+      this.props.totalRecordCount &&
+      this.props.pageNo
+    ) {
+      const maxAllowedPageNumber = Math.ceil(
+        this.props.totalRecordCount / this.props.defaultPageSize,
+      );
+      if (this.props.pageNo > maxAllowedPageNumber) {
+        this.props.updateWidgetMetaProperty("pageNo", maxAllowedPageNumber);
+      }
+    }
+
     // If the user has switched the mutiple row selection feature
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       // It is switched ON:
@@ -619,20 +633,28 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       filteredTableData = [],
     } = this.props;
     const pageSize = defaultPageSize ? defaultPageSize : this.props.pageSize;
-    console.log({ totalRecordsCount, defaultPageSize, pageSize });
     const tableColumns = this.getTableColumns() || [];
-    const transformedData = this.transformData(filteredTableData, tableColumns);
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-    if (defaultPageSize !== undefined && totalRecordsCount !== undefined) {
+    const paginatedFilteredData = [...filteredTableData];
+    if (defaultPageSize && totalRecordsCount) {
       //if total records count configured is more than tableData
       if (this.props.pageNo * defaultPageSize > totalRecordsCount) {
         const count =
           totalRecordsCount - (this.props.pageNo - 1) * defaultPageSize;
-        console.log({ count });
-        transformedData.splice(count, transformedData.length);
+        paginatedFilteredData.splice(count, paginatedFilteredData.length);
+      }
+      // Manage defaultPageSize data
+      if (paginatedFilteredData.length > defaultPageSize) {
+        paginatedFilteredData.splice(
+          defaultPageSize,
+          paginatedFilteredData.length,
+        );
       }
     }
+    const transformedData = this.transformData(
+      paginatedFilteredData,
+      tableColumns,
+    );
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     return (
       <Suspense fallback={<Skeleton />}>
