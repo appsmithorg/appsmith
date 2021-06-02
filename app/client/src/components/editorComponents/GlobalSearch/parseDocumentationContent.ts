@@ -66,6 +66,20 @@ const updateDocumentDescriptionTitle = (documentObj: any, item: any) => {
     // append documentation button after title:
     const ctaElement = getDocumentationCTA(path) as Node;
     firstChild.appendChild(ctaElement);
+
+    Array.from(
+      firstChild.querySelectorAll(algoliaHighlightTag) as NodeListOf<
+        HTMLElement
+      >,
+    ).forEach((match) => {
+      if (
+        match.textContent &&
+        match.textContent.length < Math.floor(item.query.length / 2)
+      ) {
+        const innerHtml = match.innerHTML;
+        match.replaceWith(innerHtml);
+      }
+    });
   }
 };
 
@@ -166,7 +180,8 @@ const parseDocumentationContent = (item: any): string | undefined => {
         match.textContent &&
         match.textContent.length < Math.floor(query.length / 2)
       ) {
-        match.style["background-color"] = "unset";
+        const innerHtml = match.innerHTML;
+        match.replaceWith(innerHtml);
       }
     });
 
