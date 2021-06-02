@@ -32,7 +32,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
-import _, { get, isFunction } from "lodash";
+import _ from "lodash";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
@@ -140,30 +140,6 @@ function* postEvalActionDispatcher(
   }
 }
 
-const convertedConfigMap = () => {
-  const converted: any = {};
-
-  Object.keys(widgetTypeConfigMap).map((key) => {
-    converted[key] = {};
-
-    Object.keys(widgetTypeConfigMap[key]).map((propKey) => {
-      const propValue = get(widgetTypeConfigMap, `${key}.${propKey}`);
-
-      if (isFunction(propValue)) {
-        converted[key][propKey] = propValue.toString();
-
-        return;
-      }
-
-      converted[key][propKey] = propValue;
-
-      return;
-    });
-  });
-
-  return converted;
-};
-
 function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ) {
@@ -179,7 +155,7 @@ function* evaluateTreeSaga(
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     {
       unevalTree,
-      widgetTypeConfigMap: convertedConfigMap(),
+      widgetTypeConfigMap,
     },
   );
   const { dataTree, dependencies, errors, logs } = workerResponse;

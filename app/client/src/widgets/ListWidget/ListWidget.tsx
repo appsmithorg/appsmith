@@ -10,7 +10,6 @@ import {
   range,
   toString,
   isBoolean,
-  isEmpty,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -193,7 +192,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         const currentTemplate = template[key];
         const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
           currentTemplate.type,
-        )(currentTemplate);
+        );
 
         Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
           childrenDefaultPropertiesMap = {
@@ -221,7 +220,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         const currentTemplate = template[key];
         const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
           currentTemplate.type,
-        )(currentTemplate);
+        );
 
         Object.keys(metaProperties).map((metaPropertyKey: string) => {
           childrenMetaPropertiesMap = {
@@ -406,12 +405,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     // add default value
-    Object.keys(widget.defaultPropertiesMap).map((key: string) => {
+    Object.keys(widget.defaultProps).map((key: string) => {
       // text -> defaultText
-      const defaultPropertyValue = get(
-        widget,
-        `${widget.defaultPropertiesMap[key]}`,
-      );
+      const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
 
       if (defaultPropertyValue) {
         set(widget, `${key}`, defaultPropertyValue);
@@ -424,9 +420,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         `${widget.widgetName}.${key}.${itemIndex}`,
       );
 
-      if (!isEmpty(metaPropertyValue)) {
-        set(widget, `${key}`, metaPropertyValue);
-      }
+      set(widget, `${key}`, metaPropertyValue);
     });
 
     if (
@@ -771,7 +765,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     return (
-      <ListComponent {...this.props} hasPagination={shouldPaginate}>
+      <ListComponent
+        {...this.props}
+        hasPagination={shouldPaginate}
+        key={`list-widget-page-${this.state.page}`}
+      >
         {children}
 
         {shouldPaginate && (

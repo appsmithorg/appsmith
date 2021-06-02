@@ -146,7 +146,7 @@ export function* executeWidgetBlueprintChildOperations(
   const widgetPropertyMaps = {
     defaultPropertyMap: WidgetFactory.getWidgetDefaultPropertiesMap(
       canvasWidgets[widgetId].type as WidgetType,
-    )(canvasWidgets[widgetId]),
+    ),
   };
 
   const {

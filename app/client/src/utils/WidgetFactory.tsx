@@ -55,12 +55,9 @@ class WidgetFactory {
   > = new Map();
   static defaultPropertiesMap: Map<
     WidgetType,
-    (props: WidgetProps) => Record<string, string>
+    Record<string, string>
   > = new Map();
-  static metaPropertiesMap: Map<
-    WidgetType,
-    (props: WidgetProps) => Record<string, string>
-  > = new Map();
+  static metaPropertiesMap: Map<WidgetType, Record<string, string>> = new Map();
   static propertyPaneConfigsMap: Map<
     WidgetType,
     readonly PropertyPaneConfig[]
@@ -70,8 +67,8 @@ class WidgetFactory {
     widgetType: WidgetType,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
     derivedPropertiesMap: DerivedPropertiesMap,
-    defaultPropertiesMap: (props: WidgetProps) => Record<string, string>,
-    metaPropertiesMap: (props: WidgetProps) => Record<string, string>,
+    defaultPropertiesMap: Record<string, string>,
+    metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
@@ -130,22 +127,22 @@ class WidgetFactory {
 
   static getWidgetDefaultPropertiesMap(
     widgetType: WidgetType,
-  ): (props: WidgetProps) => Record<string, string> {
+  ): Record<string, string> {
     const map = this.defaultPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget default properties not defined", widgetType);
-      return () => ({});
+      return {};
     }
     return map;
   }
 
   static getWidgetMetaPropertiesMap(
     widgetType: WidgetType,
-  ): (props: WidgetProps) => Record<string, string> {
+  ): Record<string, string> {
     const map = this.metaPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget meta properties not defined: ", widgetType);
-      return () => ({});
+      return {};
     }
     return map;
   }
@@ -165,7 +162,9 @@ class WidgetFactory {
     const typeConfigMap: WidgetTypeConfigMap = {};
     WidgetFactory.getWidgetTypes().forEach((type) => {
       typeConfigMap[type] = {
+        defaultProperties: WidgetFactory.getWidgetDefaultPropertiesMap(type),
         derivedProperties: WidgetFactory.getWidgetDerivedPropertiesMap(type),
+        metaProperties: WidgetFactory.getWidgetMetaPropertiesMap(type),
       };
     });
     return typeConfigMap;
@@ -175,6 +174,8 @@ class WidgetFactory {
 export type WidgetTypeConfigMap = Record<
   string,
   {
+    defaultProperties: Record<string, string>;
+    metaProperties: Record<string, any>;
     derivedProperties: WidgetDerivedPropertyType;
   }
 >;

@@ -115,8 +115,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       ContainerWidget.getDerivedPropertiesMap(),
-      ContainerWidget.getDefaultPropertiesMap,
-      ContainerWidget.getMetaPropertiesMap,
+      ContainerWidget.getDefaultPropertiesMap(),
+      ContainerWidget.getMetaPropertiesMap(),
       ContainerWidget.getPropertyPaneConfig(),
     );
 
@@ -128,8 +128,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       TextWidget.getDerivedPropertiesMap(),
-      TextWidget.getDefaultPropertiesMap,
-      TextWidget.getMetaPropertiesMap,
+      TextWidget.getDefaultPropertiesMap(),
+      TextWidget.getMetaPropertiesMap(),
       TextWidget.getPropertyPaneConfig(),
     );
 
@@ -141,8 +141,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       ButtonWidget.getDerivedPropertiesMap(),
-      ButtonWidget.getDefaultPropertiesMap,
-      ButtonWidget.getMetaPropertiesMap,
+      ButtonWidget.getDefaultPropertiesMap(),
+      ButtonWidget.getMetaPropertiesMap(),
       ButtonWidget.getPropertyPaneConfig(),
     );
 
@@ -155,8 +155,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       InputWidget.getDerivedPropertiesMap(),
-      InputWidget.getDefaultPropertiesMap,
-      InputWidget.getMetaPropertiesMap,
+      InputWidget.getDefaultPropertiesMap(),
+      InputWidget.getMetaPropertiesMap(),
       InputWidget.getPropertyPaneConfig(),
     );
 
@@ -168,8 +168,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       CheckboxWidget.getDerivedPropertiesMap(),
-      CheckboxWidget.getDefaultPropertiesMap,
-      CheckboxWidget.getMetaPropertiesMap,
+      CheckboxWidget.getDefaultPropertiesMap(),
+      CheckboxWidget.getMetaPropertiesMap(),
       CheckboxWidget.getPropertyPaneConfig(),
     );
 
@@ -181,8 +181,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       SwitchWidget.getDerivedPropertiesMap(),
-      SwitchWidget.getDefaultPropertiesMap,
-      SwitchWidget.getMetaPropertiesMap,
+      SwitchWidget.getDefaultPropertiesMap(),
+      SwitchWidget.getMetaPropertiesMap(),
       SwitchWidget.getPropertyPaneConfig(),
     );
 
@@ -194,8 +194,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       DropdownWidget.getDerivedPropertiesMap(),
-      DropdownWidget.getDefaultPropertiesMap,
-      DropdownWidget.getMetaPropertiesMap,
+      DropdownWidget.getDefaultPropertiesMap(),
+      DropdownWidget.getMetaPropertiesMap(),
       DropdownWidget.getPropertyPaneConfig(),
     );
 
@@ -207,8 +207,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       RadioGroupWidget.getDerivedPropertiesMap(),
-      RadioGroupWidget.getDefaultPropertiesMap,
-      RadioGroupWidget.getMetaPropertiesMap,
+      RadioGroupWidget.getDefaultPropertiesMap(),
+      RadioGroupWidget.getMetaPropertiesMap(),
       RadioGroupWidget.getPropertyPaneConfig(),
     );
 
@@ -220,8 +220,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       ImageWidget.getDerivedPropertiesMap(),
-      ImageWidget.getDefaultPropertiesMap,
-      ImageWidget.getMetaPropertiesMap,
+      ImageWidget.getDefaultPropertiesMap(),
+      ImageWidget.getMetaPropertiesMap(),
       ImageWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -232,8 +232,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       TableWidget.getDerivedPropertiesMap(),
-      TableWidget.getDefaultPropertiesMap,
-      TableWidget.getMetaPropertiesMap,
+      TableWidget.getDefaultPropertiesMap(),
+      TableWidget.getMetaPropertiesMap(),
       TableWidget.getPropertyPaneConfig(),
     );
 
@@ -245,8 +245,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       VideoWidget.getDerivedPropertiesMap(),
-      VideoWidget.getDefaultPropertiesMap,
-      VideoWidget.getMetaPropertiesMap,
+      VideoWidget.getDefaultPropertiesMap(),
+      VideoWidget.getMetaPropertiesMap(),
       VideoWidget.getPropertyPaneConfig(),
     );
 
@@ -258,8 +258,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       FilePickerWidget.getDerivedPropertiesMap(),
-      FilePickerWidget.getDefaultPropertiesMap,
-      FilePickerWidget.getMetaPropertiesMap,
+      FilePickerWidget.getDefaultPropertiesMap(),
+      FilePickerWidget.getMetaPropertiesMap(),
       FilePickerWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -270,8 +270,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       DatePickerWidget.getDerivedPropertiesMap(),
-      DatePickerWidget.getDefaultPropertiesMap,
-      DatePickerWidget.getMetaPropertiesMap,
+      DatePickerWidget.getDefaultPropertiesMap(),
+      DatePickerWidget.getMetaPropertiesMap(),
       DatePickerWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -282,8 +282,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       DatePickerWidget2.getDerivedPropertiesMap(),
-      DatePickerWidget2.getDefaultPropertiesMap,
-      DatePickerWidget2.getMetaPropertiesMap,
+      DatePickerWidget2.getDefaultPropertiesMap(),
+      DatePickerWidget2.getMetaPropertiesMap(),
       DatePickerWidget2.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -296,8 +296,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       TabsWidget.getDerivedPropertiesMap(),
-      TabsWidget.getDefaultPropertiesMap,
-      TabsWidget.getMetaPropertiesMap,
+      TabsWidget.getDefaultPropertiesMap(),
+      TabsWidget.getMetaPropertiesMap(),
       TabsWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -310,8 +310,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       TabsMigratorWidget.getDerivedPropertiesMap(),
-      TabsMigratorWidget.getDefaultPropertiesMap,
-      TabsMigratorWidget.getMetaPropertiesMap,
+      TabsMigratorWidget.getDefaultPropertiesMap(),
+      TabsMigratorWidget.getMetaPropertiesMap(),
       TabsMigratorWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -322,8 +322,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       BaseWidget.getDerivedPropertiesMap(),
-      BaseWidget.getDefaultPropertiesMap,
-      BaseWidget.getMetaPropertiesMap,
+      BaseWidget.getDefaultPropertiesMap(),
+      BaseWidget.getMetaPropertiesMap(),
       ModalWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -334,8 +334,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       RichTextEditorWidget.getDerivedPropertiesMap(),
-      RichTextEditorWidget.getDefaultPropertiesMap,
-      RichTextEditorWidget.getMetaPropertiesMap,
+      RichTextEditorWidget.getDefaultPropertiesMap(),
+      RichTextEditorWidget.getMetaPropertiesMap(),
       RichTextEditorWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -346,8 +346,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       ChartWidget.getDerivedPropertiesMap(),
-      ChartWidget.getDefaultPropertiesMap,
-      ChartWidget.getMetaPropertiesMap,
+      ChartWidget.getDefaultPropertiesMap(),
+      ChartWidget.getMetaPropertiesMap(),
       ChartWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -360,8 +360,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       FormWidget.getDerivedPropertiesMap(),
-      FormWidget.getDefaultPropertiesMap,
-      FormWidget.getMetaPropertiesMap,
+      FormWidget.getDefaultPropertiesMap(),
+      FormWidget.getMetaPropertiesMap(),
       FormWidget.getPropertyPaneConfig(),
     );
 
@@ -373,8 +373,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       FormButtonWidget.getDerivedPropertiesMap(),
-      FormButtonWidget.getDefaultPropertiesMap,
-      FormButtonWidget.getMetaPropertiesMap,
+      FormButtonWidget.getDefaultPropertiesMap(),
+      FormButtonWidget.getMetaPropertiesMap(),
       FormButtonWidget.getPropertyPaneConfig(),
     );
 
@@ -386,8 +386,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       MapWidget.getDerivedPropertiesMap(),
-      MapWidget.getDefaultPropertiesMap,
-      MapWidget.getMetaPropertiesMap,
+      MapWidget.getDefaultPropertiesMap(),
+      MapWidget.getMetaPropertiesMap(),
       MapWidget.getPropertyPaneConfig(),
     );
 
@@ -401,8 +401,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       CanvasWidget.getDerivedPropertiesMap(),
-      CanvasWidget.getDefaultPropertiesMap,
-      CanvasWidget.getMetaPropertiesMap,
+      CanvasWidget.getDefaultPropertiesMap(),
+      CanvasWidget.getMetaPropertiesMap(),
       CanvasWidget.getPropertyPaneConfig(),
     );
 
@@ -414,8 +414,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       IconWidget.getDerivedPropertiesMap(),
-      IconWidget.getDefaultPropertiesMap,
-      IconWidget.getMetaPropertiesMap,
+      IconWidget.getDefaultPropertiesMap(),
+      IconWidget.getMetaPropertiesMap(),
       IconWidget.getPropertyPaneConfig(),
     );
 
@@ -427,8 +427,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       SkeletonWidget.getDerivedPropertiesMap(),
-      SkeletonWidget.getDefaultPropertiesMap,
-      SkeletonWidget.getMetaPropertiesMap,
+      SkeletonWidget.getDefaultPropertiesMap(),
+      SkeletonWidget.getMetaPropertiesMap(),
       SkeletonWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -439,8 +439,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       ListWidget.getDerivedPropertiesMap(),
-      ListWidget.getDefaultPropertiesMap,
-      ListWidget.getMetaPropertiesMap,
+      ListWidget.getDefaultPropertiesMap(),
+      ListWidget.getMetaPropertiesMap(),
       ListWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -451,8 +451,8 @@ export default class WidgetBuilderRegistry {
         },
       },
       ModalWidget.getDerivedPropertiesMap(),
-      ModalWidget.getDefaultPropertiesMap,
-      ModalWidget.getMetaPropertiesMap,
+      ModalWidget.getDefaultPropertiesMap(),
+      ModalWidget.getMetaPropertiesMap(),
       ModalWidget.getPropertyPaneConfig(),
     );
   }
