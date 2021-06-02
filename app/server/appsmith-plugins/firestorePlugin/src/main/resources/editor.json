@@ -179,7 +179,7 @@
             },
             {
               "label": "Where Conditions",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].valueList",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
               "controlType": "ARRAY_FIELD",
               "hidden": {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",

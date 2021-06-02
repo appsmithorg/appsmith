@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -627,15 +628,15 @@ public class FirestorePlugin extends BasePlugin {
                     .flatMap(query1 -> {
                         if(properties.size() <= WHERE_CONDITIONAL_PROPERTY_INDEX
                                 || properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX) == null
-                                || CollectionUtils.isEmpty(properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValueList())) {
+                                || CollectionUtils.isEmpty((List) properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue())) {
                             return Mono.just(query1);
                         }
 
-                        List<Object> conditionList = properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValueList();
+                        List<Object> conditionList = (List) properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue();
 
                         //TODO: remove it.
                         System.out.println("devtest: conditionList: " + conditionList);
-                        
+
                         for(Object condition : conditionList) {
                             String path = ((Map<String, String>)condition).get("path");
                             String operatorString = ((Map<String, String>)condition).get("operator");

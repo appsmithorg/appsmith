@@ -27,8 +27,6 @@ public class Property {
 
     Object value;
 
-    List<Object> valueList;
-
     Boolean editable;
 
     Boolean internal;
