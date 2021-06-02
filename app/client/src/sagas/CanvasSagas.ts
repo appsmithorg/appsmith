@@ -18,7 +18,15 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { getWidget } from "./selectors";
 
 function* selectAllWidgetsInArea(action: ReduxAction<any>) {
-  const selectionArena: SelectedArenaDimensions = action.payload;
+  const {
+    selectionArena,
+    snapToNextColumn,
+    snapToNextRow,
+  }: {
+    selectionArena: SelectedArenaDimensions;
+    snapToNextColumn: boolean;
+    snapToNextRow: boolean;
+  } = action.payload;
   const mainContainer: WidgetProps = yield select(
     getWidget,
     MAIN_CONTAINER_WIDGET_ID,
@@ -29,11 +37,14 @@ function* selectAllWidgetsInArea(action: ReduxAction<any>) {
       (mainContainer.rightColumn - 2 * padding) / mainContainer.snapColumns,
     snapColumnHeight: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   };
+  // we use snapToNextRow, snapToNextColumn to determine if the selection rectangle is inverted
+  // so to snap not to the next column or row like we usually do,
+  // but to snap it to the one before it coz the rectangle is inverted.
   const topLeftCorner = snapToGrid(
     snapSpace.snapColumnWidth,
     snapSpace.snapColumnHeight,
-    selectionArena.left,
-    selectionArena.top,
+    selectionArena.left - (snapToNextRow ? snapSpace.snapColumnWidth : 0),
+    selectionArena.top - (snapToNextColumn ? snapSpace.snapColumnHeight : 0),
   );
   const bottomRightCorner = snapToGrid(
     snapSpace.snapColumnWidth,

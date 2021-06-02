@@ -29,11 +29,13 @@ export interface SelectedArenaDimensions {
 }
 
 const selectAllWidgetsInAction = (
-  arenaProps: SelectedArenaDimensions,
+  selectionArena: SelectedArenaDimensions,
+  snapToNextColumn: boolean,
+  snapToNextRow: boolean,
 ): ReduxAction<any> => {
   return {
     type: ReduxActionTypes.SELECT_WIDGETS_IN_AREA,
-    payload: arenaProps,
+    payload: { selectionArena, snapToNextColumn, snapToNextRow },
   };
 };
 
@@ -47,8 +49,18 @@ export const CanvasSelectionArena = memo(
     const appLayout = useSelector(getCurrentApplicationLayout);
     const throttledWidgetSelection = useCallback(
       throttle(
-        (selectionDimensions: SelectedArenaDimensions) => {
-          dispatch(selectAllWidgetsInAction(selectionDimensions));
+        (
+          selectionDimensions: SelectedArenaDimensions,
+          snapToNextColumn: boolean,
+          snapToNextRow: boolean,
+        ) => {
+          dispatch(
+            selectAllWidgetsInAction(
+              selectionDimensions,
+              snapToNextColumn,
+              snapToNextRow,
+            ),
+          );
         },
         150,
         {
@@ -66,29 +78,18 @@ export const CanvasSelectionArena = memo(
       selectionCanvas.width = width;
       selectionCanvas.height = height;
       const canvasCtx = selectionCanvas.getContext("2d");
-      const selectionRectangle: SelectedArenaDimensions = {
+      const initRectangle = (): SelectedArenaDimensions => ({
         top: 0,
         left: 0,
         width: 0,
         height: 0,
-      };
+      });
+      let selectionRectangle: SelectedArenaDimensions = initRectangle();
 
       let isDragging = false;
 
       const init = () => {
-        selectionCanvas.addEventListener(
-          "click",
-          (e: any) => {
-            if (
-              Math.abs(selectionRectangle.height) +
-                Math.abs(selectionRectangle.width) >
-              0
-            ) {
-              e.stopPropagation();
-            }
-          },
-          false,
-        );
+        selectionCanvas.addEventListener("click", onClick, false);
         selectionCanvas.addEventListener("mousedown", onMouseDown, false);
         selectionCanvas.addEventListener("mouseup", onMouseUp, false);
         selectionCanvas.addEventListener("mousemove", onMouseMove, false);
@@ -120,7 +121,13 @@ export const CanvasSelectionArena = memo(
           selectionDimensions.width &&
           selectionDimensions.height
         ) {
-          throttledWidgetSelection(selectionDimensions);
+          const snapToNextColumn = selectionRectangle.height < 0;
+          const snapToNextRow = selectionRectangle.width < 0;
+          throttledWidgetSelection(
+            selectionDimensions,
+            snapToNextColumn,
+            snapToNextRow,
+          );
         }
       };
 
@@ -148,6 +155,20 @@ export const CanvasSelectionArena = memo(
 
       const onMouseEnter = () => {
         document.body.removeEventListener("mouseup", onMouseUp);
+      };
+
+      const onClick = (e: any) => {
+        if (
+          Math.abs(selectionRectangle.height) +
+            Math.abs(selectionRectangle.width) >
+          0
+        ) {
+          if (!isDragging) {
+            // cant set this in onMouseUp coz click seems to happen after onMouseUp.
+            selectionRectangle = initRectangle();
+          }
+          e.stopPropagation();
+        }
       };
 
       const onMouseDown = (e: any) => {
@@ -198,6 +219,7 @@ export const CanvasSelectionArena = memo(
         selectionCanvas.removeEventListener("mousemove", onMouseMove);
         selectionCanvas.removeEventListener("mouseleave", onMouseLeave);
         selectionCanvas.removeEventListener("mouseenter", onMouseEnter);
+        selectionCanvas.removeEventListener("click", onClick);
       };
     }, [
       appLayout,
