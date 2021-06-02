@@ -81,13 +81,13 @@ export const getSortedAndFilteredAppCommentThreadIds = (
   shouldShowResolved: boolean,
   appCommentsFilter: typeof filterOptions[number]["value"],
   currentUserUsername?: string,
+  currentPageId?: string,
 ): Array<string> => {
   if (!applicationThreadIds) return [];
   return applicationThreadIds
     .sort((a, b) => {
       // TODO verify cases where commentThread can be undefined
-      if (!commentThreadsMap[a]) return -1;
-      if (!commentThreadsMap[b]) return 1;
+      if (!commentThreadsMap[a] || !commentThreadsMap[b]) return 0;
 
       const {
         pinnedState: isAPinned,
@@ -115,6 +115,7 @@ export const getSortedAndFilteredAppCommentThreadIds = (
 
       // Happens during delete thread
       if (!thread) return false;
+      if (thread?.pageId !== currentPageId) return false;
 
       const isResolved = thread.resolvedState?.active;
       const isPinned = thread.pinnedState?.active;

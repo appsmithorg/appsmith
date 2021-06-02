@@ -111,6 +111,19 @@ function Pin({
 
 const Container = document.getElementById("root");
 
+const modifiers = {
+  preventOverflow: { enabled: true },
+  offset: {
+    enabled: true,
+    options: {
+      offset: [-8, 10] as [
+        number | null | undefined,
+        number | null | undefined,
+      ],
+    },
+  },
+};
+
 /**
  * Comment pins that toggle comment thread popover visibility on click
  * They position themselves using position absolute based on top and left values (in percent)
@@ -126,9 +139,12 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
 
   useSelectCommentThreadUsingQuery(commentThreadId);
 
-  const shouldShowResolved = useSelector(shouldShowResolvedSelector);
-  const isPinVisible =
-    shouldShowResolved || !commentThread?.resolvedState?.active;
+  const isPinVisible = useSelector(
+    (state: AppState) =>
+      shouldShowResolvedSelector(state) ||
+      !commentThread?.resolvedState?.active,
+  );
+
   const isCommentThreadVisible = useSelector(
     (state: AppState) =>
       state.ui.comments.visibleCommentThreadId === commentThreadId,
@@ -183,18 +199,10 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
                   }
                   enforceFocus={false}
                   hasBackdrop
+                  // isOpen is controlled so that newly created threads are set to be visible
                   isOpen={!!isCommentThreadVisible}
                   minimal
-                  // isOpen is controlled so that newly created threads are set to be visible
-                  modifiers={{
-                    preventOverflow: { enabled: true },
-                    offset: {
-                      enabled: true,
-                      options: {
-                        offset: [-8, 10],
-                      },
-                    },
-                  }}
+                  modifiers={modifiers}
                   onInteraction={(nextOpenState: boolean) => {
                     if (nextOpenState) {
                       dispatch(setVisibleThread(commentThreadId));

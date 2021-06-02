@@ -20,8 +20,7 @@ import CommentThread from "comments/CommentThread/connectedCommentThread";
 import AppCommentsPlaceholder from "./AppCommentsPlaceholder";
 import { getCurrentUser } from "selectors/usersSelectors";
 
-import useResizeObserver from "utils/hooks/useResizeObserver";
-import { get } from "lodash";
+import { Virtuoso } from "react-virtuoso";
 
 const Container = styled.div`
   display: flex;
@@ -29,22 +28,6 @@ const Container = styled.div`
   flex: 1;
   overflow: auto;
 `;
-
-function PageCommentThread(props: {
-  hideInput?: boolean;
-  hideChildren?: boolean;
-  showSubheader?: boolean;
-  commentThreadId: string;
-}) {
-  const commentThread = useSelector(
-    commentThreadsSelector(props.commentThreadId),
-  );
-  const currentPageId = useSelector(getCurrentPageId);
-
-  if (commentThread && commentThread.pageId !== currentPageId) return null;
-
-  return <CommentThread {...props} />;
-}
 
 function AppCommentThreads() {
   const applicationId = useSelector(getCurrentApplicationId) as string;
@@ -59,14 +42,7 @@ function AppCommentThreads() {
   const currentUser = useSelector(getCurrentUser);
   const currentUsername = currentUser?.username;
 
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const [appThreadsHeightEqZero, setAppThreadsHeightEqZero] = useState(true);
-
-  useResizeObserver(containerRef.current, (entries) => {
-    const { height } = get(entries, "0.contentRect", {});
-    setAppThreadsHeightEqZero(height === 0);
-  });
+  const currentPageId = useSelector(getCurrentPageId);
 
   const commentThreadIds = useMemo(
     () =>
@@ -76,6 +52,7 @@ function AppCommentThreads() {
         shouldShowResolved,
         appCommentsFilter,
         currentUsername,
+        currentPageId,
       ),
     [
       appCommentThreadIds,
@@ -83,23 +60,34 @@ function AppCommentThreads() {
       shouldShowResolved,
       appCommentsFilter,
       currentUsername,
+      currentPageId,
     ],
   );
 
   return (
     <Container>
-      <div ref={containerRef}>
-        {commentThreadIds.map((commentThreadId: string) => (
-          <PageCommentThread
-            commentThreadId={commentThreadId}
-            hideChildren
-            hideInput
-            key={commentThreadId}
-            showSubheader
-          />
-        ))}
-      </div>
-      {appThreadsHeightEqZero && <AppCommentsPlaceholder />}
+      <Virtuoso
+        data={commentThreadIds}
+        itemContent={(_index, commentThreadId) => (
+          /**
+           * zero height elements are not supported by react virtuso
+           * we filter the elements from the list but in the intermediate
+           * state there is a possibility when the comment thread id exists
+           * in the list, using this as a temporary workaround and a fail safe
+           * until we are sure this doesn't happen
+           */
+          <div style={{ minHeight: 1 }}>
+            <CommentThread
+              commentThreadId={commentThreadId}
+              hideChildren
+              hideInput
+              key={commentThreadId}
+              showSubheader
+            />
+          </div>
+        )}
+      />
+      {commentThreadIds.length === 0 && <AppCommentsPlaceholder />}
     </Container>
   );
 }
