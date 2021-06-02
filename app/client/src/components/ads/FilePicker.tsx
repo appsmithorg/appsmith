@@ -9,7 +9,13 @@ import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import Text, { TextType } from "./Text";
 import { Classes, Variant } from "./common";
 import { Toaster } from "./Toast";
-import { createMessage, ERROR_FILE_TOO_LARGE } from "constants/messages";
+import {
+  createMessage,
+  ERROR_FILE_TOO_LARGE,
+  REMOVE_FILE_TOOL_TIP,
+} from "constants/messages";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import Icon, { IconSize } from "./Icon";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
@@ -445,9 +451,14 @@ function FilePickerComponent(props: FilePickerProps) {
           <Text className="success-text" type={TextType.H4}>
             Successfully Uploaded!
           </Text>
-          <IconWrapper className="icon-wrapper" onClick={() => removeFile()}>
-            <Icon name="close" size={IconSize.XL} />
-          </IconWrapper>
+          <TooltipComponent
+            content={REMOVE_FILE_TOOL_TIP()}
+            position={Position.TOP}
+          >
+            <IconWrapper className="icon-wrapper" onClick={() => removeFile()}>
+              <Icon name="close" size={IconSize.XL} />
+            </IconWrapper>
+          </TooltipComponent>
         </div>
       </div>
     </div>

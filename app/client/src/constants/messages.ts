@@ -202,7 +202,7 @@ export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
 export const SERVER_API_TIMEOUT_ERROR = () =>
   `Appsmith server is taking too long to respond. Please try again after some time`;
 export const DEFAULT_ERROR_MESSAGE = () => `There was an unexpected error`;
-
+export const REMOVE_FILE_TOOL_TIP = () => "Remove Upload";
 export const ERROR_FILE_TOO_LARGE = (fileSize: string) =>
   `File size should be less than ${fileSize}!`;
 export const ERROR_DATEPICKER_MIN_DATE = () =>
