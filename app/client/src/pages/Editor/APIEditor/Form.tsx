@@ -363,6 +363,11 @@ const CloseIconContainer = styled.div`
   position: absolute;
   top: 12px;
   right: 10px;
+  svg {
+    path {
+      fill: #a9a7a7;
+    }
+  }
 `;
 
 function renderHelpSection(

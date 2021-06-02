@@ -80,6 +80,27 @@ const DataSourceNameContainer = styled.div`
   display: flex;
   justify-content: space-between;
   width: 100%;
+  .cs-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .cs-icon {
+    flex-shrink: 0;
+    svg {
+      path {
+        fill: #a9a7a7;
+      }
+    }
+    &: hover {
+      background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
+      svg {
+        path {
+          fill: #4b4848;
+        }
+      }
+    }
+  }
 `;
 
 export const getDatasourceInfo = (datasource: any): string => {
