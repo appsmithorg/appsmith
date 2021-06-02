@@ -1,7 +1,11 @@
 import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { LogActionPayload, Message } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  LogActionPayload,
+  Message,
+} from "entities/AppsmithConsole";
 import {
   all,
   put,
@@ -11,14 +15,20 @@ import {
   fork,
   call,
 } from "redux-saga/effects";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import {
+  getDataTree,
+  getEvaluationInverseDependencyMap,
+} from "selectors/dataTreeSelectors";
 import { isEmpty, set, get } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "workers/evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isWidget,
+} from "workers/evaluationUtils";
 import { getWidget } from "./selectors";
 import { WidgetProps } from "widgets/BaseWidget";
 
@@ -123,6 +133,56 @@ function* onEntityDeleteSaga(payload: Message) {
   yield put(debuggerLog(payload));
 }
 
+// Recursively find out dependency chain
+function getDependencyChain(propertyPath: string, inverseMap: any) {
+  let currentChain: string[] = [];
+  const dependents = inverseMap[propertyPath];
+
+  if (!dependents) return currentChain;
+
+  const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
+
+  dependents.map((e: any) => {
+    if (!e.includes(dependentInfo.entityName)) {
+      currentChain.push(e);
+      currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
+    }
+  });
+  return currentChain;
+}
+
+function* logDependentEntityProperties(payload: Message) {
+  const { source, state } = payload;
+  if (!state || !source) return;
+
+  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+  const dataTree: DataTree = yield select(getDataTree);
+
+  const propertyPath = `${source.name}.` + Object.keys(state)[0];
+  const inverseDependencyMap = yield select(getEvaluationInverseDependencyMap);
+  const finalValue = getDependencyChain(propertyPath, inverseDependencyMap);
+
+  yield all(
+    finalValue.map((path) => {
+      const entityInfo = getEntityNameAndPropertyPath(path);
+      const widget = dataTree[entityInfo.entityName] as DataTreeWidget;
+      const log = {
+        ...payload,
+        text: "Widget properties were updated",
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          name: entityInfo.entityName,
+          id: widget.widge,
+        },
+        state: {
+          [entityInfo.propertyPath]: get(dataTree, path),
+        },
+      };
+      return put(debuggerLog(log));
+    }),
+  );
+}
+
 function* debuggerLogSaga(action: ReduxAction<Message>) {
   const { payload } = action;
 
@@ -130,6 +190,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
     case LOG_TYPE.WIDGET_UPDATE:
       yield call(onWidgetUpdateSaga, payload);
       yield put(debuggerLog(payload));
+      yield call(logDependentEntityProperties, payload);
       return;
     case LOG_TYPE.EVAL_ERROR:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
