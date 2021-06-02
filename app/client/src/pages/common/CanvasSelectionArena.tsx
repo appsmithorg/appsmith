@@ -16,7 +16,7 @@ const StyledSelectionCanvas = styled.canvas`
   position: absolute;
   top: 0px;
   left: 0px;
-  height: calc(100% + 200px);
+  height: calc(100% + ${(props) => props.theme.canvasBottomPadding}px);
   width: 100%;
   overflow-y: auto;
 `;

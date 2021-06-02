@@ -89,7 +89,7 @@ function* startCanvasSelectionSaga() {
   yield cancel(selectionTask);
 }
 
-export default function* canvasSagas() {
+export default function* selectionCanvasSagas() {
   yield all([
     takeLatest(
       ReduxActionTypes.START_CANVAS_SELECTION,
