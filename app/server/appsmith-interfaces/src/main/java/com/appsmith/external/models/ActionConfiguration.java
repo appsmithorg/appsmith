@@ -8,7 +8,6 @@ import org.hibernate.validator.constraints.Range;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
-import java.sql.Statement;
 import java.util.List;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
@@ -56,7 +55,10 @@ public class ActionConfiguration implements AppsmithDomain {
     // DB action fields
 
     // JS action fields
-    String jsFunction;
+    // Body, the raw class data, is shared with API type actions
+    // Represents the values that need to be
+    List<JSValue> jsConstants;
+    List<JSFunction> jsFunctions;
 
     /*
      * Future plugins could require more fields that are not covered above.

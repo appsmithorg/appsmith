@@ -6,6 +6,7 @@ export enum PluginType {
   API = "API",
   DB = "DB",
   SAAS = "SAAS",
+  JS = "JS",
 }
 
 export enum PaginationType {
