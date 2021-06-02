@@ -27,6 +27,8 @@ function InlinePageCommentPin({
   return <InlineCommentPin commentThreadId={commentThreadId} />;
 }
 
+const MemoisedInlinePageCommentPin = React.memo(InlinePageCommentPin);
+
 /**
  * Renders comment threads associated with a refId (for example widgetId)
  * Comment thread pins (children) are absolutely positioned from the parent boundary
@@ -45,7 +47,7 @@ function Comments({ refId }: { refId: string }) {
     <>
       {Array.isArray(commentsThreadIds) &&
         commentsThreadIds.map((commentsThreadId: any) => (
-          <InlinePageCommentPin
+          <MemoisedInlinePageCommentPin
             commentThreadId={commentsThreadId}
             key={commentsThreadId}
           />
