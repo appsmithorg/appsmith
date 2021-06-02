@@ -41,6 +41,7 @@ describe("EntityDefinitions", () => {
       },
       selectedItem: { id: "number", name: "string" },
       gridGap: "number",
+      updatedItems: "?",
     };
 
     expect(listWidgetEntityDefinitions).toStrictEqual(output);
