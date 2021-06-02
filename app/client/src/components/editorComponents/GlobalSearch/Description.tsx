@@ -102,13 +102,14 @@ function DocumentationDescription({
     const root = containerRef.current;
     if (!root) return;
     const list = root.getElementsByTagName(algoliaHighlightTag);
-
     if (list.length) {
       if (list[0]) {
         root.getElementsByTagName(algoliaHighlightTag)[0].scrollIntoView();
       }
     } else {
-      root.firstElementChild?.scrollIntoView();
+      setTimeout(() => {
+        root.firstElementChild?.scrollIntoView();
+      }, 0);
     }
   };
 
