@@ -17,9 +17,6 @@ describe("Organization Import Application", function() {
 
         cy.get(homePage.orgImportAppModal).should("be.visible");
         cy.xpath(homePage.uploadLogo).attachFile(fixtureDummyAppPath);
-        cy.get(homePage.orgImportAppConfirmationCheckbox).click({
-          force: true,
-        });
 
         cy.get(homePage.orgImportAppButton).click({ force: true });
         cy.wait("@importNewApplication").then((interception) => {
