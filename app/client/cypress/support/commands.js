@@ -66,6 +66,16 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
   cy.get(homePage.inviteUserMembersPage).should("be.visible");
 });
 
+Cypress.Commands.add("openOrgOptionsPopup", (orgName) => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(".t--org-name span")
+    .contains(orgName)
+    .first()
+    .click({ force: true });
+});
+
 Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
   cy.stubPostHeaderReq();
   cy.get(homePage.orgList.concat(orgName).concat(")"))
@@ -157,7 +167,9 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(homePage.DeleteBtn).click({ force: true });
+  cy.get(homePage.DeleteBtn)
+    .last()
+    .click({ force: true });
   cy.xpath(homePage.appHome)
     .first()
     .should("be.visible")
@@ -2213,6 +2225,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
+  cy.route("PUT", "/api/v1/users/leaveOrganization/*").as("leaveOrgApiCall");
 });
 
 Cypress.Commands.add("alertValidate", (text) => {
