@@ -221,6 +221,10 @@ describe("generateDataTreeWidget", () => {
           key: "value",
         },
       ],
+      logBlackList: {
+        isValid: "{{true}}",
+        value: "{{Input1.text}}",
+      },
       value: "{{Input1.text}}",
       isDirty: true,
       isFocused: false,
