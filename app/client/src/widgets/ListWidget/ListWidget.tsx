@@ -86,14 +86,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             });
 
 
+
              if (this.childrenDefaultPropertiesMap) {
               Object.keys(this.childrenDefaultPropertiesMap).map((key) => {
                 const defaultKey = this.childrenDefaultPropertiesMap[key];
                 const defaultPropertyValue = _.get(
                   this.template,
-                  currentWidget.widgetName + "." + defaultKey + "." + itemIndex
+                  currentWidget.widgetName + "." + defaultKey
                 );
-
 
 
                 if (Array.isArray(defaultPropertyValue)) {
@@ -102,6 +102,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                   _.set(currentWidget, key.split(".").pop(), evaluatedValue);
                   _.set(currentWidget, defaultKey, evaluatedValue);
                 } else if(defaultPropertyValue) {
+                  console.log({ key, defaultKey });
                   _.set(currentWidget, key.split(".").pop(), defaultPropertyValue);
                   _.set(currentWidget, defaultKey, defaultPropertyValue);
                 }

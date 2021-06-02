@@ -16,7 +16,7 @@ describe("generateDataTreeWidget", () => {
       "getWidgetMetaPropertiesMap",
     );
     getMetaProps.mockReturnValueOnce({
-      text: undefined,
+      text: "",
       isDirty: false,
       isFocused: false,
     });
@@ -240,6 +240,14 @@ describe("generateDataTreeWidget", () => {
       widgetName: "Input1",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       defaultText: "Testing",
+      defaultMetaProps: {
+        isDirty: false,
+        isFocused: false,
+        text: "",
+      },
+      defaultProps: {
+        text: "defaultText",
+      },
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);
