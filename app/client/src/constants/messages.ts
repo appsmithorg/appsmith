@@ -331,11 +331,4 @@ export const NO_LOGS = () => "No logs to show";
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
 // Import/Export Application features
-export const EXPORT_APPLICATION_MODAL_TITLE = () =>
-  "Be sure to read the data policy";
-export const EXPORT_APPLICATION_MODAL_SUB_TITLE = () =>
-  "By clicking on this you agree that your application credentials can be stored inside a file";
-
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
-export const IMPORT_APPLICATION_MODAL_SUB_TITLE = () =>
-  "By clicking on this you agree that your application credentials will be read from the file";

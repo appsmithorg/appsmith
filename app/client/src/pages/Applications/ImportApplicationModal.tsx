@@ -1,26 +1,25 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import { Size } from "components/ads/Button";
-import { StyledDialog, ForkButton, ButtonWrapper } from "./ForkModalStyles";
-import Checkbox from "components/ads/Checkbox";
+import Button, { Size } from "components/ads/Button";
+import { StyledDialog } from "./ForkModalStyles";
 import { useSelector } from "store";
 import { AppState } from "reducers";
-import Text, { TextType } from "components/ads/Text";
 import FilePicker, { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
 import { importApplication } from "actions/applicationActions";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import {
-  IMPORT_APPLICATION_MODAL_TITLE,
-  IMPORT_APPLICATION_MODAL_SUB_TITLE,
-} from "constants/messages";
+import { IMPORT_APPLICATION_MODAL_TITLE } from "constants/messages";
 
-const CheckboxDiv = styled.div`
-  overflow: auto;
-  max-height: 250px;
-  margin-bottom: 10px;
-  margin-top: 20px;
+const ImportButton = styled(Button)<{ disabled?: boolean }>`
+  height: 30px;
+  width: 81px;
+  pointer-events: ${(props) => (!!props.disabled ? "none" : "auto")};
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
 `;
 
 const FilePickerWrapper = styled.div`
@@ -39,7 +38,6 @@ type ImportApplicationModalProps = {
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
   const { isModalOpen, onClose, organizationId } = props;
-  const [isChecked, setIsCheckedToTrue] = useState(false);
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
     setProgress: SetProgress;
@@ -50,18 +48,21 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     (state: AppState) => state.ui.applications.importingApplication,
   );
 
-  const FileUploader = async (file: File, setProgress: SetProgress) => {
-    if (!!file) {
-      setAppFileToBeUploaded({
-        file,
-        setProgress,
-      });
-    } else {
-      setAppFileToBeUploaded(null);
-    }
-  };
+  const FileUploader = useCallback(
+    async (file: File, setProgress: SetProgress) => {
+      if (!!file) {
+        setAppFileToBeUploaded({
+          file,
+          setProgress,
+        });
+      } else {
+        setAppFileToBeUploaded(null);
+      }
+    },
+    [],
+  );
 
-  const onImportApplication = () => {
+  const onImportApplication = useCallback(() => {
     if (!appFileToBeUploaded) {
       Toaster.show({
         text: "Please choose a valid application file!",
@@ -77,7 +78,9 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         applicationFile: file,
       }),
     );
-  };
+  }, [appFileToBeUploaded, organizationId]);
+
+  const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
 
   return (
     <StyledDialog
@@ -93,23 +96,14 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
           delayedUpload
           fileType={FileType.JSON}
           fileUploader={FileUploader}
+          onFileRemoved={onRemoveFile}
         />
       </FilePickerWrapper>
-      <CheckboxDiv>
-        <Text type={TextType.P1}>
-          <Checkbox
-            cypressSelector={"t--org-import-app-confirm"}
-            label={IMPORT_APPLICATION_MODAL_SUB_TITLE()}
-            onCheckChange={(checked: boolean) => {
-              setIsCheckedToTrue(checked);
-            }}
-          />
-        </Text>
-      </CheckboxDiv>
       <ButtonWrapper>
-        <ForkButton
+        <ImportButton
+          // category={ButtonCategory.tertiary}
           cypressSelector={"t--org-import-app-button"}
-          disabled={!isChecked || !appFileToBeUploaded}
+          disabled={!appFileToBeUploaded}
           isLoading={importingApplication}
           onClick={onImportApplication}
           size={Size.large}
