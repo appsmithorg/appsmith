@@ -143,6 +143,8 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
           updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
 
           if (metaOptions) {
+            console.log({ metaOptions });
+
             updateWidgetMetaProperty(
               metaOptions.widgetId,
               `${metaOptions.metaPropPrefix}.${this.props.widgetName}.${propertyName}[${metaOptions.index}]`,

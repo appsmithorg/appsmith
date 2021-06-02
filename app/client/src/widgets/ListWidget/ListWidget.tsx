@@ -51,15 +51,19 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return {
       updatedItems: `{{(() => {
         let item = {};
+
         Object.keys(this.template).map(widgetName => {
           item[widgetName] = {...this.template[widgetName] };
         });
 
-        let updatedItems = Array.from({ length: this.items.length }, i => item);
+        let updatedItems = [];
 
-        for (let itemIndex = 0; itemIndex < updatedItems.length; itemIndex++) {
-          const currentItem = updatedItems[itemIndex];
+        for (let i = 0; i < this.items.length; i++) {
+          updatedItems[i] = JSON.parse(JSON.stringify(item));
+        }
 
+
+        updatedItems.map((currentItem, itemIndex) => {
           const widgetKeys = Object.keys(currentItem);
 
           widgetKeys.map(currentWidgetName => {
@@ -84,41 +88,41 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             });
 
             if (this.childrenDefaultPropertiesMap) {
-            Object.keys(this.childrenDefaultPropertiesMap).map((key) => {
-              const defaultKey = this.childrenDefaultPropertiesMap[key];
-              const defaultPropertyValue = _.get(
-                this.template,
-                currentWidget.widgetName + "." + defaultKey
-              );
+              Object.keys(this.childrenDefaultPropertiesMap).map((key) => {
+                const defaultKey = this.childrenDefaultPropertiesMap[key];
+                const widgetName = key.split(".").shift();
 
-              if (Array.isArray(defaultPropertyValue)) {
-                const evaluatedValue = defaultPropertyValue[itemIndex];
+                if (widgetName === currentWidget.widgetName) {
+                  const defaultPropertyValue = _.get(
+                    this.template,
+                    currentWidget.widgetName + "." + defaultKey,
+                    undefined
+                  );
 
-                _.set(currentWidget, key.split(".").pop(), evaluatedValue);
-                _.set(currentWidget, defaultKey, evaluatedValue);
-              } else if(defaultPropertyValue) {
-                console.log({ key, defaultKey });
-                _.set(currentWidget, key.split(".").pop(), defaultPropertyValue);
-                _.set(currentWidget, defaultKey, defaultPropertyValue);
-              }
-            });
+                  if (Array.isArray(defaultPropertyValue)) {
+                    const evaluatedValue = defaultPropertyValue[itemIndex];
+
+                    _.set(currentWidget, key.split(".").pop(), evaluatedValue);
+                  } else if(defaultPropertyValue) {
+                    _.set(currentWidget, key.split(".").pop(), defaultPropertyValue);
+                  }
+                }
+              });
             }
 
-            if (this.childrenMetaPropertiesMap) {
-            this.childrenMetaPropertiesMap.map((metaKey) => {
+            const metaProperties = _.get(this.childMetaProperties, currentWidget.widgetName, {});
 
-              const metaPropertyValue = _.get(
-                this.childMetaProperties,
-                metaKey + "." + itemIndex,
-              );
+            Object.keys(metaProperties).map((key) => {
+              const metaPropertyValue = _.get(metaProperties, key +  "." + itemIndex, undefined);
 
-              if (metaPropertyValue !== undefined) {
-                _.set(currentWidget, metaKey.split(".").pop(), metaPropertyValue);
+              if (typeof metaPropertyValue !== "undefined") {
+                _.set(currentWidget, key, metaPropertyValue);
               }
             });
-            }
           });
-        }
+        });
+
+        console.log({ updatedItems });
 
         return updatedItems;
       })()}}`,
@@ -405,21 +409,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     // add default value
     Object.keys(widget.defaultProps).map((key: string) => {
-      // text -> defaultText
       const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
 
-      if (defaultPropertyValue) {
-        set(widget, `${key}`, defaultPropertyValue);
-      }
+      set(widget, `${key}`, defaultPropertyValue);
     });
 
     Object.keys(widget.defaultMetaProps).map((key: string) => {
       const metaPropertyValue = get(
         this.props.childMetaProperties,
         `${widget.widgetName}.${key}.${itemIndex}`,
+        undefined,
       );
 
-      set(widget, `${key}`, metaPropertyValue);
+      if (
+        typeof metaPropertyValue !== "undefined" &&
+        metaPropertyValue !== null
+      ) {
+        set(widget, key, metaPropertyValue);
+      }
     });
 
     if (

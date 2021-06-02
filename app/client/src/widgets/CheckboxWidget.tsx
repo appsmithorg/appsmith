@@ -119,7 +119,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      isChecked: undefined,
+      isChecked: "",
     };
   }
 
