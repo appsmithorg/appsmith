@@ -2260,16 +2260,16 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "069", id = "set-mongo-actions-type-to-raw", author = "")
-    public void setMongoActionInputToRaw(MongockTemplate mongoTemplate, MongoOperations mongoOperations) {
+    public void setMongoActionInputToRaw(MongockTemplate mongockTemplate) {
 
         // All the existing mongo actions at this point will only have ever been in the raw format
         // For these actions to be readily available to users, we need to set their input type to raw manually
         // This is required because since the mongo form, the default input type on the UI has been set to FORM
-        Plugin mongoPlugin = mongoTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+        Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
 
         // Fetch all the actions built on top of a mongo database, not having any value set for input type
         assert mongoPlugin != null;
-        List<NewAction> rawMongoActions = mongoTemplate.find(
+        List<NewAction> rawMongoActions = mongockTemplate.find(
                 query(new Criteria().andOperator(
                         where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
                 NewAction.class
@@ -2285,7 +2285,7 @@ public class DatabaseChangelog {
             List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
             pluginSpecifiedTemplates.add(new Property(null, "RAW"));
 
-            mongoTemplate.save(action);
+            mongockTemplate.save(action);
         }
     }
 }
