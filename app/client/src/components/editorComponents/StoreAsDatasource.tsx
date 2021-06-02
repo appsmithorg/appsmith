@@ -10,7 +10,7 @@ export const DatasourceIcon = styled.div<{ enable?: boolean }>`
   display: flex;
   align-items: center;
   cursor: pointer;
-  margin-left: 5px;
+  margin-left: 10px;
   height: 100%;
   min-height: 37px;
   .${Classes.TEXT} {
