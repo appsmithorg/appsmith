@@ -870,7 +870,6 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(apiwidget.ApiName).click({ force: true });
   cy.get(apiwidget.apiTxt)
     .clear()
-    .wait(500)
     .focus()
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);

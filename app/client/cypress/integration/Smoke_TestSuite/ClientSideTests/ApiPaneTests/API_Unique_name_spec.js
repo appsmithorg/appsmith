@@ -6,6 +6,7 @@ describe("Name uniqueness test", function() {
     cy.CreateAPI("UniqueName");
     cy.log("Creation of UniqueName Action successful");
     cy.CreationOfUniqueAPIcheck("UniqueName");
+    cy.wait(3000);
     cy.CreationOfUniqueAPIcheck("download");
   });
 });
