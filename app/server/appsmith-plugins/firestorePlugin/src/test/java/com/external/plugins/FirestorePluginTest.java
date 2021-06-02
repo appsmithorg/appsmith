@@ -644,12 +644,6 @@ public class FirestorePluginTest {
                             null, null)); // End before
                     expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(2), "15", null,
                             null, null)); // Limit
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(3), "", null,
-                            null, null)); // Field Path
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(4), "", null,
-                            null, null)); // Operator
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(5), "", null,
-                            null, null)); // Value
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
 
                 })
