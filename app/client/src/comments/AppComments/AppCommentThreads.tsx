@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 
@@ -9,7 +9,6 @@ import {
   getAppCommentThreads,
   shouldShowResolved as shouldShowResolvedSelector,
   appCommentsFilter as appCommentsFilterSelector,
-  commentThreadsSelector,
 } from "selectors/commentsSelectors";
 import {
   getCurrentApplicationId,
