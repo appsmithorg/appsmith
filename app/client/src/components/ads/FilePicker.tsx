@@ -3,13 +3,14 @@ import styled from "styled-components";
 import Button, { Category, Size } from "./Button";
 import axios from "axios";
 import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg";
+import { ReactComponent as UploadSuccessIcon } from "../../assets/icons/ads/upload_success.svg";
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import Text, { TextType } from "./Text";
 import { Classes, Variant } from "./common";
 import { Toaster } from "./Toast";
 import { createMessage, ERROR_FILE_TOO_LARGE } from "constants/messages";
-
+import Icon, { IconSize } from "./Icon";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
 
@@ -58,7 +59,7 @@ const ContainerDiv = styled.div<{
     color: ${(props) => props.theme.colors.filePicker.color};
   }
 
-  .bg-image {
+  .upload-form-container {
     width: 100%;
     height: 100%;
     display: grid;
@@ -66,6 +67,25 @@ const ContainerDiv = styled.div<{
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+  }
+
+  .centered {
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+
+    .success-container {
+      display: flex;
+      align-items: center;
+      .success-icon {
+        margin-right: ${(props) => props.theme.spaces[4]}px;
+      }
+
+      .success-text {
+        color: #03b365;
+        margin-right: ${(props) => props.theme.spaces[4]}px;
+      }
+    }
   }
 
   .file-description {
@@ -78,7 +98,7 @@ const ContainerDiv = styled.div<{
   }
 
   .file-spec {
-    margin-bottom: ${(props) => props.theme.spaces[2]}px;
+    margin-bottom: ${(props) => props.theme.spaces[3]}px;
     span {
       margin-right: ${(props) => props.theme.spaces[4]}px;
     }
@@ -133,6 +153,11 @@ const ContainerDiv = styled.div<{
       display: ${(props) => (props.isUploaded ? "block" : "none")};
     }
   }
+`;
+
+const IconWrapper = styled.div`
+  width: ${(props) => props.theme.spaces[9]}px;
+  padding-left: ${(props) => props.theme.spaces[2]}px;
 `;
 
 export type SetProgress = (percentage: number) => void;
@@ -238,18 +263,46 @@ function FilePickerComponent(props: FilePickerProps) {
   }
 
   function handleFileUpload(files: FileList | null) {
+    if (fileType === FileType.IMAGE) {
+      handleImageFileUpload(files);
+    } else {
+      handleOtherFileUpload(files);
+    }
+  }
+
+  function handleOtherFileUpload(files: FileList | null) {
+    const file = files && files[0];
+    let fileSize = 0;
+    if (!file) {
+      return;
+    }
+    fileSize = Math.floor(file.size / 1024);
+    setFileInfo({ name: file.name, size: fileSize });
+    if (props.delayedUpload) {
+      setIsUploaded(true);
+      setProgress(100);
+    }
+    if (fileDescRef.current) {
+      fileDescRef.current.style.display = "flex";
+    }
+    if (fileContainerRef.current) {
+      fileContainerRef.current.style.display = "none";
+    }
+    props.fileUploader && props.fileUploader(file, setProgress, onUpload);
+  }
+
+  function handleImageFileUpload(files: FileList | null) {
     const file = files && files[0];
     let fileSize = 0;
 
     if (!file) {
       return;
     }
-
     fileSize = Math.floor(file.size / 1024);
     setFileInfo({ name: file.name, size: fileSize });
 
     if (fileSize < 250) {
-      if (bgRef.current && fileType === FileType.IMAGE) {
+      if (bgRef.current) {
         bgRef.current.style.backgroundImage = `url(${URL.createObjectURL(
           file,
         )})`;
@@ -260,12 +313,6 @@ function FilePickerComponent(props: FilePickerProps) {
       }
       if (fileContainerRef.current) {
         fileContainerRef.current.style.display = "none";
-      }
-
-      // for files other than image.
-      if (props.delayedUpload) {
-        setIsUploaded(true);
-        setProgress(100);
       }
 
       /* set form data and send api request */
@@ -279,14 +326,20 @@ function FilePickerComponent(props: FilePickerProps) {
   }
 
   function removeFile() {
-    if (fileContainerRef.current && bgRef.current && fileDescRef.current) {
+    if (fileContainerRef.current) {
+      console.log("remove file");
       setFileUrl("");
+      if (fileDescRef.current) {
+        fileDescRef.current.style.display = "none";
+      }
       fileContainerRef.current.style.display = "flex";
-      bgRef.current.style.backgroundImage = "url('')";
-      fileDescRef.current.style.display = "none";
-      // bgRef.current.style.opacity = "1";
+      if (bgRef.current) {
+        bgRef.current.style.backgroundImage = "url('')";
+      }
       setIsUploaded(false);
       props.onFileRemoved && props.onFileRemoved();
+    } else {
+      console.log("remove file else");
     }
   }
 
@@ -303,8 +356,9 @@ function FilePickerComponent(props: FilePickerProps) {
     }
   }, [props.url]);
 
+  // Following hook should be used only if file type is image.
   useEffect(() => {
-    if (fileUrl && !isUploaded) {
+    if (fileUrl && !isUploaded && fileType === FileType.IMAGE) {
       setIsUploaded(true);
       if (bgRef.current) {
         bgRef.current.style.backgroundImage = `url(${fileUrl})`;
@@ -319,43 +373,47 @@ function FilePickerComponent(props: FilePickerProps) {
     }
   }, [fileUrl, logoUploadError]);
 
-  return (
-    <ContainerDiv
-      canDrop={canDrop}
-      fileType={fileType}
-      isActive={isActive}
-      isUploaded={isUploaded}
-      ref={drop}
-    >
-      <div className="bg-image" ref={bgRef}>
-        <div className="button-wrapper" ref={fileContainerRef}>
-          <UploadIcon />
-          <Text className="drag-drop-text" type={TextType.P2}>
-            Drag & Drop files to upload or
-          </Text>
-          <form>
-            <input
-              accept={FileEndings[fileType]}
-              id="fileInput"
-              multiple={false}
-              onChange={(el) => handleFileUpload(el.target.files)}
-              ref={inputRef}
-              type="file"
-              value={""}
-            />
-            <Button
-              category={Category.tertiary}
-              onClick={(el) => ButtonClick(el)}
-              size={Size.medium}
-              text="Browse"
-            />
-          </form>
-        </div>
+  // <UploadSuccessIcon />
+
+  const uploadFileForm = (
+    <div className="button-wrapper" ref={fileContainerRef}>
+      <UploadIcon />
+      <Text className="drag-drop-text" type={TextType.P2}>
+        Drag & Drop files to upload or
+      </Text>
+      <form>
+        <input
+          accept={FileEndings[fileType]}
+          id="fileInput"
+          multiple={false}
+          onChange={(el) => handleFileUpload(el.target.files)}
+          ref={inputRef}
+          type="file"
+          value={""}
+        />
+        <Button
+          category={Category.tertiary}
+          onClick={(el) => ButtonClick(el)}
+          size={Size.medium}
+          text="Browse"
+        />
+      </form>
+    </div>
+  );
+
+  const uploadStatus = (
+    <div className="file-spec">
+      <Text type={TextType.H6}>{fileInfo.name}</Text>
+      <Text type={TextType.H6}>{fileInfo.size}KB</Text>
+    </div>
+  );
+
+  const imageUploadComponent = (
+    <>
+      <div className="upload-form-container" ref={bgRef}>
+        {uploadFileForm}
         <div className="file-description" id="fileDesc" ref={fileDescRef}>
-          <div className="file-spec">
-            <Text type={TextType.H6}>{fileInfo.name}</Text>
-            <Text type={TextType.H6}>{fileInfo.size}KB</Text>
-          </div>
+          {uploadStatus}
           <div className="progress-container">
             <div className="progress-inner" ref={progressRef} />
           </div>
@@ -370,6 +428,40 @@ function FilePickerComponent(props: FilePickerProps) {
           text="remove"
         />
       </div>
+    </>
+  );
+
+  const uploadComponent = (
+    <div className="upload-form-container">
+      {uploadFileForm}
+      <div
+        className="file-description centered"
+        id="fileDesc"
+        ref={fileDescRef}
+      >
+        {uploadStatus}
+        <div className="success-container">
+          <UploadSuccessIcon className="success-icon" />
+          <Text className="success-text" type={TextType.H4}>
+            Successfully Uploaded!
+          </Text>
+          <IconWrapper className="icon-wrapper" onClick={() => removeFile()}>
+            <Icon name="close" size={IconSize.XL} />
+          </IconWrapper>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <ContainerDiv
+      canDrop={canDrop}
+      fileType={fileType}
+      isActive={isActive}
+      isUploaded={isUploaded}
+      ref={drop}
+    >
+      {fileType === FileType.IMAGE ? imageUploadComponent : uploadComponent}
     </ContainerDiv>
   );
 }
