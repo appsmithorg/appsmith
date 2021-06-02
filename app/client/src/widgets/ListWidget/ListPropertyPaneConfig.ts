@@ -2,6 +2,7 @@ import { get } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from "./ListWidget";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const PropertyPaneConfig = [
   {
@@ -17,6 +18,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: VALIDATION_TYPES.LIST_DATA,
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
         propertyName: "backgroundColor",
