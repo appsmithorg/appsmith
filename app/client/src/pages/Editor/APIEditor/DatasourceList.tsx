@@ -54,8 +54,15 @@ const DatasourceCard = styled.div`
   border: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   cursor: pointer;
   transition: 0.3s all ease;
+  .cs-icon {
+    opacity: 0;
+    transition: 0.3s all ease;
+  }
   &:hover {
     box-shadow: 0 0 5px #c7c7c7;
+    .cs-icon {
+      opacity: 1;
+    }
   }
 `;
 
@@ -89,16 +96,11 @@ const DataSourceNameContainer = styled.div`
     flex-shrink: 0;
     svg {
       path {
-        fill: #a9a7a7;
+        fill: #4b4848;
       }
     }
     &: hover {
       background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
-      svg {
-        path {
-          fill: #4b4848;
-        }
-      }
     }
   }
 `;
