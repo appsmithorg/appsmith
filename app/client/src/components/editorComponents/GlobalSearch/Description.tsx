@@ -103,12 +103,12 @@ function DocumentationDescription({
     if (!root) return;
     const list = root.getElementsByTagName(algoliaHighlightTag);
 
-    if (list) {
+    if (list.length) {
       if (list[0]) {
         root.getElementsByTagName(algoliaHighlightTag)[0].scrollIntoView();
       }
     } else {
-      root.scrollTop = 0;
+      root.firstElementChild?.scrollIntoView();
     }
   };
 
