@@ -169,9 +169,7 @@ function TableAction(props: {
       background={props.backgroundColor}
       buttonLabelColor={props.buttonLabelColor}
       onClick={(e) => {
-        if (props.isSelected) {
-          e.stopPropagation();
-        }
+        e.stopPropagation();
       }}
     >
       <Button
