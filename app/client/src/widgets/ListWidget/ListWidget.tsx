@@ -325,10 +325,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.noPad = true;
-    // dynamically created path
 
-    // step 1 - dynamic create meta property path
-    // step 2 - pass options to createWidget factory method
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 

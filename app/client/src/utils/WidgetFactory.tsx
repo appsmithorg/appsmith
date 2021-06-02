@@ -96,8 +96,6 @@ class WidgetFactory {
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       // TODO validate props here
-
-      // step 3 - pass options to build widget
       const widget = widgetBuilder.buildWidget(widgetProps);
       return widget;
     } else {
