@@ -27,7 +27,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.FirestoreEmulatorContainer;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;

@@ -2258,6 +2258,13 @@ public class DatabaseChangelog {
         mongoOperations.updateMulti(query, update, Datasource.class);
     }
 
+    /**
+     * - Older firestore action form had support for only on where condition, which mapped path, operator and value to
+     * three different indexes on the pluginSpecifiedTemplates list.
+     * - In the newer form, the three properties are treated as a tuple, and a list of tuples is mapped to only one
+     * index in pluginSpecifiedTemplates list.
+     * - [... path, operator, value, ...] --> [... [ {"path":path, "operator":operator, "value":value} ] ...]
+     */
     @ChangeSet(order = "069", id = "update-firestore-where-conditions-data", author = "")
     public void updateFirestoreWhereConditionsData(MongoTemplate mongoTemplate) {
         Plugin firestorePlugin = mongoTemplate
