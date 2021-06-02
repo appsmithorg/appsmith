@@ -56,7 +56,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as Org owner and update the invited user role to developer", function() {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
     cy.wait("@applications").should(
       "have.nested.property",
@@ -95,7 +95,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as Org owner and update the invited user role to administrator", function() {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
     cy.wait("@applications").should(
       "have.nested.property",
@@ -129,7 +129,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as Org owner and delete App ", function() {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
     cy.wait("@applications").should(
       "have.nested.property",
