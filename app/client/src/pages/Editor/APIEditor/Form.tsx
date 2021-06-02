@@ -326,6 +326,11 @@ const DatasourceListTrigger = styled.div`
   }
 `;
 
+const BoundaryContainer = styled.div`
+  border: 1px solid transparent;
+  border-right: none;
+`;
+
 function renderImportedHeadersButton(
   headersCount: number,
   onClick: any,
@@ -492,15 +497,17 @@ function ApiEditorForm(props: Props) {
           </ActionButtons>
         </FormRow>
         <FormRow className="api-info-row">
-          <RequestDropdownField
-            className="t--apiFormHttpMethod"
-            height={"35px"}
-            name="actionConfiguration.httpMethod"
-            optionWidth={"100px"}
-            options={HTTP_METHOD_OPTIONS}
-            placeholder="Method"
-            width={"100px"}
-          />
+          <BoundaryContainer>
+            <RequestDropdownField
+              className="t--apiFormHttpMethod"
+              height={"35px"}
+              name="actionConfiguration.httpMethod"
+              optionWidth={"100px"}
+              options={HTTP_METHOD_OPTIONS}
+              placeholder="Method"
+              width={"100px"}
+            />
+          </BoundaryContainer>
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField
               name="actionConfiguration.path"
