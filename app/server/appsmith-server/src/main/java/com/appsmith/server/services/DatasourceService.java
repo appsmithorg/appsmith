@@ -13,7 +13,7 @@ public interface DatasourceService extends CrudService<Datasource, String> {
 
     Mono<DatasourceTestResult> testDatasource(Datasource datasource);
 
-    Mono<Datasource> findByName(String name, AclPermission permission);
+    Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission permission);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 
