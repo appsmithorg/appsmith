@@ -63,7 +63,6 @@ type Props = EditorProps &
 const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
-  width: calc(100% - 155px);
 `;
 
 const hintContainerStyles: React.CSSProperties = {
