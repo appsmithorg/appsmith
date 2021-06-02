@@ -103,9 +103,17 @@ function DocumentationDescription({
     if (!root) return;
     const list = root.getElementsByTagName(algoliaHighlightTag);
     if (list.length) {
-      if (list[0]) {
-        root.getElementsByTagName(algoliaHighlightTag)[0].scrollIntoView();
-      }
+      const bestMatch = Array.from(list).reduce((accumulator, currentValue) => {
+        if (
+          currentValue.textContent &&
+          accumulator.textContent &&
+          currentValue.textContent.length > accumulator.textContent.length
+        )
+          return currentValue;
+        return accumulator;
+      }, list[0]);
+
+      bestMatch.scrollIntoView();
     } else {
       setTimeout(() => {
         root.firstElementChild?.scrollIntoView();
