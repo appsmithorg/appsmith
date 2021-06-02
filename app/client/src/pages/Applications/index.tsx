@@ -1,6 +1,5 @@
 import React, {
   Component,
-  Fragment,
   useContext,
   useEffect,
   useRef,
@@ -67,6 +66,7 @@ import EditableText, {
 } from "components/ads/EditableText";
 import { notEmptyValidator } from "components/ads/TextInput";
 import { saveOrg } from "actions/orgActions";
+import { leaveOrganization } from "actions/userActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
@@ -378,6 +378,7 @@ const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
   const result = await createOrganizationSubmitHandler(data, dispatch);
   return result;
 };
+
 function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
@@ -535,6 +536,10 @@ function ApplicationsSection(props: any) {
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
+  const leaveOrg = (orgId: string) => {
+    dispatch(leaveOrganization(orgId));
+  };
+
   const OrgNameChange = (newName: string, orgId: string) => {
     dispatch(
       saveOrg({
@@ -623,58 +628,66 @@ function ApplicationsSection(props: any) {
                 <Menu
                   className="t--org-name"
                   cypressSelector="t--org-name"
-                  disabled={!hasManageOrgPermissions || isFetchingApplications}
+                  disabled={isFetchingApplications}
                   position={Position.BOTTOM_RIGHT}
                   target={OrgMenuTarget({
                     orgName: organization.name,
-                    disabled: !hasManageOrgPermissions,
                     orgSlug: organization.slug,
                   })}
                 >
-                  <OrgRename
-                    cypressSelector="t--org-rename-input"
-                    defaultValue={organization.name}
-                    editInteractionKind={EditInteractionKind.SINGLE}
-                    fill
-                    hideEditIcon={false}
-                    isEditingDefault={false}
-                    isInvalid={(value: string) => {
-                      return notEmptyValidator(value).message;
-                    }}
-                    onBlur={(value: string) => {
-                      OrgNameChange(value, organization.id);
-                    }}
-                    placeholder="Workspace name"
-                    savingState={
-                      isSavingOrgInfo
-                        ? SavingState.STARTED
-                        : SavingState.NOT_STARTED
-                    }
-                    underline
-                  />
+                  {hasManageOrgPermissions && (
+                    <>
+                      <OrgRename
+                        cypressSelector="t--org-rename-input"
+                        defaultValue={organization.name}
+                        editInteractionKind={EditInteractionKind.SINGLE}
+                        fill
+                        hideEditIcon={false}
+                        isEditingDefault={false}
+                        isInvalid={(value: string) => {
+                          return notEmptyValidator(value).message;
+                        }}
+                        onBlur={(value: string) => {
+                          OrgNameChange(value, organization.id);
+                        }}
+                        placeholder="Workspace name"
+                        savingState={
+                          isSavingOrgInfo
+                            ? SavingState.STARTED
+                            : SavingState.NOT_STARTED
+                        }
+                        underline
+                      />
+                      <MenuItem
+                        cypressSelector="t--org-setting"
+                        icon="general"
+                        onSelect={() =>
+                          getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                            path: `/org/${organization.id}/settings/general`,
+                          })
+                        }
+                        text="Organization Settings"
+                      />
+                      <MenuItem
+                        icon="share"
+                        onSelect={() => setSelectedOrgId(organization.id)}
+                        text="Share"
+                      />
+                      <MenuItem
+                        icon="user"
+                        onSelect={() =>
+                          getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                            path: `/org/${organization.id}/settings/members`,
+                          })
+                        }
+                        text="Members"
+                      />
+                    </>
+                  )}
                   <MenuItem
-                    cypressSelector="t--org-setting"
-                    icon="general"
-                    onSelect={() =>
-                      getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                        path: `/org/${organization.id}/settings/general`,
-                      })
-                    }
-                    text="Organization Settings"
-                  />
-                  <MenuItem
-                    icon="share"
-                    onSelect={() => setSelectedOrgId(organization.id)}
-                    text="Share"
-                  />
-                  <MenuItem
-                    icon="user"
-                    onSelect={() =>
-                      getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                        path: `/org/${organization.id}/settings/members`,
-                      })
-                    }
-                    text="Members"
+                    icon="logout"
+                    onSelect={() => leaveOrg(organization.id)}
+                    text="Leave Organization"
                   />
                 </Menu>
               )}
