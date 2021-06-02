@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -579,15 +578,8 @@ public class FirestorePlugin extends BasePlugin {
                 }
             }
 
-            // TODO: fix it.
-            /*requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(LIMIT_PROPERTY_INDEX),
+            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(LIMIT_PROPERTY_INDEX),
                     limitString == null ? "" : limitString, null, null, null));
-            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(QUERY_PROPERTY_INDEX),
-                    queryFieldPath == null ? "" : queryFieldPath, null, null, null));
-            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(OPERATOR_PROPERTY_INDEX),
-                    operatorString == null ? "" : operatorString, null, null, null));
-            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(QUERY_VALUE_PROPERTY_INDEX),
-                    queryValue == null ? "" : queryValue, null, null, null));*/
 
             final Map<String, Object> startAfter = startAfterTemp;
             final Map<String, Object> endBefore = endBeforeTemp;
@@ -626,21 +618,33 @@ public class FirestorePlugin extends BasePlugin {
                     })
                     // Apply where condition, if provided.
                     .flatMap(query1 -> {
-                        if(properties.size() <= WHERE_CONDITIONAL_PROPERTY_INDEX
-                                || properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX) == null
-                                || CollectionUtils.isEmpty((List) properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue())) {
+                        if (!whereMethodIsUsed(properties)) {
                             return Mono.just(query1);
                         }
 
                         List<Object> conditionList = (List) properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue();
-
-                        //TODO: remove it.
-                        System.out.println("devtest: conditionList: " + conditionList);
+                        requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(WHERE_CONDITIONAL_PROPERTY_INDEX),
+                                conditionList, null, null, null));
 
                         for(Object condition : conditionList) {
                             String path = ((Map<String, String>)condition).get("path");
                             String operatorString = ((Map<String, String>)condition).get("operator");
                             String value = ((Map<String, String>)condition).get("value");
+
+                            /**
+                             * - If all values in all where condition tuples are null, then whereMethodIsUsed(...)
+                             *  function will indicate that where conditions are not used effectively and program
+                             *  execution would return without reaching here.
+                             */
+                            if (StringUtils.isEmpty(path) || StringUtils.isEmpty(operatorString) || StringUtils.isEmpty(value)) {
+                                return Mono.error(
+                                        new AppsmithPluginException(
+                                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                                "One of the where condition fields has been found empty. Please fill " +
+                                                        "all the where condition fields and try again."
+                                        )
+                                );
+                            }
 
                             try {
                                 query1 = applyWhereConditional(query1, path, operatorString, value);
@@ -678,6 +682,25 @@ public class FirestorePlugin extends BasePlugin {
                         );
                         return Mono.just(result);
                     });
+        }
+
+        private boolean whereMethodIsUsed(List<Property> properties) {
+            // Check if the where property list does not exist or is null
+            if(properties.size() <= WHERE_CONDITIONAL_PROPERTY_INDEX || properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX) == null
+                    || CollectionUtils.isEmpty((List) properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue())) {
+                return false;
+            }
+
+            // Check if all values in the where property list are null.
+            boolean allValuesNull = ((List) properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue()).stream()
+                    .allMatch(valueMap -> valueMap == null ||
+                            ((Map) valueMap).entrySet().stream().allMatch(e -> ((Map.Entry) e).getValue() == null));
+
+            if (allValuesNull) {
+                return false;
+            }
+
+            return true;
         }
 
         private Query applyWhereConditional(Query query, String path, String operatorString, String value) throws AppsmithPluginException {
