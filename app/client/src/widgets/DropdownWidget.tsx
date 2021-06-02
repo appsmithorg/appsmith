@@ -10,13 +10,12 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { IconName } from "@blueprintjs/icons";
 
-function defaultOptionValueValidation(
-  value: string | string[],
-  props: DropdownWidgetProps,
-) {
+function defaultOptionValueValidation(_value: string, props: string) {
   if (props) {
-    if (props.selectionType === "SINGLE_SELECT") {
-      if (value instanceof String) return { isValid: true, parsed: value };
+    const _props = JSON.parse(props);
+    const value = JSON.parse(_value);
+    if (_props.selectionType === "SINGLE_SELECT") {
+      if (_.isString(value)) return { isValid: true, parsed: value };
       if (value === undefined || value === null)
         return {
           isValid: false,
@@ -24,7 +23,7 @@ function defaultOptionValueValidation(
           message: "This value does not evaluate to type: string",
         };
       return { isValid: true, parsed: value.toString() };
-    } else if (props.selectionType === "MULTI_SELECT") {
+    } else if (_props.selectionType === "MULTI_SELECT") {
       let values: string[] = [];
       if (typeof value === "string") {
         try {

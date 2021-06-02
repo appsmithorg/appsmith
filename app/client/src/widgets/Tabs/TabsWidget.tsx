@@ -11,10 +11,8 @@ import * as Sentry from "@sentry/react";
 import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "../MetaHOC";
 
-export const selectedTabValidation = (
-  value: string,
-  props: TabsWidgetProps<TabContainerWidgetProps>,
-) => {
+export const selectedTabValidation = (value: string, _props: string) => {
+  const props = JSON.parse(_props);
   const tabs: Array<{
     label: string;
     id: string;

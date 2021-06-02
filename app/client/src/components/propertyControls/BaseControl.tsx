@@ -36,7 +36,7 @@ export interface ControlData
   propertyValue?: any;
   isValid: boolean;
   errorMessage?: string;
-  expected: string;
+  expected?: string;
   evaluatedValue: any;
   validationMessage?: string;
   widgetProperties: any;

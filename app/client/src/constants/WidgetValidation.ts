@@ -1,4 +1,3 @@
-import { WidgetProps } from "widgets/BaseWidget";
 import { EXECUTION_PARAM_KEY } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationConfig } from "./PropertyControlConstants";
 
@@ -12,13 +11,8 @@ export enum ValidationTypes {
   ARRAY = "ARRAY",
   OBJECT_ARRAY = "OBJECT_ARRAY",
   DATE_ISO_STRING = "DATE_ISO_STRING",
-  DATE_STRING = "DATE_STRING",
+  // DATE_STRING = "DATE_STRING",
   FUNCTION = "FUNCTION",
-  ACTION_SELECTOR = "ACTION_SELECTOR",
-  ARRAY_ACTION_SELECTOR = "ARRAY_ACTION_SELECTOR",
-
-  DEFAULT_SELECTED_ROW = "DEFAULT_SELECTED_ROW",
-  DEFAULT_DATE = "DEFAULT_DATE",
 }
 
 export type ValidationResponse = {

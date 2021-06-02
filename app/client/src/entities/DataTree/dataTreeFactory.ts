@@ -12,7 +12,6 @@ import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import { ValidationTypes } from "constants/WidgetValidation";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 
 export type ActionDescription<T> = {

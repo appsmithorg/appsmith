@@ -3,7 +3,6 @@ import InputTextControl, { InputText } from "./InputTextControl";
 
 class CustomFusionChartControl extends InputTextControl {
   render() {
-    const expected = "{\n  type: string,\n  dataSource: Object\n}";
     const {
       propertyValue,
       isValid,
@@ -11,6 +10,7 @@ class CustomFusionChartControl extends InputTextControl {
       placeholderText,
       dataTreePath,
       validationMessage,
+      expected,
     } = this.props;
     return (
       <InputText

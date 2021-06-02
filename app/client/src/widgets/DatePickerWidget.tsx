@@ -9,8 +9,10 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import moment from "moment";
 
-function defaultDateValidation(value: string, props: DatePickerWidgetProps) {
-  const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
+function defaultDateValidation(_value: string, props: string) {
+  const _props = JSON.parse(props);
+  const value = JSON.parse(_value);
+  const dateFormat = _props.dateFormat || ISO_DATE_FORMAT;
   if (value === null) {
     return {
       isValid: true,
@@ -35,6 +37,100 @@ function defaultDateValidation(value: string, props: DatePickerWidgetProps) {
       message: `Value does not match ISO 8601 standard date string`,
     };
   }
+}
+
+function minDateValidation(_value: string, props: string) {
+  const _props = JSON.parse(props);
+  const value = JSON.parse(_value);
+  const dateFormat = _props.dateFormat || ISO_DATE_FORMAT;
+  if (value === undefined) {
+    return {
+      isValid: false,
+      parsed: "",
+      message:
+        `Value does not match: Date String ` + (dateFormat ? dateFormat : ""),
+    };
+  }
+  const parsedMinDate = moment(value, dateFormat);
+  let isValid = parsedMinDate.isValid();
+
+  if (!_props.defaultDate) {
+    return {
+      isValid: isValid,
+      parsed: value,
+      message: "",
+    };
+  }
+  const parsedDefaultDate = moment(_props.defaultDate, dateFormat);
+
+  if (
+    isValid &&
+    parsedDefaultDate.isValid() &&
+    parsedDefaultDate.isBefore(parsedMinDate)
+  ) {
+    isValid = false;
+  }
+  if (!isValid) {
+    return {
+      isValid: isValid,
+      parsed: "",
+      message:
+        `Value does not match: Date String ` + (dateFormat ? dateFormat : ""),
+    };
+  }
+  return {
+    isValid: isValid,
+    parsed: value,
+    message: "",
+  };
+}
+
+function maxDateValidation(_value: string, props: string) {
+  const _props = JSON.parse(props);
+  const value = JSON.parse(_value);
+
+  const dateFormat = _props.dateFormat || ISO_DATE_FORMAT;
+  if (value === undefined) {
+    return {
+      isValid: false,
+      parsed: "",
+      message:
+        `Value does not match type: Date String ` +
+        (dateFormat ? dateFormat : ""),
+    };
+  }
+  const parsedMaxDate = moment(value, dateFormat);
+  let isValid = parsedMaxDate.isValid();
+  if (!_props.defaultDate) {
+    return {
+      isValid: isValid,
+      parsed: value,
+      message: "",
+    };
+  }
+  const parsedDefaultDate = moment(_props.defaultDate, dateFormat);
+
+  if (
+    isValid &&
+    parsedDefaultDate.isValid() &&
+    parsedDefaultDate.isAfter(parsedMaxDate)
+  ) {
+    isValid = false;
+  }
+  if (!isValid) {
+    return {
+      isValid: isValid,
+      parsed: "",
+      message:
+        `Value does not match type: Date String ` +
+        (dateFormat ? dateFormat : ""),
+    };
+  }
+  return {
+    isValid: isValid,
+    parsed: value,
+    message: "",
+  };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -129,7 +225,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.DATE_STRING },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fnString: minDateValidation.toString(),
+              },
+            },
           },
           {
             propertyName: "maxDate",
@@ -139,7 +240,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.DATE_STRING },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fnString: maxDateValidation.toString(),
+              },
+            },
           },
         ],
       },

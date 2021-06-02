@@ -48,6 +48,7 @@ export type PropertyPaneControlConfig = {
   additionalAutoComplete?: (
     props: any,
   ) => Record<string, Record<string, unknown>>;
+  expected?: string;
 };
 
 type ValidationConfigParams = {
@@ -65,6 +66,7 @@ type ValidationConfigParams = {
   allowedValues?: unknown[];
   children?: ValidationConfig;
   fnString?: string;
+  expected?: string;
 };
 
 export type ValidationConfig = {

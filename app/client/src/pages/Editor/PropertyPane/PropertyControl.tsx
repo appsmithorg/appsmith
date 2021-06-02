@@ -8,7 +8,6 @@ import {
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -17,7 +16,7 @@ import {
   deleteWidgetProperty,
   batchUpdateWidgetProperty,
 } from "actions/controlActions";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
@@ -38,6 +37,7 @@ import {
   useChildWidgetEnhancementFns,
   useParentWithEnhancementFn,
 } from "sagas/WidgetEnhancementHelpers";
+import { getExpectedValue } from "utils/validation/common";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -282,17 +282,16 @@ const PropertyControl = memo((props: Props) => {
       widgetProperties,
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
-      expected: FIELD_EXPECTED_VALUE[widgetProperties.type as WidgetType][
-        propertyName
-      ] as any,
+
       additionalDynamicData: {},
     };
+    const expectedValue = getExpectedValue(props.validation);
+    config.expected = `Type: ${expectedValue?.type} -- Eg: ${expectedValue?.example}`;
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
       config.isValid = true;
       config.validationMessage = "";
       delete config.dataTreePath;
       delete config.evaluatedValue;
-      delete config.expected;
     }
 
     const isDynamic: boolean = isPathADynamicProperty(

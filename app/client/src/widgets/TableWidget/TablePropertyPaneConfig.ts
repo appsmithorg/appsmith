@@ -3,6 +3,85 @@ import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import _ from "lodash";
+
+function defaultSelectedRowValidation(value: unknown, props: string) {
+  console.log("Evaluating ========", { value }, { props });
+  if (props) {
+    const _props = JSON.parse(props);
+    if (_props.multiRowSelection) {
+      if (_props && !_props.multiRowSelection)
+        return { isValid: true, parsed: undefined };
+
+      if (_.isString(value)) {
+        const trimmed = value.trim();
+        try {
+          const parsedArray = JSON.parse(trimmed);
+          if (Array.isArray(parsedArray)) {
+            const sanitized = parsedArray.filter((entry) => {
+              return (
+                Number.isInteger(parseInt(entry, 10)) &&
+                parseInt(entry, 10) > -1
+              );
+            });
+            return { isValid: true, parsed: sanitized };
+          } else {
+            throw Error("Not a stringified array");
+          }
+        } catch (e) {
+          // If cannot be parsed as an array
+          const arrayEntries = trimmed.split(",");
+          const result: number[] = [];
+          arrayEntries.forEach((entry) => {
+            if (
+              Number.isInteger(parseInt(entry, 10)) &&
+              parseInt(entry, 10) > -1
+            ) {
+              if (!_.isNil(entry)) result.push(parseInt(entry, 10));
+            }
+          });
+          return { isValid: true, parsed: result };
+        }
+      }
+      if (Array.isArray(value)) {
+        const sanitized = value.filter((entry) => {
+          return (
+            Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
+          );
+        });
+        return { isValid: true, parsed: sanitized };
+      }
+      if (Number.isInteger(value) && (value as number) > -1) {
+        return { isValid: true, parsed: [value] };
+      }
+      return {
+        isValid: false,
+        parsed: [],
+        message: `This value does not match type: number[]`,
+      };
+    } else {
+      try {
+        const _value: string = value as string;
+        if (Number.isInteger(parseInt(_value, 10)) && parseInt(_value, 10) > -1)
+          return { isValid: true, parsed: parseInt(_value, 10) };
+
+        return {
+          isValid: true,
+          parsed: -1,
+        };
+      } catch (e) {
+        return {
+          isValid: true,
+          parsed: -1,
+        };
+      }
+    }
+  }
+  return {
+    isValid: true,
+    parsed: value,
+  };
+}
 
 // A hook to update all column styles when global table styles are updated
 const updateColumnStyles = (
@@ -642,14 +721,20 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
       {
-        helpText: "Selects the default selected row",
+        helpText: "Selects row(s) by default",
         propertyName: "defaultSelectedRow",
         label: "Default Selected Row",
         controlType: "INPUT_TEXT",
         placeholderText: "Enter row index",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.DEFAULT_SELECTED_ROW },
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fnString: defaultSelectedRowValidation.toString(),
+            expected: "1 | [1, 2]",
+          },
+        },
       },
       {
         helpText:
