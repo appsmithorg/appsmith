@@ -71,7 +71,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               ),
             );
 
-
             dynamicPaths.forEach((path) => {
               const evaluatedProperty = _.get(this.template, currentWidget.widgetName + "." + path);
 
@@ -80,49 +79,44 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               ) {
                 const evaluatedValue = evaluatedProperty[itemIndex];
 
-
                 _.set(currentWidget, path, evaluatedValue);
               }
             });
 
+            if (this.childrenDefaultPropertiesMap) {
+            Object.keys(this.childrenDefaultPropertiesMap).map((key) => {
+              const defaultKey = this.childrenDefaultPropertiesMap[key];
+              const defaultPropertyValue = _.get(
+                this.template,
+                currentWidget.widgetName + "." + defaultKey
+              );
 
+              if (Array.isArray(defaultPropertyValue)) {
+                const evaluatedValue = defaultPropertyValue[itemIndex];
 
-             if (this.childrenDefaultPropertiesMap) {
-              Object.keys(this.childrenDefaultPropertiesMap).map((key) => {
-                const defaultKey = this.childrenDefaultPropertiesMap[key];
-                const defaultPropertyValue = _.get(
-                  this.template,
-                  currentWidget.widgetName + "." + defaultKey
-                );
+                _.set(currentWidget, key.split(".").pop(), evaluatedValue);
+                _.set(currentWidget, defaultKey, evaluatedValue);
+              } else if(defaultPropertyValue) {
+                console.log({ key, defaultKey });
+                _.set(currentWidget, key.split(".").pop(), defaultPropertyValue);
+                _.set(currentWidget, defaultKey, defaultPropertyValue);
+              }
+            });
+            }
 
+            if (this.childrenMetaPropertiesMap) {
+            this.childrenMetaPropertiesMap.map((metaKey) => {
 
-                if (Array.isArray(defaultPropertyValue)) {
-                  const evaluatedValue = defaultPropertyValue[itemIndex];
+              const metaPropertyValue = _.get(
+                this.childMetaProperties,
+                metaKey + "." + itemIndex,
+              );
 
-                  _.set(currentWidget, key.split(".").pop(), evaluatedValue);
-                  _.set(currentWidget, defaultKey, evaluatedValue);
-                } else if(defaultPropertyValue) {
-                  console.log({ key, defaultKey });
-                  _.set(currentWidget, key.split(".").pop(), defaultPropertyValue);
-                  _.set(currentWidget, defaultKey, defaultPropertyValue);
-                }
-              });
-             }
-
-             if (this.childrenMetaPropertiesMap) {
-              this.childrenMetaPropertiesMap.map((metaKey) => {
-
-                const metaPropertyValue = _.get(
-                  this.childMetaProperties,
-                  metaKey + "." + itemIndex,
-                );
-
-                if (metaPropertyValue !== undefined) {
-                  _.set(currentWidget, metaKey.split(".").pop(), metaPropertyValue);
-                }
-
-              });
-             }
+              if (metaPropertyValue !== undefined) {
+                _.set(currentWidget, metaKey.split(".").pop(), metaPropertyValue);
+              }
+            });
+            }
           });
         }
 
@@ -206,10 +200,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    this.props.updateWidgetMetaProperty(
-      "childrenDefaultPropertiesMap",
-      childrenDefaultPropertiesMap,
-    );
+    if (this.props.updateWidgetMetaProperty) {
+      this.props.updateWidgetMetaProperty(
+        "childrenDefaultPropertiesMap",
+        childrenDefaultPropertiesMap,
+      );
+    }
   };
 
   generateChildrenMetaPropertiesMap = (props: ListWidgetProps<WidgetProps>) => {
@@ -232,10 +228,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       });
     }
 
-    this.props.updateWidgetMetaProperty(
-      "childrenMetaPropertiesMap",
-      Object.keys(childrenMetaPropertiesMap),
-    );
+    if (this.props.updateWidgetMetaProperty) {
+      this.props.updateWidgetMetaProperty(
+        "childrenMetaPropertiesMap",
+        Object.keys(childrenMetaPropertiesMap),
+      );
+    }
   };
 
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
