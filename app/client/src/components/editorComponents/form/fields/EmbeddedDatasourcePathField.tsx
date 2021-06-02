@@ -88,7 +88,7 @@ const datasourceInfoStyles: React.CSSProperties = {
   fontWeight: 400,
   fontSize: "12px",
 };
-const itaclicInfoStyles = {
+const italicInfoStyles = {
   ...datasourceInfoStyles,
   fontStyle: "italic",
 };
@@ -99,7 +99,7 @@ function CustomHint(props: { datasource: Datasource }) {
     <div style={hintContainerStyles}>
       <div style={mainContainerStyles}>
         <span style={datasourceNameStyles}>{props.datasource.name}</span>
-        <span style={itaclicInfoStyles}>
+        <span style={italicInfoStyles}>
           {getDatasourceInfo(props.datasource)}
         </span>
       </div>

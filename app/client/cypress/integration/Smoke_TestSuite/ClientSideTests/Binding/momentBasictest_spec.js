@@ -31,7 +31,6 @@ describe("Moment basic test with input Widget", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.reload();
   });
 
   it("publish widget and validate the data displayed in input widgets", function() {

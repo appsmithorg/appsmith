@@ -233,7 +233,6 @@ export const entityDefinitions = {
     isVisible: isVisible,
     files: "[file]",
     isDisabled: "bool",
-    uploadedFileUrls: "string",
   },
   LIST_WIDGET: (widget: any) => ({
     "!doc":

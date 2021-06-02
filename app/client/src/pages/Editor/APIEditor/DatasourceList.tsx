@@ -67,8 +67,9 @@ const DatasourceURL = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: max-content;
   background: #e7f3ff;
+  width: fit-content;
+  max-width: 100%;
 `;
 
 const PadTop = styled.div`
