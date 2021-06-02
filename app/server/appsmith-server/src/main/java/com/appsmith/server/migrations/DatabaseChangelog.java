@@ -2283,14 +2283,14 @@ public class DatabaseChangelog {
                     String op = null;
                     String value = null;
                     List<Property> properties = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
-                    if (properties.size() > 3) {
+                    if (properties.size() > 3 && properties.get(3) != null) {
                         path = (String) properties.get(3).getValue();
                     }
-                    if (properties.size() > 4) {
+                    if (properties.size() > 4 && properties.get(4) != null) {
                         op = (String) properties.get(4).getValue();
                         properties.set(4, null); // Index 4 does not map to any value in the new query format
                     }
-                    if (properties.size() > 5) {
+                    if (properties.size() > 5 && properties.get(5) != null) {
                         value = (String) properties.get(5).getValue();
                         properties.set(5, null); // Index 5 does not map to any value in the new query format
                     }
@@ -2300,21 +2300,21 @@ public class DatabaseChangelog {
                     newFormat.put("operator", op);
                     newFormat.put("value", value);
                     properties.get(3).setKey("whereConditionTuples");
-                    properties.get(3).setValue(newFormat);
+                    properties.get(3).setValue(List.of(newFormat));
 
                     // For published action
                     path = null;
                     op = null;
                     value = null;
                     properties = action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
-                    if (properties.size() > 3) {
+                    if (properties.size() > 3 && properties.get(3) != null) {
                         path = (String) properties.get(3).getValue();
                     }
-                    if (properties.size() > 4) {
+                    if (properties.size() > 4 && properties.get(4) != null) {
                         op = (String) properties.get(4).getValue();
                         properties.set(4, null); // Index 4 does not map to any value in the new query format
                     }
-                    if (properties.size() > 5) {
+                    if (properties.size() > 5 && properties.get(5) != null) {
                         value = (String) properties.get(5).getValue();
                         properties.set(5, null); // Index 5 does not map to any value in the new query format
                     }
@@ -2324,10 +2324,15 @@ public class DatabaseChangelog {
                     newFormat.put("operator", op);
                     newFormat.put("value", value);
                     properties.get(3).setKey("whereConditionTuples");
-                    properties.get(3).setValue(newFormat);
-
-                    // Save changes
-                    mongoTemplate.save(action);
+                    properties.get(3).setValue(List.of(newFormat));
                 });
+
+        /**
+         * - Save changes only after all the processing is done so that in case any data manipulation fails, no data
+         * write occurs.
+         * - Write data back to db only if all data manipulations done above have succeeded.
+         */
+        firestoreActionQueries.stream()
+                .forEach(action -> mongoTemplate.save(action));
     }
 }

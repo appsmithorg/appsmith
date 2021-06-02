@@ -711,12 +711,12 @@ public class FirestorePluginTest {
         pluginSpecifiedTemplates.add(new Property("order", null));
         pluginSpecifiedTemplates.add(new Property("limit", null));
         Property whereProperty = new Property("where", null);
-        whereProperty.setValueList(new ArrayList<>());
+        whereProperty.setValue(new ArrayList<>());
         /*
          * - get all documents where category == test.
          * - this returns 2 documents.
          */
-        whereProperty.getValueList().add(new HashMap<String, Object>() {{
+        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
             put("path", "category");
             put("operator", "EQ");
             put("value", "test");
@@ -726,7 +726,7 @@ public class FirestorePluginTest {
          * - get all documents where name == two.
          * - Of the two documents returned by above condition, this will narrow it down to one.
          */
-        whereProperty.getValueList().add(new HashMap<String, Object>() {{
+        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
             put("path", "name");
             put("operator", "EQ");
             put("value", "two");
