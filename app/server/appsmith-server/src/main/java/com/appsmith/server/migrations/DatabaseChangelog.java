@@ -2257,4 +2257,77 @@ public class DatabaseChangelog {
         // Delete all the existing mongo datasource structures by setting the key to null.
         mongoOperations.updateMulti(query, update, Datasource.class);
     }
+
+    @ChangeSet(order = "069", id = "update-firestore-where-conditions-data", author = "")
+    public void updateFirestoreWhereConditionsData(MongoTemplate mongoTemplate) {
+        Plugin firestorePlugin = mongoTemplate
+                .findOne(query(where("packageName").is("firestore-plugin")), Plugin.class);
+
+        Query query = query(new Criteria().andOperator(
+                where("pluginId").is(firestorePlugin.getId()),
+                new Criteria().orOperator(
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.3").exists(true),
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.4").exists(true),
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.5").exists(true),
+                        where("publishedAction.actionConfiguration.pluginSpecifiedTemplates.3").exists(true),
+                        where("publishedAction.actionConfiguration.pluginSpecifiedTemplates.4").exists(true),
+                        where("publishedAction.actionConfiguration.pluginSpecifiedTemplates.5").exists(true)
+                )));
+
+        List<NewAction> firestoreActionQueries = mongoTemplate.find(query, NewAction.class);
+
+        firestoreActionQueries.stream()
+                .forEach(action -> {
+                    // For unpublished action
+                    String path = null;
+                    String op = null;
+                    String value = null;
+                    List<Property> properties = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                    if (properties.size() > 3) {
+                        path = (String) properties.get(3).getValue();
+                    }
+                    if (properties.size() > 4) {
+                        op = (String) properties.get(4).getValue();
+                        properties.set(4, null); // Index 4 does not map to any value in the new query format
+                    }
+                    if (properties.size() > 5) {
+                        value = (String) properties.get(5).getValue();
+                        properties.set(5, null); // Index 5 does not map to any value in the new query format
+                    }
+
+                    Map newFormat = new HashMap();
+                    newFormat.put("path", path);
+                    newFormat.put("operator", op);
+                    newFormat.put("value", value);
+                    properties.get(3).setKey("whereConditionTuples");
+                    properties.get(3).setValue(newFormat);
+
+                    // For published action
+                    path = null;
+                    op = null;
+                    value = null;
+                    properties = action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                    if (properties.size() > 3) {
+                        path = (String) properties.get(3).getValue();
+                    }
+                    if (properties.size() > 4) {
+                        op = (String) properties.get(4).getValue();
+                        properties.set(4, null); // Index 4 does not map to any value in the new query format
+                    }
+                    if (properties.size() > 5) {
+                        value = (String) properties.get(5).getValue();
+                        properties.set(5, null); // Index 5 does not map to any value in the new query format
+                    }
+
+                    newFormat = new HashMap();
+                    newFormat.put("path", path);
+                    newFormat.put("operator", op);
+                    newFormat.put("value", value);
+                    properties.get(3).setKey("whereConditionTuples");
+                    properties.get(3).setValue(newFormat);
+
+                    // Save changes
+                    mongoTemplate.save(action);
+                });
+    }
 }
