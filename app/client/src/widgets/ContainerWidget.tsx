@@ -123,7 +123,7 @@ class ContainerWidget extends BaseWidget<
     return (
       <ContainerComponent {...props}>
         {this.props.widgetId === MAIN_CONTAINER_WIDGET_ID && (
-          <CanvasSelectionArena widgetId={"0"} />
+          <CanvasSelectionArena widgetId={MAIN_CONTAINER_WIDGET_ID} />
         )}
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>

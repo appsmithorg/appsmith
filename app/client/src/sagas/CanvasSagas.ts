@@ -17,7 +17,7 @@ import { areIntersecting } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidget } from "./selectors";
 
-function* selectAllWidgetsInArea(action: ReduxAction<any>) {
+function* selectAllWidgetsInAreaSaga(action: ReduxAction<any>) {
   const {
     selectionArena,
     snapToNextColumn,
@@ -80,10 +80,10 @@ function* selectAllWidgetsInArea(action: ReduxAction<any>) {
   }
 }
 
-function* selectAllWidgetsInAreaTest() {
+function* startCanvasSelectionSaga() {
   const selectionTask = yield takeLatest(
     ReduxActionTypes.SELECT_WIDGETS_IN_AREA,
-    selectAllWidgetsInArea,
+    selectAllWidgetsInAreaSaga,
   );
   yield take(ReduxActionTypes.STOP_CANVAS_SELECTION);
   yield cancel(selectionTask);
@@ -93,7 +93,7 @@ export default function* canvasSagas() {
   yield all([
     takeLatest(
       ReduxActionTypes.START_CANVAS_SELECTION,
-      selectAllWidgetsInAreaTest,
+      startCanvasSelectionSaga,
     ),
   ]);
 }
