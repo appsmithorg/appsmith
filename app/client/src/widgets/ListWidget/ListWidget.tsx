@@ -259,11 +259,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   }
 
-  static getDefaultPropertiesMap(props: WidgetProps): Record<string, string> {
+  static getDefaultPropertiesMap(): Record<string, string> {
     return {};
   }
 
-  static getMetaPropertiesMap(props: WidgetProps): Record<string, string> {
+  static getMetaPropertiesMap(): Record<string, string> {
     return {};
   }
 

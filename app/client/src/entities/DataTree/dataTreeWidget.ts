@@ -13,9 +13,6 @@ export const generateDataTreeWidget = (
     widget.type,
   )(widget);
 
-  console.log({ defaultMetaProps });
-
-  console.log();
   const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
     widget.type,
   );

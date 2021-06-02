@@ -65,10 +65,12 @@ abstract class BaseWidget<
     return {};
   }
 
+  // eslint-disable-next-line
   static getDefaultPropertiesMap(props: WidgetProps): Record<string, any> {
     return {};
   }
   // TODO Find a way to enforce this, (dont let it be set)
+  // eslint-disable-next-line
   static getMetaPropertiesMap(props: WidgetProps): Record<string, any> {
     return {};
   }
