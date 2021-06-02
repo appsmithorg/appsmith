@@ -325,7 +325,7 @@ function EvaluatedValuePopup(props: Props) {
   }
   // With boundariesElement set as property pane, EvalautedValue will appear on
   // top of property pane. We move it away with offset.
-  const offset = placement === "left-start" ? "-240,0" : "300,0";
+  const offset = placement === "left-start" ? "-250,0" : "320,0";
   const boundariesElement =
     document.getElementById(`property_pane_${widgetId}`) || "viewport";
 
