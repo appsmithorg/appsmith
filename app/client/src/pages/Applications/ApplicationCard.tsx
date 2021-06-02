@@ -46,7 +46,8 @@ import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
-import ExportApplicationModal from "./ExportApplicationModal";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -260,10 +261,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [isForkApplicationModalopen, setForkApplicationModalOpen] = useState(
     false,
   );
-  const [
-    isExportApplicationModalOpen,
-    setExportApplicationModalOpen,
-  ] = useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -343,7 +340,23 @@ export function ApplicationCard(props: ApplicationCardProps) {
     props.share && props.share(props.application.id);
   };
   const exportApplicationAsJSONFile = () => {
-    setExportApplicationModalOpen(true);
+    // export api response comes with content-disposition header.
+    // there is no straightforward way to handle it with axios/fetch
+    const id = `t--export-app-link`;
+    const existingLink = document.getElementById(id);
+    existingLink && existingLink.remove();
+    const link = document.createElement("a");
+    link.href = `/api/v1/applications/export/${props.application.id}`;
+    link.target = "_blank";
+    link.id = id;
+    document.body.appendChild(link);
+    link.click();
+    setIsMenuOpen(false);
+    Toaster.show({
+      text: `Successfully exported ${props.application.name}`,
+      variant: Variant.success,
+    });
+    link.remove();
   };
   const forkApplicationInitiate = () => {
     // open fork application modal
@@ -482,12 +495,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
           applicationId={props.application.id}
           isModalOpen={isForkApplicationModalopen}
           setModalClose={setForkApplicationModalOpen}
-        />
-        <ExportApplicationModal
-          applicationId={props.application.id}
-          applicationName={props.application.name}
-          isModalOpen={isExportApplicationModalOpen}
-          setModalClose={setExportApplicationModalOpen}
         />
       </Menu>
     </ContextDropdownWrapper>
