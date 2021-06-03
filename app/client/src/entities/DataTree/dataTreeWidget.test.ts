@@ -240,11 +240,7 @@ describe("generateDataTreeWidget", () => {
       widgetName: "Input1",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       defaultText: "Testing",
-      defaultMetaProps: {
-        isDirty: false,
-        isFocused: false,
-        text: "",
-      },
+      defaultMetaProps: ["text", "isDirty", "isFocused"],
       defaultProps: {
         text: "defaultText",
       },
