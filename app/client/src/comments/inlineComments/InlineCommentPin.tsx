@@ -15,7 +15,6 @@ import {
   markThreadAsReadRequest,
 } from "actions/commentActions";
 import { useTransition, animated } from "react-spring";
-import { useLocation } from "react-router";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { AppState } from "reducers";
 
@@ -32,33 +31,6 @@ const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
   right: calc(${(props) => 100 - props.left}% - 2px);
   z-index: 1;
 `;
-
-const useSelectCommentThreadUsingQuery = (commentThreadId: string) => {
-  const dispatch = useDispatch();
-  const location = useLocation();
-
-  useEffect(() => {
-    const searchParams = new URL(window.location.href).searchParams;
-    const commentThreadIdInUrl = searchParams.get("commentThreadId");
-    if (commentThreadIdInUrl && commentThreadIdInUrl === commentThreadId) {
-      const elements = document.getElementsByClassName(
-        `comment-thread-pin-${commentThreadId}`,
-      );
-      const commentPin = elements && elements[0];
-      if (commentPin) {
-        scrollIntoView(commentPin, {
-          scrollMode: "if-needed",
-          block: "nearest",
-          inline: "nearest",
-        });
-      }
-      // set comment thread visible after scrollIntoView is complete
-      setTimeout(() => {
-        dispatch(setVisibleThread(commentThreadId));
-      });
-    }
-  }, [location]);
-};
 
 const StyledPinContainer = styled.div<{ unread?: boolean }>`
   position: relative;
@@ -124,11 +96,33 @@ const modifiers = {
   },
 };
 
+const focusThread = (commentThreadId: string) => {
+  if (commentThreadId) {
+    const elements = document.getElementsByClassName(
+      `comment-thread-pin-${commentThreadId}`,
+    );
+    const commentPin = elements && elements[0];
+    if (commentPin) {
+      scrollIntoView(commentPin, {
+        scrollMode: "if-needed",
+        block: "nearest",
+        inline: "nearest",
+      });
+    }
+  }
+};
+
 /**
  * Comment pins that toggle comment thread popover visibility on click
  * They position themselves using position absolute based on top and left values (in percent)
  */
-function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
+function InlineCommentPin({
+  commentThreadId,
+  focused,
+}: {
+  commentThreadId: string;
+  focused: boolean;
+}) {
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
   const { left, top } = get(commentThread, "position", {
     top: 0,
@@ -136,8 +130,6 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
   });
 
   const dispatch = useDispatch();
-
-  useSelectCommentThreadUsingQuery(commentThreadId);
 
   const isPinVisible = useSelector(
     (state: AppState) =>
@@ -164,6 +156,16 @@ function InlineCommentPin({ commentThreadId }: { commentThreadId: string }) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
   };
+
+  useEffect(() => {
+    if (focused) {
+      focusThread(commentThreadId);
+      // set comment thread visible after scrollIntoView is complete
+      setTimeout(() => {
+        dispatch(setVisibleThread(commentThreadId));
+      });
+    }
+  }, [focused]);
 
   if (!commentThread) return null;
 
