@@ -80,6 +80,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import OnboardingForm from "./OnboardingForm";
+import { getAppsmithConfigs } from "configs";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -869,6 +870,7 @@ const getIsFromSignup = () => {
   }
   return false;
 };
+const { onboardingFormEnabled } = getAppsmithConfigs();
 class Applications extends Component<
   ApplicationProps,
   { selectedOrgId: string; showOnboardingForm: boolean }
@@ -886,7 +888,9 @@ class Applications extends Component<
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
-    this.setState({ showOnboardingForm: getIsFromSignup() });
+    this.setState({
+      showOnboardingForm: getIsFromSignup() && onboardingFormEnabled,
+    });
   }
 
   public render() {
