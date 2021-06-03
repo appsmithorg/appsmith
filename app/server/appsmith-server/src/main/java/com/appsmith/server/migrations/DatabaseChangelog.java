@@ -2286,52 +2286,62 @@ public class DatabaseChangelog {
         firestoreActionQueries.stream()
                 .forEach(action -> {
                     // For unpublished action
-                    String path = null;
-                    String op = null;
-                    String value = null;
-                    List<Property> properties = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
-                    if (properties.size() > 3 && properties.get(3) != null) {
-                        path = (String) properties.get(3).getValue();
-                    }
-                    if (properties.size() > 4 && properties.get(4) != null) {
-                        op = (String) properties.get(4).getValue();
-                        properties.set(4, null); // Index 4 does not map to any value in the new query format
-                    }
-                    if (properties.size() > 5 && properties.get(5) != null) {
-                        value = (String) properties.get(5).getValue();
-                        properties.set(5, null); // Index 5 does not map to any value in the new query format
-                    }
+                    if (action.getUnpublishedAction() != null
+                            && action.getUnpublishedAction().getActionConfiguration() != null
+                            && action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates() != null) {
 
-                    Map newFormat = new HashMap();
-                    newFormat.put("path", path);
-                    newFormat.put("operator", op);
-                    newFormat.put("value", value);
-                    properties.get(3).setKey("whereConditionTuples");
-                    properties.get(3).setValue(List.of(newFormat));
+                        String path = null;
+                        String op = null;
+                        String value = null;
+                        List<Property> properties = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                        if (properties.size() > 3 && properties.get(3) != null) {
+                            path = (String) properties.get(3).getValue();
+                        }
+                        if (properties.size() > 4 && properties.get(4) != null) {
+                            op = (String) properties.get(4).getValue();
+                            properties.set(4, null); // Index 4 does not map to any value in the new query format
+                        }
+                        if (properties.size() > 5 && properties.get(5) != null) {
+                            value = (String) properties.get(5).getValue();
+                            properties.set(5, null); // Index 5 does not map to any value in the new query format
+                        }
 
+                        Map newFormat = new HashMap();
+                        newFormat.put("path", path);
+                        newFormat.put("operator", op);
+                        newFormat.put("value", value);
+                        properties.get(3).setKey("whereConditionTuples");
+                        properties.get(3).setValue(List.of(newFormat));
+                    }
+                    
                     // For published action
-                    path = null;
-                    op = null;
-                    value = null;
-                    properties = action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
-                    if (properties.size() > 3 && properties.get(3) != null) {
-                        path = (String) properties.get(3).getValue();
-                    }
-                    if (properties.size() > 4 && properties.get(4) != null) {
-                        op = (String) properties.get(4).getValue();
-                        properties.set(4, null); // Index 4 does not map to any value in the new query format
-                    }
-                    if (properties.size() > 5 && properties.get(5) != null) {
-                        value = (String) properties.get(5).getValue();
-                        properties.set(5, null); // Index 5 does not map to any value in the new query format
-                    }
+                    if (action.getPublishedAction() != null
+                            && action.getPublishedAction().getActionConfiguration() != null
+                            && action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates() != null) {
 
-                    newFormat = new HashMap();
-                    newFormat.put("path", path);
-                    newFormat.put("operator", op);
-                    newFormat.put("value", value);
-                    properties.get(3).setKey("whereConditionTuples");
-                    properties.get(3).setValue(List.of(newFormat));
+                        String path = null;
+                        String op = null;
+                        String value = null;
+                        List<Property> properties = action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                        if (properties.size() > 3 && properties.get(3) != null) {
+                            path = (String) properties.get(3).getValue();
+                        }
+                        if (properties.size() > 4 && properties.get(4) != null) {
+                            op = (String) properties.get(4).getValue();
+                            properties.set(4, null); // Index 4 does not map to any value in the new query format
+                        }
+                        if (properties.size() > 5 && properties.get(5) != null) {
+                            value = (String) properties.get(5).getValue();
+                            properties.set(5, null); // Index 5 does not map to any value in the new query format
+                        }
+
+                        HashMap newFormat = new HashMap();
+                        newFormat.put("path", path);
+                        newFormat.put("operator", op);
+                        newFormat.put("value", value);
+                        properties.get(3).setKey("whereConditionTuples");
+                        properties.get(3).setValue(List.of(newFormat));
+                    }
                 });
 
         /**
