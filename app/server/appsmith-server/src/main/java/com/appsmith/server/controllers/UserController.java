@@ -90,6 +90,12 @@ public class UserController extends BaseController<UserService, User, String> {
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
+    @PutMapping("/leaveOrganization/{orgId}")
+    public Mono<ResponseDTO<User>> leaveOrganization(@PathVariable String orgId) {
+        return userOrganizationService.leaveOrganization(orgId)
+                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
+    }
+
     /**
      * This function initiates the process to reset a user's password. We require the Origin header from the request
      * in order to construct client facing URLs that will be sent to the user over email.

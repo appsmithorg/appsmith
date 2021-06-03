@@ -63,7 +63,6 @@ type Props = EditorProps &
 const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
-  width: calc(100% - 155px);
 `;
 
 const hintContainerStyles: React.CSSProperties = {
@@ -88,7 +87,7 @@ const datasourceInfoStyles: React.CSSProperties = {
   fontWeight: 400,
   fontSize: "12px",
 };
-const itaclicInfoStyles = {
+const italicInfoStyles = {
   ...datasourceInfoStyles,
   fontStyle: "italic",
 };
@@ -99,7 +98,7 @@ function CustomHint(props: { datasource: Datasource }) {
     <div style={hintContainerStyles}>
       <div style={mainContainerStyles}>
         <span style={datasourceNameStyles}>{props.datasource.name}</span>
-        <span style={itaclicInfoStyles}>
+        <span style={italicInfoStyles}>
           {getDatasourceInfo(props.datasource)}
         </span>
       </div>
@@ -299,7 +298,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     return (
       <DatasourceContainer>
         <CodeEditor {...props} />
-        {datasource && !("id" in datasource) ? (
+        {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (
           <DatasourceIcon
