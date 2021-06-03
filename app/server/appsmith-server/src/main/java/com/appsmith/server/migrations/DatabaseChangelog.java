@@ -50,6 +50,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
+import com.github.cloudyrock.mongock.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
@@ -1509,26 +1510,6 @@ public class DatabaseChangelog {
         });
     }
 
-    @ChangeSet(order = "046", id = "ensure-encrypted-field-for-datasources", author = "")
-    public void ensureIsEncryptedFieldForDatasources(MongoTemplate mongoTemplate) {
-        final String isEncryptedField = "datasourceConfiguration.authentication.isEncrypted";
-        final String passwordField = "datasourceConfiguration.authentication.password";
-
-        final org.springframework.data.mongodb.core.query.Query query = query(new Criteria().andOperator(
-                where(passwordField).exists(true),
-                where(isEncryptedField).exists(false)
-        ));
-        query.fields().include("_id");
-
-        for (final Datasource datasource : mongoTemplate.find(query, Datasource.class)) {
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
-                    update(isEncryptedField, true),
-                    Datasource.class
-            );
-        }
-    }
-
     @ChangeSet(order = "047", id = "add-isSendSessionEnabled-key-for-datasources", author = "")
     public void addIsSendSessionEnabledPropertyInDatasources(MongoTemplate mongoTemplate) {
 
@@ -2276,5 +2257,38 @@ public class DatabaseChangelog {
 
         // Delete all the existing mongo datasource structures by setting the key to null.
         mongoOperations.updateMulti(query, update, Datasource.class);
+    }
+
+    @ChangeSet(order = "069", id = "set-mongo-actions-type-to-raw", author = "")
+    public void setMongoActionInputToRaw(MongockTemplate mongockTemplate) {
+
+        // All the existing mongo actions at this point will only have ever been in the raw format
+        // For these actions to be readily available to users, we need to set their input type to raw manually
+        // This is required because since the mongo form, the default input type on the UI has been set to FORM
+        Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        // Fetch all the actions built on top of a mongo database, not having any value set for input type
+        assert mongoPlugin != null;
+        List<NewAction> rawMongoActions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                NewAction.class
+        )
+                .stream()
+                .filter(mongoAction -> {
+                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
+                        return false;
+                    }
+                    final List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                    return pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() == 1;
+                })
+                .collect(Collectors.toList());
+
+        for (NewAction action : rawMongoActions) {
+            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+            pluginSpecifiedTemplates.add(new Property(null, "RAW"));
+
+            mongockTemplate.save(action);
+        }
     }
 }

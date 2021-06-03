@@ -46,7 +46,8 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { executePageLoadActions } from "actions/widgetActions";
-import { resetDebuggerState } from "actions/debuggerActions";
+import { getIsEditorInitialized } from "selectors/editorSelectors";
+import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -268,7 +269,17 @@ export function* initializeAppViewerSaga(
 function* resetEditorSaga() {
   yield put(resetEditorSuccess());
   yield put(resetRecentEntities());
-  yield put(resetDebuggerState());
+}
+
+export function* waitForInit() {
+  const isEditorInitialised = yield select(getIsEditorInitialized);
+  const isViewerInitialized = yield select(getIsViewerInitialized);
+  if (!isEditorInitialised && !isViewerInitialized) {
+    yield take([
+      ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
+      ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+    ]);
+  }
 }
 
 export default function* watchInitSagas() {
