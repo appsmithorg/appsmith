@@ -97,9 +97,6 @@ export const flattenObjKeys = (
   const r: any = results;
   for (const [key, value] of Object.entries(options)) {
     if (!skipProperties.includes(key)) {
-      // if (_.isObject(value)) {
-      //   flattenObjKeys(value, parentKey + "." + key, r);
-      // }
       r[parentKey + "." + key] = value;
     }
   }
