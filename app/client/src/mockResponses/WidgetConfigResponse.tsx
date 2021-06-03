@@ -545,42 +545,48 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         type: "column2d",
         dataSource: {
           chart: {
-            caption: "Monthly revenue for last year",
-            subCaption: "Harry's SuperMart",
-            xAxisName: "Month",
-            yAxisName: "Revenues (In USD)",
-            numberPrefix: "$",
+            caption: "Last week's revenue",
+            xAxisName: "Last Week",
+            yAxisName: "Total Order Revenue $",
             theme: "fusion",
           },
           data: [
             {
-              label: "Jan",
-              value: "420000",
+              label: "Mon",
+              value: 10000,
             },
             {
-              label: "Feb",
-              value: "810000",
+              label: "Tue",
+              value: 12000,
             },
             {
-              label: "Mar",
-              value: "720000",
+              label: "Wed",
+              value: 32000,
             },
             {
-              label: "Apr",
-              value: "550000",
+              label: "Thu",
+              value: 28000,
             },
             {
-              label: "May",
-              value: "910000",
+              label: "Fri",
+              value: 14000,
+            },
+            {
+              label: "Sat",
+              value: 19000,
+            },
+            {
+              label: "Sun",
+              value: 36000,
             },
           ],
           trendlines: [
             {
               line: [
                 {
-                  startvalue: "700000",
+                  startvalue: "38000",
                   valueOnRight: "1",
-                  displayvalue: "Monthly Target",
+                  displayvalue: "Weekly Target",
                 },
               ],
             },
