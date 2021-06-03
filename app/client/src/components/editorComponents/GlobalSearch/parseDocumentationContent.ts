@@ -67,20 +67,26 @@ const updateDocumentDescriptionTitle = (documentObj: any, item: any) => {
     const ctaElement = getDocumentationCTA(path) as Node;
     firstChild.appendChild(ctaElement);
 
-    Array.from(
-      firstChild.querySelectorAll(algoliaHighlightTag) as NodeListOf<
-        HTMLElement
-      >,
-    ).forEach((match) => {
-      if (
-        match.textContent &&
-        match.textContent.length < Math.floor(item.query.length / 2)
-      ) {
-        const innerHtml = match.innerHTML;
-        match.replaceWith(innerHtml);
-      }
-    });
+    removeBadHighlights(firstChild, item.query);
   }
+};
+
+// Remove highlights if they don't match well
+const removeBadHighlights = (node: HTMLElement | Document, query: string) => {
+  Array.from(
+    node.querySelectorAll(algoliaHighlightTag) as NodeListOf<HTMLElement>,
+  ).forEach((match) => {
+    // If the length of the highlighted node is less than the 1/2 length of
+    // the query we remove the highlighted tag.
+    // E.g query: "store any" won't highlight "any" nodes
+    if (
+      match.textContent &&
+      match.textContent.length < Math.floor(query.length / 2)
+    ) {
+      const innerHtml = match.innerHTML;
+      match.replaceWith(innerHtml);
+    }
+  });
 };
 
 const replaceHintTagsWithCode = (text: string) => {
@@ -134,8 +140,11 @@ const parseDocumentationContent = (item: any): string | undefined => {
 
     // Combine adjacent highlighted nodes into a single one
     let adjacentMatches: string[] = [];
+    // Get highlighted tags
     Array.from(documentObj.querySelectorAll(algoliaHighlightTag)).forEach(
       (match) => {
+        // If adjacent element is an `algoliaHighlightTag` and the next
+        // text content is a `space`
         if (
           match.nextSibling?.textContent === " " &&
           match.nextElementSibling?.nodeName.toLowerCase() ===
@@ -143,48 +152,50 @@ const parseDocumentationContent = (item: any): string | undefined => {
           !adjacentMatches.length &&
           match.textContent
         ) {
+          // Store the matched word and `space`(space exists for a group of words)
           adjacentMatches = adjacentMatches.concat([match.textContent, " "]);
+          // Remove the node as we have it's text content
           match.remove();
-        } else if (adjacentMatches.length && match.textContent) {
+        }
+        // If this is part of a group of highligted words
+        else if (adjacentMatches.length && match.textContent) {
+          // store it's text content
           adjacentMatches.push(match.textContent);
 
+          // If there are more adjacent highlight nodes ahead
           if (
             match.nextSibling?.textContent === " " &&
             match.nextElementSibling?.nodeName.toLowerCase() ===
               algoliaHighlightTag
           ) {
+            // store the space
             adjacentMatches.push(" ");
+            // delete the node
             match.remove();
-          } else {
+          }
+          // We are at the last node of the group
+          else {
+            // Create a algoliaHighlightTag element and add the
+            // grouped text
             const highlightTag = document.createElement(algoliaHighlightTag);
             highlightTag.innerText = adjacentMatches.join("");
 
+            // Simply replace(or remove) the last node with the
+            // newly created algoliaHighlightTag
             match.replaceWith(highlightTag);
+            // Reset
             adjacentMatches = [];
           }
         } else {
+          // Reset adjacentMatches. We are no longer part of a group of adjacent nodes.
+          // Start afresh
           adjacentMatches = [];
         }
-        try {
-        } catch (e) {}
       },
     );
 
     // Remove highlight for nodes that don't match well
-    Array.from(
-      documentObj.querySelectorAll(algoliaHighlightTag) as NodeListOf<
-        HTMLElement
-      >,
-    ).forEach((match: any) => {
-      if (
-        match.textContent &&
-        match.textContent.length < Math.floor(query.length / 2)
-      ) {
-        const innerHtml = match.innerHTML;
-        match.replaceWith(innerHtml);
-      }
-    });
-
+    removeBadHighlights(documentObj, query);
     // update description title
     updateDocumentDescriptionTitle(documentObj, item);
 
