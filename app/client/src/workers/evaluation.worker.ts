@@ -129,7 +129,7 @@ ctx.addEventListener(
         // Transforming eval errors into eval trigger errors. Since trigger
         // errors occur less, we want to treat it separately
         const errors = dataTreeEvaluator.errors.map((error) => {
-          if (error.type === EvalErrorTypes.EVAL_ERROR) {
+          if (error.type === EvalErrorTypes.EVAL_PROPERTY_ERROR) {
             return {
               ...error,
               type: EvalErrorTypes.EVAL_TRIGGER_ERROR,

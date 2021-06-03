@@ -57,6 +57,7 @@ export interface DataTreeAction
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
   jsErrorMessages?: Record<string, string>;
+  logBlackList: Record<string, true>;
 }
 
 export interface DataTreeWidget extends WidgetProps {
@@ -64,7 +65,7 @@ export interface DataTreeWidget extends WidgetProps {
   triggerPaths: Record<string, boolean>;
   validationPaths: Record<string, VALIDATION_TYPES>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
-  logBlackList?: Record<string, true>;
+  logBlackList: Record<string, true>;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {

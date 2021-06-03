@@ -1,24 +1,12 @@
 import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { LogActionPayload, Message } from "entities/AppsmithConsole";
-import {
-  all,
-  put,
-  takeEvery,
-  select,
-  take,
-  fork,
-  call,
-} from "redux-saga/effects";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { isEmpty, set, get } from "lodash";
+import { all, call, fork, put, select, takeEvery } from "redux-saga/effects";
+import { set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { getWidget } from "./selectors";
-import { WidgetProps } from "widgets/BaseWidget";
 
 function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   if (!payload.source || !payload.state || !request || !request.headers) {
@@ -131,45 +119,6 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
   }
 }
 
-// Pass through error list once after on page load actions executions are complete
-function* onExecutePageActionsCompleteSaga() {
-  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-
-  const dataTree: DataTree = yield select(getDataTree);
-  const errors = yield select(getDebuggerErrors);
-  const updatedErrors = { ...errors };
-  const errorIds = Object.keys(errors);
-
-  for (const id of errorIds) {
-    const splits = id.split("-");
-    const entityId = splits[0];
-    const propertyName = splits[1];
-    const widget: WidgetProps | null = yield select(getWidget, entityId);
-
-    if (widget) {
-      const dataTreeWidget = dataTree[widget.widgetName] as DataTreeWidget;
-      const jsError = get(dataTreeWidget.jsErrorMessages, propertyName, "");
-      if (
-        !get(dataTreeWidget.invalidProps, propertyName, null) &&
-        isEmpty(jsError)
-      ) {
-        delete updatedErrors[id];
-      }
-    }
-  }
-
-  yield put({
-    type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
-    payload: updatedErrors,
-  });
-}
-
 export default function* debuggerSagasListeners() {
-  yield all([
-    takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
-    takeEvery(
-      ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS_COMPLETE,
-      onExecutePageActionsCompleteSaga,
-    ),
-  ]);
+  yield all([takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga)]);
 }

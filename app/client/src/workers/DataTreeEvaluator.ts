@@ -210,7 +210,6 @@ export default class DataTreeEvaluator {
       evaluate: (evalStop - evalStart).toFixed(2),
     };
     this.logs.push({ timeTakenForSubTreeEval });
-    // step 4: return evalationOrder as well
     return {
       dataTree: this.evalTree,
       evaluationOrder: evaluationOrder,
@@ -510,7 +509,7 @@ export default class DataTreeEvaluator {
         entityType = entity.pluginType;
       }
       this.errors.push({
-        type: EvalErrorTypes.DEPENDENCY_ERROR,
+        type: EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR,
         message: "Cyclic dependency found while evaluating.",
         context: {
           node,
@@ -620,6 +619,13 @@ export default class DataTreeEvaluator {
           fullPropertyPath,
         );
         _.set(data, `${entityName}.jsErrorMessages.${propertyPath}`, e.message);
+      } else {
+        // TODO clean up
+        // This is to handle situations with evaluation of triggers for execution
+        this.errors.push({
+          type: EvalErrorTypes.EVAL_PROPERTY_ERROR,
+          message: e.message,
+        });
       }
       return { result: undefined, triggers: [] };
     }
