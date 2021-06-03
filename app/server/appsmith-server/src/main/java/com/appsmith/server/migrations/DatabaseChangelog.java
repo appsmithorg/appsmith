@@ -2296,6 +2296,9 @@ public class DatabaseChangelog {
         )
                 .stream()
                 .filter(mongoAction -> {
+                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
+                        return false;
+                    }
                     final List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
                     return pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() == 1;
                 })
