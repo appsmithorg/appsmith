@@ -39,6 +39,7 @@ import {
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { Message } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -58,7 +59,7 @@ const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 function* getNewErrors(
   dataTree: DataTree,
   evaluationOrder: Array<string>,
-  debuggerErrors: any,
+  debuggerErrors: Record<string, Message>,
 ) {
   const result = [];
   if (evaluationOrder && evaluationOrder.length) {
