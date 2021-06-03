@@ -13,9 +13,15 @@ const handleUpdateCommentThreadEvent = (
   const existingComments = get(commentThreadInStore, "comments", []);
   const newComments = get(action.payload, "comments", []);
 
-  const shouldRefreshList =
+  const pinnedStateChanged =
     commentThreadInStore?.pinnedState?.active !==
     action.payload?.pinnedState?.active;
+
+  const isNowResolved =
+    !commentThreadInStore?.resolvedState?.active &&
+    action.payload?.resolvedState?.active;
+
+  const shouldRefreshList = isNowResolved || pinnedStateChanged;
 
   state.commentThreadsMap[id] = {
     ...(commentThreadInStore || {}),
@@ -24,8 +30,6 @@ const handleUpdateCommentThreadEvent = (
     comments: uniqBy([...existingComments, ...newComments], "id"),
   };
 
-  // Refresh app comments section list
-  // TODO: can perform better if we have separate lists calculated in advance
   if (shouldRefreshList) {
     state.applicationCommentThreadsByRef[
       action.payload.applicationId as string

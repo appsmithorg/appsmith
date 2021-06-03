@@ -65,27 +65,25 @@ function AppCommentThreads() {
 
   return (
     <Container>
-      <Virtuoso
-        data={commentThreadIds}
-        itemContent={(_index, commentThreadId) => (
-          /**
-           * zero height elements are not supported by react virtuso
-           * we filter the elements from the list but in the intermediate
-           * state there is a possibility when the comment thread id exists
-           * in the list, using this as a temporary workaround and a fail safe
-           * until we are sure this doesn't happen
-           */
-          <div style={{ minHeight: 1 }}>
-            <CommentThread
-              commentThreadId={commentThreadId}
-              hideChildren
-              hideInput
-              key={commentThreadId}
-              showSubheader
-            />
-          </div>
-        )}
-      />
+      {commentThreadIds.length > 0 && (
+        <Virtuoso
+          data={commentThreadIds}
+          itemContent={(_index, commentThreadId) => (
+            /** Keeping this as a fail safe: since zero
+             * height elements throw an error
+             * */
+            <div style={{ minHeight: 1 }}>
+              <CommentThread
+                commentThreadId={commentThreadId}
+                hideChildren
+                hideInput
+                key={commentThreadId}
+                showSubheader
+              />
+            </div>
+          )}
+        />
+      )}
       {commentThreadIds.length === 0 && <AppCommentsPlaceholder />}
     </Container>
   );

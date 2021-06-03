@@ -13,9 +13,15 @@ const handleUpdateCommentThreadSuccess = (
 
   if (!commentThreadInStore) return state;
 
-  const shouldRefreshList =
-    commentThreadInStore.pinnedState?.active !==
+  const pinnedStateChanged =
+    commentThreadInStore?.pinnedState?.active !==
     action.payload?.pinnedState?.active;
+
+  const isNowResolved =
+    !commentThreadInStore?.resolvedState?.active &&
+    action.payload?.resolvedState?.active;
+
+  const shouldRefreshList = isNowResolved || pinnedStateChanged;
 
   state.commentThreadsMap[id] = {
     ...commentThreadInStore,
@@ -23,8 +29,6 @@ const handleUpdateCommentThreadSuccess = (
     comments: existingComments,
   };
 
-  // Refresh app comments section list
-  // TODO: can perform better if we have separate lists calculated in advance
   if (shouldRefreshList) {
     state.applicationCommentThreadsByRef[
       action.payload.applicationId as string
