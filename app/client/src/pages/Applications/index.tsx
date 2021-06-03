@@ -506,6 +506,7 @@ const NoSearchResultImg = styled.img`
 `;
 
 function ApplicationsSection(props: any) {
+  const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
   const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
@@ -673,14 +674,18 @@ function ApplicationsSection(props: any) {
                         }
                         text="Organization Settings"
                       />
-                      <MenuItem
-                        cypressSelector="t--org-import-app"
-                        icon="upload"
-                        onSelect={() =>
-                          setSelectedOrgIdForImportApplication(organization.id)
-                        }
-                        text="Import Application"
-                      />
+                      {enableImportExport && (
+                        <MenuItem
+                          cypressSelector="t--org-import-app"
+                          icon="upload"
+                          onSelect={() =>
+                            setSelectedOrgIdForImportApplication(
+                              organization.id,
+                            )
+                          }
+                          text="Import Application"
+                        />
+                      )}
                       <MenuItem
                         icon="share"
                         onSelect={() => setSelectedOrgId(organization.id)}
@@ -816,6 +821,7 @@ function ApplicationsSection(props: any) {
                       application={application}
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
+                      enableImportExport={enableImportExport}
                       key={application.id}
                       update={updateApplicationDispatch}
                     />

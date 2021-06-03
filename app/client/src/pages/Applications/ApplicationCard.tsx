@@ -222,6 +222,7 @@ type ApplicationCardProps = {
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
+  enableImportExport?: boolean;
 };
 
 const EditButton = styled(Button)`
@@ -299,12 +300,14 @@ export function ApplicationCard(props: ApplicationCardProps) {
         cypressSelector: "t--fork-app",
       });
     }
-    moreActionItems.push({
-      onSelect: exportApplicationAsJSONFile,
-      text: "Export",
-      icon: "download",
-      cypressSelector: "t--export-app",
-    });
+    if (!!props.enableImportExport) {
+      moreActionItems.push({
+        onSelect: exportApplicationAsJSONFile,
+        text: "Export",
+        icon: "download",
+        cypressSelector: "t--export-app",
+      });
+    }
     setMoreActionItems(moreActionItems);
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
