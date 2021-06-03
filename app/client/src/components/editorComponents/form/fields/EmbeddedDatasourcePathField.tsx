@@ -63,7 +63,6 @@ type Props = EditorProps &
 const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
-  width: calc(100% - 155px);
 `;
 
 const hintContainerStyles: React.CSSProperties = {
@@ -299,7 +298,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     return (
       <DatasourceContainer>
         <CodeEditor {...props} />
-        {datasource && !("id" in datasource) ? (
+        {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (
           <DatasourceIcon
