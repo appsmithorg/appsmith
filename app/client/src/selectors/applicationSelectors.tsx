@@ -141,3 +141,6 @@ export const getIsDeletingApplications = createSelector(
 
 export const getIsSavingOrgInfo = (state: AppState) =>
   state.ui.applications.isSavingOrgInfo;
+
+export const showAppInviteUsersDialogSelector = (state: AppState) =>
+  state.ui.applications.showAppInviteUsersDialog;

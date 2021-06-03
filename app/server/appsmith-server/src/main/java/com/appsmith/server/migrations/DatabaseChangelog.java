@@ -50,6 +50,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
+import com.github.cloudyrock.mongock.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
@@ -2258,6 +2259,39 @@ public class DatabaseChangelog {
         mongoOperations.updateMulti(query, update, Datasource.class);
     }
 
+    @ChangeSet(order = "069", id = "set-mongo-actions-type-to-raw", author = "")
+    public void setMongoActionInputToRaw(MongockTemplate mongockTemplate) {
+
+        // All the existing mongo actions at this point will only have ever been in the raw format
+        // For these actions to be readily available to users, we need to set their input type to raw manually
+        // This is required because since the mongo form, the default input type on the UI has been set to FORM
+        Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        // Fetch all the actions built on top of a mongo database, not having any value set for input type
+        assert mongoPlugin != null;
+        List<NewAction> rawMongoActions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                NewAction.class
+        )
+                .stream()
+                .filter(mongoAction -> {
+                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
+                        return false;
+                    }
+                    final List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                    return pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() == 1;
+                })
+                .collect(Collectors.toList());
+
+        for (NewAction action : rawMongoActions) {
+            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+            pluginSpecifiedTemplates.add(new Property(null, "RAW"));
+
+            mongockTemplate.save(action);
+        }
+    }
+
     /**
      * - Older firestore action form had support for only on where condition, which mapped path, operator and value to
      * three different indexes on the pluginSpecifiedTemplates list.
@@ -2265,7 +2299,7 @@ public class DatabaseChangelog {
      * index in pluginSpecifiedTemplates list.
      * - [... path, operator, value, ...] --> [... [ {"path":path, "operator":operator, "value":value} ] ...]
      */
-    @ChangeSet(order = "069", id = "update-firestore-where-conditions-data", author = "")
+    @ChangeSet(order = "070", id = "update-firestore-where-conditions-data", author = "")
     public void updateFirestoreWhereConditionsData(MongoTemplate mongoTemplate) {
         Plugin firestorePlugin = mongoTemplate
                 .findOne(query(where("packageName").is("firestore-plugin")), Plugin.class);
@@ -2313,7 +2347,7 @@ public class DatabaseChangelog {
                         properties.get(3).setKey("whereConditionTuples");
                         properties.get(3).setValue(List.of(newFormat));
                     }
-                    
+
                     // For published action
                     if (action.getPublishedAction() != null
                             && action.getPublishedAction().getActionConfiguration() != null
