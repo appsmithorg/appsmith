@@ -139,7 +139,6 @@ export function* deleteOrgUserSaga(action: ReduxAction<DeleteOrgUserRequest>) {
       if (currentUser?.username == action.payload.username) {
         history.replace(APPLICATIONS_URL);
       } else {
-        console.log("User removed someone");
         yield put({
           type: ReduxActionTypes.DELETE_ORG_USER_SUCCESS,
           payload: {
