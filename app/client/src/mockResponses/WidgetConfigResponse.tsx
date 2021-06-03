@@ -368,7 +368,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
-      version: 2,
+      version: 3,
     },
     MODAL_WIDGET: {
       rows: 6 * GRID_DENSITY_MIGRATION_V1,
@@ -664,11 +664,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           autocomplete: (parentProps: any) => {
             return parentProps.childAutoComplete;
           },
-          hideEvaluatedValue: () => true,
+          updateDataTreePath: (parentProps: any, dataTreePath: string) => {
+            return `${
+              parentProps.widgetName
+            }.evaluatedValues.template.${dataTreePath.replace(
+              "evaluatedValues.",
+              "",
+            )}`;
+          },
           propertyUpdateHook: (
             parentProps: any,
             widgetName: string,
-            propertyPath: string, // onClick
+            propertyPath: string,
             propertyValue: string,
             isTriggerProperty: boolean,
           ) => {
@@ -685,7 +692,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               "",
             );
 
-            value = `{{${parentProps.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+            value = `{{${parentProps.widgetName}.items.map((currentItem) => {
+              return (function(){
+                return  ${modifiedAction};
+              })();
+            })}}`;
+
+            if (!modifiedAction) {
+              value = propertyValue;
+            }
+
             const path = `template.${widgetName}.${propertyPath}`;
 
             return [
@@ -750,6 +766,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canExtend: false,
               detachFromLayout: true,
               dropDisabled: true,
+              openParentPropertyPane: true,
               noPad: true,
               children: [],
               blueprint: {
@@ -768,6 +785,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       isDeletable: false,
                       disallowCopy: true,
                       disablePropertyPane: true,
+                      openParentPropertyPane: true,
                       children: [],
                       blueprint: {
                         view: [

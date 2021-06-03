@@ -4,10 +4,10 @@ import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -56,8 +56,7 @@ public class CommentThread extends BaseDomain {
     public static class CommentThreadState {
         String authorName;
         String authorUsername;
-        @LastModifiedDate
-        String updatedAt;
+        Instant updatedAt;
         Boolean active;
     }
 
