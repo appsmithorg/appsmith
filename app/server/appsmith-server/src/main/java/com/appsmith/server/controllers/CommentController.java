@@ -41,7 +41,7 @@ public class CommentController extends BaseController<CommentService, Comment, S
                                              @RequestParam String threadId,
                                              ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return service.create(threadId, resource)
+        return service.create(threadId, resource, exchange.getRequest().getHeaders().getOrigin())
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -50,7 +50,7 @@ public class CommentController extends BaseController<CommentService, Comment, S
     public Mono<ResponseDTO<CommentThread>> createThread(@Valid @RequestBody CommentThread resource,
                                                          ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return service.createThread(resource)
+        return service.createThread(resource, exchange.getRequest().getHeaders().getOrigin())
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -63,10 +63,10 @@ public class CommentController extends BaseController<CommentService, Comment, S
     @PutMapping("/threads/{threadId}")
     public Mono<ResponseDTO<CommentThread>> updateThread(
             @Valid @RequestBody CommentThread resource,
-            @PathVariable String threadId
+            @PathVariable String threadId, ServerWebExchange exchange
     ) {
         log.debug("Going to update resource {}", resource.getClass().getName());
-        return service.updateThread(threadId, resource)
+        return service.updateThread(threadId, resource, exchange.getRequest().getHeaders().getOrigin())
                 .map(updated -> new ResponseDTO<>(HttpStatus.ACCEPTED.value(), updated, null));
     }
 
