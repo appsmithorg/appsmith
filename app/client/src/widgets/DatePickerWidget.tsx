@@ -142,7 +142,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedDate: "",
+      selectedDate: undefined,
     };
   }
 

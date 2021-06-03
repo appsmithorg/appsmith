@@ -237,7 +237,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      text: "",
+      text: undefined,
       isFocused: false,
       isDirty: false,
     };

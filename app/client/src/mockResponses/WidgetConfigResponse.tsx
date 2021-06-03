@@ -1,7 +1,7 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
-import { cloneDeep, get, isString } from "lodash";
+import { cloneDeep, get, indexOf, isString } from "lodash";
 import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
@@ -309,6 +309,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     FILE_PICKER_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       files: [],
+      selectedFiles: [],
+      defaultSelectedFiles: [],
       allowedFileTypes: [],
       label: "Select Files",
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
@@ -959,6 +961,35 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               if (!parentId) return { widgets };
               const widget = { ...widgets[widgetId] };
               const parent = { ...widgets[parentId] };
+
+              const disallowedWidgets = [
+                WidgetTypes.TABLE_WIDGET,
+                WidgetTypes.LIST_WIDGET,
+              ];
+
+              if (indexOf(disallowedWidgets, widget.type) > -1) {
+                const widget = widgets[widgetId];
+                if (widget.children && widget.children.length > 0) {
+                  widget.children.forEach((childId: string) => {
+                    delete widgets[childId];
+                  });
+                }
+                if (widget.parentId) {
+                  const _parent = { ...widgets[widget.parentId] };
+                  _parent.children = _parent.children?.filter(
+                    (id) => id !== widgetId,
+                  );
+                  widgets[widget.parentId] = _parent;
+                }
+                delete widgets[widgetId];
+
+                return {
+                  widgets,
+                  message: `${
+                    WidgetConfigResponse.config[widget.type].widgetName
+                  } widgets cannot be used inside the list widget.`,
+                };
+              }
 
               const template = {
                 ...get(parent, "template", {}),

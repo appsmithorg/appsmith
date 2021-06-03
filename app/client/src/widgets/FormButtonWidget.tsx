@@ -126,7 +126,7 @@ class FormButtonWidget extends BaseWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      recaptchaToken: "",
+      recaptchaToken: undefined,
     };
   }
 

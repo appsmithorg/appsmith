@@ -122,8 +122,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           });
         });
 
-        console.log({ updatedItems });
-
         return updatedItems;
       })()}}`,
       selectedItem: `{{(()=>{
@@ -411,7 +409,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       set(widget, `${key}`, defaultPropertyValue);
     });
 
-    Object.keys(widget.defaultMetaProps).map((key: string) => {
+    widget.defaultMetaProps.map((key: string) => {
       const metaPropertyValue = get(
         this.props.childMetaProperties,
         `${widget.widgetName}.${key}.${itemIndex}`,
@@ -422,11 +420,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         typeof metaPropertyValue !== "undefined" &&
         metaPropertyValue !== null
       ) {
-        if (key == "selectedOptionValue") {
-          console.log({ key, metaPropertyValue, itemIndex });
-        }
-
         set(widget, key, metaPropertyValue);
+      }
+
+      if (key == "selectedFiles") {
+        console.log({ key, metaPropertyValue, itemIndex, widget });
       }
     });
 
@@ -483,14 +481,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { perPage } = this.shouldPaginate();
     const originalIndex = ((page - 1) * perPage - itemIndex) * -1;
 
-    if (this.props.renderMode === RenderModes.PAGE) {
-      set(
-        widget,
-        `widgetId`,
-        `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
-      );
-    }
-
     if (originalIndex !== 0) {
       set(
         widget,
@@ -532,6 +522,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           "children[0].children",
           [],
         );
+
         // If children exist
         if (listItemChildren.length > 0) {
           // Update the properties of all the children
@@ -727,6 +718,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   getPageView() {
     const children = this.renderChildren();
     const { perPage, shouldPaginate } = this.shouldPaginate();
+
+    console.log({ children });
 
     if (this.props.isLoading) {
       return (

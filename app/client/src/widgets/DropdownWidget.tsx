@@ -140,8 +140,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedOptionValue: "",
-      selectedOptionValueArr: "",
+      selectedOptionValue: undefined,
+      selectedOptionValueArr: undefined,
     };
   }
 

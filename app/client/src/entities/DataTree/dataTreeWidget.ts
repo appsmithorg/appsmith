@@ -12,6 +12,7 @@ export const generateDataTreeWidget = (
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
   );
+
   const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
     widget.type,
   );
@@ -63,7 +64,7 @@ export const generateDataTreeWidget = (
     ...derivedProps,
     ...unInitializedDefaultProps,
     defaultProps,
-    defaultMetaProps,
+    defaultMetaProps: Object.keys(defaultMetaProps),
     dynamicBindingPathList,
     bindingPaths,
     triggerPaths,
