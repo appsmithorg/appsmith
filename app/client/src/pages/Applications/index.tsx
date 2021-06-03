@@ -78,6 +78,7 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
+import ImportApplicationModal from "./ImportApplicationModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -505,6 +506,7 @@ const NoSearchResultImg = styled.img`
 `;
 
 function ApplicationsSection(props: any) {
+  const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
   const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
@@ -534,6 +536,10 @@ function ApplicationsSection(props: any) {
   };
 
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
+  const [
+    selectedOrgIdForImportApplication,
+    setSelectedOrgIdForImportApplication,
+  ] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
   const leaveOrg = (orgId: string) => {
@@ -668,6 +674,18 @@ function ApplicationsSection(props: any) {
                         }
                         text="Organization Settings"
                       />
+                      {enableImportExport && (
+                        <MenuItem
+                          cypressSelector="t--org-import-app"
+                          icon="upload"
+                          onSelect={() =>
+                            setSelectedOrgIdForImportApplication(
+                              organization.id,
+                            )
+                          }
+                          text="Import Application"
+                        />
+                      )}
                       <MenuItem
                         icon="share"
                         onSelect={() => setSelectedOrgId(organization.id)}
@@ -691,7 +709,15 @@ function ApplicationsSection(props: any) {
                   />
                 </Menu>
               )}
-
+              {selectedOrgIdForImportApplication && (
+                <ImportApplicationModal
+                  isModalOpen={
+                    selectedOrgIdForImportApplication === organization.id
+                  }
+                  onClose={() => setSelectedOrgIdForImportApplication("")}
+                  organizationId={selectedOrgIdForImportApplication}
+                />
+              )}
               {hasManageOrgPermissions && (
                 <StyledDialog
                   canEscapeKeyClose={false}
@@ -795,6 +821,7 @@ function ApplicationsSection(props: any) {
                       application={application}
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
+                      enableImportExport={enableImportExport}
                       key={application.id}
                       update={updateApplicationDispatch}
                     />
