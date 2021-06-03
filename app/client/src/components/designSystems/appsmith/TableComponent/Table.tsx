@@ -183,11 +183,7 @@ export function Table(props: TableProps) {
       triggerRowSelection={props.triggerRowSelection}
       width={props.width}
     >
-      {(props.isVisibleSearch ||
-        props.isVisibleFilters ||
-        props.isVisibleDownload ||
-        props.isVisibleCompactMode ||
-        props.isVisiblePagination) && (
+      {isHeaderVisible && (
         <TableHeaderWrapper
           backgroundColor={Colors.WHITE}
           ref={tableHeaderWrapperRef}
