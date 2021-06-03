@@ -26,6 +26,8 @@ const initialState: ApplicationsReduxState = {
   duplicatingApplication: false,
   userOrgs: [],
   isSavingOrgInfo: false,
+  importingApplication: false,
+  importedApplication: null,
   showAppInviteUsersDialog: false,
 };
 
@@ -214,6 +216,28 @@ const applicationsReducer = createReducer(initialState, {
       forkingApplication: false,
     };
   },
+  [ReduxActionTypes.IMPORT_APPLICATION_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({ ...state, importingApplication: true }),
+  [ReduxActionTypes.IMPORT_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ importedApplication: any }>,
+  ) => {
+    const { importedApplication } = action.payload;
+    return {
+      ...state,
+      importingApplication: false,
+      importedApplication,
+    };
+  },
+  [ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      importingApplication: false,
+    };
+  },
   [ReduxActionTypes.SAVING_ORG_INFO]: (state: ApplicationsReduxState) => {
     return {
       ...state,
@@ -349,6 +373,8 @@ export interface ApplicationsReduxState {
   currentApplication?: ApplicationPayload;
   userOrgs: Organization[];
   isSavingOrgInfo: boolean;
+  importingApplication: boolean;
+  importedApplication: any;
   showAppInviteUsersDialog: boolean;
 }
 
