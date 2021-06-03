@@ -194,9 +194,11 @@ function* onExecutePageActionsCompleteSaga() {
     const widget: WidgetProps | null = yield select(getWidget, entityId);
 
     if (widget) {
-      const dataTreeWidget = dataTree[widget.widgetName] as DataTreeWidget;
-
-      if (!get(dataTreeWidget.invalidProps, propertyName, null)) {
+      const dataTreeWidget = dataTree[widget.widgetName];
+      if (
+        isWidget(dataTreeWidget) &&
+        !get(dataTreeWidget.invalidProps, propertyName, null)
+      ) {
         delete updatedErrors[id];
       }
     }
