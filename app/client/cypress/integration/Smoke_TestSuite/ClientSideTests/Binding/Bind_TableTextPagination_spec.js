@@ -88,4 +88,40 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest);
   });
+
+  it("Table-Text, Validate Server Side Pagination of Paginate with Table Default Page Size and Total Record Count", function() {
+    cy.SearchEntityandOpen("Table1");
+    cy.testJsontext("tabledata", "{{Api1.data.users}}");
+    cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
+    cy.wait(300);
+    //Add on page size change action
+    cy.get(commonlocators.tablePageSizeChangeAction).click({
+      force: true,
+    });
+    cy.wait(300);
+    cy.get(commonlocators.chooseAction)
+      .children()
+      .contains("Call An API")
+      .click();
+    cy.wait(300);
+    cy.get(commonlocators.chooseAction)
+      .children()
+      .contains("Api1")
+      .click();
+
+    // Add value of default page count and total page count
+    cy.testJsontext("totalrecordcount", 20);
+    cy.testJsontext("defaultpagesize", 5);
+
+    cy.SearchEntityandOpen("Table1");
+    cy.wait(5000);
+    let tableData = "";
+    cy.readTabledata("0", "0").then((data) => {
+      tableData = data;
+    });
+    cy.ValidateTableData(tableData);
+    cy.get(commonlocators.tableNextPage).click({
+      force: true,
+    });
+  });
 });
