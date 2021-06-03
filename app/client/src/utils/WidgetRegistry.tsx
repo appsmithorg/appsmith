@@ -100,6 +100,10 @@ import SwitchWidget, {
   ProfiledSwitchWidget,
   SwitchWidgetProps,
 } from "widgets/SwitchWidget";
+import LineSeparatorWidget, {
+  ProfiledLineSeparatorWidget,
+  LineSeparatorWidgetProps,
+} from "widgets/LineSeparatorWidget";
 import TabsMigratorWidget, {
   ProfiledTabsMigratorWidget,
 } from "widgets/Tabs/TabsMigrator";
@@ -453,6 +457,18 @@ export default class WidgetBuilderRegistry {
       ModalWidget.getDefaultPropertiesMap(),
       ModalWidget.getMetaPropertiesMap(),
       ModalWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.LINE_SEPARATOR_WIDGET,
+      {
+        buildWidget(widgetProps: LineSeparatorWidgetProps): JSX.Element {
+          return <ProfiledLineSeparatorWidget {...widgetProps} />;
+        },
+      },
+      LineSeparatorWidget.getDerivedPropertiesMap(),
+      LineSeparatorWidget.getDefaultPropertiesMap(),
+      LineSeparatorWidget.getMetaPropertiesMap(),
+      LineSeparatorWidget.getPropertyPaneConfig(),
     );
   }
 }

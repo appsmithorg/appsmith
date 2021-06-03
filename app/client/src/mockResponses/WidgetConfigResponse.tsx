@@ -1035,6 +1035,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         ],
       },
     },
+    LINE_SEPARATOR_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 2 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Line",
+      orientation: "horizontal",
+      isVisible: true,
+      version: 1,
+    },
   },
   configVersion: 1,
 };

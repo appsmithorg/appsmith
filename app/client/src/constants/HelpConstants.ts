@@ -115,6 +115,10 @@ export const HelpMap = {
     path: "/widget-reference/switch",
     searchKey: "Switch",
   },
+  LINE_SEPARATOR_WIDGET: {
+    path: "/widget-reference/line",
+    searchKey: "Line Separator",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

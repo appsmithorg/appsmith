@@ -105,6 +105,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Modal",
     key: generateReactKey(),
   },
+  {
+    type: "LINE_SEPARATOR_WIDGET",
+    widgetCardName: "Line",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

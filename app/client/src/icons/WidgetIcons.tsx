@@ -142,6 +142,11 @@ export const WidgetIcons: {
       <ListIcon />
     </IconWrapper>
   ),
+  LINE_SEPARATOR_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DropDownIcon />
+    </IconWrapper>
+  ),
 };
 
 export type WidgetIcon = typeof WidgetIcons[keyof typeof WidgetIcons];

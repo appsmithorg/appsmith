@@ -244,6 +244,13 @@ export const entityDefinitions = {
     gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
   }),
+  LINE_SEPARATOR_WIDGET: {
+    "!doc":
+      "Line is a simple UI widget used as a separator or connection line.",
+    "!url": "https://docs.appsmith.com/widget-reference/line",
+    isVisible: isVisible,
+    orientation: "string",
+  },
 };
 
 export const GLOBAL_DEFS = {
