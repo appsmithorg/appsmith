@@ -603,14 +603,6 @@ export default class DataTreeEvaluator {
     }
     return undefined;
   }
-  //check if the property is part if logBlackList object to show
-  //error in debugger
-  isLoggingBlocked(entity: DataTreeWidget, propertyPath: string) {
-    if (entity.logBlackList) {
-      return !!entity.logBlackList[propertyPath];
-    }
-    return false;
-  }
 
   // Paths are expected to have "{name}.{path}" signature
   // Also returns any action triggers found after evaluating value

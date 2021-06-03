@@ -933,9 +933,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     logBlackList[key] = true;
                   });
 
-                  logBlackListMap[childWidget.widgetId] = {
-                    ...logBlackList,
-                  };
+                  logBlackListMap[childWidget.widgetId] = logBlackList;
 
                   template = {
                     ...template,
