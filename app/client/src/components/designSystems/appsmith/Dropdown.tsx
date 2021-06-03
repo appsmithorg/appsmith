@@ -50,12 +50,15 @@ const selectStyles = {
     padding: "5px",
   }),
   indicatorSeparator: () => ({}),
+  menu: (provided: any) => ({ ...provided, zIndex: 99 }),
+  menuPortal: (base: any) => ({ ...base, zIndex: 99 }),
 };
 
 export function BaseDropdown(props: DropdownProps) {
   const { customSelectStyles, input } = props;
   return (
     <Select
+      menuPortalTarget={document.body}
       styles={{ ...selectStyles, ...customSelectStyles }}
       {...input}
       isDisabled={props.isDisabled}
