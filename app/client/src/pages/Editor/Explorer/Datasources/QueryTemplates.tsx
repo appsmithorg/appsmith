@@ -50,6 +50,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       const queryactionConfiguration: Partial<QueryAction> = {
         actionConfiguration: {
           body: template.body,
+          pluginSpecifiedTemplates: template.pluginSpecifiedTemplates,
         },
       };
 

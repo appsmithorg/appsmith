@@ -6,6 +6,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.mongodb.DBObject;
@@ -24,6 +25,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -207,4 +210,23 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                 .flatMap(assetId -> assetService.makeImageResponse(exchange, assetId));
     }
 
+    /**
+     * The {@code currentOrgId} is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
+     * If {@link UserData#getRecentlyUsedOrgIds} is null or empty, a new list will be created first.
+     * @param currentOrgId currently accessed organization
+     * @return Updated {@link UserData}
+     */
+    @Override
+    public Mono<UserData> updateLastUsedOrgList(String currentOrgId) {
+        return this.getForCurrentUser().flatMap(userData -> {
+            List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
+            if(recentlyUsedOrgIds == null) {
+                recentlyUsedOrgIds = new ArrayList<>();
+            }
+            CollectionUtils.removeDuplicates(recentlyUsedOrgIds);
+            CollectionUtils.putAtFirst(recentlyUsedOrgIds, currentOrgId);
+            userData.setRecentlyUsedOrgIds(recentlyUsedOrgIds);
+            return repository.save(userData);
+        });
+    }
 }

@@ -111,12 +111,12 @@ export function Table(props: TableProps) {
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
-    getTableProps,
     getTableBodyProps,
+    getTableProps,
     headerGroups,
-    prepareRow,
     page,
     pageOptions,
+    prepareRow,
     state,
   } = useTable(
     {

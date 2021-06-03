@@ -232,18 +232,16 @@ export const PaginationWrapper = styled.div`
   justify-content: flex-end;
   align-items: center;
   padding: 8px 20px;
+  color: ${Colors.GRAY};
 `;
 
 export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
 }>`
-  background: ${(props) =>
-    props.disabled ? Colors.ATHENS_GRAY : Colors.WHITE};
-  border: 1px solid
-    ${(props) => (props.selected ? Colors.GREEN : Colors.GEYSER_LIGHT)};
+  background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
+  border: 1px solid ${Colors.ALTO2};
   box-sizing: border-box;
-  border-radius: 4px;
   width: 24px;
   height: 24px;
   display: flex;
@@ -480,7 +478,7 @@ export const RowWrapper = styled.div`
   justify-content: center;
   font-size: 12px;
   line-height: 20px;
-  color: ${Colors.THUNDER};
+  color: ${Colors.GRAY};
   margin: 0 4px;
   white-space: nowrap;
 `;

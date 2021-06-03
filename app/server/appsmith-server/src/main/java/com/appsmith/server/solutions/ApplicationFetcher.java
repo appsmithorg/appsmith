@@ -18,12 +18,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Collections;
 import java.util.function.Function;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
@@ -64,11 +65,23 @@ public class ApplicationFetcher {
                 .cache();
 
         return userMono
-                .flatMap(user -> {
+                .zipWith(userDataService.getForCurrentUser().defaultIfEmpty(new UserData()))
+                .flatMap(userAndUserDataTuple -> {
+                    User user = userAndUserDataTuple.getT1();
+                    UserData userData = userAndUserDataTuple.getT2();
+
                     Set<String> orgIds = user.getOrganizationIds();
 
-                    // Collect all the applications as a map with organization id as a key
+                    // create a set of org id where recently used ones will be at the beginning
+                    List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
+                    Set<String> orgIdSortedSet = new LinkedHashSet<>(orgIds.size());
+                    if(recentlyUsedOrgIds != null && recentlyUsedOrgIds.size() > 0) {
+                        // user has a recently used list, add them to the beginning
+                        orgIdSortedSet.addAll(recentlyUsedOrgIds);
+                    }
+                    orgIdSortedSet.addAll(orgIds); // add all other if not added already
 
+                    // Collect all the applications as a map with organization id as a key
                     Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
                             .collectMultimap(Application::getOrganizationId, Function.identity());
@@ -78,29 +91,34 @@ public class ApplicationFetcher {
 
                     return organizationService
                             .findByIdsIn(orgIds, READ_ORGANIZATIONS)
-                            .collectList()
+                            .collectMap(Organization::getId, v -> v)
                             .zipWith(applicationsMapMono)
                             .map(tuple -> {
-                                List<Organization> organizations = tuple.getT1();
+                                Map<String, Organization> organizations = tuple.getT1();
+
                                 Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT2();
 
                                 List<OrganizationApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
 
-                                for (Organization organization : organizations) {
-                                    Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(organization.getId());
+                                for(String orgId : orgIdSortedSet) {
+                                    Organization organization = organizations.get(orgId);
+                                    if(organization != null) {
+                                        Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(organization.getId());
 
-                                    final List<Application> applicationList = new ArrayList<>();
-                                    if (!CollectionUtils.isEmpty(applicationCollection)) {
-                                        applicationList.addAll(applicationCollection);
+                                        final List<Application> applicationList = new ArrayList<>();
+                                        if (!CollectionUtils.isEmpty(applicationCollection)) {
+                                            applicationList.addAll(applicationCollection);
+                                        }
+
+                                        OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();
+                                        organizationApplicationsDTO.setOrganization(organization);
+                                        organizationApplicationsDTO.setApplications(applicationList);
+                                        organizationApplicationsDTO.setUserRoles(organization.getUserRoles());
+
+                                        organizationApplicationsDTOS.add(organizationApplicationsDTO);
                                     }
-
-                                    OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();
-                                    organizationApplicationsDTO.setOrganization(organization);
-                                    organizationApplicationsDTO.setApplications(applicationList);
-                                    organizationApplicationsDTO.setUserRoles(organization.getUserRoles());
-
-                                    organizationApplicationsDTOS.add(organizationApplicationsDTO);
                                 }
+
                                 userHomepageDTO.setOrganizationApplications(organizationApplicationsDTOS);
                                 return userHomepageDTO;
                             });

@@ -16,6 +16,15 @@ export interface ActionData {
   config: Action;
   data?: ActionResponse;
 }
+
+export interface ActionDataWithMeta extends ActionData {
+  responseMeta: {
+    headers?: unknown;
+    isExecutionSuccess: boolean;
+    statusCode?: string;
+  };
+}
+
 export type ActionDataState = ActionData[];
 export interface PartialActionData {
   isLoading: boolean;
@@ -294,6 +303,7 @@ const actionsReducer = createReducer(initialState, {
         .filter((a) => a.config.id === action.payload.id)
         .map((a) => ({
           ...a,
+          data: undefined,
           config: {
             ...a.config,
             id: "TEMP_COPY_ID",

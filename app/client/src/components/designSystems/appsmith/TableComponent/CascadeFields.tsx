@@ -433,7 +433,7 @@ function CascadeField(props: CascadeFieldProps) {
 }
 
 function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
-  const { index, removeFilter, applyFilter, hasAnyFilters } = props;
+  const { applyFilter, hasAnyFilters, index, removeFilter } = props;
   const [state, dispatch] = React.useReducer(CaseCaseFieldReducer, props.state);
   const handleRemoveFilter = () => {
     dispatch({ type: CascadeFieldActionTypes.DELETE_FILTER });
@@ -470,16 +470,16 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   };
 
   const {
-    operator,
     column,
     condition,
-    showConditions,
-    value,
-    showInput,
-    showDateInput,
     conditions,
     isDeleted,
     isUpdate,
+    operator,
+    showConditions,
+    showDateInput,
+    showInput,
+    value,
   } = state;
   useEffect(() => {
     if (!isDeleted && isUpdate) {

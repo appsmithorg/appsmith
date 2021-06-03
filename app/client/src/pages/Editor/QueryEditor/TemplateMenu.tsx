@@ -55,7 +55,7 @@ class TemplateMenu extends React.Component<Props> {
   nameInput!: HTMLDivElement | null;
 
   fetchTemplate = (queryType: string) => {
-    const { pluginId, allPluginTemplates } = this.props;
+    const { allPluginTemplates, pluginId } = this.props;
     const pluginTemplates = allPluginTemplates[pluginId];
 
     if (pluginTemplates) {
@@ -64,7 +64,7 @@ class TemplateMenu extends React.Component<Props> {
   };
 
   render() {
-    const { createTemplate, allPluginTemplates, pluginId } = this.props;
+    const { allPluginTemplates, createTemplate, pluginId } = this.props;
     const pluginTemplates = allPluginTemplates[pluginId];
 
     return (

@@ -233,6 +233,34 @@ async function watchMongoDB(io) {
 		}
 	})
 
+	const notificationsStream = db.collection("notification").watch(
+		[
+			// Prevent server-internal fields from being sent to the client.
+			{
+				$unset: [
+					"deletedAt",
+					"deleted",
+					"_class",
+				].map(f => "fullDocument." + f)
+			},
+		],
+		{ fullDocument: "updateLookup" }
+	);
+
+	notificationsStream.on("change", async (event: mongodb.ChangeEventCR) => {
+		console.log("notification event", event)
+		const notification = event.fullDocument
+
+		if (notification == null) {
+			// This happens when `event.operationType === "drop"`, when a notification is deleted.
+			console.error("Null document recieved for notification change event", event)
+			return
+		}
+
+		const eventName = event.operationType + ":" + event.ns.coll
+		io.to("email:" + notification.forUsername).emit(eventName, { notification })
+	})
+
 	process.on("exit", () => {
 		(commentChangeStream != null ? commentChangeStream.close() : Promise.bind(client).resolve())
 			.then(client.close.bind(client))

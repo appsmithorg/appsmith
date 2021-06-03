@@ -85,7 +85,7 @@ if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
 export function Login(props: LoginFormProps) {
-  const { error, valid, emailValue: email } = props;
+  const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
 
@@ -97,9 +97,11 @@ export function Login(props: LoginFormProps) {
 
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
   let signupURL = SIGN_UP_URL;
-  if (queryParams.has("redirectUrl")) {
-    loginURL += `?redirectUrl=${queryParams.get("redirectUrl")}`;
-    signupURL += `?redirectUrl=${queryParams.get("redirectUrl")}`;
+  const redirectUrl = queryParams.get("redirectUrl");
+  if (redirectUrl != null) {
+    const encodedRedirectUrl = encodeURIComponent(redirectUrl);
+    loginURL += `?redirectUrl=${encodedRedirectUrl}`;
+    signupURL += `?redirectUrl=${encodedRedirectUrl}`;
   }
 
   let forgotPasswordURL = `${FORGOT_PASSWORD_URL}`;
