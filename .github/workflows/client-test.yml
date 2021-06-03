@@ -206,7 +206,7 @@ jobs:
             --env APPSMITH_ENCRYPTION_PASSWORD=password \
             --env APPSMITH_ENCRYPTION_SALT=salt \
             --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com\
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
@@ -221,7 +221,7 @@ jobs:
             --env APPSMITH_ENCRYPTION_PASSWORD=password \
             --env APPSMITH_ENCRYPTION_SALT=salt \
             --env APPSMITH_IS_SELF_HOSTED=false \
-            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com\
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com \
             --env APPSMITH_CLOUD_SERVICES_USERNAME= \
             --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
@@ -297,10 +297,15 @@ jobs:
 
       - name: Return status for ui-matrix
         run: |
-          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then
-            exit 0
+          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then 
+            echo "Integration tests completed successfully!"; 
+            exit 0; 
+          elif [[ "${{ needs.ui-test.result }}" == "skipped" ]]; then 
+            echo "Integration tests were skipped"; 
+            exit 1; 
           else 
-            exit 1
+            echo "Integration tests have failed"; 
+            exit 1; 
           fi
 
   package:

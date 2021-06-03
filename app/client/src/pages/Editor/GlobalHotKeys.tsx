@@ -26,6 +26,7 @@ import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
+import { runActionViaShortcut } from "actions/actionActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -36,6 +37,7 @@ type Props = {
   resetCommentMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
+  executeAction: () => void;
   selectAllWidgetsInit: () => void;
   deselectAllWidgets: () => void;
   selectedWidget?: string;
@@ -209,6 +211,15 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Comment Mode"
           onKeyDown={() => setCommentModeInUrl(true)}
         />
+        <Hotkey
+          allowInInput
+          combo="mod + enter"
+          global
+          label="Execute Action"
+          onKeyDown={this.props.executeAction}
+          preventDefault
+          stopPropagation
+        />
       </Hotkeys>
     );
   }
@@ -236,6 +247,7 @@ const mapDispatchToProps = (dispatch: any) => {
     closeProppane: () => dispatch(closePropertyPane()),
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInit()),
     deselectAllWidgets: () => dispatch(selectAllWidgets([])),
+    executeAction: () => dispatch(runActionViaShortcut()),
   };
 };
 

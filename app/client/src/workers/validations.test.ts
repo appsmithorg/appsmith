@@ -35,7 +35,7 @@ describe("Validate Validators", () => {
         output: {
           isValid: false,
           message:
-            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+            'This value does not evaluate to type: "Array<x:string, y:number>"',
           parsed: [],
           transformed: [{ x: "Jan", y: 1000 }, { x: "Feb" }],
         },
@@ -45,7 +45,7 @@ describe("Validate Validators", () => {
         output: {
           isValid: false,
           message:
-            'This value does not evaluate to type: [{ "x": "val", "y": "val" }]',
+            'This value does not evaluate to type: "Array<x:string, y:number>"',
           parsed: [],
           transformed: undefined,
         },
@@ -516,8 +516,7 @@ describe("List data validator", () => {
         input: "sting text",
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: "sting text",
         },
@@ -526,8 +525,7 @@ describe("List data validator", () => {
         input: undefined,
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: undefined,
         },
@@ -536,8 +534,7 @@ describe("List data validator", () => {
         input: {},
         output: {
           isValid: false,
-          message:
-            'This value does not evaluate to type: [{ "key1" : "val1", "key2" : "val2" }]',
+          message: 'This value does not evaluate to type: "Array<Object>"',
           parsed: [],
           transformed: {},
         },
