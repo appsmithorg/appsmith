@@ -333,7 +333,6 @@ function FilePickerComponent(props: FilePickerProps) {
 
   function removeFile() {
     if (fileContainerRef.current) {
-      console.log("remove file");
       setFileUrl("");
       if (fileDescRef.current) {
         fileDescRef.current.style.display = "none";
@@ -344,8 +343,6 @@ function FilePickerComponent(props: FilePickerProps) {
       }
       setIsUploaded(false);
       props.onFileRemoved && props.onFileRemoved();
-    } else {
-      console.log("remove file else");
     }
   }
 
