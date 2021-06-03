@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from "react";
+import React, { memo, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
@@ -116,6 +116,7 @@ interface Props {
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  jsError?: string;
 }
 
 interface PopoverContentProps {
@@ -129,6 +130,7 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
+  jsError?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -216,6 +218,10 @@ export const CurrentValueViewer = memo(
             },
             collapsed: 2,
             collapseStringsAfterLength: 20,
+            shouldCollapse: (field: any) => {
+              const index = field.name * 1;
+              return index >= 2 ? true : false;
+            },
           };
           content = (
             <ReactJson src={props.evaluatedValue} {...reactJsonProps} />
@@ -272,7 +278,9 @@ function PopoverContent(props: PopoverContentProps) {
       {props.hasError && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
-            {props.useValidationMessage && props.error
+            {props.jsError && props.jsError.length
+              ? props.jsError
+              : props.useValidationMessage && props.error
               ? props.error
               : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
           </span>
@@ -306,13 +314,15 @@ function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  let placement: Placement = "left-start";
-  if (wrapperRef.current) {
-    const boundingRect = wrapperRef.current.getBoundingClientRect();
-    if (boundingRect.left < theme.evaluatedValuePopup.width) {
-      placement = "right-start";
+  const placement: Placement = useMemo(() => {
+    if (wrapperRef.current) {
+      const boundingRect = wrapperRef.current.getBoundingClientRect();
+      if (boundingRect.left < theme.evaluatedValuePopup.width) {
+        return "right-start";
+      }
     }
-  }
+    return "left-start";
+  }, [wrapperRef.current]);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -335,6 +345,7 @@ function EvaluatedValuePopup(props: Props) {
             expected={props.expected}
             hasError={props.hasError}
             hideEvaluatedValue={props.hideEvaluatedValue}
+            jsError={props.jsError}
             onMouseEnter={() => {
               setContentHovered(true);
             }}

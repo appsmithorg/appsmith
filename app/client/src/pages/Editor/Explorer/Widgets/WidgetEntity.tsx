@@ -80,7 +80,7 @@ const useWidget = (
   parentModalId?: string,
 ) => {
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
   const isWidgetSelected = useMemo(() => selectedWidget === widgetId, [
     selectedWidget,

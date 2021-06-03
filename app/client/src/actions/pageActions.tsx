@@ -203,6 +203,12 @@ export type WidgetDelete = {
   isShortcut?: boolean;
 };
 
+export type MultipleWidgetDeletePayload = {
+  widgetIds: string[];
+  disallowUndo?: boolean;
+  isShortcut?: boolean;
+};
+
 export type WidgetResize = {
   widgetId: string;
   leftColumn: number;

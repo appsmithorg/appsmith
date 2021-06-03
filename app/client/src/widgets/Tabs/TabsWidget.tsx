@@ -10,6 +10,7 @@ import { WidgetOperations } from "widgets/BaseWidget";
 import * as Sentry from "@sentry/react";
 import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "../MetaHOC";
+import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -196,8 +197,11 @@ class TabsWidget extends BaseWidget<
         const columns =
           (this.props.rightColumn - this.props.leftColumn) *
           this.props.parentColumnSpace;
+        // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
         const rows =
-          (this.props.bottomRow - this.props.topRow - 1) *
+          (this.props.bottomRow -
+            this.props.topRow -
+            GRID_DENSITY_MIGRATION_V1) *
           this.props.parentRowSpace;
         const config = {
           type: WidgetTypes.CANVAS_WIDGET,
@@ -206,6 +210,13 @@ class TabsWidget extends BaseWidget<
           topRow: 1,
           newWidgetId,
           widgetId: this.props.widgetId,
+          leftColumn: 0,
+          rightColumn:
+            (this.props.rightColumn - this.props.leftColumn) *
+            this.props.parentColumnSpace,
+          bottomRow:
+            (this.props.bottomRow - this.props.topRow) *
+            this.props.parentRowSpace,
           props: {
             tabId: tab.id,
             tabName: tab.label,
