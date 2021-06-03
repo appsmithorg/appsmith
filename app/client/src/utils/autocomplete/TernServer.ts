@@ -61,7 +61,7 @@ class TernServer {
   cachedArgHints: ArgHints | null = null;
   active: any;
   expected?: string;
-  entity?: string;
+  entityName?: string;
 
   constructor(
     dataTree: DataTree,
@@ -80,9 +80,9 @@ class TernServer {
     });
   }
 
-  complete(cm: CodeMirror.Editor, expected: string, entity: string) {
+  complete(cm: CodeMirror.Editor, expected: string, entityName: string) {
     this.expected = expected;
-    this.entity = entity;
+    this.entityName = entityName;
     cm.showHint({
       hint: this.getHint.bind(this),
       completeSingle: false,
@@ -154,9 +154,9 @@ class TernServer {
       const completion = data.completions[i];
       let className = this.typeToIcon(completion.type);
       const dataType = this.getDataType(completion.type);
-      const entity = this.entity;
+      const entityName = this.entityName;
       if (data.guess) className += " " + cls + "guess";
-      if (!entity || !completion.name.includes(entity)) {
+      if (!entityName || !completion.name.includes(entityName)) {
         completions.push({
           text: completion.name + after,
           displayText: completion.displayName || completion.name,
@@ -300,7 +300,8 @@ class TernServer {
     if (
       type === "Array<Object>" ||
       type === "Array" ||
-      type === "Array<{ label: string, value: string }>"
+      type === "Array<{ label: string, value: string }>" ||
+      type === "Array<x:string, y:number>"
     )
       return "ARRAY";
     if (type === "boolean") return "BOOLEAN";

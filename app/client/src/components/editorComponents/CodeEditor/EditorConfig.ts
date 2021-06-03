@@ -49,7 +49,7 @@ export type Hinter = {
   showHint: (
     editor: CodeMirror.Editor,
     expected: string,
-    entity: string,
+    entityName: string,
   ) => void;
   update?: (data: DataTree) => void;
   trigger?: (editor: CodeMirror.Editor) => void;
