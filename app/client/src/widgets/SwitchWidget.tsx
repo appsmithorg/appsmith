@@ -118,7 +118,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      isSwitchedOn: undefined,
+      isSwitchedOn: "",
     };
   }
 

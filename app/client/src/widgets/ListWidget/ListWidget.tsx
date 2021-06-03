@@ -422,6 +422,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         typeof metaPropertyValue !== "undefined" &&
         metaPropertyValue !== null
       ) {
+        if (key == "selectedOptionValue") {
+          console.log({ key, metaPropertyValue, itemIndex });
+        }
+
         set(widget, key, metaPropertyValue);
       }
     });

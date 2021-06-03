@@ -109,7 +109,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      recaptchaToken: undefined,
+      recaptchaToken: "",
     };
   }
 
