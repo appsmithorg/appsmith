@@ -17,7 +17,7 @@ import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "workers/evaluationUtils";
 import { getWidget } from "./selectors";
 import { WidgetProps } from "widgets/BaseWidget";
