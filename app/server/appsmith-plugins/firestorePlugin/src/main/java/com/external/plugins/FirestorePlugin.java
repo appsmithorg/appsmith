@@ -21,7 +21,6 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.FieldPath;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
@@ -58,6 +57,7 @@ import java.util.stream.StreamSupport;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
+import static com.external.utils.WhereConditionUtils.applyWhereConditional;
 
 /**
  * Datasource properties:
@@ -618,7 +618,7 @@ public class FirestorePlugin extends BasePlugin {
                     })
                     // Apply where condition, if provided.
                     .flatMap(query1 -> {
-                        if (!whereMethodIsUsed(properties)) {
+                        if (!isWhereMethodUsed(properties)) {
                             return Mono.just(query1);
                         }
 
@@ -632,7 +632,7 @@ public class FirestorePlugin extends BasePlugin {
                             String value = ((Map<String, String>)condition).get("value");
 
                             /**
-                             * - If all values in all where condition tuples are null, then whereMethodIsUsed(...)
+                             * - If all values in all where condition tuples are null, then isWhereMethodUsed(...)
                              *  function will indicate that where conditions are not used effectively and program
                              *  execution would return without reaching here.
                              */
@@ -684,7 +684,7 @@ public class FirestorePlugin extends BasePlugin {
                     });
         }
 
-        private boolean whereMethodIsUsed(List<Property> properties) {
+        private boolean isWhereMethodUsed(List<Property> properties) {
             // Check if the where property list does not exist or is null
             if(properties.size() <= WHERE_CONDITIONAL_PROPERTY_INDEX || properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX) == null
                     || CollectionUtils.isEmpty((List) properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue())) {
@@ -701,74 +701,6 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             return true;
-        }
-
-        private Query applyWhereConditional(Query query, String path, String operatorString, String value) throws AppsmithPluginException {
-
-            if (query == null) {
-                throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith server has found null query object when applying where conditional on Firestore " +
-                                "query. Please contact Appsmith's customer support to resolve this."
-                );
-            }
-
-            Op operator;
-            try {
-                operator = StringUtils.isEmpty(operatorString) ? null : Op.valueOf(operatorString);
-            } catch (IllegalArgumentException e) {
-                throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith server has encountered an invalid operator for Firestore query's where conditional." +
-                                " Please contact Appsmith's customer support to resolve this."
-                );
-            }
-
-            FieldPath fieldPath = FieldPath.of(path.split("\\."));
-            switch (operator) {
-                case LT:
-                    return query.whereLessThan(fieldPath, value);
-                case LTE:
-                    return query.whereLessThanOrEqualTo(fieldPath, value);
-                case EQ:
-                    return query.whereEqualTo(fieldPath, value);
-                // TODO: NOT_EQ operator support is awaited in the next version of Firestore driver.
-                // case NOT_EQ:
-                //     return Mono.just(query.whereNotEqualTo(path, value));
-                case GT:
-                    return query.whereGreaterThan(fieldPath, value);
-                case GTE:
-                    return query.whereGreaterThanOrEqualTo(fieldPath, value);
-                case ARRAY_CONTAINS:
-                    return query.whereArrayContains(fieldPath, value);
-                case ARRAY_CONTAINS_ANY:
-                    try {
-                        return query.whereArrayContainsAny(fieldPath, parseList(value));
-                    } catch (IOException e) {
-                        throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Unable to parse condition value as a JSON list."
-                        );
-                    }
-                case IN:
-                    try {
-                        return query.whereIn(fieldPath, parseList(value));
-                    } catch (IOException e) {
-                        throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Unable to parse condition value as a JSON list."
-                        );
-                    }
-                    // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
-                    // case NOT_IN:
-                    //     return Mono.just(query.whereNotIn(fieldPath, value));
-                default:
-                    throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith server has encountered an invalid operator for Firestore query's where conditional." +
-                                    " Please contact Appsmith's customer support to resolve this."
-                    );
-            }
         }
 
         private Mono<ActionExecutionResult> methodAddToCollection(CollectionReference collection, Map<String, Object> mapBody) {
@@ -937,10 +869,6 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             return invalids;
-        }
-
-        private <T> List<T> parseList(String arrayJson) throws IOException {
-            return (List<T>) objectMapper.readValue(arrayJson, ArrayList.class);
         }
 
         @Override
