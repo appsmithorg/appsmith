@@ -170,6 +170,15 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
     gridGap: "number",
   },
+  RATE_WIDGET: {
+    maxCount: "number",
+    defaultRate: "number",
+    activeColor: "string",
+    inactiveColor: "string",
+    size: "RATE_SMALL | RATE_MEDIUM | RATE_LARGE",
+    isVisible: "boolean",
+    isDisabled: "boolean",
+  },
 };
 
 export default FIELD_VALUES;

@@ -105,6 +105,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Modal",
     key: generateReactKey(),
   },
+  {
+    type: "RATE_WIDGET",
+    widgetCardName: "Rate",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

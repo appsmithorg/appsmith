@@ -71,6 +71,7 @@ export enum EventType {
   ON_VIDEO_END = "ON_VIDEO_END",
   ON_VIDEO_PLAY = "ON_VIDEO_PLAY",
   ON_VIDEO_PAUSE = "ON_VIDEO_PAUSE",
+  ON_RATE_CHANGED = "ON_RATE_CHANGED",
 }
 
 export type ActionType =

@@ -142,6 +142,11 @@ export const WidgetIcons: {
       <ListIcon />
     </IconWrapper>
   ),
+  RATE_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <TextIcon />
+    </IconWrapper>
+  ),
 };
 
 export type WidgetIcon = typeof WidgetIcons[keyof typeof WidgetIcons];

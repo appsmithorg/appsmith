@@ -221,6 +221,39 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       };
     }
   },
+  [VALIDATION_TYPES.ARRAY_OPTIONAL]: (value: any): ValidationResponse => {
+    let parsed = value;
+    try {
+      if (!value) {
+        return {
+          isValid: true,
+          parsed: undefined,
+          transformed: undefined,
+        };
+      }
+      if (isString(value)) {
+        parsed = JSON.parse(parsed as string);
+      }
+
+      if (!Array.isArray(parsed)) {
+        return {
+          isValid: false,
+          parsed: [],
+          transformed: parsed,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
+        };
+      }
+
+      return { isValid: true, parsed, transformed: parsed };
+    } catch (e) {
+      return {
+        isValid: false,
+        parsed: [],
+        transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} "Array"`,
+      };
+    }
+  },
   [VALIDATION_TYPES.TABS_DATA]: (
     value: any,
     props: WidgetProps,
