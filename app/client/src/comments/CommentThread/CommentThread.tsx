@@ -19,7 +19,7 @@ import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { RawDraftContentState } from "draft-js";
 
 import styled from "styled-components";
-import { animated, useTransition } from "react-spring";
+import { animated } from "react-spring";
 import { AppState } from "reducers";
 
 const ThreadContainer = styled(animated.div)<{
