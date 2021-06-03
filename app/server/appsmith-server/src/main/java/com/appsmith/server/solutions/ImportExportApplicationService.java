@@ -362,7 +362,6 @@ public class ImportExportApplicationService {
             )
             .flatMap(savedApp -> {
                 importedApplication.setId(savedApp.getId());
-                importedNewPageList.forEach(newPage -> newPage.setApplicationId(savedApp.getId()));
                 Map<PublishType, List<ApplicationPage>> applicationPages = Map.of(
                     PublishType.UNPUBLISH, new ArrayList<>(),
                     PublishType.PUBLISH, new ArrayList<>()
@@ -412,14 +411,14 @@ public class ImportExportApplicationService {
                     NewPage parentPage = new NewPage();
                     if (newAction.getUnpublishedAction() != null && newAction.getUnpublishedAction().getName() != null) {
                         parentPage = pageNameMap.get(newAction.getUnpublishedAction().getPageId());
-                        actionIdMap.put(newAction.getUnpublishedAction().getName(), newAction.getId());
+                        actionIdMap.put(newAction.getUnpublishedAction().getName() + parentPage.getId(), newAction.getId());
                         newAction.getUnpublishedAction().setPageId(parentPage.getId());
                         mapDatasourceIdToNewAction(newAction.getUnpublishedAction(), datasourceMap);
                     }
                     
                     if (newAction.getPublishedAction() != null && newAction.getPublishedAction().getName() != null) {
                         parentPage = pageNameMap.get(newAction.getPublishedAction().getPageId());
-                        actionIdMap.put(newAction.getPublishedAction().getName(), newAction.getId());
+                        actionIdMap.put(newAction.getPublishedAction().getName() + parentPage.getId(), newAction.getId());
                         newAction.getPublishedAction().setPageId(parentPage.getId());
                         mapDatasourceIdToNewAction(newAction.getPublishedAction(), datasourceMap);
                     }
@@ -434,14 +433,18 @@ public class ImportExportApplicationService {
                     .map(newAction -> {
                         
                         if (newAction.getUnpublishedAction() != null) {
+                            ActionDTO unpublishedAction = newAction.getUnpublishedAction();
                             actionIdMap.put(
-                                actionIdMap.get(newAction.getUnpublishedAction().getName()), newAction.getId()
+                                actionIdMap.get(unpublishedAction.getName() + unpublishedAction.getPageId()),
+                                newAction.getId()
                             );
                         }
     
                         if (newAction.getPublishedAction() != null) {
+                            ActionDTO publishedAction = newAction.getPublishedAction();
                             actionIdMap.put(
-                                actionIdMap.get(newAction.getPublishedAction().getName()), newAction.getId()
+                                actionIdMap.get(publishedAction.getName() + publishedAction.getPageId()),
+                                newAction.getId()
                             );
                         }
                         
