@@ -45,6 +45,10 @@ export const generateDataTreeWidget = (
       unInitializedDefaultProps[propertyName] = undefined;
     }
   });
+  const blockedDerivedProps: Record<string, true> = {};
+  Object.keys(derivedProps).forEach((propertyName) => {
+    blockedDerivedProps[propertyName] = true;
+  });
   const {
     bindingPaths,
     triggerPaths,
@@ -64,7 +68,7 @@ export const generateDataTreeWidget = (
     dynamicBindingPathList,
     logBlackList: {
       ...widget.logBlackList,
-      ...derivedProps,
+      ...blockedDerivedProps,
     },
     bindingPaths,
     triggerPaths,
