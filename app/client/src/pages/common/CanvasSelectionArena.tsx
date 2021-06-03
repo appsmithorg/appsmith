@@ -1,5 +1,7 @@
-import { setCanvasSelectionStateAction } from "actions/canvasSelectionActions";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  selectAllWidgetsInAreaAction,
+  setCanvasSelectionStateAction,
+} from "actions/canvasSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { throttle } from "lodash";
 import React, { memo, useEffect, useCallback } from "react";
@@ -28,17 +30,6 @@ export interface SelectedArenaDimensions {
   height: number;
 }
 
-const selectAllWidgetsInAction = (
-  selectionArena: SelectedArenaDimensions,
-  snapToNextColumn: boolean,
-  snapToNextRow: boolean,
-): ReduxAction<any> => {
-  return {
-    type: ReduxActionTypes.SELECT_WIDGETS_IN_AREA,
-    payload: { selectionArena, snapToNextColumn, snapToNextRow },
-  };
-};
-
 export const CanvasSelectionArena = memo(
   ({ widgetId }: { widgetId: string }) => {
     const dispatch = useDispatch();
@@ -55,7 +46,7 @@ export const CanvasSelectionArena = memo(
           snapToNextRow: boolean,
         ) => {
           dispatch(
-            selectAllWidgetsInAction(
+            selectAllWidgetsInAreaAction(
               selectionDimensions,
               snapToNextColumn,
               snapToNextRow,
@@ -132,13 +123,14 @@ export const CanvasSelectionArena = memo(
       };
 
       const drawRectangle = (selectionDimensions: SelectedArenaDimensions) => {
+        const strokeWidth = 1;
         canvasCtx.setLineDash([5]);
         canvasCtx.strokeStyle = "rgb(84, 132, 236)";
         canvasCtx.strokeRect(
-          selectionDimensions.left - 1,
-          selectionDimensions.top - 1,
-          selectionDimensions.width + 2,
-          selectionDimensions.height + 2,
+          selectionDimensions.left - strokeWidth,
+          selectionDimensions.top - strokeWidth,
+          selectionDimensions.width + 2 * strokeWidth,
+          selectionDimensions.height + 2 * strokeWidth,
         );
         canvasCtx.fillStyle = "rgb(84, 132, 236, 0.06)";
         canvasCtx.fillRect(
