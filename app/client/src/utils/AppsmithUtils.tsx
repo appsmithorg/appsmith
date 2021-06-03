@@ -153,6 +153,10 @@ export const noop = () => {
   console.log("noop");
 };
 
+export const stopEventPropagation = (e: any) => {
+  e.stopPropagation();
+};
+
 export const createNewQueryName = (
   queries: ActionDataState,
   pageId: string,

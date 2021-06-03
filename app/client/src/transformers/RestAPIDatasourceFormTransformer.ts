@@ -8,6 +8,7 @@ import {
   ClientCredentials,
   GrantType,
   Oauth2Common,
+  Basic,
 } from "entities/Datasource/RestAPIForm";
 import _ from "lodash";
 
@@ -83,6 +84,8 @@ const formToDatasourceAuthentication = (
       scopeString: authentication.scopeString,
       clientSecret: authentication.clientSecret,
       isTokenHeader: authentication.isTokenHeader,
+      audience: authentication.audience,
+      resource: authentication.resource,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
@@ -102,6 +105,14 @@ const formToDatasourceAuthentication = (
         ),
       };
     }
+  }
+  if (authType === AuthType.basic) {
+    const basic: Basic = {
+      authenticationType: AuthType.basic,
+      username: authentication.username,
+      password: authentication.password,
+    };
+    return basic;
   }
   return null;
 };
@@ -131,6 +142,8 @@ const datasourceToFormAuthentication = (
       scopeString: authentication.scopeString || "",
       clientSecret: authentication.clientSecret,
       isTokenHeader: !!authentication.isTokenHeader,
+      audience: authentication.audience || "",
+      resource: authentication.resource || "",
     };
     if (isClientCredentials(authType, authentication)) {
       return {
@@ -153,6 +166,14 @@ const datasourceToFormAuthentication = (
             : !!authentication.isAuthorizationHeader,
       };
     }
+  }
+  if (authType === AuthType.basic) {
+    const basic: Basic = {
+      authenticationType: AuthType.basic,
+      username: authentication.username || "",
+      password: authentication.password || "",
+    };
+    return basic;
   }
 };
 

@@ -42,7 +42,7 @@ export class SwitchField extends React.Component<Props, any> {
   }
 
   render() {
-    const { label, isRequired, input, info } = this.props;
+    const { info, input, isRequired, label } = this.props;
 
     return (
       <div>
@@ -64,7 +64,7 @@ export class SwitchField extends React.Component<Props, any> {
 
 class SwitchControl extends BaseControl<SwitchControlProps> {
   render() {
-    const { configProperty, label, isRequired, info } = this.props;
+    const { configProperty, info, isRequired, label } = this.props;
 
     return (
       <Field

@@ -1,6 +1,5 @@
 import React, {
   Component,
-  Fragment,
   useContext,
   useEffect,
   useRef,
@@ -67,6 +66,7 @@ import EditableText, {
 } from "components/ads/EditableText";
 import { notEmptyValidator } from "components/ads/TextInput";
 import { saveOrg } from "actions/orgActions";
+import { leaveOrganization } from "actions/userActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
@@ -78,6 +78,7 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
+import ImportApplicationModal from "./ImportApplicationModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -351,7 +352,7 @@ const ApplicationAddCardWrapper = styled(Card)`
   }}
 `;
 
-function OrgMenuItem({ org, isFetchingApplications, selected }: any) {
+function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
   const menuRef = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (selected) {
@@ -378,6 +379,7 @@ const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
   const result = await createOrganizationSubmitHandler(data, dispatch);
   return result;
 };
+
 function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
@@ -504,6 +506,7 @@ const NoSearchResultImg = styled.img`
 `;
 
 function ApplicationsSection(props: any) {
+  const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
   const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
@@ -533,7 +536,15 @@ function ApplicationsSection(props: any) {
   };
 
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
+  const [
+    selectedOrgIdForImportApplication,
+    setSelectedOrgIdForImportApplication,
+  ] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
+
+  const leaveOrg = (orgId: string) => {
+    dispatch(leaveOrganization(orgId));
+  };
 
   const OrgNameChange = (newName: string, orgId: string) => {
     dispatch(
@@ -549,7 +560,7 @@ function ApplicationsSection(props: any) {
     disabled?: boolean;
     orgSlug: string;
   }) {
-    const { orgName, disabled, orgSlug } = props;
+    const { disabled, orgName, orgSlug } = props;
 
     return (
       <OrgNameWrapper className="t--org-name" disabled={disabled}>
@@ -611,7 +622,7 @@ function ApplicationsSection(props: any) {
   } else {
     organizationsListComponent = updatedOrgs.map(
       (organizationObject: any, index: number) => {
-        const { organization, applications, userRoles } = organizationObject;
+        const { applications, organization, userRoles } = organizationObject;
         const hasManageOrgPermissions = isPermitted(
           organization.userPermissions,
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -623,62 +634,90 @@ function ApplicationsSection(props: any) {
                 <Menu
                   className="t--org-name"
                   cypressSelector="t--org-name"
-                  disabled={!hasManageOrgPermissions || isFetchingApplications}
+                  disabled={isFetchingApplications}
                   position={Position.BOTTOM_RIGHT}
                   target={OrgMenuTarget({
                     orgName: organization.name,
-                    disabled: !hasManageOrgPermissions,
                     orgSlug: organization.slug,
                   })}
                 >
-                  <OrgRename
-                    cypressSelector="t--org-rename-input"
-                    defaultValue={organization.name}
-                    editInteractionKind={EditInteractionKind.SINGLE}
-                    fill
-                    hideEditIcon={false}
-                    isEditingDefault={false}
-                    isInvalid={(value: string) => {
-                      return notEmptyValidator(value).message;
-                    }}
-                    onBlur={(value: string) => {
-                      OrgNameChange(value, organization.id);
-                    }}
-                    placeholder="Workspace name"
-                    savingState={
-                      isSavingOrgInfo
-                        ? SavingState.STARTED
-                        : SavingState.NOT_STARTED
-                    }
-                    underline
-                  />
+                  {hasManageOrgPermissions && (
+                    <>
+                      <OrgRename
+                        cypressSelector="t--org-rename-input"
+                        defaultValue={organization.name}
+                        editInteractionKind={EditInteractionKind.SINGLE}
+                        fill
+                        hideEditIcon={false}
+                        isEditingDefault={false}
+                        isInvalid={(value: string) => {
+                          return notEmptyValidator(value).message;
+                        }}
+                        onBlur={(value: string) => {
+                          OrgNameChange(value, organization.id);
+                        }}
+                        placeholder="Workspace name"
+                        savingState={
+                          isSavingOrgInfo
+                            ? SavingState.STARTED
+                            : SavingState.NOT_STARTED
+                        }
+                        underline
+                      />
+                      <MenuItem
+                        cypressSelector="t--org-setting"
+                        icon="general"
+                        onSelect={() =>
+                          getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                            path: `/org/${organization.id}/settings/general`,
+                          })
+                        }
+                        text="Organization Settings"
+                      />
+                      {enableImportExport && (
+                        <MenuItem
+                          cypressSelector="t--org-import-app"
+                          icon="upload"
+                          onSelect={() =>
+                            setSelectedOrgIdForImportApplication(
+                              organization.id,
+                            )
+                          }
+                          text="Import Application"
+                        />
+                      )}
+                      <MenuItem
+                        icon="share"
+                        onSelect={() => setSelectedOrgId(organization.id)}
+                        text="Share"
+                      />
+                      <MenuItem
+                        icon="user"
+                        onSelect={() =>
+                          getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                            path: `/org/${organization.id}/settings/members`,
+                          })
+                        }
+                        text="Members"
+                      />
+                    </>
+                  )}
                   <MenuItem
-                    cypressSelector="t--org-setting"
-                    icon="general"
-                    onSelect={() =>
-                      getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                        path: `/org/${organization.id}/settings/general`,
-                      })
-                    }
-                    text="Organization Settings"
-                  />
-                  <MenuItem
-                    icon="share"
-                    onSelect={() => setSelectedOrgId(organization.id)}
-                    text="Share"
-                  />
-                  <MenuItem
-                    icon="user"
-                    onSelect={() =>
-                      getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                        path: `/org/${organization.id}/settings/members`,
-                      })
-                    }
-                    text="Members"
+                    icon="logout"
+                    onSelect={() => leaveOrg(organization.id)}
+                    text="Leave Organization"
                   />
                 </Menu>
               )}
-
+              {selectedOrgIdForImportApplication && (
+                <ImportApplicationModal
+                  isModalOpen={
+                    selectedOrgIdForImportApplication === organization.id
+                  }
+                  onClose={() => setSelectedOrgIdForImportApplication("")}
+                  organizationId={selectedOrgIdForImportApplication}
+                />
+              )}
               {hasManageOrgPermissions && (
                 <StyledDialog
                   canEscapeKeyClose={false}
@@ -782,6 +821,7 @@ function ApplicationsSection(props: any) {
                       application={application}
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
+                      enableImportExport={enableImportExport}
                       key={application.id}
                       update={updateApplicationDispatch}
                     />
