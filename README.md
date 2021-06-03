@@ -1,4 +1,4 @@
-<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"> <img src="static/images/git-banner-left.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"><img src="static/images/git-banner-right.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"></a>
+<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"> <img src="https://user-images.githubusercontent.com/30255708/120593421-1b107c80-c45d-11eb-86c9-06bdd66a143a.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"><img src="static/images/git-banner-right.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"></a>
 
 <p>
   <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Start Building</a></b>
