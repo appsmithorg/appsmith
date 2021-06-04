@@ -50,12 +50,19 @@ import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
 import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
 );
 
-const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape", "Comma"];
+const AUTOCOMPLETE_CLOSE_KEY_CODES = [
+  "Enter",
+  "Tab",
+  "Escape",
+  "Comma",
+  "Backspace",
+];
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -341,16 +348,26 @@ class CodeEditor extends Component<Props, State> {
     if (!dataTreePath) {
       return { isValid: true, validationMessage: "", jsErrorMessage: "" };
     }
-    const isValidPath = dataTreePath.replace("evaluatedValues", "invalidProps");
-    const validationMessagePath = dataTreePath.replace(
-      "evaluatedValues",
-      "validationMessages",
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      dataTreePath,
     );
-    const jsErrorMessagePath = dataTreePath.replace(
-      "evaluatedValues",
-      "jsErrorMessages",
-    );
-
+    let isValidPath, validationMessagePath, jsErrorMessagePath;
+    if (dataTreePath && dataTreePath.match(/evaluatedValues/g)) {
+      isValidPath = dataTreePath.replace("evaluatedValues", "invalidProps");
+      validationMessagePath = dataTreePath.replace(
+        "evaluatedValues",
+        "validationMessages",
+      );
+      jsErrorMessagePath = dataTreePath.replace(
+        "evaluatedValues",
+        "jsErrorMessages",
+      );
+    } else {
+      isValidPath = entityName + "invalidProps" + propertyPath;
+      validationMessagePath =
+        entityName + ".validationMessages." + propertyPath;
+      jsErrorMessagePath = entityName + ".jsErrorMessages." + propertyPath;
+    }
     const isValid = !_.get(dataTree, isValidPath, false);
     const validationMessage = _.get(
       dataTree,
