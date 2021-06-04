@@ -110,7 +110,10 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
-  const pageCount = Math.ceil(props.data.length / props.pageSize);
+  const pageCount =
+    props.defaultPageSize && props.totalRecordsCount
+      ? Math.ceil(props.totalRecordsCount / props.defaultPageSize)
+      : Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
     getTableBodyProps,
@@ -152,7 +155,10 @@ export function Table(props: TableProps) {
   }
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
-  if (props.serverSidePaginationEnabled) {
+  if (
+    props.serverSidePaginationEnabled ||
+    (props.defaultPageSize && props.totalRecordsCount)
+  ) {
     startIndex = 0;
     endIndex = props.data.length;
   }

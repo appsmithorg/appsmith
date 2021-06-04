@@ -535,7 +535,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
 
-    // update pageNo when defaultPageSize or totalRecordsCount is changed
+    //update pageNo when defaultPageSize or totalRecordsCount is changed
     if (
       this.props.defaultPageSize &&
       this.props.totalRecordCount &&
@@ -573,7 +573,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.updateSelectedRowIndex();
     }
 
-    if (this.props.pageSize !== prevProps.pageSize) {
+    if (
+      this.props.pageSize !== prevProps.pageSize ||
+      this.props.defaultPageSize !== prevProps.defaultPageSize
+    ) {
       if (this.props.onPageSizeChange) {
         super.executeAction({
           triggerPropertyName: "onPageSizeChange",

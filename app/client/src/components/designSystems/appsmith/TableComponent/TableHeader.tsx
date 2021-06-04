@@ -167,7 +167,7 @@ function TableHeader(props: TableHeaderProps) {
       {!props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <RowWrapper className="show-page-items">
-            {props.totalRecordsCount !== undefined
+            {props.totalRecordsCount
               ? props.totalRecordsCount
               : props.tableData?.length}{" "}
             Records

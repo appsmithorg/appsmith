@@ -11,7 +11,10 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Test_Add Paginate with Table Page No and Execute the Api", function() {
     /**Create an Api1 of Paginate with Table Page No */
-    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
+    cy.createAndFillApi(
+      this.data.paginationUrl,
+      "users?page={{Table1.pageNo}}&pageSize={{Table1.defaultPageSize||10}}",
+    );
     cy.RunAPI();
   });
 
@@ -87,10 +90,13 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.ValidatePaginationInputData();
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest);
+    cy.wait(5000);
   });
 
   it("Table-Text, Validate Server Side Pagination of Paginate with Table Default Page Size and Total Record Count", function() {
     cy.SearchEntityandOpen("Table1");
+    cy.callApi("Api1");
+    cy.wait(300);
     cy.testJsontext("tabledata", "{{Api1.data.users}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     cy.wait(300);
@@ -108,20 +114,22 @@ describe("Test Create Api and Bind to Table widget", function() {
       .children()
       .contains("Api1")
       .click();
+    cy.get(".t--table-widget-next-page").should("have.attr", "disabled");
 
     // Add value of default page count and total page count
     cy.testJsontext("totalrecordcount", 20);
     cy.testJsontext("defaultpagesize", 5);
 
-    cy.SearchEntityandOpen("Table1");
-    cy.wait(5000);
-    let tableData = "";
-    cy.readTabledata("0", "0").then((data) => {
-      tableData = data;
-    });
-    cy.ValidateTableData(tableData);
-    cy.get(commonlocators.tableNextPage).click({
-      force: true,
-    });
+    cy.wait("@postExecute");
+    cy.wait(500);
+
+    cy.get(".t--table-widget-next-page").should("not.have.attr", "disabled");
+    cy.ValidateTableData("1");
+
+    cy.get(commonlocators.tableNextPage).click({ force: true });
+    cy.wait("@postExecute");
+    cy.wait(500);
+
+    cy.ValidateTableData("6");
   });
 });
