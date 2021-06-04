@@ -303,7 +303,10 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     const expected = this.props.expected ? this.props.expected : "";
-    this.hinters.forEach((hinter) => hinter.showHint(cm, expected));
+    const { entityName } = getEntityNameAndPropertyPath(
+      this.props.dataTreePath || "",
+    );
+    this.hinters.forEach((hinter) => hinter.showHint(cm, expected, entityName));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
