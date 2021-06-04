@@ -9,8 +9,8 @@ import {
   cutWidget,
   deleteSelectedWidget,
   pasteWidget,
-  selectAllWidgetsInit,
-  selectAllWidgets,
+  selectAllWidgetsInitAction,
+  selectAllWidgetsAction,
 } from "actions/widgetActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
@@ -248,8 +248,8 @@ const mapDispatchToProps = (dispatch: any) => {
     resetCommentMode: () => dispatch(setCommentModeAction(false)),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
-    selectAllWidgetsInit: () => dispatch(selectAllWidgetsInit()),
-    deselectAllWidgets: () => dispatch(selectAllWidgets([])),
+    selectAllWidgetsInit: () => dispatch(selectAllWidgetsInitAction()),
+    deselectAllWidgets: () => dispatch(selectAllWidgetsAction([])),
     executeAction: () => dispatch(runActionViaShortcut()),
   };
 };

@@ -28,10 +28,10 @@ import { AppState } from "reducers";
 import { useSelector } from "react-redux";
 import {
   useShowPropertyPane,
-  useWidgetSelection,
   useCanvasSnapRowsUpdateHook,
 } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;

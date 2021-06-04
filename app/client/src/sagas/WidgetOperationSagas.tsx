@@ -19,7 +19,6 @@ import {
 import {
   getSelectedWidget,
   getWidget,
-  getWidgetImmediateChildren,
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
@@ -30,6 +29,7 @@ import {
 import {
   all,
   call,
+  fork,
   put,
   select,
   takeEvery,
@@ -92,8 +92,7 @@ import {
 import {
   closePropertyPane,
   forceOpenPropertyPane,
-  selectAllWidgets,
-  selectWidget,
+  selectWidgetInitAction,
 } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
@@ -119,7 +118,6 @@ import {
   WIDGET_DELETE,
   WIDGET_BULK_DELETE,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
-  SELECT_ALL_WIDGETS_MSG,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -130,7 +128,7 @@ import {
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
-
+import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
@@ -494,7 +492,7 @@ export function* deleteAllSelectedWidgetsSaga(
     );
 
     yield put(updateAndSaveLayout(finalWidgets));
-    yield put(selectWidget(""));
+    yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");
     const saveStatus: boolean = yield saveDeletedWidgets(
       falttendedWidgets,
@@ -1719,7 +1717,7 @@ function* pasteWidgetSaga() {
     // Flash the newly pasted widget once the DSL is re-rendered
     setTimeout(() => flashElementById(newWidgetId), 100);
     yield put({
-      type: ReduxActionTypes.SELECT_WIDGET,
+      type: ReduxActionTypes.SELECT_WIDGET_INIT,
       payload: { widgetId: newWidgetId },
     });
   }
@@ -1827,7 +1825,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       newWidget.newWidgetId,
     );
     yield put({
-      type: ReduxActionTypes.SELECT_WIDGET,
+      type: ReduxActionTypes.SELECT_WIDGET_INIT,
       payload: { widgetId: newWidget.newWidgetId },
     });
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
@@ -1839,56 +1837,8 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
   }
 }
 
-// The following is computed to be used in the entity explorer
-// Every time a widget is selected, we need to expand widget entities
-// in the entity explorer so that the selected widget is visible
-function* selectedWidgetAncestrySaga(
-  action: ReduxAction<{ widgetId: string }>,
-) {
-  try {
-    const canvasWidgets = yield select(getWidgets);
-    const widgetIdsExpandList = [];
-    const selectedWidget = action.payload.widgetId;
-
-    // Make sure that the selected widget exists in canvasWidgets
-    let widgetId = canvasWidgets[selectedWidget]
-      ? canvasWidgets[selectedWidget].parentId
-      : undefined;
-    // If there is a parentId for the selectedWidget
-    if (widgetId) {
-      // Keep including the parent until we reach the main container
-      while (widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-        widgetIdsExpandList.push(widgetId);
-        if (canvasWidgets[widgetId] && canvasWidgets[widgetId].parentId)
-          widgetId = canvasWidgets[widgetId].parentId;
-        else break;
-      }
-    }
-    yield put({
-      type: ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTORY,
-      payload: widgetIdsExpandList,
-    });
-  } catch (error) {
-    log.debug("Could not compute selected widget's ancestry", error);
-  }
-}
-
-function* selectAllWidgetsSaga() {
-  const allWidgetsOnMainContainer: string[] = yield select(
-    getWidgetImmediateChildren,
-    MAIN_CONTAINER_WIDGET_ID,
-  );
-  if (allWidgetsOnMainContainer && allWidgetsOnMainContainer.length) {
-    yield put(selectAllWidgets(allWidgetsOnMainContainer));
-    Toaster.show({
-      text: createMessage(SELECT_ALL_WIDGETS_MSG),
-      variant: Variant.info,
-      duration: 3000,
-    });
-  }
-}
-
 export default function* widgetOperationSagas() {
+  yield fork(widgetSelectionSagas);
   yield all([
     takeEvery(
       ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
@@ -1933,10 +1883,5 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
-    takeLatest(ReduxActionTypes.SELECT_WIDGET, selectedWidgetAncestrySaga),
-    takeLatest(
-      ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
-      selectAllWidgetsSaga,
-    ),
   ]);
 }

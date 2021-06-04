@@ -31,7 +31,7 @@ import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
 import {
   deleteSelectedWidget,
   copyWidget,
-  selectWidget,
+  selectWidgetInitAction,
 } from "actions/widgetActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
@@ -324,7 +324,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
           },
         },
       });
-      dispatch(selectWidget(widgetId));
+      dispatch(selectWidgetInitAction(widgetId));
     },
     hidePropertyPane: () =>
       dispatch({

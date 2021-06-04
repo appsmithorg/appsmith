@@ -13,7 +13,6 @@ import {
   showModal,
   closeAllModals,
 } from "actions/widgetActions";
-import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import { AppState } from "reducers";
 import { getWidgetIcon } from "../ExplorerIcons";
 
@@ -24,6 +23,7 @@ import EntityProperties from "../Entity/EntityProperties";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
 import { getSelectedWidgets } from "selectors/ui";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 

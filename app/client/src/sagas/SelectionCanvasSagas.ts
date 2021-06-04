@@ -1,4 +1,4 @@
-import { selectAllWidgets } from "actions/widgetActions";
+import { selectAllWidgetsAction } from "actions/widgetActions";
 import { OccupiedSpace } from "constants/editorConstants";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
@@ -75,7 +75,7 @@ function* selectAllWidgetsInAreaSaga(action: ReduxAction<any>) {
     const widgetIdsToSelect = widgetsToBeSelected.map((each) => each.id);
     const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
     if (!isEqual(widgetIdsToSelect, currentSelectedWidgets)) {
-      yield put(selectAllWidgets(widgetIdsToSelect));
+      yield put(selectAllWidgetsAction(widgetIdsToSelect));
     }
   }
 }
