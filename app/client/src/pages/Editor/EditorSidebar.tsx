@@ -296,11 +296,11 @@ class EditorSidebar extends React.Component<Props, State> {
 
   render() {
     const {
+      createButtonTitle,
       isLoading,
       itemRender,
-      selectedItemId,
       location,
-      createButtonTitle,
+      selectedItemId,
     } = this.props;
 
     const { search } = this.state;

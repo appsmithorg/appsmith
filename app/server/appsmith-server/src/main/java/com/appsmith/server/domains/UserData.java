@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 /**
  * This model is intended to hold any user-specific information that is not directly about the user's authentication.
  */
@@ -26,6 +28,9 @@ public class UserData extends BaseDomain {
 
     // The version where this user has last viewed the release notes.
     private String releaseNotesViewedVersion;
+
+    // list of organisation ids that were recently accessed by the user
+    private List<String> recentlyUsedOrgIds;
 
     public UserData(String userId) {
         this.userId = userId;

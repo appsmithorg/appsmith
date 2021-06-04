@@ -155,11 +155,11 @@ const IconWrapper = styled.div`
 
 export function EditableText(props: EditableTextProps) {
   const {
-    onBlur,
-    onTextChanged,
-    isInvalid: inputValidation,
     defaultValue,
     isEditingDefault,
+    isInvalid: inputValidation,
+    onBlur,
+    onTextChanged,
     valueTransform,
     onValidationError,
   } = props;
