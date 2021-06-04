@@ -422,10 +422,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       ) {
         set(widget, key, metaPropertyValue);
       }
-
-      if (key == "selectedFiles") {
-        console.log({ key, metaPropertyValue, itemIndex, widget });
-      }
     });
 
     if (
@@ -719,8 +715,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   getPageView() {
     const children = this.renderChildren();
     const { perPage, shouldPaginate } = this.shouldPaginate();
-
-    console.log({ children });
 
     if (this.props.isLoading) {
       return (
