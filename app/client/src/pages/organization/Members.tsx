@@ -59,6 +59,7 @@ export default function MemberSettings(props: PageProps) {
     showMemberDeletionConfirmation,
     setShowMemberDeletionConfirmation,
   ] = useState(false);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
   const onOpenConfirmationModal = () => setShowMemberDeletionConfirmation(true);
   const onCloseConfirmationModal = () =>
     setShowMemberDeletionConfirmation(false);
@@ -94,6 +95,21 @@ export default function MemberSettings(props: PageProps) {
   const currentOrg = useSelector(getCurrentOrg).filter(
     (el) => el.id === orgId,
   )[0];
+
+  useEffect(() => {
+    if (!!userToBeDeleted && showMemberDeletionConfirmation) {
+      const userBeingDeleted = allUsers.find(
+        (user) => user.username === userToBeDeleted.username,
+      );
+      if (!userBeingDeleted) {
+        setUserToBeDeleted(null);
+        onCloseConfirmationModal();
+        setIsDeletingUser(false);
+      } else {
+        setIsDeletingUser(userBeingDeleted.isDeleting);
+      }
+    }
+  }, [allUsers]);
 
   const userTableData = allUsers.map((user) => ({
     ...user,
@@ -209,6 +225,7 @@ export default function MemberSettings(props: PageProps) {
         <>
           <Table columns={columns} data={userTableData} />
           <DeleteConfirmationModal
+            isDeletingUser={isDeletingUser}
             isOpen={showMemberDeletionConfirmation}
             name={userToBeDeleted && userToBeDeleted.name}
             onClose={onCloseConfirmationModal}

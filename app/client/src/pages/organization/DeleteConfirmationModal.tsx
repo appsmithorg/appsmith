@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import Button, { Size, Category } from "components/ads/Button";
-// import { useSelector } from "store";
 import Text, { TextType } from "components/ads/Text";
 import { Variant } from "components/ads/common";
 import {
@@ -43,10 +42,11 @@ type DeleteConfirmationProps = {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  isDeletingUser: boolean;
 };
 
 function DeleteConfirmationModal(props: DeleteConfirmationProps) {
-  const { isOpen, name, onClose, onConfirm, username } = props;
+  const { isDeletingUser, isOpen, name, onClose, onConfirm, username } = props;
 
   return (
     <StyledDialog
@@ -73,6 +73,7 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
           <ImportButton
             className=".button-item"
             cypressSelector={"t--org-import-app-button"}
+            isLoading={isDeletingUser}
             onClick={onConfirm}
             size={Size.large}
             text={"REMOVE"}
