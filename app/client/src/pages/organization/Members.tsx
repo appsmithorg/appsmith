@@ -184,7 +184,6 @@ export default function MemberSettings(props: PageProps) {
             }
             name="delete"
             onClick={() => {
-              console.log({ values: cellProps.cell.row.values });
               onConfirmMemberDeletion(
                 cellProps.cell.row.values.username,
                 cellProps.cell.row.values.username,
