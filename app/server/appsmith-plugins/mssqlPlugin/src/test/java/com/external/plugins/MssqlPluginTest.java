@@ -22,6 +22,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -57,7 +58,8 @@ public class MssqlPluginTest {
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
     public static final MSSQLServerContainer container =
-            new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-latest")
+            new MSSQLServerContainer<>(
+                    DockerImageName.parse("mcr.microsoft.com/azure-sql-edge:latest").asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server:2017-latest"))
                     .acceptLicense()
                     .withExposedPorts(1433)
                     .withPassword("Mssql123");

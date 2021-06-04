@@ -15,6 +15,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -38,7 +39,7 @@ public class ElasticSearchPluginTest {
 
     @ClassRule
     public static final ElasticsearchContainer container =
-            new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:6.4.1")
+            new ElasticsearchContainer(DockerImageName.parse("arm64v8/elasticsearch:7.12.1").asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch:6.4.1"))
                     .withEnv("discovery.type", "single-node");
 
     private static final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
