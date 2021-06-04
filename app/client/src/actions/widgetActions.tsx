@@ -88,6 +88,15 @@ export const selectAllWidgetsAction = (
   };
 };
 
+export const deselectMultipleWidgetsAction = (
+  widgetIds?: string[],
+): ReduxAction<{ widgetIds?: string[] }> => {
+  return {
+    type: ReduxActionTypes.DESELECT_WIDGETS,
+    payload: { widgetIds },
+  };
+};
+
 export const selectAllWidgetsInitAction = () => {
   return {
     type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,

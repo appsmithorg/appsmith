@@ -60,6 +60,22 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       }
     }
   },
+  [ReduxActionTypes.DESELECT_WIDGETS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ widgetIds?: string[] }>,
+  ) => {
+    const { widgetIds } = action.payload;
+    if (widgetIds) {
+      state.selectedWidgets = state.selectedWidgets.filter(
+        (each) => !widgetIds.includes(each),
+      );
+    }
+    if (state.selectedWidgets.length === 1) {
+      state.lastSelectedWidget = state.selectedWidgets[0];
+    } else {
+      state.lastSelectedWidget = "";
+    }
+  },
   [ReduxActionTypes.SELECT_MULTIPLE_WIDGETS]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetIds?: string[] }>,

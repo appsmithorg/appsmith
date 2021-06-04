@@ -1,26 +1,28 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { all, put, select, takeLatest } from "redux-saga/effects";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgetImmediateChildren, getWidgets } from "./selectors";
 import log from "loglevel";
 import {
+  deselectMultipleWidgetsAction,
   selectAllWidgetsAction,
   selectWidgetAction,
 } from "actions/widgetActions";
 import { Toaster } from "components/ads/Toast";
 import { createMessage, SELECT_ALL_WIDGETS_MSG } from "constants/messages";
 import { Variant } from "components/ads/common";
+import { getWidgetChildren } from "./WidgetOperationUtils";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
 // in the entity explorer so that the selected widget is visible
 function* selectedWidgetAncestrySaga(
-  action: ReduxAction<{ widgetId: string }>,
+  action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
   try {
     const canvasWidgets = yield select(getWidgets);
     const widgetIdsExpandList = [];
-    const selectedWidget = action.payload.widgetId;
+    const { isMultiSelect, widgetId: selectedWidget } = action.payload;
 
     // Make sure that the selected widget exists in canvasWidgets
     let widgetId = canvasWidgets[selectedWidget]
@@ -36,6 +38,15 @@ function* selectedWidgetAncestrySaga(
         else break;
       }
     }
+    if (isMultiSelect) {
+      const parentsToDeselect = widgetIdsExpandList.filter(
+        (each) => each !== selectedWidget,
+      );
+      if (parentsToDeselect && parentsToDeselect.length) {
+        yield put(deselectMultipleWidgetsAction(parentsToDeselect));
+      }
+    }
+
     yield put({
       type: ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTORY,
       payload: widgetIdsExpandList,
@@ -60,6 +71,22 @@ function* selectAllWidgetsSaga() {
   }
 }
 
+function* deselectChildrenSaga(
+  action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
+) {
+  const { isMultiSelect, widgetId } = action.payload;
+  if (isMultiSelect) {
+    const childWidgets: string[] = yield call(getWidgetChildren, widgetId);
+    if (childWidgets && childWidgets.length) {
+      yield put(
+        deselectMultipleWidgetsAction(
+          childWidgets.filter((each) => each !== widgetId),
+        ),
+      );
+    }
+  }
+}
+
 function* selectWidgetSaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
@@ -71,6 +98,7 @@ export function* widgetSelectionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectedWidgetAncestrySaga),
     takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectWidgetSaga),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, deselectChildrenSaga),
     takeLatest(
       ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
       selectAllWidgetsSaga,

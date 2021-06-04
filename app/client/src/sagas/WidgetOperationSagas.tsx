@@ -124,6 +124,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   doesTriggerPathsContainPropertyPath,
+  getWidgetChildren,
   handleSpecificCasesWhilePasting,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
@@ -1283,31 +1284,6 @@ const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
   }
   return obj;
 };
-
-function* getWidgetChildren(widgetId: string): any {
-  const childrenIds: string[] = [];
-  const widget = yield select(getWidget, widgetId);
-  // When a form widget tries to resetChildrenMetaProperties
-  // But one or more of its container like children
-  // have just been deleted, widget can be undefined
-  if (widget === undefined) {
-    return [];
-  }
-  const { children = [] } = widget;
-  if (children && children.length) {
-    for (const childIndex in children) {
-      if (children.hasOwnProperty(childIndex)) {
-        const child = children[childIndex];
-        childrenIds.push(child);
-        const grandChildren = yield call(getWidgetChildren, child);
-        if (grandChildren.length) {
-          childrenIds.push(...grandChildren);
-        }
-      }
-    }
-  }
-  return childrenIds;
-}
 
 function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   const parentWidgetId = action.payload.widgetId;
