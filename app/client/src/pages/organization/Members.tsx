@@ -130,12 +130,6 @@ export default function MemberSettings(props: PageProps) {
       accessor: "delete",
       disableSortBy: true,
       Cell: function DeleteCell(cellProps: any) {
-        if (
-          cellProps.cell.row.values.username ===
-          useSelector(getCurrentUser)?.username
-        ) {
-          return null;
-        }
         return (
           <Icon
             cypressSelector="t--deleteUser"
