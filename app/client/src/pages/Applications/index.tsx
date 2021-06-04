@@ -896,7 +896,9 @@ class Applications extends Component<
   public render() {
     return (
       <PageWrapper displayName="Applications">
-        {!this.state.showOnboardingForm ? (
+        {this.state.showOnboardingForm ? (
+          <OnboardingForm />
+        ) : (
           <>
             <ProductUpdatesModal />
             <LeftPane />
@@ -908,8 +910,6 @@ class Applications extends Component<
             />
             <ApplicationsSection searchKeyword={this.props.searchKeyword} />
           </>
-        ) : (
-          <OnboardingForm />
         )}
       </PageWrapper>
     );
