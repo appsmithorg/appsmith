@@ -81,6 +81,11 @@ function getLatestEvalPropertyErrors(
         `validationMessages.${propertyPath}`,
         "",
       );
+      const evaluatedValue = _.get(
+        entity,
+        `evaluatedValues.${propertyPath}`,
+        "",
+      );
       const error = jsError || validationError;
       const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
       const nameField = isWidget(entity) ? entity.widgetName : entity.name;
@@ -106,6 +111,9 @@ function getLatestEvalPropertyErrors(
             name: nameField,
             type: entityType,
             propertyPath: propertyPath,
+          },
+          state: {
+            value: evaluatedValue,
           },
         };
       } else if (debuggerKey in updatedDebuggerErrors) {
