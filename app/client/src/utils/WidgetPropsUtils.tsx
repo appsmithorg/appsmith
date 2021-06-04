@@ -781,10 +781,8 @@ const addIsDisabledToButtonColumn = (
         currentDSL.primaryColumns as Record<string, ColumnProperties>,
       )) {
         if (currentDSL.primaryColumns[key].columnType === "button") {
-          console.log(key);
           if (!currentDSL.primaryColumns[key].hasOwnProperty("isDisabled")) {
             currentDSL.primaryColumns[key]["isDisabled"] = false;
-            console.log(currentDSL.primaryColumns[key]);
           }
         }
       }
@@ -799,7 +797,7 @@ const migrateIsDisabledToButtonColumn = (
   const newDSL = addIsDisabledToButtonColumn(currentDSL);
 
   newDSL.children = newDSL.children?.map((children: WidgetProps) => {
-    return addIsDisabledToButtonColumn(children);
+    return migrateIsDisabledToButtonColumn(children);
   });
 
   return newDSL;
