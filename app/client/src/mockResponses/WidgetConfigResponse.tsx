@@ -1035,10 +1035,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         ],
       },
     },
-    LINE_SEPARATOR_WIDGET: {
+    DIVIDER_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 2 * GRID_DENSITY_MIGRATION_V1,
-      widgetName: "Line",
+      widgetName: "Divider",
       orientation: "horizontal",
       isVisible: true,
       version: 1,

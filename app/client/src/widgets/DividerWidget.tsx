@@ -1,14 +1,11 @@
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import LineSeparatorComponent from "components/designSystems/blueprint/LineSeparatorComponent";
+import DividerComponent from "components/designSystems/blueprint/DividerComponent";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 
-class LineSeparatorWidget extends BaseWidget<
-  LineSeparatorWidgetProps,
-  WidgetState
-> {
+class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
       {
@@ -50,7 +47,7 @@ class LineSeparatorWidget extends BaseWidget<
 
   getPageView() {
     return (
-      <LineSeparatorComponent
+      <DividerComponent
         orientation={this.props.orientation}
         widgetId={this.props.widgetId}
       />
@@ -58,15 +55,13 @@ class LineSeparatorWidget extends BaseWidget<
   }
 
   getWidgetType(): WidgetType {
-    return "LINE_SEPARATOR_WIDGET";
+    return "DIVIDER_WIDGET";
   }
 }
 
-export interface LineSeparatorWidgetProps extends WidgetProps {
+export interface DividerWidgetProps extends WidgetProps {
   orientation: "horizontal" | "vertical";
 }
 
-export default LineSeparatorWidget;
-export const ProfiledLineSeparatorWidget = Sentry.withProfiler(
-  LineSeparatorWidget,
-);
+export default DividerWidget;
+export const ProfiledDividerWidget = Sentry.withProfiler(DividerWidget);

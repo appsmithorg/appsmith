@@ -115,9 +115,9 @@ export const HelpMap = {
     path: "/widget-reference/switch",
     searchKey: "Switch",
   },
-  LINE_SEPARATOR_WIDGET: {
-    path: "/widget-reference/line",
-    searchKey: "Line Separator",
+  DIVIDER_WIDGET: {
+    path: "/widget-reference/divider",
+    searchKey: "Divider",
   },
 };
 

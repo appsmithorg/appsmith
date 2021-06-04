@@ -106,8 +106,8 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
-    type: "LINE_SEPARATOR_WIDGET",
-    widgetCardName: "Line",
+    type: "DIVIDER_WIDGET",
+    widgetCardName: "Divider",
     key: generateReactKey(),
   },
 ];

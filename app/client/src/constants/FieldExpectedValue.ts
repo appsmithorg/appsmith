@@ -169,7 +169,7 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
     gridGap: "number",
   },
-  LINE_SEPARATOR_WIDGET: {
+  DIVIDER_WIDGET: {
     orientation: "string",
     isVisible: "boolean",
   },
