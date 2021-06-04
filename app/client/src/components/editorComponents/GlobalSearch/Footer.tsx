@@ -3,18 +3,19 @@ import styled from "styled-components";
 
 const Wrapper = styled.div`
   span {
-    color: rgba(255, 255, 255, 1);
+    color: white;
     font-variant: all-small-caps;
-    font-size: 13.2px;
-    margin-right: 4px;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
+    margin-right: ${(props) => props.theme.spaces[1]}px;
   }
   div {
-    margin-right: 16px;
-    font-size: 12px;
+    margin-right: ${(props) => props.theme.spaces[7]}px;
+    font-size: ${(props) => props.theme.fontSizes[2]}px;
     text-align: center;
   }
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
-  padding: 5px 14px;
+  padding: ${(props) => props.theme.spaces[1]}px
+    ${(props) => props.theme.spaces[6]}px;
   display: flex;
   flex-direction: row;
 `;
@@ -22,7 +23,7 @@ const Wrapper = styled.div`
 const FOOTER_INFO = [
   {
     action: "↑↓",
-    description: "SELECT",
+    description: "Select",
   },
   {
     action: "ENTER",
