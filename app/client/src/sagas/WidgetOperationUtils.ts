@@ -79,7 +79,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
             "",
           );
 
-          value = `{{${listWidget.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
 
           currentWidget[key] = value;
 

@@ -49,7 +49,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      updatedItems: `{{(() => {
+      items: `{{(() => {
         let item = {};
 
         Object.keys(this.template).map(widgetName => {
@@ -58,7 +58,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
         let updatedItems = [];
 
-        for (let i = 0; i < this.items.length; i++) {
+        for (let i = 0; i < this.listData.length; i++) {
           updatedItems[i] = JSON.parse(JSON.stringify(item));
         }
 
@@ -130,7 +130,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           Number.isNaN(parseInt(this.selectedItemIndex))
             ? -1
             : parseInt(this.selectedItemIndex);
-        const items = this.items || [];
+        const items = this.listData || [];
         if (selectedItemIndex === -1) {
           const emptyRow = { ...items[0] };
           Object.keys(emptyRow).forEach((key) => {
@@ -138,7 +138,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           });
           return emptyRow;
         }
-        const selectedItem = { ...items[selectedItemIndex] };
+        const selectedItem = { ...listData[selectedItemIndex] };
         return selectedItem;
       })()}}`,
     };
@@ -149,11 +149,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    *
    * @param items
    */
-  getCurrentItemStructure = (items: Array<Record<string, unknown>>) => {
-    return Array.isArray(items) && items.length > 0
+  getCurrentItemStructure = (listData: Array<Record<string, unknown>>) => {
+    return Array.isArray(listData) && listData.length > 0
       ? Object.assign(
           {},
-          ...Object.keys(items[0]).map((key) => ({
+          ...Object.keys(listData[0]).map((key) => ({
             [key]: "",
           })),
         )
@@ -164,10 +164,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (
       !this.props.childAutoComplete ||
       (Object.keys(this.props.childAutoComplete).length === 0 &&
-        this.props.items &&
-        Array.isArray(this.props.items))
+        this.props.listData &&
+        Array.isArray(this.props.listData))
     ) {
-      const structure = this.getCurrentItemStructure(this.props.items);
+      const structure = this.getCurrentItemStructure(this.props.listData);
       super.updateWidgetProperty("childAutoComplete", {
         currentItem: structure,
       });
@@ -239,8 +239,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
-    const oldRowStructure = this.getCurrentItemStructure(prevProps.items);
-    const newRowStructure = this.getCurrentItemStructure(this.props.items);
+    const oldRowStructure = this.getCurrentItemStructure(prevProps.listData);
+    const newRowStructure = this.getCurrentItemStructure(this.props.listData);
 
     if (
       xor(Object.keys(oldRowStructure), Object.keys(newRowStructure)).length > 0
@@ -292,7 +292,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (!action) return;
 
     try {
-      const rowData = [this.props.items[rowIndex]];
+      const rowData = [this.props.listData[rowIndex]];
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{(currentItem) => { ${next} }}} `;
@@ -449,7 +449,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           propertyValue.indexOf("{{((currentItem) => {") === -1
         ) {
           const { jsSnippets } = getDynamicBindings(propertyValue);
-          const listItem = this.props.items[itemIndex];
+          const listItem = this.props.listData[itemIndex];
 
           const newPropertyValue = jsSnippets.reduce(
             (prev: string, next: string) => {
@@ -646,7 +646,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * renders children
    */
   renderChildren = () => {
-    const numberOfItemsInGrid = this.props.items.length;
+    const numberOfItemsInGrid = this.props.listData.length;
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
       const childCanvas = children[0];
@@ -683,7 +683,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   shouldPaginate = () => {
     let { gridGap } = this.props;
-    const { children, items } = this.props;
+    const { children, listData } = this.props;
     const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
     const templateHeight =
@@ -700,12 +700,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     const shouldPaginate =
-      templateHeight * items.length + parseInt(gridGap) * (items.length - 1) >
+      templateHeight * listData.length +
+        parseInt(gridGap) * (listData.length - 1) >
       componentHeight;
 
     const totalSpaceAvailable = componentHeight - (100 + WIDGET_PADDING * 2);
     const spaceTakenByOneContainer =
-      templateHeight + (gridGap * (items.length - 1)) / items.length;
+      templateHeight + (gridGap * (listData.length - 1)) / listData.length;
 
     const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
 
@@ -757,8 +758,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     if (
-      Array.isArray(this.props.items) &&
-      this.props.items.length === 0 &&
+      Array.isArray(this.props.listData) &&
+      this.props.listData.length === 0 &&
       this.props.renderMode === RenderModes.PAGE
     ) {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;
@@ -778,7 +779,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             disabled={false && this.props.renderMode === RenderModes.CANVAS}
             onChange={(page: number) => this.setState({ page })}
             perPage={perPage}
-            total={this.props.items.length}
+            total={this.props.listData.length}
           />
         )}
       </ListComponent>
@@ -798,7 +799,7 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   onListItemClick?: string;
-  items: Array<Record<string, unknown>>;
+  listData: Array<Record<string, unknown>>;
   currentItemStructure?: Record<string, string>;
 }
 

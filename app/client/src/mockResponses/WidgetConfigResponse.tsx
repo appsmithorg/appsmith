@@ -695,7 +695,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               "",
             );
 
-            value = `{{${parentProps.widgetName}.items.map((currentItem) => {
+            value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
               return (function(){
                 return  ${modifiedAction};
               })();
@@ -719,7 +719,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         },
       },
       gridGap: 0,
-      items: [
+      listData: [
         {
           id: 1,
           num: "001",
@@ -920,7 +920,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                         "",
                       );
 
-                      value = `{{${widget.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
 
                       childWidget[key] = value;
 

@@ -16,7 +16,7 @@ import {
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import { snapToGrid } from "./helpers";
+import { renameKeyInObject, snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
@@ -758,6 +758,37 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  if (currentDSL.version === 22) {
+    currentDSL = migrateItemsToListDataInListWidget(currentDSL);
+    currentDSL.version = 23;
+  }
+
+  return currentDSL;
+};
+
+const migrateItemsToListDataInListWidget = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.LIST_WIDGET) {
+    currentDSL = renameKeyInObject(currentDSL, "items", "listData");
+
+    Object.keys(currentDSL.template).map((widgetName) => {
+      const currentWidget = currentDSL.template[widgetName];
+
+      currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
+        currentWidget[path.key] = currentWidget[path.key].replace(
+          "items",
+          "listData",
+        );
+      });
+    });
+  }
+
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(
+      migrateItemsToListDataInListWidget,
+    );
+  }
   return currentDSL;
 };
 

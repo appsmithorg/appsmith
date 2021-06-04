@@ -25,7 +25,7 @@
         "backgroundColor": "",
         "gridType": "vertical",
         "gridGap": 0,
-        "items": "[\n  {\n    \"id\": 1,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"first_name\": \"Michael\",\n    \"last_name\": \"Lawson\",\n    \"avatar\": \"https://reqres.in/img/faces/7-image.jpg\"\n  },\n  {\n    \"id\": 2,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"first_name\": \"Lindsay\",\n    \"last_name\": \"Ferguson\",\n    \"avatar\": \"https://reqres.in/img/faces/8-image.jpg\"\n  },\n {\n    \"id\": 3,\n    \"email\": \"brock.lesnar@reqres.in\",\n    \"first_name\": \"Brock\",\n    \"last_name\": \"Lesnar\",\n    \"avatar\": \"https://reqres.in/img/faces/8-image.jpg\"\n  }\n]",
+        "listData": "[\n  {\n    \"id\": 1,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"first_name\": \"Michael\",\n    \"last_name\": \"Lawson\",\n    \"avatar\": \"https://reqres.in/img/faces/7-image.jpg\"\n  },\n  {\n    \"id\": 2,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"first_name\": \"Lindsay\",\n    \"last_name\": \"Ferguson\",\n    \"avatar\": \"https://reqres.in/img/faces/8-image.jpg\"\n  },\n {\n    \"id\": 3,\n    \"email\": \"brock.lesnar@reqres.in\",\n    \"first_name\": \"Brock\",\n    \"last_name\": \"Lesnar\",\n    \"avatar\": \"https://reqres.in/img/faces/8-image.jpg\"\n  }\n]",
         "widgetName": "List1",
         "children": [
           {

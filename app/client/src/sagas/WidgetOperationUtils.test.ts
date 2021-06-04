@@ -41,7 +41,7 @@ describe("WidgetOperationSaga", () => {
         topRow: 1,
         bottomRow: 3,
         isLoading: false,
-        items: [],
+        listData: [],
         text: "{{currentItem.text}}",
         version: 16,
         disablePropertyPane: false,
@@ -60,7 +60,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -79,7 +79,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -88,7 +88,7 @@ describe("WidgetOperationSaga", () => {
     );
 
     expect(result.list1.template["Text1"].text).toStrictEqual(
-      "{{List1.items.map((currentItem) => currentItem.text)}}",
+      "{{List1.listData.map((currentItem) => currentItem.text)}}",
     );
     expect(get(result, "list1.dynamicBindingPathList.0.key")).toStrictEqual(
       "template.Text1.text",
@@ -110,7 +110,7 @@ describe("WidgetOperationSaga", () => {
         topRow: 1,
         bottomRow: 3,
         isLoading: false,
-        items: [],
+        listData: [],
         text: "{{currentItem.text}}",
         version: 16,
         disablePropertyPane: false,
@@ -129,7 +129,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -148,7 +148,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -166,7 +166,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -189,7 +189,7 @@ describe("WidgetOperationSaga", () => {
           topRow: 1,
           bottomRow: 3,
           isLoading: false,
-          items: [],
+          listData: [],
           version: 16,
           disablePropertyPane: false,
           template: {},
@@ -198,7 +198,7 @@ describe("WidgetOperationSaga", () => {
     );
 
     expect(result.list2.template["Text2"].text).toStrictEqual(
-      "{{List2.items.map((currentItem) => currentItem.text)}}",
+      "{{List2.listData.map((currentItem) => currentItem.text)}}",
     );
     expect(get(result, "list2.dynamicBindingPathList.0.key")).toStrictEqual(
       "template.Text2.text",

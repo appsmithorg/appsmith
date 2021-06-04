@@ -72,7 +72,7 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
-          let items = get(props, "evaluatedValues.items", []);
+          let items = get(props, "evaluatedValues.listData", []);
 
           if (Array.isArray(items)) {
             items = items.filter(Boolean);

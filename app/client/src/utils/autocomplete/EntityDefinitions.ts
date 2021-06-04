@@ -243,7 +243,7 @@ export const entityDefinitions = {
     isVisible: isVisible,
     gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
-    updatedItems: generateTypeDef(widget.updatedItems),
+    items: generateTypeDef(widget.items),
   }),
 };
 
