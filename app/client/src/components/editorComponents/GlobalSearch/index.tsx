@@ -63,12 +63,8 @@ const StyledContainer = styled.div`
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
   & .search-highlighted {
-    background: unset;
-    color: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
+    background-color: #6287b0;
     font-style: normal;
-    text-decoration: underline;
-    text-decoration-color: ${(props) =>
-      props.theme.colors.globalSearch.highlightedTextUnderline};
   }
 `;
 
