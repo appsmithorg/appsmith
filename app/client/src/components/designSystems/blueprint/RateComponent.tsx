@@ -26,7 +26,7 @@ import TooltipComponent from "components/ads/Tooltip";
 export const RateContainer = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   overflow: auto;
 `;

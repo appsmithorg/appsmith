@@ -1079,7 +1079,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         message: `This value can be a decimal onlf if 'Allow half' is true`,
       };
     }
-    return { isValid, parsed, message };
+    return { isValid, parsed };
   },
   [VALIDATION_TYPES.RATE_MAX_COUNT]: (
     value: any,
@@ -1100,6 +1100,6 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
         message: `This value must be integer`,
       };
     }
-    return { isValid, parsed, message };
+    return { isValid, parsed };
   },
 };
