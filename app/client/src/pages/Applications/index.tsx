@@ -79,6 +79,8 @@ import { useIntiateOnboarding } from "components/editorComponents/Onboarding/uti
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
+import OnboardingForm from "./OnboardingForm";
+import { getAppsmithConfigs } from "configs";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -859,15 +861,26 @@ type ApplicationProps = {
   currentUser?: User;
   searchKeyword: string | undefined;
 };
+
+const getIsFromSignup = () => {
+  if (window.location.href) {
+    const url = new URL(window.location.href);
+    const searchParams = url.searchParams;
+    return !!searchParams.get("isFromSignup");
+  }
+  return false;
+};
+const { onboardingFormEnabled } = getAppsmithConfigs();
 class Applications extends Component<
   ApplicationProps,
-  { selectedOrgId: string }
+  { selectedOrgId: string; showOnboardingForm: boolean }
 > {
   constructor(props: ApplicationProps) {
     super(props);
 
     this.state = {
       selectedOrgId: "",
+      showOnboardingForm: false,
     };
   }
 
@@ -875,20 +888,29 @@ class Applications extends Component<
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
+    this.setState({
+      showOnboardingForm: getIsFromSignup() && onboardingFormEnabled,
+    });
   }
 
   public render() {
     return (
       <PageWrapper displayName="Applications">
-        <ProductUpdatesModal />
-        <LeftPane />
-        <SubHeader
-          search={{
-            placeholder: "Search for apps...",
-            queryFn: this.props.searchApplications,
-          }}
-        />
-        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+        {this.state.showOnboardingForm ? (
+          <OnboardingForm />
+        ) : (
+          <>
+            <ProductUpdatesModal />
+            <LeftPane />
+            <SubHeader
+              search={{
+                placeholder: "Search for apps...",
+                queryFn: this.props.searchApplications,
+              }}
+            />
+            <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+          </>
+        )}
       </PageWrapper>
     );
   }
