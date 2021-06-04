@@ -14,7 +14,6 @@ import {
   resetVisibleThread,
   markThreadAsReadRequest,
 } from "actions/commentActions";
-import { useTransition, animated } from "react-spring";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { AppState } from "reducers";
 
@@ -142,15 +141,6 @@ function InlineCommentPin({
       state.ui.comments.visibleCommentThreadId === commentThreadId,
   );
 
-  const transition = useTransition(isPinVisible, null, {
-    from: { opacity: 0 },
-    enter: { opacity: 1 },
-    leave: { opacity: 0 },
-    // keeping it same as the transition duration (300) for popover results
-    // in animation sequence not completing and we see a faded popup
-    config: { duration: 250 },
-  });
-
   const handlePinClick = () => {
     if (!commentThread?.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
@@ -169,66 +159,55 @@ function InlineCommentPin({
 
   if (!commentThread) return null;
 
-  return (
-    <>
-      {transition.map(
-        ({ item: show, props: springProps }: { item: boolean; props: any }) =>
-          show ? (
-            <animated.div key={commentThreadId} style={springProps}>
-              <CommentTriggerContainer
-                data-cy="inline-comment-pin"
-                draggable="true"
-                left={left}
-                onClick={(e: any) => {
-                  // capture clicks so that create new thread is not triggered
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                top={top}
-              >
-                <Popover2
-                  autoFocus={false}
-                  boundary={Container as HTMLDivElement}
-                  canEscapeKeyClose
-                  content={
-                    <animated.div style={springProps}>
-                      <CommentThread
-                        commentThread={commentThread}
-                        inline
-                        isOpen={!!isCommentThreadVisible}
-                      />
-                    </animated.div>
-                  }
-                  enforceFocus={false}
-                  hasBackdrop
-                  // isOpen is controlled so that newly created threads are set to be visible
-                  isOpen={!!isCommentThreadVisible}
-                  minimal
-                  modifiers={modifiers}
-                  onInteraction={(nextOpenState: boolean) => {
-                    if (nextOpenState) {
-                      dispatch(setVisibleThread(commentThreadId));
-                    } else {
-                      dispatch(resetVisibleThread(commentThreadId));
-                    }
-                  }}
-                  placement={"right-start"}
-                  popoverClassName="comment-thread"
-                  portalClassName="inline-comment-thread"
-                >
-                  <Pin
-                    commentThreadId={commentThreadId}
-                    onClick={handlePinClick}
-                    sequenceId={commentThread.sequenceId}
-                    unread={!commentThread.isViewed}
-                  />
-                </Popover2>
-              </CommentTriggerContainer>
-            </animated.div>
-          ) : null,
-      )}
-    </>
-  );
+  return isPinVisible ? (
+    <CommentTriggerContainer
+      data-cy="inline-comment-pin"
+      draggable="true"
+      left={left}
+      onClick={(e: any) => {
+        // capture clicks so that create new thread is not triggered
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      top={top}
+    >
+      <Popover2
+        autoFocus={false}
+        boundary={Container as HTMLDivElement}
+        canEscapeKeyClose
+        content={
+          <CommentThread
+            commentThread={commentThread}
+            inline
+            isOpen={!!isCommentThreadVisible}
+          />
+        }
+        enforceFocus={false}
+        hasBackdrop
+        // isOpen is controlled so that newly created threads are set to be visible
+        isOpen={!!isCommentThreadVisible}
+        minimal
+        modifiers={modifiers}
+        onInteraction={(nextOpenState: boolean) => {
+          if (nextOpenState) {
+            dispatch(setVisibleThread(commentThreadId));
+          } else {
+            dispatch(resetVisibleThread(commentThreadId));
+          }
+        }}
+        placement={"right-start"}
+        popoverClassName="comment-thread"
+        portalClassName="inline-comment-thread"
+      >
+        <Pin
+          commentThreadId={commentThreadId}
+          onClick={handlePinClick}
+          sequenceId={commentThread.sequenceId}
+          unread={!commentThread.isViewed}
+        />
+      </Popover2>
+    </CommentTriggerContainer>
+  ) : null;
 }
 
 export default InlineCommentPin;
