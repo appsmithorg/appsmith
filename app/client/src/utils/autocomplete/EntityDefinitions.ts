@@ -250,6 +250,7 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/text",
     isVisible: isVisible,
     value: "number",
+    maxCount: "number",
   },
 };
 
