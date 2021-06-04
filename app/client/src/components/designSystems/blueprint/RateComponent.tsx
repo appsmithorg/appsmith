@@ -28,12 +28,11 @@ export const RateContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  overflow: auto;
 `;
 
 export const Star = styled(Icon)`
-  padding-left: ${(props) =>
-    props.iconSize === 12 ? 2.92 : props.iconSize === 16 ? 4.37 : 4.93}px;
-  padding-right: ${(props) =>
+  padding: ${(props) =>
     props.iconSize === 12 ? 2.92 : props.iconSize === 16 ? 4.37 : 4.93}px;
 `;
 

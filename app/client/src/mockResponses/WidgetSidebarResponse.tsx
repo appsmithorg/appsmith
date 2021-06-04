@@ -107,7 +107,7 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
   },
   {
     type: "RATE_WIDGET",
-    widgetCardName: "Rate",
+    widgetCardName: "Rating",
     key: generateReactKey(),
   },
 ];

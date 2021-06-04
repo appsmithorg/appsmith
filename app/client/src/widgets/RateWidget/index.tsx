@@ -22,7 +22,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             placeholderText: "Enter max count",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.NUMBER,
+            validation: VALIDATION_TYPES.RATE_MAX_COUNT,
           },
           {
             propertyName: "defaultRate",
@@ -32,7 +32,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             placeholderText: "Enter default value",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.NUMBER,
+            validation: VALIDATION_TYPES.RATE_DEFAULT_RATE,
           },
           {
             propertyName: "activeColor",
@@ -147,7 +147,6 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
   }
 
   valueChangedHandler = (value: number) => {
-    console.log(value);
     this.props.updateWidgetMetaProperty("rate", value, {
       triggerPropertyName: "onRateChanged",
       dynamicString: this.props.onRateChanged,
@@ -159,7 +158,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      this.props.rate && (
+      (this.props.rate || this.props.rate === 0) && (
         <RateComponent
           key={this.props.widgetId}
           onValueChanged={this.valueChangedHandler}

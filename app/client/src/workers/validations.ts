@@ -1052,4 +1052,54 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       message: `${WIDGET_TYPE_VALIDATION_ERROR}: number[]`,
     };
   },
+  [VALIDATION_TYPES.RATE_DEFAULT_RATE]: (
+    value: any,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    const { isValid, message, parsed } = VALIDATORS[VALIDATION_TYPES.NUMBER](
+      value,
+      props,
+    );
+    if (!isValid) {
+      return { isValid, parsed, message };
+    }
+    // default rate must be less than max count
+    if (!isNaN(props.maxCount) && Number(value) > Number(props.maxCount)) {
+      return {
+        isValid: false,
+        parsed,
+        message: `This value must be less than or equal to max count`,
+      };
+    }
+    // default rate can be a decimal onlf if Allow half property is true
+    if (!props.isAllowHalf && !Number.isInteger(parsed)) {
+      return {
+        isValid: false,
+        parsed,
+        message: `This value can be a decimal onlf if 'Allow half' is true`,
+      };
+    }
+    return { isValid, parsed, message };
+  },
+  [VALIDATION_TYPES.RATE_MAX_COUNT]: (
+    value: any,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    const { isValid, message, parsed } = VALIDATORS[VALIDATION_TYPES.NUMBER](
+      value,
+      props,
+    );
+    if (!isValid) {
+      return { isValid, parsed, message };
+    }
+    // max count must be integer
+    if (!Number.isInteger(parsed)) {
+      return {
+        isValid: false,
+        parsed,
+        message: `This value must be integer`,
+      };
+    }
+    return { isValid, parsed, message };
+  },
 };

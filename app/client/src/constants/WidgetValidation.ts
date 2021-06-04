@@ -32,6 +32,8 @@ export enum VALIDATION_TYPES {
   ROW_INDICES = "ROW_INDICES",
   IMAGE = "IMAGE",
   TABS_DATA = "TABS_DATA",
+  RATE_DEFAULT_RATE = "RATE_DEFAULT_RATE",
+  RATE_MAX_COUNT = "RATE_MAX_COUNT",
 }
 
 export type ValidationResponse = {
