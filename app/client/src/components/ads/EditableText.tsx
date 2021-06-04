@@ -160,8 +160,8 @@ export function EditableText(props: EditableTextProps) {
     isInvalid: inputValidation,
     onBlur,
     onTextChanged,
-    valueTransform,
     onValidationError,
+    valueTransform,
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
   const [value, setValue] = useState(defaultValue);
