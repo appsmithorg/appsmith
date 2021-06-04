@@ -67,7 +67,7 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
             className=".button-item"
             onClick={onClose}
             size={Size.large}
-            text={"CANCLE"}
+            text={"CANCEL"}
             variant={Variant.danger}
           />
           <ImportButton
