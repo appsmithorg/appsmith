@@ -2,20 +2,26 @@ const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 let forkedApplicationDsl;
+let parentApplicationDsl;
 
 describe("Fork application across orgs", function() {
   before(() => {
-    dsl.dsl.version = 23; // latest migrated version
     cy.addDsl(dsl);
   });
 
   it("Check if the forked application has the same dsl as the original", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     const appname = localStorage.getItem("AppName");
-    cy.get(homePage.searchInput).type(appname);
+    cy.SearchApp(appname);
+    cy.get("@getPage").then((httpResponse) => {
+      const data = httpResponse.response.body.data;
+      parentApplicationDsl = data.layouts[0].dsl;
+    });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-
+    cy.NavigateToHome();
+    cy.get(homePage.searchInput).type(appname);
+    cy.wait(2000);
     cy.get(homePage.applicationCard)
       .first()
       .trigger("mouseover");
@@ -32,15 +38,11 @@ describe("Fork application across orgs", function() {
     cy.wait("@postForkAppOrg").then((httpResponse) => {
       expect(httpResponse.status).to.equal(200);
     });
-    cy.get("@getPage").then((httpResponse) => {
-      expect(httpResponse.status).to.deep.equal(200);
-    });
     // check that forked application has same dsl
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       forkedApplicationDsl = data.layouts[0].dsl;
-      expect(forkedApplicationDsl).to.deep.equal(dsl.dsl);
+      expect(forkedApplicationDsl).to.deep.equal(parentApplicationDsl);
     });
-    cy.NavigateToHome();
   });
 });
