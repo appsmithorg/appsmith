@@ -21,7 +21,7 @@ import { WidgetProps } from "../widgets/BaseWidget";
 import moment from "moment";
 
 export function isNumeric(item: any) {
-  return /^-?\d+$/.test(item);
+  return isNumber(item);
 }
 
 export function validateDateString(
@@ -855,9 +855,9 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
       }
     }
     const isValidOptionValue = !!optionsData.parsed.filter(
-      (item: { value: any }) => values.includes(item.value),
+      (item: { value: any }) => values?.includes(item.value),
     ).length;
-    if (!isValidOptionValue && values.length) {
+    if (!isValidOptionValue && values?.length) {
       return {
         isValid: false,
         parsed: undefined,

@@ -617,7 +617,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent

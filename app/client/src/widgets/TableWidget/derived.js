@@ -75,7 +75,6 @@ export default {
   //
   getSanitizedTableData: (props, moment, _) => {
     const separatorRegex = /\W+/;
-
     if (props.tableData && Array.isArray(props.tableData)) {
       return props.tableData.map((entry) => {
         const sanitizedData = {};
@@ -224,7 +223,6 @@ export default {
       ...item,
       __originalIndex__: index,
     }));
-
     const columns = props.tableColumns;
 
     let sortedTableData;

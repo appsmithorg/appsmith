@@ -12,6 +12,7 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
 
   it("Input widget test with default value from table widget", function() {
+    cy.isSelectRow(1);
     cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -26,6 +27,8 @@ describe("Binding the multiple widgets and validating default data", function() 
   it("Dropdown widget test with default value from table widget", function() {
     cy.openPropertyPane("dropdownwidget");
     cy.testJsontext("options", JSON.stringify(testdata.deafultDropDownWidget));
+    cy.wait("@updateLayout");
+    cy.testJsontext("defaultoption", "VEG");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -35,7 +38,6 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
 
   it("validation of default data displayed in all widgets based on row selected", function() {
-    cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("2736212");

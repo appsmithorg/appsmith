@@ -8,6 +8,7 @@ export default {
       : true;
     return isValid;
   },
+  //
   getSelectedOption: (props, moment, _) => {
     if (props.selectionType === "SINGLE_SELECT") {
       const selectedOptionValue =
@@ -18,6 +19,7 @@ export default {
     }
     return undefined;
   },
+  //
   getSelectedOptionArr: (props, moment, _) => {
     if (props.selectionType === "MULTI_SELECT") {
       const selectedOptionValues =
@@ -30,6 +32,7 @@ export default {
     }
     return undefined;
   },
+  //
   getSelectedIndex: (props, moment, _) => {
     if (props.selectionType === "SINGLE_SELECT") {
       const selectedOptionValue =
@@ -40,6 +43,7 @@ export default {
     }
     return -1;
   },
+  //
   getSelectedIndexArr: (props, moment, _) => {
     const selectedOptions =
       props.selectedOptionValueArr !== undefined
@@ -54,6 +58,7 @@ export default {
     }
     return [];
   },
+  //
   getSelectedValue: (props, moment, _) => {
     if (props.selectionType === "MULTI_SELECT") {
       return props.selectedOptionValueArr !== undefined
@@ -65,6 +70,7 @@ export default {
         : props.defaultOptionValue;
     }
   },
+  //
   getSelectedOptionValues: (props, moment, _) => {
     if (props.selectionType === "MULTI_SELECT") {
       return props.selectedOptionValueArr !== undefined
@@ -73,6 +79,7 @@ export default {
     }
     return [];
   },
+  //
   getSelectedOptionLabels: (props, moment, _) => {
     if (props.selectionType === "MULTI_SELECT") {
       const selectedOptionValues =
@@ -86,6 +93,7 @@ export default {
     }
     return [];
   },
+  //
   getSelectedOptionLabel: (props, moment, _) => {
     if (props.selectionType === "SINGLE_SELECT") {
       const selectedOptionValue =
@@ -97,4 +105,5 @@ export default {
     }
     return "";
   },
+  //
 };

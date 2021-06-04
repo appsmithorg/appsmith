@@ -158,7 +158,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-    const computedSelectedIndexArr = this.props.selectedIndexArr || [];
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
@@ -172,7 +171,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         options={options}
         placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
-        selectedIndexArr={computedSelectedIndexArr}
+        selectedIndexArr={this.props.selectedIndexArr || []}
         selectionType={this.props.selectionType}
         widgetId={this.props.widgetId}
         width={componentWidth}
