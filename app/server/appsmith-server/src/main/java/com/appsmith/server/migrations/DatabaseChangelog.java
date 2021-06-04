@@ -2322,7 +2322,8 @@ public class DatabaseChangelog {
                     // For unpublished action
                     if (action.getUnpublishedAction() != null
                             && action.getUnpublishedAction().getActionConfiguration() != null
-                            && action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates() != null) {
+                            && action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates() != null
+                            && action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().size() > 3) {
 
                         String path = null;
                         String op = null;
@@ -2344,14 +2345,14 @@ public class DatabaseChangelog {
                         newFormat.put("path", path);
                         newFormat.put("operator", op);
                         newFormat.put("value", value);
-                        properties.get(3).setKey("whereConditionTuples");
-                        properties.get(3).setValue(List.of(newFormat));
+                        properties.set(3, new Property("whereConditionTuples", List.of(newFormat)));
                     }
 
                     // For published action
                     if (action.getPublishedAction() != null
                             && action.getPublishedAction().getActionConfiguration() != null
-                            && action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates() != null) {
+                            && action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates() != null
+                            && action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().size() > 3) {
 
                         String path = null;
                         String op = null;
@@ -2373,8 +2374,7 @@ public class DatabaseChangelog {
                         newFormat.put("path", path);
                         newFormat.put("operator", op);
                         newFormat.put("value", value);
-                        properties.get(3).setKey("whereConditionTuples");
-                        properties.get(3).setValue(List.of(newFormat));
+                        properties.set(3, new Property("whereConditionTuples", List.of(newFormat)));
                     }
                 });
 
