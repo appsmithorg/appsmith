@@ -2,17 +2,19 @@
 
 <p>
   <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Start Building</a></b>
-    •
+  •
   <a href="https://www.appsmith.com/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Features</a>
-    •
+  •
   <a href="https://docs.appsmith.com/?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs">Documentation</a>
-  ·
+  •
+  <a href="https://community.appsmith.com/">Community</a>
+  •
   <a href="https://github.com/appsmithorg/appsmith/tree/update/readme#tutorials">Tutorials</a>
-  ·
+  •
   <a href="https://blog.appsmith.com/">Blog</a>
-  ·
+  •
   <a href="https://www.youtube.com/appsmith">Youtube</a>
-  ·
+  •
   <a href="https://discord.gg/rBTTVJp">Discord</a>
   <br>
   Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
