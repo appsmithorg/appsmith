@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -29,6 +29,7 @@ import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Variant } from "components/ads/common";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
@@ -53,6 +54,34 @@ export default function MemberSettings(props: PageProps) {
     dispatch(fetchRolesForOrg(orgId));
     dispatch(fetchOrg(orgId));
   }, [orgId]);
+
+  const [
+    showMemberDeletionConfirmation,
+    setShowMemberDeletionConfirmation,
+  ] = useState(false);
+  const onOpenConfirmationModal = () => setShowMemberDeletionConfirmation(true);
+  const onCloseConfirmationModal = () =>
+    setShowMemberDeletionConfirmation(false);
+
+  const [userToBeDeleted, setUserToBeDeleted] = useState<{
+    name: string;
+    username: string;
+    orgId: string;
+  } | null>(null);
+
+  const onConfirmMemberDeletion = (
+    name: string,
+    username: string,
+    orgId: string,
+  ) => {
+    setUserToBeDeleted({ name, username, orgId });
+    onOpenConfirmationModal();
+  };
+
+  const onDeleteMember = () => {
+    if (!userToBeDeleted) return null;
+    dispatch(deleteOrgUser(userToBeDeleted.orgId, userToBeDeleted.username));
+  };
 
   const {
     deletingUserInfo,
@@ -139,8 +168,11 @@ export default function MemberSettings(props: PageProps) {
             }
             name="delete"
             onClick={() => {
-              dispatch(
-                deleteOrgUser(orgId, cellProps.cell.row.values.username),
+              console.log({ values: cellProps.cell.row.values });
+              onConfirmMemberDeletion(
+                cellProps.cell.row.values.username,
+                cellProps.cell.row.values.username,
+                orgId,
               );
             }}
             size={IconSize.LARGE}
@@ -174,7 +206,16 @@ export default function MemberSettings(props: PageProps) {
       {isFetchingAllUsers && isFetchingAllRoles ? (
         <Loader className={Classes.SKELETON} />
       ) : (
-        <Table columns={columns} data={userTableData} />
+        <>
+          <Table columns={columns} data={userTableData} />
+          <DeleteConfirmationModal
+            isOpen={showMemberDeletionConfirmation}
+            name={userToBeDeleted && userToBeDeleted.name}
+            onClose={onCloseConfirmationModal}
+            onConfirm={onDeleteMember}
+            username={userToBeDeleted && userToBeDeleted.username}
+          />
+        </>
       )}
     </>
   );
