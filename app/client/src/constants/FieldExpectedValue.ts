@@ -175,6 +175,7 @@ const FIELD_VALUES: Record<
     activeColor: "string",
     inactiveColor: "string",
     size: "RATE_SMALL | RATE_MEDIUM | RATE_LARGE",
+    tooltips: "Array<string>",
     isVisible: "boolean",
     isDisabled: "boolean",
   },
