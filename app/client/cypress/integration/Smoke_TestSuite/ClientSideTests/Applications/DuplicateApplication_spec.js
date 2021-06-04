@@ -11,8 +11,8 @@ describe("Duplicate application", function() {
   });
 
   it("Check whether the duplicate application has the same dsl as the original", function() {
-    cy.get(commonlocators.homeIcon).click({ force: true });
     const appname = localStorage.getItem("AppName");
+    cy.get(commonlocators.homeIcon).click({ force: true });
     cy.SearchApp(appname);
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
