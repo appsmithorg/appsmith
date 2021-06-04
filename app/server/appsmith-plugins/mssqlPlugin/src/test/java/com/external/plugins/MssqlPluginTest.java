@@ -59,7 +59,7 @@ public class MssqlPluginTest {
     @ClassRule
     public static final MSSQLServerContainer container =
             new MSSQLServerContainer<>(
-                    DockerImageName.parse("mcr.microsoft.com/azure-sql-edge:latest").asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server:2017-latest"))
+                    DockerImageName.parse("mcr.microsoft.com/azure-sql-edge:1.0.3").asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server:2017-latest"))
                     .acceptLicense()
                     .withExposedPorts(1433)
                     .withPassword("Mssql123");

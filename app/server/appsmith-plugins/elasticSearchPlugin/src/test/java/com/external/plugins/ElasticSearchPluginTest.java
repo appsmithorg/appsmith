@@ -38,9 +38,8 @@ public class ElasticSearchPluginTest {
     ElasticSearchPlugin.ElasticSearchPluginExecutor pluginExecutor = new ElasticSearchPlugin.ElasticSearchPluginExecutor();
 
     @ClassRule
-    public static final ElasticsearchContainer container =
-            new ElasticsearchContainer(DockerImageName.parse("arm64v8/elasticsearch:7.12.1").asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch:6.4.1"))
-                    .withEnv("discovery.type", "single-node");
+    public static final ElasticsearchContainer container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.12.1")
+            .withEnv("discovery.type", "single-node");
 
     private static final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
     private static String host;
