@@ -661,8 +661,10 @@ export default [
         propertyName: "serverSidePaginationEnabled",
         label: "Server Side Pagination",
         controlType: "SWITCH",
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
+        isJSConvertible: true,
+        validation: VALIDATION_TYPES.BOOLEAN,
       },
       {
         helpText: "Controls the visibility of the widget",
@@ -678,8 +680,10 @@ export default [
         propertyName: "multiRowSelection",
         label: "Enable multi row selection",
         controlType: "SWITCH",
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
+        isJSConvertible: true,
+        validation: VALIDATION_TYPES.BOOLEAN,
       },
     ],
   },
@@ -731,22 +735,28 @@ export default [
         label: "Cell Background",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TEXT,
       },
       {
         propertyName: "textColor",
         label: "Text Color",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: VALIDATION_TYPES.TEXT,
       },
       {
         propertyName: "textSize",
         label: "Text Size",
         controlType: "DROP_DOWN",
         updateHook: updateColumnStyles,
+        isJSConvertible: true,
+        validation: VALIDATION_TYPES.TEXT,
         options: [
           {
             label: "Heading 1",
@@ -779,7 +789,7 @@ export default [
             icon: "PARAGRAPH_TWO",
           },
         ],
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
       {
@@ -787,6 +797,8 @@ export default [
         label: "Font Style",
         controlType: "BUTTON_TABS",
         updateHook: updateColumnStyles,
+        isJSConvertible: true,
+        validation: VALIDATION_TYPES.TEXT,
         options: [
           {
             icon: "BOLD_FONT",
@@ -797,7 +809,7 @@ export default [
             value: "ITALIC",
           },
         ],
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
       {
@@ -805,6 +817,8 @@ export default [
         label: "Text Align",
         controlType: "ICON_TABS",
         updateHook: updateColumnStyles,
+        isJSConvertible: true,
+        validation: VALIDATION_TYPES.TEXT,
         options: [
           {
             icon: "LEFT_ALIGN",
@@ -820,7 +834,7 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
       {
@@ -828,6 +842,8 @@ export default [
         label: "Vertical Alignment",
         controlType: "ICON_TABS",
         updateHook: updateColumnStyles,
+        isJSConvertible: true,
+        validation: VALIDATION_TYPES.TEXT,
         options: [
           {
             icon: "VERTICAL_TOP",
@@ -843,7 +859,7 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
     ],

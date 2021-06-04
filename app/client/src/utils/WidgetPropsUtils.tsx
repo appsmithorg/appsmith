@@ -761,10 +761,41 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 22) {
     currentDSL = migrateTableWidgetParentRowSpaceProperty(currentDSL);
+    currentDSL.version = 23;
+  }
+
+  if (currentDSL.version === 23) {
+    currentDSL = migrateServerSideAndMultiRow(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
+};
+
+const addServerSideAndMultiRowDefault = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === "TABLE_WIDGET") {
+    if (!currentDSL.hasOwnProperty("multiRowSelection")) {
+      currentDSL.multiRowSelection = false;
+    }
+    if (!currentDSL.hasOwnProperty("serverSidePaginationEnabled")) {
+      currentDSL.serverSidePaginationEnabled = false;
+    }
+  }
+  return currentDSL;
+};
+
+const migrateServerSideAndMultiRow = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addServerSideAndMultiRowDefault(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return migrateServerSideAndMultiRow(children);
+  });
+
+  return newDSL;
 };
 
 const migrateOverFlowingTabsWidgets = (

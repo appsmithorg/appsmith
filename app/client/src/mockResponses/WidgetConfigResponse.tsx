@@ -151,6 +151,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
       label: "Data",
       widgetName: "Table",
+      serverSidePaginationEnabled: false,
+      multiRowSelection: false,
       searchKey: "",
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
