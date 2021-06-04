@@ -56,7 +56,7 @@ public class MySqlPluginTest {
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
     public static MySQLContainer mySQLContainer = new MySQLContainer(
-            DockerImageName.parse("mysql/mysql-server:latest-aarch64").asCompatibleSubstituteFor("mysql"))
+            DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
             .withUsername("mysql")
             .withPassword("password")
             .withDatabaseName("test_db");
@@ -64,7 +64,7 @@ public class MySqlPluginTest {
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
     public static MySQLContainer mySQLContainerWithInvalidTimezone = (MySQLContainer) new MySQLContainer(
-            DockerImageName.parse("mysql/mysql-server:latest-aarch64").asCompatibleSubstituteFor("mysql"))
+            DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
             .withUsername("mysql")
             .withPassword("password")
             .withDatabaseName("test_db")
