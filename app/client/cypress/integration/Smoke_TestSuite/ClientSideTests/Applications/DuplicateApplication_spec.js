@@ -32,7 +32,8 @@ describe("Duplicate application", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.duplicateApp).click({ force: true });
-
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(4000);
     cy.wait("@getPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",

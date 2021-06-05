@@ -35,6 +35,8 @@ describe("Fork application across orgs", function() {
       .last()
       .click({ force: true });
     cy.get(homePage.forkAppOrgButton).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(4000);
     cy.wait("@postForkAppOrg").then((httpResponse) => {
       expect(httpResponse.status).to.equal(200);
     });
