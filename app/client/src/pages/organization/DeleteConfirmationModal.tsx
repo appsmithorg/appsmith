@@ -72,7 +72,7 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
           />
           <ImportButton
             className=".button-item"
-            cypressSelector={"t--org-import-app-button"}
+            cypressSelector={"t--org-leave-button"}
             isLoading={isDeletingUser}
             onClick={onConfirm}
             size={Size.large}
