@@ -44,7 +44,11 @@ describe("Fork application across orgs", function() {
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       forkedApplicationDsl = data.layouts[0].dsl;
-      expect(forkedApplicationDsl).to.deep.equal(parentApplicationDsl);
+      cy.log(JSON.stringify(forkedApplicationDsl));
+      cy.log(JSON.stringify(parentApplicationDsl));
+      expect(JSON.stringify(forkedApplicationDsl)).to.deep.equal(
+        JSON.stringify(parentApplicationDsl),
+      );
     });
   });
 });

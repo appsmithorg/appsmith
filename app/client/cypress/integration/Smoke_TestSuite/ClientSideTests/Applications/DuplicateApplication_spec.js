@@ -42,7 +42,11 @@ describe("Duplicate application", function() {
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       duplicateApplicationDsl = data.layouts[0].dsl;
-      expect(duplicateApplicationDsl).to.deep.equal(parentApplicationDsl);
+      cy.log(JSON.stringify(duplicateApplicationDsl));
+      cy.log(JSON.stringify(parentApplicationDsl));
+      expect(JSON.stringify(duplicateApplicationDsl)).to.deep.equal(
+        JSON.stringify(parentApplicationDsl),
+      );
     });
   });
 });
