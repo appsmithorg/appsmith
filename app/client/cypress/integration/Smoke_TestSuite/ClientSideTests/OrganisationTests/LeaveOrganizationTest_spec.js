@@ -27,7 +27,7 @@ describe("Leave organization test spec", function() {
       cy.visit("/applications");
       cy.openOrgOptionsPopup(newOrganizationName);
       cy.contains("Leave Organization").click();
-
+      cy.contains("Are you sure").click();
       cy.wait("@leaveOrgApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(400);
       });

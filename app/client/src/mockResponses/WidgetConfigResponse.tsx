@@ -886,6 +886,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
             ) => {
               let template = {};
+              const logBlackListMap: any = {};
               const container = get(
                 widgets,
                 `${get(widget, "children.0.children.0")}`,
@@ -901,6 +902,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canvas.children &&
                 get(canvas, "children", []).forEach((child: string) => {
                   const childWidget = cloneDeep(get(widgets, `${child}`));
+                  const logBlackList: { [key: string]: boolean } = {};
                   const keys = Object.keys(childWidget);
 
                   for (let i = 0; i < keys.length; i++) {
@@ -927,6 +929,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     }
                   }
 
+                  Object.keys(childWidget).map((key) => {
+                    logBlackList[key] = true;
+                  });
+
+                  logBlackListMap[childWidget.widgetId] = logBlackList;
+
                   template = {
                     ...template,
                     [childWidget.widgetName]: childWidget,
@@ -945,6 +953,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   propertyValue: template,
                 },
               ];
+
+              // add logBlackList to updateProperyMap for all children
+              updatePropertyMap = updatePropertyMap.concat(
+                Object.keys(logBlackListMap).map((logBlackListMapKey) => {
+                  return {
+                    widgetId: logBlackListMapKey,
+                    propertyName: "logBlackList",
+                    propertyValue: logBlackListMap[logBlackListMapKey],
+                  };
+                }),
+              );
+
               return updatePropertyMap;
             },
           },
@@ -961,6 +981,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               if (!parentId) return { widgets };
               const widget = { ...widgets[widgetId] };
               const parent = { ...widgets[parentId] };
+              const logBlackList: { [key: string]: boolean } = {};
 
               const disallowedWidgets = [WidgetTypes.FILE_PICKER_WIDGET];
 
@@ -998,7 +1019,15 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
               parent.template = template;
 
+              // add logBlackList for the children being added
+              Object.keys(widget).map((key) => {
+                logBlackList[key] = true;
+              });
+
+              widget.logBlackList = logBlackList;
+
               widgets[parentId] = parent;
+              widgets[widgetId] = widget;
 
               return { widgets };
             },
