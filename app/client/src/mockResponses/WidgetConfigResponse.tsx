@@ -1042,7 +1042,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isHorizontal: true,
       strokeStyle: "solid",
       dividerColor: "black",
-      thickness: 1,
+      thickness: 2,
       isVisible: true,
       version: 1,
     },

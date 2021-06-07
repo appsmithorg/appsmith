@@ -22,9 +22,9 @@
     "children": [
       {
         "widgetName": "Divider1",
-        "strokeStyle": "dashed",
+        "strokeStyle": "solid",
         "rightColumn": 23,
-        "thickness": "5",
+        "thickness": 2,
         "widgetId": "i5kplngd19",
         "topRow": 25,
         "bottomRow": 75,
@@ -32,14 +32,14 @@
         "isVisible": true,
         "type": "DIVIDER_WIDGET",
         "version": 1,
-        "isHorizontal": false,
+        "isHorizontal": true,
         "parentId": "0",
         "isLoading": false,
         "parentColumnSpace": 19.75,
         "dynamicTriggerPathList": [],
         "leftColumn": 15,
         "dynamicBindingPathList": [],
-        "dividerColor": "#FFC13D"
+        "dividerColor": "black"
       }
     ]
   }
