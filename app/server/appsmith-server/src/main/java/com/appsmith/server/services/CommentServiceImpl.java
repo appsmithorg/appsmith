@@ -11,11 +11,14 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.CommentThreadNotification;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.events.CommentAddedEvent;
+import com.appsmith.server.events.CommentThreadClosedEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.solutions.EmailEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +55,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
     private final PolicyGenerator policyGenerator;
     private final PolicyUtils policyUtils;
+    private final EmailEventHandler emailEventHandler;
 
     public CommentServiceImpl(
             Scheduler scheduler,
@@ -66,8 +70,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             ApplicationService applicationService,
             NotificationService notificationService,
             PolicyGenerator policyGenerator,
-            PolicyUtils policyUtils
-    ) {
+            PolicyUtils policyUtils,
+            EmailEventHandler emailEventHandler) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
         this.userService = userService;
@@ -76,6 +80,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         this.notificationService = notificationService;
         this.policyGenerator = policyGenerator;
         this.policyUtils = policyUtils;
+        this.emailEventHandler = emailEventHandler;
     }
 
     @Override
@@ -133,9 +138,10 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     final User user = tuple.getT1();
                     CommentThread commentThread = tuple.getT2();
                     final Comment savedComment = tuple.getT3();
-                    Mono<Void> sendEmailForComment = notificationService.sendEmailForComment(
+                    Mono<Boolean> publishEmailMono = emailEventHandler.publish(
                             comment.getAuthorUsername(), commentThread.getApplicationId(), comment, originHeader
                     );
+
                     if (shouldCreateNotification) {
                         final Set<String> usernames = policyUtils.findUsernamesWithPermission(
                                 savedComment.getPolicies(), AclPermission.READ_COMMENT);
@@ -149,9 +155,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                                 notificationMonos.add(notificationMono);
                             }
                         }
-                        return Flux.concat(notificationMonos).then(sendEmailForComment).then(Mono.just(savedComment));
+                        return Flux.concat(notificationMonos).then(publishEmailMono).thenReturn(savedComment);
                     } else {
-                        return sendEmailForComment.thenReturn(savedComment);
+                        return publishEmailMono.thenReturn(savedComment);
                     }
                 });
     }
@@ -306,9 +312,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                                 // send email if comment thread is resolved
                                 CommentThread.CommentThreadState resolvedState = commentThread.getResolvedState();
                                 if(resolvedState != null && resolvedState.getActive()) {
-                                    return notificationService.sendEmailForComment(user.getUsername(),
-                                            updatedThread.getApplicationId(), updatedThread, originHeader
-                                    ).thenReturn(updatedThread);
+                                    return emailEventHandler.publish(user.getUsername(), updatedThread.getApplicationId(),
+                                            updatedThread, originHeader).thenReturn(updatedThread);
                                 } else {
                                     return Mono.just(updatedThread);
                                 }

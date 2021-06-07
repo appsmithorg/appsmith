@@ -43,8 +43,8 @@ public class NotificationServiceImplTest {
     public void setUp() {
         notificationService = new NotificationServiceImpl(
                 scheduler, validator, mongoConverter, reactiveMongoTemplate, notificationRepository, analyticsService,
-                sessionUserService, emailSender,
-                organizationRepository, applicationRepository);
+                sessionUserService
+        );
     }
 
     @Test
@@ -64,11 +64,5 @@ public class NotificationServiceImplTest {
 
         Comment comment = new Comment();
         comment.setAuthorUsername(fromUserEmail);
-
-//        StepVerifier.create(notificationService.sendEmailForComment(emailReceiver, comment, originHeader))
-//                .assertNext(t -> {
-//                    assertEquals(Boolean.TRUE, t);
-//                })
-//                .verifyComplete();
     }
 }

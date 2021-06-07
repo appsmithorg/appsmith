@@ -10,5 +10,5 @@ import java.util.List;
 
 public interface NotificationService extends CrudService<Notification, String> {
 //    Mono<Void> sendEmailForComment(Comment comment, String originHeader, String applicationId);
-    <E>Mono<Void> sendEmailForComment(String authorUserName, String applicationId, E commentDomain, String originHeader);
+//    <E>Mono<Void> sendEmailForComment(String authorUserName, String applicationId, E commentDomain, String originHeader);
 }
