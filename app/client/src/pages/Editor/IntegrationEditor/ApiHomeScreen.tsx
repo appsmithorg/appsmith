@@ -377,12 +377,12 @@ const MAIN_TABS: TabProp[] = [
   {
     key: "ACTIVE",
     title: "Active",
-    panelComponent: <p>This is error</p>,
+    panelComponent: <div />,
   },
   {
     key: "CREATE_NEW",
     title: "Create New",
-    panelComponent: <p>This is logs</p>,
+    panelComponent: <div />,
     icon: "plus",
     iconSize: IconSize.XS,
   },
