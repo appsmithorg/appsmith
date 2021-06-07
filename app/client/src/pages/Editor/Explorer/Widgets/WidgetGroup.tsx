@@ -51,6 +51,9 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
     </EntityPlaceholder>
   );
 
+  const widgetsInStep =
+    props.widgets?.children?.map((child) => child.widgetId) || [];
+
   return (
     <Entity
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
@@ -78,6 +81,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
           widgetId={child.widgetId}
           widgetName={child.widgetName}
           widgetType={child.type}
+          widgetsInStep={widgetsInStep}
         />
       ))}
       {(!props.widgets?.children || props.widgets?.children.length === 0) &&

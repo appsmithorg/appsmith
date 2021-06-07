@@ -83,7 +83,7 @@ import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import { forceOpenPropertyPane } from "actions/widgetActions";
-import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   batchUpdateWidgetProperty,
   updateWidgetPropertyRequest,

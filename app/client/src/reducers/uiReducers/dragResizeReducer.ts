@@ -90,6 +90,20 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       }
     }
   },
+  [ReduxActionTypes.SELECT_WIDGETS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ widgetIds?: string[] }>,
+  ) => {
+    const { widgetIds } = action.payload;
+    if (widgetIds) {
+      state.selectedWidgets = [...state.selectedWidgets, ...widgetIds];
+      if (state.selectedWidgets.length > 1) {
+        state.lastSelectedWidget = "";
+      } else {
+        state.lastSelectedWidget = widgetIds[0];
+      }
+    }
+  },
   [ReduxActionTypes.FOCUS_WIDGET]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetId?: string }>,

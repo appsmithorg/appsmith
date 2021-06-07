@@ -84,7 +84,7 @@ import { generateReactKey } from "utils/generators";
 import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
-import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -92,8 +92,9 @@ import {
 import {
   closePropertyPane,
   forceOpenPropertyPane,
-  selectWidgetInitAction,
 } from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   clearEvalPropertyCacheOfWidget,

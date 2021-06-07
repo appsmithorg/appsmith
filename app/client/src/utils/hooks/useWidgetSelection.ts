@@ -1,9 +1,11 @@
 import { useDispatch } from "react-redux";
+import { focusWidget } from "actions/widgetActions";
 import {
-  focusWidget,
   selectAllWidgetsAction,
   selectWidgetInitAction,
-} from "actions/widgetActions";
+  shiftSelectWidgetsInitAction,
+} from "actions/widgetSelectionActions";
+
 import { useCallback } from "react";
 
 export const useWidgetSelection = () => {
@@ -12,6 +14,12 @@ export const useWidgetSelection = () => {
     selectWidget: useCallback(
       (widgetId?: string, isMultiSelect?: boolean) => {
         dispatch(selectWidgetInitAction(widgetId, isMultiSelect));
+      },
+      [dispatch],
+    ),
+    shiftSelectWidget: useCallback(
+      (widgetId: string, siblingWidgets: string[]) => {
+        dispatch(shiftSelectWidgetsInitAction(widgetId, siblingWidgets));
       },
       [dispatch],
     ),

@@ -1,4 +1,4 @@
-import { selectAllWidgetsAction } from "actions/widgetActions";
+import { selectAllWidgetsAction } from "actions/widgetSelectionActions";
 import { OccupiedSpace } from "constants/editorConstants";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {

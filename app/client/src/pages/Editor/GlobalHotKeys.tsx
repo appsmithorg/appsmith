@@ -9,9 +9,11 @@ import {
   cutWidget,
   deleteSelectedWidget,
   pasteWidget,
+} from "actions/widgetActions";
+import {
   selectAllWidgetsInitAction,
   selectAllWidgetsAction,
-} from "actions/widgetActions";
+} from "actions/widgetSelectionActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";

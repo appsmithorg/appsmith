@@ -38,6 +38,7 @@ export const EntityItem = styled.div<{
 }>`
   position: relative;
   font-size: 12px;
+  user-select: none;
   padding-left: ${(props) =>
     props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
   background: ${(props) => (props.active ? Colors.TUNDORA : "none")};
