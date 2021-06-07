@@ -73,6 +73,11 @@ public class ExamplesOrganizationCloner {
     private final LayoutActionService layoutActionService;
     private final PluginService pluginService;
     
+    /**
+     * The regex matches the following pattern:
+     *  - mongodb+srv://user:password@some-url/some-db....
+     *  Matches "password" excluding ":" and "@"
+     */
     private static final String MONGO_URI_REGEX = "(?<=:)([^:]*?)(?=@)";
     private static final String YES = "Yes";
     private static final int DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX = 0;
@@ -477,6 +482,10 @@ public class ExamplesOrganizationCloner {
                 });
     }
     
+    /**
+     * @param plugin to check if the plugin-type is mongo-plugin
+     * @param datasourceConfig to update Property object
+     */
     public void updateSrvForMongoDatasource(Plugin plugin, DatasourceConfiguration datasourceConfig) {
         
         if (plugin == null || datasourceConfig == null) {
