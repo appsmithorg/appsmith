@@ -60,6 +60,10 @@ public class OAuth2 extends AuthenticationDTO {
 
     Set<Property> customTokenParameters;
 
+    String audience;
+
+    String resource;
+
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {
             return scopeString;
@@ -84,6 +88,11 @@ public class OAuth2 extends AuthenticationDTO {
             return Mono.error(new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
                     "Expected datasource to have valid authentication tokens at this point"));
+        }
+
+        if (this.authenticationResponse.expiresAt == null) {
+            // If the token did not return with an expiry time, assume that it has always expired
+            return Mono.just(Boolean.TRUE);
         }
 
         return Mono.just(authenticationResponse.expiresAt.isBefore(Instant.now().plusSeconds(60)));

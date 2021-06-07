@@ -50,6 +50,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
+import com.github.cloudyrock.mongock.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
@@ -1509,26 +1510,6 @@ public class DatabaseChangelog {
         });
     }
 
-    @ChangeSet(order = "046", id = "ensure-encrypted-field-for-datasources", author = "")
-    public void ensureIsEncryptedFieldForDatasources(MongoTemplate mongoTemplate) {
-        final String isEncryptedField = "datasourceConfiguration.authentication.isEncrypted";
-        final String passwordField = "datasourceConfiguration.authentication.password";
-
-        final org.springframework.data.mongodb.core.query.Query query = query(new Criteria().andOperator(
-                where(passwordField).exists(true),
-                where(isEncryptedField).exists(false)
-        ));
-        query.fields().include("_id");
-
-        for (final Datasource datasource : mongoTemplate.find(query, Datasource.class)) {
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
-                    update(isEncryptedField, true),
-                    Datasource.class
-            );
-        }
-    }
-
     @ChangeSet(order = "047", id = "add-isSendSessionEnabled-key-for-datasources", author = "")
     public void addIsSendSessionEnabledPropertyInDatasources(MongoTemplate mongoTemplate) {
 
@@ -2276,5 +2257,133 @@ public class DatabaseChangelog {
 
         // Delete all the existing mongo datasource structures by setting the key to null.
         mongoOperations.updateMulti(query, update, Datasource.class);
+    }
+
+    @ChangeSet(order = "069", id = "set-mongo-actions-type-to-raw", author = "")
+    public void setMongoActionInputToRaw(MongockTemplate mongockTemplate) {
+
+        // All the existing mongo actions at this point will only have ever been in the raw format
+        // For these actions to be readily available to users, we need to set their input type to raw manually
+        // This is required because since the mongo form, the default input type on the UI has been set to FORM
+        Plugin mongoPlugin = mongockTemplate.findOne(query(where("packageName").is("mongo-plugin")), Plugin.class);
+
+        // Fetch all the actions built on top of a mongo database, not having any value set for input type
+        assert mongoPlugin != null;
+        List<NewAction> rawMongoActions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                NewAction.class
+        )
+                .stream()
+                .filter(mongoAction -> {
+                    if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
+                        return false;
+                    }
+                    final List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                    return pluginSpecifiedTemplates != null && pluginSpecifiedTemplates.size() == 1;
+                })
+                .collect(Collectors.toList());
+
+        for (NewAction action : rawMongoActions) {
+            List<Property> pluginSpecifiedTemplates = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+            pluginSpecifiedTemplates.add(new Property(null, "RAW"));
+
+            mongockTemplate.save(action);
+        }
+    }
+
+    /**
+     * - Older firestore action form had support for only on where condition, which mapped path, operator and value to
+     * three different indexes on the pluginSpecifiedTemplates list.
+     * - In the newer form, the three properties are treated as a tuple, and a list of tuples is mapped to only one
+     * index in pluginSpecifiedTemplates list.
+     * - [... path, operator, value, ...] --> [... [ {"path":path, "operator":operator, "value":value} ] ...]
+     */
+    @ChangeSet(order = "070", id = "update-firestore-where-conditions-data", author = "")
+    public void updateFirestoreWhereConditionsData(MongoTemplate mongoTemplate) {
+        Plugin firestorePlugin = mongoTemplate
+                .findOne(query(where("packageName").is("firestore-plugin")), Plugin.class);
+
+        Query query = query(new Criteria().andOperator(
+                where("pluginId").is(firestorePlugin.getId()),
+                new Criteria().orOperator(
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.3").exists(true),
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.4").exists(true),
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.5").exists(true),
+                        where("publishedAction.actionConfiguration.pluginSpecifiedTemplates.3").exists(true),
+                        where("publishedAction.actionConfiguration.pluginSpecifiedTemplates.4").exists(true),
+                        where("publishedAction.actionConfiguration.pluginSpecifiedTemplates.5").exists(true)
+                )));
+
+        List<NewAction> firestoreActionQueries = mongoTemplate.find(query, NewAction.class);
+
+        firestoreActionQueries.stream()
+                .forEach(action -> {
+                    // For unpublished action
+                    if (action.getUnpublishedAction() != null
+                            && action.getUnpublishedAction().getActionConfiguration() != null
+                            && action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates() != null
+                            && action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().size() > 3) {
+
+                        String path = null;
+                        String op = null;
+                        String value = null;
+                        List<Property> properties = action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                        if (properties.size() > 3 && properties.get(3) != null) {
+                            path = (String) properties.get(3).getValue();
+                        }
+                        if (properties.size() > 4 && properties.get(4) != null) {
+                            op = (String) properties.get(4).getValue();
+                            properties.set(4, null); // Index 4 does not map to any value in the new query format
+                        }
+                        if (properties.size() > 5 && properties.get(5) != null) {
+                            value = (String) properties.get(5).getValue();
+                            properties.set(5, null); // Index 5 does not map to any value in the new query format
+                        }
+
+                        Map newFormat = new HashMap();
+                        newFormat.put("path", path);
+                        newFormat.put("operator", op);
+                        newFormat.put("value", value);
+                        properties.set(3, new Property("whereConditionTuples", List.of(newFormat)));
+                    }
+
+                    // For published action
+                    if (action.getPublishedAction() != null
+                            && action.getPublishedAction().getActionConfiguration() != null
+                            && action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates() != null
+                            && action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().size() > 3) {
+
+                        String path = null;
+                        String op = null;
+                        String value = null;
+                        List<Property> properties = action.getPublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                        if (properties.size() > 3 && properties.get(3) != null) {
+                            path = (String) properties.get(3).getValue();
+                        }
+                        if (properties.size() > 4 && properties.get(4) != null) {
+                            op = (String) properties.get(4).getValue();
+                            properties.set(4, null); // Index 4 does not map to any value in the new query format
+                        }
+                        if (properties.size() > 5 && properties.get(5) != null) {
+                            value = (String) properties.get(5).getValue();
+                            properties.set(5, null); // Index 5 does not map to any value in the new query format
+                        }
+
+                        HashMap newFormat = new HashMap();
+                        newFormat.put("path", path);
+                        newFormat.put("operator", op);
+                        newFormat.put("value", value);
+                        properties.set(3, new Property("whereConditionTuples", List.of(newFormat)));
+                    }
+                });
+
+        /**
+         * - Save changes only after all the processing is done so that in case any data manipulation fails, no data
+         * write occurs.
+         * - Write data back to db only if all data manipulations done above have succeeded.
+         */
+        firestoreActionQueries.stream()
+                .forEach(action -> mongoTemplate.save(action));
     }
 }

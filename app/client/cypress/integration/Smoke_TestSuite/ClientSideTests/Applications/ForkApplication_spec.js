@@ -5,7 +5,7 @@ let forkedApplicationDsl;
 
 describe("Fork application across orgs", function() {
   before(() => {
-    dsl.dsl.version = 20; // latest migrated version
+    dsl.dsl.version = 23; // latest migrated version
     cy.addDsl(dsl);
   });
 
@@ -32,12 +32,15 @@ describe("Fork application across orgs", function() {
     cy.wait("@postForkAppOrg").then((httpResponse) => {
       expect(httpResponse.status).to.equal(200);
     });
+    cy.get("@getPage").then((httpResponse) => {
+      expect(httpResponse.status).to.deep.equal(200);
+    });
     // check that forked application has same dsl
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       forkedApplicationDsl = data.layouts[0].dsl;
-
       expect(forkedApplicationDsl).to.deep.equal(dsl.dsl);
     });
+    cy.NavigateToHome();
   });
 });

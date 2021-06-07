@@ -97,6 +97,7 @@ const ToastBody = styled.div<{
       color: ${props.theme.colors.toast.undo};
       line-height: 18px;
       font-weight: 600;
+      white-space: nowrap
     }
     `
       : null}
