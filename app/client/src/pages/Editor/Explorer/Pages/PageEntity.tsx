@@ -3,10 +3,7 @@ import { Page } from "constants/ReduxActionConstants";
 import Entity, { EntityClassNames } from "../Entity";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import {
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-} from "constants/routes";
+import { BUILDER_PAGE_URL, INTEGRATION_EDITOR_URL } from "constants/routes";
 import history from "utils/history";
 import { updatePage } from "actions/pageActions";
 import PageContextMenu from "./PageContextMenu";
@@ -99,11 +96,7 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
           icon="plus"
           onClick={() =>
             history.push(
-              INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
-                params.applicationId,
-                props.page.pageId,
-                props.page.pageId,
-              ),
+              INTEGRATION_EDITOR_URL(params.applicationId, props.page.pageId),
             )
           }
           size={Size.small}
