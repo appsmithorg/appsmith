@@ -36,4 +36,6 @@ public interface ApplicationPageService {
     Mono<Boolean> publish(String applicationId);
 
     void generateAndSetPagePolicies(Application application, PageDTO page);
+
+    Mono<Application> reorderPage(String applicationId, String pageId, Integer order);
 }

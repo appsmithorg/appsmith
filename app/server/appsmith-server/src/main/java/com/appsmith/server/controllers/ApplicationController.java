@@ -87,6 +87,16 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
+    @PutMapping("/{applicationId}/page/{pageId}/reorder")
+    public Mono<ResponseDTO<Application>> reorderPage(
+            @PathVariable String applicationId,
+            @PathVariable String pageId,
+            @RequestParam Integer order
+    ) {
+        return applicationPageService.reorderPage(applicationId, pageId, order)
+                .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
+    }
+
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Application>> delete(@PathVariable String id) {
         log.debug("Going to delete application with id: {}", id);
@@ -132,7 +142,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     @GetMapping("/export/{id}")
     public Mono<ResponseEntity<ApplicationJson>> getApplicationFile(@PathVariable String id) {
         log.debug("Going to export application with id: {}", id);
-        
+
         return importExportApplicationService.exportApplicationById(id)
                 .map(fetchedResource -> {
                     String applicationName = fetchedResource.getExportedApplication().getName();
@@ -143,7 +153,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                         .build();
                     responseHeaders.setContentDisposition(contentDisposition);
                     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-                    
+
                     return new ResponseEntity(fetchedResource, responseHeaders, HttpStatus.OK);
                 });
     }
