@@ -310,13 +310,14 @@ type ApiHomeScreenProps = {
 type ApiHomeScreenState = {
   page: number;
   showSearchResults: boolean;
-  mainTab: number;
+  activePrimaryMenuId: number;
+  activeSecondaryMenuId: number;
 };
 
 type Props = ApiHomeScreenProps &
   InjectedFormProps<{ category: string }, ApiHomeScreenProps>;
 
-const MAIN_TABS: TabProp[] = [
+const PRIMARY_MENU: TabProp[] = [
   {
     key: "ACTIVE",
     title: "Active",
@@ -331,6 +332,29 @@ const MAIN_TABS: TabProp[] = [
   },
 ];
 
+const SECONDARY_MENU: TabProp[] = [
+  {
+    key: "MOST_USED",
+    title: "Most Used",
+    panelComponent: <div />,
+  },
+  {
+    key: "API",
+    title: "API",
+    panelComponent: <div />,
+  },
+  {
+    key: "DATABASE",
+    title: "Database",
+    panelComponent: <div />,
+  },
+  {
+    key: "SAAS",
+    title: "SaaS Integrations",
+    panelComponent: <div />,
+  },
+];
+
 class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   constructor(props: Props) {
     super(props);
@@ -338,12 +362,17 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     this.state = {
       page: 1,
       showSearchResults: false,
-      mainTab: 0,
+      activePrimaryMenuId: 0,
+      activeSecondaryMenuId: 0,
     };
   }
 
-  onChooseMainTab = (idx: number) => {
-    this.setState({ mainTab: idx });
+  onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
+    this.setState({ activePrimaryMenuId });
+  };
+
+  onSelectSecondaryMenu = (activeSecondaryMenuId: number) => {
+    this.setState({ activeSecondaryMenuId });
   };
 
   componentDidMount() {
@@ -505,9 +534,9 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
         <SectionGrid>
           <MainTabsContainer>
             <TabComponent
-              onSelect={this.onChooseMainTab}
-              selectedIndex={this.state.mainTab}
-              tabs={MAIN_TABS}
+              onSelect={this.onSelectPrimaryMenu}
+              selectedIndex={this.state.activePrimaryMenuId}
+              tabs={PRIMARY_MENU}
             />
           </MainTabsContainer>
           {/* TODO: make this search bar work */}
@@ -530,7 +559,12 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 
           {newApiComponent}
 
-          <p>temp sidebar</p>
+          <TabComponent
+            onSelect={this.onSelectSecondaryMenu}
+            selectedIndex={this.state.activeSecondaryMenuId}
+            tabs={SECONDARY_MENU}
+            vertical
+          />
         </SectionGrid>
       </ApiHomePage>
     );
