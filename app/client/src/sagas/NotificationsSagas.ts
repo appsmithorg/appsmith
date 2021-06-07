@@ -22,7 +22,6 @@ export function* fetchNotifications() {
 
 // TODO implement mark all notifications as read
 function* markAllNotificationsAsRead() {
-  console.log("markAllNotificationsAsRead");
   // try {
   //   const response = yield call(NotificationApi.markAllNotificationsAsRead);
   //   const isValidResponse = yield validateResponse(response);
