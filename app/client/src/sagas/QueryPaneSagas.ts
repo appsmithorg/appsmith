@@ -37,6 +37,7 @@ import { Toaster } from "components/ads/Toast";
 import { Datasource } from "entities/Datasource";
 import _ from "lodash";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
+import get from "lodash/get";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -114,13 +115,27 @@ function* formValueChangeSaga(
     return;
   }
 
-  yield put(
-    setActionProperty({
-      actionId: values.id,
-      propertyName: field,
-      value: actionPayload.payload,
-    }),
-  );
+  if (
+    actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
+    actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
+  ) {
+    const value = get(values, field);
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: field,
+        value,
+      }),
+    );
+  } else {
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: field,
+        value: actionPayload.payload,
+      }),
+    );
+  }
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {

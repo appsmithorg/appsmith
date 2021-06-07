@@ -51,6 +51,8 @@ const selectStyles = {
     padding: "5px",
   }),
   indicatorSeparator: () => ({}),
+  menu: (provided: any) => ({ ...provided, zIndex: 2 }),
+  menuPortal: (base: any) => ({ ...base, zIndex: 2 }),
 };
 
 export function BaseDropdown(props: DropdownProps) {

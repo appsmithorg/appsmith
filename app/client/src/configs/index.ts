@@ -42,6 +42,7 @@ export type INJECTED_CONFIGS = {
   mailEnabled: boolean;
   disableTelemetry: boolean;
   cloudServicesBaseUrl: string;
+  onboardingFormEnabled: boolean;
 };
 declare global {
   interface Window {
@@ -115,6 +116,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       : false,
     disableTelemetry: true,
     cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
+    onboardingFormEnabled: !!process.env.REACT_APP_SHOW_ONBOARDING_FORM,
   };
 };
 
@@ -269,5 +271,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     cloudServicesBaseUrl:
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
+    onboardingFormEnabled: ENV_CONFIG.onboardingFormEnabled,
   };
 };
