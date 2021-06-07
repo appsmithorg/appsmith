@@ -148,7 +148,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     TABLE_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
-      columns: 8 * GRID_DENSITY_MIGRATION_V1,
+      columns: 9 * GRID_DENSITY_MIGRATION_V1,
       label: "Data",
       widgetName: "Table",
       searchKey: "",
