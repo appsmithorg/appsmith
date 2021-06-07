@@ -163,7 +163,8 @@
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
     "storybook": "start-storybook -p 9009 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "postinstall": "patch-package"
   },
   "resolution": {
     "jest": "24.8.0"
@@ -236,6 +237,8 @@
     "mochawesome": "^5.0.0",
     "mochawesome-report-generator": "^4.1.0",
     "msw": "^0.28.0",
+    "patch-package": "^6.4.7",
+    "postinstall-postinstall": "^2.1.0",
     "raw-loader": "^4.0.2",
     "react-docgen-typescript-loader": "^3.6.0",
     "react-is": "^16.12.0",
