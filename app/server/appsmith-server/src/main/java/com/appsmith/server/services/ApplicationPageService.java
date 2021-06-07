@@ -34,4 +34,6 @@ public interface ApplicationPageService {
     Mono<PageDTO> deleteUnpublishedPage(String id);
 
     Mono<Boolean> publish(String applicationId);
+
+    void generateAndSetPagePolicies(Application application, PageDTO page);
 }

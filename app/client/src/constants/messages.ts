@@ -202,7 +202,7 @@ export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
 export const SERVER_API_TIMEOUT_ERROR = () =>
   `Appsmith server is taking too long to respond. Please try again after some time`;
 export const DEFAULT_ERROR_MESSAGE = () => `There was an unexpected error`;
-
+export const REMOVE_FILE_TOOL_TIP = () => "Remove Upload";
 export const ERROR_FILE_TOO_LARGE = (fileSize: string) =>
   `File size should be less than ${fileSize}!`;
 export const ERROR_DATEPICKER_MIN_DATE = () =>
@@ -329,3 +329,10 @@ export const OPEN_THE_DEBUGGER = () => " to open the debugger";
 export const NO_LOGS = () => "No logs to show";
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
+
+// Import/Export Application features
+export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
+
+export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
+export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
+  `You want to remove ${name} from this organization`;

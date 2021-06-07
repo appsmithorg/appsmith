@@ -49,10 +49,6 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
       if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
         const options: any = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
         def.appsmith = options;
-        const flattenedObjects = flattenObjKeys(options, "appsmith");
-        for (const [key, value] of Object.entries(flattenedObjects)) {
-          def[key] = value;
-        }
       }
     }
   });
@@ -101,9 +97,6 @@ export const flattenObjKeys = (
   const r: any = results;
   for (const [key, value] of Object.entries(options)) {
     if (!skipProperties.includes(key)) {
-      if (_.isObject(value)) {
-        flattenObjKeys(value, parentKey + "." + key, r);
-      }
       r[parentKey + "." + key] = value;
     }
   }

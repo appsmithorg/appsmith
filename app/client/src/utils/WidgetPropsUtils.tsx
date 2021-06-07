@@ -22,7 +22,7 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { has, isString, set, isEmpty, omit } from "lodash";
+import { has, isString, set, isEmpty, omit, get } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
@@ -769,6 +769,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  if (currentDSL.version === 22) {
+    currentDSL = addLogBlackListToAllListWidgetChildren(currentDSL);
+    currentDSL.version = 23;
+  }
+
   return currentDSL;
 };
 
@@ -1199,4 +1204,42 @@ export const generateWidgetProps = (
       throw Error("Failed to create widget: Parent's size cannot be calculate");
     } else throw Error("Failed to create widget: Parent was not provided ");
   }
+};
+
+/**
+ * adds logBlackList key for all list widget children
+ *
+ * @param currentDSL
+ * @returns
+ */
+const addLogBlackListToAllListWidgetChildren = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (children.type === WidgetTypes.LIST_WIDGET) {
+      const widgets = get(
+        children,
+        "children.0.children.0.children.0.children",
+      );
+
+      widgets.map((widget: any, index: number) => {
+        const logBlackList: { [key: string]: boolean } = {};
+
+        Object.keys(widget).map((key) => {
+          logBlackList[key] = true;
+        });
+        if (!widget.logBlackList) {
+          set(
+            children,
+            `children.0.children.0.children.0.children.${index}.logBlackList`,
+            logBlackList,
+          );
+        }
+      });
+    }
+
+    return children;
+  });
+
+  return currentDSL;
 };
