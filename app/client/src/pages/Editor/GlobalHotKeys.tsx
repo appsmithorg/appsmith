@@ -49,7 +49,6 @@ type Props = {
 @HotkeysTarget
 class GlobalHotKeys extends React.Component<Props> {
   public stopPropagationIfWidgetSelected(e: KeyboardEvent): boolean {
-    console.log(this.props, "this.props");
     const multipleWidgetsSelected =
       this.props.selectedWidgets && this.props.selectedWidgets.length;
     const singleWidgetSelected =
