@@ -90,7 +90,6 @@ describe("dataTreeTypeDefCreator", () => {
       "entity1.nested": {
         someExtraNested: "string",
       },
-      "entity1.nested.someExtraNested": "string",
     };
 
     const value = flattenObjKeys(options, "entity1");

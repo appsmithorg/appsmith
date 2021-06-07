@@ -119,6 +119,13 @@ export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
   };
 }
 
+export interface ImportApplicationRequest {
+  orgId: string;
+  applicationFile?: File;
+  progress?: (progressEvent: ProgressEvent) => void;
+  onSuccessCallback?: () => void;
+}
+
 class ApplicationApi extends Api {
   static baseURL = "v1/applications/";
   static publishURLPath = (applicationId: string) => `publish/${applicationId}`;
@@ -211,6 +218,21 @@ class ApplicationApi extends Api {
         "/fork/" +
         request.organizationId,
     );
+  }
+
+  static importApplicationToOrg(
+    request: ImportApplicationRequest,
+  ): AxiosPromise<ApiResponse> {
+    const formData = new FormData();
+    if (request.applicationFile) {
+      formData.append("file", request.applicationFile);
+    }
+    return Api.post("v1/applications/import/" + request.orgId, formData, null, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: request.progress,
+    });
   }
 }
 

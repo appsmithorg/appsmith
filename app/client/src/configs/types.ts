@@ -72,4 +72,6 @@ export type AppsmithUIConfigs = {
   commentsTestModeEnabled: boolean;
 
   cloudServicesBaseUrl: string;
+
+  onboardingFormEnabled: boolean;
 };
