@@ -31,6 +31,7 @@ interface TableProps {
   width: number;
   height: number;
   pageSize: number;
+  tablePageSize: number;
   widgetId: string;
   widgetName: string;
   searchKey: string;
@@ -273,7 +274,7 @@ export function Table(props: TableProps) {
             <div
               {...getTableBodyProps()}
               className={`tbody ${
-                props.pageSize > subPage.length ? "no-scroll" : ""
+                props.tablePageSize > subPage.length ? "no-scroll" : ""
               }`}
               ref={tableBodyRef}
             >
@@ -314,9 +315,9 @@ export function Table(props: TableProps) {
                   </div>
                 );
               })}
-              {props.pageSize > subPage.length &&
+              {props.tablePageSize > subPage.length &&
                 renderEmptyRows(
-                  props.pageSize - subPage.length,
+                  props.tablePageSize - subPage.length,
                   props.columns,
                   props.width,
                   subPage,
