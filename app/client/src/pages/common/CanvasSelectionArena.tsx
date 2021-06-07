@@ -44,12 +44,14 @@ export const CanvasSelectionArena = memo(
           selectionDimensions: SelectedArenaDimensions,
           snapToNextColumn: boolean,
           snapToNextRow: boolean,
+          isMultiSelect: boolean,
         ) => {
           dispatch(
             selectAllWidgetsInAreaAction(
               selectionDimensions,
               snapToNextColumn,
               snapToNextRow,
+              isMultiSelect,
             ),
           );
         },
@@ -76,7 +78,7 @@ export const CanvasSelectionArena = memo(
         height: 0,
       });
       let selectionRectangle: SelectedArenaDimensions = initRectangle();
-
+      let isMultiSelect = false;
       let isDragging = false;
 
       const init = () => {
@@ -105,6 +107,7 @@ export const CanvasSelectionArena = memo(
 
       const selectWidgetsInit = (
         selectionDimensions: SelectedArenaDimensions,
+        isMultiSelect: boolean,
       ) => {
         if (
           selectionDimensions.left &&
@@ -118,6 +121,7 @@ export const CanvasSelectionArena = memo(
             selectionDimensions,
             snapToNextColumn,
             snapToNextRow,
+            isMultiSelect,
           );
         }
       };
@@ -164,6 +168,7 @@ export const CanvasSelectionArena = memo(
       };
 
       const onMouseDown = (e: any) => {
+        isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
         selectionRectangle.left = e.offsetX - selectionCanvas.offsetLeft;
         selectionRectangle.top = e.offsetY - selectionCanvas.offsetTop;
         selectionRectangle.width = 0;
@@ -200,7 +205,7 @@ export const CanvasSelectionArena = memo(
           );
           const selectionDimensions = getSelectionDimensions();
           drawRectangle(selectionDimensions);
-          selectWidgetsInit(selectionDimensions);
+          selectWidgetsInit(selectionDimensions, isMultiSelect);
         }
       };
 

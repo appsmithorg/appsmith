@@ -13,9 +13,10 @@ export const selectAllWidgetsInAreaAction = (
   selectionArena: SelectedArenaDimensions,
   snapToNextColumn: boolean,
   snapToNextRow: boolean,
+  isMultiSelect: boolean,
 ): ReduxAction<any> => {
   return {
     type: ReduxActionTypes.SELECT_WIDGETS_IN_AREA,
-    payload: { selectionArena, snapToNextColumn, snapToNextRow },
+    payload: { selectionArena, snapToNextColumn, snapToNextRow, isMultiSelect },
   };
 };

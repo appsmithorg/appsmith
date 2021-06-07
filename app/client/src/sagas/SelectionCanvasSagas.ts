@@ -17,8 +17,26 @@ import { areIntersecting } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidget } from "./selectors";
 
-function* selectAllWidgetsInAreaSaga(action: ReduxAction<any>) {
+interface StartingSelectionSate {
+  lastSelectedWidgets: string[];
+  mainContainer: WidgetProps;
+  widgetOccupiedSpaces:
+    | {
+        [containerWidgetId: string]: OccupiedSpace[];
+      }
+    | undefined;
+}
+function* selectAllWidgetsInAreaSaga(
+  startingSelectionSate: StartingSelectionSate,
+  action: ReduxAction<any>,
+) {
   const {
+    lastSelectedWidgets,
+    mainContainer,
+    widgetOccupiedSpaces,
+  } = startingSelectionSate;
+  const {
+    isMultiSelect,
     selectionArena,
     snapToNextColumn,
     snapToNextRow,
@@ -26,11 +44,9 @@ function* selectAllWidgetsInAreaSaga(action: ReduxAction<any>) {
     selectionArena: SelectedArenaDimensions;
     snapToNextColumn: boolean;
     snapToNextRow: boolean;
+    isMultiSelect: boolean;
   } = action.payload;
-  const mainContainer: WidgetProps = yield select(
-    getWidget,
-    MAIN_CONTAINER_WIDGET_ID,
-  );
+
   const padding = CONTAINER_GRID_PADDING + WIDGET_PADDING;
   const snapSpace = {
     snapColumnWidth:
@@ -52,11 +68,7 @@ function* selectAllWidgetsInAreaSaga(action: ReduxAction<any>) {
     selectionArena.left + selectionArena.width,
     selectionArena.top + selectionArena.height,
   );
-  const widgetOccupiedSpaces:
-    | {
-        [containerWidgetId: string]: OccupiedSpace[];
-      }
-    | undefined = yield select(getOccupiedSpaces);
+
   if (widgetOccupiedSpaces) {
     const mainContainerWidgets = widgetOccupiedSpaces[MAIN_CONTAINER_WIDGET_ID];
     const widgets = Object.values(mainContainerWidgets || {});
@@ -73,17 +85,43 @@ function* selectAllWidgetsInAreaSaga(action: ReduxAction<any>) {
       );
     });
     const widgetIdsToSelect = widgetsToBeSelected.map((each) => each.id);
-    const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
-    if (!isEqual(widgetIdsToSelect, currentSelectedWidgets)) {
-      yield put(selectAllWidgetsAction(widgetIdsToSelect));
+    const filteredWidgetsToSelect = isMultiSelect
+      ? widgetIdsToSelect.filter((each) => !lastSelectedWidgets.includes(each))
+      : widgetIdsToSelect;
+    const currentSelectedWidgets: string[] = isMultiSelect
+      ? lastSelectedWidgets
+      : yield select(getSelectedWidgets);
+
+    if (!isEqual(filteredWidgetsToSelect, currentSelectedWidgets)) {
+      if (isMultiSelect) {
+        yield put(
+          selectAllWidgetsAction([
+            ...lastSelectedWidgets,
+            ...filteredWidgetsToSelect,
+          ]),
+        );
+      } else {
+        yield put(selectAllWidgetsAction(filteredWidgetsToSelect));
+      }
     }
   }
 }
 
 function* startCanvasSelectionSaga() {
+  const lastSelectedWidgets: string[] = yield select(getSelectedWidgets);
+  const mainContainer: WidgetProps = yield select(
+    getWidget,
+    MAIN_CONTAINER_WIDGET_ID,
+  );
+  const widgetOccupiedSpaces:
+    | {
+        [containerWidgetId: string]: OccupiedSpace[];
+      }
+    | undefined = yield select(getOccupiedSpaces);
   const selectionTask = yield takeLatest(
     ReduxActionTypes.SELECT_WIDGETS_IN_AREA,
     selectAllWidgetsInAreaSaga,
+    { lastSelectedWidgets, mainContainer, widgetOccupiedSpaces },
   );
   yield take(ReduxActionTypes.STOP_CANVAS_SELECTION);
   yield cancel(selectionTask);
