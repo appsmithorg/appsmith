@@ -77,4 +77,5 @@ export type AppsmithUIConfigs = {
     enabled: boolean;
     apiKey: string;
   };
+  onboardingFormEnabled: boolean;
 };
