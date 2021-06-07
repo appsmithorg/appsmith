@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "constants/forms";
-import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
@@ -56,6 +55,7 @@ import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import Callout from "components/ads/Callout";
+
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
     formValues: Datasource,
@@ -253,7 +253,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   createApiAction = () => {
-    const { datasource, actions, pageId } = this.props;
+    const { actions, datasource, pageId } = this.props;
     if (
       !datasource ||
       !datasource.datasourceConfiguration ||
@@ -307,20 +307,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderHeader = () => {
-    const {
-      isSaving,
-      isNewDatasource,
-      pluginImage,
-      applicationId,
-      pageId,
-    } = this.props;
+    const { isNewDatasource, isSaving, pluginImage } = this.props;
     return (
       <>
-        <BackButton
-          onClick={() =>
-            history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
-          }
-        />
+        <BackButton onClick={history.goBack} />
         <br />
         <Header>
           <FormTitleContainer>
@@ -344,7 +334,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderSave = () => {
-    const { isDeleting, isSaving, datasourceId, deleteDatasource } = this.props;
+    const { datasourceId, deleteDatasource, isDeleting, isSaving } = this.props;
     return (
       <SaveButtonContainer>
         <ActionButton
@@ -604,12 +594,40 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
 
+  renderOauth2CommonAdvanced = () => {
+    return (
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.audience"
+            label="Audience"
+            placeholderText="https://example.com/oauth/audience"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            configProperty="authentication.resource"
+            label="Resource"
+            placeholderText="https://example.com/oauth/resource"
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+
   renderOauth2ClientCredentials = () => {
-    return this.renderOauth2Common();
+    return (
+      <>
+        {this.renderOauth2Common()}
+        {this.renderOauth2CommonAdvanced()}
+      </>
+    );
   };
 
   renderOauth2AuthorizationCode = () => {
-    const { pageId, datasourceId, isSaving, datasource } = this.props;
+    const { datasource, datasourceId, formData, isSaving, pageId } = this.props;
     const isAuthorized = _.get(
       datasource,
       "datasourceConfiguration.authentication.isAuthorized",
@@ -664,6 +682,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             ]}
           />
         </FormInputContainer>
+        {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
+          this.renderOauth2CommonAdvanced()}
         <FormInputContainer>
           <AuthorizeButton
             disabled={this.disableSave()}

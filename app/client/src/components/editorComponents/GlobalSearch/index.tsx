@@ -63,12 +63,8 @@ const StyledContainer = styled.div`
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
   & .search-highlighted {
-    background: unset;
-    color: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
+    background-color: #6287b0;
     font-style: normal;
-    text-decoration: underline;
-    text-decoration-color: ${(props) =>
-      props.theme.colors.globalSearch.highlightedTextUnderline};
   }
 `;
 
@@ -313,7 +309,7 @@ function GlobalSearch() {
 
   const handleActionClick = (item: SearchItem) => {
     const { config } = item;
-    const { pageId, pluginType, id } = config;
+    const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
     const url = actionConfig?.getURL(params.applicationId, pageId, id);
     toggleShow();

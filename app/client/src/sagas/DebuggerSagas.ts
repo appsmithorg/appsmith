@@ -1,63 +1,12 @@
 import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { WidgetTypes } from "constants/WidgetConstants";
 import { LogActionPayload, Message } from "entities/AppsmithConsole";
-import {
-  all,
-  put,
-  takeEvery,
-  select,
-  take,
-  fork,
-  call,
-} from "redux-saga/effects";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { isEmpty, set } from "lodash";
+import { all, call, fork, put, select, takeEvery } from "redux-saga/effects";
+import { set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "workers/evaluationUtils";
-
-function* onWidgetUpdateSaga(payload: LogActionPayload) {
-  if (!payload.source) return;
-  // Wait for data tree update
-  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-  const dataTree: DataTree = yield select(getDataTree);
-  const widget = dataTree[payload.source.name];
-
-  if (!isWidget(widget) || !widget.validationMessages) return;
-
-  // Ignore canvas widget updates
-  if (widget.type === WidgetTypes.CANVAS_WIDGET) {
-    return;
-  }
-  const source = payload.source;
-
-  // If widget properties no longer have validation errors update the same
-  if (payload.state) {
-    const propertyPath = Object.keys(payload.state)[0];
-
-    const validationMessages = widget.validationMessages;
-    const validationMessage = validationMessages[propertyPath];
-    const errors = yield select(getDebuggerErrors);
-    const errorId = `${source.id}-${propertyPath}`;
-    const widgetErrorLog = errors[errorId];
-    if (!widgetErrorLog) return;
-
-    const noError = isEmpty(validationMessage);
-
-    if (noError) {
-      delete errors[errorId];
-
-      yield put({
-        type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
-        payload: errors,
-      });
-    }
-  }
-}
 
 function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
   if (!payload.source || !payload.state || !request || !request.headers) {
@@ -118,13 +67,17 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:
-      yield call(onWidgetUpdateSaga, payload);
       yield put(debuggerLog(payload));
       return;
+    case LOG_TYPE.ACTION_UPDATE:
+      yield put(debuggerLog(payload));
+      return;
+    case LOG_TYPE.EVAL_ERROR:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {
           yield put(errorLog(payload));
+
           yield put(debuggerLog(payload));
         }
       }
