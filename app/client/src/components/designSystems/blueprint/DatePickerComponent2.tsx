@@ -168,6 +168,7 @@ class DatePickerComponent extends React.Component<
       if (
         this.props.minDate &&
         parsedMinDate.isValid() &&
+        !parsedCurrentDate.isSame(parsedMinDate, "day") &&
         parsedCurrentDate.isBefore(parsedMinDate)
       ) {
         isValid = false;
@@ -179,6 +180,7 @@ class DatePickerComponent extends React.Component<
         isValid &&
         this.props.maxDate &&
         parsedMaxDate.isValid() &&
+        !parsedCurrentDate.isSame(parsedMaxDate, "day") &&
         parsedCurrentDate.isAfter(parsedMaxDate)
       ) {
         isValid = false;

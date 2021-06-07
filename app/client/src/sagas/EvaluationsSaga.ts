@@ -28,29 +28,127 @@ import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "../utils/PerformanceTracker";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import _ from "lodash";
+import { ENTITY_TYPE, Message, Severity } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { AppState } from "reducers";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+  isWidget,
+} from "workers/evaluationUtils";
+import moment from "moment/moment";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import AppsmithConsole from "utils/AppsmithConsole";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
 } from "constants/messages";
-import AppsmithConsole from "utils/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
 
-const evalErrorHandler = (errors: EvalError[]) => {
-  if (!errors) return;
+const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
+
+function getLatestEvalPropertyErrors(
+  currentDebuggerErrors: Record<string, Message>,
+  dataTree: DataTree,
+  evaluationOrder: Array<string>,
+) {
+  const updatedDebuggerErrors: Record<string, Message> = {
+    ...currentDebuggerErrors,
+  };
+
+  for (const evaluatedPath of evaluationOrder) {
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      evaluatedPath,
+    );
+    const entity = dataTree[entityName];
+    if (isWidget(entity) || isAction(entity)) {
+      if (propertyPath in entity.logBlackList) {
+        continue;
+      }
+      const jsError = _.get(entity, `jsErrorMessages.${propertyPath}`, "");
+      const validationError = _.get(
+        entity,
+        `validationMessages.${propertyPath}`,
+        "",
+      );
+      const evaluatedValue = _.get(
+        entity,
+        `evaluatedValues.${propertyPath}`,
+        "",
+      );
+      const error = jsError || validationError;
+      const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
+      const nameField = isWidget(entity) ? entity.widgetName : entity.name;
+      const entityType = isWidget(entity)
+        ? ENTITY_TYPE.WIDGET
+        : ENTITY_TYPE.ACTION;
+      const debuggerKey = idField + "-" + propertyPath;
+      // if dataTree has error but debugger does not -> add
+      // if debugger has error and data tree has error -> update error
+      // if debugger has error but data tree does not -> remove
+      // if debugger or data tree does not have an error -> no change
+
+      if (_.isString(error) && error !== "") {
+        // Add or update
+        updatedDebuggerErrors[debuggerKey] = {
+          logType: LOG_TYPE.EVAL_ERROR,
+          text: `The value at ${propertyPath} is invalid`,
+          message: error,
+          severity: Severity.ERROR,
+          timestamp: moment().format("hh:mm:ss"),
+          source: {
+            id: idField,
+            name: nameField,
+            type: entityType,
+            propertyPath: propertyPath,
+          },
+          state: {
+            value: evaluatedValue,
+          },
+        };
+      } else if (debuggerKey in updatedDebuggerErrors) {
+        // Remove
+        delete updatedDebuggerErrors[debuggerKey];
+      }
+    }
+  }
+  return updatedDebuggerErrors;
+}
+
+function* evalErrorHandler(
+  errors: EvalError[],
+  dataTree?: DataTree,
+  evaluationOrder?: Array<string>,
+): any {
+  if (dataTree && evaluationOrder) {
+    const currentDebuggerErrors: Record<string, Message> = yield select(
+      getDebuggerErrors,
+    );
+    const evalPropertyErrors = getLatestEvalPropertyErrors(
+      currentDebuggerErrors,
+      dataTree,
+      evaluationOrder,
+    );
+
+    yield put({
+      type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
+      payload: evalPropertyErrors,
+    });
+  }
+
   errors.forEach((error) => {
     switch (error.type) {
-      case EvalErrorTypes.DEPENDENCY_ERROR: {
+      case EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR: {
         if (error.context) {
           // Add more info about node for the toast
           const { entityType, node } = error.context;
@@ -104,33 +202,13 @@ const evalErrorHandler = (errors: EvalError[]) => {
         });
         break;
       }
-      case EvalErrorTypes.EVAL_ERROR: {
-        log.debug(error);
-        AppsmithConsole.error({
-          logType: LOG_TYPE.EVAL_ERROR,
-          text: `The value at ${error.context?.source.propertyPath} is invalid`,
-          message: error.message,
-          source: error.context?.source,
-        });
-        break;
-      }
-      case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
-        AppsmithConsole.error({
-          logType: LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR,
-          text: `The value at ${error.context?.source.propertyPath} is invalid`,
-          message: error.message,
-          source: error.context?.source,
-          state: error.context?.state,
-        });
-        break;
-      }
       default: {
         Sentry.captureException(error);
         log.debug(error);
       }
     }
   });
-};
+}
 
 function* postEvalActionDispatcher(
   actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -156,10 +234,16 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
     },
   );
-  const { dataTree, dependencies, errors, logs } = workerResponse;
+  const {
+    dataTree,
+    dependencies,
+    errors,
+    evaluationOrder,
+    logs,
+  } = workerResponse;
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
-  evalErrorHandler(errors);
+  yield call(evalErrorHandler, errors, dataTree, evaluationOrder);
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -197,7 +281,7 @@ export function* evaluateActionBindings(
 
   const { errors, values } = workerResponse;
 
-  evalErrorHandler(errors);
+  yield call(evalErrorHandler, errors);
   return values;
 }
 
@@ -214,7 +298,7 @@ export function* evaluateDynamicTrigger(
   );
 
   const { errors, triggers } = workerResponse;
-  evalErrorHandler(errors);
+  yield call(evalErrorHandler, errors);
   return triggers;
 }
 
@@ -302,7 +386,6 @@ const EVALUATE_REDUX_ACTIONS = [
 ];
 
 const shouldProcessAction = (action: ReduxAction<unknown>) => {
-  // debugger;
   if (
     action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
     Array.isArray(action.payload)

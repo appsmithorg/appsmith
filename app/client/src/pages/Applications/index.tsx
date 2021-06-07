@@ -78,6 +78,9 @@ import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper"
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
+import ImportApplicationModal from "./ImportApplicationModal";
+import OnboardingForm from "./OnboardingForm";
+import { getAppsmithConfigs } from "configs";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -505,6 +508,7 @@ const NoSearchResultImg = styled.img`
 `;
 
 function ApplicationsSection(props: any) {
+  const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
   const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
@@ -522,6 +526,8 @@ function ApplicationsSection(props: any) {
       });
     }
   };
+  const [warnLeavingOrganization, setWarnLeavingOrganization] = useState(false);
+  const [orgToOpenMenu, setOrgToOpenMenu] = useState<string | null>(null);
   const updateApplicationDispatch = (
     id: string,
     data: UpdateApplicationPayload,
@@ -534,9 +540,15 @@ function ApplicationsSection(props: any) {
   };
 
   const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
+  const [
+    selectedOrgIdForImportApplication,
+    setSelectedOrgIdForImportApplication,
+  ] = useState<string | undefined>();
   const Form: any = OrgInviteUsersForm;
 
   const leaveOrg = (orgId: string) => {
+    setWarnLeavingOrganization(false);
+    setOrgToOpenMenu(null);
     dispatch(leaveOrganization(orgId));
   };
 
@@ -557,7 +569,11 @@ function ApplicationsSection(props: any) {
     const { disabled, orgName, orgSlug } = props;
 
     return (
-      <OrgNameWrapper className="t--org-name" disabled={disabled}>
+      <OrgNameWrapper
+        className="t--org-name"
+        disabled={disabled}
+        onClick={() => setOrgToOpenMenu(orgSlug)}
+      >
         <StyledAnchor id={orgSlug} />
         <OrgNameHolder
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
@@ -629,6 +645,13 @@ function ApplicationsSection(props: any) {
                   className="t--org-name"
                   cypressSelector="t--org-name"
                   disabled={isFetchingApplications}
+                  isOpen={organization.slug === orgToOpenMenu}
+                  onClose={() => {
+                    setOrgToOpenMenu(null);
+                  }}
+                  onClosing={() => {
+                    setWarnLeavingOrganization(false);
+                  }}
                   position={Position.BOTTOM_RIGHT}
                   target={OrgMenuTarget({
                     orgName: organization.name,
@@ -668,6 +691,18 @@ function ApplicationsSection(props: any) {
                         }
                         text="Organization Settings"
                       />
+                      {enableImportExport && (
+                        <MenuItem
+                          cypressSelector="t--org-import-app"
+                          icon="upload"
+                          onSelect={() =>
+                            setSelectedOrgIdForImportApplication(
+                              organization.id,
+                            )
+                          }
+                          text="Import Application"
+                        />
+                      )}
                       <MenuItem
                         icon="share"
                         onSelect={() => setSelectedOrgId(organization.id)}
@@ -686,12 +721,29 @@ function ApplicationsSection(props: any) {
                   )}
                   <MenuItem
                     icon="logout"
-                    onSelect={() => leaveOrg(organization.id)}
-                    text="Leave Organization"
+                    onSelect={() =>
+                      !warnLeavingOrganization
+                        ? setWarnLeavingOrganization(true)
+                        : leaveOrg(organization.id)
+                    }
+                    text={
+                      !warnLeavingOrganization
+                        ? "Leave Organization"
+                        : "Are you sure?"
+                    }
+                    type={!warnLeavingOrganization ? undefined : "warning"}
                   />
                 </Menu>
               )}
-
+              {selectedOrgIdForImportApplication && (
+                <ImportApplicationModal
+                  isModalOpen={
+                    selectedOrgIdForImportApplication === organization.id
+                  }
+                  onClose={() => setSelectedOrgIdForImportApplication("")}
+                  organizationId={selectedOrgIdForImportApplication}
+                />
+              )}
               {hasManageOrgPermissions && (
                 <StyledDialog
                   canEscapeKeyClose={false}
@@ -795,6 +847,7 @@ function ApplicationsSection(props: any) {
                       application={application}
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
+                      enableImportExport={enableImportExport}
                       key={application.id}
                       update={updateApplicationDispatch}
                     />
@@ -832,15 +885,26 @@ type ApplicationProps = {
   currentUser?: User;
   searchKeyword: string | undefined;
 };
+
+const getIsFromSignup = () => {
+  if (window.location.href) {
+    const url = new URL(window.location.href);
+    const searchParams = url.searchParams;
+    return !!searchParams.get("isFromSignup");
+  }
+  return false;
+};
+const { onboardingFormEnabled } = getAppsmithConfigs();
 class Applications extends Component<
   ApplicationProps,
-  { selectedOrgId: string }
+  { selectedOrgId: string; showOnboardingForm: boolean }
 > {
   constructor(props: ApplicationProps) {
     super(props);
 
     this.state = {
       selectedOrgId: "",
+      showOnboardingForm: false,
     };
   }
 
@@ -848,20 +912,29 @@ class Applications extends Component<
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
+    this.setState({
+      showOnboardingForm: getIsFromSignup() && onboardingFormEnabled,
+    });
   }
 
   public render() {
     return (
       <PageWrapper displayName="Applications">
-        <ProductUpdatesModal />
-        <LeftPane />
-        <SubHeader
-          search={{
-            placeholder: "Search for apps...",
-            queryFn: this.props.searchApplications,
-          }}
-        />
-        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+        {this.state.showOnboardingForm ? (
+          <OnboardingForm />
+        ) : (
+          <>
+            <ProductUpdatesModal />
+            <LeftPane />
+            <SubHeader
+              search={{
+                placeholder: "Search for apps...",
+                queryFn: this.props.searchApplications,
+              }}
+            />
+            <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+          </>
+        )}
       </PageWrapper>
     );
   }
