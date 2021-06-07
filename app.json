@@ -104,7 +104,7 @@
         "required": false
       },
       "APPSMITH_RECAPTCHA_SECRET_KEY": {
-        "description" : "Google reCAPTCHA v3 verification secret key, it is required if you which to enable spam protection in your backend server.",
+        "description" : "Google reCAPTCHA v3 verification secret key, it is required if you wish to enable spam protection in your backend server.",
         "value": "",
         "required": false
       },

@@ -35,7 +35,7 @@ Quickly set up Appsmith to explore product functionality using Heroku.
     - `APPSMITH_DISABLE_TELEMETRY`: We want to be transparent and request that you share anonymous usage data with us. This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance. You can read more about what information is collected in our documentation https://docs.appsmith.com/v/v1.2.1/setup/telemetry
     - Google reCAPTCHA v3 Configuration:
       - `APPSMITH_RECAPTCHA_SITE_KEY`: Google reCAPTCHA v3 site key, it is required if you wish to enable protection against spam/abusive users. Read more at: https://developers.google.com/recaptcha/docs/v3
-      - `APPSMITH_RECAPTCHA_SECRET_KEY`: Google reCAPTCHA v3 verification secret key, it is required if you which to enable spam protection in your backend server.
+      - `APPSMITH_RECAPTCHA_SECRET_KEY`: Google reCAPTCHA v3 verification secret key, it is required if you wish to enable spam protection in your backend server.
       - `APPSMITH_RECAPTCHA_ENABLED`: Boolean config to enable or disable Google reCAPTCHA v3 verification feature. If set to true, both site key and secret key should be provided.
 
     After Heroku finishes setting up the app, click “View” and your Appsmith should be up and running. You will be taken to the account creation page, where you can enter credentials to create an account and get started.
