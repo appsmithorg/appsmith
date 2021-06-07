@@ -27,7 +27,6 @@ import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import { runActionViaShortcut } from "actions/actionActions";
-import { eq } from "lodash";
 
 type Props = {
   copySelectedWidget: () => void;
