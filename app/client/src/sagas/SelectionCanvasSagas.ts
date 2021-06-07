@@ -85,24 +85,21 @@ function* selectAllWidgetsInAreaSaga(
       );
     });
     const widgetIdsToSelect = widgetsToBeSelected.map((each) => each.id);
+    const filteredLastSelectedWidgets = isMultiSelect
+      ? lastSelectedWidgets.filter((each) => !widgetIdsToSelect.includes(each))
+      : lastSelectedWidgets;
     const filteredWidgetsToSelect = isMultiSelect
-      ? widgetIdsToSelect.filter((each) => !lastSelectedWidgets.includes(each))
+      ? [
+          ...filteredLastSelectedWidgets,
+          ...widgetIdsToSelect.filter(
+            (each) => !lastSelectedWidgets.includes(each),
+          ),
+        ]
       : widgetIdsToSelect;
-    const currentSelectedWidgets: string[] = isMultiSelect
-      ? lastSelectedWidgets
-      : yield select(getSelectedWidgets);
+    const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
 
     if (!isEqual(filteredWidgetsToSelect, currentSelectedWidgets)) {
-      if (isMultiSelect) {
-        yield put(
-          selectAllWidgetsAction([
-            ...lastSelectedWidgets,
-            ...filteredWidgetsToSelect,
-          ]),
-        );
-      } else {
-        yield put(selectAllWidgetsAction(filteredWidgetsToSelect));
-      }
+      yield put(selectAllWidgetsAction(filteredWidgetsToSelect));
     }
   }
 }

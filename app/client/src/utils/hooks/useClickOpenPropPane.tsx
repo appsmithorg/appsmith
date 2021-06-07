@@ -83,7 +83,7 @@ export const useClickOpenPropPane = () => {
       (!isPropPaneVisible && selectedWidgetId === focusedWidgetId) ||
       selectedWidgetId !== focusedWidgetId
     ) {
-      const isMultiSelect = e.metaKey || e.ctrlKey;
+      const isMultiSelect = e.metaKey || e.ctrlKey || e.shiftKey;
 
       if (parentWidgetToOpen) {
         selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
