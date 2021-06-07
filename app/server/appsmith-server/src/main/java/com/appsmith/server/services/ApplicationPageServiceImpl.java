@@ -667,4 +667,25 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
+    @Override
+    public Mono<Application> reorderPage(String applicationId, String pageId, Integer order) {
+        return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                .flatMap(application -> {
+                    // Update the order in unpublished pages here, since this should only ever happen in edit mode.
+                    final List<ApplicationPage> pages = application.getPages();
+
+                    ApplicationPage foundPage = null;
+                    for (final ApplicationPage page : pages) {
+                        if (pageId.equals(page.getId())) {
+                            foundPage = page;
+                        }
+                    }
+
+                    return applicationRepository
+                            .setPages(applicationId, pages)
+                            .then(applicationService.getById(applicationId));
+                });
+    }
+
 }
