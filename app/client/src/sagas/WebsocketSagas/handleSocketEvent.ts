@@ -2,7 +2,6 @@ import { put } from "redux-saga/effects";
 import { SOCKET_EVENTS } from "./constants";
 
 import {
-  // setCommentThreadsSuccess,
   newCommentEvent,
   newCommentThreadEvent,
   updateCommentThreadEvent,
@@ -13,12 +12,6 @@ import { newNotificationEvent } from "actions/notificationActions";
 
 export default function* handleSocketEvent(event: any) {
   switch (event.type) {
-    // case SOCKET_EVENTS.SET_COMMENTS: {
-    //   const comments = event.payload;
-    //   const payload = reduceCommentsByRef(comments);
-    //   yield put(setCommentThreadsSuccess(payload));
-    //   return;
-    // }
     // comments
     case SOCKET_EVENTS.INSERT_COMMENT_THREAD: {
       yield put(newCommentThreadEvent(event.payload[0]));

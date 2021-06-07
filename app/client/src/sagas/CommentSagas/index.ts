@@ -1,9 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { put, takeLatest, all, call, fork, select } from "redux-saga/effects";
-// import { updateLayout, getTestComments } from "comments/init";
-// import handleCommentEvents from "./handleCommentEvents";
 import {
-  // commentEvent,
   createUnpublishedCommentThreadSuccess,
   removeUnpublishedCommentThreads,
   createCommentThreadSuccess,
@@ -27,8 +24,6 @@ import { waitForFetchUserSuccess } from "sagas/userSagas";
 
 import CommentsApi from "api/CommentsAPI";
 
-// import { getAppsmithConfigs } from "configs";
-
 import { validateResponse } from "../ErrorSagas";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -42,34 +37,6 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { get } from "lodash";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
-
-// const { commentsTestModeEnabled } = getAppsmithConfigs();
-// export function* initCommentThreads() {
-//   if (!commentsTestModeEnabled) return;
-//   try {
-//     yield race([
-//       take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS),
-//       take(ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS),
-//     ]);
-//     yield put(updateLayout());
-//     yield put(
-//       commentEvent({
-//         type: COMMENT_EVENTS.SET_COMMENTS,
-//         payload: getTestComments(),
-//       }),
-//     );
-//   } catch (err) {
-//     console.log(err, "err");
-//   }
-// }
-
-// function* watchCommentEvents() {
-//   const requestChan = yield actionChannel(COMMENT_EVENTS_CHANNEL);
-//   while (true) {
-//     const { payload } = yield take(requestChan);
-//     yield fork(handleCommentEvents, payload);
-//   }
-// }
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -291,7 +258,6 @@ function* deleteCommentReaction(
 
 export default function* commentSagas() {
   yield all([
-    // takeLatest(ReduxActionTypes.INIT_COMMENT_THREADS, initCommentThreads),
     takeLatest(
       ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
       fetchApplicationComments,
