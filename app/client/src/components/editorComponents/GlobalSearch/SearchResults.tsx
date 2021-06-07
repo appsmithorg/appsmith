@@ -50,6 +50,11 @@ export const SearchItemContainer = styled.div<{
       ? props.theme.colors.globalSearch.activeSearchItemBackground
       : "unset"};
 
+  .subtext {
+    color: ${(props) => props.theme.colors.globalSearch.searchItemSubText};
+    font-size: ${(props) => props.theme.fontSizes[1]}px;
+  }
+
   &:hover {
     background-color: ${(props) =>
       props.itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
@@ -124,15 +129,18 @@ function WidgetItem(props: {
 }) {
   const { item, query } = props;
   const { type } = item || {};
-  let title = getItemTitle(item);
+  const title = getItemTitle(item);
   const pageName = usePageName(item.pageId);
-  title = `${title} / ${pageName}`;
+  const subText = ` \u2014 ${pageName}`;
 
   return (
     <>
       <WidgetIconWrapper>{getWidgetIcon(type)}</WidgetIconWrapper>
       <ItemTitle>
-        <Highlight match={query} text={title} />
+        <div>
+          <Highlight match={query} text={title} />
+          <Highlight className="subtext" match={query} text={subText} />
+        </div>
         <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
@@ -163,15 +171,18 @@ function ActionItem(props: {
     pluginGroups[item.config.datasource.pluginId],
   );
 
-  let title = getItemTitle(item);
+  const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
-  title = `${title} / ${pageName}`;
+  const subText = ` \u2014 ${pageName}`;
 
   return (
     <>
       <ActionIconWrapper>{icon}</ActionIconWrapper>
       <ItemTitle>
-        <Highlight match={query} text={title} />
+        <div>
+          <Highlight match={query} text={title} />
+          <Highlight className="subtext" match={query} text={subText} />
+        </div>
         <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
       </ItemTitle>
     </>
