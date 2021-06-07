@@ -49,7 +49,9 @@ import { getAppsmithConfigs } from "configs";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { TabComponent, TabProp } from "components/ads/Tabs";
 import { PluginType } from "entities/Action";
+import { IconSize } from "components/ads/Icon";
 const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
@@ -65,14 +67,22 @@ const SearchBar = styled(BaseTextInput)`
   margin-bottom: 10px;
   input {
     background-color: ${Colors.WHITE};
-    1px solid ${Colors.GEYSER};
+    border: 1px solid ${Colors.GEYSER};
+  }
+`;
+
+const HeaderFlex = styled.div`
+  display: flex;
+  align-items: center;
+  & > p {
+    margin: 0 0 0 8px;
   }
 `;
 
 const ApiHomePage = styled.div`
   font-size: 20px;
   padding: 20px;
-  margin-left: 10px;
+  /* margin-left: 10px; */
   min-height: 95vh;
   max-height: 95vh;
   overflow: auto;
@@ -110,6 +120,12 @@ const ApiHomePage = styled.div`
   .fontSize16 {
     font-size: 16px;
   }
+`;
+
+const MainTabsContainer = styled.div`
+  margin-top: 36px;
+  width: 100%;
+  height: 100%;
 `;
 
 const StyledContainer = styled.div`
@@ -266,7 +282,7 @@ const CardList = styled.div`
     margin: auto auto 14px;
     color: ${Colors.WHITE};
     border-radius: 2px;
-    fontsize: 16px;
+    font-size: 16px;
     font-weight: bold;
     text-align: center;
   }
@@ -351,10 +367,26 @@ type ApiHomeScreenProps = {
 type ApiHomeScreenState = {
   page: number;
   showSearchResults: boolean;
+  mainTab: number;
 };
 
 type Props = ApiHomeScreenProps &
   InjectedFormProps<{ category: string }, ApiHomeScreenProps>;
+
+const MAIN_TABS: TabProp[] = [
+  {
+    key: "ACTIVE",
+    title: "Active",
+    panelComponent: <p>This is error</p>,
+  },
+  {
+    key: "CREATE_NEW",
+    title: "Create New",
+    panelComponent: <p>This is logs</p>,
+    icon: "plus",
+    iconSize: IconSize.XS,
+  },
+];
 
 class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   constructor(props: Props) {
@@ -363,8 +395,13 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     this.state = {
       page: 1,
       showSearchResults: false,
+      mainTab: 0,
     };
   }
+
+  onChooseMainTab = (idx: number) => {
+    this.setState({ mainTab: idx });
+  };
 
   componentDidMount() {
     const {
@@ -564,7 +601,6 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
           </div>
         )}
         <StyledContainer>
-          <p className="sectionHeadings">{"Import API"}</p>
           <ApiCard>
             <Card
               className="eachCard t--createBlankApiCard"
@@ -662,7 +698,18 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
         className="t--apiHomePage"
         style={{ overflow: showSearchResults ? "hidden" : "auto" }}
       >
-        <CloseEditor />
+        <HeaderFlex>
+          <CloseEditor />
+          <p className="sectionHeadings">Integrations</p>
+        </HeaderFlex>
+        <MainTabsContainer>
+          <TabComponent
+            onSelect={this.onChooseMainTab}
+            selectedIndex={this.state.mainTab}
+            tabs={MAIN_TABS}
+          />
+        </MainTabsContainer>
+
         {isSwitchingCategory || !enableRapidAPI ? (
           <>
             {ApiHomepageTopSection}

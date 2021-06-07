@@ -26,6 +26,7 @@ import {
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   INTEGRATION_EDITOR_URL,
+  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
 } from "constants/routes";
 import styled from "styled-components";
@@ -140,6 +141,11 @@ class EditorsRouter extends React.Component<
               component={IntegrationEditor}
               exact
               path={INTEGRATION_EDITOR_URL()}
+            />
+            <SentryRoute
+              component={IntegrationEditor}
+              exact
+              path={INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
             />
             <SentryRoute component={ApiEditor} exact path={API_EDITOR_URL()} />
             <SentryRoute
