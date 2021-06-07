@@ -40,6 +40,6 @@ version_id: ''
 version_release_date: ''
 intercom_app_id: ''
 google_recaptcha_site_key: ''
-google_recaptcha_secrete_key: ''
+google_recaptcha_secret_key: ''
 google_recaptcha_enabled: 'false'
 

@@ -104,12 +104,12 @@
         "required": false
       },
       "APPSMITH_RECAPTCHA_SECRET_KEY": {
-        "description" : "Verification Secrete key provided by google to veify tokens.",
+        "description" : "Verification secret key provided by google to verify tokens.",
         "value": "",
         "required": false
       },
       "APPSMITH_RECAPTCHA_ENABLED": {
-        "description" : "Boolean config to enable or disable this feature. If set to true, both site key and secrete key should be provided.",
+        "description" : "Boolean config to enable or disable this feature. If set to true, both site key and secret key should be provided.",
         "value": "",
         "required": false
       },
