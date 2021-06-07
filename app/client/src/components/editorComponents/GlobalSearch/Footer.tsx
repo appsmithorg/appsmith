@@ -5,7 +5,7 @@ const Wrapper = styled.div`
   span {
     color: white;
     font-variant: all-small-caps;
-    font-size: ${(props) => props.theme.fontSizes[3]}px;
+    font-size: ${(props) => props.theme.fontSizes[2]}px;
     margin-right: ${(props) => props.theme.spaces[1]}px;
   }
   div {
@@ -22,7 +22,7 @@ const Wrapper = styled.div`
 
 const FOOTER_INFO = [
   {
-    action: "↑↓",
+    action: "\u2191\u2193",
     description: "Select",
   },
   {

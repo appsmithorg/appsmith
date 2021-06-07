@@ -27,6 +27,7 @@ import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import { runActionViaShortcut } from "actions/actionActions";
+import { eq } from "lodash";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -49,6 +50,7 @@ type Props = {
 @HotkeysTarget
 class GlobalHotKeys extends React.Component<Props> {
   public stopPropagationIfWidgetSelected(e: KeyboardEvent): boolean {
+    console.log(this.props, "this.props");
     const multipleWidgetsSelected =
       this.props.selectedWidgets && this.props.selectedWidgets.length;
     const singleWidgetSelected =
@@ -69,6 +71,12 @@ class GlobalHotKeys extends React.Component<Props> {
     const multipleWidgetsSelected =
       this.props.selectedWidgets && this.props.selectedWidgets.length >= 2;
     return !!multipleWidgetsSelected;
+  }
+
+  public onOnmnibarHotKeyDown(e: KeyboardEvent) {
+    e.preventDefault();
+    this.props.toggleShowGlobalSearchModal();
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
   }
 
   public renderHotkeys() {
@@ -96,22 +104,14 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="mod + k"
           global
           label="Show omnibar"
-          onKeyDown={(e: KeyboardEvent) => {
-            e.preventDefault();
-            this.props.toggleShowGlobalSearchModal();
-            AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
-          }}
+          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
         />
         <Hotkey
           allowInInput={false}
           combo="mod + p"
           global
           label="Show omnibar"
-          onKeyDown={(e: KeyboardEvent) => {
-            e.preventDefault();
-            this.props.toggleShowGlobalSearchModal();
-            AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
-          }}
+          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
         />
         <Hotkey
           combo="mod + d"
