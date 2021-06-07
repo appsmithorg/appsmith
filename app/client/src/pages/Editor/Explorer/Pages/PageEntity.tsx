@@ -3,7 +3,10 @@ import { Page } from "constants/ReduxActionConstants";
 import Entity, { EntityClassNames } from "../Entity";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+} from "constants/routes";
 import history from "utils/history";
 import { updatePage } from "actions/pageActions";
 import PageContextMenu from "./PageContextMenu";
@@ -17,6 +20,9 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
+import Button, { Size, Category } from "components/ads/Button";
+import styled from "styled-components";
+import EntityPlaceholder from "../Entity/Placeholder";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -28,6 +34,12 @@ type ExplorerPageEntityProps = {
   searchKeyword?: string;
   showWidgetsSidebar: (pageId: string) => void;
 };
+
+const IntegrationButton = styled(Button)<{ disabled?: boolean }>`
+  height: 30px;
+  width: 172px;
+  pointer-events: ${(props) => (!!props.disabled ? "none" : "auto")};
+`;
 
 export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
   const params = useParams<ExplorerURLParams>();
@@ -81,6 +93,23 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
         updatePage(id, name, !!props.page.isHidden)
       }
     >
+      <EntityPlaceholder step={props.step + 1}>
+        <IntegrationButton
+          category={Category.tertiary}
+          icon="plus"
+          onClick={() =>
+            history.push(
+              INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+                params.applicationId,
+                props.page.pageId,
+                props.page.pageId,
+              ),
+            )
+          }
+          size={Size.small}
+          text="Add Integrations"
+        />
+      </EntityPlaceholder>
       <ExplorerWidgetGroup
         addWidgetsFn={addWidgetsFn}
         pageId={props.page.pageId}

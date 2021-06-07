@@ -7,6 +7,7 @@ import {
   matchPath,
 } from "react-router-dom";
 import ApiEditor from "./APIEditor";
+import IntegrationEditor from "./IntegrationEditor";
 import QueryEditor from "./QueryEditor";
 import DataSourceEditor from "./DataSourceEditor";
 
@@ -24,6 +25,8 @@ import {
   APIEditorRouteParams,
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
 } from "constants/routes";
 import styled from "styled-components";
@@ -134,6 +137,16 @@ class EditorsRouter extends React.Component<
           onClick={this.preventClose}
         >
           <Switch>
+            <SentryRoute
+              component={IntegrationEditor}
+              exact
+              path={INTEGRATION_EDITOR_URL()}
+            />
+            <SentryRoute
+              component={IntegrationEditor}
+              exact
+              path={INTEGRATION_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
+            />
             <SentryRoute component={ApiEditor} exact path={API_EDITOR_URL()} />
             <SentryRoute
               component={ApiEditor}
