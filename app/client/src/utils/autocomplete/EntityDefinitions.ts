@@ -248,7 +248,10 @@ export const entityDefinitions = {
     "!doc": "Divider is a simple UI widget used as a separator",
     "!url": "https://docs.appsmith.com/widget-reference/divider",
     isVisible: isVisible,
-    orientation: "string",
+    isHorizontal: "bool",
+    strokeStyle: "string",
+    dividerColor: "string",
+    thickness: "number",
   },
 };
 

@@ -170,8 +170,11 @@ const FIELD_VALUES: Record<
     gridGap: "number",
   },
   DIVIDER_WIDGET: {
-    orientation: "string",
+    isHorizontal: "boolean",
     isVisible: "boolean",
+    strokeStyle: "solid | dashed | dotted",
+    dividerColor: "string",
+    thickness: "number",
   },
 };
 

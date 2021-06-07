@@ -60,6 +60,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             validation: VALIDATION_TYPES.TEXT,
           },
           {
+            helpText: "Controls stroke color of divider",
             propertyName: "dividerColor",
             label: "Divider Colour",
             controlType: "COLOR_PICKER",
