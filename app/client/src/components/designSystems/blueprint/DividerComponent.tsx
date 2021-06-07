@@ -46,6 +46,7 @@ export interface DividerComponentProps extends ComponentProps {
   strokeStyle?: "solid" | "dashed" | "dotted";
   dividerColor?: string;
   thickness?: number;
+  className?: string;
 }
 
 export default DividerComponent;

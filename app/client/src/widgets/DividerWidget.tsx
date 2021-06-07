@@ -85,6 +85,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   getPageView() {
     return (
       <DividerComponent
+        className="t--divider-widget"
         dividerColor={this.props.dividerColor}
         isHorizontal={this.props.isHorizontal}
         strokeStyle={this.props.strokeStyle}
