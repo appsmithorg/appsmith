@@ -4,11 +4,11 @@ import { connect } from "react-redux";
 import { reduxForm, InjectedFormProps, getFormValues } from "redux-form";
 import { Icon, Card } from "@blueprintjs/core";
 import styled from "styled-components";
-import InfiniteScroll from "react-infinite-scroller";
+// import InfiniteScroll from "react-infinite-scroller";
 import { DEFAULT_PROVIDER_OPTION } from "constants/ApiEditorConstants";
 import {
   getCurlImportPageURL,
-  getProviderTemplatesURL,
+  // getProviderTemplatesURL,
 } from "constants/routes";
 import { SAAS_EDITOR_URL } from "pages/Editor/SaaSEditor/constants";
 import { AppState } from "reducers";
@@ -34,16 +34,16 @@ import {
   searchApiOrProvider,
 } from "actions/providerActions";
 import { Colors } from "constants/Colors";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+// import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import Spinner from "components/editorComponents/Spinner";
+// import DropdownField from "components/editorComponents/form/fields/DropdownField";
+// import Spinner from "components/editorComponents/Spinner";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction, setCurrentCategory } from "actions/apiPaneActions";
-import { getInitialsAndColorCode } from "utils/AppsmithUtils";
+// import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
@@ -56,7 +56,7 @@ const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
   display: flex;
-  width: 40%;
+  width: 100%;
   .closeBtn {
     position: absolute;
     left: 70%;
@@ -123,15 +123,12 @@ const ApiHomePage = styled.div`
 `;
 
 const MainTabsContainer = styled.div`
-  margin-top: 36px;
   width: 100%;
   height: 100%;
 `;
 
 const StyledContainer = styled.div`
   flex: 1;
-  padding-top: 12px;
-  padding-bottom: 12px;
 
   .sectionHeadings {
     font-weight: 500;
@@ -259,66 +256,12 @@ const ApiCard = styled.div`
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   }
 `;
-const CardList = styled.div`
-  margin: 15px;
-  .eachProviderCard {
-    width: 140px;
-    height: 110px;
-    padding-bottom: 0px;
-    cursor: pointer;
-    border: 1px solid #e6e6e6;
-    box-shadow: none;
-  }
-  .eachProviderCard:active {
-    border: 1px solid ${Colors.JAFFA_DARK};
-    background: rgba(242, 153, 74, 0.17);
-  }
-  .eachProviderCard:hover {
-    border: 1px solid ${Colors.JAFFA_DARK};
-  }
-  .providerInitials {
-    padding: 11px;
-    width: 70px;
-    margin: auto auto 14px;
-    color: ${Colors.WHITE};
-    border-radius: 2px;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-  }
-  @media (min-width: 2500px) {
-    .eachProviderCard {
-      width: 240px;
-      height: 200px;
-      padding-bottom: 0px;
-      cursor: pointer;
-      border: 1px solid #e6e6e6;
-      box-shadow: none;
-    }
-    .providerInitials {
-      padding: 25px;
-      width: 100px;
-      margin-top: 20px;
-      margin-bottom: 38px;
-    }
-  }
-`;
 
-const DropdownSelect = styled.div`
-  font-size: 14px;
-  float: right;
-  width: 232px;
-  margin-right: 25px;
-  margin-bottom: 25px;
-`;
-
-const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
-`;
-
-const PageLoadingContainer = styled(CenteredWrapper)`
-  margin-top: 100px;
-  height: 50%;
+const SectionGrid = styled.div`
+  margin-top: 36px;
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: 10px;
 `;
 
 type ApiHomeScreenProps = {
@@ -471,17 +414,17 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   render() {
     const {
       // importedCollections,
-      apiOrProviderSearchResults,
+      // apiOrProviderSearchResults,
       applicationId,
-      fetchProvidersError,
+      // fetchProvidersError,
       history,
-      isSwitchingCategory,
+      // isSwitchingCategory,
       // isFetchingProviders,
       location,
       pageId,
-      providerCategories,
-      providers,
-      providersTotal,
+      // providerCategories,
+      // providers,
+      // providersTotal,
     } = this.props;
     const { showSearchResults } = this.state;
 
@@ -498,14 +441,76 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     const curlImportURL =
       getCurlImportPageURL(applicationId, pageId) + location.search;
 
-    const PROVIDER_CATEGORIES_OPTIONS = providerCategories.map((category) => ({
-      label: category,
-      value: category,
-    }));
+    const newApiComponent = (
+      <StyledContainer>
+        <ApiCard>
+          <Card
+            className="eachCard t--createBlankApiCard"
+            interactive={false}
+            onClick={this.handleCreateNew}
+          >
+            <Icon className="createIcon" icon="plus" iconSize={20} />
+            <p className="textBtn">Create new</p>
+          </Card>
+          <Link
+            onClick={() => {
+              AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
+                importSource: CURL,
+              });
+            }}
+            to={curlImportURL}
+          >
+            <Card className="eachCard" interactive={false}>
+              <img
+                alt="CURL"
+                className="curlImage t--curlImage"
+                src={CurlLogo}
+              />
+              <p className="textBtn">CURL</p>
+            </Card>
+          </Link>
+          {this.props.plugins
+            .filter((p) => p.type === PluginType.SAAS)
+            .map((p) => (
+              <Link
+                key={p.id}
+                to={
+                  SAAS_EDITOR_URL(applicationId, pageId, p.packageName) +
+                  location.search
+                }
+              >
+                <Card className="eachCard" interactive={false}>
+                  <img
+                    alt={p.name}
+                    className={"saasImage t--saas-" + p.packageName + "-image"}
+                    src={p.iconLocation}
+                  />
+                  <p className="textBtn">{p.name}</p>
+                </Card>
+              </Link>
+            ))}
+        </ApiCard>
+      </StyledContainer>
+    );
 
-    const ApiHomepageTopSection = (
-      <>
-        {enableRapidAPI && (
+    return (
+      <ApiHomePage
+        className="t--apiHomePage"
+        style={{ overflow: showSearchResults ? "hidden" : "auto" }}
+      >
+        <HeaderFlex>
+          <CloseEditor />
+          <p className="sectionHeadings">Integrations</p>
+        </HeaderFlex>
+        <SectionGrid>
+          <MainTabsContainer>
+            <TabComponent
+              onSelect={this.onChooseMainTab}
+              selectedIndex={this.state.mainTab}
+              tabs={MAIN_TABS}
+            />
+          </MainTabsContainer>
+          {/* TODO: make this search bar work */}
           <SearchContainer>
             <SearchBar
               icon="search"
@@ -522,310 +527,11 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
               placeholder="Search"
             />
           </SearchContainer>
-        )}
-        {enableRapidAPI && (
-          <div>
-            {showSearchResults && (
-              <div className="searchResultsContainer">
-                <Icon
-                  className="searchCloseBtn"
-                  icon="cross"
-                  iconSize={20}
-                  onClick={() => {
-                    this.setState({ showSearchResults: false });
-                  }}
-                />
-                <StyledContainer>
-                  <div>
-                    <p className="sectionHeadings">{"Providers"}</p>
-                    {apiOrProviderSearchResults.providers.map(
-                      (providerSearchResult) => (
-                        <React.Fragment key={providerSearchResult.id}>
-                          <p
-                            className="providerSearchCard"
-                            onClick={() =>
-                              history.push(
-                                getProviderTemplatesURL(
-                                  applicationId,
-                                  pageId,
-                                  providerSearchResult.id +
-                                    `/?importTo=${destinationPageId}`,
-                                ),
-                              )
-                            }
-                          >
-                            {providerSearchResult.imageUrl ? (
-                              <img
-                                alt="img"
-                                className="providerSearchResultImage"
-                                src={providerSearchResult.imageUrl}
-                              />
-                            ) : (
-                              <div
-                                style={{
-                                  backgroundColor: getInitialsAndColorCode(
-                                    providerSearchResult.name,
-                                    this.props.colorPalette,
-                                  )[1],
-                                  padding: 11,
-                                  width: 60,
-                                  color: "#fff",
-                                  borderRadius: 2,
-                                  fontSize: 16,
-                                  fontWeight: "bold",
-                                  textAlign: "center",
-                                }}
-                              >
-                                <span>
-                                  {
-                                    getInitialsAndColorCode(
-                                      providerSearchResult.name,
-                                      this.props.colorPalette,
-                                    )[0]
-                                  }
-                                </span>
-                              </div>
-                            )}
-                            <span className="providerSearchResultName">
-                              {providerSearchResult.name}
-                              {/* |{" "} {providerSearchResult.noOfApis} APIs */}
-                            </span>
-                          </p>
-                        </React.Fragment>
-                      ),
-                    )}
-                  </div>
-                </StyledContainer>
-              </div>
-            )}
-          </div>
-        )}
-        <StyledContainer>
-          <ApiCard>
-            <Card
-              className="eachCard t--createBlankApiCard"
-              interactive={false}
-              onClick={this.handleCreateNew}
-            >
-              <Icon className="createIcon" icon="plus" iconSize={20} />
-              <p className="textBtn">Create new</p>
-            </Card>
 
-            {/* <Card interactive={false} className="eachCard">
-              <img src={PostmanLogo} className="apiImage" alt="Postman"></img>
-              <p className="textBtn">Postman</p>
-            </Card> */}
+          {newApiComponent}
 
-            <Link
-              onClick={() => {
-                AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
-                  importSource: CURL,
-                });
-              }}
-              to={curlImportURL}
-            >
-              <Card className="eachCard" interactive={false}>
-                <img
-                  alt="CURL"
-                  className="curlImage t--curlImage"
-                  src={CurlLogo}
-                />
-                <p className="textBtn">CURL</p>
-              </Card>
-            </Link>
-            {/**
-             * Loop over all Saas plugins
-             */}
-            {this.props.plugins
-              .filter((p) => p.type === PluginType.SAAS)
-              .map((p) => (
-                <Link
-                  key={p.id}
-                  to={
-                    SAAS_EDITOR_URL(applicationId, pageId, p.packageName) +
-                    location.search
-                  }
-                >
-                  <Card className="eachCard" interactive={false}>
-                    <img
-                      alt={p.name}
-                      className={
-                        "saasImage t--saas-" + p.packageName + "-image"
-                      }
-                      src={p.iconLocation}
-                    />
-                    <p className="textBtn">{p.name}</p>
-                  </Card>
-                </Link>
-              ))}
-          </ApiCard>
-        </StyledContainer>
-        {/* Imported APIs section start */}
-        {/* <StyledContainer>
-          <p className="sectionHeadings">{"Imported APIs"}</p>
-
-          {importedCollections.length > 0 ? (
-            <ImportedApisCard>
-              {importedCollections.map(importedCollection => (
-                <Card
-                  key={importedCollection.id}
-                  interactive={false}
-                  className="eachImportedApiCard"
-                >
-                  <Icon
-                    icon="folder-close"
-                    iconSize={20}
-                    className="importedApiIcon"
-                  />
-                  <p className="textBtn">{importedCollection.name}</p>
-                </Card>
-              ))}
-            </ImportedApisCard>
-          ) : (
-            <NoCollections>
-              <p>
-                Your imported APIs will appear here. You can import APIs from
-                the options in the above section.
-              </p>
-            </NoCollections>
-          )}
-        </StyledContainer> */}
-      </>
-    );
-
-    return (
-      <ApiHomePage
-        className="t--apiHomePage"
-        style={{ overflow: showSearchResults ? "hidden" : "auto" }}
-      >
-        <HeaderFlex>
-          <CloseEditor />
-          <p className="sectionHeadings">Integrations</p>
-        </HeaderFlex>
-        <MainTabsContainer>
-          <TabComponent
-            onSelect={this.onChooseMainTab}
-            selectedIndex={this.state.mainTab}
-            tabs={MAIN_TABS}
-          />
-        </MainTabsContainer>
-
-        {isSwitchingCategory || !enableRapidAPI ? (
-          <>
-            {ApiHomepageTopSection}
-            {enableRapidAPI && isSwitchingCategory && (
-              <PageLoadingContainer>
-                <Spinner size={30} />
-              </PageLoadingContainer>
-            )}
-          </>
-        ) : (
-          <InfiniteScroll
-            hasMore={providers.length < providersTotal}
-            initialLoad={false}
-            loadMore={this.handleFetchMoreProviders.bind(this)}
-            loader={
-              <LoadingContainer>
-                <Spinner size={30} />
-              </LoadingContainer>
-            }
-            pageStart={0}
-            useWindow={false}
-          >
-            {ApiHomepageTopSection}
-            {/* Marketplace APIs section start */}
-            <StyledContainer>
-              <div>
-                <div style={{ float: "left" }}>
-                  <p className="sectionHeadings">{"Marketplace APIs"}</p>
-                </div>
-                <div>
-                  <DropdownSelect>
-                    <DropdownField
-                      name="category"
-                      options={PROVIDER_CATEGORIES_OPTIONS}
-                      placeholder="All APIs"
-                      width={232}
-                    />
-                  </DropdownSelect>
-                </div>
-              </div>
-
-              <br />
-              <br />
-
-              {isSwitchingCategory ? (
-                <LoadingContainer>
-                  <Spinner size={30} />
-                </LoadingContainer>
-              ) : fetchProvidersError ? (
-                <div>
-                  <p className="fontSize16">No providers found.</p>
-                </div>
-              ) : (
-                <div>
-                  <ApiCard>
-                    {providers.map((provider, index) => (
-                      <CardList
-                        key={index}
-                        onClick={() => {
-                          AnalyticsUtil.logEvent("3P_PROVIDER_CLICK", {
-                            providerName: provider.name,
-                          });
-                          history.push(
-                            getProviderTemplatesURL(
-                              applicationId,
-                              pageId,
-                              provider.id + `/?importTo=${destinationPageId}`,
-                            ),
-                          );
-                        }}
-                      >
-                        <Card
-                          className="eachProviderCard t--eachProviderCard"
-                          interactive={false}
-                        >
-                          {provider.imageUrl ? (
-                            <img
-                              alt="Provider"
-                              className="apiImage"
-                              src={provider.imageUrl}
-                            />
-                          ) : (
-                            <div
-                              className="providerInitials"
-                              style={{
-                                backgroundColor: getInitialsAndColorCode(
-                                  provider.name,
-                                  this.props.colorPalette,
-                                )[1],
-                              }}
-                            >
-                              <span>
-                                {
-                                  getInitialsAndColorCode(
-                                    provider.name,
-                                    this.props.colorPalette,
-                                  )[0]
-                                }
-                              </span>
-                            </div>
-                          )}
-                          {provider.name && (
-                            <p className="textBtn" title={provider.name}>
-                              {provider.name}
-                            </p>
-                          )}
-                        </Card>
-                      </CardList>
-                    ))}
-                  </ApiCard>
-                </div>
-              )}
-            </StyledContainer>
-            {/* Marketplace APIs section end */}
-          </InfiniteScroll>
-        )}
+          <p>temp sidebar</p>
+        </SectionGrid>
       </ApiHomePage>
     );
   }
