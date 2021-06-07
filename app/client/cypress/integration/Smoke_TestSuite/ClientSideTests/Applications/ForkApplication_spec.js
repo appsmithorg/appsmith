@@ -5,7 +5,7 @@ let forkedApplicationDsl;
 
 describe("Fork application across orgs", function() {
   before(() => {
-    dsl.dsl.version = 23; // latest migrated version
+    dsl.dsl.version = 24; // latest migrated version
     cy.addDsl(dsl);
   });
 
