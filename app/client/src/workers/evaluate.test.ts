@@ -34,11 +34,6 @@ describe("evaluate", () => {
     const response = evaluate(js, {});
     expect(response.result).toBe("Hello!");
   });
-  it("unescapes string and removes linebreaks before evaluation", () => {
-    const js = "'Hello,\\nworld!'";
-    const response = evaluate(js, {});
-    expect(response.result).toBe("Hello,world!");
-  });
   it("throws error for undefined js", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
