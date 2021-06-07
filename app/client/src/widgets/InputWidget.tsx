@@ -49,7 +49,61 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 label: "Email",
                 value: "EMAIL",
               },
+              {
+                label: "Currency",
+                value: "CURRENCY",
+              },
             ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "allowCurrencyChange",
+            label: "Allow currency change",
+            helpText: "Allow currency type to be changed",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: VALIDATION_TYPES.BOOLEAN,
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.CURRENCY;
+            },
+          },
+          {
+            helpText: "Changes the type of currency",
+            propertyName: "currencyType",
+            label: "Currency",
+            controlType: "DROP_DOWN",
+            options: [],
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.CURRENCY;
+            },
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "No. of decimals in currency input",
+            propertyName: "decimalsInCurrency",
+            label: "Decimals",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "1",
+                value: "1",
+              },
+              {
+                label: "2",
+                value: "2",
+              },
+              {
+                label: "3",
+                value: "3",
+              },
+            ],
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.CURRENCY;
+            },
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -357,6 +411,9 @@ export interface InputValidator {
 }
 export interface InputWidgetProps extends WidgetProps, WithMeta {
   inputType: InputType;
+  currencyType?: string;
+  noOfDecimals?: number;
+  allowCurrencyChange?: boolean;
   defaultText?: string;
   isDisabled?: boolean;
   text: string;

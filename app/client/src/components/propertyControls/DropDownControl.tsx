@@ -9,7 +9,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       label: "No results.",
       value: undefined,
     };
-
+    console.log({ props: this.props });
     const selected: DropdownOption = this.props.options.find(
       (option) => option.value === this.props.propertyValue,
     );
