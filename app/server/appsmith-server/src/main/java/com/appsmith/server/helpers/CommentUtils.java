@@ -21,7 +21,7 @@ public class CommentUtils {
                     // this comment has a mention, check the provided user is mentioned or not
                     if(commentEntity.getData() != null) {
                         Comment.EntityData.Mention mention = commentEntity.getData().getMention();
-                        if(mention != null && mention.getUser().getUsername().equals(userEmail)) {
+                        if(mention.getUser().getUsername().equals(userEmail)) {
                             return true;
                         }
                     }
