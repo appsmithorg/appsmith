@@ -7,10 +7,11 @@ import {
 } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { compact, groupBy } from "lodash";
+import { compact, groupBy, filter } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
 import { debounce } from "lodash";
+import { find } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
 import produce from "immer";
@@ -91,12 +92,72 @@ export const useActions = (searchKeyword?: string) => {
   const reducerActions = useSelector(
     (state: AppState) => state.entities.actions,
   );
+  const updatedReducerActions = useSelector((state: AppState) =>
+    filter(
+      state.evaluations.tree,
+      (entity: any) => entity.ENTITY_TYPE && entity.ENTITY_TYPE === "ACTION",
+    ),
+  ) as any;
   const pageIds = usePageIds(searchKeyword);
 
   const actions = useMemo(() => {
     return groupBy(reducerActions, "config.pageId");
   }, [reducerActions]);
 
+  // console.log("Kaushik types for actions:", actions, updatedReducerActions);
+  // update actions with the latest data from
+  // state.evaluations
+  // using this method to make it O(2N)
+  // rather than using loop inside loop
+  // const tempMapOfActions = {} as any;
+  // for (const action of reducerActions) {
+  //   if (action.config?.id) {
+  //     tempMapOfActions[action.config.id] = action;
+  //   }
+  // }
+  // for (const action of updatedReducerActions) {
+  //   if (tempMapOfActions.hasOwnProperty(action.actionId)) {
+  //     tempMapOfActions[action.actionId].data = action.data;
+  //   }
+  // }
+  const updatedActions = {} as any;
+  // for (const pageId in actions) {
+  //   for (const actionIndex in actions[pageId]) {
+  //     const matchingActionFromUpdatedReducerActions = find(
+  //       updatedReducerActions,
+  //       (updatedAction) =>
+  //         updatedAction.actionId === actions[pageId][actionIndex].config.id,
+  //     );
+  //     if (!(pageId in updatedActions)) {
+  //       updatedActions[pageId] = [];
+  //     }
+  //     // const newAction = actions[pageId][actionIndex];
+  //     console.log(matchingActionFromUpdatedReducerActions);
+  //     // newAction.data = matchingActionFromUpdatedReducerActions.data;
+  //     // updatedActions[pageId].push(newAction);
+  //     // console.log("Kaushik original action: ", action, action.data);
+  //     // action.data = matchingActionFromUpdatedReducerActions.data;
+  //     // if (action && action.data) {
+  //     //   console.log("Kaushik, this shouldnt be seen: ", action);
+  //     //   action.data = matchingActionFromUpdatedReducerActions.data;
+  //     // }
+  //     // if (
+  //     //   actions[pageId] &&
+  //     //   actions[pageId][actionIndex] &&
+  //     //   actions[pageId][actionIndex].hasOwnProperty("data")
+  //     // ) {
+  //     //   if (!(pageId in updatedActions)) {
+  //     //     updatedActions[pageId] = [];
+  //     //   }
+  //     //   const newAction = {
+  //     //     ...actions[pageId][actionIndex],
+  //     //     data: matchingActionFromUpdatedReducerActions.data,
+  //     //   };
+  //     //   updatedActions[pageId].push(newAction);
+  //     // }
+  //   }
+  // }
+  console.log("kaushik actions: ", actions, updatedActions);
   return useMemo(() => {
     if (searchKeyword) {
       const start = performance.now();
