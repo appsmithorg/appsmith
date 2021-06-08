@@ -155,7 +155,7 @@ export const VALIDATORS: Record<VALIDATION_TYPES, Validator> = {
     if (!isValid) {
       return {
         isValid: isValid,
-        parsed: parsed,
+        parsed: !!parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
       };
     }
