@@ -34,9 +34,9 @@ export const useNavigateToWidget = () => {
     }
     if (parentModalId) dispatch(showModal(parentModalId));
     else dispatch(closeAllModals());
+    selectWidget(widgetId, false);
     navigateToCanvas(params, window.location.pathname, pageId, widgetId);
     flashElementById(widgetId);
-    selectWidget(widgetId, false);
     dispatch(forceOpenPropertyPane(widgetId));
   };
 
