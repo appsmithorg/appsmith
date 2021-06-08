@@ -47,25 +47,27 @@ describe("Fork application across orgs", function() {
     cy.wait("@postForkAppOrg").then((httpResponse) => {
       expect(httpResponse.status).to.equal(200);
     });
-    cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput).type("A");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    /*
+    //cy.SearchEntityandOpen("Input1");
+    //cy.get(widgetsPage.defaultInput).type("A");
+    //cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       forkedApplicationDsl = data.dsl;
       cy.log(JSON.stringify(forkedApplicationDsl));
       cy.log(JSON.stringify(parentApplicationDsl));
-      //expect(JSON.stringify(forkedApplicationDsl)).to.contain(JSON.stringify(parentApplicationDsl));
+      expect(JSON.stringify(forkedApplicationDsl)).to.contain(JSON.stringify(parentApplicationDsl));
     });
+    */
     // check that forked application has same dsl
-    /*
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       forkedApplicationDsl = data.layouts[0].dsl;
       cy.log(JSON.stringify(forkedApplicationDsl));
       cy.log(JSON.stringify(parentApplicationDsl));
-      //expect(JSON.stringify(forkedApplicationDsl)).to.contain(JSON.stringify(parentApplicationDsl));
+      expect(JSON.stringify(forkedApplicationDsl)).to.contain(
+        JSON.stringify(parentApplicationDsl),
+      );
     });
-    */
   });
 });

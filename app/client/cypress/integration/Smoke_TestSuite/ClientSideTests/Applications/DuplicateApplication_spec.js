@@ -1,7 +1,10 @@
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
+const dsl = require("../../../../fixtures/basicDsl.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const explorerlocators = require("../../../../locators/explorerlocators.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+const testdata = require("../../../../fixtures/testdata.json");
+
 let duplicateApplicationDsl;
 let parentApplicationDsl;
 
@@ -14,17 +17,19 @@ describe("Duplicate application", function() {
     const appname = localStorage.getItem("AppName");
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.SearchApp(appname);
-    cy.get("@getPage").then((httpResponse) => {
+    cy.get("@getPage");
+    cy.SearchEntityandOpen("Input1");
+    cy.get(widgetsPage.defaultInput).type("A");
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.wait("@updateLayout").then((httpResponse) => {
       const data = httpResponse.response.body.data;
-      parentApplicationDsl = data.layouts[0].dsl;
+      parentApplicationDsl = data.dsl;
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.NavigateToHome();
     cy.get(homePage.searchInput).type(appname);
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-
     cy.get(homePage.applicationCard)
       .first()
       .trigger("mouseover");
