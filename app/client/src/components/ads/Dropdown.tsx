@@ -33,6 +33,7 @@ export type DropdownProps = CommonComponentProps &
     optionWidth?: string;
     showDropIcon?: boolean;
     dropdownTriggerIcon?: ReactNode;
+    containerClassName?: string;
     SelectedValueNode?: typeof DefaultDropDownValueNode;
   };
 
@@ -47,17 +48,7 @@ const DropdownTriggerWrapper = styled.div<{
   disabled?: boolean;
   height: string;
 }>`
-  height: ${(props) => props.height};
-  ${(props) =>
-    props.isOpen
-      ? `border: 1px solid ${props.theme.colors.info.main}`
-      : props.disabled
-      ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
-      : `border: 1px solid ${props.theme.colors.dropdown.header.bg}`};
-  background: ${(props) =>
-    props.disabled
-      ? props.theme.colors.dropdown.header.disabledBg
-      : props.theme.colors.dropdown.header.bg};
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -335,7 +326,6 @@ export default function Dropdown(props: DropdownProps) {
   );
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
-      className={props.className}
       disabled={props.disabled}
       height={props.height || "38px"}
       isOpen={isOpen}
@@ -360,6 +350,7 @@ export default function Dropdown(props: DropdownProps) {
   );
   return (
     <DropdownContainer
+      className={props.containerClassName}
       data-cy={props.cypressSelector}
       height={props.height || "38px"}
       tabIndex={0}

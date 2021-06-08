@@ -28,6 +28,7 @@ import {
 } from "constants/messages";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
+import Icon, { IconSize } from "components/ads/Icon";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
@@ -43,7 +44,16 @@ const InputComponentWrapper = styled((props) => (
   hasError: boolean;
 }>`
   &&&& {
+    .currency-type-filter {
+      width: 40px;
+      height: 32px;
+      position: absolute;
+      display: inline-block;
+      left: 0;
+      z-index: 16;
+    }
     .${Classes.INPUT} {
+      padding-left: 45px;
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
@@ -95,7 +105,16 @@ const InputComponentWrapper = styled((props) => (
   }
 `;
 
-const DropdownWrapper = styled.div``;
+const DropdownTriggerIconWrapper = styled.div`
+  border-right: 0.8px solid #6a86ce;
+  height: 19px;
+  padding: 9px 5px 9px 12px;
+  width: 40px;
+  height: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
 interface CurrencyDropdownProps {
   onSelect?: (value?: string) => void;
@@ -104,20 +123,24 @@ interface CurrencyDropdownProps {
 }
 
 function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
+  const dropdownTriggerIcon = (
+    <DropdownTriggerIconWrapper>
+      {getSelectedItem(props.selected.value).id}
+      <Icon name="downArrow" size={IconSize.XXS} />
+    </DropdownTriggerIconWrapper>
+  );
   return (
-    <DropdownWrapper>
-      <Dropdown
-        className="currency-type-filter"
-        enableSearch
-        height="19px"
-        onSelect={props.onSelect}
-        optionWidth="100px"
-        options={props.options}
-        selected={props.selected}
-        showLabelOnly
-        width="28px"
-      />
-    </DropdownWrapper>
+    <Dropdown
+      containerClassName="currency-type-filter"
+      dropdownTriggerIcon={dropdownTriggerIcon}
+      enableSearch
+      height="195px"
+      onSelect={props.onSelect}
+      optionWidth="260px"
+      options={props.options}
+      selected={props.selected}
+      showLabelOnly
+    />
   );
 }
 
@@ -131,11 +154,13 @@ const getSelectedItem = (currencyType?: string): DropdownOption => {
     return {
       label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
       value: selectedCurrency.currency,
+      id: selectedCurrency.symbol_native,
     };
   }
   return {
     label: "USD - US Dollar",
     value: "USD",
+    id: "$",
   };
 };
 
@@ -229,7 +254,16 @@ class InputComponent extends React.Component<
       disabled={this.props.disabled}
       intent={this.props.intent}
       leftIcon={
-        this.props.inputType === "PHONE_NUMBER" ? "phone" : this.props.leftIcon
+        this.props.inputType === "PHONE_NUMBER"
+          ? "phone"
+          : this.props.inputType !== InputTypes.CURRENCY
+          ? this.props.leftIcon
+          : this.props.inputType === InputTypes.CURRENCY && (
+              <CurrencyTypeDropdown
+                options={getCurrencyOptions()}
+                selected={getSelectedItem(this.props.currencyType)}
+              />
+            )
       }
       max={this.props.maxNum}
       maxLength={this.props.maxChars}
@@ -303,12 +337,6 @@ class InputComponent extends React.Component<
         multiline={this.props.multiline.toString()}
         numeric={this.isNumberInputType(this.props.inputType)}
       >
-        {this.props.inputType === InputTypes.CURRENCY && (
-          <CurrencyTypeDropdown
-            options={getCurrencyOptions()}
-            selected={getSelectedItem(this.props.currencyType)}
-          />
-        )}
         {this.props.label && (
           <Label
             className={
