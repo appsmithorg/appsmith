@@ -1,18 +1,20 @@
-<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"> <img src="static/images/git-banner-left.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"><img src="static/images/git-banner-right.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"></a>
+<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"> <img src="https://user-images.githubusercontent.com/30255708/120593421-1b107c80-c45d-11eb-86c9-06bdd66a143a.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"><img src="static/images/git-banner-right.png" width="410px" alt="Appsmith - The Frontend Tool for Backend Devs"></a>
 
 <p>
   <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Start Building</a></b>
-    •
+  •
   <a href="https://www.appsmith.com/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Features</a>
-    •
+  •
   <a href="https://docs.appsmith.com/?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs">Documentation</a>
-  ·
+  •
+  <a href="https://community.appsmith.com/">Community</a>
+  •
   <a href="https://github.com/appsmithorg/appsmith/tree/update/readme#tutorials">Tutorials</a>
-  ·
+  •
   <a href="https://blog.appsmith.com/">Blog</a>
-  ·
+  •
   <a href="https://www.youtube.com/appsmith">Youtube</a>
-  ·
+  •
   <a href="https://discord.gg/rBTTVJp">Discord</a>
   <br>
   Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
@@ -154,7 +156,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
 <a href="http://dwayne.io"><img src="https://avatars.githubusercontent.com/u/347097?v=4?s=100" width="60px;" alt="wayne Forde"/></a>
 <a href="https://github.com/monarch0111"><img src="https://avatars.githubusercontent.com/u/2965013?v=4?s=100" width="60px;" alt="Abhishek"/></a>
 <a href="http://www.navdeepsingh.in/"><img src="https://avatars.githubusercontent.com/u/2968787?v=4?s=100" width="60px;" alt=""/></a>
-
+<a href="https://github.com/marks0351"><img src="https://avatars.githubusercontent.com/u/35134347?v=4?s=100" width="60px;" alt="Ashok"/></a>
 <br>
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
