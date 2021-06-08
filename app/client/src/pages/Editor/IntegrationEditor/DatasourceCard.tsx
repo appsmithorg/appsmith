@@ -6,7 +6,7 @@ import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
-
+import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
   getQueryActionsForCurrentPage,
@@ -27,7 +27,7 @@ const Wrapper = styled.div`
   &:hover {
     border: 1px solid ${Colors.SILVER_CHALICE};
     .action-wrapper {
-      display: flex !important;
+      display: flex;
     }
   }
 `;
@@ -73,6 +73,10 @@ const DatasourceNameWrapper = styled.div`
   display: flex;
 `;
 
+const DatasourceInfo = styled.div`
+  padding: 0 10px;
+`;
+
 const Queries = styled.div`
   color: ${Colors.DOVE_GRAY};
   font-size: 14px;
@@ -108,7 +112,6 @@ function DatasourceCard(props: DatasourceCardProps) {
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
-
   const editDatasource = () => {
     dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
     history.push(
@@ -152,9 +155,15 @@ function DatasourceCard(props: DatasourceCardProps) {
           />
         </ButtonsWrapper>
       </DatasourceCardHeader>
-      {!isNil(currentFormConfig)
-        ? renderDatasourceSection(currentFormConfig[0], datasource)
-        : undefined}
+      {!isNil(currentFormConfig) ? (
+        <CollapseComponent title="Show More">
+          <DatasourceInfo>
+            {renderDatasourceSection(currentFormConfig[0], datasource)}
+          </DatasourceInfo>
+        </CollapseComponent>
+      ) : (
+        undefined
+      )}
     </Wrapper>
   );
 }
