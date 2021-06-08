@@ -14,6 +14,7 @@ import {
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { QueryAction } from "entities/Action";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import DataSourceHome from "./DatasourceHome";
 
 const QueryHomePage = styled.div`
   padding: 5px;
@@ -84,6 +85,12 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
           onAddDatasource={() => {
             history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
           }}
+        />
+        <DataSourceHome
+          applicationId={applicationId}
+          history={history}
+          location={location}
+          pageId={pageId}
         />
       </QueryHomePage>
     );
