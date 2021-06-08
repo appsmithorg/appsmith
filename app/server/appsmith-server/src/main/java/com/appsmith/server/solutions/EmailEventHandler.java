@@ -1,6 +1,10 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.domains.*;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.events.CommentAddedEvent;
 import com.appsmith.server.events.CommentThreadClosedEvent;
 import com.appsmith.server.helpers.CommentUtils;

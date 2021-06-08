@@ -1,11 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.*;
-import com.appsmith.server.helpers.CommentUtils;
-import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.domains.Notification;
 import com.appsmith.server.repositories.NotificationRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -17,10 +13,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
