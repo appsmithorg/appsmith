@@ -229,12 +229,28 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
     }
   }
 `;
+interface DropDownComponentState {
+  portalContainer: HTMLElement;
+}
 
-class DropDownComponent extends React.Component<DropDownComponentProps> {
+class DropDownComponent extends React.Component<
+  DropDownComponentProps,
+  DropDownComponentState
+> {
   private _menu = React.createRef<HTMLDivElement>();
+  constructor(props: DropDownComponentProps) {
+    super(props);
+    this.state = { portalContainer: this._menu.current as HTMLElement };
+  }
+  componentDidMount() {
+    this.setState({
+      portalContainer: this.props.getDropdownPosition(this._menu.current),
+    });
+  }
 
   render() {
     const { options, selectedIndexArr } = this.props;
+    const { portalContainer } = this.state;
     const selectedItems = selectedIndexArr
       ? _.map(selectedIndexArr, (index) => options[index])
       : [];
@@ -302,9 +318,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               popoverProps={{
                 minimal: true,
                 usePortal: true,
-                portalContainer: this.props.getDropdownPosition(
-                  this._menu.current,
-                ),
+                portalContainer,
                 modifiers: {
                   preventOverflow: {
                     enabled: false,
