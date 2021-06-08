@@ -18,7 +18,6 @@ import DataSourceHome from "./DatasourceHome";
 
 const QueryHomePage = styled.div`
   padding: 5px;
-  overflow: auto;
   display: flex;
   flex-direction: column;
   height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
@@ -32,11 +31,6 @@ const QueryHomePage = styled.div`
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
-`;
-
-const Boundary = styled.hr`
-  border: 1px solid #d0d7dd;
-  margin-top: 16px;
 `;
 
 type QueryHomeScreenProps = {
@@ -80,7 +74,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
     return (
       <QueryHomePage>
-        <Boundary />
+        {/* <Boundary /> */}
         <AddDatasourceSecurely
           onAddDatasource={() => {
             history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));

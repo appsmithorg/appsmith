@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { initialize } from "redux-form";
-import { Card, Spinner } from "@blueprintjs/core";
 import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "constants/forms";
@@ -10,68 +9,84 @@ import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
+import Button, { Size, Category } from "components/ads/Button";
 
 const DatasourceHomePage = styled.div`
   padding: 20px 0;
-  margin-left: -10px;
   max-height: 95vh;
-  overflow: auto;
   padding-bottom: 50px;
   .textBtn {
-    font-size: 14px;
     justify-content: center;
     text-align: center;
-    letter-spacing: -0.17px;
     color: #2e3d49;
     font-weight: 500;
     text-decoration: none !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-`;
 
-const CardsWrapper = styled.div`
-  flex: 1;
-  display: -webkit-box;
-  flex-wrap: wrap;
-  -webkit-box-pack: start !important;
-  justify-content: center;
-  text-align: center;
-  min-width: 140px;
-  border-radius: 4px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.17px;
+    margin: 0;
+  }
 `;
 
 const DatasourceCardsContainer = styled.div`
-  flex: 1;
-  display: inline-flex;
-  flex-wrap: wrap;
-  /* margin-left: -10px; */
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
   text-align: center;
   min-width: 150px;
   border-radius: 4px;
+  align-items: center;
+`;
 
-  .eachDatasourceCard {
-    margin: 10px;
-    width: 140px;
-    height: 110px;
-    padding-bottom: 0px;
-    cursor: pointer;
+const DatasourceCard = styled.div`
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  &:hover {
+    border: 1px solid #a9a7a7;
   }
-  .dataSourceImage {
-    height: 52px;
-    width: auto;
-    margin-top: -5px;
-    max-width: 100%;
-    margin-bottom: 2px;
+
+  .dataSourceImageWrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    margin: 0 8px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+
+    .dataSourceImage {
+      height: 28px;
+      width: auto;
+      margin: 0 auto;
+      max-width: 100%;
+      margin-bottom: 2px;
+    }
+  }
+
+  .cta {
+    display: none;
+    margin-right: 32px;
+  }
+
+  &:hover {
+    .cta {
+      display: flex;
+    }
   }
 `;
 
-const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
+const DatasourceContentWrapper = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 interface DatasourceHomeScreenProps {
@@ -119,35 +134,40 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
     return (
       <DatasourceHomePage>
-        <CardsWrapper>
-          {isSaving ? (
-            <LoadingContainer>
-              <Spinner size={30} />
-            </LoadingContainer>
-          ) : (
-            <DatasourceCardsContainer>
-              {plugins.map((plugin) => {
-                return (
-                  <Card
-                    className="eachDatasourceCard"
-                    interactive={false}
-                    key={plugin.id}
-                    onClick={() =>
-                      this.goToCreateDatasource(plugin.id, plugin.name)
-                    }
-                  >
+        <DatasourceCardsContainer>
+          {plugins.map((plugin) => {
+            return (
+              <DatasourceCard
+                className="eachDatasourceCard"
+                key={plugin.id}
+                onClick={() =>
+                  this.goToCreateDatasource(plugin.id, plugin.name)
+                }
+              >
+                <DatasourceContentWrapper>
+                  <div className="dataSourceImageWrapper">
                     <img
                       alt="Datasource"
                       className="dataSourceImage"
                       src={pluginImages[plugin.id]}
                     />
-                    <p className="t--plugin-name textBtn">{plugin.name}</p>
-                  </Card>
-                );
-              })}
-            </DatasourceCardsContainer>
-          )}
-        </CardsWrapper>
+                  </div>
+                  <p className="t--plugin-name textBtn">{plugin.name}</p>
+                </DatasourceContentWrapper>
+                <Button
+                  category={Category.tertiary}
+                  className="t--connect-to-btn cta"
+                  isLoading={isSaving}
+                  onClick={() =>
+                    this.goToCreateDatasource(plugin.id, plugin.name)
+                  }
+                  size={Size.medium}
+                  text="Connect To"
+                />
+              </DatasourceCard>
+            );
+          })}
+        </DatasourceCardsContainer>
       </DatasourceHomePage>
     );
   }
