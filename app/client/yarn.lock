@@ -3589,7 +3589,6 @@
 "@types/emoji-mart@^3.0.4":
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/@types/emoji-mart/-/emoji-mart-3.0.4.tgz#418868330c13b510a7b4b86b1ee9904291daeec1"
-  integrity sha512-Uqegqi54lXzz1qlDnLYEbFlUXY46auTVwbeOO8mj+9maGu2WBx/lGnmLKg7WS4CC5lB8Q6ch8K5VPBR9bDjWgg==
   dependencies:
     "@types/react" "*"
 
@@ -3945,7 +3944,6 @@
 "@types/resize-observer-browser@^0.1.5":
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/@types/resize-observer-browser/-/resize-observer-browser-0.1.5.tgz#36d897708172ac2380cd486da7a3daf1161c1e23"
-  integrity sha512-8k/67Z95Goa6Lznuykxkfhq9YU3l1Qe6LNZmwde1u7802a3x8v44oq0j91DICclxatTr0rNnhXx7+VTIetSrSQ==
 
 "@types/resolve@0.0.8":
   version "0.0.8"
@@ -4312,7 +4310,6 @@
 "@uppy/image-editor@^0.2.4":
   version "0.2.4"
   resolved "https://registry.yarnpkg.com/@uppy/image-editor/-/image-editor-0.2.4.tgz#af49fb1f7ab94ed63dc6d8aa04e64b6477baea7b"
-  integrity sha512-LTkT536CuJwurIhpn7Gj1p/F+U+ULYYXMxz5XMVijSlDLkfoi7IF6E3kbt4N4raUkyBtGgtmd2Ka7oUvoEFtxA==
   dependencies:
     "@uppy/utils" "^3.5.0"
     cropperjs "1.5.7"
@@ -4401,7 +4398,6 @@
 "@uppy/utils@^3.5.0":
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/@uppy/utils/-/utils-3.5.0.tgz#0822f68e8a4c7e833a7ca9ddf387adbd3ea0535c"
-  integrity sha512-Hhe8e/ArclSascuRjpwWtiEqAcykh9Qb/tZrA6cw+L4QjoYhxaxnOZOQoPG8LOz+zZS/DgQyF7IjWp+oiHDzag==
   dependencies:
     abortcontroller-polyfill "^1.4.0"
     lodash.throttle "^4.1.1"
@@ -4613,6 +4609,11 @@
 "@xtuc/long@4.2.2":
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
+
+"@yarnpkg/lockfile@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
+  integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
 abab@^2.0.3:
   version "2.0.5"
@@ -6667,7 +6668,6 @@ create-react-context@0.3.0, create-react-context@^0.3.0:
 cropperjs@1.5.7:
   version "1.5.7"
   resolved "https://registry.yarnpkg.com/cropperjs/-/cropperjs-1.5.7.tgz#b65019725bae1c6285e881fb661b2141fa57025b"
-  integrity sha512-sGj+G/ofKh+f6A4BtXLJwtcKJgMUsXYVUubfTo9grERiDGXncttefmue/fyQFvn8wfdyoD1KhDRYLfjkJFl0yw==
 
 cross-fetch@^3.0.4:
   version "3.1.4"
@@ -6675,7 +6675,7 @@ cross-fetch@^3.0.4:
   dependencies:
     node-fetch "2.6.1"
 
-cross-spawn@6.0.5, cross-spawn@^6.0.0:
+cross-spawn@6.0.5, cross-spawn@^6.0.0, cross-spawn@^6.0.5:
   version "6.0.5"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-6.0.5.tgz#4a5ec7c64dfae22c3a14124dbacdee846d80cbc4"
   dependencies:
@@ -7577,7 +7577,6 @@ emittery@^0.7.1:
 emoji-mart@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/emoji-mart/-/emoji-mart-3.0.1.tgz#9ce86706e02aea0506345f98464814a662ca54c6"
-  integrity sha512-sxpmMKxqLvcscu6mFn9ITHeZNkGzIvD0BSNFE/LJESPbCA8s1jM6bCDPjWbV31xHq7JXaxgpHxLB54RCbBZSlg==
   dependencies:
     "@babel/runtime" "^7.0.0"
     prop-types "^15.6.0"
@@ -7958,7 +7957,6 @@ eslint-plugin-react@^7.21.5:
 eslint-plugin-sort-destructure-keys@^1.3.5:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/eslint-plugin-sort-destructure-keys/-/eslint-plugin-sort-destructure-keys-1.3.5.tgz#c6f45c3e58d4435564025a6ca5f4a838010800fd"
-  integrity sha512-JmVpidhDsLwZsmRDV7Tf/vZgOAOEQGkLtwToSvX5mD8fuWYS/xkgMRBsalW1fGlc8CgJJwnzropt4oMQ7YCHLg==
   dependencies:
     natural-compare-lite "^1.4.0"
 
@@ -8602,6 +8600,13 @@ find-up@^2.0.0, find-up@^2.1.0:
   dependencies:
     locate-path "^2.0.0"
 
+find-yarn-workspace-root@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/find-yarn-workspace-root/-/find-yarn-workspace-root-2.0.0.tgz#f47fb8d239c900eb78179aa81b66673eac88f7bd"
+  integrity sha512-1IMnbjt4KzsQfnhnzNd8wUEgXZ44IzZaZmnLYx7D5FZlaHt2gW20Cri8Q+E/t5tIj4+epTBub+2Zxu/vNILzqQ==
+  dependencies:
+    micromatch "^4.0.2"
+
 flat-cache@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/flat-cache/-/flat-cache-2.0.1.tgz#5d296d6f04bda44a4630a301413bdbc2ec085ec0"
@@ -8745,7 +8750,7 @@ fs-extra@^0.30.0:
     path-is-absolute "^1.0.0"
     rimraf "^2.2.8"
 
-fs-extra@^7.0.0:
+fs-extra@^7.0.0, fs-extra@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.1.tgz#4f189c44aa123b895f722804f55ea23eadc348e9"
   dependencies:
@@ -9769,20 +9774,15 @@ interpret@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-2.2.0.tgz#1a78a0b5965c40a5416d007ad6f50ad27c417df9"
 
-interweave-autolink@^4.0.1:
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/interweave-autolink/-/interweave-autolink-4.2.1.tgz#b875e67970512484e47666adf952b9025743bd9d"
-  dependencies:
-    "@types/react" "*"
-    prop-types "^15.7.2"
+interweave-autolink@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/interweave-autolink/-/interweave-autolink-4.4.2.tgz#5ef9272361c78cb39180207a9926e034dfaca4e3"
 
-interweave@^12.1.1:
-  version "12.5.0"
-  resolved "https://registry.yarnpkg.com/interweave/-/interweave-12.5.0.tgz#c1c6cbda55e3d2864c94eeed8e86f4159111f493"
+interweave@^12.7.2:
+  version "12.7.2"
+  resolved "https://registry.yarnpkg.com/interweave/-/interweave-12.7.2.tgz#c42c74a512202e2cd05165d94e6590c095a7132b"
   dependencies:
-    "@types/react" "*"
     escape-html "^1.0.3"
-    prop-types "^15.7.2"
 
 invariant@^2.2.1, invariant@^2.2.2, invariant@^2.2.3, invariant@^2.2.4:
   version "2.2.4"
@@ -11065,6 +11065,13 @@ kind-of@^6.0.0, kind-of@^6.0.2:
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
 
+klaw-sync@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/klaw-sync/-/klaw-sync-6.0.0.tgz#1fd2cfd56ebb6250181114f0a581167099c2b28c"
+  integrity sha512-nIeuVSzdCCs6TDPTqI8w1Yre34sSq7AkZ4B3sfOBbI2CgVSB4Du4aLQijFU2+lhAFCwt9+42Hel6lQNIv6AntQ==
+  dependencies:
+    graceful-fs "^4.1.11"
+
 klaw@^1.0.0:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/klaw/-/klaw-1.3.1.tgz#4088433b46b3b1ba259d78785d8e96f73ba02439"
@@ -12135,7 +12142,6 @@ native-url@^0.2.6:
 natural-compare-lite@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare-lite/-/natural-compare-lite-1.4.0.tgz#17b09581988979fddafe0201e931ba933c96cbb4"
-  integrity sha1-F7CVgZiJef3a/gIB6TG6kzyWy7Q=
 
 natural-compare@^1.4.0:
   version "1.4.0"
@@ -12538,6 +12544,14 @@ open@^7.0.0, open@^7.0.2, open@^7.1.0:
     is-docker "^2.0.0"
     is-wsl "^2.1.1"
 
+open@^7.4.2:
+  version "7.4.2"
+  resolved "https://registry.yarnpkg.com/open/-/open-7.4.2.tgz#b8147e26dcf3e426316c730089fd71edd29c2321"
+  integrity sha512-MVHddDVweXZF3awtlAS+6pgKLlm/JgxZ90+/NBurBoQctVOOB/zDdVjcyPzQ+0laDGbsWgrRkflI65sQeOgT9Q==
+  dependencies:
+    is-docker "^2.0.0"
+    is-wsl "^2.1.1"
+
 opencollective-postinstall@^2.0.2:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/opencollective-postinstall/-/opencollective-postinstall-2.0.3.tgz#7a0fff978f6dbfa4d006238fbac98ed4198c3259"
@@ -12801,6 +12815,25 @@ pascal-case@^3.1.1:
 pascalcase@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/pascalcase/-/pascalcase-0.1.1.tgz#b363e55e8006ca6fe21784d2db22bd15d7917f14"
+
+patch-package@^6.4.7:
+  version "6.4.7"
+  resolved "https://registry.yarnpkg.com/patch-package/-/patch-package-6.4.7.tgz#2282d53c397909a0d9ef92dae3fdeb558382b148"
+  integrity sha512-S0vh/ZEafZ17hbhgqdnpunKDfzHQibQizx9g8yEf5dcVk3KOflOfdufRXQX8CSEkyOQwuM/bNz1GwKvFj54kaQ==
+  dependencies:
+    "@yarnpkg/lockfile" "^1.1.0"
+    chalk "^2.4.2"
+    cross-spawn "^6.0.5"
+    find-yarn-workspace-root "^2.0.0"
+    fs-extra "^7.0.1"
+    is-ci "^2.0.0"
+    klaw-sync "^6.0.0"
+    minimist "^1.2.0"
+    open "^7.4.2"
+    rimraf "^2.6.3"
+    semver "^5.6.0"
+    slash "^2.0.0"
+    tmp "^0.0.33"
 
 path-browserify@0.0.1:
   version "0.0.1"
@@ -13618,6 +13651,11 @@ postcss@^8.1.0:
     line-column "^1.0.2"
     nanoid "^3.1.15"
     source-map "^0.6.1"
+
+postinstall-postinstall@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/postinstall-postinstall/-/postinstall-postinstall-2.1.0.tgz#4f7f77441ef539d1512c40bd04c71b06a4704ca3"
+  integrity sha512-7hQX6ZlZXIoRiWNrbMQaLzUUfH+sSx39u8EJ9HYuDc1kLo9IXKWjM5RSquZN1ad5GnH8CGFM78fsAAQi3OKEEQ==
 
 preact@8.2.9:
   version "8.2.9"

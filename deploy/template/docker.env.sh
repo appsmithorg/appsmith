@@ -59,4 +59,10 @@ APPSMITH_DISABLE_TELEMETRY=$disable_telemetry
 # APPSMITH_CODEC_SIZE=
 # *******************************
 
+# ***** Google Recaptcha Config ******
+# APPSMITH_RECAPTCHA_SITE_KEY=
+# APPSMITH_RECAPTCHA_SECRET_KEY=
+# APPSMITH_RECAPTCHA_ENABLED=
+# ************************************
+
 EOF

@@ -300,7 +300,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         cypressSelector: "t--fork-app",
       });
     }
-    if (!!props.enableImportExport) {
+    if (!!props.enableImportExport && hasEditPermission) {
       moreActionItems.push({
         onSelect: exportApplicationAsJSONFile,
         text: "Export",
