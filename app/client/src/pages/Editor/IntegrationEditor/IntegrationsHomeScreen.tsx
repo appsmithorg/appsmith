@@ -208,6 +208,11 @@ const PRIMARY_MENU: TabProp[] = [
   },
 ];
 
+const PRIMARY_MENU_IDS = {
+  ACTIVE: 0,
+  CREATE_NEW: 1,
+};
+
 const SECONDARY_MENU: TabProp[] = [
   {
     key: "MOST_USED",
@@ -231,6 +236,13 @@ const SECONDARY_MENU: TabProp[] = [
   },
 ];
 
+const SECONDARY_MENU_IDS = {
+  MOST_USED: 0,
+  API: 1,
+  DATABASE: 2,
+  SAAS: 3,
+};
+
 class IntegrationsHomeScreen extends React.Component<
   Props,
   IntegrationsHomeScreenState
@@ -241,8 +253,8 @@ class IntegrationsHomeScreen extends React.Component<
     this.state = {
       page: 1,
       showSearchResults: false,
-      activePrimaryMenuId: 0,
-      activeSecondaryMenuId: 0,
+      activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
+      activeSecondaryMenuId: SECONDARY_MENU_IDS.MOST_USED,
     };
   }
 
@@ -349,6 +361,55 @@ class IntegrationsHomeScreen extends React.Component<
       );
     }
 
+    let currentScreen = null;
+    const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
+    if (
+      activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW &&
+      activeSecondaryMenuId === SECONDARY_MENU_IDS.MOST_USED
+    ) {
+      currentScreen = (
+        <NewQueryScreen
+          applicationId={applicationId}
+          history={this.props.history}
+          isCreating={isCreating}
+          location={location}
+          pageId={pageId}
+        />
+      );
+    } else if (
+      activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW &&
+      activeSecondaryMenuId === SECONDARY_MENU_IDS.API
+    ) {
+      currentScreen = (
+        <NewApiScreen
+          applicationId={applicationId}
+          history={history}
+          location={location}
+          pageId={pageId}
+        />
+      );
+    } else if (activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE) {
+      currentScreen = (
+        <ActiveQueryScreen
+          applicationId={applicationId}
+          dataSources={dataSources}
+          history={this.props.history}
+          isCreating={isCreating}
+          location={location}
+          pageId={pageId}
+        />
+      );
+    } else {
+      currentScreen = (
+        <NewQueryScreen
+          applicationId={applicationId}
+          history={this.props.history}
+          isCreating={isCreating}
+          location={location}
+          pageId={pageId}
+        />
+      );
+    }
     return (
       <ApiHomePage
         className="t--apiHomePage"
@@ -384,12 +445,7 @@ class IntegrationsHomeScreen extends React.Component<
             />
           </SearchContainer>
 
-          <NewApiScreen
-            applicationId={applicationId}
-            history={history}
-            location={location}
-            pageId={pageId}
-          />
+          {currentScreen}
 
           <TabComponent
             onSelect={this.onSelectSecondaryMenu}
@@ -397,25 +453,6 @@ class IntegrationsHomeScreen extends React.Component<
             tabs={SECONDARY_MENU}
             vertical
           />
-
-          <NewQueryScreen
-            applicationId={applicationId}
-            history={this.props.history}
-            isCreating={isCreating}
-            location={location}
-            pageId={pageId}
-          />
-          <div />
-          <ActiveQueryScreen
-            applicationId={applicationId}
-            dataSources={dataSources}
-            history={this.props.history}
-            isCreating={isCreating}
-            location={location}
-            pageId={pageId}
-          />
-
-          {/* <NewSaas /> */}
         </SectionGrid>
       </ApiHomePage>
     );
