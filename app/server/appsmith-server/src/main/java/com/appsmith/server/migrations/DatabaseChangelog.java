@@ -2277,4 +2277,28 @@ public class DatabaseChangelog {
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
+
+    @ChangeSet(order = "070", id = "update-execute-on-client", author = "")
+    public void updateExecuteOnClient(MongoTemplate mongoTemplate) {
+        List<NewAction> allNewActions = mongoTemplate.findAll(NewAction.class);
+
+        allNewActions.stream()
+                .forEach(newAction -> {
+                    // For unpublished action
+                    if (newAction.getUnpublishedAction() != null
+                            && newAction.getUnpublishedAction().getActionConfiguration() != null) {
+                        newAction.getUnpublishedAction().getActionConfiguration().setExecuteOnClient(false);
+                    }
+
+                    // For published action
+                    if (newAction.getPublishedAction() != null
+                            && newAction.getPublishedAction().getActionConfiguration() != null) {
+                        newAction.getPublishedAction().getActionConfiguration().setExecuteOnClient(false);
+                    }
+                });
+
+        // Save action objects if all the above updates went through without error.
+        allNewActions.stream()
+                .forEach(newAction ->  mongoTemplate.save(newAction));
+    }
 }

@@ -318,7 +318,18 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return new HashSet<>();
         }
 
-        return MustacheHelper.extractMustacheKeysFromFields(actionConfiguration);
+        // Extract keys from any expression inside mustache braces {{ }}
+        Set<String> mustacheKeys = MustacheHelper.extractMustacheKeysFromFields(actionConfiguration);
+
+        /**
+         * - JS function is not enclosed inside mustache braces {{ }} and hence would not be captured by the method used
+         * above.
+         * - Since all of the JS Function body is a valid JS, hence add the whole body to keys set.
+         */
+        actionConfiguration.getJsFunctions().stream()
+                .forEach(jsFunction -> mustacheKeys.add(jsFunction.getBody()));
+
+        return mustacheKeys;
     }
 
     /**

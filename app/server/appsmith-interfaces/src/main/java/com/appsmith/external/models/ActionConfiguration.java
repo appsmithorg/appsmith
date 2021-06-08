@@ -60,6 +60,8 @@ public class ActionConfiguration implements AppsmithDomain {
     List<JSValue> jsConstants;
     List<JSFunction> jsFunctions;
 
+    boolean executeOnClient = false;
+
     /*
      * Future plugins could require more fields that are not covered above.
      * They will have to represented in a key-value format where the plugin

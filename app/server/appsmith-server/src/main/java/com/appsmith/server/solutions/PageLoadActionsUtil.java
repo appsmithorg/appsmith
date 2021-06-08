@@ -59,7 +59,9 @@ public class PageLoadActionsUtil {
                 // First find all the actions directly used in the DSL and get the graph started
                 .flatMap(unpublishedAction -> {
 
-                    // If the user has explicity set an action to not run on page load, this action should be ignored
+                    // If the user has explicitly set an action to not run on page load, this action should be ignored
+                    // Any action which has NOT been explicitly set by the user to NOT run on page load is assumed to
+                    // be runnable on page load.
                     if (Boolean.TRUE.equals(unpublishedAction.getUserSetOnLoad()) && !Boolean.TRUE.equals(unpublishedAction.getExecuteOnLoad())) {
                         return Mono.empty();
                     }
@@ -104,39 +106,59 @@ public class PageLoadActionsUtil {
                     // Also collect all the actions in the map in a flat list and update the list
                     flatPageLoadActions.addAll(updatedMap.values());
 
+                    onPageLoadActions = removeClientExecutedActions(onPageLoadActions);
+
                     // Return the sequenced page load actions
                     return onPageLoadActions;
 
                 });
     }
 
-        private Mono<Map<String, ActionDTO>> findExplicitUserSetOnLoadActionsAndTheirDependents(String pageId,
-                                                                                            Set<String> actionNames,
-                                                                                            Set<ActionDependencyEdge> edges,
-                                                                                            Set<String> dynamicBindingNames,
-                                                                                            Map<String, ActionDTO> onLoadActionsInMap) {
+    private List<HashSet<DslActionDTO>> removeClientExecutedActions(List<HashSet<DslActionDTO>> onPageLoadActions) {
+        List<HashSet<DslActionDTO>> serverExecutedOnPageLoadActions = new ArrayList<>();
 
-        //First fetch all the actions which have been tagged as on load by the user explicitly.
-        return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
-                // Add the vertices and edges to the graph
-                .map(actionDTO -> {
-                    extractAndSetActionNameAndBindingsForGraph(actionNames, edges, dynamicBindingNames, actionDTO);
-                    return actionDTO;
-                })
-                .collectMap(
-                        action -> {
-                            return action.getName();
-                        },
-                        action -> {
-                            return action;
-                        }
-                )
-                .map(newActionsMap -> {
-                    onLoadActionsInMap.putAll(newActionsMap);
-                    return onLoadActionsInMap;
+        onPageLoadActions.stream()
+                .forEachOrdered(actionSet -> {
+                    HashSet updatedActionSet = new HashSet<>();
+                    actionSet.stream()
+                            .filter(dslActionDTO -> !dslActionDTO.isExecuteOnClient())
+                            .forEach(dslActionDTO -> updatedActionSet.add(dslActionDTO));
+
+                    if (!updatedActionSet.isEmpty()) {
+                        serverExecutedOnPageLoadActions.add(updatedActionSet);
+                    }
                 });
+
+        return serverExecutedOnPageLoadActions;
     }
+
+    private Mono<Map<String, ActionDTO>> findExplicitUserSetOnLoadActionsAndTheirDependents(String pageId,
+                                                                                        Set<String> actionNames,
+                                                                                        Set<ActionDependencyEdge> edges,
+                                                                                        Set<String> dynamicBindingNames,
+                                                                                        Map<String, ActionDTO> onLoadActionsInMap) {
+
+    //First fetch all the actions which have been tagged as on load by the user explicitly.
+    return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
+            .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+            // Add the vertices and edges to the graph
+            .map(actionDTO -> {
+                extractAndSetActionNameAndBindingsForGraph(actionNames, edges, dynamicBindingNames, actionDTO);
+                return actionDTO;
+            })
+            .collectMap(
+                    action -> {
+                        return action.getName();
+                    },
+                    action -> {
+                        return action;
+                    }
+            )
+            .map(newActionsMap -> {
+                onLoadActionsInMap.putAll(newActionsMap);
+                return onLoadActionsInMap;
+            });
+}
 
     /**
      * This function gets a list of binding names that come from other actions. It looks for actions in the page with
@@ -202,6 +224,7 @@ public class PageLoadActionsUtil {
         dslActionDTO.setPluginType(actionDTO.getPluginType());
         dslActionDTO.setJsonPathKeys(actionDTO.getJsonPathKeys());
         dslActionDTO.setName(actionDTO.getName());
+        dslActionDTO.setExecuteOnClient(actionDTO.getActionConfiguration().isExecuteOnClient());
         if (actionDTO.getActionConfiguration() != null) {
             dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());
         }
