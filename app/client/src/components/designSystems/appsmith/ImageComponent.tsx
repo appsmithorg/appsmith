@@ -8,6 +8,7 @@ export interface StyledImageProps {
   imageUrl?: string;
   backgroundColor?: string;
   showHoverPointer?: boolean;
+  objectFit: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
@@ -19,6 +20,7 @@ export const StyledImage = styled.div<
   position: relative;
   display: flex;                                                                                                                                                                                                                                                                                                                                                                          
   flex-direction: "row";
+  background-size: ${(props) => props.objectFit ?? "none"};
   cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
   background: ${(props) => props.backgroundColor};
@@ -26,7 +28,6 @@ export const StyledImage = styled.div<
     props.imageError ? props.defaultImageUrl : props.imageUrl}");
   background-position: center;
   background-repeat: no-repeat;
-  background-size: contain;
   height: 100%;
   width: 100%;
 `;
@@ -62,7 +63,7 @@ class ImageComponent extends React.Component<
     };
   }
   render() {
-    const { maxZoomLevel } = this.props;
+    const { maxZoomLevel, objectFit } = this.props;
     const zoomActive =
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;
     const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
@@ -70,6 +71,10 @@ class ImageComponent extends React.Component<
     if (zoomActive) {
       cursor = isZoomingIn ? "zoom-in" : "zoom-out";
     }
+
+    const objectFitStyles = {
+      objectFit,
+    } as React.CSSProperties;
     return (
       <Wrapper>
         <TransformWrapper
@@ -149,6 +154,7 @@ class ImageComponent extends React.Component<
                   src={this.props.imageUrl}
                   style={{
                     display: "none",
+                    ...objectFitStyles,
                   }}
                 />
               </StyledImage>
@@ -178,6 +184,7 @@ export interface ImageComponentProps extends ComponentProps {
   isLoading: boolean;
   showHoverPointer?: boolean;
   maxZoomLevel: number;
+  objectFit: string;
   disableDrag: (disabled: boolean) => void;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
