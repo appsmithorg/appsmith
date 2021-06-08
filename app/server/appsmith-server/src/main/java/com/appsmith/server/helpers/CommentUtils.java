@@ -1,7 +1,6 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.domains.Comment;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,8 @@ public class CommentUtils {
         if(comment.getBody() != null && comment.getBody().getEntityMap() != null) {
             for(String key : comment.getBody().getEntityMap().keySet()) {
                 Comment.Entity commentEntity = comment.getBody().getEntityMap().get(key);
-                if(commentEntity.getType().equals("mention")) {
+                if(commentEntity != null && commentEntity.getType() != null
+                        && commentEntity.getType().equals("mention")) {
                     // this comment has a mention, check the provided user is mentioned or not
                     if(commentEntity.getData() != null) {
                         Comment.EntityData.Mention mention = commentEntity.getData().getMention();
