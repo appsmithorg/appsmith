@@ -57,6 +57,7 @@ import static com.external.plugins.constants.ConfigurationIndex.DELETE_LIMIT;
 import static com.external.plugins.constants.ConfigurationIndex.DELETE_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_KEY;
 import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
+import static com.external.plugins.constants.ConfigurationIndex.FIND_PROJECTION;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
 import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
 import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
@@ -1300,6 +1301,38 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     JsonNode value = ((ArrayNode) result.getBody()).get(0).get("userCount");
                     assertEquals(value.asInt(), 3);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFindCommandProjection() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(BSON, Boolean.FALSE);
+        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(COMMAND, "FIND");
+        configMap.put(FIND_QUERY, "{ age: { \"$gte\": 30 } }");
+        configMap.put(FIND_SORT, "{ id: 1 }");
+        configMap.put(FIND_PROJECTION, "{ name: 1 }");
+        configMap.put(COLLECTION, "users");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    System.out.println(obj);
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+                    JsonNode value = ((ArrayNode) result.getBody()).get(0).get("name");
+                    assertNotNull(value);
                 })
                 .verifyComplete();
     }
