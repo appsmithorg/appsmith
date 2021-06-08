@@ -2,9 +2,6 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.DBAuth;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -12,7 +9,6 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -25,14 +21,12 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
-import com.appsmith.server.services.PluginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -50,8 +44,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -67,22 +59,9 @@ public class ExamplesOrganizationCloner {
     private final UserService userService;
     private final ApplicationService applicationService;
     private final ApplicationPageService applicationPageService;
-    private final DatasourceContextService datasourceContextService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
     private final LayoutActionService layoutActionService;
-    private final PluginService pluginService;
-    
-    /**
-     * The regex matches the following pattern:
-     *  - mongodb+srv://user:password@some-url/some-db....
-     *  Matches "password" excluding ":" and "@"
-     */
-    private static final String MONGO_URI_REGEX = "(?<=:)([^:]*?)(?=@)";
-    private static final String YES = "Yes";
-    private static final int DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX = 0;
-    private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
-    private static final String MongoPluginPackageName = "mongo-plugin";
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -423,13 +402,7 @@ public class ExamplesOrganizationCloner {
                                 // No matching existing datasource found, so create a new one.
                                 makePristine(templateDatasource);
                                 templateDatasource.setOrganizationId(toOrganizationId);
-                                DatasourceConfiguration datasourceConfig = templateDatasource.getDatasourceConfiguration();
-                                return pluginService.findById(templateDatasource.getPluginId())
-                                    .flatMap(plugin -> {
-                                        
-                                        updateSrvForMongoDatasource(plugin, datasourceConfig);
-                                        return createSuffixedDatasource(templateDatasource);
-                                    });
+                                return createSuffixedDatasource(templateDatasource);
                             }));
                 });
     }
@@ -482,35 +455,6 @@ public class ExamplesOrganizationCloner {
                 });
     }
     
-    /**
-     * @param plugin to check if the plugin-type is mongo-plugin
-     * @param datasourceConfig to update Property object
-     */
-    public void updateSrvForMongoDatasource(Plugin plugin, DatasourceConfiguration datasourceConfig) {
-        
-        if (plugin == null || datasourceConfig == null) {
-            return;
-        }
-        
-        List<Property> properties = datasourceConfig.getProperties();
-        if (StringUtils.pathEquals(plugin.getPackageName(), MongoPluginPackageName) && properties != null
-            && properties.size() > DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX
-            && properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX) != null
-            && YES.equals(properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX).getValue())
-            && !StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue().toString())
-            && datasourceConfig.getAuthentication() instanceof DBAuth
-        ) {
-            final Pattern pattern = Pattern.compile(MONGO_URI_REGEX, Pattern.MULTILINE);
-            final Matcher matcher = pattern.matcher(
-                properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue().toString()
-            );
-            final DBAuth dbAuth = (DBAuth) datasourceConfig.getAuthentication();
-            final String password = dbAuth.getPassword();
-            properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX)
-                .setValue(matcher.replaceFirst(password));
-        }
-    }
-
     public void makePristine(BaseDomain domain) {
         // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
         // updating an existing document). If it contains any policies, they are also reset.

@@ -570,21 +570,16 @@ public class ImportExportApplicationService {
                         datasourceConfig.getAuthentication().setAuthenticationResponse(authResponse);
                     }
                     // No matching existing datasource found, so create a new one.
-                    return pluginRepository.findById(datasource.getPluginId())
-                    .flatMap(plugin -> {
-                        
-                        examplesOrganizationCloner.updateSrvForMongoDatasource(plugin, datasourceConfig);
-                        return datasourceService
-                            .findByNameAndOrganizationId(datasource.getName(), toOrgId, AclPermission.MANAGE_DATASOURCES)
-                            .flatMap(duplicateNameDatasource ->
-                                getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, toOrgId)
-                            )
-                            .map(suffix -> {
-                                datasource.setName(datasource.getName() + suffix);
-                                return datasource;
-                            })
-                            .then(datasourceService.create(datasource));
-                    });
+                    return datasourceService
+                        .findByNameAndOrganizationId(datasource.getName(), toOrgId, AclPermission.MANAGE_DATASOURCES)
+                        .flatMap(duplicateNameDatasource ->
+                            getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, toOrgId)
+                        )
+                        .map(suffix -> {
+                            datasource.setName(datasource.getName() + suffix);
+                            return datasource;
+                        })
+                        .then(datasourceService.create(datasource));
                 }));
     }
 
