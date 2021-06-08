@@ -17,7 +17,7 @@ import {
   ControlGroup,
   TextArea,
 } from "@blueprintjs/core";
-import { InputType } from "widgets/InputWidget";
+import { InputType, InputTypes } from "widgets/InputWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -26,6 +26,8 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
+import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
@@ -92,6 +94,59 @@ const InputComponentWrapper = styled((props) => (
     }
   }
 `;
+
+const DropdownWrapper = styled.div``;
+
+interface CurrencyDropdownProps {
+  onSelect?: (value?: string) => void;
+  options: Array<DropdownOption>;
+  selected: DropdownOption;
+}
+
+function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
+  return (
+    <DropdownWrapper>
+      <Dropdown
+        className="currency-type-filter"
+        enableSearch
+        height="19px"
+        onSelect={props.onSelect}
+        optionWidth="100px"
+        options={props.options}
+        selected={props.selected}
+        showLabelOnly
+        width="28px"
+      />
+    </DropdownWrapper>
+  );
+}
+
+const getSelectedItem = (currencyType?: string): DropdownOption => {
+  const selectedCurrency: CurrencyOptionProps | undefined = currencyType
+    ? CurrencyTypeOptions.find((item: CurrencyOptionProps) => {
+        return item.currency === currencyType;
+      })
+    : undefined;
+  if (selectedCurrency) {
+    return {
+      label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
+      value: selectedCurrency.currency,
+    };
+  }
+  return {
+    label: "USD - US Dollar",
+    value: "USD",
+  };
+};
+
+export const getCurrencyOptions = (): Array<DropdownOption> => {
+  return CurrencyTypeOptions.map((item: CurrencyOptionProps) => {
+    return {
+      label: `${item.currency} - ${item.currency_name}`,
+      value: item.currency,
+    };
+  });
+};
 
 class InputComponent extends React.Component<
   InputComponentProps,
@@ -248,6 +303,12 @@ class InputComponent extends React.Component<
         multiline={this.props.multiline.toString()}
         numeric={this.isNumberInputType(this.props.inputType)}
       >
+        {this.props.inputType === InputTypes.CURRENCY && (
+          <CurrencyTypeDropdown
+            options={getCurrencyOptions()}
+            selected={getSelectedItem(this.props.currencyType)}
+          />
+        )}
         {this.props.label && (
           <Label
             className={
@@ -286,6 +347,9 @@ export interface InputComponentProps extends ComponentProps {
   disabled?: boolean;
   intent?: Intent;
   defaultValue?: string;
+  currencyType?: string;
+  noOfDecimals?: number;
+  allowCurrencyChange?: boolean;
   label: string;
   leftIcon?: IconName;
   allowNumericCharactersOnly?: boolean;

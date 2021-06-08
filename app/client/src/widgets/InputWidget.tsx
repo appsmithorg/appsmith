@@ -3,6 +3,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
+  getCurrencyOptions,
 } from "components/designSystems/blueprint/InputComponent";
 import {
   EventType,
@@ -75,7 +76,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             propertyName: "currencyType",
             label: "Currency",
             controlType: "DROP_DOWN",
-            options: [],
+            options: getCurrencyOptions(),
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
@@ -361,6 +362,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
     return (
       <InputComponent
+        currencyType={this.props.currencyType}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
