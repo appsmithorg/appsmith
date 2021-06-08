@@ -243,6 +243,24 @@ const SECONDARY_MENU_IDS = {
   SAAS: 3,
 };
 
+const TERTIARY_MENU: TabProp[] = [
+  {
+    key: "ACTIVE_CONNECTIONS",
+    title: "Active Connections",
+    panelComponent: <div />,
+  },
+  {
+    key: "MOCK_DATABASE",
+    title: "Mock Databases",
+    panelComponent: <div />,
+  },
+];
+
+const TERTIARY_MENU_IDS = {
+  ACTIVE_CONNECTIONS: 0,
+  MOCK_DATABASE: 1,
+};
+
 class IntegrationsHomeScreen extends React.Component<
   Props,
   IntegrationsHomeScreenState
@@ -259,7 +277,19 @@ class IntegrationsHomeScreen extends React.Component<
   }
 
   onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
-    this.setState({ activePrimaryMenuId });
+    if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
+      return;
+    } else if (activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE) {
+      this.setState({
+        activePrimaryMenuId,
+        activeSecondaryMenuId: TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS,
+      });
+    } else {
+      this.setState({
+        activePrimaryMenuId,
+        activeSecondaryMenuId: SECONDARY_MENU_IDS.MOST_USED,
+      });
+    }
   };
 
   onSelectSecondaryMenu = (activeSecondaryMenuId: number) => {
@@ -450,7 +480,11 @@ class IntegrationsHomeScreen extends React.Component<
           <TabComponent
             onSelect={this.onSelectSecondaryMenu}
             selectedIndex={this.state.activeSecondaryMenuId}
-            tabs={SECONDARY_MENU}
+            tabs={
+              activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
+                ? TERTIARY_MENU
+                : SECONDARY_MENU
+            }
             vertical
           />
         </SectionGrid>
