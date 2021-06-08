@@ -71,6 +71,12 @@ class GlobalHotKeys extends React.Component<Props> {
     return !!multipleWidgetsSelected;
   }
 
+  public onOnmnibarHotKeyDown(e: KeyboardEvent) {
+    e.preventDefault();
+    this.props.toggleShowGlobalSearchModal();
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
+  }
+
   public renderHotkeys() {
     return (
       <Hotkeys>
@@ -96,12 +102,14 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="mod + k"
           global
           label="Show omnibar"
-          onKeyDown={(e: KeyboardEvent) => {
-            console.log("toggleShowGlobalSearchModal");
-            e.preventDefault();
-            this.props.toggleShowGlobalSearchModal();
-            AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
-          }}
+          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
+        />
+        <Hotkey
+          allowInInput={false}
+          combo="mod + p"
+          global
+          label="Show omnibar"
+          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
         />
         <Hotkey
           combo="mod + d"
