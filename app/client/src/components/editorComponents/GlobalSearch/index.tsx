@@ -46,6 +46,7 @@ import { keyBy, noop } from "lodash";
 import EntitiesIcon from "assets/icons/ads/entities.svg";
 import DocsIcon from "assets/icons/ads/docs.svg";
 import RecentIcon from "assets/icons/ads/recent.svg";
+import Footer from "./Footer";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -204,7 +205,7 @@ function GlobalSearch() {
     );
   }, [pages, query]);
 
-  const recentsSectionTitle = getSectionTitle("Recents", RecentIcon);
+  const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
   const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
   const entitiesSectionTitle = getSectionTitle("Entities", EntitiesIcon);
 
@@ -397,6 +398,7 @@ function GlobalSearch() {
                   <ResultsNotFound />
                 )}
               </div>
+              {!query && <Footer />}
             </StyledContainer>
           </AlgoliaSearchWrapper>
         </SearchModal>
