@@ -1,6 +1,6 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import Button, { Category } from "components/ads/Button";
 import React from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,12 +20,20 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
 const Wrapper = styled.div`
-  border: 2px solid #d6d6d6;
+  border: 1px solid transparent;
   padding: 18px;
-  margin-top: 18px;
+  /* margin-top: 18px; */
+
+  &:hover {
+    border: 1px solid ${Colors.SILVER_CHALICE};
+    .action-wrapper {
+      display: flex !important;
+    }
+  }
 `;
 
-const ActionButton = styled(BaseButton)`
+const ActionButton = styled(Button)`
+  padding: 10px 20px;
   &&&& {
     height: 36px;
     max-width: 120px;
@@ -38,11 +46,12 @@ const DatasourceImage = styled.img`
   width: auto;
 `;
 
-const EditDatasourceButton = styled(BaseButton)`
+const EditDatasourceButton = styled(Button)`
+  padding: 10px 20px;
   &&&& {
     height: 36px;
     max-width: 160px;
-    border: 1px solid ${Colors.GEYSER_LIGHT};
+    border: 1.2px solid ${Colors.HIT_GRAY};
     width: auto;
   }
 `;
@@ -72,7 +81,7 @@ const Queries = styled.div`
 `;
 
 const ButtonsWrapper = styled.div`
-  display: flex;
+  display: none;
   gap: 10px;
 `;
 
@@ -129,18 +138,15 @@ function DatasourceCard(props: DatasourceCardProps) {
               : "No query is using this datasource"}
           </Queries>
         </div>
-        <ButtonsWrapper>
+        <ButtonsWrapper className="action-wrapper">
           <EditDatasourceButton
+            category={Category.tertiary}
             className="t--edit-datasource"
-            icon={"edit"}
             onClick={editDatasource}
-            text="Edit Datasource"
+            text="Edit"
           />
           <ActionButton
-            accent="primary"
             className="t--create-query"
-            filled
-            icon={"plus"}
             onClick={() => props.onCreateQuery(datasource)}
             text="New Query"
           />
