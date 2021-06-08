@@ -74,6 +74,7 @@ Issues are inevitable. When you have one, our entire team is around to help—
 - 💬 Talk to us on [Discord](https://discord.gg/rBTTVJp)
 - 📄 Find a solution in our [Documentation](https://docs.appsmith.com)
 - ⚠️ Open an issue right here on [GitHub](https://github.com/appsmithorg/appsmith/issues/new/choose)
+- 👾 Ask for help on our [Forum](https://community.appsmith.com)
   <br><br>
 
 ## Demos
