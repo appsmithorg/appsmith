@@ -175,7 +175,6 @@ function TableFilters(props: TableFilterProps) {
     >
       <TableAction
         className="t--table-filter-toggle-btn"
-        filterApplied={hasAnyFilters}
         icon={
           hasAnyFilters ? (
             <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
@@ -186,6 +185,7 @@ function TableFilters(props: TableFilterProps) {
         }}
         selected={selected}
         title={`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
+        titleColor={hasAnyFilters ? Colors.CODE_GRAY : Colors.GRAY}
       >
         <FilterIcon />
       </TableAction>

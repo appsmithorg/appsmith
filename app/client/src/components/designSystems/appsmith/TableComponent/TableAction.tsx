@@ -10,13 +10,13 @@ interface TableActionProps {
   title: string;
   children: React.ReactNode;
   icon?: React.ReactNode;
-  filterApplied?: boolean;
+  titleColor?: string;
 }
 
 export const TableIconWrapper = styled.div<{
   selected?: boolean;
   disabled?: boolean;
-  filterApplied?: boolean;
+  titleColor?: string;
 }>`
   height: 38px;
   display: flex;
@@ -28,7 +28,7 @@ export const TableIconWrapper = styled.div<{
   .action-title {
     margin-left: 4px;
     white-space: nowrap;
-    color: ${(props) => (props.filterApplied ? Colors.CODE_GRAY : Colors.GRAY)};
+    color: ${(props) => props.titleColor || Colors.GRAY};
   }
   position: relative;
   margin-left: 5px;
@@ -49,12 +49,12 @@ function TableAction(props: TableActionProps) {
   return (
     <TableIconWrapper
       className={props.className}
-      filterApplied={props.filterApplied}
       onClick={handleIconClick}
       selected={props.selected}
+      titleColor={props.titleColor}
     >
       <IconWrapper
-        color={props.filterApplied ? Colors.CODE_GRAY : Colors.GRAY}
+        color={props.titleColor ? props.titleColor : Colors.GRAY}
         height={20}
         width={20}
       >
