@@ -52,6 +52,10 @@ import { TabComponent, TabProp } from "components/ads/Tabs";
 // import { PluginType } from "entities/Action";
 import { IconSize } from "components/ads/Icon";
 import NewApiScreen from "./NewApi";
+import NewQueryScreen from "./NewQuery";
+import ActiveQueryScreen from "./ActiveQuery";
+import { getDBDatasources } from "selectors/entitiesSelector";
+import { Datasource } from "entities/Datasource";
 const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
@@ -175,6 +179,8 @@ type IntegrationsHomeScreenProps = {
   previouslySetCategory: string;
   fetchProvidersError: boolean;
   colorPalette: string[];
+  isCreating: boolean;
+  dataSources: Datasource[];
 };
 
 type IntegrationsHomeScreenState = {
@@ -319,9 +325,11 @@ class IntegrationsHomeScreen extends React.Component<
       // apiOrProviderSearchResults,
       applicationId,
       // fetchProvidersError,
-      history,
+      dataSources,
       // isSwitchingCategory,
       // isFetchingProviders,
+      history,
+      isCreating,
       location,
       pageId,
       // providerCategories,
@@ -389,6 +397,25 @@ class IntegrationsHomeScreen extends React.Component<
             tabs={SECONDARY_MENU}
             vertical
           />
+
+          <NewQueryScreen
+            applicationId={applicationId}
+            history={this.props.history}
+            isCreating={isCreating}
+            location={location}
+            pageId={pageId}
+          />
+          <div />
+          <ActiveQueryScreen
+            applicationId={applicationId}
+            dataSources={dataSources}
+            history={this.props.history}
+            isCreating={isCreating}
+            location={location}
+            pageId={pageId}
+          />
+
+          {/* <NewSaas /> */}
         </SectionGrid>
       </ApiHomePage>
     );
@@ -428,12 +455,14 @@ const mapStateToProps = (state: AppState) => {
     providersTotal,
     providerCategories: getProviderCategories(state),
     plugins: state.entities.plugins.list,
+    dataSources: getDBDatasources(state),
     isSwitchingCategory,
     apiOrProviderSearchResults,
     previouslySetCategory: state.ui.apiPane.currentCategory,
     initialValues: { category: initialCategoryValue },
     fetchProvidersError,
     colorPalette: getAppCardColorPalette(state),
+    isCreating: state.ui.apiPane.isCreating,
   };
 };
 
