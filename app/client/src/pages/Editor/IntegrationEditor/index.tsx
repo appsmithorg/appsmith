@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { submit } from "redux-form";
 // import ApiEditorForm from "./Form";
 // import RapidApiEditorForm from "./RapidApiEditorForm";
-import ApiHomeScreen from "./ApiHomeScreen";
+import IntegrationsHomeScreen from "./IntegrationsHomeScreen";
 import { deleteAction, runActionInit } from "actions/actionActions";
 import { PaginationField } from "api/ActionAPI";
 import { AppState } from "reducers";
@@ -116,7 +116,7 @@ class ApiEditor extends React.Component<Props> {
           height: "100%",
         }}
       >
-        <ApiHomeScreen
+        <IntegrationsHomeScreen
           applicationId={this.props.match.params.applicationId}
           history={this.props.history}
           location={this.props.location}

@@ -134,7 +134,7 @@ const SectionGrid = styled.div`
   gap: 10px;
 `;
 
-type ApiHomeScreenProps = {
+type IntegrationsHomeScreenProps = {
   initialValues: {
     category: string;
   };
@@ -177,15 +177,15 @@ type ApiHomeScreenProps = {
   colorPalette: string[];
 };
 
-type ApiHomeScreenState = {
+type IntegrationsHomeScreenState = {
   page: number;
   showSearchResults: boolean;
   activePrimaryMenuId: number;
   activeSecondaryMenuId: number;
 };
 
-type Props = ApiHomeScreenProps &
-  InjectedFormProps<{ category: string }, ApiHomeScreenProps>;
+type Props = IntegrationsHomeScreenProps &
+  InjectedFormProps<{ category: string }, IntegrationsHomeScreenProps>;
 
 const PRIMARY_MENU: TabProp[] = [
   {
@@ -225,7 +225,10 @@ const SECONDARY_MENU: TabProp[] = [
   },
 ];
 
-class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
+class IntegrationsHomeScreen extends React.Component<
+  Props,
+  IntegrationsHomeScreenState
+> {
   constructor(props: Props) {
     super(props);
 
@@ -453,7 +456,7 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(
-  reduxForm<{ category: string }, ApiHomeScreenProps>({
+  reduxForm<{ category: string }, IntegrationsHomeScreenProps>({
     form: API_HOME_SCREEN_FORM,
-  })(ApiHomeScreen),
+  })(IntegrationsHomeScreen),
 );
