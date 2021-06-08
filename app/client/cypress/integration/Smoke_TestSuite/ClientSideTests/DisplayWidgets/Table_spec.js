@@ -63,7 +63,44 @@ describe("Table Widget Functionality", function() {
     });
   });
 
+  it("Table Widget Functionality To Search The Data", function() {
+    cy.isSelectRow(1);
+    cy.readTabledataPublish("1", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Lindsay Ferguson");
+      cy.log("the value is" + tabValue);
+      cy.get(publish.searchInput)
+        .first()
+        .type(tabData);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(500);
+      cy.readTabledataPublish("1", "3").then((tabData) => {
+        const tabValue = tabData;
+        expect(tabValue).to.be.equal("Lindsay Ferguson");
+      });
+      cy.get(publish.downloadBtn).click();
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(5000);
+      cy.get(publish.searchInput)
+        .first()
+        .clear()
+        .type("7434532");
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(1000);
+      cy.readTabledataPublish("3", "3").then((tabData) => {
+        const tabValue = tabData;
+        expect(tabValue).to.be.equal("Byron Fields");
+      });
+    });
+  });
+
   it("Table Widget Functionality To Filter The Data", function() {
+    cy.get(publish.searchInput)
+      .first()
+      .clear();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+    cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
