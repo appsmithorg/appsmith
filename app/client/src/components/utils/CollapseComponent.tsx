@@ -6,7 +6,7 @@ import { Collapse, Icon } from "@blueprintjs/core";
 const CollapseWrapper = styled.div`
   position: relative;
   border-top: 1px solid #ffffff2e;
-  padding: 12px;
+  margin-top: 8px;
   .collapse-title {
     color: ${Colors.CADET_BLUE};
     letter-spacing: 0.04em;
@@ -15,7 +15,8 @@ const CollapseWrapper = styled.div`
     font-size: 12px;
     line-height: 16px;
     display: flex;
-    justify-content: space-between;
+    gap: 4px;
+    /* justify-content: space-between; */
     .icon {
       transition: transform 0.3s;
       cursor: pointer;
@@ -24,8 +25,11 @@ const CollapseWrapper = styled.div`
       }
     }
   }
-  .inner-content {
-    margin-top: 12px;
+  .bp3-collapse-body {
+    position: relative !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
   }
 `;
 
@@ -34,7 +38,7 @@ function CollapseComponent(props: {
   title?: string;
   isOpen?: boolean;
 }) {
-  const [open, toggleOpen] = React.useState(true);
+  const [open, toggleOpen] = React.useState(false);
   const handleIsOpen = () => {
     toggleOpen(!open);
   };
