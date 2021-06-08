@@ -20,6 +20,7 @@ import { getOrgLoadingStates } from "selectors/organizationSelectors";
 import FilePicker, {
   SetProgress,
   UploadCallback,
+  FileType,
 } from "components/ads/FilePicker";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 
@@ -171,6 +172,7 @@ export function GeneralSettings() {
             {isFetchingOrg && <FilePickerLoader className={Classes.SKELETON} />}
             {!isFetchingOrg && (
               <FilePicker
+                fileType={FileType.IMAGE}
                 fileUploader={FileUploader}
                 logoUploadError={logoUploadError.message}
                 onFileRemoved={DeleteLogo}

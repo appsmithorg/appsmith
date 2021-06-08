@@ -20,7 +20,7 @@ export function InputText(props: {
   const dataTreePath = actionPathFromName(actionName, name);
 
   return (
-    <div style={{ width: "50vh", height: "55px" }}>
+    <div style={{ width: "50vh", minHeight: "55px" }}>
       <FormLabel>
         {label} {isRequired && "*"}
       </FormLabel>
