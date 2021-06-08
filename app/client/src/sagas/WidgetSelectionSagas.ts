@@ -14,7 +14,7 @@ import { Toaster } from "components/ads/Toast";
 import { createMessage, SELECT_ALL_WIDGETS_MSG } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { getWidgetChildren } from "./WidgetOperationUtils";
-import { getSelectedWidgets } from "selectors/ui";
+import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -102,17 +102,24 @@ function* shiftSelectWidgetsSaga(
   action: ReduxAction<{ widgetId: string; siblingWidgets: string[] }>,
 ) {
   const { siblingWidgets, widgetId } = action.payload;
-  const siblingsTillWidget = siblingWidgets.slice(
-    0,
-    siblingWidgets.findIndex((each) => each === widgetId),
-  );
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  const unSelectedSiblings = siblingsTillWidget.filter(
-    (each) => !selectedWidgets.includes(each),
-  );
+  const lastSelectedWidget: string = yield select(getSelectedWidget);
+  const lastSelectedWidgetIndex = siblingWidgets.indexOf(lastSelectedWidget);
   const isWidgetSelected = selectedWidgets.includes(widgetId);
-  if (!isWidgetSelected && unSelectedSiblings && unSelectedSiblings.length) {
-    yield put(selectMultipleWidgetsAction(unSelectedSiblings));
+  if (!isWidgetSelected && lastSelectedWidgetIndex > -1) {
+    const selectedWidgetIndex = siblingWidgets.indexOf(widgetId);
+    const start =
+      lastSelectedWidgetIndex < selectedWidgetIndex
+        ? lastSelectedWidgetIndex
+        : selectedWidgetIndex;
+    const end =
+      lastSelectedWidgetIndex < selectedWidgetIndex
+        ? selectedWidgetIndex
+        : lastSelectedWidgetIndex;
+    const unSelectedSiblings = siblingWidgets.slice(start + 1, end);
+    if (unSelectedSiblings && unSelectedSiblings.length) {
+      yield put(selectMultipleWidgetsAction(unSelectedSiblings));
+    }
   }
   yield put(selectWidgetInitAction(widgetId, true));
 }

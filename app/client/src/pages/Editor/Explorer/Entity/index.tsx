@@ -31,12 +31,18 @@ const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
 `;
 
+// box-shadow: ${(props) =>
+//   props.highlight ? "0px 0px 0px 1px #e7e7e7" : "none"};
+
 export const EntityItem = styled.div<{
   active: boolean;
   step: number;
   spaced: boolean;
+  highlight: boolean;
 }>`
   position: relative;
+  border-top: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
+  border-bottom: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
   font-size: 12px;
   user-select: none;
   padding-left: ${(props) =>
@@ -92,6 +98,7 @@ export type EntityProps = {
   className?: string;
   name: string;
   children?: ReactNode;
+  highlight?: boolean;
   icon: ReactNode;
   rightIcon?: ReactNode;
   disabled?: boolean;
@@ -162,6 +169,7 @@ export const Entity = forwardRef(
       >
         <EntityItem
           active={!!props.active}
+          highlight={!!props.highlight}
           spaced={!!props.children}
           step={props.step}
         >

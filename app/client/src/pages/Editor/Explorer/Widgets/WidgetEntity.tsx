@@ -14,7 +14,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityProperties from "../Entity/EntityProperties";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
-import { getSelectedWidgets } from "selectors/ui";
+import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
@@ -29,6 +29,7 @@ const useWidget = (
   parentModalId?: string,
 ) => {
   const selectedWidgets = useSelector(getSelectedWidgets);
+  const lastSelectedWidget = useSelector(getSelectedWidget);
   const isWidgetSelected = useMemo(
     () => selectedWidgets && selectedWidgets.includes(widgetId),
     [selectedWidgets, widgetId],
@@ -60,6 +61,7 @@ const useWidget = (
     navigateToWidget: boundNavigateToWidget,
     isWidgetSelected,
     multipleWidgetsSelected,
+    lastSelectedWidget,
   };
 };
 
@@ -85,6 +87,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   if (widgetsToExpand.includes(props.widgetId)) shouldExpand = true;
   const {
     isWidgetSelected,
+    lastSelectedWidget,
     multipleWidgetsSelected,
     navigateToWidget,
   } = useWidget(
@@ -127,6 +130,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       className="widget"
       contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
+      highlight={lastSelectedWidget === props.widgetId}
       icon={getWidgetIcon(props.widgetType)}
       isDefaultExpanded={
         shouldExpand ||

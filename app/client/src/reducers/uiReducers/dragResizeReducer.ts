@@ -46,10 +46,8 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       } else if (!!widgetId) {
         state.selectedWidgets = [...state.selectedWidgets, widgetId];
       }
-      if (state.selectedWidgets.length === 1) {
-        state.lastSelectedWidget = state.selectedWidgets[0];
-      } else {
-        state.lastSelectedWidget = "";
+      if (state.selectedWidgets.length > 0) {
+        state.lastSelectedWidget = removeSelection ? "" : widgetId;
       }
     } else {
       state.lastSelectedWidget = action.payload.widgetId;
@@ -69,11 +67,6 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       state.selectedWidgets = state.selectedWidgets.filter(
         (each) => !widgetIds.includes(each),
       );
-    }
-    if (state.selectedWidgets.length === 1) {
-      state.lastSelectedWidget = state.selectedWidgets[0];
-    } else {
-      state.lastSelectedWidget = "";
     }
   },
   [ReduxActionTypes.SELECT_MULTIPLE_WIDGETS]: (
@@ -97,11 +90,6 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     const { widgetIds } = action.payload;
     if (widgetIds) {
       state.selectedWidgets = [...state.selectedWidgets, ...widgetIds];
-      if (state.selectedWidgets.length > 1) {
-        state.lastSelectedWidget = "";
-      } else {
-        state.lastSelectedWidget = widgetIds[0];
-      }
     }
   },
   [ReduxActionTypes.FOCUS_WIDGET]: (
