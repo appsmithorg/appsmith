@@ -127,18 +127,6 @@ public class EmailEventHandler {
     private <E> Mono<Boolean> sendEmailForComment(String authorUserName, Application application, Organization organization,
                                                   E commentDomain, String originHeader) {
 
-//        for (UserRole userRole : organization.getUserRoles()) {
-//            if (!authorUserName.equals(userRole.getUsername())) {
-//                if (commentDomain instanceof Comment) {
-//                    Comment comment = (Comment) commentDomain;
-//                    getEmailSenderMono(userRole, comment, originHeader, application, organization).block();
-//                } else if (commentDomain instanceof CommentThread) {
-//                    CommentThread commentThread = (CommentThread) commentDomain;
-//                    getEmailSenderMono(userRole, commentThread, originHeader, application, organization).block();
-//                }
-//            }
-//        }
-
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
         for (UserRole userRole : organization.getUserRoles()) {
             if(!authorUserName.equals(userRole.getUsername())) {

@@ -77,7 +77,7 @@ class CommentUtilsTest {
 
     @Test
     public void isUserMentioned_WhenSomeoneIsMentioned_ReturnsCorrectValue() {
-        Map<String, Comment.Entity> entityMap = this.createEntityMapForUsers(
+        Map<String, Comment.Entity> entityMap = createEntityMapForUsers(
                 List.of("1", "2", "3")
         );
         Comment.Body body = new Comment.Body();
