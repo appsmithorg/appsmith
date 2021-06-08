@@ -42,6 +42,12 @@ if [[ -z "${APPSMITH_GOOGLE_MAPS_API_KEY}" ]]; then
     unset APPSMITH_GOOGLE_MAPS_API_KEY
 fi
 
+if [[ -z "${APPSMITH_RECAPTCHA_SITE_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_SECRET_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_ENABLED}" ]]; then
+    unset APPSMITH_RECAPTCHA_SITE_KEY # If this field is empty is might cause application crash
+    unset APPSMITH_RECAPTCHA_SECRET_KEY
+    unset APPSMITH_RECAPTCHA_ENABLED
+fi
+
 cat /etc/nginx/conf.d/default.conf.template | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > /etc/nginx/conf.d/default.conf.template.1
 
 envsubst "\$PORT" < /etc/nginx/conf.d/default.conf.template.1 > /etc/nginx/conf.d/default.conf
