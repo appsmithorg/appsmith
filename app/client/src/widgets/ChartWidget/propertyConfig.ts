@@ -1,5 +1,6 @@
 import { ChartWidgetProps } from "widgets/ChartWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 export default [
   {
@@ -67,8 +68,8 @@ export default [
     children: [
       {
         helpText:
-          "Manually configure a FusionChart, see https://www.fusioncharts.com",
-        placeholderText: `Enter {type: "bar2d","dataSource": {}}`,
+          "Manually configure a FusionChart, see https://docs.appsmith.com/widget-reference/chart#custom-chart",
+        placeholderText: `Enter {"type": "bar2d","dataSource": {}}`,
         propertyName: "customFusionChartConfig",
         label: "Custom Fusion Chart Configuration",
         controlType: "CUSTOM_FUSION_CHARTS_DATA",
@@ -120,6 +121,7 @@ export default [
         },
         hidden: (props: ChartWidgetProps) =>
           props.chartType !== "CUSTOM_FUSION_CHART",
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
         helpText: "Populates the chart with the data",
@@ -166,6 +168,8 @@ export default [
                 },
               },
             },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
         ],
       },

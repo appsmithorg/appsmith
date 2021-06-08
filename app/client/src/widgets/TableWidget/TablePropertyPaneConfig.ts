@@ -3,6 +3,8 @@ import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+
 import _ from "lodash";
 
 function defaultSelectedRowValidation(value: unknown, props: string) {
@@ -223,6 +225,7 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.OBJECT_ARRAY },
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
         helpText: "Columns",
@@ -383,6 +386,7 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
+                  defaultValue: "YYYY-MM-DD HH:mm",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnsHook,
@@ -486,6 +490,7 @@ export default [
                       value: "MM/DD/YY",
                     },
                   ],
+                  defaultValue: "YYYY-MM-DD HH:mm",
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     const baseProperty = getBasePropertyPath(propertyPath);

@@ -7,12 +7,12 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 
 export const DatasourceIcon = styled.div<{ enable?: boolean }>`
-  position: absolute;
-  right: -155px;
-  top: 7px;
   display: flex;
   align-items: center;
   cursor: pointer;
+  margin-left: 10px;
+  height: 100%;
+  min-height: 37px;
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.text.heading};
   }
@@ -35,7 +35,7 @@ type storeDataSourceProps = {
   enable: boolean;
 };
 
-const StoreAsDatasource = (props: storeDataSourceProps) => {
+function StoreAsDatasource(props: storeDataSourceProps) {
   const dispatch = useDispatch();
 
   return (
@@ -48,6 +48,6 @@ const StoreAsDatasource = (props: storeDataSourceProps) => {
       <Text type={TextType.P1}>Save As Datasource</Text>
     </DatasourceIcon>
   );
-};
+}
 
 export default StoreAsDatasource;

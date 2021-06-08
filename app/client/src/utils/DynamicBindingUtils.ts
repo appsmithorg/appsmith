@@ -84,12 +84,10 @@ export const getDynamicBindings = (
 };
 
 export enum EvalErrorTypes {
-  DEPENDENCY_ERROR = "DEPENDENCY_ERROR",
+  CYCLICAL_DEPENDENCY_ERROR = "CYCLICAL_DEPENDENCY_ERROR",
   EVAL_PROPERTY_ERROR = "EVAL_PROPERTY_ERROR",
   WIDGET_PROPERTY_VALIDATION_ERROR = "WIDGET_PROPERTY_VALIDATION_ERROR",
   EVAL_TREE_ERROR = "EVAL_TREE_ERROR",
-  UNESCAPE_STRING_ERROR = "UNESCAPE_STRING_ERROR",
-  EVAL_ERROR = "EVAL_ERROR",
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
   BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
   EVAL_TRIGGER_ERROR = "EVAL_TRIGGER_ERROR",
@@ -158,6 +156,7 @@ export interface WidgetEvaluatedProps {
   invalidProps?: Record<string, boolean>;
   validationMessages?: Record<string, string>;
   evaluatedValues?: Record<string, any>;
+  jsErrorMessages?: Record<string, string>;
 }
 
 export interface EntityWithBindings {

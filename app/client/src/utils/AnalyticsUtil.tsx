@@ -45,6 +45,7 @@ export type EventName =
   | "SAVE_API_CLICK"
   | "RUN_API"
   | "RUN_API_CLICK"
+  | "RUN_API_SHORTCUT"
   | "DELETE_API"
   | "DELETE_API_CLICK"
   | "IMPORT_API"
@@ -56,6 +57,7 @@ export type EventName =
   | "DUPLICATE_API_CLICK"
   | "RUN_QUERY"
   | "RUN_QUERY_CLICK"
+  | "RUN_QUERY_SHORTCUT"
   | "DELETE_QUERY"
   | "SAVE_QUERY"
   | "MOVE_API"
@@ -117,7 +119,11 @@ export type EventName =
   | "CORRECT_BAD_BINDING"
   | "OPEN_DEBUGGER"
   | "DEBUGGER_TAB_SWITCH"
-  | "DEBUGGER_ENTITY_NAVIGATION";
+  | "DEBUGGER_ENTITY_NAVIGATION"
+  | "GSHEET_AUTH_INIT"
+  | "GSHEET_AUTH_COMPLETE"
+  | "CYCLICAL_DEPENDENCY_ERROR"
+  | "DISCORD_LINK_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

@@ -54,12 +54,12 @@ export const canDrag = (
   return !isResizing && !isDraggingDisabled && !props.dragDisabled;
 };
 
-const DraggableComponent = (props: DraggableComponentProps) => {
+function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to toggle property pane
   const showPropertyPane = useShowPropertyPane();
 
   // Dispatch hook handy to set a widget as focused/selected
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget } = useWidgetSelection();
 
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
@@ -68,9 +68,12 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   // This state tells us which widget is selected
   // The value is the widgetId of the selected widget
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
 
+  const selectedWidgets = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
+  );
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
   const focusedWidget = useSelector(
@@ -142,16 +145,6 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
 
-  // When the draggable is clicked
-  const handleClick = (e: any) => {
-    if (!isResizingOrDragging) {
-      selectWidget &&
-        selectedWidget !== props.widgetId &&
-        selectWidget(props.widgetId);
-    }
-    e.stopPropagation();
-  };
-
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
     focusWidget &&
@@ -160,10 +153,12 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       focusWidget(props.widgetId);
     e.stopPropagation();
   };
-
+  const shouldRenderComponent = !(
+    selectedWidgets.includes(props.widgetId) && isDragging
+  );
   // Display this draggable based on the current drag state
   const style: CSSProperties = {
-    display: isCurrentWidgetDragging ? "none" : "flex",
+    display: isCurrentWidgetDragging ? "none" : "block",
   };
 
   // WidgetBoundaries
@@ -172,6 +167,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       style={{
         opacity:
           isResizingOrDragging && selectedWidget !== props.widgetId ? 1 : 0,
+        position: "absolute",
+        transform: `translate(-50%, -50%)`,
+        top: "50%",
+        left: "50%",
       }}
     />
   );
@@ -183,22 +182,17 @@ const DraggableComponent = (props: DraggableComponentProps) => {
 
   const className = `${classNameForTesting}`;
 
-  const shouldRenderComponent = !(
-    selectedWidget === props.widgetId && isDragging
-  );
-
   return (
     <DraggableWrapper
       className={className}
-      ref={drag}
       onMouseOver={handleMouseOver}
-      onClick={handleClick}
+      ref={drag}
       style={style}
     >
       {shouldRenderComponent && props.children}
       {widgetBoundaries}
     </DraggableWrapper>
   );
-};
+}
 
 export default DraggableComponent;

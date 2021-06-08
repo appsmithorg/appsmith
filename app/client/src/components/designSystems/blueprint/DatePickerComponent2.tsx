@@ -107,7 +107,7 @@ class DatePickerComponent extends React.Component<
       ? new Date(this.props.maxDate)
       : now
           .clone()
-          .set({ month: 11, date: 31, year: year + 20 })
+          .set({ month: 11, date: 31, year: year + 100 })
           .toDate();
     const isValid = this.state.selectedDate
       ? this.isValidDate(new Date(this.state.selectedDate))
@@ -142,17 +142,17 @@ class DatePickerComponent extends React.Component<
           >
             <DateInput
               className={this.props.isLoading ? "bp3-skeleton" : ""}
+              closeOnSelection
+              disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              maxDate={maxDate}
+              minDate={minDate}
+              onChange={this.onDateSelected}
               parseDate={this.parseDate}
               placeholder={"Select Date"}
-              disabled={this.props.isDisabled}
-              showActionsBar={true}
+              showActionsBar
               timePrecision={TimePrecision.MINUTE}
-              closeOnSelection
-              onChange={this.onDateSelected}
               value={value}
-              minDate={minDate}
-              maxDate={maxDate}
             />
           </ErrorTooltip>
         }
@@ -168,6 +168,7 @@ class DatePickerComponent extends React.Component<
       if (
         this.props.minDate &&
         parsedMinDate.isValid() &&
+        !parsedCurrentDate.isSame(parsedMinDate, "day") &&
         parsedCurrentDate.isBefore(parsedMinDate)
       ) {
         isValid = false;
@@ -179,6 +180,7 @@ class DatePickerComponent extends React.Component<
         isValid &&
         this.props.maxDate &&
         parsedMaxDate.isValid() &&
+        !parsedCurrentDate.isSame(parsedMaxDate, "day") &&
         parsedCurrentDate.isAfter(parsedMaxDate)
       ) {
         isValid = false;
@@ -194,8 +196,8 @@ class DatePickerComponent extends React.Component<
 
   parseDate = (dateStr: string): Date => {
     const date = moment(dateStr);
-
-    if (date.isValid()) return moment(dateStr).toDate();
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
     else return moment().toDate();
   };
 

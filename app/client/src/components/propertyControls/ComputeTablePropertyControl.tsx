@@ -32,8 +32,6 @@ export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
-  isValid: boolean;
-  errorMessage?: string;
   evaluatedValue?: any;
   expected?: string;
   placeholder?: string;
@@ -42,37 +40,28 @@ export function InputText(props: {
   theme: EditorTheme;
 }) {
   const {
-    errorMessage,
-    expected,
-    value,
-    isValid,
-    onChange,
-    placeholder,
+    additionalDynamicData,
     dataTreePath,
     evaluatedValue,
-    additionalDynamicData,
+    expected,
+    onChange,
+    placeholder,
     theme,
+    value,
   } = props;
   return (
     <StyledDynamicInput>
       <CodeEditor
+        additionalDynamicData={additionalDynamicData}
+        dataTreePath={dataTreePath}
+        evaluatedValue={evaluatedValue}
+        expected={expected}
         input={{
           value: value,
           onChange: onChange,
         }}
-        evaluatedValue={evaluatedValue}
-        expected={expected}
-        dataTreePath={dataTreePath}
-        meta={{
-          error: isValid ? "" : errorMessage,
-          touched: true,
-        }}
-        theme={theme}
         mode={EditorModes.TEXT_WITH_BINDING}
-        tabBehaviour={TabBehaviour.INDENT}
-        size={EditorSize.EXTENDED}
         placeholder={placeholder}
-        additionalDynamicData={additionalDynamicData}
         promptMessage={
           <PromptMessage>
             Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
@@ -80,6 +69,9 @@ export function InputText(props: {
             <CurlyBraces>{"}}"}</CurlyBraces>
           </PromptMessage>
         }
+        size={EditorSize.EXTENDED}
+        tabBehaviour={TabBehaviour.INDENT}
+        theme={theme}
       />
     </StyledDynamicInput>
   );
@@ -90,13 +82,11 @@ class ComputeTablePropertyControl extends BaseControl<
 > {
   render() {
     const {
-      expected,
-      propertyValue,
-      isValid,
-      label,
       dataTreePath,
-      validationMessage,
       defaultValue,
+      expected,
+      label,
+      propertyValue,
       theme,
     } = this.props;
     const tableId = this.props.widgetProperties.widgetName;
@@ -117,17 +107,15 @@ class ComputeTablePropertyControl extends BaseControl<
 
     return (
       <InputText
-        theme={theme}
-        label={label}
-        value={value}
-        onChange={this.onTextChange}
-        isValid={isValid}
-        errorMessage={validationMessage}
-        expected={expected}
-        dataTreePath={dataTreePath}
         additionalDynamicData={{
           currentRow,
         }}
+        dataTreePath={dataTreePath}
+        expected={expected}
+        label={label}
+        onChange={this.onTextChange}
+        theme={theme}
+        value={value}
       />
     );
   }

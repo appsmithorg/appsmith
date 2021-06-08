@@ -41,10 +41,13 @@ import {
   restoreRecentEntitiesRequest,
 } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
+import { initCommentThreads } from "actions/commentActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { executePageLoadActions } from "actions/widgetActions";
+import { getIsEditorInitialized } from "selectors/editorSelectors";
+import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -151,6 +154,9 @@ function* initializeEditorSaga(
       appName: appName,
     });
 
+    // todo remove (for dev)
+    yield put(initCommentThreads());
+
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
@@ -243,6 +249,9 @@ export function* initializeAppViewerSaga(
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
 
+    // todo remove (for dev)
+    yield put(initCommentThreads());
+
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
@@ -260,6 +269,17 @@ export function* initializeAppViewerSaga(
 function* resetEditorSaga() {
   yield put(resetEditorSuccess());
   yield put(resetRecentEntities());
+}
+
+export function* waitForInit() {
+  const isEditorInitialised = yield select(getIsEditorInitialized);
+  const isViewerInitialized = yield select(getIsViewerInitialized);
+  if (!isEditorInitialised && !isViewerInitialized) {
+    yield take([
+      ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
+      ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+    ]);
+  }
 }
 
 export default function* watchInitSagas() {

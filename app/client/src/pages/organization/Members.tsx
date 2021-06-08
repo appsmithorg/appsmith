@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -29,6 +29,7 @@ import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Variant } from "components/ads/common";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
@@ -54,10 +55,39 @@ export default function MemberSettings(props: PageProps) {
     dispatch(fetchOrg(orgId));
   }, [orgId]);
 
+  const [
+    showMemberDeletionConfirmation,
+    setShowMemberDeletionConfirmation,
+  ] = useState(false);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
+  const onOpenConfirmationModal = () => setShowMemberDeletionConfirmation(true);
+  const onCloseConfirmationModal = () =>
+    setShowMemberDeletionConfirmation(false);
+
+  const [userToBeDeleted, setUserToBeDeleted] = useState<{
+    name: string;
+    username: string;
+    orgId: string;
+  } | null>(null);
+
+  const onConfirmMemberDeletion = (
+    name: string,
+    username: string,
+    orgId: string,
+  ) => {
+    setUserToBeDeleted({ name, username, orgId });
+    onOpenConfirmationModal();
+  };
+
+  const onDeleteMember = () => {
+    if (!userToBeDeleted) return null;
+    dispatch(deleteOrgUser(userToBeDeleted.orgId, userToBeDeleted.username));
+  };
+
   const {
-    isFetchingAllUsers,
-    isFetchingAllRoles,
     deletingUserInfo,
+    isFetchingAllRoles,
+    isFetchingAllUsers,
     roleChangingUserInfo,
   } = useSelector(getOrgLoadingStates);
   const allUsers = useSelector(getAllUsers);
@@ -65,6 +95,21 @@ export default function MemberSettings(props: PageProps) {
   const currentOrg = useSelector(getCurrentOrg).filter(
     (el) => el.id === orgId,
   )[0];
+
+  useEffect(() => {
+    if (!!userToBeDeleted && showMemberDeletionConfirmation) {
+      const userBeingDeleted = allUsers.find(
+        (user) => user.username === userToBeDeleted.username,
+      );
+      if (!userBeingDeleted) {
+        setUserToBeDeleted(null);
+        onCloseConfirmationModal();
+        setIsDeletingUser(false);
+      } else {
+        setIsDeletingUser(userBeingDeleted.isDeleting);
+      }
+    }
+  }, [allUsers]);
 
   const userTableData = allUsers.map((user) => ({
     ...user,
@@ -105,8 +150,6 @@ export default function MemberSettings(props: PageProps) {
         }
         return (
           <TableDropdown
-            selectedIndex={index}
-            options={roles}
             isLoading={
               roleChangingUserInfo &&
               roleChangingUserInfo.username ===
@@ -121,7 +164,9 @@ export default function MemberSettings(props: PageProps) {
                 ),
               );
             }}
-          ></TableDropdown>
+            options={roles}
+            selectedIndex={index}
+          />
         );
       },
     },
@@ -130,26 +175,22 @@ export default function MemberSettings(props: PageProps) {
       accessor: "delete",
       disableSortBy: true,
       Cell: function DeleteCell(cellProps: any) {
-        if (
-          cellProps.cell.row.values.username ===
-          useSelector(getCurrentUser)?.username
-        ) {
-          return null;
-        }
         return (
           <Icon
-            name="delete"
-            size={IconSize.LARGE}
             cypressSelector="t--deleteUser"
             isLoading={
               deletingUserInfo &&
               deletingUserInfo.username === cellProps.cell.row.values.username
             }
+            name="delete"
             onClick={() => {
-              dispatch(
-                deleteOrgUser(orgId, cellProps.cell.row.values.username),
+              onConfirmMemberDeletion(
+                cellProps.cell.row.values.username,
+                cellProps.cell.row.values.username,
+                orgId,
               );
             }}
+            size={IconSize.LARGE}
           />
         );
       },
@@ -159,29 +200,39 @@ export default function MemberSettings(props: PageProps) {
   const currentOrgName = currentOrg?.name ?? "";
 
   return (
-    <React.Fragment>
+    <>
       <PageSectionHeader>
         <SettingsHeading type={TextType.H2}>Manage Users</SettingsHeading>
         <FormDialogComponent
+          Form={OrgInviteUsersForm}
+          canOutsideClickClose
+          orgId={orgId}
+          title={`Invite Users to ${currentOrgName}`}
           trigger={
             <Button
               cypressSelector="t--invite-users"
-              variant={Variant.info}
-              text="Invite Users"
               size={Size.medium}
-            ></Button>
+              text="Invite Users"
+              variant={Variant.info}
+            />
           }
-          canOutsideClickClose={true}
-          Form={OrgInviteUsersForm}
-          orgId={orgId}
-          title={`Invite Users to ${currentOrgName}`}
         />
       </PageSectionHeader>
       {isFetchingAllUsers && isFetchingAllRoles ? (
         <Loader className={Classes.SKELETON} />
       ) : (
-        <Table data={userTableData} columns={columns}></Table>
+        <>
+          <Table columns={columns} data={userTableData} />
+          <DeleteConfirmationModal
+            isDeletingUser={isDeletingUser}
+            isOpen={showMemberDeletionConfirmation}
+            name={userToBeDeleted && userToBeDeleted.name}
+            onClose={onCloseConfirmationModal}
+            onConfirm={onDeleteMember}
+            username={userToBeDeleted && userToBeDeleted.username}
+          />
+        </>
       )}
-    </React.Fragment>
+    </>
   );
 }

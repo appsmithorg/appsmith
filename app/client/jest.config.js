@@ -15,7 +15,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|react-dnd|dnd-core|@babel|(@blueprintjs/core/lib/esnext)|(@blueprintjs/core/lib/esm)|@github|lodash-es)",
+    "<rootDir>/node_modules/(?!codemirror|react-dnd|dnd-core|@babel|(@blueprintjs/core/lib/esnext)|(@blueprintjs/core/lib/esm)|@github|lodash-es|@draft-js-plugins)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
@@ -27,6 +27,9 @@ module.exports = {
     "test/(.*)": "<rootDir>/test/$1",
   },
   globals: {
+    "ts-jest": {
+      isolatedModules: true,
+    },
     APPSMITH_FEATURE_CONFIGS: {
       sentry: {
         dsn: parseConfig("__APPSMITH_SENTRY_DSN__"),

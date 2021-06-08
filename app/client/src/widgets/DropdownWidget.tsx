@@ -9,6 +9,7 @@ import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { IconName } from "@blueprintjs/icons";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 function defaultOptionValueValidation(_value: string, props: string) {
   if (props) {
@@ -80,7 +81,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
-            placeholderText: 'Enter [{label: "label1", value: "value2"}]',
+            placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -103,6 +104,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 },
               },
             },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Selects the option with value by default",
@@ -118,6 +121,15 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 fnString: defaultOptionValueValidation.toString(),
               },
             },
+          },
+          {
+            propertyName: "isFilterable",
+            label: "Filterable",
+            helpText: "Makes the dropdown list filterable",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -203,33 +215,28 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const options = this.props.options || [];
+    const options = _.isArray(this.props.options) ? this.props.options : [];
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-    const computedSelectedIndexArr = this.getSelectedOptionValueArr()
-      .map((opt: string) =>
-        _.findIndex(this.props.options, {
-          value: opt,
-        }),
-      )
-      .filter((i: number) => i > -1);
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const computedSelectedIndexArr = this.props.selectedIndexArr || [];
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
-        onOptionSelected={this.onOptionSelected}
-        onOptionRemoved={this.onOptionRemoved}
-        widgetId={this.props.widgetId}
-        placeholder={this.props.placeholderText}
-        options={options}
+        disabled={this.props.isDisabled}
         height={componentHeight}
-        width={componentWidth}
-        selectionType={this.props.selectionType}
+        isFilterable={this.props.isFilterable}
+        isLoading={this.props.isLoading}
+        label={`${this.props.label}`}
+        onOptionRemoved={this.onOptionRemoved}
+        onOptionSelected={this.onOptionSelected}
+        options={options}
+        placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         selectedIndexArr={computedSelectedIndexArr}
-        label={`${this.props.label}`}
-        isLoading={this.props.isLoading}
-        disabled={this.props.isDisabled}
+        selectionType={this.props.selectionType}
+        widgetId={this.props.widgetId}
+        width={componentWidth}
       />
     );
   }
@@ -329,6 +336,7 @@ export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   onOptionChange?: string;
   defaultOptionValue?: string | string[];
   isRequired: boolean;
+  isFilterable: boolean;
   selectedOptionValue: string;
   selectedOptionValueArr: string[];
   selectedOptionLabels: string[];

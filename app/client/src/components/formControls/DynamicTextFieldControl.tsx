@@ -61,12 +61,12 @@ class DynamicTextControl extends BaseControl<
 
   render() {
     const {
-      responseType,
-      label,
-      placeholderText,
       actionName,
       configProperty,
       evaluationSubstitutionType,
+      label,
+      placeholderText,
+      responseType,
     } = this.props;
     const dataTreePath = actionPathFromName(actionName, configProperty);
     const isNewQuery =
@@ -100,14 +100,14 @@ class DynamicTextControl extends BaseControl<
           />
         ) : (
           <DynamicTextField
-            size={EditorSize.EXTENDED}
-            name={this.props.configProperty}
-            dataTreePath={dataTreePath}
             className="dynamic-text-field"
-            mode={mode}
-            tabBehaviour={TabBehaviour.INDENT}
-            placeholder={placeholderText}
+            dataTreePath={dataTreePath}
             evaluationSubstitutionType={evaluationSubstitutionType}
+            mode={mode}
+            name={this.props.configProperty}
+            placeholder={placeholderText}
+            size={EditorSize.EXTENDED}
+            tabBehaviour={TabBehaviour.INDENT}
           />
         )}
       </Wrapper>

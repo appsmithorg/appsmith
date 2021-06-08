@@ -38,6 +38,7 @@ import {
   useParentWithEnhancementFn,
 } from "sagas/WidgetEnhancementHelpers";
 import { getExpectedValue } from "utils/validation/common";
+import { ControlData } from "components/propertyControls/BaseControl";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -51,12 +52,13 @@ const PropertyControl = memo((props: Props) => {
     widgetProperties.widgetId,
   );
 
-  /** get all child enhancments functions */
+  /** get all child enhancements functions */
   const {
-    propertyPaneEnhancmentFn: childWidgetPropertyUpdateEnhancementFn,
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
+    propertyPaneEnhancementFn: childWidgetPropertyUpdateEnhancementFn,
+    updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
   } = useChildWidgetEnhancementFns(widgetProperties.widgetId);
 
   const toggleDynamicProperty = useCallback(
@@ -160,7 +162,7 @@ const PropertyControl = memo((props: Props) => {
           const allUpdates: Record<string, unknown> = {};
           const triggerPaths: string[] = [];
           hookPropertiesUpdates.forEach(
-            ({ propertyPath, propertyValue, isDynamicTrigger }) => {
+            ({ isDynamicTrigger, propertyPath, propertyValue }) => {
               allUpdates[propertyPath] = propertyValue;
               if (isDynamicTrigger) triggerPaths.push(propertyPath);
             },
@@ -242,41 +244,28 @@ const PropertyControl = memo((props: Props) => {
     return null;
   }
 
-  const getPropertyValidation = (
-    propertyName: string,
-  ): { isValid: boolean; validationMessage?: string } => {
-    let isValid = true;
-    let validationMessage = "";
-    if (widgetProperties) {
-      isValid = widgetProperties.invalidProps
-        ? !_.has(widgetProperties.invalidProps, propertyName)
-        : true;
-      const validationMsgPresent =
-        widgetProperties.validationMessages &&
-        _.has(widgetProperties.validationMessages, propertyName);
-      validationMessage = validationMsgPresent
-        ? _.get(widgetProperties.validationMessages, propertyName)
-        : "";
-    }
-    return { isValid, validationMessage };
-  };
-
-  const { propertyName, label } = props;
+  const { label, propertyName } = props;
   if (widgetProperties) {
     const propertyValue = _.get(widgetProperties, propertyName);
-    const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    // get the dataTreePath and apply enhancement if exists
+    // TODO (hetu) make the dataTreePath the actual path of the property
+    // and evaluatedValues should not be added by default
+    let dataTreePath: string | undefined =
+      props.dataTreePath ||
+      `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    if (childWidgetDataTreePathEnhancementFn) {
+      dataTreePath = childWidgetDataTreePathEnhancementFn(dataTreePath);
+    }
+
     const evaluatedValue = _.get(
       widgetProperties,
       `evaluatedValues.${propertyName}`,
     );
 
-    const { isValid, validationMessage } = getPropertyValidation(propertyName);
     const { additionalAutoComplete, ...rest } = props;
-    const config = {
+    const config: ControlData = {
       ...rest,
-      isValid,
       propertyValue,
-      validationMessage,
       dataTreePath,
       evaluatedValue,
       widgetProperties,
@@ -288,7 +277,7 @@ const PropertyControl = memo((props: Props) => {
     const expectedValue = getExpectedValue(props.validation);
     config.expected = `Type: ${expectedValue?.type} -- Eg: ${expectedValue?.example}`;
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
-      config.isValid = true;
+      // config.isValid = true;
       config.validationMessage = "";
       delete config.dataTreePath;
       delete config.evaluatedValue;
@@ -346,30 +335,30 @@ const PropertyControl = memo((props: Props) => {
           }
         >
           <Boxed
-            step={OnboardingStep.DEPLOY}
             show={
               propertyName !== "isRequired" && propertyName !== "isDisabled"
             }
+            step={OnboardingStep.DEPLOY}
           >
             <ControlPropertyLabelContainer>
               <PropertyHelpLabel
-                tooltip={props.helpText}
                 label={label}
                 theme={props.theme}
+                tooltip={props.helpText}
               />
               {isConvertible && (
                 <JSToggleButton
                   active={isDynamic}
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
                   className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
                 >
                   <ControlIcons.JS_TOGGLE />
                 </JSToggleButton>
               )}
             </ControlPropertyLabelContainer>
             <Indicator
-              step={OnboardingStep.ADD_INPUT_WIDGET}
               show={propertyName === "onSubmit"}
+              step={OnboardingStep.ADD_INPUT_WIDGET}
             >
               {PropertyControlFactory.createControl(
                 config,

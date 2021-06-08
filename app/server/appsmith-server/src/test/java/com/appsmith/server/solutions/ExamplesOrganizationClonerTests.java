@@ -851,7 +851,9 @@ public class ExamplesOrganizationClonerTests {
                             Set.of(
                                     new Property("custom token param 1", "custom token param value 1"),
                                     new Property("custom token param 2", "custom token param value 2")
-                            )
+                            ),
+                            null,
+                            null
                     ));
 
                     final Datasource ds3 = new Datasource();
@@ -929,7 +931,8 @@ public class ExamplesOrganizationClonerTests {
                                         .thenReturn(targetOrg1);
                             });
                 })
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadOrganizationData)
+                .doOnError(error -> log.error("Error in test", error));
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {

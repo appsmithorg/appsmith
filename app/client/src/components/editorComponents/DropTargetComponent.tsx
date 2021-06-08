@@ -49,13 +49,13 @@ const StyledDropTarget = styled.div`
   user-select: none;
 `;
 
-const Onboarding = () => {
+function Onboarding() {
   return (
     <div style={{ position: "fixed", left: "50%", top: "50vh" }}>
       <h2 style={{ color: "#ccc" }}>Drag and drop a widget here</h2>
     </div>
   );
-};
+}
 
 /*
   This context will provide the function which will help the draglayer and resizablecomponents trigger
@@ -66,7 +66,7 @@ export const DropTargetContext: Context<{
   persistDropTargetRows?: (widgetId: string, row: number) => void;
 }> = createContext({});
 
-export const DropTargetComponent = (props: DropTargetComponentProps) => {
+export function DropTargetComponent(props: DropTargetComponentProps) {
   const canDropTargetExtend = props.canExtend;
 
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -74,7 +74,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -99,7 +99,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const [rows, setRows] = useState(snapRows);
 
   const showPropertyPane = useShowPropertyPane();
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
 
   useEffect(() => {
@@ -237,12 +237,9 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const handleFocus = (e: any) => {
     if (!isResizing && !isDragging) {
       if (!props.parentId) {
-        selectWidget && selectWidget(props.widgetId);
+        deselectAll();
         focusWidget && focusWidget(props.widgetId);
         showPropertyPane && showPropertyPane();
-      } else {
-        selectWidget && selectWidget(props.parentId);
-        focusWidget && focusWidget(props.parentId);
       }
     }
     // commenting this out to allow propagation of click events
@@ -267,37 +264,37 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       value={{ updateDropTargetRows, persistDropTargetRows }}
     >
       <StyledDropTarget
+        className={"t--drop-target"}
         onClick={handleFocus}
         ref={dropRef}
         style={{
           height,
           border,
         }}
-        className={"t--drop-target"}
       >
         {props.children}
         {!(childWidgets && childWidgets.length) &&
           !isDragging &&
           !props.parentId && <Onboarding />}
         <DragLayerComponent
-          parentWidgetId={props.widgetId}
           canDropTargetExtend={canDropTargetExtend}
-          parentRowHeight={props.snapRowSpace}
-          parentColumnWidth={props.snapColumnSpace}
-          visible={isExactlyOver || isChildResizing}
+          force={isDragging && !isOver && !props.parentId}
           isOver={isExactlyOver}
-          occupiedSpaces={spacesOccupiedBySiblingWidgets}
-          onBoundsUpdate={handleBoundsUpdate}
-          parentRows={rows}
-          parentCols={props.snapColumns}
           isResizing={isChildResizing}
           noPad={props.noPad || false}
-          force={isDragging && !isOver && !props.parentId}
+          occupiedSpaces={spacesOccupiedBySiblingWidgets}
+          onBoundsUpdate={handleBoundsUpdate}
+          parentCols={props.snapColumns}
+          parentColumnWidth={props.snapColumnSpace}
+          parentRowHeight={props.snapRowSpace}
+          parentRows={rows}
+          parentWidgetId={props.widgetId}
+          visible={isExactlyOver || isChildResizing}
         />
       </StyledDropTarget>
     </DropTargetContext.Provider>
   );
-};
+}
 
 const MemoizedDropTargetComponent = memo(DropTargetComponent);
 

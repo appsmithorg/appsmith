@@ -9,10 +9,10 @@ import { JSXElementConstructor } from "react";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
-  default: styled,
-  css,
-  keyframes,
   createGlobalStyle,
+  css,
+  default: styled,
+  keyframes,
   ThemeProvider,
 } = styledComponents as styledComponents.ThemedStyledComponentsModule<Theme>;
 
@@ -887,6 +887,65 @@ type ColorType = {
     iconPath: string;
     iconCircle: string;
   };
+  comments: {
+    profileUserName: string;
+    threadTitle: string;
+    commentBody: string;
+    profileImageBorder: string;
+    mention: string;
+    threadContainerBorder: string;
+    addCommentInputBorder: string;
+    sendButton: string;
+    addCommentInputBackground: string;
+    pin: string;
+    activeModeBackground: string;
+    activeModeIcon: string;
+    modeIcon: string;
+    emojiPicker: string;
+    resolved: string;
+    unresolved: string;
+    resolvedFill: string;
+    unresolvedFill: string;
+    resolvedPath: string;
+    childCommentsIndent: string;
+    commentBackground: string;
+    contextMenuTrigger: string;
+    contextMenuItemHover: ShadeColor;
+    contextMenuIcon: ShadeColor;
+    contextMenuIconHover: ShadeColor;
+    contextMenuIconStroke: ShadeColor;
+    contextMenuIconStrokeHover: ShadeColor;
+    contextMenuTitle: ShadeColor;
+    contextMenuTitleHover: ShadeColor;
+    appCommentsHeaderTitle: ShadeColor;
+    appCommentsClose: ShadeColor;
+    viewLatest: string;
+    commentTime: string;
+    pinId: string;
+    commentsFilter: string;
+    appCommentsHeaderBorder: string;
+    unreadIndicator: string;
+    unreadIndicatorCommentCard: string;
+    pinnedByText: string;
+    pinnedThreadBackground: string;
+    visibleThreadBackground: string;
+    cardOptionsIcon: string;
+    appCommentsPlaceholderText: string;
+    cardHoverBackground: string;
+    introTitle: string;
+    introContent: string;
+  };
+  mentionSuggestion: {
+    nameText: string;
+    usernameText: string;
+    hover: string;
+  };
+  reactionsComponent: {
+    reactionBackground: string;
+    reactionBackgroundActive: string;
+    text: string;
+    textActive: string;
+  };
   treeDropdown: {
     targetBg: string;
     targetIcon: {
@@ -960,6 +1019,82 @@ type ColorType = {
     itemHighlight: string;
     background: string;
   };
+  mentionsInput: Record<string, string>;
+  showcaseCarousel: Record<string, string>;
+  displayImageUpload: Record<string, string>;
+};
+
+const displayImageUpload = {
+  background: "#AEBAD9",
+  label: "#457AE6",
+};
+
+const showcaseCarousel = {
+  activeStepDot: "#F86A2B",
+  inactiveStepDot: "#FEEDE5",
+};
+
+const reactionsComponent = {
+  reactionBackground: lightShades[2],
+  reactionBackgroundActive: "#FEEDE5",
+  text: lightShades[7],
+  textActive: "#BF4109",
+  borderActive: "#BF4109",
+};
+
+const mentionSuggestion = {
+  nameText: "#090707",
+  usernameText: "#716E6E",
+  hover: "#EBEBEB",
+};
+
+const comments = {
+  introTitle: "#090707",
+  introContent: "#716E6E",
+  commentsFilter: "#6A86CE",
+  profileUserName: darkShades[11],
+  threadTitle: darkShades[8],
+  commentBody: darkShades[8],
+  profileImageBorder: Colors.JAFFA_DARK,
+  mention: "#F86A2B",
+  threadContainerBorder: lightShades[5],
+  addCommentInputBorder: lightShades[13],
+  sendButton: "#6A86CE",
+  addCommentInputBackground: "#FAFAFA",
+  pin: "#EF4141",
+  activeModeBackground: "#090707",
+  emojiPicker: lightShades[5],
+  resolved: Colors.BLACK,
+  unresolved: lightShades[5],
+  resolvedFill: Colors.BLACK,
+  unresolvedFill: "transparent",
+  resolvedPath: Colors.WHITE,
+  childCommentsIndent: lightShades[13],
+  commentBackground: lightShades[2],
+  contextMenuTrigger: darkShades[6],
+  contextMenuItemHover: lightShades[2],
+  contextMenuIcon: darkShades[6],
+  contextMenuIconHover: darkShades[11],
+  contextMenuIconStroke: darkShades[6],
+  contextMenuIconStrokeHover: darkShades[11],
+  contextMenuTitle: lightShades[8],
+  contextMenuTitleHover: darkShades[11],
+  appCommentsHeaderTitle: darkShades[11],
+  appCommentsClose: lightShades[15],
+  viewLatest: "#F86A2B",
+  commentTime: lightShades[7],
+  pinId: lightShades[8],
+  appCommentsHeaderBorder: lightShades[3],
+  unreadIndicator: "#E00D0D",
+  unreadIndicatorCommentCard: "#F86A2B",
+  pinnedByText: lightShades[7],
+  pinnedThreadBackground: "#FFFAE9",
+  visibleThreadBackground: "#FBEED0",
+  cardOptionsIcon: "#777272",
+  appCommentsPlaceholderText: lightShades[8],
+  activeModeIcon: "#F0F0F0",
+  modeIcon: "#6D6D6D",
+  cardHoverBackground: "#FAFAFA",
 };
 
 const auth: any = {
@@ -1020,9 +1155,23 @@ const globalSearch = {
   navigateToEntityEnterkey: "#3DA5D9",
 };
 
+const mentionsInput = {
+  suggestionsListBackground: "#fff",
+  suggestionsListBorder: "rgba(0,0,0,0.15)",
+  focusedItemBackground: "#cee4e5",
+  itemBorderBottom: "#cee4e5",
+  mentionBackground: "#cee4e5",
+};
+
 export const dark: ColorType = {
+  displayImageUpload,
+  showcaseCarousel,
+  mentionSuggestion,
+  reactionsComponent,
+  mentionsInput,
   helpModal,
   globalSearch,
+  comments,
   selected: darkShades[10],
   header: {
     separator: darkShades[4],
@@ -1464,8 +1613,14 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  displayImageUpload,
+  showcaseCarousel,
+  mentionSuggestion,
+  reactionsComponent,
+  mentionsInput,
   helpModal,
   globalSearch,
+  comments,
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
@@ -1981,7 +2136,7 @@ export const theme: Theme = {
     },
     btnSmall: {
       fontSize: 11,
-      lineHeight: 13,
+      lineHeight: 12,
       letterSpacing: 0.4,
       fontWeight: 600,
     },
@@ -2076,7 +2231,7 @@ export const theme: Theme = {
     paneTextUnderline: Colors.LIGHT_GREYISH_BLUE,
     paneSectionLabel: Colors.CADET_BLUE,
     navBG: Colors.SHARK,
-    grid: Colors.TROUT,
+    grid: Colors.ALTO2,
     containerBorder: Colors.FRENCH_PASS,
     menuButtonBGInactive: Colors.JUNGLE_MIST,
     menuIconColorInactive: Colors.OXFORD_BLUE,
@@ -2154,7 +2309,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  canvasPadding: "20px 0 200px 0",
+  canvasPadding: "0 0 200px 0",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,

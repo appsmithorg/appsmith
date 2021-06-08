@@ -12,7 +12,7 @@ type SearchProps = {
   children: React.ReactNode;
 };
 
-const Search = ({ query, children }: SearchProps) => {
+function Search({ children, query }: SearchProps) {
   const [queryInState, setQueryInState] = useState(query);
   const debouncedSetQueryInState = useCallback(
     debounce(setQueryInState, 100),
@@ -25,13 +25,13 @@ const Search = ({ query, children }: SearchProps) => {
 
   return (
     <InstantSearch
-      searchState={{ query: queryInState }}
       indexName={algolia.indexName}
       searchClient={searchClient}
+      searchState={{ query: queryInState }}
     >
       {children}
     </InstantSearch>
   );
-};
+}
 
 export default Search;

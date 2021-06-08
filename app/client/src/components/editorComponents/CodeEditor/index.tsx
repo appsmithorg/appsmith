@@ -14,7 +14,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { WrappedFieldInputProps } from "redux-form";
 import _ from "lodash";
 import {
   DataTree,
@@ -50,6 +50,7 @@ import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
 import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -59,8 +60,8 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
   "Tab",
   "Escape",
-  "Backspace",
   "Comma",
+  "Backspace",
 ];
 
 interface ReduxStateProps {
@@ -72,7 +73,6 @@ export type EditorStyleProps = {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   height?: string | number;
-  meta?: Partial<WrappedFieldMetaProps>;
   showLineNumbers?: boolean;
   className?: string;
   leftImage?: string;
@@ -262,6 +262,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorFocus = () => {
+    if (this.state.isFocused) return;
     this.setState({ isFocused: true });
     this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
@@ -272,9 +273,9 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
-    this.setState({ isFocused: false });
+    if (!cm.state.completionActive) this.setState({ isFocused: false });
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
@@ -301,7 +302,11 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    this.hinters.forEach((hinter) => hinter.showHint(cm));
+    const expected = this.props.expected ? this.props.expected : "";
+    const { entityName } = getEntityNameAndPropertyPath(
+      this.props.dataTreePath || "",
+    );
+    this.hinters.forEach((hinter) => hinter.showHint(cm, expected, entityName));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -335,34 +340,81 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  getPropertyValidation = (
+    dataTree: DataTree,
+    dataTreePath?: string,
+  ): {
+    isValid: boolean;
+    validationMessage?: string;
+    jsErrorMessage?: string;
+  } => {
+    if (!dataTreePath) {
+      return { isValid: true, validationMessage: "", jsErrorMessage: "" };
+    }
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      dataTreePath,
+    );
+    let isValidPath, validationMessagePath, jsErrorMessagePath;
+    if (dataTreePath && dataTreePath.match(/evaluatedValues/g)) {
+      isValidPath = dataTreePath.replace("evaluatedValues", "invalidProps");
+      validationMessagePath = dataTreePath.replace(
+        "evaluatedValues",
+        "validationMessages",
+      );
+      jsErrorMessagePath = dataTreePath.replace(
+        "evaluatedValues",
+        "jsErrorMessages",
+      );
+    } else {
+      isValidPath = entityName + "invalidProps" + propertyPath;
+      validationMessagePath =
+        entityName + ".validationMessages." + propertyPath;
+      jsErrorMessagePath = entityName + ".jsErrorMessages." + propertyPath;
+    }
+    const isValid = !_.get(dataTree, isValidPath, false);
+    const validationMessage = _.get(
+      dataTree,
+      validationMessagePath,
+      "",
+    ) as string;
+    const jsErrorMessage = _.get(dataTree, jsErrorMessagePath, "") as string;
+
+    return { isValid, validationMessage, jsErrorMessage };
+  };
+
   render() {
     const {
-      input,
-      meta,
-      theme,
-      disabled,
+      border,
+      borderLess,
       className,
+      dataTreePath,
+      disabled,
+      dynamicData,
+      evaluatedValue,
+      evaluationSubstitutionType,
+      expected,
+      fill,
+      height,
+      hideEvaluatedValue,
+      hoverInteraction,
+      input,
       placeholder,
       showLightningMenu,
-      dataTreePath,
-      dynamicData,
-      expected,
       size,
-      evaluatedValue,
-      height,
-      borderLess,
-      border,
-      hoverInteraction,
-      fill,
+      theme,
       useValidationMessage,
-      hideEvaluatedValue,
-      evaluationSubstitutionType,
     } = this.props;
-    const hasError = !!(meta && meta.error);
+    const {
+      isValid,
+      jsErrorMessage,
+      validationMessage,
+    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const hasError = !isValid || !!jsErrorMessage;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = _.get(dynamicData, dataTreePath);
     }
+
     const showEvaluatedValue =
       this.state.isFocused &&
       ("evaluatedValue" in this.props ||
@@ -370,55 +422,56 @@ class CodeEditor extends Component<Props, State> {
 
     return (
       <DynamicAutocompleteInputWrapper
-        theme={this.props.theme}
-        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
-        isError={hasError}
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
+        isError={hasError}
         isNotHover={this.state.isFocused || this.state.isOpened}
+        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
+        theme={this.props.theme}
       >
         {showLightningMenu !== false && !this.state.isFocused && (
           <Suspense fallback={<div />}>
             <LightningMenu
+              isFocused={this.state.isFocused}
+              isOpened={this.state.isOpened}
+              onCloseLightningMenu={() => {
+                this.setState({ isOpened: false });
+              }}
+              onOpenLightningMenu={() => {
+                this.setState({ isOpened: true });
+              }}
               skin={
                 this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT
               }
               updateDynamicInputValue={this.updatePropertyValue}
-              isFocused={this.state.isFocused}
-              isOpened={this.state.isOpened}
-              onOpenLightningMenu={() => {
-                this.setState({ isOpened: true });
-              }}
-              onCloseLightningMenu={() => {
-                this.setState({ isOpened: false });
-              }}
             />
           </Suspense>
         )}
         <EvaluatedValuePopup
-          theme={theme || EditorTheme.LIGHT}
-          isOpen={showEvaluatedValue}
+          error={validationMessage}
           evaluatedValue={evaluated}
+          evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
           hasError={hasError}
-          error={meta?.error}
-          useValidationMessage={useValidationMessage}
           hideEvaluatedValue={hideEvaluatedValue}
-          evaluationSubstitutionType={evaluationSubstitutionType}
+          isOpen={showEvaluatedValue}
+          jsError={jsErrorMessage}
+          theme={theme || EditorTheme.LIGHT}
+          useValidationMessage={useValidationMessage}
         >
           <EditorWrapper
-            editorTheme={this.props.theme}
-            hasError={hasError}
-            size={size}
-            isFocused={this.state.isFocused}
-            disabled={disabled}
-            className={className}
-            height={height}
-            borderLess={borderLess}
             border={border}
-            isNotHover={this.state.isFocused || this.state.isOpened}
-            hoverInteraction={hoverInteraction}
+            borderLess={borderLess}
+            className={className}
+            disabled={disabled}
+            editorTheme={this.props.theme}
             fill={fill}
+            hasError={hasError}
+            height={height}
+            hoverInteraction={hoverInteraction}
+            isFocused={this.state.isFocused}
+            isNotHover={this.state.isFocused || this.state.isOpened}
             ref={this.editorWrapperRef}
+            size={size}
           >
             <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (
@@ -427,9 +480,9 @@ class CodeEditor extends Component<Props, State> {
 
             {this.props.leftImage && (
               <img
-                src={this.props.leftImage}
                 alt="img"
                 className="leftImageStyles"
+                src={this.props.leftImage}
               />
             )}
             <textarea
@@ -439,24 +492,22 @@ class CodeEditor extends Component<Props, State> {
               placeholder={placeholder}
             />
             {this.props.link && (
-              <React.Fragment>
-                <a
-                  href={this.props.link}
-                  target="_blank"
-                  className="linkStyles"
-                  rel="noopener noreferrer"
-                >
-                  API documentation
-                </a>
-              </React.Fragment>
+              <a
+                className="linkStyles"
+                href={this.props.link}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                API documentation
+              </a>
             )}
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
             <BindingPrompt
+              editorTheme={this.props.theme}
               isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
               promptMessage={this.props.promptMessage}
-              editorTheme={this.props.theme}
             />
             <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>

@@ -619,20 +619,26 @@ function getDynamicBindingsChangesSaga(
 }
 
 function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
-  const { actionId, value, propertyName } = action.payload;
+  const { actionId, propertyName, value } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
 
   const actionObj = yield select(getAction, actionId);
+  const fieldToBeUpdated = propertyName.replace(
+    "actionConfiguration",
+    "config",
+  );
   AppsmithConsole.info({
+    logType: LOG_TYPE.ACTION_UPDATE,
     text: "Configuration updated",
     source: {
       type: ENTITY_TYPE.ACTION,
       name: actionObj.name,
       id: actionId,
+      propertyPath: fieldToBeUpdated,
     },
     state: {
-      [propertyName]: value,
+      [fieldToBeUpdated]: value,
     },
   });
 

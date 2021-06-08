@@ -1,7 +1,23 @@
 import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import _ from "lodash";
-import { useSpring, animated, interpolate } from "react-spring";
+import { animated } from "react-spring";
+import { useSpring, interpolate } from "react-spring";
+
+export const ScrollThumb = styled(animated.div)<{
+  mode?: "DARK" | "LIGHT";
+}>`
+  position: relative;
+  width: 4px;
+  transform: translate3d(0, 0, 0);
+  background-color: ${(props) =>
+    props.mode
+      ? props.mode === "LIGHT"
+        ? props.theme.colors.scrollbarLight
+        : props.theme.colors.scrollbarDark
+      : props.theme.colors.scrollbarLight};
+  border-radius: ${(props) => props.theme.radii[3]}px;
+`;
 
 const ScrollTrack = styled.div<{
   isVisible: boolean;
@@ -12,32 +28,20 @@ const ScrollTrack = styled.div<{
 }>`
   position: absolute;
   z-index: 100;
+  overflow: hidden;
+  transition: opacity 0.15s ease-in;
   top: ${(props) => (props.top ? props.top : "0px")};
   bottom: ${(props) => (props.bottom ? props.bottom : "0px")};
   right: ${(props) => (props.right ? props.right : "2px")};
-  width: 4px;
+  opacity: ${(props) => (props.isVisible ? 1 : 0)};
   box-shadow: inset 0 0 6px
     ${(props) =>
       props.mode
         ? props.mode === "LIGHT"
           ? props.theme.colors.scrollbarLightBG
           : props.theme.colors.scrollbarDarkBG
-        : props.theme.colors.scrollbarBG};
-  overflow: hidden;
-  opacity: ${(props) => (props.isVisible ? 1 : 0)};
-  transition: opacity 0.15s ease-in;
-`;
-
-const ScrollThumb = styled(animated.div)<{ mode?: "DARK" | "LIGHT" }>`
+        : props.theme.colors.scrollbarLightBG};
   width: 4px;
-  background-color: ${(props) =>
-    props.mode
-      ? props.mode === "LIGHT"
-        ? props.theme.colors.scrollbarLight
-        : props.theme.colors.scrollbarDark
-      : props.theme.colors.scrollbar};
-  border-radius: ${(props) => props.theme.radii[3]}px;
-  transform: translate3d(0, 0, 0);
 `;
 
 interface Props {
@@ -45,9 +49,16 @@ interface Props {
   top?: string;
   bottom?: string;
   right?: string;
+  alwaysShowScrollbar?: boolean;
   mode?: "DARK" | "LIGHT";
 }
-const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
+function ScrollIndicator({
+  alwaysShowScrollbar,
+  bottom,
+  containerRef,
+  right,
+  top,
+}: Props) {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
     config: {
@@ -65,7 +76,9 @@ const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
       tension: 800,
     },
   }));
-  const [isScrollVisible, setIsScrollVisible] = useState(false);
+  const [isScrollVisible, setIsScrollVisible] = useState(
+    alwaysShowScrollbar || false,
+  );
   const thumbRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -100,15 +113,14 @@ const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
   }, [isScrollVisible]);
 
   const hideScrollbar = _.debounce(() => {
-    setIsScrollVisible(false);
+    setIsScrollVisible(alwaysShowScrollbar || false);
   }, 1500);
-
   return (
     <ScrollTrack
-      isVisible={isScrollVisible}
-      top={top}
       bottom={bottom}
+      isVisible={isScrollVisible}
       right={right}
+      top={top}
     >
       <ScrollThumb
         ref={thumbRef}
@@ -121,6 +133,6 @@ const ScrollIndicator = ({ containerRef, top, bottom, right }: Props) => {
       />
     </ScrollTrack>
   );
-};
+}
 
 export default ScrollIndicator;

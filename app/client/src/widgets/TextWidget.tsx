@@ -145,16 +145,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getPageView() {
     return (
       <TextComponent
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
-        text={this.props.text}
-        fontStyle={this.props.fontStyle}
-        fontSize={this.props.fontSize}
-        textColor={this.props.textColor}
         backgroundColor={this.props.backgroundColor}
-        textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
+        fontSize={this.props.fontSize}
+        fontStyle={this.props.fontStyle}
         isLoading={this.props.isLoading}
+        key={this.props.widgetId}
         shouldScroll={this.props.shouldScroll}
+        text={this.props.text}
+        textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
+        textColor={this.props.textColor}
+        widgetId={this.props.widgetId}
       />
     );
   }

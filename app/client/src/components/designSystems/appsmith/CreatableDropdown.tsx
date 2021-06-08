@@ -77,14 +77,14 @@ const selectStyles = {
 class CreatableDropdown extends React.Component<DropdownProps> {
   render() {
     const {
-      placeholder,
-      options,
-      isLoading,
-      input,
-      noOptionsMessage,
       components,
+      input,
       inputValue,
+      isLoading,
+      noOptionsMessage,
       onInputChange,
+      options,
+      placeholder,
     } = this.props;
     const optionalProps: Partial<DropdownProps> = {};
     if (noOptionsMessage) optionalProps.noOptionsMessage = noOptionsMessage;
@@ -94,12 +94,14 @@ class CreatableDropdown extends React.Component<DropdownProps> {
 
     return (
       <Select
-        isMulti
-        placeholder={placeholder}
-        options={options}
-        styles={selectStyles}
         isLoading={isLoading}
+        isMulti
+        options={options}
+        placeholder={placeholder}
+        styles={selectStyles}
         {...input}
+        isClearable
+        onBlur={() => input.value}
         onChange={(value) => {
           const formattedValue = value;
           if (formattedValue && formattedValue.length > 1) {
@@ -108,8 +110,6 @@ class CreatableDropdown extends React.Component<DropdownProps> {
 
           input.onChange(formattedValue);
         }}
-        onBlur={() => input.value}
-        isClearable
         {...optionalProps}
       />
     );

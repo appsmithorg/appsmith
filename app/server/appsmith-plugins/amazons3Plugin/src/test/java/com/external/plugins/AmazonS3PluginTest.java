@@ -14,6 +14,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.RequestParamDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -30,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -409,6 +412,20 @@ public class AmazonS3PluginTest {
                     String message = (String) result.getBody();
                     assertTrue(message.contains("File content is not base64 encoded"));
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
+                            "UPLOAD_FILE_FROM_BODY", null, null, null)); // Action
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1), "bucket_name",
+                            null, null, null)); // Bucket name
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(6), "Base64", null,
+                            null, null)); // File data type
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -496,6 +513,20 @@ public class AmazonS3PluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Map<String, Object> body = (Map<String, Object>) result.getBody();
                     assertEquals(new String(Base64.encode(dummyContent.getBytes())), body.get("fileData"));
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0), "READ_FILE",
+                            null, null, null)); // Action
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1), "bucket_name",
+                            null, null, null)); // Bucket name
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(5), "YES", null,
+                            null, null)); // Base64 encode file
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -530,6 +561,19 @@ public class AmazonS3PluginTest {
 
                     Map<String, String> node = (Map<String, String>) result.getBody();
                     assertEquals("File deleted successfully", node.get("status"));
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0), "DELETE_FILE",
+                            null, null, null)); // Action
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1), "bucket_name",
+                            null, null, null)); // Bucket name
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
+                    assertEquals(result.getRequest().getRequestParams().toString(),
+                            expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -749,6 +793,24 @@ public class AmazonS3PluginTest {
 
                     assertNotNull(node.get(0).get("urlExpiryDate"));
                     assertNotNull(node.get(1).get("urlExpiryDate"));
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0), "LIST", null
+                            , null, null)); // Action
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1), "bucket_name",
+                            null, null, null)); // Bucket name
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(4), "", null,
+                            null, null)); // Prefix
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(2), "YES", null,
+                            null, null)); // Generate signed URL
+                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(3), "5", null,
+                            null, null)); // Expiry duration
+                    assertEquals(result.getRequest().getRequestParams().toString(),
+                            expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }

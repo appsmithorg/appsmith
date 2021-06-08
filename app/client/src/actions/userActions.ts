@@ -9,8 +9,9 @@ import {
   VerifyTokenRequest,
 } from "api/UserApi";
 
-export const logoutUser = () => ({
+export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,
+  payload,
 });
 
 export const logoutUserSuccess = () => ({
@@ -64,3 +65,25 @@ export const updateUserDetails = (payload: UpdateUserRequest) => ({
   type: ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
   payload,
 });
+
+export const updatePhoto = (payload: {
+  file: File;
+  callback?: () => void;
+}) => ({
+  type: ReduxActionTypes.UPLOAD_PROFILE_PHOTO,
+  payload,
+});
+
+export const removePhoto = (callback: () => void) => ({
+  type: ReduxActionTypes.REMOVE_PROFILE_PHOTO,
+  payload: { callback },
+});
+
+export const leaveOrganization = (orgId: string) => {
+  return {
+    type: ReduxActionTypes.LEAVE_ORG_INIT,
+    payload: {
+      orgId,
+    },
+  };
+};

@@ -8,10 +8,7 @@ import Webcam from "@uppy/webcam";
 import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  EventType,
-  ExecutionResult,
-} from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
@@ -19,6 +16,7 @@ import _ from "lodash";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import FileDataTypes from "./FileDataTypes";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -128,6 +126,8 @@ class FilePickerWidget extends BaseWidget<
                 ],
               },
             },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Set the format of the data read from the files",
@@ -172,17 +172,6 @@ class FilePickerWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "uploadedFileUrlPaths",
-            helpText:
-              "Stores the url of the uploaded file so that it can be referenced in an action later",
-            label: "Uploaded File URLs",
-            controlType: "INPUT_TEXT",
-            placeholderText: 'Enter [ "url1", "url2" ]',
-            inputType: "TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-          },
-          {
             propertyName: "isDisabled",
             label: "Disable",
             helpText: "Disables input to this widget",
@@ -199,7 +188,7 @@ class FilePickerWidget extends BaseWidget<
         children: [
           {
             helpText:
-              "Triggers an action when the user selects a file. Upload files to a CDN here and store their urls in uploadedFileUrls",
+              "Triggers an action when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
             propertyName: "onFilesSelected",
             label: "onFilesSelected",
             controlType: "ACTION_SELECTOR",
@@ -399,27 +388,10 @@ class FilePickerWidget extends BaseWidget<
         dynamicString: this.props.onFilesSelected,
         event: {
           type: EventType.ON_FILES_SELECTED,
-          callback: this.handleFileUploaded,
         },
       });
 
       this.setState({ isLoading: true });
-    }
-  };
-
-  /**
-   * sets uploadFilesUrl in meta propety and sets isLoading to false
-   *
-   * @param result
-   */
-  handleFileUploaded = (result: ExecutionResult) => {
-    if (result.success) {
-      this.props.updateWidgetMetaProperty(
-        "uploadedFileUrls",
-        this.props.uploadedFileUrlPaths,
-      );
-
-      this.setState({ isLoading: false });
     }
   };
 
@@ -453,13 +425,13 @@ class FilePickerWidget extends BaseWidget<
   getPageView() {
     return (
       <FilePickerComponent
-        uppy={this.state.uppy}
-        widgetId={this.props.widgetId}
+        files={this.props.selectedFiles || []}
+        isDisabled={this.props.isDisabled}
+        isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         label={this.props.label}
-        files={this.props.selectedFiles || []}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        isDisabled={this.props.isDisabled}
+        uppy={this.state.uppy}
+        widgetId={this.props.widgetId}
       />
     );
   }
@@ -483,7 +455,6 @@ export interface FilePickerWidgetProps extends WidgetProps, WithMeta {
   onFilesSelected?: string;
   fileDataType: FileDataTypes;
   isRequired?: boolean;
-  uploadedFileUrlPaths?: string;
 }
 
 export default FilePickerWidget;
