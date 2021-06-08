@@ -119,10 +119,9 @@ public class PageLoadActionsUtil {
 
         onPageLoadActions.stream()
                 .forEachOrdered(actionSet -> {
-                    HashSet updatedActionSet = new HashSet<>();
-                    actionSet.stream()
+                    HashSet updatedActionSet = actionSet.stream()
                             .filter(dslActionDTO -> !dslActionDTO.isExecuteOnClient())
-                            .forEach(dslActionDTO -> updatedActionSet.add(dslActionDTO));
+                            .collect(Collectors.toCollection(HashSet::new));
 
                     if (!updatedActionSet.isEmpty()) {
                         serverExecutedOnPageLoadActions.add(updatedActionSet);
