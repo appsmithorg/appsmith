@@ -32,6 +32,7 @@ import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
+  showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
 import EditableAppName from "./EditableAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
@@ -205,6 +206,10 @@ export function EditorHeader(props: EditorHeaderProps) {
     dispatch(updateApplication(id, data));
   };
 
+  const showAppInviteUsersDialog = useSelector(
+    showAppInviteUsersDialogSelector,
+  );
+
   return (
     <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
@@ -254,6 +259,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               Form={AppInviteUsersForm}
               applicationId={applicationId}
               canOutsideClickClose
+              isOpen={showAppInviteUsersDialog}
               orgId={orgId}
               title={
                 currentApplication

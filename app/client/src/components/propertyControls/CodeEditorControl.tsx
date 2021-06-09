@@ -14,23 +14,20 @@ class CodeEditorControl extends BaseControl<ControlProps> {
       dataTreePath,
       evaluatedValue,
       expected,
-      isValid,
       propertyValue,
       useValidationMessage,
-      validationMessage,
     } = this.props;
+
     const props: Partial<ControlProps> = {};
+
     if (dataTreePath) props.dataTreePath = dataTreePath;
     if (evaluatedValue) props.evaluatedValue = evaluatedValue;
     if (expected) props.expected = expected;
 
     return (
       <CodeEditor
+        additionalDynamicData={this.props.additionalAutoComplete}
         input={{ value: propertyValue, onChange: this.onChange }}
-        meta={{
-          error: isValid ? "" : validationMessage,
-          touched: true,
-        }}
         mode={EditorModes.TEXT_WITH_BINDING}
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
