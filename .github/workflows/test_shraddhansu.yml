@@ -36,3 +36,5 @@ jobs:
           aws-region: us-east-1
       - name: Deploy static site to S3 bucket
         run: aws s3 ls
+      - name: upload the file to s3 bucket.
+        run: aws s3 cp kk.js s3://taj2/
