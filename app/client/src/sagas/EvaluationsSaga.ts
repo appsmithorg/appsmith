@@ -226,8 +226,6 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-
-  /** TODO: */
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,

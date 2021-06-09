@@ -1,5 +1,6 @@
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { WidgetTypes } from "../../constants/WidgetConstants";
+import { generateTypeDef } from "./dataTreeTypeDefCreator";
 
 describe("EntityDefinitions", () => {
   it("it tests list widget selectRow", () => {
@@ -23,6 +24,7 @@ describe("EntityDefinitions", () => {
         name: "Some random name",
       },
     };
+
     const listWidgetEntityDefinitions = entityDefinitions.LIST_WIDGET(
       listWidgetProps,
     );
@@ -42,6 +44,7 @@ describe("EntityDefinitions", () => {
       selectedItem: { id: "number", name: "string" },
       gridGap: "number",
       items: "?",
+      listData: "?",
     };
 
     expect(listWidgetEntityDefinitions).toStrictEqual(output);

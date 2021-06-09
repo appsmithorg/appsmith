@@ -150,7 +150,6 @@ export default class WidgetBuilderRegistry {
       "INPUT_WIDGET",
       {
         buildWidget(widgetData: InputWidgetProps): JSX.Element {
-          // step 5 - pass options to input widget as props
           return <ProfiledInputWidget {...widgetData} />;
         },
       },

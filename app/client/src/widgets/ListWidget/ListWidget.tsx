@@ -473,6 +473,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           listItemContainer,
           listItemIndex,
         );
+
+        set(updatedListItemContainer, `disabledResizeHandles`, [
+          "top",
+          "left",
+          "right",
+        ]);
+
         return updatedListItemContainer;
       },
     );
@@ -672,12 +679,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     ) {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;
     }
-
-    console.log({
-      items: this.props.items,
-      selected: this.props.selectedItem,
-      selectedRow: this.props.selectedRow,
-    });
 
     return (
       <ListComponent

@@ -1,5 +1,5 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps, WIDGET_INTERNAL_PROPS } from "widgets/BaseWidget";
 import moment from "moment-timezone";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import { generateReactKey } from "utils/generators";
@@ -1007,6 +1007,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   propertyName: "template",
                   propertyValue: template,
                 },
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "internalPropertiesKeys",
+                  propertyValue: Object.keys(WIDGET_INTERNAL_PROPS),
+                },
               ];
 
               // add logBlackList to updateProperyMap for all children
@@ -1038,6 +1043,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               const disallowedWidgets = [
                 WidgetTypes.TABLE_WIDGET,
                 WidgetTypes.LIST_WIDGET,
+                WidgetTypes.TABS_WIDGET,
+                WidgetTypes.FORM_WIDGET,
               ];
 
               if (indexOf(disallowedWidgets, widget.type) > -1) {

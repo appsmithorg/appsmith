@@ -1,4 +1,4 @@
-import React, { useContext, useRef, memo } from "react";
+import React, { useContext, useRef, memo, useMemo } from "react";
 import { XYCoord } from "react-dnd";
 
 import {
@@ -38,6 +38,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { omit, get } from "lodash";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -258,21 +259,27 @@ export const ResizableComponent = memo(function ResizableComponent(
     });
   };
 
+  const handles = useMemo(() => {
+    const allHandles = {
+      left: LeftHandleStyles,
+      top: TopHandleStyles,
+      bottom: BottomHandleStyles,
+      right: RightHandleStyles,
+      bottomRight: BottomRightHandleStyles,
+      topLeft: TopLeftHandleStyles,
+      topRight: TopRightHandleStyles,
+      bottomLeft: BottomLeftHandleStyles,
+    };
+
+    return omit(allHandles, get(props, "disabledResizeHandles", []));
+  }, [props]);
+
   return (
     <Resizable
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       enable={!isDragging && isWidgetFocused && !props.resizeDisabled}
-      handles={{
-        left: LeftHandleStyles,
-        top: TopHandleStyles,
-        bottom: BottomHandleStyles,
-        right: RightHandleStyles,
-        bottomRight: BottomRightHandleStyles,
-        topLeft: TopLeftHandleStyles,
-        topRight: TopRightHandleStyles,
-        bottomLeft: BottomLeftHandleStyles,
-      }}
+      handles={handles}
       isColliding={isColliding}
       onStart={handleResizeStart}
       onStop={updateSize}

@@ -57,7 +57,7 @@ class WidgetFactory {
     WidgetType,
     Record<string, string>
   > = new Map();
-  static metaPropertiesMap: Map<WidgetType, Record<string, string>> = new Map();
+  static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
   static propertyPaneConfigsMap: Map<
     WidgetType,
     readonly PropertyPaneConfig[]

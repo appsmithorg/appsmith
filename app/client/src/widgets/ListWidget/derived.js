@@ -8,8 +8,6 @@ export default {
         : parseInt(props.selectedItemIndex);
     const items = props.listData || [];
 
-    console.log({ items });
-
     if (selectedItemIndex === -1) {
       const emptyRow = { ...items[0] };
       Object.keys(emptyRow).forEach((key) => {

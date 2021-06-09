@@ -385,8 +385,7 @@ export interface BaseStyle {
 export type WidgetState = Record<string, unknown>;
 
 export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
-  // step 4 - accept options as 2nd param and use proper types for options
-  buildWidget(widgetProps: T, options?: any): JSX.Element;
+  buildWidget(widgetProps: T): JSX.Element;
 }
 
 export interface WidgetBaseProps {
@@ -434,6 +433,21 @@ export const WIDGET_STATIC_PROPS = {
   renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
+};
+
+export const WIDGET_DISPLAY_PROPS = {
+  isVisible: true,
+  isLoading: true,
+  isDisabled: true,
+  backgroundColor: true,
+};
+
+export const WIDGET_INTERNAL_PROPS = {
+  ...WIDGET_STATIC_PROPS,
+  ...WIDGET_DISPLAY_PROPS,
+  version: true,
+  dynamicTriggerPathList: true,
+  dynamicBindingPathList: true,
 };
 
 export interface WidgetDisplayProps {

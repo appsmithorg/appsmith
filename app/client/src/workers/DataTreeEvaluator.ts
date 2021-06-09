@@ -436,7 +436,6 @@ export default class DataTreeEvaluator {
             const widgetEntity = entity;
             const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
               .defaultProperties;
-
             const isDefaultProperty = !!Object.values(
               defaultPropertyMap,
             ).filter(
