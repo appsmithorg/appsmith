@@ -84,12 +84,8 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             propertyName: "objectFit",
             label: "Object Fit",
             controlType: "DROP_DOWN",
-            defaultValue: "none",
+            defaultValue: "cover",
             options: [
-              {
-                label: "Fill",
-                value: "fill",
-              },
               {
                 label: "Contain",
                 value: "contain",
@@ -99,15 +95,11 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
                 value: "cover",
               },
               {
-                label: "Scale Down",
-                value: "scale-down",
-              },
-              {
-                label: "None",
-                value: "none",
+                label: "Auto",
+                value: "auto",
               },
             ],
-            isJSConvertible: false,
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: VALIDATION_TYPES.TEXT,

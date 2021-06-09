@@ -20,7 +20,7 @@ export const StyledImage = styled.div<
   position: relative;
   display: flex;                                                                                                                                                                                                                                                                                                                                                                          
   flex-direction: "row";
-  background-size: ${(props) => props.objectFit ?? "none"};
+  background-size: ${(props) => props.objectFit ?? "cover"};
   cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
   background: ${(props) => props.backgroundColor};
@@ -63,7 +63,7 @@ class ImageComponent extends React.Component<
     };
   }
   render() {
-    const { maxZoomLevel, objectFit } = this.props;
+    const { maxZoomLevel } = this.props;
     const zoomActive =
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;
     const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
@@ -71,10 +71,6 @@ class ImageComponent extends React.Component<
     if (zoomActive) {
       cursor = isZoomingIn ? "zoom-in" : "zoom-out";
     }
-
-    const objectFitStyles = {
-      objectFit,
-    } as React.CSSProperties;
     return (
       <Wrapper>
         <TransformWrapper
@@ -146,18 +142,7 @@ class ImageComponent extends React.Component<
                 style={{
                   cursor,
                 }}
-              >
-                <img
-                  alt={this.props.widgetName}
-                  onError={this.onImageError}
-                  onLoad={this.onImageLoad}
-                  src={this.props.imageUrl}
-                  style={{
-                    display: "none",
-                    ...objectFitStyles,
-                  }}
-                />
-              </StyledImage>
+              />
             </TransformComponent>
           )}
         </TransformWrapper>
