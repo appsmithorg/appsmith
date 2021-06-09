@@ -23,6 +23,7 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
           params.applicationId,
           props.page.pageId,
           action.config.id,
+          action.config.pluginType,
         );
         const actionId = getActionIdFromURL();
         const active = actionId === action.config.id;
